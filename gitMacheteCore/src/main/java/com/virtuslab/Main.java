@@ -17,10 +17,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.jgraph.graph.DefaultEdge;
