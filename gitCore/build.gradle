@@ -1,9 +1,9 @@
 plugins {
+    id 'groovy'
     id 'java'
 }
 
-group 'com.virtuslab'
-version '1.0-SNAPSHOT'
+version 'unspecified'
 
 sourceCompatibility = 1.8
 

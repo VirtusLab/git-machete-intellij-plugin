@@ -9,6 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/gitCore" />
             <option value="$PROJECT_DIR$/gitMacheteCore" />
             <option value="$PROJECT_DIR$/intellijPlugin" />
           </set>

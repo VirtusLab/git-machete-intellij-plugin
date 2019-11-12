@@ -1,8 +1,8 @@
 package com.virtuslab;
 
-import com.mxgraph.layout.mxCircleLayout;
+/*import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxIGraphLayout;
-import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxCellRenderer;*/
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.ReflogCommand;
@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jgit.revwalk.filter.RevFilter;
-import org.jgraph.graph.DefaultEdge;
+/* import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.slf4j.impl.StaticLoggerBinder;
+import org.slf4j.impl.StaticLoggerBinder; */
 
 import javax.imageio.ImageIO;
 
