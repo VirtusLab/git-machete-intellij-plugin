@@ -1,33 +1,49 @@
 package com.virtuslab;
 
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 
-public class Commit {
-    private ObjectId id;
-    private String commitMessage;
+import java.util.Date;
 
-    public Commit(ObjectId id, String commitMessage) {
-        this.id = id;
-        this.commitMessage = commitMessage;
-    }
+public class Commit implements ICommit{
+    private RevCommit jgitCommit;
+    private CommitHash commitHash;
 
-    public ObjectId getId() {
-        return id;
-    }
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
-
-    public String getCommitMessage() {
-        return commitMessage;
-    }
-    public void setCommitMessage(String commitMessage) {
-        this.commitMessage = commitMessage;
+    public Commit(RevCommit commit) {
+        if(commit == null)
+            throw new NullPointerException("JGit commit passed to Commit constructor cannot be null");
+        this.jgitCommit = commit;
+        commitHash = new CommitHash(jgitCommit.getId().getName());
     }
 
     @Override
+    public String getMessage() {
+        return jgitCommit.getFullMessage();
+    }
+
+    @Override
+    public IPersonIdentity getAuthor() {
+        return new PersonIdentity(jgitCommit.getAuthorIdent());
+    }
+
+    @Override
+    public IPersonIdentity getCommitter() {
+        return new PersonIdentity(jgitCommit.getCommitterIdent());
+    }
+
+    @Override
+    public Date getCommitTime() {
+        return new Date(jgitCommit.getCommitTime());
+    }
+
+    @Override
+    public ICommitHash getHash() {
+        return commitHash;
+    }
+
+
+    @Override
     public String toString() {
-        return id.getName().substring(0, 7)+": "+commitMessage;
+        return jgitCommit.getId().getName().substring(0, 7)+": "+jgitCommit.getShortMessage();
     }
 
     @Override
@@ -38,11 +54,15 @@ public class Commit {
         if(!(o instanceof Commit))
             return false;
 
-        return id.equals(((Commit) o).getId()) && commitMessage.equals(((Commit) o).commitMessage);
+        return commitHash.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return 17 * id.hashCode() + 31 * commitMessage.hashCode();
+        return commitHash.hashCode();
+    }
+
+    public RevCommit getJgitCommit() {
+        return jgitCommit;
     }
 }

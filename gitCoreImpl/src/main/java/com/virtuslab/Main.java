@@ -7,7 +7,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.ReflogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -29,7 +29,7 @@ import javax.imageio.ImageIO;
 
 public class Main {
     public static void main(String[] argv) throws IOException, GitAPIException {
-        Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
+        org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
         Git git = new Git(repo);
         RevWalk walk = new RevWalk(repo);
 
@@ -62,7 +62,7 @@ public class Main {
         }*/
 
 
-        DefaultDirectedGraph<Commit, DefaultEdge> directedGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        /*DefaultDirectedGraph<Commit, DefaultEdge> directedGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         Commit commit = null;
 
         for(var com : git.log().all().call()) {
@@ -91,7 +91,7 @@ public class Main {
         BufferedImage image =
                 mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
         File imgFile = new File("src/main/resources/graph.png");
-        ImageIO.write(image, "PNG", imgFile);
+        ImageIO.write(image, "PNG", imgFile);*/
 
 
 
