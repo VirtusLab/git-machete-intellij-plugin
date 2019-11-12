@@ -1,0 +1,38 @@
+<idea-plugin>
+    <id>com.virtuslab.gitmachete</id>
+    <name>Git Machete</name>
+    <version>0.0.1</version>
+    <vendor email="mkondratek@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
+
+    <description><![CDATA[
+        Probably the sharpest git repository organizer & rebase workflow automation tool you've ever seen ;)
+
+        You can read more at <a href="https://github.com/VirtusLab/git-machete">website</a>.
+    ]]></description>
+
+    <!-- <depends>com.intellij.modules.lang</depends>-->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="191"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="GitMachete" anchor="bottom"
+                    factoryClass="com.virtuslab.GitMacheteWindowFactory"
+                    secondary="false"/>
+    </extensions>
+
+    <actions>
+        <group id="GitMachete">
+            <action class="com.virtuslab.GitMachete" text="Git Machete">
+                <add-to-group group-id="ToolsMenu" anchor="last"/>
+            </action>
+        </group>
+    </actions>
+
+    <project-components>
+        <component>
+            <implementation-class>com.virtuslab.GitMacheteComponent</implementation-class>
+        </component>
+    </project-components>
+</idea-plugin>

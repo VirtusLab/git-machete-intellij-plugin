@@ -9,5 +9,9 @@
         <module name="jgittestmaven" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="git-machete-intellij-plugin.main" target="1.8" />
+      <module name="git-machete-intellij-plugin.test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
