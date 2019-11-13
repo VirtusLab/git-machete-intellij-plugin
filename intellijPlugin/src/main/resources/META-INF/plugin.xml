@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.virtuslab.gitmachete</id>
+    <id>com.virtuslab.git-machete</id>
     <name>Git Machete</name>
     <version>0.0.1</version>
     <vendor email="mkondratek@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
@@ -23,16 +23,14 @@
     </extensions>
 
     <actions>
-        <group id="GitMachete">
-            <action class="com.virtuslab.GitMachete" text="Git Machete">
-                <add-to-group group-id="ToolsMenu" anchor="last"/>
-            </action>
-        </group>
+        <action id="com.virtuslab.GitMachete" class="com.virtuslab.GitMachete" text="GitMachete">
+            <add-to-group group-id="Git.Menu" anchor="last"/>
+        </action>
     </actions>
 
-    <project-components>
-        <component>
-            <implementation-class>com.virtuslab.GitMacheteComponent</implementation-class>
-        </component>
-    </project-components>
+<!--    <project-components>-->
+<!--        <component>-->
+<!--            <implementation-class>com.virtuslab.GitMacheteComponent</implementation-class>-->
+<!--        </component>-->
+<!--    </project-components>-->
 </idea-plugin>

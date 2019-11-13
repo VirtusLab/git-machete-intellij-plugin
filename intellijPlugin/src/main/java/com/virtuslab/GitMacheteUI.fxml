@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="407.0" prefWidth="525.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane prefHeight="407.0" prefWidth="525.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+         </children>
+         <center>
+            <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
+         <top>
+            <Pane prefHeight="37.0" prefWidth="525.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button layoutX="8.0" layoutY="7.0" mnemonicParsing="false" text="Refresh">
+                     <font>
+                        <Font size="11.0" />
+                     </font></Button>
+                  <CheckBox layoutX="82.0" layoutY="10.0" mnemonicParsing="false" onAction="#listCommits" selected="true" text="List commits">
+                     <font>
+                        <Font size="11.0" />
+                     </font></CheckBox>
+               </children>
+            </Pane>
+         </top>
+      </BorderPane>
+   </children>
+</AnchorPane>

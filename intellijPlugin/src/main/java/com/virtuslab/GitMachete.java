@@ -6,10 +6,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 
 public class GitMachete extends AnAction {
-    public GitMachete() {
-        super("Hello");
-    }
-
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
         Messages.showMessageDialog(project, "Hello world from GM!", "Git Machete", Messages.getInformationIcon());
