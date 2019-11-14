@@ -4,34 +4,50 @@ package com.virtuslab;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;*/
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.LogCommand;
-import org.eclipse.jgit.api.ReflogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
-import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.api.Git;
+
 /* import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.impl.StaticLoggerBinder; */
 
-import javax.imageio.ImageIO;
-
 public class Main {
-    public static void main(String[] argv) throws IOException, GitAPIException {
+    public static void main(String[] argv) throws IOException, GitAPIException, GitException {
         org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
         Git git = new Git(repo);
         RevWalk walk = new RevWalk(repo);
+
+
+        /*var l = git.reflog().setRef("refs/heads/branch1").call();
+
+        for(var e : l) {
+            System.out.println(e.getNewId());
+        }*/
+
+
+        Repository r = new Repository(System.getProperty("user.home")+"/base-test");
+
+        //Branch parent = r.getBranch("parent");
+        //Commit c = parent.getPointedCommit();
+        //Branch child = r.getBranch("child");
+        //Commit c = child.getMergeBase(parent);
+
+        //System.out.println(c);
+
+        Optional<ILocalBranch> b = r.getCurrentBranch();
+
+        System.out.println(b.get().getName());
+
 
         /*List<Ref> branches = git.branchList().call();
 
@@ -219,13 +235,13 @@ public class Main {
         }*/
 
 
-        System.out.println("---------------------------");
+        /*System.out.println("---------------------------");
 
         //walk = new RevWalk(repo);
         walk.setRevFilter(RevFilter.MERGE_BASE);
         //walk.markStart(git.log().add(repo.resolve("Other-1")).call().iterator().next());
         walk.markStart(walk.parseCommit(repo.resolve("Test-3")));
-        walk.markStart(walk.parseCommit(repo.resolve("Test-2")));
+        walk.markStart(walk.parseCommit(repo.resolve("Test-2")));*/
         //walk.parseCommit(git.log().add(repo.resolve("master")).call().iterator().next());
 
         /*for(var c : walk) {

@@ -1,7 +1,11 @@
 package com.virtuslab;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.lib.PersonIdent;
 
+
+@EqualsAndHashCode
 public class PersonIdentity implements IPersonIdentity {
     private PersonIdent jgitPerson;
 
@@ -19,16 +23,5 @@ public class PersonIdentity implements IPersonIdentity {
     @Override
     public String getEmail() {
         return jgitPerson.getEmailAddress();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if(o == this)
-            return true;
-
-        if(!(o instanceof PersonIdentity))
-            return false;
-
-        return jgitPerson.equals(((PersonIdentity) o).jgitPerson);
     }
 }
