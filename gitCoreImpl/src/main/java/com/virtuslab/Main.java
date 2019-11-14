@@ -35,7 +35,7 @@ public class Main {
         }*/
 
 
-        Repository r = new Repository(System.getProperty("user.home")+"/base-test");
+        Repository r = new Repository(System.getProperty("user.home")+"/simple-test");
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();
@@ -44,9 +44,14 @@ public class Main {
 
         //System.out.println(c);
 
-        Optional<ILocalBranch> b = r.getCurrentBranch();
+        var child = r.getLocalBranch("branch1");
+        var parent = r.getLocalBranch("master");
 
-        System.out.println(b.get().getName());
+        var fp = child.getForkPoint(parent);
+        var mb = parent.getMergeBase(child);
+
+        System.out.println(fp);
+        System.out.println(mb);
 
 
         /*List<Ref> branches = git.branchList().call();

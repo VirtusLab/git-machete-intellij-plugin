@@ -1,5 +1,7 @@
 package com.virtuslab;
 
+import lombok.Getter;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -14,17 +16,21 @@ import java.text.MessageFormat;
 import java.util.Optional;
 
 public class Repository implements IRepository {
-    private org.eclipse.jgit.lib.Repository repo;
+    @Getter
+    private org.eclipse.jgit.lib.Repository jgitRepo;
+    @Getter
+    private Git jgitGit;
 
     public Repository(String pathToRootOfRepository) throws IOException {
-        repo = new FileRepository(Paths.get(pathToRootOfRepository, ".git").toString());
+        jgitRepo = new FileRepository(Paths.get(pathToRootOfRepository, ".git").toString());
+        jgitGit = new Git(jgitRepo);
     }
 
     @Override
     public Optional<ILocalBranch> getCurrentBranch() throws JGitException {
         Ref r;
         try {
-            r = repo.getRef(Constants.HEAD);
+            r = jgitRepo.getRef(Constants.HEAD);
         }
         catch (IOException e) {
             throw new JGitException("Cannot get current branch", e);
@@ -41,7 +47,7 @@ public class Repository implements IRepository {
 
     @Override
     public LocalBranch getLocalBranch(String branchName) throws GitException{
-        if(!checkIfBranchExist(ILocalBranch.branchesPath + branchName))
+        if(!checkIfBranchExist(LocalBranch.getBranchesPath() + branchName))
             throw new GitNoSuchBranchException(MessageFormat.format("Local branch \"{0}\" does not exist in this repository", branchName));
 
         return new LocalBranch(this, branchName);
@@ -49,24 +55,19 @@ public class Repository implements IRepository {
 
     @Override
     public RemoteBranch getRemoteBranch(String branchName) throws GitException{
-        if(!checkIfBranchExist(ILocalBranch.branchesPath + branchName))
+        if(!checkIfBranchExist(RemoteBranch.getBranchesPath() + branchName))
             throw new GitNoSuchBranchException(MessageFormat.format("Remote branch \"{0}\" does not exist in this repository", branchName));
 
         return new RemoteBranch(this, branchName);
     }
 
 
-    public org.eclipse.jgit.lib.Repository getJgitRepo() {
-        return repo;
-    }
-
-
 
     private boolean checkIfBranchExist(String path) throws JGitException{
-        RevWalk rw = new RevWalk(repo);
+        RevWalk rw = new RevWalk(jgitRepo);
         RevCommit c;
         try {
-            ObjectId o = repo.resolve(path);
+            ObjectId o = jgitRepo.resolve(path);
 
             return o != null;
         }
