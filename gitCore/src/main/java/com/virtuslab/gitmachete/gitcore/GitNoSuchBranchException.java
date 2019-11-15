@@ -1,6 +1,6 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcore;
 
-public class GitNoSuchBranchException extends GitImplException {
+public class GitNoSuchBranchException extends GitException {
     public GitNoSuchBranchException() {
         super();
     }

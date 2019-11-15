@@ -1,4 +1,6 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
+
+import com.virtuslab.gitmachete.gitcore.GitException;
 
 public class JGitException extends GitException {
     public JGitException() {

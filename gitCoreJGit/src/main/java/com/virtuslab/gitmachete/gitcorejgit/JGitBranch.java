@@ -1,33 +1,29 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
 
-import lombok.AccessLevel;
+import com.virtuslab.gitmachete.gitcore.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
-import org.eclipse.jgit.storage.file.ReflogEntry;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Optional;
 
 
 @EqualsAndHashCode
 @AllArgsConstructor
-public abstract class Branch implements IBranch {
-    @Getter
-    private static String branchesPath = "asdsdfsdfsdf ";
-
-    protected Repository repo;
+public abstract class JGitBranch implements IBranch {
+    protected JGitRepository repo;
     protected String branchName;
 
     @Override
@@ -35,18 +31,22 @@ public abstract class Branch implements IBranch {
         return branchName;
     }
 
-    public String getPath() {
-        if(this instanceof LocalBranch)
-            return LocalBranch.getBranchesPath()+branchName;
-        if(this instanceof RemoteBranch)
-            return RemoteBranch.getBranchesPath()+branchName;
-
+    public String getFullName() {
         return getBranchesPath()+branchName;
     }
 
+    public abstract String getBranchesPath();
+
     @Override
-    public Commit getPointedCommit() throws GitException {
-        return new Commit(getPointedRevCommit());
+    public abstract boolean isLocal();
+
+    public abstract String getBranchTypeString();
+
+    public abstract String getBranchTypeString(boolean capitalized);
+
+    @Override
+    public JGitCommit getPointedCommit() throws GitException {
+        return new JGitCommit(getPointedRevCommit());
     }
 
 
@@ -54,15 +54,14 @@ public abstract class Branch implements IBranch {
         org.eclipse.jgit.lib.Repository jgitRepo = repo.getJgitRepo();
         RevWalk rw = new RevWalk(jgitRepo);
         RevCommit c;
-        String brPath = (this instanceof LocalBranch ? LocalBranch.getBranchesPath() : RemoteBranch.getBranchesPath());
         try {
-            ObjectId o =jgitRepo.resolve(brPath + branchName);
+            ObjectId o =jgitRepo.resolve(getFullName());
             if(o == null)
-                throw new GitNoSuchBranchException(MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName, this instanceof LocalBranch ? "Local" : "Remote"));
+                throw new GitNoSuchBranchException(MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString(true)));
             c = rw.parseCommit(o);
         }
         catch (MissingObjectException | IncorrectObjectTypeException e) {
-            throw new GitNoSuchCommitException(MessageFormat.format("Commit pointed by {1} branch \"{0}\" does not exist in this repository", branchName, this instanceof LocalBranch ? "Local" : "Remote"));
+            throw new GitNoSuchCommitException(MessageFormat.format("Commit pointed by {1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString()));
         }
         catch(RevisionSyntaxException | IOException e) {
             throw new JGitException(e);
@@ -77,8 +76,11 @@ public abstract class Branch implements IBranch {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
         walk.setRevFilter(RevFilter.MERGE_BASE);
         try {
-            walk.markStart(((Commit) this.getPointedCommit()).getJgitCommit());
-            walk.markStart(((Commit) branch.getPointedCommit()).getJgitCommit());
+            walk.markStart(this.getPointedCommit().getJgitCommit());
+
+            String commitHash = branch.getPointedCommit().getHash().getHashString();
+            ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
+            walk.markStart(walk.parseCommit(objectId));
         }
         catch (Exception e)
         {
@@ -90,15 +92,15 @@ public abstract class Branch implements IBranch {
         if(!mergeBaseIterator.hasNext())
             return Optional.empty();
 
-        return Optional.of(new Commit(mergeBaseIterator.next()));
+        return Optional.of(new JGitCommit(mergeBaseIterator.next()));
     }
 
 
     @Override
     public Optional<ICommit> getForkPoint(IBranch parentBranch) throws GitException{
-        Collection<ReflogEntry> reflog = null;
+        Collection<ReflogEntry> reflog;
         try {
-            reflog = repo.getJgitGit().reflog().setRef(parentBranch.getPath()).call();
+            reflog = repo.getJgitGit().reflog().setRef(parentBranch.getFullName()).call();
         }
         catch (Exception e) {
             throw new JGitException(e);
@@ -113,10 +115,12 @@ public abstract class Branch implements IBranch {
             throw new JGitException(e);
         }
 
+        ReflogEntry[] refEntrys = reflog.toArray(new ReflogEntry[0]);
+
         for(var curBranchCommit : walk) {
-            for(var parentBranchReflogEntry : reflog) {
+            for(var parentBranchReflogEntry : refEntrys) {
                 if(curBranchCommit.getId().equals(parentBranchReflogEntry.getNewId())) {
-                    return Optional.of(new Commit(curBranchCommit));
+                    return Optional.of(new JGitCommit(curBranchCommit));
                 }
             }
         }

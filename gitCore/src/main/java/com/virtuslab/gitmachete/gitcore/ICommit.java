@@ -1,4 +1,4 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcore;
 
 import java.util.Date;
 

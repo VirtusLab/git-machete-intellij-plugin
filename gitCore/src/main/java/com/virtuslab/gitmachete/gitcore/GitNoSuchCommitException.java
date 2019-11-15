@@ -1,6 +1,6 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcore;
 
-public class GitNoSuchCommitException extends GitImplException {
+public class GitNoSuchCommitException extends GitException {
     public GitNoSuchCommitException() {
         super();
     }

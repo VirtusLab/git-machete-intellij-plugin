@@ -1,5 +1,6 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
 
+import com.virtuslab.gitmachete.gitcore.ICommit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -7,11 +8,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.util.Date;
 
 @EqualsAndHashCode
-public class Commit implements ICommit{
+public class JGitCommit implements ICommit {
     @Getter
     private RevCommit jgitCommit;
 
-    public Commit(RevCommit commit) {
+    public JGitCommit(RevCommit commit) {
         if(commit == null)
             throw new NullPointerException("JGit commit passed to Commit constructor cannot be null");
         this.jgitCommit = commit;
@@ -23,13 +24,13 @@ public class Commit implements ICommit{
     }
 
     @Override
-    public PersonIdentity getAuthor() {
-        return new PersonIdentity(jgitCommit.getAuthorIdent());
+    public JGitPersonIdentity getAuthor() {
+        return new JGitPersonIdentity(jgitCommit.getAuthorIdent());
     }
 
     @Override
-    public PersonIdentity getCommitter() {
-        return new PersonIdentity(jgitCommit.getCommitterIdent());
+    public JGitPersonIdentity getCommitter() {
+        return new JGitPersonIdentity(jgitCommit.getCommitterIdent());
     }
 
     @Override
@@ -38,8 +39,8 @@ public class Commit implements ICommit{
     }
 
     @Override
-    public CommitHash getHash() {
-        return new CommitHash(jgitCommit.getId().getName());
+    public JGitCommitHash getHash() {
+        return new JGitCommitHash(jgitCommit.getId().getName());
     }
 
 

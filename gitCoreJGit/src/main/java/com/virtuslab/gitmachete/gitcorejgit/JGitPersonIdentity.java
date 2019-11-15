@@ -1,15 +1,15 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
 
-import lombok.AllArgsConstructor;
+import com.virtuslab.gitmachete.gitcore.IPersonIdentity;
 import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.lib.PersonIdent;
 
 
 @EqualsAndHashCode
-public class PersonIdentity implements IPersonIdentity {
+public class JGitPersonIdentity implements IPersonIdentity {
     private PersonIdent jgitPerson;
 
-    public PersonIdentity(PersonIdent person) {
+    public JGitPersonIdentity(PersonIdent person) {
         if(person == null)
             throw new NullPointerException("Person passed to PersonIdentity constructor cannot be null");
         this.jgitPerson = person;

@@ -1,27 +1,31 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
 
+import com.virtuslab.gitmachete.gitcore.GitException;
+import com.virtuslab.gitmachete.gitcore.GitNoSuchBranchException;
+import com.virtuslab.gitmachete.gitcore.ILocalBranch;
+import com.virtuslab.gitmachete.gitcore.IRepository;
 import lombok.Getter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepository;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Optional;
 
-public class Repository implements IRepository {
+public class JGitRepository implements IRepository {
     @Getter
     private org.eclipse.jgit.lib.Repository jgitRepo;
     @Getter
     private Git jgitGit;
 
-    public Repository(String pathToRootOfRepository) throws IOException {
+    public JGitRepository(String pathToRootOfRepository) throws IOException {
         jgitRepo = new FileRepository(Paths.get(pathToRootOfRepository, ".git").toString());
         jgitGit = new Git(jgitRepo);
     }
@@ -30,7 +34,7 @@ public class Repository implements IRepository {
     public Optional<ILocalBranch> getCurrentBranch() throws JGitException {
         Ref r;
         try {
-            r = jgitRepo.getRef(Constants.HEAD);
+            r = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
         }
         catch (IOException e) {
             throw new JGitException("Cannot get current branch", e);
@@ -40,25 +44,25 @@ public class Repository implements IRepository {
             throw new JGitException("Error occur while getting current branch ref");
 
         if(r.isSymbolic())
-            return Optional.of(new LocalBranch(this, org.eclipse.jgit.lib.Repository.shortenRefName(r.getTarget().getName())));
+            return Optional.of(new JGitLocalBranch(this, org.eclipse.jgit.lib.Repository.shortenRefName(r.getTarget().getName())));
 
         return Optional.empty();
     }
 
     @Override
-    public LocalBranch getLocalBranch(String branchName) throws GitException{
-        if(!checkIfBranchExist(LocalBranch.getBranchesPath() + branchName))
+    public JGitLocalBranch getLocalBranch(String branchName) throws GitException {
+        if(!checkIfBranchExist(JGitLocalBranch.branchesPath + branchName))
             throw new GitNoSuchBranchException(MessageFormat.format("Local branch \"{0}\" does not exist in this repository", branchName));
 
-        return new LocalBranch(this, branchName);
+        return new JGitLocalBranch(this, branchName);
     }
 
     @Override
-    public RemoteBranch getRemoteBranch(String branchName) throws GitException{
-        if(!checkIfBranchExist(RemoteBranch.getBranchesPath() + branchName))
+    public JGitRemoteBranch getRemoteBranch(String branchName) throws GitException{
+        if(!checkIfBranchExist(JGitRemoteBranch.branchesPath + branchName))
             throw new GitNoSuchBranchException(MessageFormat.format("Remote branch \"{0}\" does not exist in this repository", branchName));
 
-        return new RemoteBranch(this, branchName);
+        return new JGitRemoteBranch(this, branchName);
     }
 
 

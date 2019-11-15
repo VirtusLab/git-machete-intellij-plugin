@@ -1,4 +1,4 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcore;
 
 public abstract class GitException extends Exception {
     public GitException() {

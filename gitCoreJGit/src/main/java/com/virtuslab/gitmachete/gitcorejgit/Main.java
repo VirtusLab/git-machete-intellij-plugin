@@ -1,19 +1,12 @@
-package com.virtuslab;
+package com.virtuslab.gitmachete.gitcorejgit;
 
 /*import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;*/
-import org.eclipse.jgit.api.Git;
+import com.virtuslab.gitmachete.gitcore.GitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
-import org.eclipse.jgit.api.Git;
 
 /* import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.DirectedGraph;
@@ -22,11 +15,11 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.impl.StaticLoggerBinder; */
 
 public class Main {
-    public static void main(String[] argv) throws IOException, GitAPIException, GitException {
-        org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
+    public static void main(String[] argv) throws IOException, GitException {
+        /*org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
         Git git = new Git(repo);
         RevWalk walk = new RevWalk(repo);
-
+*/
 
         /*var l = git.reflog().setRef("refs/heads/branch1").call();
 
@@ -35,7 +28,7 @@ public class Main {
         }*/
 
 
-        Repository r = new Repository(System.getProperty("user.home")+"/simple-test");
+        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/simple-test");
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();
@@ -47,11 +40,13 @@ public class Main {
         var child = r.getLocalBranch("branch1");
         var parent = r.getLocalBranch("master");
 
-        var fp = child.getForkPoint(parent);
-        var mb = parent.getMergeBase(child);
+        System.out.println(parent.getFullName());
 
-        System.out.println(fp);
-        System.out.println(mb);
+        //var fp = child.getForkPoint(parent);
+        //var mb = parent.getMergeBase(child);
+
+        //System.out.println(fp);
+        //System.out.println(mb);
 
 
         /*List<Ref> branches = git.branchList().call();
