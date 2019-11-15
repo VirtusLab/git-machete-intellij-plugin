@@ -15,9 +15,7 @@ import org.eclipse.jgit.revwalk.filter.RevFilter;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 
 @EqualsAndHashCode
@@ -74,7 +72,6 @@ public abstract class JGitBranch implements IBranch {
     @Override
     public Optional<ICommit> getMergeBase(IBranch branch) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
-        walk.setRevFilter(RevFilter.MERGE_BASE);
         try {
             walk.markStart(this.getPointedCommit().getJgitCommit());
 
@@ -87,12 +84,19 @@ public abstract class JGitBranch implements IBranch {
             throw new JGitException(e);
         }
 
-        var mergeBaseIterator = walk.iterator();
+        List<ObjectId> parents = new LinkedList<>();
 
-        if(!mergeBaseIterator.hasNext())
-            return Optional.empty();
+        for(var c: walk) {
+            for(var p : c.getParents()) {
+                if(parents.contains(p.getId())) {
+                    return Optional.of(new JGitCommit(p));
+                } else {
+                    parents.add(p);
+                }
+            }
+        }
 
-        return Optional.of(new JGitCommit(mergeBaseIterator.next()));
+        return Optional.empty();
     }
 
 

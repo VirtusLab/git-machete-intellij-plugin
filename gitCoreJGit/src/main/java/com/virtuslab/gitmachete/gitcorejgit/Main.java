@@ -4,9 +4,15 @@ package com.virtuslab.gitmachete.gitcorejgit;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;*/
 import com.virtuslab.gitmachete.gitcore.GitException;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /* import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.DirectedGraph;
@@ -19,7 +25,25 @@ public class Main {
         /*org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
         Git git = new Git(repo);
         RevWalk walk = new RevWalk(repo);
-*/
+
+        walk.markStart(walk.parseCommit(repo.resolve("branch1")));
+        walk.markStart(walk.parseCommit(repo.resolve("master")));
+
+        List<ObjectId> parents = new LinkedList<>();
+
+        for(var e : walk) {
+            System.out.println(e+"  -  "+e.getShortMessage());
+            for(var p : e.getParents()) {
+                if(!parents.contains(p.getId())) {
+                    parents.add(p.getId());
+                }
+                else {
+                    System.out.println("FOUND: "+p+"  -  "+p.getShortMessage());
+                }
+            }
+        }*/
+
+
 
         /*var l = git.reflog().setRef("refs/heads/branch1").call();
 
@@ -28,7 +52,7 @@ public class Main {
         }*/
 
 
-        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/simple-test");
+        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/fork-point-test");
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();
@@ -37,16 +61,16 @@ public class Main {
 
         //System.out.println(c);
 
-        var child = r.getLocalBranch("branch1");
-        var parent = r.getLocalBranch("master");
+        var child = r.getLocalBranch("child");
+        var parent = r.getLocalBranch("parent");
 
-        System.out.println(parent.getFullName());
+        //System.out.println(parent.getFullName());
 
-        //var fp = child.getForkPoint(parent);
-        //var mb = parent.getMergeBase(child);
+        var fp = child.getForkPoint(parent);
+        var mb = parent.getMergeBase(child);
 
-        //System.out.println(fp);
-        //System.out.println(mb);
+        System.out.println(fp);
+        System.out.println(mb);
 
 
         /*List<Ref> branches = git.branchList().call();
