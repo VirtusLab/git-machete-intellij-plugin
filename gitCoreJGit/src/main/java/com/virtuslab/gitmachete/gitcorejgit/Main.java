@@ -52,7 +52,7 @@ public class Main {
         }*/
 
 
-        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/fork-point-test");
+        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/simple-test");
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();
@@ -61,8 +61,8 @@ public class Main {
 
         //System.out.println(c);
 
-        var child = r.getLocalBranch("child");
-        var parent = r.getLocalBranch("parent");
+        var child = r.getLocalBranch("branch1");
+        var parent = r.getLocalBranch("master");
 
         //System.out.println(parent.getFullName());
 

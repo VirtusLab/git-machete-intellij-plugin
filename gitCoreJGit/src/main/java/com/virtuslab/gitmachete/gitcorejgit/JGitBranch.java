@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 
@@ -57,11 +58,9 @@ public abstract class JGitBranch implements IBranch {
             if(o == null)
                 throw new GitNoSuchBranchException(MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString(true)));
             c = rw.parseCommit(o);
-        }
-        catch (MissingObjectException | IncorrectObjectTypeException e) {
+        } catch (MissingObjectException | IncorrectObjectTypeException e) {
             throw new GitNoSuchCommitException(MessageFormat.format("Commit pointed by {1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString()));
-        }
-        catch(RevisionSyntaxException | IOException e) {
+        } catch(RevisionSyntaxException | IOException e) {
             throw new JGitException(e);
         }
 
@@ -72,26 +71,34 @@ public abstract class JGitBranch implements IBranch {
     @Override
     public Optional<ICommit> getMergeBase(IBranch branch) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
+
+        walk.sort(RevSort.TOPO, true);
+        walk.sort(RevSort.COMMIT_TIME_DESC, true);
+
         try {
+            /*
+              I mark both commits as a start commit, because I want to traverse tree of commits starting from that points.
+              In every iteration iterator from "walk" give me next commit from one of this path depend on the commit date.
+              In every iteration of iterator I try add current commit's parent(s) (actually their ObjectId's) to "ancestorsOfStartCommits" list.
+              If one of parent's ObjectId is already in this list, that mean (in consideration of this sorting) that it's a merge base (the first common ancestor)
+             */
             walk.markStart(this.getPointedCommit().getJgitCommit());
 
             String commitHash = branch.getPointedCommit().getHash().getHashString();
             ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
             walk.markStart(walk.parseCommit(objectId));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new JGitException(e);
         }
 
-        List<ObjectId> parents = new LinkedList<>();
+        List<ObjectId> ancestorsOfStartCommits = new LinkedList<>();
 
         for(var c: walk) {
             for(var p : c.getParents()) {
-                if(parents.contains(p.getId())) {
+                if(ancestorsOfStartCommits.contains(p.getId())) {
                     return Optional.of(new JGitCommit(p));
                 } else {
-                    parents.add(p);
+                    ancestorsOfStartCommits.add(p);
                 }
             }
         }
@@ -105,8 +112,7 @@ public abstract class JGitBranch implements IBranch {
         Collection<ReflogEntry> reflog;
         try {
             reflog = repo.getJgitGit().reflog().setRef(parentBranch.getFullName()).call();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new JGitException(e);
         }
 
@@ -114,8 +120,7 @@ public abstract class JGitBranch implements IBranch {
         RevCommit commit = getPointedRevCommit();
         try {
             walk.markStart(commit);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new JGitException(e);
         }
 

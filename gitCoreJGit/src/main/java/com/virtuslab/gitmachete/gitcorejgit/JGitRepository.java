@@ -35,8 +35,7 @@ public class JGitRepository implements IRepository {
         Ref r;
         try {
             r = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JGitException("Cannot get current branch", e);
         }
 
@@ -74,8 +73,7 @@ public class JGitRepository implements IRepository {
             ObjectId o = jgitRepo.resolve(path);
 
             return o != null;
-        }
-        catch (RevisionSyntaxException | IOException e) {
+        } catch (RevisionSyntaxException | IOException e) {
             throw  new JGitException(e);
         }
     }
