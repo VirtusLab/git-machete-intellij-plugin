@@ -72,6 +72,9 @@ public class Main {
         System.out.println(fp);
         System.out.println(mb);
 
+        System.out.println(child.getTrackingStatus());
+        System.out.println(parent.getTrackingStatus());
+
 
         /*List<Ref> branches = git.branchList().call();
 
