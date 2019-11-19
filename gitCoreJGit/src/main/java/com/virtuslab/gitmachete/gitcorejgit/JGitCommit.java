@@ -1,21 +1,31 @@
 package com.virtuslab.gitmachete.gitcorejgit;
 
+import com.virtuslab.gitmachete.gitcore.GitException;
+import com.virtuslab.gitmachete.gitcore.IBranch;
 import com.virtuslab.gitmachete.gitcore.ICommit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevWalk;
 
+import java.io.IOException;
 import java.util.Date;
 
 @EqualsAndHashCode
 public class JGitCommit implements ICommit {
     @Getter
     private RevCommit jgitCommit;
+    private JGitRepository repo;
 
-    public JGitCommit(RevCommit commit) {
+    public JGitCommit(RevCommit commit, JGitRepository repo) {
         if(commit == null)
             throw new NullPointerException("JGit commit passed to Commit constructor cannot be null");
+        if(repo == null)
+            throw new NullPointerException("JGit repository passed to Commit constructor cannot be null");
         this.jgitCommit = commit;
+        this.repo = repo;
     }
 
     @Override
@@ -41,6 +51,26 @@ public class JGitCommit implements ICommit {
     @Override
     public JGitCommitHash getHash() {
         return new JGitCommitHash(jgitCommit.getId().getName());
+    }
+
+
+    @Override
+    public boolean isAncestorOf(ICommit parentCommit) throws GitException {
+        var jgitRepo = repo.getJgitRepo();
+        RevWalk walk = new RevWalk(jgitRepo);
+        walk.sort(RevSort.TOPO);
+        try {
+            walk.markStart(walk.parseCommit(jgitRepo.resolve(parentCommit.getHash().getHashString())));
+        } catch(IOException e) {
+            throw new JGitException(e);
+        }
+
+        for(var c : walk) {
+            if(c.getId().equals(jgitCommit.getId()))
+                return true;
+        }
+
+        return false;
     }
 
 

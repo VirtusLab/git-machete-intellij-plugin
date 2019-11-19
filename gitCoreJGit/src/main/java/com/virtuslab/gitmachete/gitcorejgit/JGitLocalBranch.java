@@ -5,6 +5,7 @@ import com.virtuslab.gitmachete.gitcore.ILocalBranch;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class JGitLocalBranch extends JGitBranch implements ILocalBranch {
     public static String branchesPath = "refs/heads/";
@@ -37,7 +38,7 @@ public class JGitLocalBranch extends JGitBranch implements ILocalBranch {
     }
 
     @Override
-    public IBranchTrackingStatus getTrackingStatus() throws JGitException {
+    public Optional<IBranchTrackingStatus> getTrackingStatus() throws JGitException {
         BranchTrackingStatus ts;
         try {
             ts = BranchTrackingStatus.of(repo.getJgitRepo(), getName());
@@ -46,8 +47,8 @@ public class JGitLocalBranch extends JGitBranch implements ILocalBranch {
         }
 
         if(ts == null)
-            return JGitBranchTrackingStatus.buildUntracked();
+            return Optional.empty();
 
-        return JGitBranchTrackingStatus.buildTracked(ts.getAheadCount(), ts.getBehindCount());
+        return Optional.of(JGitBranchTrackingStatus.build(ts.getAheadCount(), ts.getBehindCount()));
     }
 }

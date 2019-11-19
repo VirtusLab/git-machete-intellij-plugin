@@ -8,4 +8,5 @@ public interface ICommit {
     IPersonIdentity getCommitter() throws GitException;
     Date getCommitTime() throws GitException;
     ICommitHash getHash() throws GitException;
+    boolean isAncestorOf(ICommit parentCommit) throws GitException;
 }

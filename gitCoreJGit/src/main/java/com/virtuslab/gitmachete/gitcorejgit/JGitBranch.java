@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.gitcorejgit;
 import com.virtuslab.gitmachete.gitcore.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -45,7 +46,7 @@ public abstract class JGitBranch implements IBranch {
 
     @Override
     public JGitCommit getPointedCommit() throws GitException {
-        return new JGitCommit(getPointedRevCommit());
+        return new JGitCommit(getPointedRevCommit(), repo);
     }
 
 
@@ -67,8 +68,6 @@ public abstract class JGitBranch implements IBranch {
         return c;
     }
 
-
-    @Override
     public Optional<ICommit> getMergeBase(IBranch branch) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
 
@@ -96,7 +95,7 @@ public abstract class JGitBranch implements IBranch {
         for(var c: walk) {
             for(var p : c.getParents()) {
                 if(ancestorsOfStartCommits.contains(p.getId())) {
-                    return Optional.of(new JGitCommit(p));
+                    return Optional.of(new JGitCommit(p, repo));
                 } else {
                     ancestorsOfStartCommits.add(p);
                 }
@@ -117,6 +116,7 @@ public abstract class JGitBranch implements IBranch {
         }
 
         RevWalk walk = new RevWalk(repo.getJgitRepo());
+        walk.sort(RevSort.TOPO);
         RevCommit commit = getPointedRevCommit();
         try {
             walk.markStart(commit);
@@ -129,11 +129,36 @@ public abstract class JGitBranch implements IBranch {
         for(var curBranchCommit : walk) {
             for(var parentBranchReflogEntry : refEntrys) {
                 if(curBranchCommit.getId().equals(parentBranchReflogEntry.getNewId())) {
-                    return Optional.of(new JGitCommit(curBranchCommit));
+                    return Optional.of(new JGitCommit(curBranchCommit, repo));
                 }
             }
         }
 
         return Optional.empty();
     }
+
+
+    @Override
+    public List<ICommit> getBelongingCommits(ICommit upToCommit) throws GitException {
+        RevWalk walk = new RevWalk(repo.getJgitRepo());
+        walk.sort(RevSort.TOPO);
+        RevCommit commit = getPointedRevCommit();
+        try {
+            walk.markStart(commit);
+        } catch (Exception e) {
+            throw new JGitException(e);
+        }
+
+        var list = new LinkedList<ICommit>();
+
+        for(var c : walk) {
+            if(c.getId().getName().equals(upToCommit.getHash().getHashString()))
+                break;
+
+            list.add(new JGitCommit(c, repo));
+        }
+
+        return list;
+    }
+
 }

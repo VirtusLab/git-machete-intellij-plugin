@@ -7,7 +7,9 @@ import com.virtuslab.gitmachete.gitcore.GitException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
@@ -52,7 +54,7 @@ public class Main {
         }*/
 
 
-        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/simple-test");
+        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/Documents/test2");
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();
@@ -61,19 +63,29 @@ public class Main {
 
         //System.out.println(c);
 
-        var child = r.getLocalBranch("branch1");
+        var child = r.getLocalBranch("branch");
         var parent = r.getLocalBranch("master");
 
         //System.out.println(parent.getFullName());
 
-        var fp = child.getForkPoint(parent);
-        var mb = parent.getMergeBase(child);
+        //var fp = child.getForkPoint(parent);
+        //var mb = parent.getMergeBase(child);
 
-        System.out.println(fp);
-        System.out.println(mb);
+        //System.out.println(fp);
+        //System.out.println(mb);
 
-        System.out.println(child.getTrackingStatus());
+        //System.out.println(child.getTrackingStatus());
         System.out.println(parent.getTrackingStatus());
+
+        System.out.println(parent.getPointedCommit().isAncestorOf(child.getPointedCommit()));
+        System.out.println(parent.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
+        System.out.println(child.getPointedCommit().isAncestorOf(child.getPointedCommit()));
+        System.out.println(child.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
+
+
+        for(var v : child.getBelongingCommits(parent.getPointedCommit())) {
+            System.out.println(v);
+        }
 
 
         /*List<Ref> branches = git.branchList().call();

@@ -1,1 +1,0 @@
-Repository() -> getBranch() - get current branch (thad HEAD points to)

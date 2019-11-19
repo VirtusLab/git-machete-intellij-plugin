@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.gitcore;
 
+import java.util.Optional;
+
 public interface ILocalBranch extends IBranch {
-    IBranchTrackingStatus getTrackingStatus() throws GitException;
+    Optional<IBranchTrackingStatus> getTrackingStatus() throws GitException;
 }
