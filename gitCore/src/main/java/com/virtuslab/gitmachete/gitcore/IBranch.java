@@ -9,5 +9,6 @@ public interface IBranch {
     ICommit getPointedCommit() throws GitException;
     Optional<ICommit> getForkPoint(IBranch parentBranch) throws GitException;
     boolean isLocal();
-    List<ICommit> getBelongingCommits(ICommit upToCommit) throws GitException;
+    List<ICommit> getBelongingCommits(Optional<ICommit> upToCommit) throws GitException;
+    boolean isItAtBeginOfHistory() throws GitException;
 }

@@ -3,4 +3,5 @@ include 'gitCoreJGit'
 include 'gitMacheteAPI'
 include 'gitCore'
 include 'intellijPlugin'
+include 'gitMacheteJGit'
 

@@ -25,8 +25,8 @@ public class JGitRepository implements IRepository {
     @Getter
     private Git jgitGit;
 
-    public JGitRepository(String pathToRootOfRepository) throws IOException {
-        jgitRepo = new FileRepository(Paths.get(pathToRootOfRepository, ".git").toString());
+    public JGitRepository(String pathToGitFolder) throws IOException {
+        jgitRepo = new FileRepository(pathToGitFolder);
         jgitGit = new Git(jgitRepo);
     }
 

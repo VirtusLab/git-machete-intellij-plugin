@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
@@ -23,10 +24,10 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.impl.StaticLoggerBinder; */
 
 public class Main {
-    public static void main(String[] argv) throws IOException, GitException {
+    public static void main(String[] argv) throws Exception {
         /*org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
-        Git git = new Git(repo);
-        RevWalk walk = new RevWalk(repo);
+        Git git = new Git(repo);*/
+        /*RevWalk walk = new RevWalk(repo);
 
         walk.markStart(walk.parseCommit(repo.resolve("branch1")));
         walk.markStart(walk.parseCommit(repo.resolve("master")));
@@ -47,10 +48,10 @@ public class Main {
 
 
 
-        /*var l = git.reflog().setRef("refs/heads/branch1").call();
+        //var l = git.reflog().setRef("refs/heads/branch1").call();
 
-        for(var e : l) {
-            System.out.println(e.getNewId());
+        /*for(var e : l) {
+            System.out.println(e);
         }*/
 
 
@@ -83,9 +84,9 @@ public class Main {
         System.out.println(child.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
 
 
-        for(var v : child.getBelongingCommits(parent.getPointedCommit())) {
+        /*for(var v : child.getBelongingCommits(parent.getPointedCommit())) {
             System.out.println(v);
-        }
+        }*/
 
 
         /*List<Ref> branches = git.branchList().call();

@@ -3,17 +3,17 @@ package com.virtuslab.gitmachete.gitcorejgit;
 import com.virtuslab.gitmachete.gitcore.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.revwalk.filter.RevFilter;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -139,7 +139,7 @@ public abstract class JGitBranch implements IBranch {
 
 
     @Override
-    public List<ICommit> getBelongingCommits(ICommit upToCommit) throws GitException {
+    public List<ICommit> getBelongingCommits(Optional<ICommit> upToCommit) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
         walk.sort(RevSort.TOPO);
         RevCommit commit = getPointedRevCommit();
@@ -152,13 +152,31 @@ public abstract class JGitBranch implements IBranch {
         var list = new LinkedList<ICommit>();
 
         for(var c : walk) {
-            if(c.getId().getName().equals(upToCommit.getHash().getHashString()))
+            if(upToCommit.isPresent() && c.getId().getName().equals(upToCommit.get().getHash().getHashString()))
                 break;
 
             list.add(new JGitCommit(c, repo));
         }
 
         return list;
+    }
+
+
+    @Override
+    public boolean isItAtBeginOfHistory() throws JGitException {
+        Collection<ReflogEntry> rf;
+        try {
+            rf = repo.getJgitGit().reflog().setRef(getFullName()).call();
+        } catch (GitAPIException e) {
+            throw new JGitException(e);
+        }
+
+        var rfit = rf.iterator();
+
+        if(!rfit.hasNext())
+            return true;
+
+        return rfit.next().getOldId().equals(ObjectId.zeroId());
     }
 
 }

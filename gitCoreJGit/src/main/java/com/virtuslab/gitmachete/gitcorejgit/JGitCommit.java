@@ -17,7 +17,7 @@ import java.util.Date;
 public class JGitCommit implements ICommit {
     @Getter
     private RevCommit jgitCommit;
-    private JGitRepository repo;
+    @EqualsAndHashCode.Exclude private JGitRepository repo;
 
     public JGitCommit(RevCommit commit, JGitRepository repo) {
         if(commit == null)
