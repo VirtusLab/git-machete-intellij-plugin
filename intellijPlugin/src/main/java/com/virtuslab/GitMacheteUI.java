@@ -55,6 +55,8 @@ public class GitMacheteUI extends JFXPanel {
     }
 
     private void populateTree() {
+        com.virtuslab.gitmachete.gitmacheteapi.Branch branch;
+        
         StatusTreeItem root = new StatusTreeItem("root");
         StatusTreeItem develop = new StatusTreeItem("develop");
         StatusTreeItem allow = new StatusTreeItem("Allow ownership links", "1st round of fixes", "allow-ownership-link");

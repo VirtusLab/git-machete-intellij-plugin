@@ -1,5 +1,6 @@
 rootProject.name = 'git-machete-intellij-plugin'
-include 'intellijPlugin'
 include 'gitCoreJGit'
+include 'gitMacheteAPI'
 include 'gitCore'
+include 'intellijPlugin'
 

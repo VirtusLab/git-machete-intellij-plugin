@@ -25,6 +25,8 @@
     <bytecodeTargetLevel>
       <module name="git-machete-intellij-plugin.gitCoreImpl.main" target="11" />
       <module name="git-machete-intellij-plugin.gitCoreImpl.test" target="11" />
+      <module name="git-machete-intellij-plugin.gitMacheteCore.main" target="1.8" />
+      <module name="git-machete-intellij-plugin.gitMacheteCore.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
