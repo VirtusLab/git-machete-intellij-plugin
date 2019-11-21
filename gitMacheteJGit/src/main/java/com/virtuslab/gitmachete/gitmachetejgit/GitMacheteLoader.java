@@ -9,31 +9,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.function.Function;
 
 public class GitMacheteLoader {
     private Path pathToRepoRoot;
-    private Path pathTogGtFolder;
+    private Path pathToGitFolder;
     private Path pathToMacheteFile;
 
-    private boolean identTypeDetected = false;
-    private Function<Character, Boolean> identDetectionFunction = c -> {
-        if(c.equals(' ') || c.equals('\t')) {
-            identDetectionFunction = a -> a.equals(c);
-            return true;
-        }
-        else
-            return false;
-    };
+    private Character indentType = null;
     private int levelWidth = 0;
+
+
+    private boolean indentDetectionFunction(Character charToInspect)
+    {
+        return charToInspect.equals(indentType);
+    }
+
 
     public GitMacheteLoader(Path pathToRepoRoot) {
         this.pathToRepoRoot = pathToRepoRoot;
-        this.pathTogGtFolder = pathToRepoRoot.resolve(".git");
-        this.pathToMacheteFile = this.pathTogGtFolder.resolve("machete");
+        this.pathToGitFolder = pathToRepoRoot.resolve(".git");
+        this.pathToMacheteFile = this.pathToGitFolder.resolve("machete");
     }
 
-    public Repository getRepository() throws IOException, IdentsMismatchException, LevelsMismatchException, GitImplementationException {
+    public Repository getRepository() throws IOException, MacheteFileParseException, GitImplementationException {
         List<String> lines = Files.readAllLines(pathToMacheteFile);
 
         lines.removeIf(this::isEmptyLine);
@@ -41,31 +39,27 @@ public class GitMacheteLoader {
         if(lines.size() < 1)
             return new GitMacheteRepository(pathToRepoRoot);
 
-        int initialIdentation = getIdent(lines.get(0));
+        if(getIndent(lines.get(0)) > 0)
+            throw new MacheteFileParseException(MessageFormat.format("The initial line of machete file ({0}) cannot be indented", pathToMacheteFile.toAbsolutePath().toString()));
 
-        IRepository jgr = new JGitRepository(pathTogGtFolder.toString());
+        IRepository jgr = new JGitRepository(pathToGitFolder.toString());
 
 
         int currentLevel = 0;
-        Map<Integer, GitMacheteBranch> branchesLevelsMap = new HashMap<>();
-        Map<Integer, ILocalBranch> jgitBranchesLevelsMap = new HashMap<>();
+        Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
+        Map<Integer, ILocalBranch> coreBranchesLevelsMap = new HashMap<>();
         GitMacheteRepository repo = new GitMacheteRepository(pathToRepoRoot);
-        for(var l : lines) {
-            int ident = getIdent(l) - initialIdentation;
-
-            if(ident < 0)
-                throw new IdentsMismatchException(MessageFormat.format("Branch \"{0}\" in machete file has identation below entry level of this file", l.trim()));
-
-            int level = getLevel(ident);
+        for(var line : lines) {
+            int level = getLevel(getIndent(line));
 
             if(level-currentLevel > 1)
-                throw new LevelsMismatchException("One of branches in machete file has incorrect level in relation to is's parent branch");
+                throw new MacheteFileParseException(MessageFormat.format("One of branches in machete file ({0}) has incorrect level in relation to it's parent branch", pathToMacheteFile.toAbsolutePath().toString()));
 
 
-            String branchName = l.trim();
-            ILocalBranch jglb;
+            String branchName = line.trim();
+            ILocalBranch coreLocalBranch;
             try {
-                jglb = jgr.getLocalBranch(branchName);     //Checking if local branch of this name really exists in this repository
+                coreLocalBranch = jgr.getLocalBranch(branchName);     //Checking if local branch of this name really exists in this repository
             } catch (GitException e) {
                 throw new GitImplementationException(e);
             }
@@ -73,20 +67,20 @@ public class GitMacheteLoader {
 
             var branch = new GitMacheteBranch(branchName);
 
-            branchesLevelsMap.put(level, branch);
-            jgitBranchesLevelsMap.put(level, jglb);
+            macheteBranchesLevelsMap.put(level, branch);
+            coreBranchesLevelsMap.put(level, coreLocalBranch);
 
             try {
-                branch.syncToOriginStatus = getSyncToOriginByTrackingStatus(jglb.getTrackingStatus());
+                branch.syncToOriginStatus = getSyncToOriginByTrackingStatus(coreLocalBranch.getTrackingStatus());
 
                 if (level == 0) {
-                    branch.commits = translateICommitsToCommits(jglb.getBelongingCommits(Optional.empty()));
+                    branch.commits = List.of();
                     branch.syncToParentStatus = SyncToParentStatus.InSync;
-                    repo.branches.add(branch);
+                    repo.rootBranches.add(branch);
                 } else {
-                    branch.commits = getCommitsBelongingSpecificallyToBranch(jglb, jgitBranchesLevelsMap.get(level - 1));
-                    branch.syncToParentStatus = getSyncToParentStatus(jglb, jgitBranchesLevelsMap.get(level-1));
-                    branchesLevelsMap.get(level - 1).branches.add(branch);
+                    branch.commits = getCommitsBelongingSpecificallyToBranch(coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
+                    branch.syncToParentStatus = getSyncToParentStatus(coreLocalBranch, coreBranchesLevelsMap.get(level-1));
+                    macheteBranchesLevelsMap.get(level - 1).childrenBranches.add(branch);
                 }
             } catch (GitException e) {
                 throw new GitImplementationException(e);
@@ -103,31 +97,40 @@ public class GitMacheteLoader {
         return l.trim().length() < 1;
     }
 
-    private int getIdent(String l) {
-        int ident = 0;
+    private int getIndent(String l) {
+        int indent = 0;
         for(int i=0; i<l.length(); i++) {
-            if (identDetectionFunction.apply(l.charAt(i)))
-                ident++;
-            else
-                break;
+            if (indentType == null) {
+                if (l.charAt(i) != ' ' && l.charAt(i) != '\t') {
+                    break;
+                } else {
+                    indent++;
+                    indentType = l.charAt(i);
+                }
+            } else {
+                if (indentDetectionFunction(l.charAt(i)))
+                    indent++;
+                else
+                    break;
+            }
         }
 
-        return ident;
+        return indent;
     }
 
-    private int getLevel(int realIdent) throws IdentsMismatchException {   //Returns -1 if is incorrect
-        if(levelWidth == 0 && realIdent > 0) {
-            levelWidth = realIdent;
+    private int getLevel(int indent) throws MacheteFileParseException {
+        if(levelWidth == 0 && indent > 0) {
+            levelWidth = indent;
             return 1;
         }
-        else if (realIdent == 0) {
+        else if (indent == 0) {
             return 0;
         }
 
-        if(realIdent%levelWidth != 0)
-            throw new IdentsMismatchException("Levels of identations are mismatch");
+        if(indent%levelWidth != 0)
+            throw new MacheteFileParseException(MessageFormat.format("Levels of indentations are mismatch in machete file ({0})", pathToMacheteFile.toAbsolutePath().toString()));
 
-        return realIdent/levelWidth;
+        return indent/levelWidth;
     }
 
 
@@ -156,24 +159,24 @@ public class GitMacheteLoader {
         return l;
     }
 
-    private List<Commit> getCommitsBelongingSpecificallyToBranch(ILocalBranch branch, ILocalBranch parentBranch) throws GitException{
-        Optional<ICommit> forkPoint = branch.getForkPoint(parentBranch);
+    private List<Commit> getCommitsBelongingSpecificallyToBranch(ILocalBranch childBranch, ILocalBranch parentBranch) throws GitException{
+        Optional<ICommit> forkPoint = childBranch.getForkPoint(parentBranch);
         if(forkPoint.isEmpty())
             return List.of();
 
-        return translateICommitsToCommits(branch.getBelongingCommits(forkPoint));
+        return translateICommitsToCommits(childBranch.getCommitsUntil(forkPoint));
     }
 
 
-    private SyncToParentStatus getSyncToParentStatus(ILocalBranch branch, ILocalBranch parentBranch) throws GitException {
-        if(branch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
-            if(branch.isItAtBeginOfHistory())
+    private SyncToParentStatus getSyncToParentStatus(ILocalBranch childBranch, ILocalBranch parentBranch) throws GitException {
+        if(childBranch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
+            if(childBranch.isItAtBeginOfHistory())
                 return SyncToParentStatus.InSync;
             else
                 return SyncToParentStatus.Merged;
         } else {
-            Optional<ICommit> forkPoint = branch.getForkPoint(parentBranch);
-            boolean isParentAncestorOfChild = parentBranch.getPointedCommit().isAncestorOf(branch.getPointedCommit());
+            Optional<ICommit> forkPoint = childBranch.getForkPoint(parentBranch);
+            boolean isParentAncestorOfChild = parentBranch.getPointedCommit().isAncestorOf(childBranch.getPointedCommit());
 
             if(isParentAncestorOfChild) {
                 if(forkPoint.isEmpty() || !forkPoint.get().equals(parentBranch.getPointedCommit()))
@@ -181,7 +184,7 @@ public class GitMacheteLoader {
                 else
                     return SyncToParentStatus.InSync;
             } else {
-                boolean isChildAncestorOfParent = branch.getPointedCommit().isAncestorOf(parentBranch.getPointedCommit());
+                boolean isChildAncestorOfParent = childBranch.getPointedCommit().isAncestorOf(parentBranch.getPointedCommit());
 
                 if(isChildAncestorOfParent)
                     return SyncToParentStatus.Merged;

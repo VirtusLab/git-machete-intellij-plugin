@@ -2,10 +2,8 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 
 import com.virtuslab.gitmachete.gitmacheteapi.Branch;
 import com.virtuslab.gitmachete.gitmacheteapi.Repository;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.List;
 @Getter
 public class GitMacheteRepository implements Repository {
     private Path pathToRoot;
-    List<Branch> branches = new LinkedList<>();
+    List<Branch> rootBranches = new LinkedList<>();
 
     public GitMacheteRepository(Path pathToRoot) {
         this.pathToRoot = pathToRoot;
@@ -22,7 +20,7 @@ public class GitMacheteRepository implements Repository {
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        for(var b : branches) {
+        for(var b : rootBranches) {
             printBranch(b, 0, sb);
         }
 
@@ -30,8 +28,7 @@ public class GitMacheteRepository implements Repository {
     }
 
     private void printBranch(Branch branch, int level, StringBuilder sb) {
-        for(int i=0; i<level; i++)
-            sb.append("\t");
+        sb.append("\t".repeat(level));
         sb.append(branch.getName());
         sb.append(" - (Remote: ");
         sb.append(branch.getSyncToOriginStatus());

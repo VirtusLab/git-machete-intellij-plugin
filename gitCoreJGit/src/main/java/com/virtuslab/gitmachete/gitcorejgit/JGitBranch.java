@@ -139,7 +139,7 @@ public abstract class JGitBranch implements IBranch {
 
 
     @Override
-    public List<ICommit> getBelongingCommits(Optional<ICommit> upToCommit) throws GitException {
+    public List<ICommit> getCommitsUntil(Optional<ICommit> upToCommit) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
         walk.sort(RevSort.TOPO);
         RevCommit commit = getPointedRevCommit();
