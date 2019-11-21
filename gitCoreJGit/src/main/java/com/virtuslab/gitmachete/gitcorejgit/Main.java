@@ -14,6 +14,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,7 +56,8 @@ public class Main {
         }*/
 
 
-        JGitRepository r = new JGitRepository(System.getProperty("user.home")+"/Documents/test2");
+        JGitRepository r = new JGitRepository(Paths.get(System.getProperty("user.home"), "Documents/test2/.git").toString());
+        System.out.println(r.getCurrentBranch().orElseGet(null));
 
         //Branch parent = r.getBranch("parent");
         //Commit c = parent.getPointedCommit();

@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-public class GitMacheteJGitException extends Exception {
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+
+public class GitMacheteJGitException extends GitMacheteException {
     public GitMacheteJGitException() {
         super();
     }
