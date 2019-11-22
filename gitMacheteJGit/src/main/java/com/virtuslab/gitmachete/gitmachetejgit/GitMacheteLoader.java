@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.virtuslab.gitmachete.gitcore.*;
-import com.virtuslab.gitmachete.gitcorejgit.*;
+import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitcore.gitcorejgit.JGitRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
 
 import java.io.IOException;
@@ -14,6 +14,7 @@ public class GitMacheteLoader {
     private Path pathToRepoRoot;
     private Path pathToGitFolder;
     private Path pathToMacheteFile;
+    private IRepository repo;
 
     private Character indentType = null;
     private int levelWidth = 0;
@@ -34,10 +35,12 @@ public class GitMacheteLoader {
     public Repository getRepository() throws IOException, MacheteFileParseException, GitImplementationException {
         List<String> lines = Files.readAllLines(pathToMacheteFile);
 
+        this.repo = new JGitRepository(pathToGitFolder.toString());
+
         lines.removeIf(this::isEmptyLine);
 
         if(lines.size() < 1)
-            return new GitMacheteRepository(pathToRepoRoot);
+            return new GitMacheteRepository(pathToRepoRoot, this.repo);
 
         if(getIndent(lines.get(0)) > 0)
             throw new MacheteFileParseException(MessageFormat.format("The initial line of machete file ({0}) cannot be indented", pathToMacheteFile.toAbsolutePath().toString()));
@@ -48,7 +51,7 @@ public class GitMacheteLoader {
         int currentLevel = 0;
         Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
         Map<Integer, ILocalBranch> coreBranchesLevelsMap = new HashMap<>();
-        GitMacheteRepository repo = new GitMacheteRepository(pathToRepoRoot);
+        GitMacheteRepository repo = new GitMacheteRepository(pathToRepoRoot, this.repo);
         for(var line : lines) {
             int level = getLevel(getIndent(line));
 

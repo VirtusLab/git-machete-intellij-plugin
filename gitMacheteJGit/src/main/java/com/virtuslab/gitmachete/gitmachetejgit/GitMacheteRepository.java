@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.virtuslab.gitmachete.gitcore.GitException;
-import com.virtuslab.gitmachete.gitcore.ILocalBranch;
-import com.virtuslab.gitmachete.gitcore.IRepository;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.ILocalBranch;
+import com.virtuslab.gitcore.gitcoreapi.IRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.Branch;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.Repository;
