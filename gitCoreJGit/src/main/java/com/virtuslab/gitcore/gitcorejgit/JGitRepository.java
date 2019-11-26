@@ -2,10 +2,7 @@ package com.virtuslab.gitcore.gitcorejgit;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.GitNoSuchBranchException;
-import com.virtuslab.gitcore.gitcoreapi.ILocalBranch;
-import com.virtuslab.gitcore.gitcoreapi.IRepository;
+import com.virtuslab.gitcore.gitcoreapi.*;
 import lombok.Getter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -17,9 +14,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JGitRepository implements IRepository {
     @Getter
@@ -32,11 +32,31 @@ public class JGitRepository implements IRepository {
     private Path gitFolderPath;
 
     @Inject
-    public JGitRepository(@Assisted Path repositoryPath) throws IOException {
+    public JGitRepository(@Assisted Path repositoryPath) throws IOException, GitNoSuchRepositoryException {
         this.repositoryPath = repositoryPath;
-        this.gitFolderPath = repositoryPath.resolve(".git");
+        Path gitPath = repositoryPath.resolve(".git");
+
+        if(Files.isDirectory(gitPath))
+            this.gitFolderPath = gitPath;
+        else if(Files.isRegularFile(gitPath))
+            this.gitFolderPath = getGitFolderPathFromGitFile(gitPath);
+        else
+            throw new GitNoSuchRepositoryException(MessageFormat.format("Repository in path \"{0}\" does not exists", repositoryPath));
+
         jgitRepo = new FileRepository(this.gitFolderPath.toString());
         jgitGit = new Git(jgitRepo);
+    }
+
+
+    private Path getGitFolderPathFromGitFile(Path gitFilePath) throws IOException, GitNoSuchRepositoryException {
+        String gitFile = Files.readString(gitFilePath);
+        Pattern pattern = Pattern.compile("gitdir:\\s*(.*)");
+        Matcher matcher = pattern.matcher(gitFile);
+        if (matcher.find()) {
+            return gitFilePath.getParent().resolve(matcher.group(1)).normalize();
+        }
+
+        throw new GitNoSuchRepositoryException(MessageFormat.format("Path \"{0}\" does not contain any submodule", this.repositoryPath));
     }
 
     @Override

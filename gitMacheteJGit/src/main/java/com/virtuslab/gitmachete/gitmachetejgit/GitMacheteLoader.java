@@ -1,8 +1,6 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.gitcoreapi.*;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
@@ -29,20 +27,19 @@ public class GitMacheteLoader {
     @Inject
     public GitMacheteLoader(@Assisted Path pathToRepoRoot) {
         this.pathToRepoRoot = pathToRepoRoot;
-        this.pathToMacheteFile = pathToRepoRoot.resolve(".git").resolve("machete");
-        //gitMacheteRepositoryFactory = injector.getInstance(GitMacheteRepositoryFactory.class);
-        //gitCoreRepositoryFactory = injector.getInstance(GitCoreRepositoryFactory.class);
     }
 
     public Repository getRepository() throws GitMacheteException {
+        this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
+        this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
+
+
         List<String> lines;
         try {
             lines = Files.readAllLines(pathToMacheteFile);
         } catch (IOException e) {
             throw new GitMacheteException(MessageFormat.format("Error while loading machete file ({0})", pathToMacheteFile.toAbsolutePath().toString()), e);
         }
-
-        this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
 
         lines.removeIf(this::isEmptyLine);
 

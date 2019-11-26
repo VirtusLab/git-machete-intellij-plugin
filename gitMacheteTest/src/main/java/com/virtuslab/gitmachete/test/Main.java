@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] argv) {
-        GitMacheteLoader loader = GitFactoryBuilder.getInjector().getInstance(GitMacheteLoaderFactory.class).create(Paths.get(System.getProperty("user.home"), "machete-sandbox"));
+        GitMacheteLoader loader = GitFactoryBuilder.getInjector().getInstance(GitMacheteLoaderFactory.class).create(Paths.get(System.getProperty("user.home"), "submodule-test"));
         Repository repo = null;
 
         try {

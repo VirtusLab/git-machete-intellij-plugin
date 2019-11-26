@@ -11,7 +11,6 @@ import com.virtuslab.gitmachete.gitmacheteapi.Repository;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
