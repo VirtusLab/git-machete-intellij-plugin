@@ -2,27 +2,36 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.ILocalBranch;
-import com.virtuslab.gitcore.gitcoreapi.IRepository;
+import com.virtuslab.gitcore.gitcoreapi.*;
 import com.virtuslab.gitmachete.gitmacheteapi.Branch;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.Repository;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Getter
 public class GitMacheteRepository implements Repository {
-    @Getter(AccessLevel.NONE) private IRepository repo;
+    @Getter
+    private Optional<String> repositoryName;
+    @Getter(AccessLevel.NONE)
+    private IRepository repo;
     List<Branch> rootBranches = new LinkedList<>();
 
     @Inject
-    public GitMacheteRepository(@Assisted IRepository repo) {
+    @Getter(AccessLevel.NONE)
+    private GitMacheteRepositoryFactory gitMacheteRepositoryFactory;
+
+    @Inject
+    @Getter(AccessLevel.NONE)
+    private GitCoreRepositoryFactory gitCoreRepositoryFactory;
+
+    @Inject
+    public GitMacheteRepository(@Assisted IRepository repo, @Assisted Optional<String> name) {
         this.repo = repo;
+        this.repositoryName = name;
     }
 
     @Override
@@ -77,5 +86,26 @@ public class GitMacheteRepository implements Repository {
     @Override
     public void addRootBranch(Branch branch) {
         rootBranches.add(branch);
+    }
+
+
+    @Override
+    public Map<String, Repository> getSubmoduleRepositories() throws GitMacheteException {
+        Map<String, Repository> submodules = new HashMap<String, Repository>();
+
+        Map<String, ISubmoduleEntry> subs;
+
+        try {
+            subs = this.repo.getSubmodules();
+        } catch (GitException e) {
+            throw new GitMacheteJGitException("Error while getting submodules", e);
+        }
+
+        for(var e : subs.entrySet()) {
+            Repository r = gitMacheteRepositoryFactory.create(gitCoreRepositoryFactory.create(e.getValue().getPath()), Optional.of(e.getValue().getName()));
+            submodules.put(e.getKey(), r);
+        }
+
+        return submodules;
     }
 }

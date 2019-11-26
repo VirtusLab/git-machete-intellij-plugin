@@ -12,12 +12,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.submodule.SubmoduleWalk;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,6 +92,28 @@ public class JGitRepository implements IRepository {
             throw new GitNoSuchBranchException(MessageFormat.format("Remote branch \"{0}\" does not exist in this repository", branchName));
 
         return new JGitRemoteBranch(this, branchName);
+    }
+
+    @Override
+    public Map<String, ISubmoduleEntry> getSubmodules() throws JGitException {
+        SubmoduleWalk sWalk;
+        try {
+            sWalk = new SubmoduleWalk(this.jgitRepo);
+        } catch (IOException e) {
+            throw new JGitException("Error while initializing submodule walk", e);
+        }
+
+        Map<String, ISubmoduleEntry> submodules = new HashMap<>();
+
+        try {
+            while (sWalk.next()) {
+                submodules.put(sWalk.getModuleName(), new JGitSubmoduleEntry(sWalk.getModuleName(), sWalk.getDirectory().toPath()));
+            }
+        } catch (IOException e) {
+            throw new JGitException("Error while fetching next submodule", e);
+        }
+
+        return submodules;
     }
 
     private boolean checkIfBranchExist(String path) throws JGitException{

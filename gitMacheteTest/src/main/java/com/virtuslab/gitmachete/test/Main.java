@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteLoaderFactory;
 import java.nio.file.Paths;
 
 public class Main {
-    public static void main(String[] argv) {
+    public static void main(String[] argv) throws Exception {
         GitMacheteLoader loader = GitFactoryBuilder.getInjector().getInstance(GitMacheteLoaderFactory.class).create(Paths.get(System.getProperty("user.home"), "submodule-test"));
         Repository repo = null;
 
@@ -21,5 +21,7 @@ public class Main {
         }
 
         System.out.println(repo);
+
+        System.out.println(repo.getSubmoduleRepositories());
     }
 }

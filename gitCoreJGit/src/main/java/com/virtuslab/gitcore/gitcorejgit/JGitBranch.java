@@ -122,10 +122,10 @@ public abstract class JGitBranch implements IBranch {
             throw new JGitException(e);
         }
 
-        ReflogEntry[] refEntrys = reflog.toArray(new ReflogEntry[0]);
+        ReflogEntry[] refEntries = reflog.toArray(new ReflogEntry[0]);
 
         for(var curBranchCommit : walk) {
-            for(var parentBranchReflogEntry : refEntrys) {
+            for(var parentBranchReflogEntry : refEntries) {
                 if(curBranchCommit.getId().equals(parentBranchReflogEntry.getNewId())) {
                     return Optional.of(new JGitCommit(curBranchCommit, repo));
                 }

@@ -44,7 +44,7 @@ public class GitMacheteLoader {
         lines.removeIf(this::isEmptyLine);
 
         if(lines.size() < 1)
-            return gitMacheteRepositoryFactory.create(this.repo);
+            return gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
 
         if(getIndent(lines.get(0)) > 0)
             throw new MacheteFileParseException(MessageFormat.format("The initial line of machete file ({0}) cannot be indented", pathToMacheteFile.toAbsolutePath().toString()));
@@ -53,7 +53,7 @@ public class GitMacheteLoader {
         int currentLevel = 0;
         Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
         Map<Integer, ILocalBranch> coreBranchesLevelsMap = new HashMap<>();
-        Repository repo = gitMacheteRepositoryFactory.create(this.repo);
+        Repository repo = gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
         for(var line : lines) {
             int level = getLevel(getIndent(line));
 
