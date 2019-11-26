@@ -24,6 +24,11 @@ dependencies {
     // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.5.1.201910021850-r'
 
+    // https://mvnrepository.com/artifact/com.google.inject/guice
+    compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
+    // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
+
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 

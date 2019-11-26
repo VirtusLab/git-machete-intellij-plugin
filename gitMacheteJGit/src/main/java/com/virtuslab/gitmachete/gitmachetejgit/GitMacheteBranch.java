@@ -14,7 +14,7 @@ import java.util.List;
 public class GitMacheteBranch implements Branch {
     private String name;
     List<Commit> commits = new LinkedList<>();
-    @Getter(AccessLevel.NONE) List<Branch> childrenBranches = new LinkedList<>();
+    @Getter(AccessLevel.NONE) List<Branch> childBranches = new LinkedList<>();
     SyncToParentStatus syncToParentStatus = null;
     SyncToOriginStatus syncToOriginStatus = null;
 
@@ -23,6 +23,6 @@ public class GitMacheteBranch implements Branch {
     }
 
     public List<Branch> getBranches() {
-        return childrenBranches;
+        return childBranches;
     }
 }

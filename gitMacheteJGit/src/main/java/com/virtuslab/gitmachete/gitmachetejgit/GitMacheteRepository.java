@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitcore.gitcoreapi.ILocalBranch;
 import com.virtuslab.gitcore.gitcoreapi.IRepository;
@@ -16,12 +18,11 @@ import java.util.Optional;
 
 @Getter
 public class GitMacheteRepository implements Repository {
-    private Path pathToRoot;
     @Getter(AccessLevel.NONE) private IRepository repo;
     List<Branch> rootBranches = new LinkedList<>();
 
-    public GitMacheteRepository(Path pathToRoot, IRepository repo) {
-        this.pathToRoot = pathToRoot;
+    @Inject
+    public GitMacheteRepository(@Assisted IRepository repo) {
         this.repo = repo;
     }
 
@@ -54,6 +55,7 @@ public class GitMacheteRepository implements Repository {
         }
     }
 
+
     @Override
     public Optional<Branch> getCurrentBranch() throws GitMacheteException {
         Optional<ILocalBranch> branch;
@@ -71,5 +73,10 @@ public class GitMacheteRepository implements Repository {
             } catch (GitException e) {
                 throw new GitMacheteJGitException("Error occurred while getting current branch name", e);
             }
+    }
+
+    @Override
+    public void addRootBranch(Branch branch) {
+        rootBranches.add(branch);
     }
 }

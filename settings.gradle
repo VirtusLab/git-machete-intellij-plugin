@@ -4,4 +4,6 @@ include 'gitMacheteAPI'
 include 'gitCoreAPI'
 include 'intellijPlugin'
 include 'gitMacheteJGit'
+include 'dependencyInjector'
+include 'gitMacheteTest'
 

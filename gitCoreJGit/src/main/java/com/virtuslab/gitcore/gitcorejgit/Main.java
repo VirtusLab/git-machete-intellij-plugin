@@ -44,7 +44,7 @@ public class Main {
         }*/
 
 
-        JGitRepository r = new JGitRepository(Paths.get(System.getProperty("user.home"), "Documents/test2/.git").toString());
+        JGitRepository r = new JGitRepository(Paths.get(System.getProperty("user.home"), "Documents/test2"));
         System.out.println(r.getCurrentBranch().orElseGet(null));
 
         //Branch parent = r.getBranch("parent");

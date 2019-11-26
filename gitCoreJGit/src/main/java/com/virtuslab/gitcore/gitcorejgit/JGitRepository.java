@@ -1,5 +1,7 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitcore.gitcoreapi.GitNoSuchBranchException;
 import com.virtuslab.gitcore.gitcoreapi.ILocalBranch;
@@ -15,6 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Optional;
 
@@ -23,9 +26,16 @@ public class JGitRepository implements IRepository {
     private org.eclipse.jgit.lib.Repository jgitRepo;
     @Getter
     private Git jgitGit;
+    @Getter
+    private Path repositoryPath;
+    @Getter
+    private Path gitFolderPath;
 
-    public JGitRepository(String pathToGitFolder) throws IOException {
-        jgitRepo = new FileRepository(pathToGitFolder);
+    @Inject
+    public JGitRepository(@Assisted Path repositoryPath) throws IOException {
+        this.repositoryPath = repositoryPath;
+        this.gitFolderPath = repositoryPath.resolve(".git");
+        jgitRepo = new FileRepository(this.gitFolderPath.toString());
         jgitGit = new Git(jgitRepo);
     }
 
@@ -62,8 +72,6 @@ public class JGitRepository implements IRepository {
 
         return new JGitRemoteBranch(this, branchName);
     }
-
-
 
     private boolean checkIfBranchExist(String path) throws JGitException{
         RevWalk rw = new RevWalk(jgitRepo);

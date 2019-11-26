@@ -13,14 +13,13 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
-
     // https://mvnrepository.com/artifact/com.google.inject/guice
     compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
     compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
 
-
+    compile project(':gitCoreAPI')
+    compile project(':gitCoreJGit')
     compile project(':gitMacheteAPI')
+    compile project(':gitMacheteJGit')
 }

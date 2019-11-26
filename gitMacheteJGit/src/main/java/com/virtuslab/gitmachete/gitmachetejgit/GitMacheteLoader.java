@@ -1,7 +1,10 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.gitcoreapi.*;
-import com.virtuslab.gitcore.gitcorejgit.JGitRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
 
 import java.io.IOException;
@@ -11,58 +14,60 @@ import java.text.MessageFormat;
 import java.util.*;
 
 public class GitMacheteLoader {
+    @Inject
+    private GitMacheteRepositoryFactory gitMacheteRepositoryFactory;
+    @Inject
+    private GitCoreRepositoryFactory gitCoreRepositoryFactory;
+
     private Path pathToRepoRoot;
-    private Path pathToGitFolder;
     private Path pathToMacheteFile;
     private IRepository repo;
 
     private Character indentType = null;
     private int levelWidth = 0;
 
-
-    private boolean indentDetectionFunction(Character charToInspect)
-    {
-        return charToInspect.equals(indentType);
-    }
-
-
-    public GitMacheteLoader(Path pathToRepoRoot) {
+    @Inject
+    public GitMacheteLoader(@Assisted Path pathToRepoRoot) {
         this.pathToRepoRoot = pathToRepoRoot;
-        this.pathToGitFolder = pathToRepoRoot.resolve(".git");
-        this.pathToMacheteFile = this.pathToGitFolder.resolve("machete");
+        this.pathToMacheteFile = pathToRepoRoot.resolve(".git").resolve("machete");
+        //gitMacheteRepositoryFactory = injector.getInstance(GitMacheteRepositoryFactory.class);
+        //gitCoreRepositoryFactory = injector.getInstance(GitCoreRepositoryFactory.class);
     }
 
-    public Repository getRepository() throws IOException, MacheteFileParseException, GitImplementationException {
-        List<String> lines = Files.readAllLines(pathToMacheteFile);
+    public Repository getRepository() throws GitMacheteException {
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(pathToMacheteFile);
+        } catch (IOException e) {
+            throw new GitMacheteException(MessageFormat.format("Error while loading machete file ({0})", pathToMacheteFile.toAbsolutePath().toString()), e);
+        }
 
-        this.repo = new JGitRepository(pathToGitFolder.toString());
+        this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
 
         lines.removeIf(this::isEmptyLine);
 
         if(lines.size() < 1)
-            return new GitMacheteRepository(pathToRepoRoot, this.repo);
+            return gitMacheteRepositoryFactory.create(this.repo);
 
         if(getIndent(lines.get(0)) > 0)
             throw new MacheteFileParseException(MessageFormat.format("The initial line of machete file ({0}) cannot be indented", pathToMacheteFile.toAbsolutePath().toString()));
-
-        IRepository jgr = new JGitRepository(pathToGitFolder.toString());
 
 
         int currentLevel = 0;
         Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
         Map<Integer, ILocalBranch> coreBranchesLevelsMap = new HashMap<>();
-        GitMacheteRepository repo = new GitMacheteRepository(pathToRepoRoot, this.repo);
+        Repository repo = gitMacheteRepositoryFactory.create(this.repo);
         for(var line : lines) {
             int level = getLevel(getIndent(line));
 
             if(level-currentLevel > 1)
-                throw new MacheteFileParseException(MessageFormat.format("One of branches in machete file ({0}) has incorrect level in relation to it's parent branch", pathToMacheteFile.toAbsolutePath().toString()));
+                throw new MacheteFileParseException(MessageFormat.format("One of branches in machete file ({0}) has incorrect level in relation to its parent branch", pathToMacheteFile.toAbsolutePath().toString()));
 
 
             String branchName = line.trim();
             ILocalBranch coreLocalBranch;
             try {
-                coreLocalBranch = jgr.getLocalBranch(branchName);     //Checking if local branch of this name really exists in this repository
+                coreLocalBranch = this.repo.getLocalBranch(branchName);     //Checking if local branch of this name really exists in this repository
             } catch (GitException e) {
                 throw new GitImplementationException(e);
             }
@@ -79,11 +84,11 @@ public class GitMacheteLoader {
                 if (level == 0) {
                     branch.commits = List.of();
                     branch.syncToParentStatus = SyncToParentStatus.InSync;
-                    repo.rootBranches.add(branch);
+                    repo.addRootBranch(branch);
                 } else {
                     branch.commits = getCommitsBelongingSpecificallyToBranch(coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
                     branch.syncToParentStatus = getSyncToParentStatus(coreLocalBranch, coreBranchesLevelsMap.get(level-1));
-                    macheteBranchesLevelsMap.get(level - 1).childrenBranches.add(branch);
+                    macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
                 }
             } catch (GitException e) {
                 throw new GitImplementationException(e);
@@ -111,7 +116,7 @@ public class GitMacheteLoader {
                     indentType = l.charAt(i);
                 }
             } else {
-                if (indentDetectionFunction(l.charAt(i)))
+                if (l.charAt(i) == indentType)
                     indent++;
                 else
                     break;
@@ -131,7 +136,7 @@ public class GitMacheteLoader {
         }
 
         if(indent%levelWidth != 0)
-            throw new MacheteFileParseException(MessageFormat.format("Levels of indentations are mismatch in machete file ({0})", pathToMacheteFile.toAbsolutePath().toString()));
+            throw new MacheteFileParseException(MessageFormat.format("Levels of indentations are not matching in machete file ({0})", pathToMacheteFile.toAbsolutePath().toString()));
 
         return indent/levelWidth;
     }
