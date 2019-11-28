@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.gitmachetejgit;
+package com.virtuslab.gitmachete.gitmacheteapi;
 
 public class MacheteFileParseException extends GitMacheteJGitException {
     public MacheteFileParseException() {

@@ -9,8 +9,6 @@ import com.virtuslab.gitcore.gitcoreapi.IGitCoreRepository;
 import com.virtuslab.gitcore.gitcorejgit.JGitRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteLoader;
-import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteLoaderFactory;
 import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepository;
 
 public class GitFactoryModule extends AbstractModule {
@@ -19,7 +17,6 @@ public class GitFactoryModule extends AbstractModule {
     protected void configure() {
         install(new FactoryModuleBuilder().implement(IGitMacheteRepository.class, GitMacheteRepository.class).build(GitMacheteRepositoryFactory.class));
         install(new FactoryModuleBuilder().implement(IGitCoreRepository.class, JGitRepository.class).build(GitCoreRepositoryFactory.class));
-        //install(new FactoryModuleBuilder().implement(GitMacheteLoader.class, GitMacheteLoader.class).build(GitMacheteLoaderFactory.class));
     }
 
     public static Injector getInjector() {

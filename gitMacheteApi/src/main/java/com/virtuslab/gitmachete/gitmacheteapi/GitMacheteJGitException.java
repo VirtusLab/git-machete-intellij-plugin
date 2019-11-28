@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.gitmachetejgit;
+package com.virtuslab.gitmachete.gitmacheteapi;
 
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 
