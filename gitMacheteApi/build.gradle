@@ -13,5 +13,5 @@ repositories {
 
 
 dependencies {
-    compile project(':gitCoreAPI')
+    compile project(':gitCoreApi')
 }

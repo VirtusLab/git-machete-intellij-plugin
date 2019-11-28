@@ -22,5 +22,5 @@ dependencies {
     compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
 
 
-    compile project(':gitMacheteAPI')
+    compile project(':gitMacheteApi')
 }

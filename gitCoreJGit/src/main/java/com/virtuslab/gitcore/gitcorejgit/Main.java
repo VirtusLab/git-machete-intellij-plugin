@@ -4,6 +4,9 @@ package com.virtuslab.gitcore.gitcorejgit;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;*/
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+
 import java.nio.file.Paths;
 
 /* import org.jgraph.graph.DefaultEdge;
@@ -14,8 +17,8 @@ import org.slf4j.impl.StaticLoggerBinder; */
 
 public class Main {
     public static void main(String[] argv) throws Exception {
-        /*org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git");
-        Git git = new Git(repo);*/
+        org.eclipse.jgit.lib.Repository repo = new FileRepository(System.getProperty("user.home")+"/simple-test/.git2");
+        Git git = new Git(repo);
         /*RevWalk walk = new RevWalk(repo);
 
         walk.markStart(walk.parseCommit(repo.resolve("branch1")));

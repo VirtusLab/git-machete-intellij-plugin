@@ -13,6 +13,6 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    compile project(':gitMacheteAPI')
-    compile project(':dependencyInjector')
+    compile project(':gitMacheteApi')
+    compile project(':root')
 }

@@ -1,4 +1,4 @@
-package com.virtuslab.git.dependencyinjector;
+package com.virtuslab.gitmachete.root;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -13,8 +13,8 @@ import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteLoader;
 import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteLoaderFactory;
 import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepository;
 
-public class GitFactoryBuilder extends AbstractModule {
-    private static Injector injector = Guice.createInjector(new GitFactoryBuilder());
+public class GitFactoryModule extends AbstractModule {
+    private static Injector injector = Guice.createInjector(new GitFactoryModule());
     @Override
     protected void configure() {
         install(new FactoryModuleBuilder().implement(Repository.class, GitMacheteRepository.class).build(GitMacheteRepositoryFactory.class));

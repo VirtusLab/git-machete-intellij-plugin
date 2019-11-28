@@ -18,8 +18,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
     compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
 
-    compile project(':gitCoreAPI')
+    compile project(':gitCoreApi')
     compile project(':gitCoreJGit')
-    compile project(':gitMacheteAPI')
+    compile project(':gitMacheteApi')
     compile project(':gitMacheteJGit')
 }
