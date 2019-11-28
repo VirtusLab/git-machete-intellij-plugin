@@ -20,7 +20,7 @@ import java.util.*;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-public abstract class JGitBranch implements IBranch {
+public abstract class JGitBranch implements IGitCoreBranch {
     protected JGitRepository repo;
     protected String branchName;
 
@@ -66,7 +66,7 @@ public abstract class JGitBranch implements IBranch {
         return c;
     }
 
-    public Optional<ICommit> getMergeBase(IBranch branch) throws GitException {
+    public Optional<IGitCoreCommit> getMergeBase(IGitCoreBranch branch) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
 
         walk.sort(RevSort.TOPO, true);
@@ -105,7 +105,7 @@ public abstract class JGitBranch implements IBranch {
 
 
     @Override
-    public Optional<ICommit> getForkPoint(IBranch parentBranch) throws GitException{
+    public Optional<IGitCoreCommit> getForkPoint(IGitCoreBranch parentBranch) throws GitException{
         Collection<ReflogEntry> reflog;
         try {
             reflog = repo.getJgitGit().reflog().setRef(parentBranch.getFullName()).call();
@@ -137,7 +137,7 @@ public abstract class JGitBranch implements IBranch {
 
 
     @Override
-    public List<ICommit> getCommitsUntil(Optional<ICommit> upToCommit) throws GitException {
+    public List<IGitCoreCommit> getCommitsUntil(Optional<IGitCoreCommit> upToCommit) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
         walk.sort(RevSort.TOPO);
         RevCommit commit = getPointedRevCommit();
@@ -147,7 +147,7 @@ public abstract class JGitBranch implements IBranch {
             throw new JGitException(e);
         }
 
-        var list = new LinkedList<ICommit>();
+        var list = new LinkedList<IGitCoreCommit>();
 
         for(var c : walk) {
             if(upToCommit.isPresent() && c.getId().getName().equals(upToCommit.get().getHash().getHashString()))
@@ -161,7 +161,7 @@ public abstract class JGitBranch implements IBranch {
 
 
     @Override
-    public boolean isItAtBeginOfHistory() throws JGitException {
+    public boolean hasJustBeenCreated() throws JGitException {
         Collection<ReflogEntry> rf;
         try {
             rf = repo.getJgitGit().reflog().setRef(getFullName()).call();

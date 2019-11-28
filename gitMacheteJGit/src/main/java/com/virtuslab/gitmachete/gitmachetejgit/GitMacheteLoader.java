@@ -19,7 +19,7 @@ public class GitMacheteLoader {
 
     private Path pathToRepoRoot;
     private Path pathToMacheteFile;
-    private IRepository repo;
+    private IGitCoreRepository repo;
 
     private Character indentType = null;
     private int levelWidth = 0;
@@ -29,7 +29,7 @@ public class GitMacheteLoader {
         this.pathToRepoRoot = pathToRepoRoot;
     }
 
-    public Repository getRepository() throws GitMacheteException {
+    public IGitMacheteRepository getRepository() throws GitMacheteException {
         this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
         this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
 
@@ -44,7 +44,8 @@ public class GitMacheteLoader {
         lines.removeIf(this::isEmptyLine);
 
         if(lines.size() < 1)
-            return gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
+            return null;
+            //return gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
 
         if(getIndent(lines.get(0)) > 0)
             throw new MacheteFileParseException(MessageFormat.format("The initial line of machete file ({0}) cannot be indented", pathToMacheteFile.toAbsolutePath().toString()));
@@ -52,8 +53,8 @@ public class GitMacheteLoader {
 
         int currentLevel = 0;
         Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
-        Map<Integer, ILocalBranch> coreBranchesLevelsMap = new HashMap<>();
-        Repository repo = gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
+        Map<Integer, IGitCoreLocalBranch> coreBranchesLevelsMap = new HashMap<>();
+        IGitMacheteRepository repo = null;//gitMacheteRepositoryFactory.create(this.repo, Optional.empty());
         for(var line : lines) {
             int level = getLevel(getIndent(line));
 
@@ -62,7 +63,7 @@ public class GitMacheteLoader {
 
 
             String branchName = line.trim();
-            ILocalBranch coreLocalBranch;
+            IGitCoreLocalBranch coreLocalBranch;
             try {
                 coreLocalBranch = this.repo.getLocalBranch(branchName);     //Checking if local branch of this name really exists in this repository
             } catch (GitException e) {
@@ -139,7 +140,7 @@ public class GitMacheteLoader {
     }
 
 
-    private SyncToOriginStatus getSyncToOriginByTrackingStatus(Optional<IBranchTrackingStatus> ts) {
+    private SyncToOriginStatus getSyncToOriginByTrackingStatus(Optional<IGitCoreBranchTrackingStatus> ts) {
         if(ts.isEmpty())
             return SyncToOriginStatus.Untracked;
 
@@ -154,8 +155,8 @@ public class GitMacheteLoader {
     }
 
 
-    private List<Commit> translateICommitsToCommits(List<ICommit> list) throws GitException {
-        var l = new LinkedList<Commit>();
+    private List<IGitMacheteCommit> translateICommitsToCommits(List<IGitCoreCommit> list) throws GitException {
+        var l = new LinkedList<IGitMacheteCommit>();
 
         for(var c : list) {
             l.add(new GitMacheteCommit(c.getMessage()));
@@ -164,8 +165,8 @@ public class GitMacheteLoader {
         return l;
     }
 
-    private List<Commit> getCommitsBelongingSpecificallyToBranch(ILocalBranch childBranch, ILocalBranch parentBranch) throws GitException{
-        Optional<ICommit> forkPoint = childBranch.getForkPoint(parentBranch);
+    private List<IGitMacheteCommit> getCommitsBelongingSpecificallyToBranch(IGitCoreLocalBranch childBranch, IGitCoreLocalBranch parentBranch) throws GitException{
+        Optional<IGitCoreCommit> forkPoint = childBranch.getForkPoint(parentBranch);
         if(forkPoint.isEmpty())
             return List.of();
 
@@ -173,14 +174,14 @@ public class GitMacheteLoader {
     }
 
 
-    private SyncToParentStatus getSyncToParentStatus(ILocalBranch childBranch, ILocalBranch parentBranch) throws GitException {
+    private SyncToParentStatus getSyncToParentStatus(IGitCoreLocalBranch childBranch, IGitCoreLocalBranch parentBranch) throws GitException {
         if(childBranch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
-            if(childBranch.isItAtBeginOfHistory())
+            if(childBranch.hasJustBeenCreated())
                 return SyncToParentStatus.InSync;
             else
                 return SyncToParentStatus.Merged;
         } else {
-            Optional<ICommit> forkPoint = childBranch.getForkPoint(parentBranch);
+            Optional<IGitCoreCommit> forkPoint = childBranch.getForkPoint(parentBranch);
             boolean isParentAncestorOfChild = parentBranch.getPointedCommit().isAncestorOf(childBranch.getPointedCommit());
 
             if(isParentAncestorOfChild) {

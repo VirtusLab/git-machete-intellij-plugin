@@ -1,8 +1,8 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.IRemoteBranch;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreRemoteBranch;
 
-public class JGitRemoteBranch extends JGitBranch implements IRemoteBranch {
+public class JGitRemoteBranch extends JGitBranch implements IGitCoreRemoteBranch {
     public static String branchesPath = "refs/remotes/";
 
     public JGitRemoteBranch(JGitRepository repo, String branchName) {

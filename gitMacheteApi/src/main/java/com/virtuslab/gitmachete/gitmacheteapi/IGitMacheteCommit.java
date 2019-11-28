@@ -1,5 +1,5 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
-public interface Commit {
+public interface IGitMacheteCommit {
     String getMessage();
 }

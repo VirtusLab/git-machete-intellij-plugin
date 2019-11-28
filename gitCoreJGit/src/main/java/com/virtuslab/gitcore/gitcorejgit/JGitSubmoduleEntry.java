@@ -1,12 +1,12 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.ISubmoduleEntry;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreSubmoduleEntry;
 import lombok.Getter;
 
 import java.nio.file.Path;
 
 @Getter
-public class JGitSubmoduleEntry implements ISubmoduleEntry {
+public class JGitSubmoduleEntry implements IGitCoreSubmoduleEntry {
     private String name;
     private Path path;
 

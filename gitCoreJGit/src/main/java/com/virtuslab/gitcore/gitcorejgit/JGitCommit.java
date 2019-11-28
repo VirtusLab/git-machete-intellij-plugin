@@ -1,7 +1,7 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
 import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.ICommit;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 
 @EqualsAndHashCode
-public class JGitCommit implements ICommit {
+public class JGitCommit implements IGitCoreCommit {
     @Getter
     private RevCommit jgitCommit;
     @EqualsAndHashCode.Exclude private JGitRepository repo;
@@ -53,7 +53,7 @@ public class JGitCommit implements ICommit {
 
 
     @Override
-    public boolean isAncestorOf(ICommit parentCommit) throws GitException {
+    public boolean isAncestorOf(IGitCoreCommit parentCommit) throws GitException {
         var jgitRepo = repo.getJgitRepo();
         RevWalk walk = new RevWalk(jgitRepo);
         walk.sort(RevSort.TOPO);

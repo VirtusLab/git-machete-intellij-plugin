@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.IBranchTrackingStatus;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.text.MessageFormat;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class JGitBranchTrackingStatus implements IBranchTrackingStatus {
+public class JGitBranchTrackingStatus implements IGitCoreBranchTrackingStatus {
     @Getter
     private int ahead;
     @Getter

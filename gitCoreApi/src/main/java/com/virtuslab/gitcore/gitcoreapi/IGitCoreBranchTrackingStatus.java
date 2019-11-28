@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.gitcoreapi;
 
-public interface IBranchTrackingStatus {
+public interface IGitCoreBranchTrackingStatus {
     int getAhead();
     int getBehind();
 }

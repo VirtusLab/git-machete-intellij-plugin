@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class JGitRepository implements IRepository {
+public class JGitRepository implements IGitCoreRepository {
     @Getter
     private org.eclipse.jgit.lib.Repository jgitRepo;
     @Getter
@@ -61,7 +61,7 @@ public class JGitRepository implements IRepository {
     }
 
     @Override
-    public Optional<ILocalBranch> getCurrentBranch() throws JGitException {
+    public Optional<IGitCoreLocalBranch> getCurrentBranch() throws JGitException {
         Ref r;
         try {
             r = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
@@ -95,7 +95,7 @@ public class JGitRepository implements IRepository {
     }
 
     @Override
-    public Map<String, ISubmoduleEntry> getSubmodules() throws JGitException {
+    public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
         SubmoduleWalk sWalk;
         try {
             sWalk = new SubmoduleWalk(this.jgitRepo);
@@ -103,10 +103,10 @@ public class JGitRepository implements IRepository {
             throw new JGitException("Error while initializing submodule walk", e);
         }
 
-        Map<String, ISubmoduleEntry> submodules = new HashMap<>();
+        Map<String, IGitCoreSubmoduleEntry> submodules = new HashMap<>();
 
         try {
-            while (sWalk.next()) {
+            while (sWalk.next()) {  //FIXME
                 submodules.put(sWalk.getModuleName(), new JGitSubmoduleEntry(sWalk.getModuleName(), sWalk.getDirectory().toPath()));
             }
         } catch (IOException e) {

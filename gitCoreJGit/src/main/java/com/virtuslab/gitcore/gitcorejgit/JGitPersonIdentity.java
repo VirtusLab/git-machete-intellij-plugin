@@ -1,12 +1,12 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.IPersonIdentity;
+import com.virtuslab.gitcore.gitcoreapi.IGitCorePersonIdentity;
 import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.lib.PersonIdent;
 
 
 @EqualsAndHashCode
-public class JGitPersonIdentity implements IPersonIdentity {
+public class JGitPersonIdentity implements IGitCorePersonIdentity {
     private PersonIdent jgitPerson;
 
     public JGitPersonIdentity(PersonIdent person) {

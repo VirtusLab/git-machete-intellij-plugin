@@ -1,5 +1,6 @@
 package com.virtuslab;
 
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
@@ -55,7 +56,7 @@ public class GitMacheteUI extends JFXPanel {
     }
 
     private void populateTree() {
-        com.virtuslab.gitmachete.gitmacheteapi.Branch branch;
+        IGitMacheteBranch branch;
         
         StatusTreeItem root = new StatusTreeItem("root");
         StatusTreeItem develop = new StatusTreeItem("develop");

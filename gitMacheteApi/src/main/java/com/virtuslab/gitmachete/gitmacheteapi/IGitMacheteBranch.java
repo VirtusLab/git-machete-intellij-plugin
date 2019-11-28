@@ -2,12 +2,12 @@ package com.virtuslab.gitmachete.gitmacheteapi;
 
 import java.util.List;
 
-public interface Branch {
+public interface IGitMacheteBranch {
     String getName();
 
-    List<Commit> getCommits();
+    List<IGitMacheteCommit> getCommits();
 
-    List<Branch> getBranches();
+    List<IGitMacheteBranch> getBranches();
 
     SyncToParentStatus getSyncToParentStatus();
 

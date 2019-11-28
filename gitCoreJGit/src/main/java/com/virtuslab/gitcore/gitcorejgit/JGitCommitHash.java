@@ -1,10 +1,10 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
 
-import com.virtuslab.gitcore.gitcoreapi.ICommitHash;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommitHash;
 
 
-public class JGitCommitHash extends JGitObjectHash implements ICommitHash {
+public class JGitCommitHash extends JGitObjectHash implements IGitCoreCommitHash {
     public JGitCommitHash(String hashString) {
         super(hashString);
     }
