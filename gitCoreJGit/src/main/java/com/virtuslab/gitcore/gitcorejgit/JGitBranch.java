@@ -16,7 +16,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-@EqualsAndHashCode
 @AllArgsConstructor
 public abstract class JGitBranch implements IGitCoreBranch {
   protected JGitRepository repo;
@@ -106,36 +105,54 @@ public abstract class JGitBranch implements IGitCoreBranch {
     return Optional.empty();
   }
 
-  @Override
-  public Optional<IGitCoreCommit> getForkPoint(IGitCoreBranch parentBranch) throws GitException {
-    Collection<ReflogEntry> reflog;
-    try {
-      reflog = repo.getJgitGit().reflog().setRef(parentBranch.getFullName()).call();
-    } catch (Exception e) {
-      throw new JGitException(e);
-    }
 
-    RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    RevCommit commit = getPointedRevCommit();
-    try {
-      walk.markStart(commit);
-    } catch (Exception e) {
-      throw new JGitException(e);
-    }
-
-    ReflogEntry[] refEntries = reflog.toArray(new ReflogEntry[0]);
-
-    for (var curBranchCommit : walk) {
-      for (var parentBranchReflogEntry : refEntries) {
-        if (curBranchCommit.getId().equals(parentBranchReflogEntry.getNewId())) {
-          return Optional.of(new JGitCommit(curBranchCommit, repo));
+    @Override
+    public Optional<IGitCoreCommit> getForkPoint() throws GitException{
+        RevWalk walk = new RevWalk(repo.getJgitRepo());
+        walk.sort(RevSort.TOPO);
+        RevCommit commit = getPointedRevCommit();
+        try {
+            walk.markStart(commit);
+        } catch (Exception e) {
+            throw new JGitException(e);
         }
-      }
-    }
 
-    return Optional.empty();
-  }
+
+        List<Collection<ReflogEntry>> reflogEntriesList = new LinkedList<>();
+
+        for(var branch : this.repo.getListOfLocalBranches()) {
+            if(!branch.equals(this)) {
+                try {
+                    reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
+                } catch (Exception e) {
+                    throw new JGitException(e);
+                }
+            }
+        }
+
+        for(var branch : this.repo.getListOfRemoteBranches()) {
+            if(!branch.equals(this)) {
+                try {
+                    reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
+                } catch (Exception e) {
+                    throw new JGitException(e);
+                }
+            }
+        }
+
+
+        for(var curBranchCommit : walk) {
+            for(var branchReflog : reflogEntriesList) {
+                for(var branchReflogEntry : branchReflog) {
+                    if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
+                        return Optional.of(new JGitCommit(curBranchCommit, repo));
+                    }
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
 
   @Override
   public List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
@@ -174,4 +191,23 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
     return rfit.next().getOldId().equals(ObjectId.zeroId());
   }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == this)
+            return true;
+
+        if(!(o instanceof JGitBranch))
+            return false;
+
+        return ((JGitBranch) o).getFullName().equals(getFullName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getFullName().hashCode();
+    }
+
 }

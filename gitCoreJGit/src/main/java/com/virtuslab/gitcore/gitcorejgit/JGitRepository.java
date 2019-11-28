@@ -12,6 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -97,14 +99,42 @@ public class JGitRepository implements IGitCoreRepository {
     return new JGitRemoteBranch(this, branchName);
   }
 
-  @Override
-  public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
-    SubmoduleWalk sWalk;
-    try {
-      sWalk = new SubmoduleWalk(this.jgitRepo);
-    } catch (IOException e) {
-      throw new JGitException("Error while initializing submodule walk", e);
+    @Override
+    public List<IGitCoreLocalBranch> getListOfLocalBranches() throws GitException {
+        List<IGitCoreLocalBranch> list = new LinkedList<>();
+        try {
+            for (Ref ref : this.getJgitGit().branchList().call()) {
+                list.add(new JGitLocalBranch(this, ref.getName().replace(JGitLocalBranch.branchesPath, "")));
+            }
+        } catch (GitAPIException e) {
+            throw new JGitException("Error while getting list of local branches", e);
+        }
+
+        return list;
     }
+
+    @Override
+    public List<IGitCoreRemoteBranch> getListOfRemoteBranches() throws GitException {
+        List<IGitCoreRemoteBranch> list = new LinkedList<>();
+        try {
+            for (Ref ref : this.getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {
+                list.add(new JGitRemoteBranch(this, ref.getName().replace(JGitRemoteBranch.branchesPath, "")));
+            }
+        } catch (GitAPIException e) {
+            throw new JGitException("Error while getting list of remote branches", e);
+        }
+
+        return list;
+    }
+
+    @Override
+    public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
+        SubmoduleWalk sWalk;
+        try {
+            sWalk = new SubmoduleWalk(this.jgitRepo);
+        } catch (IOException e) {
+            throw new JGitException("Error while initializing submodule walk", e);
+        }
 
     Map<String, IGitCoreSubmoduleEntry> submodules = new HashMap<>();
 

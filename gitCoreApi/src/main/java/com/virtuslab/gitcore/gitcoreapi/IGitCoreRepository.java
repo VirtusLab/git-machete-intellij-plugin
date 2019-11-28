@@ -1,19 +1,24 @@
 package com.virtuslab.gitcore.gitcoreapi;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface IGitCoreRepository {
-  Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitException;
+    Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitException;
 
-  IGitCoreLocalBranch getLocalBranch(String branchName) throws GitException;
+    IGitCoreLocalBranch getLocalBranch(String branchName) throws GitException;
 
-  IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitException;
+    IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitException;
 
-  Path getRepositoryPath();
+    List<IGitCoreLocalBranch> getListOfLocalBranches() throws GitException;
 
-  Path getGitFolderPath();
+    List<IGitCoreRemoteBranch> getListOfRemoteBranches() throws GitException;
 
-  Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
+    Path getRepositoryPath();
+
+    Path getGitFolderPath();
+
+    Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
 }
