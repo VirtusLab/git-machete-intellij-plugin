@@ -1,3 +1,7 @@
+plugins {
+    id "com.diffplug.gradle.spotless" version "3.26.1"
+}
+
 allprojects {
     repositories {
         jcenter()
@@ -6,4 +10,16 @@ allprojects {
 
 subprojects {
     version = '1.0'
+}
+
+apply plugin: 'java'
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+
+afterEvaluate {
+    tasks.getByName('spotlessCheck').dependsOn(tasks.getByName('spotlessApply'))
 }
