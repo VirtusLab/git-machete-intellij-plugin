@@ -9,6 +9,6 @@ public interface IGitCoreBranch {
     IGitCoreCommit getPointedCommit() throws GitException;
     Optional<IGitCoreCommit> getForkPoint(IGitCoreBranch parentBranch) throws GitException;
     boolean isLocal();
-    List<IGitCoreCommit> getCommitsUntil(Optional<IGitCoreCommit> upToCommit) throws GitException;
+    List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException;
     boolean hasJustBeenCreated() throws GitException;
 }

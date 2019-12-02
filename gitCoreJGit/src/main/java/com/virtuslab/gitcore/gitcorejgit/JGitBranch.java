@@ -137,7 +137,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
 
     @Override
-    public List<IGitCoreCommit> getCommitsUntil(Optional<IGitCoreCommit> upToCommit) throws GitException {
+    public List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
         RevWalk walk = new RevWalk(repo.getJgitRepo());
         walk.sort(RevSort.TOPO);
         RevCommit commit = getPointedRevCommit();
@@ -150,7 +150,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
         var list = new LinkedList<IGitCoreCommit>();
 
         for(var c : walk) {
-            if(upToCommit.isPresent() && c.getId().getName().equals(upToCommit.get().getHash().getHashString()))
+            if(c.getId().getName().equals(upToCommit.getHash().getHashString()))
                 break;
 
             list.add(new JGitCommit(c, repo));

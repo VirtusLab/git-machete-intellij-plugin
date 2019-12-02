@@ -29,21 +29,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     private int levelWidth = 0;
 
     @Getter(AccessLevel.NONE)
-    private GitMacheteRepositoryFactory gitMacheteRepositoryFactory;
-
-    @Getter(AccessLevel.NONE)
     private GitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-    /*@Inject
-    public GitMacheteRepository(@Assisted IGitCoreRepository repo, @Assisted Optional<String> name) {
-        this.repo = repo;
-        this.repositoryName = name;
-    }*/
-
     @Inject
-    public GitMacheteRepository(GitMacheteRepositoryFactory gitMacheteRepositoryFactory, GitCoreRepositoryFactory gitCoreRepositoryFactory, @Assisted Path pathToRepoRoot, @Assisted Optional<String> repositoryName) throws GitMacheteException {
+    public GitMacheteRepository(GitCoreRepositoryFactory gitCoreRepositoryFactory, @Assisted Path pathToRepoRoot, @Assisted Optional<String> repositoryName) throws GitMacheteException {
         this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
-        this.gitMacheteRepositoryFactory = gitMacheteRepositoryFactory;
 
         this.pathToRepoRoot = pathToRepoRoot;
         this.repositoryName = repositoryName;
@@ -186,7 +176,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         if(forkPoint.isEmpty())
             return List.of();
 
-        return translateIGitCoreCommitsToIGitMacheteCommits(childBranch.getCommitsUntil(forkPoint));
+        return translateIGitCoreCommitsToIGitMacheteCommits(childBranch.getCommitsUntil(forkPoint.get()));
     }
 
 
@@ -287,7 +277,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         }
 
         for(var e : subs.entrySet()) {
-            IGitMacheteRepository r = gitMacheteRepositoryFactory.create(e.getValue().getPath(), Optional.of(e.getValue().getName()));
+            IGitMacheteRepository r = new GitMacheteRepository(this.gitCoreRepositoryFactory, e.getValue().getPath(), Optional.of(e.getValue().getName()));
             submodules.put(e.getKey(), r);
         }
 
