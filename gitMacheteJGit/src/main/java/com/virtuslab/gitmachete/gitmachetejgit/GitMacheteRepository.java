@@ -83,10 +83,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       String branchName = line.trim();
       IGitCoreLocalBranch coreLocalBranch;
       try {
-        coreLocalBranch =
-            this.repo.getLocalBranch(
-                branchName); // Checking if local branch of this name really exists in this
-        // repository
+        // Checking if local branch of this name really exists in this repository
+        coreLocalBranch = this.repo.getLocalBranch(branchName);
       } catch (GitException e) {
         throw new GitImplementationException(e);
       }
@@ -234,7 +232,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     sb.append("; Parent: ");
     sb.append(branch.getSyncToParentStatus());
     sb.append(") - UPSTREAM: ");
-    sb.append(branch.getUpstreamBranch().isEmpty() ? "none" : branch.getUpstreamBranch().get().getName());
+    sb.append(
+        branch.getUpstreamBranch().isEmpty() ? "none" : branch.getUpstreamBranch().get().getName());
     sb.append(" - ");
     for (var c : branch.getCommits()) {
       sb.append("; ");

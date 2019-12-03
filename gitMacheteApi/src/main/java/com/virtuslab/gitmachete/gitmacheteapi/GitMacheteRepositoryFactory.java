@@ -6,5 +6,4 @@ import java.util.Optional;
 public interface GitMacheteRepositoryFactory {
   IGitMacheteRepository create(Path pathToRepoRoot, Optional<String> repositoryName)
       throws GitMacheteException;
-  // IGitMacheteRepository create(IGitCoreRepository repo, Optional<String> name);
 }

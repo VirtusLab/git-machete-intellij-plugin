@@ -33,7 +33,9 @@ public class JGitRepository implements IGitCoreRepository {
     this.repositoryPath = repositoryPath;
     Path gitPath = repositoryPath.resolve(".git");
 
-    if (Files.isDirectory(gitPath)) this.gitFolderPath = gitPath;
+    if (Files.isDirectory(gitPath)) {
+      this.gitFolderPath = gitPath;
+    }
     else if (Files.isRegularFile(gitPath))
       this.gitFolderPath = getGitFolderPathFromGitFile(gitPath);
     else
@@ -108,7 +110,7 @@ public class JGitRepository implements IGitCoreRepository {
     Map<String, IGitCoreSubmoduleEntry> submodules = new HashMap<>();
 
     try {
-      while (sWalk.next()) { // FIXME
+      while (sWalk.next()) { // FIXME throws exception here when this method is called
         submodules.put(
             sWalk.getModuleName(),
             new JGitSubmoduleEntry(sWalk.getModuleName(), sWalk.getDirectory().toPath()));
