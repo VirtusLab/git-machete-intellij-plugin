@@ -10,27 +10,11 @@
         You can read more at <a href="https://github.com/VirtusLab/git-machete">website</a>.
     ]]></description>
 
-    <!-- <depends>com.intellij.modules.lang</depends>-->
-    <depends>com.intellij.modules.platform</depends>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="191"/>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="GitMachete" anchor="bottom"
-                    factoryClass="com.virtuslab.GitMacheteWindowFactory"
-                    secondary="false"/>
+        <toolWindow id="Git Machete" anchor="bottom" factoryClass="com.virtuslab.gitmachete.GitMacheteContentProvider"/>
     </extensions>
-
-    <actions>
-        <action id="com.virtuslab.GitMachete" class="com.virtuslab.GitMachete" text="GitMachete">
-            <add-to-group group-id="Git.Menu" anchor="last"/>
-        </action>
-    </actions>
-
-<!--    <project-components>-->
-<!--        <component>-->
-<!--            <implementation-class>com.virtuslab.GitMacheteComponent</implementation-class>-->
-<!--        </component>-->
-<!--    </project-components>-->
 </idea-plugin>

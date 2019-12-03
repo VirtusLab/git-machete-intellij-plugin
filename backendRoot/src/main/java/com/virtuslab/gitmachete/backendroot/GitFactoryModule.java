@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.root;
+package com.virtuslab.gitmachete.backendroot;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
