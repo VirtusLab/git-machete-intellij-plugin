@@ -6,6 +6,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -13,6 +14,7 @@ import lombok.Getter;
 public class GitMacheteBranch implements IGitMacheteBranch {
   private String name;
   List<IGitMacheteCommit> commits = new LinkedList<>();
+  Optional<IGitMacheteBranch> upstreamBranch;
 
   @Getter(AccessLevel.NONE)
   List<IGitMacheteBranch> childBranches = new LinkedList<>();

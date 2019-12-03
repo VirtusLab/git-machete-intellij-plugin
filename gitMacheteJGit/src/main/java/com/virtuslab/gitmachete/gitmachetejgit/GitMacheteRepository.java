@@ -102,12 +102,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
         if (level == 0) {
           branch.commits = List.of();
+          branch.upstreamBranch = Optional.empty();
           branch.syncToParentStatus = SyncToParentStatus.InSync;
           addRootBranch(branch);
         } else {
           branch.commits =
               getCommitsBelongingSpecificallyToBranch(
                   coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
+          branch.upstreamBranch = Optional.of(macheteBranchesLevelsMap.get(level - 1));
           branch.syncToParentStatus =
               getSyncToParentStatus(coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
           macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
@@ -231,7 +233,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     sb.append(branch.getSyncToOriginStatus());
     sb.append("; Parent: ");
     sb.append(branch.getSyncToParentStatus());
-    sb.append(")");
+    sb.append(") - UPSTREAM: ");
+    sb.append(branch.getUpstreamBranch().isEmpty() ? "none" : branch.getUpstreamBranch().get().getName());
+    sb.append(" - ");
     for (var c : branch.getCommits()) {
       sb.append("; ");
       sb.append(c.getMessage().split("\n", 2)[0]);

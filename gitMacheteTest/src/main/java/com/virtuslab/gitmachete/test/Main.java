@@ -16,7 +16,7 @@ public class Main {
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
-                  Paths.get(System.getProperty("user.home"), "submodule-test"), Optional.empty());
+                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
