@@ -7,11 +7,11 @@ import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 
 public class GitMacheteWindowFactory implements ToolWindowFactory {
-    final GitMacheteUI gitMacheteUI = new GitMacheteUI();
+  final GitMacheteUI gitMacheteUI = new GitMacheteUI();
 
-    @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        Platform.setImplicitExit(false);
-        toolWindow.getComponent().getParent().add(gitMacheteUI);
-    }
+  @Override
+  public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+    Platform.setImplicitExit(false);
+    toolWindow.getComponent().getParent().add(gitMacheteUI);
+  }
 }

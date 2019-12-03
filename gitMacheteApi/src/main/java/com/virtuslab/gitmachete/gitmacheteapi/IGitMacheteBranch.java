@@ -3,13 +3,13 @@ package com.virtuslab.gitmachete.gitmacheteapi;
 import java.util.List;
 
 public interface IGitMacheteBranch {
-    String getName();
+  String getName();
 
-    List<IGitMacheteCommit> getCommits();
+  List<IGitMacheteCommit> getCommits();
 
-    List<IGitMacheteBranch> getBranches();
+  List<IGitMacheteBranch> getBranches();
 
-    SyncToParentStatus getSyncToParentStatus();
+  SyncToParentStatus getSyncToParentStatus();
 
-    SyncToOriginStatus getSyncToOriginStatus();
+  SyncToOriginStatus getSyncToOriginStatus();
 }

@@ -10,15 +10,18 @@ allprojects {
 
 subprojects {
     version = '1.0'
-}
 
-apply plugin: 'java'
+    apply plugin: 'java'
 
-spotless {
-    java {
-        googleJavaFormat()
+    apply plugin: 'com.diffplug.gradle.spotless'
+
+    spotless {
+        java {
+            googleJavaFormat()
+        }
     }
 }
+
 
 afterEvaluate {
     tasks.getByName('spotlessCheck').dependsOn(tasks.getByName('spotlessApply'))

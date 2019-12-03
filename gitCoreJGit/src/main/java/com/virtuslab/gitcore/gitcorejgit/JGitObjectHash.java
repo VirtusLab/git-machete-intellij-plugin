@@ -8,6 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class JGitObjectHash implements IGitCoreCommitHash {
-    @Getter
-    private String hashString;
+  @Getter private String hashString;
 }
