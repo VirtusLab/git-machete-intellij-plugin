@@ -1,24 +1,23 @@
 package com.virtuslab.gitmachete.ui.table;
 
-import com.virtuslab.gitmachete.api.IRepositoryGraph;
-import com.virtuslab.gitmachete.ui.render.GraphBranchCell;
+import com.virtuslab.gitmachete.graph.model.GraphElement;
+import com.virtuslab.gitmachete.graph.repositoryGraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class GraphTableModel extends AbstractTableModel {
-  private static final int BRANCH_COLUMN = 0;
-  private static final int COLUMN_COUNT = BRANCH_COLUMN + 1;
-  private static final String[] COLUMN_NAMES = {"Branch name"};
+  private static final int BRANCH_OR_COMMIT_COLUMN = 0;
+  private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
+  private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
-  @Nonnull private final IRepositoryGraph myIRepositoryGraph;
-
-  GraphTableModel(@Nonnull IRepositoryGraph IRepositoryGraph) {
-    myIRepositoryGraph = IRepositoryGraph;
-  }
+  @Nonnull private final IRepositoryGraph iRepositoryGraph;
 
   @Override
   public int getRowCount() {
-    return myIRepositoryGraph.nodesCount();
+    return iRepositoryGraph.nodesCount();
   }
 
   @Override
@@ -30,9 +29,9 @@ public class GraphTableModel extends AbstractTableModel {
   @Override
   public final Object getValueAt(int rowIndex, int columnIndex) {
     switch (columnIndex) {
-      case BRANCH_COLUMN:
-        String branchName = myIRepositoryGraph.getBranch(rowIndex).getName();
-        return new GraphBranchCell(branchName, myIRepositoryGraph.getPrintElements(rowIndex));
+      case BRANCH_OR_COMMIT_COLUMN:
+        GraphElement element = iRepositoryGraph.getGraphElement(rowIndex);
+        return new BranchOrCommitCell(element, iRepositoryGraph.getPrintElements(rowIndex));
       default:
         throw new IllegalArgumentException(
             "columnIndex is " + columnIndex + " > " + (getColumnCount() - 1));
@@ -42,8 +41,8 @@ public class GraphTableModel extends AbstractTableModel {
   @Override
   public Class<?> getColumnClass(int column) {
     switch (column) {
-      case BRANCH_COLUMN:
-        return GraphBranchCell.class;
+      case BRANCH_OR_COMMIT_COLUMN:
+        return BranchOrCommitCell.class;
       default:
         throw new IllegalArgumentException(
             "columnIndex is " + column + " > " + (getColumnCount() - 1));

@@ -14,7 +14,6 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    // https://mvnrepository.com/artifact/org.openjfx/javafx
     compile group: 'org.openjfx', name: 'javafx', version: '11', ext: 'pom'
     compile project(':gitMacheteApi')
     compile project(':backendRoot')
@@ -35,13 +34,4 @@ patchPluginXml {
 runIde {
     jbrVersion '11_0_2b159'
     jvmArgs '-Djdk.gtk.version=2'
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs += ["src/main/java"]
-            includes += ["**/*.fxml"]
-        }
-    }
 }
