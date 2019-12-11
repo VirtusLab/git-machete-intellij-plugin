@@ -1,16 +1,17 @@
 version: 2.1
 jobs:
   build:
+    working_directory: ~/git-machete-intellij-plugin
     docker:
       - image: openjdk:11
+
     steps:
+      - checkout
       - run:
-          name: The First Step
+          name: Check formatting
           command: |
-            echo 'Hello World!'
-            echo 'This is the delivery pipeline'
+            ./gradlew spotlessCheck
       - run:
-          name: Code Has Arrived
+          name: Build & Test
           command: |
-            ls -al
-            echo '^^^That should look familiar^^^'
+            ./gradlew test

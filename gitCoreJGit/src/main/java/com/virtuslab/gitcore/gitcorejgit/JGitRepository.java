@@ -35,8 +35,7 @@ public class JGitRepository implements IGitCoreRepository {
 
     if (Files.isDirectory(gitPath)) {
       this.gitFolderPath = gitPath;
-    }
-    else if (Files.isRegularFile(gitPath))
+    } else if (Files.isRegularFile(gitPath))
       this.gitFolderPath = getGitFolderPathFromGitFile(gitPath);
     else
       throw new GitNoSuchRepositoryException(
