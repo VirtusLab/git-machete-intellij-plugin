@@ -15,6 +15,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   private String name;
   List<IGitMacheteCommit> commits = new LinkedList<>();
   Optional<IGitMacheteBranch> upstreamBranch;
+  Optional<String> customAnnotation;
 
   @Getter(AccessLevel.NONE)
   List<IGitMacheteBranch> childBranches = new LinkedList<>();

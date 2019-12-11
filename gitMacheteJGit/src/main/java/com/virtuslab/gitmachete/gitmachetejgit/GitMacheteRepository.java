@@ -80,7 +80,19 @@ public class GitMacheteRepository implements IGitMacheteRepository {
                 "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
                 pathToMacheteFile.toAbsolutePath().toString()));
 
-      String branchName = line.trim();
+      String trimedLine = line.trim();
+
+      String branchName;
+      Optional<String> customAnnotation;
+      int indexOfSpace = trimedLine.indexOf(' ');
+      if (indexOfSpace > -1) {
+        branchName = trimedLine.substring(0, indexOfSpace);
+        customAnnotation = Optional.of(trimedLine.substring(indexOfSpace + 1));
+      } else {
+        branchName = trimedLine;
+        customAnnotation = Optional.empty();
+      }
+
       IGitCoreLocalBranch coreLocalBranch;
       try {
         // Checking if local branch of this name really exists in this repository
@@ -97,6 +109,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       try {
         branch.syncToOriginStatus =
             getSyncToOriginByTrackingStatus(coreLocalBranch.getTrackingStatus());
+        branch.customAnnotation = customAnnotation;
 
         if (level == 0) {
           branch.commits = List.of();
@@ -227,6 +240,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private void printBranch(IGitMacheteBranch branch, int level, StringBuilder sb) {
     sb.append("\t".repeat(level));
     sb.append(branch.getName());
+    sb.append(" - ANNOTATION: ");
+    sb.append(branch.getCustomAnnotation());
     sb.append(" - (Remote: ");
     sb.append(branch.getSyncToOriginStatus());
     sb.append("; Parent: ");

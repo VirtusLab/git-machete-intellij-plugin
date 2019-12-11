@@ -10,6 +10,8 @@ public interface IGitMacheteBranch {
 
   List<IGitMacheteBranch> getBranches();
 
+  Optional<String> getCustomAnnotation();
+
   Optional<IGitMacheteBranch> getUpstreamBranch();
 
   SyncToParentStatus getSyncToParentStatus();
