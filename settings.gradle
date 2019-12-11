@@ -4,6 +4,6 @@ include 'gitMacheteApi'
 include 'gitCoreApi'
 include 'intellijPlugin'
 include 'gitMacheteJGit'
-include 'root'
+include 'backendRoot'
 include 'gitMacheteTest'
 
