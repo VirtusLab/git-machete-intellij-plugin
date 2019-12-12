@@ -80,16 +80,16 @@ public class GitMacheteRepository implements IGitMacheteRepository {
                 "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
                 pathToMacheteFile.toAbsolutePath().toString()));
 
-      String trimedLine = line.trim();
+      String trimmedLine = line.trim();
 
       String branchName;
       Optional<String> customAnnotation;
-      int indexOfSpace = trimedLine.indexOf(' ');
+      int indexOfSpace = trimmedLine.indexOf(' ');
       if (indexOfSpace > -1) {
-        branchName = trimedLine.substring(0, indexOfSpace);
-        customAnnotation = Optional.of(trimedLine.substring(indexOfSpace + 1));
+        branchName = trimmedLine.substring(0, indexOfSpace);
+        customAnnotation = Optional.of(trimmedLine.substring(indexOfSpace + 1).trim());
       } else {
-        branchName = trimedLine;
+        branchName = trimmedLine;
         customAnnotation = Optional.empty();
       }
 
