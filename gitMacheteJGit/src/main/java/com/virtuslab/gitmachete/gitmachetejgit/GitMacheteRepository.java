@@ -101,28 +101,23 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitImplementationException(e);
       }
 
-      var branch = new GitMacheteBranch(branchName);
+      var branch = new GitMacheteBranch(coreLocalBranch, branchName);
 
       macheteBranchesLevelsMap.put(level, branch);
       coreBranchesLevelsMap.put(level, coreLocalBranch);
 
       try {
-        branch.syncToOriginStatus =
-            getSyncToOriginByTrackingStatus(coreLocalBranch.getTrackingStatus());
         branch.customAnnotation = customAnnotation;
 
         if (level == 0) {
           branch.commits = List.of();
           branch.upstreamBranch = Optional.empty();
-          branch.syncToParentStatus = SyncToParentStatus.InSync;
           addRootBranch(branch);
         } else {
           branch.commits =
               getCommitsBelongingSpecificallyToBranch(
                   coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
           branch.upstreamBranch = Optional.of(macheteBranchesLevelsMap.get(level - 1));
-          branch.syncToParentStatus =
-              getSyncToParentStatus(coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
           macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
         }
       } catch (GitException e) {
@@ -173,16 +168,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     return indent / levelWidth;
   }
 
-  private SyncToOriginStatus getSyncToOriginByTrackingStatus(
-      Optional<IGitCoreBranchTrackingStatus> ts) {
-    if (ts.isEmpty()) return SyncToOriginStatus.Untracked;
-
-    if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) return SyncToOriginStatus.Diverged;
-    else if (ts.get().getAhead() > 0) return SyncToOriginStatus.Ahead;
-    else if (ts.get().getBehind() > 0) return SyncToOriginStatus.Behind;
-    else return SyncToOriginStatus.InSync;
-  }
-
   private List<IGitMacheteCommit> translateIGitCoreCommitsToIGitMacheteCommits(
       List<IGitCoreCommit> list) throws GitException {
     var l = new LinkedList<IGitMacheteCommit>();
@@ -203,30 +188,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         childBranch.getCommitsUntil(forkPoint.get()));
   }
 
-  private SyncToParentStatus getSyncToParentStatus(
-      IGitCoreLocalBranch childBranch, IGitCoreLocalBranch parentBranch) throws GitException {
-    if (childBranch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
-      if (childBranch.hasJustBeenCreated()) return SyncToParentStatus.InSync;
-      else return SyncToParentStatus.Merged;
-    } else {
-      Optional<IGitCoreCommit> forkPoint = childBranch.getForkPoint(parentBranch);
-      boolean isParentAncestorOfChild =
-          parentBranch.getPointedCommit().isAncestorOf(childBranch.getPointedCommit());
-
-      if (isParentAncestorOfChild) {
-        if (forkPoint.isEmpty() || !forkPoint.get().equals(parentBranch.getPointedCommit()))
-          return SyncToParentStatus.NotADirectDescendant;
-        else return SyncToParentStatus.InSync;
-      } else {
-        boolean isChildAncestorOfParent =
-            childBranch.getPointedCommit().isAncestorOf(parentBranch.getPointedCommit());
-
-        if (isChildAncestorOfParent) return SyncToParentStatus.Merged;
-        else return SyncToParentStatus.OutOfSync;
-      }
-    }
-  }
-
   @Override
   public String toString() {
     var sb = new StringBuilder();
@@ -238,23 +199,30 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   private void printBranch(IGitMacheteBranch branch, int level, StringBuilder sb) {
-    sb.append("\t".repeat(level));
-    sb.append(branch.getName());
-    sb.append(" - ANNOTATION: ");
-    sb.append(branch.getCustomAnnotation());
-    sb.append(" - (Remote: ");
-    sb.append(branch.getSyncToOriginStatus());
-    sb.append("; Parent: ");
-    sb.append(branch.getSyncToParentStatus());
-    sb.append(") - UPSTREAM: ");
-    sb.append(
-        branch.getUpstreamBranch().isEmpty() ? "none" : branch.getUpstreamBranch().get().getName());
-    sb.append(" - ");
-    for (var c : branch.getCommits()) {
-      sb.append("; ");
-      sb.append(c.getMessage().split("\n", 2)[0]);
+    try {
+      sb.append("\t".repeat(level));
+      sb.append(branch.getName());
+      sb.append(" - ANNOTATION: ");
+      sb.append(branch.getCustomAnnotation());
+      sb.append(" - (Remote: ");
+      sb.append(branch.getSyncToOriginStatus());
+      sb.append("; Parent: ");
+      sb.append(branch.getSyncToParentStatus());
+      sb.append(") - UPSTREAM: ");
+      sb.append(
+          branch.getUpstreamBranch().isEmpty()
+              ? "none"
+              : branch.getUpstreamBranch().get().getName());
+      sb.append(" - ");
+      for (var c : branch.getCommits()) {
+        sb.append("; ");
+        sb.append(c.getMessage().split("\n", 2)[0]);
+      }
+      sb.append(System.lineSeparator());
+    } catch (GitException e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace(System.err);
     }
-    sb.append(System.lineSeparator());
 
     for (var b : branch.getBranches()) {
       printBranch(b, level + 1, sb);
@@ -273,7 +241,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     if (branch.isEmpty()) return Optional.empty();
     else
       try {
-        return Optional.of(new GitMacheteBranch(branch.get().getName()));
+        return Optional.of(new GitMacheteBranch(branch.get(), branch.get().getName()));
       } catch (GitException e) {
         throw new GitMacheteJGitException("Error occurred while getting current branch name", e);
       }
