@@ -23,18 +23,16 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   SyncToParentStatus syncToParentStatus = null;
 
-
   public List<IGitMacheteCommit> getCommits() throws GitException {
-    if(upstreamBranch.isEmpty())
-      return List.of();
+    if (upstreamBranch.isEmpty()) return List.of();
 
-    Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint(upstreamBranch.get().getCoreLocalBranch());
+    Optional<IGitCoreCommit> forkPoint =
+        coreLocalBranch.getForkPoint(upstreamBranch.get().getCoreLocalBranch());
     if (forkPoint.isEmpty()) return List.of();
 
     return translateIGitCoreCommitsToIGitMacheteCommits(
-            coreLocalBranch.getCommitsUntil(forkPoint.get()));
+        coreLocalBranch.getCommitsUntil(forkPoint.get()));
   }
-
 
   public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch, String name) {
     this.coreLocalBranch = coreLocalBranch;
@@ -82,9 +80,8 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     }
   }
 
-
   private List<IGitMacheteCommit> translateIGitCoreCommitsToIGitMacheteCommits(
-          List<IGitCoreCommit> list) throws GitException {
+      List<IGitCoreCommit> list) throws GitException {
     var l = new LinkedList<IGitMacheteCommit>();
 
     for (var c : list) {
@@ -93,5 +90,4 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
     return l;
   }
-
 }
