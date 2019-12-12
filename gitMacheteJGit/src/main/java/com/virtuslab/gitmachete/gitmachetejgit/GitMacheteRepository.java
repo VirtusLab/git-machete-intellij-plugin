@@ -70,7 +70,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     int currentLevel = 0;
     Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
-    Map<Integer, IGitCoreLocalBranch> coreBranchesLevelsMap = new HashMap<>();
     for (var line : lines) {
       int level = getLevel(getIndent(line));
 
@@ -104,24 +103,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var branch = new GitMacheteBranch(coreLocalBranch, branchName);
 
       macheteBranchesLevelsMap.put(level, branch);
-      coreBranchesLevelsMap.put(level, coreLocalBranch);
 
-      try {
-        branch.customAnnotation = customAnnotation;
+      branch.customAnnotation = customAnnotation;
 
-        if (level == 0) {
-          branch.commits = List.of();
-          branch.upstreamBranch = Optional.empty();
-          addRootBranch(branch);
-        } else {
-          branch.commits =
-              getCommitsBelongingSpecificallyToBranch(
-                  coreLocalBranch, coreBranchesLevelsMap.get(level - 1));
-          branch.upstreamBranch = Optional.of(macheteBranchesLevelsMap.get(level - 1));
-          macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
-        }
-      } catch (GitException e) {
-        throw new GitImplementationException(e);
+      if (level == 0) {
+        branch.upstreamBranch = Optional.empty();
+        addRootBranch(branch);
+      } else {
+        branch.upstreamBranch = Optional.of(macheteBranchesLevelsMap.get(level - 1));
+        macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
       }
 
       currentLevel = level;
@@ -166,26 +156,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
               pathToMacheteFile.toAbsolutePath().toString()));
 
     return indent / levelWidth;
-  }
-
-  private List<IGitMacheteCommit> translateIGitCoreCommitsToIGitMacheteCommits(
-      List<IGitCoreCommit> list) throws GitException {
-    var l = new LinkedList<IGitMacheteCommit>();
-
-    for (var c : list) {
-      l.add(new GitMacheteCommit(c.getMessage()));
-    }
-
-    return l;
-  }
-
-  private List<IGitMacheteCommit> getCommitsBelongingSpecificallyToBranch(
-      IGitCoreLocalBranch childBranch, IGitCoreLocalBranch parentBranch) throws GitException {
-    Optional<IGitCoreCommit> forkPoint = childBranch.getForkPoint(parentBranch);
-    if (forkPoint.isEmpty()) return List.of();
-
-    return translateIGitCoreCommitsToIGitMacheteCommits(
-        childBranch.getCommitsUntil(forkPoint.get()));
   }
 
   @Override

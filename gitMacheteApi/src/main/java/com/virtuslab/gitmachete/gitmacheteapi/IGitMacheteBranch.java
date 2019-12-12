@@ -10,7 +10,7 @@ public interface IGitMacheteBranch {
 
   String getName();
 
-  List<IGitMacheteCommit> getCommits();
+  List<IGitMacheteCommit> getCommits() throws GitException;
 
   List<IGitMacheteBranch> getBranches();
 
