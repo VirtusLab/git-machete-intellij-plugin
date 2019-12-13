@@ -166,47 +166,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public String toString() {
-    var sb = new StringBuilder();
-    for (var b : rootBranches) {
-      printBranch(b, 0, sb);
-    }
-
-    return sb.toString();
-  }
-
-  private void printBranch(IGitMacheteBranch branch, int level, StringBuilder sb) {
-    try {
-      sb.append("\t".repeat(level));
-      sb.append(branch.getName());
-      sb.append(" - ANNOTATION: ");
-      sb.append(branch.getCustomAnnotation());
-      sb.append(" - (Remote: ");
-      sb.append(branch.getSyncToOriginStatus());
-      sb.append("; Parent: ");
-      sb.append(branch.getSyncToParentStatus());
-      sb.append(") - UPSTREAM: ");
-      sb.append(
-          branch.getUpstreamBranch().isEmpty()
-              ? "none"
-              : branch.getUpstreamBranch().get().getName());
-      sb.append(" - ");
-      for (var c : branch.getCommits()) {
-        sb.append("; ");
-        sb.append(c.getMessage().split("\n", 2)[0]);
-      }
-      sb.append(System.lineSeparator());
-    } catch (GitException e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace(System.err);
-    }
-
-    for (var b : branch.getBranches()) {
-      printBranch(b, level + 1, sb);
-    }
-  }
-
-  @Override
   public Optional<IGitMacheteBranch> getCurrentBranch() throws GitMacheteException {
     Optional<IGitCoreLocalBranch> branch;
     try {
