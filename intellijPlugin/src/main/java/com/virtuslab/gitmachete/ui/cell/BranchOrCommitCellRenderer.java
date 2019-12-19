@@ -88,12 +88,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       append(""); // appendTextPadding wont work without this
 
       appendTextPadding(graphImage.getWidth() + LabelPainter.RIGHT_PADDING.get());
-      SimpleTextAttributes attributes = getAttributes();
+      SimpleTextAttributes attributes = cell.getElement().getAttributes();
       appendText(cell, attributes, isSelected);
-    }
-
-    private SimpleTextAttributes getAttributes() {
-      return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
     }
 
     private void appendText(

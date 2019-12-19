@@ -17,7 +17,7 @@ public class GraphElementManagerImpl implements PrintElementManager {
   @Nonnull private final Comparator<GraphElement> graphElementComparator;
   @Nonnull private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
   @Nonnull private final LinearGraph linearGraph;
-  @Nonnull private Set<Integer> selectedNodesIds = Collections.emptySet();
+  @Nonnull private final Set<Integer> selectedNodesIds = Collections.emptySet();
 
   public GraphElementManagerImpl(
       @Nonnull LinearGraph linearGraph, @Nonnull IGraphColorManager colorManager) {

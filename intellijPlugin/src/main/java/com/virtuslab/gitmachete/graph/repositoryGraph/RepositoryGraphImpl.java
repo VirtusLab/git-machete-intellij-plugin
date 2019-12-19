@@ -23,15 +23,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class RepositoryGraphImpl implements IRepositoryGraph {
-  @Nonnull private final List<GraphElement> myElements;
-  private final PrintElementGeneratorImpl myPrintElementGenerator;
-  private final IGraphColorManager myColorManager;
+  @Nonnull final List<GraphElement> elements;
+  private final PrintElementGeneratorImpl printElementGenerator;
 
   public RepositoryGraphImpl(@Nonnull IGitMacheteRepository repository) {
-    myElements = toList(repository);
-    myColorManager =
+    elements = getGraphElementsOfRepository(repository);
+
+    IGraphColorManager myColorManager =
         new IGraphColorManager() {
-          Random random = new Random();
+          final Random random = new Random();
 
           @Override
           public int getColor() {
@@ -42,30 +42,32 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
             return r << 16 | g << 8 | b << 0;
           }
         };
+
     GraphElementManagerImpl myPrintElementManager =
         new GraphElementManagerImpl(this, myColorManager);
-    myPrintElementGenerator = new PrintElementGeneratorImpl(this, myPrintElementManager, false);
+    printElementGenerator = new PrintElementGeneratorImpl(this, myPrintElementManager, false);
   }
 
-  private List<GraphElement> toList(IGitMacheteRepository repository) {
-    List<GraphElement> list = new ArrayList<>();
+  List<GraphElement> getGraphElementsOfRepository(IGitMacheteRepository repository) {
+    List<GraphElement> graphElements = new ArrayList<>();
     for (IGitMacheteBranch branch : repository.getRootBranches()) {
-      list.add(new BranchElement(branch));
-      addDownstreamBranches(list, branch);
+      graphElements.add(new BranchElement(branch));
+      addDownstreamBranches(graphElements, branch);
     }
-    return list;
+    return graphElements;
   }
 
-  private void addDownstreamBranches(List<GraphElement> list, IGitMacheteBranch upstreamBranch) {
+  private void addDownstreamBranches(
+      List<GraphElement> graphElements, IGitMacheteBranch upstreamBranch) {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      list.add(new BranchElement(branch));
-      addDownstreamBranches(list, branch);
+      graphElements.add(new BranchElement(branch));
+      addDownstreamBranches(graphElements, branch);
     }
   }
 
   @Override
   public Collection<? extends PrintElement> getPrintElements(int rowIndex) {
-    return myPrintElementGenerator.getPrintElements(rowIndex);
+    return printElementGenerator.getPrintElements(rowIndex);
   }
 
   @Nonnull
@@ -77,16 +79,16 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
 
     List<GraphEdge> adjacentEdges = new ArrayList<>();
 
-    GraphElement currentElement = myElements.get(nodeIndex);
+    GraphElement currentElement = elements.get(nodeIndex);
 
-    if (filter.downNormal && nodeIndex < myElements.size() - 1) {
+    if (filter.downNormal && nodeIndex < elements.size() - 1) {
       IGitMacheteBranch branch = ((BranchElement) currentElement).getBranch();
       adjacentEdges =
           branch.getBranches().stream()
               .map(
                   b ->
                       GraphEdge.createNormalEdge(
-                          nodeIndex, myElements.indexOf(new BranchElement(b)), GraphEdgeType.USUAL))
+                          nodeIndex, elements.indexOf(new BranchElement(b)), GraphEdgeType.USUAL))
               .collect(Collectors.toList());
     }
 
@@ -106,23 +108,23 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
     return adjacentEdges;
   }
 
-  private int getUpstreamElementIndex(BranchElement graphElement) {
+  int getUpstreamElementIndex(BranchElement graphElement) {
     int upNode = -1;
     Optional<IGitMacheteBranch> upstreamBranch = graphElement.getBranch().getUpstreamBranch();
     if (upstreamBranch.isPresent()) {
-      upNode = myElements.indexOf(new BranchElement(upstreamBranch.get()));
+      upNode = elements.indexOf(new BranchElement(upstreamBranch.get()));
     }
     return upNode;
   }
 
   @Override
   public GraphElement getGraphElement(int rowIndex) {
-    return myElements.get(rowIndex);
+    return elements.get(rowIndex);
   }
 
   @Override
   public int nodesCount() {
-    return myElements.size();
+    return elements.size();
   }
 
   @Nonnull

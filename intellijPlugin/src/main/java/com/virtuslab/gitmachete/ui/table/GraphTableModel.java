@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class GraphTableModel extends AbstractTableModel {
-  private static final int BRANCH_OR_COMMIT_COLUMN = 0;
+  static final int BRANCH_OR_COMMIT_COLUMN = 0;
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
