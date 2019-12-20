@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Install pip3
           command: |
-            sudo apt-get -y install python3-pip
+            apt-get -y install python3-pip
       - run:
           name: Install machete CLI
           command: |
