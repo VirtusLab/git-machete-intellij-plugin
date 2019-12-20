@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/git-machete-intellij-plugin
     docker:
-      - image: openjdk:11
+      - image: jdk11-mvn-py3
 
     steps:
       - checkout
