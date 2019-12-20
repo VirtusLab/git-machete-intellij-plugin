@@ -28,6 +28,11 @@ push() {
 	git push -u origin $b
 }
 
+
+git config --global user.email "circleci@example.com"
+git config --global user.name "CircleCI"
+
+
 newrepo $1 machete-sandbox-remote --bare
 newrepo $1 machete-sandbox
 git remote add origin $1/machete-sandbox-remote
