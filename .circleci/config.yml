@@ -12,19 +12,8 @@ jobs:
           command: |
             ./gradlew spotlessCheck
       - run:
-          name: Install pip3
-          command: |
-            apt update
-            apt -y install python3-pip
-      - run:
           name: Install machete CLI
           command: pip3 install git-machete==2.12.5
-      - run:
-          name: Prepare repository from script
-          command: |
-            git --version
-            mkdir /var/tmp/machete-tests
-            /bin/bash ~/git-machete-intellij-plugin/backendRoot/src/test/resources/repo1.sh /var/tmp/machete-tests
       - run:
           name: Build & Test
           command: |

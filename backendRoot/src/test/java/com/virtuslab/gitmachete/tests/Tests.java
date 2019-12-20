@@ -30,7 +30,7 @@ public class Tests {
     // Prepare repo
     createDirStructure();
     copyScriptFromResources("repo1.sh");
-    // prepareRepoFromScript();
+    prepareRepoFromScript();
 
     repo =
         GitFactoryModule.getInjector()
@@ -54,7 +54,7 @@ public class Tests {
   }
 
   private void createDirStructure() throws IOException {
-    // Files.createDirectory(TestPaths.tmp);
+    Files.createDirectory(TestPaths.tmp);
     Files.createDirectory(TestPaths.scripts);
   }
 

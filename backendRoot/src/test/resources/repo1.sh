@@ -79,9 +79,3 @@ master
 EOF
 
 git branch -d root
-
-echo
-echo
-git machete status --debug
-echo
-echo
