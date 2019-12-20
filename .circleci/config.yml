@@ -12,6 +12,10 @@ jobs:
           command: |
             ./gradlew spotlessCheck
       - run:
+          name: Install machete CLI
+          command: |
+            pip install --user git-machete==2.12.5
+      - run:
           name: Build & Test
           command: |
             ./gradlew test

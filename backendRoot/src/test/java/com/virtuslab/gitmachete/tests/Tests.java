@@ -12,55 +12,72 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Scanner;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 public class Tests {
   IGitMacheteRepository repo;
 
+  private static class TestPaths {
+    public static final Path tmp = Paths.get("/var/tmp/machete-tests");
+    public static final Path scripts = tmp.resolve("scripts");
+    public static final Path repo1Script = scripts.resolve("repo.sh");
+    public static final Path repo = tmp.resolve("machete-sandbox");
+  }
+
   @Test
-  public void Test() throws GitMacheteException, IOException, URISyntaxException {
+  public void Test1() throws GitMacheteException, IOException, URISyntaxException {
     // Prepare repo
-
-    Path tmp = Paths.get("/var/tmp/machete-tests");
-    Path scripts = tmp.resolve("scripts");
-    Path repo1Script = scripts.resolve("repo1.sh");
-    Path repo1 = tmp.resolve("machete-sandbox");
-
-    Files.createDirectory(tmp);
-    Files.createDirectory(scripts);
-
-    Files.copy(Paths.get(getClass().getResource("/repo1.sh").toURI()), repo1Script);
-
-    Runtime.getRuntime()
-        .exec(
-            "/bin/bash "
-                + repo1Script.toAbsolutePath().toString()
-                + " "
-                + tmp.toAbsolutePath().toString());
+    createDirStructure();
+    copyScriptFromResources("repo1.sh");
+    prepareRepoFromScript();
 
     repo =
         GitFactoryModule.getInjector()
             .getInstance(GitMacheteRepositoryFactory.class)
-            .create(repo1, Optional.empty());
+            .create(TestPaths.repo, Optional.empty());
 
-
-    //Test
-
+    // Test
     String myResult = repoStatusLikeCli();
-
-    var gitMacheteProcessBuilder = new ProcessBuilder();
-    gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
-    gitMacheteProcessBuilder.directory(repo1.toFile());
-    var gitMacheteProcess = gitMacheteProcessBuilder.start();
-    String gitMacheteResult = convertStreamToString(gitMacheteProcess.getInputStream());
+    String gitMacheteResult = gitMacheteCliStatusResult();
 
     Assert.assertEquals(gitMacheteResult, myResult);
 
-    //Cleanup
-      Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    // Cleanup
+    cleanup();
+  }
+
+  private void createDirStructure() throws IOException {
+    Files.createDirectory(TestPaths.tmp);
+    Files.createDirectory(TestPaths.scripts);
+  }
+
+  private void copyScriptFromResources(String scriptName) throws URISyntaxException, IOException {
+    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), TestPaths.repo1Script);
+  }
+
+  private void prepareRepoFromScript() throws IOException {
+    Runtime.getRuntime()
+        .exec(
+            "/bin/bash "
+                + TestPaths.repo1Script.toAbsolutePath().toString()
+                + " "
+                + TestPaths.tmp.toAbsolutePath().toString());
+  }
+
+  private String gitMacheteCliStatusResult() throws IOException {
+    var gitMacheteProcessBuilder = new ProcessBuilder();
+    gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
+    gitMacheteProcessBuilder.directory(TestPaths.repo.toFile());
+    var gitMacheteProcess = gitMacheteProcessBuilder.start();
+    return convertStreamToString(gitMacheteProcess.getInputStream());
+  }
+
+  private void cleanup() throws IOException {
+    Files.walk(TestPaths.tmp)
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
   }
 
   private String repoStatusLikeCli() {
@@ -134,8 +151,8 @@ public class Tests {
     }
   }
 
-   private static String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
+  private static String convertStreamToString(java.io.InputStream is) {
+    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+    return s.hasNext() ? s.next() : "";
+  }
 }
