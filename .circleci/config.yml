@@ -12,9 +12,13 @@ jobs:
           command: |
             ./gradlew spotlessCheck
       - run:
+          name: Install pip3
+          command: |
+            sudo apt-get -y install python3-pip
+      - run:
           name: Install machete CLI
           command: |
-            pip install --user git-machete==2.12.5
+            pip3 install --user git-machete==2.12.5
       - run:
           name: Build & Test
           command: |
