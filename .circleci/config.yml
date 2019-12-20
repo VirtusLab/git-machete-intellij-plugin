@@ -12,9 +12,6 @@ jobs:
           command: |
             ./gradlew spotlessCheck
       - run:
-          name: Install git
-          command: apt -y install git
-      - run:
           name: Install pip3
           command: |
             apt update
@@ -22,6 +19,11 @@ jobs:
       - run:
           name: Install machete CLI
           command: pip3 install --user git-machete==2.12.5
+      - run:
+          name: Prepare repository from script
+          command: |
+            mkdir /var/tmp/machete-tests
+            /bin/bash ~/git-machete-intellij-plugin/backendRoot/src/test/resources/repo1.sh /var/tmp/machete-tests
       - run:
           name: Build & Test
           command: |
