@@ -22,6 +22,7 @@ jobs:
       - run:
           name: Prepare repository from script
           command: |
+            git --version
             mkdir /var/tmp/machete-tests
             /bin/bash ~/git-machete-intellij-plugin/backendRoot/src/test/resources/repo1.sh /var/tmp/machete-tests
       - run:

@@ -41,6 +41,12 @@ public class Tests {
     String myResult = repoStatusLikeCli();
     String gitMacheteResult = gitMacheteCliStatusResult();
 
+    System.out.println("MYRESULT");
+    System.out.println(myResult);
+
+    System.out.println("MACHETERESULT");
+    System.out.println(gitMacheteResult);
+
     Assert.assertEquals(gitMacheteResult, myResult);
 
     // Cleanup
