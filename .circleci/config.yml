@@ -18,7 +18,7 @@ jobs:
             apt -y install python3-pip
       - run:
           name: Install machete CLI
-          command: pip3 install --system git-machete==2.12.5
+          command: pip3 install git-machete==2.12.5
       - run:
           name: Prepare repository from script
           command: |
