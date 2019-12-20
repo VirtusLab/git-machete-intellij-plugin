@@ -100,7 +100,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitImplementationException(e);
       }
 
-      var branch = new GitMacheteBranch(coreLocalBranch);
+      GitMacheteBranch branch;
+
+      try {
+        branch = new GitMacheteBranch(coreLocalBranch);
+      } catch (GitException e) {
+        throw new GitMacheteException(
+            MessageFormat.format("Error while creating git machete branch ({0})", branchName), e);
+      }
 
       macheteBranchesLevelsMap.put(level, branch);
 
@@ -210,7 +217,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     if (branch.isEmpty()) return Optional.empty();
     else {
-      return Optional.of(new GitMacheteBranch(branch.get()));
+      try {
+        return Optional.of(new GitMacheteBranch(branch.get()));
+      } catch (GitException e) {
+        throw new GitMacheteException("Error while creating current git machete branch");
+      }
     }
   }
 
