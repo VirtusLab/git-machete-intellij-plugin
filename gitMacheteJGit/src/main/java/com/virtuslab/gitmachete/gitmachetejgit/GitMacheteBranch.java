@@ -14,7 +14,6 @@ import lombok.Getter;
 @Getter
 public class GitMacheteBranch implements IGitMacheteBranch {
   private IGitCoreLocalBranch coreLocalBranch;
-  private String name;
   Optional<IGitMacheteBranch> upstreamBranch;
   Optional<String> customAnnotation;
 
@@ -22,6 +21,15 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   List<IGitMacheteBranch> childBranches = new LinkedList<>();
 
   SyncToParentStatus syncToParentStatus = null;
+
+  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch) {
+    this.coreLocalBranch = coreLocalBranch;
+  }
+
+  @Override
+  public String getName() throws GitException {
+    return coreLocalBranch.getName();
+  }
 
   public List<IGitMacheteCommit> getCommits() throws GitException {
     if (upstreamBranch.isEmpty()) return List.of();
@@ -32,11 +40,6 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
     return translateIGitCoreCommitsToIGitMacheteCommits(
         coreLocalBranch.getCommitsUntil(forkPoint.get()));
-  }
-
-  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch, String name) {
-    this.coreLocalBranch = coreLocalBranch;
-    this.name = name;
   }
 
   public List<IGitMacheteBranch> getBranches() {

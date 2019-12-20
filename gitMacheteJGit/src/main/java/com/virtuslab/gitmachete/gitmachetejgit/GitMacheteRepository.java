@@ -100,7 +100,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitImplementationException(e);
       }
 
-      var branch = new GitMacheteBranch(coreLocalBranch, branchName);
+      var branch = new GitMacheteBranch(coreLocalBranch);
 
       macheteBranchesLevelsMap.put(level, branch);
 
@@ -209,12 +209,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     if (branch.isEmpty()) return Optional.empty();
-    else
-      try {
-        return Optional.of(new GitMacheteBranch(branch.get(), branch.get().getName()));
-      } catch (GitException e) {
-        throw new GitMacheteJGitException("Error occurred while getting current branch name", e);
-      }
+    else {
+      return Optional.of(new GitMacheteBranch(branch.get()));
+    }
   }
 
   @Override

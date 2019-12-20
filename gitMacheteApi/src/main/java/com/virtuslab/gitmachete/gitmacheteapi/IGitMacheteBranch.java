@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface IGitMacheteBranch {
   IGitCoreLocalBranch getCoreLocalBranch();
 
-  String getName();
+  String getName() throws GitException;
 
   List<IGitMacheteCommit> getCommits() throws GitException;
 
