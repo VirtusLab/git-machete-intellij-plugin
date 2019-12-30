@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
 
+set -e -o pipefail -u
+
 newb() {
 	git checkout -b $1
 }
 
 cmt() {
 	b=$(git symbolic-ref --short HEAD)
-	f=${b/\//-}-${1}-${2}.txt
+	f=${b/\//-}-${1}-${2:-""}.txt
 	touch $f
 	git add $f
 	git commit -m "$*"
 }
 
 newrepo() {
-  path=$1
+	path=$1
 	dir=$2
-	#rm -fr /tmp/_$dir
-	#mv $path/$dir /tmp/_$dir
 	mkdir $path/$dir
 	cd $path/$dir
-	opt=$3
+	if [[ $# -ge 3 ]]
+	then
+	  opt=$3
+	else
+	  opt=""
+	fi
 	git init $opt
 }
 

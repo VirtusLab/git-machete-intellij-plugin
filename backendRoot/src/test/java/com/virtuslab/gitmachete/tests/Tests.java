@@ -19,14 +19,14 @@ public class Tests {
   IGitMacheteRepository repo;
 
   private static class TestPaths {
-    public static final Path tmp = Paths.get("/var/tmp/machete-tests");
+    public static final Path tmp = Paths.get("/tmp/machete-tests");
     public static final Path scripts = tmp.resolve("scripts");
-    public static final Path repo1Script = scripts.resolve("repo.sh");
+    public static final Path repoScript = scripts.resolve("repo.sh");
     public static final Path repo = tmp.resolve("machete-sandbox");
   }
 
   @Test
-  public void Test1() throws GitMacheteException, IOException, URISyntaxException {
+  public void StatusTest() throws GitMacheteException, IOException, URISyntaxException {
     // Prepare repo
     createDirStructure();
     copyScriptFromResources("repo1.sh");
@@ -53,14 +53,14 @@ public class Tests {
   }
 
   private void copyScriptFromResources(String scriptName) throws URISyntaxException, IOException {
-    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), TestPaths.repo1Script);
+    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), TestPaths.repoScript);
   }
 
   private void prepareRepoFromScript() throws IOException {
     Runtime.getRuntime()
         .exec(
             "/bin/bash "
-                + TestPaths.repo1Script.toAbsolutePath().toString()
+                + TestPaths.repoScript.toAbsolutePath().toString()
                 + " "
                 + TestPaths.tmp.toAbsolutePath().toString());
   }
