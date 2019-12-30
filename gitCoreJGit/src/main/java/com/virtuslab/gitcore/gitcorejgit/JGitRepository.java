@@ -100,7 +100,7 @@ public class JGitRepository implements IGitCoreRepository {
   }
 
     @Override
-    public List<IGitCoreLocalBranch> getListOfLocalBranches() throws GitException {
+    public List<IGitCoreLocalBranch> getLocalBranches() throws GitException {
         List<IGitCoreLocalBranch> list = new LinkedList<>();
         try {
             for (Ref ref : this.getJgitGit().branchList().call()) {
@@ -114,7 +114,7 @@ public class JGitRepository implements IGitCoreRepository {
     }
 
     @Override
-    public List<IGitCoreRemoteBranch> getListOfRemoteBranches() throws GitException {
+    public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException {
         List<IGitCoreRemoteBranch> list = new LinkedList<>();
         try {
             for (Ref ref : this.getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {

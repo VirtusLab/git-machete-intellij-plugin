@@ -12,9 +12,9 @@ public interface IGitCoreRepository {
 
     IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitException;
 
-    List<IGitCoreLocalBranch> getListOfLocalBranches() throws GitException;
+    List<IGitCoreLocalBranch> getLocalBranches() throws GitException;
 
-    List<IGitCoreRemoteBranch> getListOfRemoteBranches() throws GitException;
+    List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException;
 
     Path getRepositoryPath();
 

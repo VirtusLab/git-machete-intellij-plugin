@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -120,7 +119,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
         List<Collection<ReflogEntry>> reflogEntriesList = new LinkedList<>();
 
-        for(var branch : this.repo.getListOfLocalBranches()) {
+        for(var branch : this.repo.getLocalBranches()) {
             if(!branch.equals(this)) {
                 try {
                     reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
@@ -130,7 +129,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
             }
         }
 
-        for(var branch : this.repo.getListOfRemoteBranches()) {
+        for(var branch : this.repo.getRemoteBranches()) {
             if(!branch.equals(this)) {
                 try {
                     reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
