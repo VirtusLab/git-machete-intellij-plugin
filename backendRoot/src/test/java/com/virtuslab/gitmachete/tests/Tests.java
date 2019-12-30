@@ -2,7 +2,12 @@ package com.virtuslab.gitmachete.tests;
 
 import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
-
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -12,13 +17,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
