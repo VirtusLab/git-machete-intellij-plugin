@@ -99,42 +99,45 @@ public class JGitRepository implements IGitCoreRepository {
     return new JGitRemoteBranch(this, branchName);
   }
 
-    @Override
-    public List<IGitCoreLocalBranch> getLocalBranches() throws GitException {
-        List<IGitCoreLocalBranch> list = new LinkedList<>();
-        try {
-            for (Ref ref : this.getJgitGit().branchList().call()) {
-                list.add(new JGitLocalBranch(this, ref.getName().replace(JGitLocalBranch.branchesPath, "")));
-            }
-        } catch (GitAPIException e) {
-            throw new JGitException("Error while getting list of local branches", e);
-        }
-
-        return list;
+  @Override
+  public List<IGitCoreLocalBranch> getLocalBranches() throws GitException {
+    List<IGitCoreLocalBranch> list = new LinkedList<>();
+    try {
+      for (Ref ref : this.getJgitGit().branchList().call()) {
+        list.add(
+            new JGitLocalBranch(this, ref.getName().replace(JGitLocalBranch.branchesPath, "")));
+      }
+    } catch (GitAPIException e) {
+      throw new JGitException("Error while getting list of local branches", e);
     }
 
-    @Override
-    public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException {
-        List<IGitCoreRemoteBranch> list = new LinkedList<>();
-        try {
-            for (Ref ref : this.getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {
-                list.add(new JGitRemoteBranch(this, ref.getName().replace(JGitRemoteBranch.branchesPath, "")));
-            }
-        } catch (GitAPIException e) {
-            throw new JGitException("Error while getting list of remote branches", e);
-        }
+    return list;
+  }
 
-        return list;
+  @Override
+  public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException {
+    List<IGitCoreRemoteBranch> list = new LinkedList<>();
+    try {
+      for (Ref ref :
+          this.getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {
+        list.add(
+            new JGitRemoteBranch(this, ref.getName().replace(JGitRemoteBranch.branchesPath, "")));
+      }
+    } catch (GitAPIException e) {
+      throw new JGitException("Error while getting list of remote branches", e);
     }
 
-    @Override
-    public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
-        SubmoduleWalk sWalk;
-        try {
-            sWalk = new SubmoduleWalk(this.jgitRepo);
-        } catch (IOException e) {
-            throw new JGitException("Error while initializing submodule walk", e);
-        }
+    return list;
+  }
+
+  @Override
+  public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
+    SubmoduleWalk sWalk;
+    try {
+      sWalk = new SubmoduleWalk(this.jgitRepo);
+    } catch (IOException e) {
+      throw new JGitException("Error while initializing submodule walk", e);
+    }
 
     Map<String, IGitCoreSubmoduleEntry> submodules = new HashMap<>();
 

@@ -6,19 +6,19 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface IGitCoreRepository {
-    Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitException;
+  Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitException;
 
-    IGitCoreLocalBranch getLocalBranch(String branchName) throws GitException;
+  IGitCoreLocalBranch getLocalBranch(String branchName) throws GitException;
 
-    IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitException;
+  IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitException;
 
-    List<IGitCoreLocalBranch> getLocalBranches() throws GitException;
+  List<IGitCoreLocalBranch> getLocalBranches() throws GitException;
 
-    List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException;
+  List<IGitCoreRemoteBranch> getRemoteBranches() throws GitException;
 
-    Path getRepositoryPath();
+  Path getRepositoryPath();
 
-    Path getGitFolderPath();
+  Path getGitFolderPath();
 
-    Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
+  Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
 }

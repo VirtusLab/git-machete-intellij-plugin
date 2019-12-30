@@ -10,7 +10,7 @@ public interface IGitCoreBranch {
 
   IGitCoreCommit getPointedCommit() throws GitException;
 
-  Optional<IGitCoreCommit> getForkPoint(IGitCoreBranch parentBranch) throws GitException;
+  Optional<IGitCoreCommit> getForkPoint() throws GitException;
 
   boolean isLocal();
 
