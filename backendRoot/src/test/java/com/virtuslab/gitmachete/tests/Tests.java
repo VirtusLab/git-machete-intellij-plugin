@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +32,8 @@ public class Tests {
   }
 
   @Test
-  public void StatusTest() throws GitMacheteException, IOException, URISyntaxException {
+  public void StatusTest()
+      throws GitMacheteException, IOException, URISyntaxException, InterruptedException {
     // Prepare repo
     createDirStructure();
     copyScriptFromResources("repo1.sh");
@@ -45,6 +47,11 @@ public class Tests {
     // Test
     String myResult = repoStatusLikeCli();
     String gitMacheteResult = gitMacheteCliStatusResult();
+
+    System.out.println("CLI OUTPUT:");
+    System.out.println(gitMacheteResult);
+    System.out.println("MY OUTPUT:");
+    System.out.println(myResult);
 
     Assert.assertEquals(gitMacheteResult, myResult);
 
@@ -61,13 +68,15 @@ public class Tests {
     Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), TestPaths.repoScript);
   }
 
-  private void prepareRepoFromScript() throws IOException {
-    Runtime.getRuntime()
-        .exec(
-            "/bin/bash "
-                + TestPaths.repoScript.toAbsolutePath().toString()
-                + " "
-                + TestPaths.tmp.toAbsolutePath().toString());
+  private void prepareRepoFromScript() throws IOException, InterruptedException {
+    var r =
+        Runtime.getRuntime()
+            .exec(
+                "/bin/bash "
+                    + TestPaths.repoScript.toAbsolutePath().toString()
+                    + " "
+                    + TestPaths.tmp.toAbsolutePath().toString());
+    r.waitFor(1, TimeUnit.SECONDS);
   }
 
   private String gitMacheteCliStatusResult() throws IOException {

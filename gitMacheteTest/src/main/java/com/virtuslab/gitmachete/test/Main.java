@@ -16,13 +16,26 @@ public class Main {
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
-                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
+                  Paths.get(
+                      "/tmp/machete-tests/machete-sandbox" /*System.getProperty("user.home"), "machete-sandbox"*/),
+                  Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
     }
 
-    System.out.println(repo);
+    var branches = repo.getRootBranches();
+
+    for (var b : branches) {
+      if (b.getName().equals("develop")) {
+        for (var bb : b.getBranches()) {
+          if (bb.getName().equals("allow-ownership-link")) {
+            var fp = bb.getCoreLocalBranch().getForkPoint();
+            System.out.println(fp);
+          }
+        }
+      }
+    }
 
     // System.out.println(repo.getSubmoduleRepositories());
   }

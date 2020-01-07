@@ -127,8 +127,15 @@ public abstract class JGitBranch implements IGitCoreBranch {
       }
     }
 
+    Optional<IGitCoreRemoteBranch> trackingBranch;
+
+    if (this instanceof IGitCoreLocalBranch)
+      trackingBranch = ((IGitCoreLocalBranch) this).getTrackingBranch();
+    else trackingBranch = Optional.empty();
+
     for (var branch : this.repo.getRemoteBranches()) {
-      if (!branch.equals(this)) {
+      if (!branch.equals(this)
+          && trackingBranch.filter(tracking -> tracking.equals(branch)).isEmpty()) {
         try {
           reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
         } catch (Exception e) {
@@ -140,7 +147,8 @@ public abstract class JGitBranch implements IGitCoreBranch {
     for (var curBranchCommit : walk) {
       for (var branchReflog : reflogEntriesList) {
         for (var branchReflogEntry : branchReflog) {
-          if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
+          if (!branchReflogEntry.getOldId().equals(ObjectId.zeroId())
+              && curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
             return Optional.of(new JGitCommit(curBranchCommit, repo));
           }
         }
