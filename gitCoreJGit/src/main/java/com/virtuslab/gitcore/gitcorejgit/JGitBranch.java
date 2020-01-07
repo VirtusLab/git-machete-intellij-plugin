@@ -105,60 +105,6 @@ public abstract class JGitBranch implements IGitCoreBranch {
   }
 
   @Override
-  public Optional<IGitCoreCommit> getForkPoint() throws GitException {
-    RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    RevCommit commit = getPointedRevCommit();
-    try {
-      walk.markStart(commit);
-    } catch (Exception e) {
-      throw new JGitException(e);
-    }
-
-    List<Collection<ReflogEntry>> reflogEntriesList = new LinkedList<>();
-
-    for (var branch : this.repo.getLocalBranches()) {
-      if (!branch.equals(this)) {
-        try {
-          reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
-        } catch (Exception e) {
-          throw new JGitException(e);
-        }
-      }
-    }
-
-    Optional<IGitCoreRemoteBranch> trackingBranch;
-
-    if (this instanceof IGitCoreLocalBranch)
-      trackingBranch = ((IGitCoreLocalBranch) this).getTrackingBranch();
-    else trackingBranch = Optional.empty();
-
-    for (var branch : this.repo.getRemoteBranches()) {
-      if (!branch.equals(this)
-          && trackingBranch.filter(tracking -> tracking.equals(branch)).isEmpty()) {
-        try {
-          reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
-        } catch (Exception e) {
-          throw new JGitException(e);
-        }
-      }
-    }
-
-    for (var curBranchCommit : walk) {
-      for (var branchReflog : reflogEntriesList) {
-        for (var branchReflogEntry : branchReflog) {
-          if (!branchReflogEntry.getOldId().equals(ObjectId.zeroId())
-              && curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
-            return Optional.of(new JGitCommit(curBranchCommit, repo));
-          }
-        }
-      }
-    }
-
-    return Optional.empty();
-  }
-
-  @Override
   public List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);

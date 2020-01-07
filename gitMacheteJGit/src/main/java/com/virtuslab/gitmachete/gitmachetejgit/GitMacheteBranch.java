@@ -45,7 +45,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   public SyncToOriginStatus getSyncToOriginStatus() throws GitException {
-    Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.getTrackingStatus();
+    Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.getRemoteTrackingStatus();
     if (ts.isEmpty()) return SyncToOriginStatus.Untracked;
 
     if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) return SyncToOriginStatus.Diverged;

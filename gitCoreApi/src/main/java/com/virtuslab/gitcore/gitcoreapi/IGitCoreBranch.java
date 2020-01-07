@@ -1,7 +1,6 @@
 package com.virtuslab.gitcore.gitcoreapi;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IGitCoreBranch {
   String getName() throws GitException;
@@ -9,8 +8,6 @@ public interface IGitCoreBranch {
   String getFullName() throws GitException;
 
   IGitCoreCommit getPointedCommit() throws GitException;
-
-  Optional<IGitCoreCommit> getForkPoint() throws GitException;
 
   boolean isLocal();
 

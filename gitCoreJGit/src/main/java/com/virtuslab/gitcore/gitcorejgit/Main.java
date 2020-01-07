@@ -67,7 +67,7 @@ public class Main {
     // System.out.println(mb);
 
     // System.out.println(child.getTrackingStatus());
-    System.out.println(parent.getTrackingStatus());
+    System.out.println(parent.getRemoteTrackingStatus());
 
     System.out.println(parent.getPointedCommit().isAncestorOf(child.getPointedCommit()));
     System.out.println(parent.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
