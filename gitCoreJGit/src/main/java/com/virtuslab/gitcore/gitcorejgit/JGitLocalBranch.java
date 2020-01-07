@@ -101,13 +101,21 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
       }
     }
 
+    // Filter reflogs
+    for (var entries : reflogEntriesList) {
+      // Checked if the old ID is not zero to exclude the first entry in reflog (just after
+      // creating from other branch)
+      entries.removeIf(
+          e ->
+              e.getOldId().equals(ObjectId.zeroId())
+                  || e.getComment().startsWith("branch: Reset to ")
+                  || e.getComment().startsWith("reset: moving to "));
+    }
+
     for (var curBranchCommit : walk) {
       for (var branchReflog : reflogEntriesList) {
         for (var branchReflogEntry : branchReflog) {
-          // Checked if the old ID is not zero to exclude the first entry in reflog (just after
-          // creating from other branch)
-          if (!branchReflogEntry.getOldId().equals(ObjectId.zeroId())
-              && curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
+          if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
             return Optional.of(new JGitCommit(curBranchCommit, repo));
           }
         }
