@@ -7,8 +7,6 @@ import com.virtuslab.gitmachete.file.GitMacheteFile;
 import com.virtuslab.gitmachete.file.GitMacheteFileBranchEntry;
 import com.virtuslab.gitmachete.file.GitMacheteFileException;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
@@ -42,7 +40,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
       @Assisted Path pathToRepoRoot,
       @Assisted Optional<String> repositoryName)
-          throws GitMacheteException, GitException {
+      throws GitMacheteException, GitException {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
 
     this.pathToRepoRoot = pathToRepoRoot;
@@ -56,25 +54,32 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     try {
       macheteFile = new GitMacheteFile(this.pathToMacheteFile);
     } catch (GitMacheteFileException e) {
-      throw new MacheteFileParseException(MessageFormat.format("Error occur while parsing machete file: {0}", this.pathToMacheteFile.toString()), e);
+      throw new MacheteFileParseException(
+          MessageFormat.format(
+              "Error occur while parsing machete file: {0}", this.pathToMacheteFile.toString()),
+          e);
     }
 
     processMacheteEntries(macheteFile.getRootBranches(), Optional.empty());
   }
 
-
-  private void processMacheteEntries(List<GitMacheteFileBranchEntry> entries, Optional<GitMacheteBranch> upstream) throws GitMacheteException, GitException {
+  private void processMacheteEntries(
+      List<GitMacheteFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
+      throws GitMacheteException, GitException {
     GitMacheteBranch branch;
     Optional<IGitCoreLocalBranch> coreBranch;
-    for(var entry : entries) {
+    for (var entry : entries) {
       coreBranch = getCoreBranchFromName(entry.getName());
-      if(coreBranch.isEmpty())
-        throw new GitMacheteException(MessageFormat.format("Branch \"{0}\" defined in machete file ({1}) does not exists in repository", entry.getName(), pathToMacheteFile.toString()));
+      if (coreBranch.isEmpty())
+        throw new GitMacheteException(
+            MessageFormat.format(
+                "Branch \"{0}\" defined in machete file ({1}) does not exists in repository",
+                entry.getName(), pathToMacheteFile.toString()));
 
       branch = new GitMacheteBranch(coreBranch.get());
       branch.customAnnotation = entry.getCustomAnnotation();
 
-      if(upstream.isEmpty()) {
+      if (upstream.isEmpty()) {
         branch.upstreamBranch = Optional.empty();
         rootBranches.add(branch);
       } else {
@@ -86,8 +91,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
   }
 
-
-  //Return empty if branch does not exists in repo
+  // Return empty if branch does not exists in repo
   private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
     try {
       IGitCoreLocalBranch coreLocalBranch = this.repo.getLocalBranch(branchName);
