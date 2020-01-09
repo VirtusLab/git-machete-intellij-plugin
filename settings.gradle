@@ -6,4 +6,5 @@ include 'intellijPlugin'
 include 'gitMacheteJGit'
 include 'backendRoot'
 include 'gitMacheteTest'
+include 'gitMacheteFile'
 

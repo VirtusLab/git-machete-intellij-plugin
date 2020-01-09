@@ -3,6 +3,9 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitmachete.file.GitMacheteFile;
+import com.virtuslab.gitmachete.file.GitMacheteFileBranchEntry;
+import com.virtuslab.gitmachete.file.GitMacheteFileException;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +42,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
       @Assisted Path pathToRepoRoot,
       @Assisted Optional<String> repositoryName)
-      throws GitMacheteException {
+          throws GitMacheteException, GitException {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
 
     this.pathToRepoRoot = pathToRepoRoot;
@@ -48,122 +51,50 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
     this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
 
-    List<String> lines;
+    GitMacheteFile macheteFile;
+
     try {
-      lines = Files.readAllLines(pathToMacheteFile);
-    } catch (IOException e) {
-      throw new GitMacheteException(
-          MessageFormat.format(
-              "Error while loading machete file ({0})",
-              pathToMacheteFile.toAbsolutePath().toString()),
-          e);
+      macheteFile = new GitMacheteFile(this.pathToMacheteFile);
+    } catch (GitMacheteFileException e) {
+      throw new MacheteFileParseException(MessageFormat.format("Error occur while parsing machete file: {0}", this.pathToMacheteFile.toString()), e);
     }
 
-    lines.removeIf(this::isEmptyLine);
+    processMacheteEntries(macheteFile.getRootBranches(), Optional.empty());
+  }
 
-    if (lines.size() < 1) return;
 
-    if (getIndent(lines.get(0)) > 0)
-      throw new MacheteFileParseException(
-          MessageFormat.format(
-              "The initial line of machete file ({0}) cannot be indented",
-              pathToMacheteFile.toAbsolutePath().toString()));
+  private void processMacheteEntries(List<GitMacheteFileBranchEntry> entries, Optional<GitMacheteBranch> upstream) throws GitMacheteException, GitException {
+    GitMacheteBranch branch;
+    Optional<IGitCoreLocalBranch> coreBranch;
+    for(var entry : entries) {
+      coreBranch = getCoreBranchFromName(entry.getName());
+      if(coreBranch.isEmpty())
+        throw new GitMacheteException(MessageFormat.format("Branch \"{0}\" defined in machete file ({1}) does not exists in repository", entry.getName(), pathToMacheteFile.toString()));
 
-    int currentLevel = 0;
-    Map<Integer, GitMacheteBranch> macheteBranchesLevelsMap = new HashMap<>();
-    for (var line : lines) {
-      int level = getLevel(getIndent(line));
+      branch = new GitMacheteBranch(coreBranch.get());
+      branch.customAnnotation = entry.getCustomAnnotation();
 
-      if (level - currentLevel > 1)
-        throw new MacheteFileParseException(
-            MessageFormat.format(
-                "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
-                pathToMacheteFile.toAbsolutePath().toString()));
-
-      String trimmedLine = line.trim();
-
-      String branchName;
-      Optional<String> customAnnotation;
-      int indexOfSpace = trimmedLine.indexOf(' ');
-      if (indexOfSpace > -1) {
-        branchName = trimmedLine.substring(0, indexOfSpace);
-        customAnnotation = Optional.of(trimmedLine.substring(indexOfSpace + 1).trim());
-      } else {
-        branchName = trimmedLine;
-        customAnnotation = Optional.empty();
-      }
-
-      IGitCoreLocalBranch coreLocalBranch;
-      try {
-        // Checking if local branch of this name really exists in this repository
-        coreLocalBranch = this.repo.getLocalBranch(branchName);
-      } catch (GitException e) {
-        throw new GitImplementationException(e);
-      }
-
-      GitMacheteBranch branch;
-
-      try {
-        branch = new GitMacheteBranch(coreLocalBranch);
-      } catch (GitException e) {
-        throw new GitMacheteException(
-            MessageFormat.format("Error while creating git machete branch ({0})", branchName), e);
-      }
-
-      macheteBranchesLevelsMap.put(level, branch);
-
-      branch.customAnnotation = customAnnotation;
-
-      if (level == 0) {
+      if(upstream.isEmpty()) {
         branch.upstreamBranch = Optional.empty();
-        addRootBranch(branch);
+        rootBranches.add(branch);
       } else {
-        branch.upstreamBranch = Optional.of(macheteBranchesLevelsMap.get(level - 1));
-        macheteBranchesLevelsMap.get(level - 1).childBranches.add(branch);
+        branch.upstreamBranch = Optional.of(upstream.get());
+        upstream.get().childBranches.add(branch);
       }
 
-      currentLevel = level;
+      processMacheteEntries(entry.getSubbranches(), Optional.of(branch));
     }
   }
 
-  private boolean isEmptyLine(String l) {
-    return l.trim().length() < 1;
-  }
 
-  private int getIndent(String l) {
-    int indent = 0;
-    for (int i = 0; i < l.length(); i++) {
-      if (indentType == null) {
-        if (l.charAt(i) != ' ' && l.charAt(i) != '\t') {
-          break;
-        } else {
-          indent++;
-          indentType = l.charAt(i);
-        }
-      } else {
-        if (l.charAt(i) == indentType) indent++;
-        else break;
-      }
+  //Return empty if branch does not exists in repo
+  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
+    try {
+      IGitCoreLocalBranch coreLocalBranch = this.repo.getLocalBranch(branchName);
+      return Optional.of(coreLocalBranch);
+    } catch (GitException e) {
+      return Optional.empty();
     }
-
-    return indent;
-  }
-
-  private int getLevel(int indent) throws MacheteFileParseException {
-    if (levelWidth == 0 && indent > 0) {
-      levelWidth = indent;
-      return 1;
-    } else if (indent == 0) {
-      return 0;
-    }
-
-    if (indent % levelWidth != 0)
-      throw new MacheteFileParseException(
-          MessageFormat.format(
-              "Levels of indentations are not matching in machete file ({0})",
-              pathToMacheteFile.toAbsolutePath().toString()));
-
-    return indent / levelWidth;
   }
 
   @Override
