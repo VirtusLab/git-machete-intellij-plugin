@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface IGitMacheteRepository {
@@ -13,5 +12,5 @@ public interface IGitMacheteRepository {
 
   Optional<String> getRepositoryName();
 
-  Map<String, IGitMacheteRepository> getSubmoduleRepositories() throws GitMacheteException;
+  List<IGitMacheteSubmoduleEntry> getSubmodules() throws GitMacheteException;
 }

@@ -2,7 +2,6 @@ package com.virtuslab.gitcore.gitcoreapi;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface IGitCoreRepository {
@@ -20,5 +19,5 @@ public interface IGitCoreRepository {
 
   Path getGitFolderPath();
 
-  Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
+  List<IGitCoreSubmoduleEntry> getSubmodules() throws GitException;
 }

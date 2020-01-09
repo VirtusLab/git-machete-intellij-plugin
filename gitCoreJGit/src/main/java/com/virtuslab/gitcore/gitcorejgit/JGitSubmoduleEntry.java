@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 public class JGitSubmoduleEntry implements IGitCoreSubmoduleEntry {
-  private String name;
   private Path path;
+  private String name;
 
-  public JGitSubmoduleEntry(String name, Path path) {
-    this.name = name;
+  public JGitSubmoduleEntry(Path path, String name) {
     this.path = path;
+    this.name = name;
   }
 }

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -190,10 +191,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Map<String, IGitMacheteRepository> getSubmoduleRepositories() throws GitMacheteException {
-    Map<String, IGitMacheteRepository> submodules = new HashMap<String, IGitMacheteRepository>();
-
-    Map<String, IGitCoreSubmoduleEntry> subs;
+  public List<IGitMacheteSubmoduleEntry> getSubmodules() throws GitMacheteException {
+    List<IGitMacheteSubmoduleEntry> submodules = new LinkedList<>();
+    List<IGitCoreSubmoduleEntry> subs;
 
     try {
       subs = this.repo.getSubmodules();
@@ -201,15 +201,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       throw new GitMacheteJGitException("Error while getting submodules", e);
     }
 
-    for (var e : subs.entrySet()) {
-      IGitMacheteRepository r =
-          new GitMacheteRepository(
-              this.gitCoreRepositoryFactory,
-              e.getValue().getPath(),
-              Optional.of(e.getValue().getName()));
-      submodules.put(e.getKey(), r);
-    }
+    submodules =
+        subs.stream().map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
 
     return submodules;
+  }
+
+  private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {
+    return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 }

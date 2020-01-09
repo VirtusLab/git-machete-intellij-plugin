@@ -131,21 +131,20 @@ public class JGitRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Map<String, IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
+  public List<IGitCoreSubmoduleEntry> getSubmodules() throws JGitException {
     SubmoduleWalk sWalk;
     try {
-      sWalk = new SubmoduleWalk(this.jgitRepo);
+      sWalk = SubmoduleWalk.forIndex(this.jgitRepo);
     } catch (IOException e) {
       throw new JGitException("Error while initializing submodule walk", e);
     }
 
-    Map<String, IGitCoreSubmoduleEntry> submodules = new HashMap<>();
+    List<IGitCoreSubmoduleEntry> submodules = new LinkedList<>();
 
     try {
-      while (sWalk.next()) { // FIXME throws exception here when this method is called
-        submodules.put(
-            sWalk.getModuleName(),
-            new JGitSubmoduleEntry(sWalk.getModuleName(), sWalk.getDirectory().toPath()));
+      while (sWalk.next()) {
+        submodules.add(
+            new JGitSubmoduleEntry(sWalk.getDirectory().toPath(), sWalk.getModuleName()));
       }
     } catch (IOException e) {
       throw new JGitException("Error while fetching next submodule", e);

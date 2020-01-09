@@ -10,6 +10,7 @@ import java.util.Optional;
 public class Main {
   public static void main(String[] argv) throws Exception {
     IGitMacheteRepository repo = null;
+    IGitMacheteRepository repo2 = null;
 
     try {
       repo =
@@ -17,14 +18,37 @@ public class Main {
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
                   Paths.get(
-                      "/tmp/machete-tests/machete-sandbox" /*System.getProperty("user.home"), "machete-sandbox"*/),
+                      /*"/tmp/machete-tests/machete-sandbox"*/ System.getProperty("user.home"),
+                      "submodule-test"),
                   Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
     }
 
-    var branches = repo.getRootBranches();
+    var subs = repo.getSubmodules();
+
+    subs.forEach(m -> System.out.println(m.getName() + " " + m.getPath()));
+
+    try {
+      repo2 =
+          GitFactoryModule.getInjector()
+              .getInstance(GitMacheteRepositoryFactory.class)
+              .create(subs.get(0).getPath(), Optional.of(subs.get(0).getName()));
+    } catch (GitMacheteException e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace();
+    }
+
+    System.out.println(repo2.getRepositoryName());
+
+    System.out.println(repo2.getSubmodules().size());
+
+    System.out.println(repo2.getCurrentBranch().get().getName());
+
+    repo2.getRootBranches().forEach(m -> System.out.println(m.getName()));
+
+    /*var branches = repo.getRootBranches();
 
     for (var b : branches) {
       if (b.getName().equals("develop")) {
@@ -35,7 +59,7 @@ public class Main {
           }
         }
       }
-    }
+    }*/
 
     // System.out.println(repo.getSubmoduleRepositories());
   }
