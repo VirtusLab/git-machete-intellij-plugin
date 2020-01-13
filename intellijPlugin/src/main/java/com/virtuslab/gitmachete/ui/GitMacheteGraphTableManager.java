@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.ui;
 import static com.intellij.ui.IdeBorderFactory.createBorder;
 import static com.intellij.util.ui.JBUI.Panels.simplePanel;
 import static com.intellij.util.ui.UIUtil.addBorder;
+import static com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable.setupScrolledGraph;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -44,6 +45,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 
 public class GitMacheteGraphTableManager implements ProjectComponent {
   private static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
@@ -119,8 +121,9 @@ public class GitMacheteGraphTableManager implements ProjectComponent {
   private JComponent createGitMacheteGraphTableComponent() {
     ActionToolbar gitMacheteToolbar = createGitMacheteToolbar();
     addBorder(gitMacheteToolbar.getComponent(), createBorder(JBColor.border(), SideBorder.RIGHT));
+    JScrollPane scrollTable = setupScrolledGraph(this.view, SideBorder.TOP);
     BorderLayoutPanel gitMachetePanel =
-        simplePanel(this.view).addToLeft(gitMacheteToolbar.getComponent());
+        simplePanel(scrollTable).addToLeft(gitMacheteToolbar.getComponent());
 
     BorderLayoutPanel contentPanel =
         new BorderLayoutPanel() {
