@@ -18,3 +18,12 @@ jobs:
           name: Build & Test
           command: |
             ./gradlew test
+      - run:
+          name: Build Plugin Artifact
+          command: |
+            mkdir ~/artifacts &&
+            ./gradlew intellijPlugin:buildPlugin &&
+            mv ~/git-machete-intellij-plugin/intellijPlugin/build/distributions/*.zip ~/artifacts
+
+      - store_artifacts:
+          path: ~/artifacts
