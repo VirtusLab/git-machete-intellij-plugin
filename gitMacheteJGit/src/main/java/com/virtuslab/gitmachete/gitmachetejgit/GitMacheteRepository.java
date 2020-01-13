@@ -2,18 +2,17 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.virtuslab.branchrelationfile.BranchRelationFile;
+import com.virtuslab.branchrelationfile.BranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.BranchRelationFileException;
+import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitmachete.gitmacheteapi.*;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.virtuslab.branchrelationfile.BranchRelationFile;
-import com.virtuslab.branchrelationfile.BranchRelationFileBranchEntry;
-import com.virtuslab.branchrelationfile.BranchRelationFileException;
-import com.virtuslab.gitcore.gitcoreapi.*;
-import com.virtuslab.gitmachete.gitmacheteapi.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -67,7 +66,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   private void processMacheteEntries(
-          List<BranchRelationFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
+      List<BranchRelationFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
       throws GitMacheteException, GitException {
     GitMacheteBranch branch;
     Optional<IGitCoreLocalBranch> coreBranch;
