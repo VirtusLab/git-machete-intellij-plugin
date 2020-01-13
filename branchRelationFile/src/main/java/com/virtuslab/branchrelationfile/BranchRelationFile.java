@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.file;
+package com.virtuslab.branchrelationfile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,21 +7,21 @@ import java.text.MessageFormat;
 import java.util.*;
 import lombok.Getter;
 
-public class GitMacheteFile {
+public class BranchRelationFile {
   private Path pathToMacheteFile;
-  @Getter private List<GitMacheteFileBranchEntry> rootBranches = new LinkedList<>();
+  @Getter private List<BranchRelationFileBranchEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
 
-  public GitMacheteFile(Path path) throws GitMacheteFileException {
+  public BranchRelationFile(Path path) throws BranchRelationFileException {
     pathToMacheteFile = path;
 
     List<String> lines;
     try {
       lines = Files.readAllLines(pathToMacheteFile);
     } catch (IOException e) {
-      throw new GitMacheteFileException(
+      throw new BranchRelationFileException(
           MessageFormat.format(
               "Error while loading machete file ({0})",
               pathToMacheteFile.toAbsolutePath().toString()),
@@ -33,18 +33,18 @@ public class GitMacheteFile {
     if (lines.size() < 1) return;
 
     if (getIndent(lines.get(0)) > 0)
-      throw new GitMacheteFileException(
+      throw new BranchRelationFileException(
           MessageFormat.format(
               "The initial line of machete file ({0}) cannot be indented",
               pathToMacheteFile.toAbsolutePath().toString()));
 
     int currentLevel = 0;
-    Map<Integer, GitMacheteFileBranchEntry> macheteBranchesLevelsMap = new HashMap<>();
+    Map<Integer, BranchRelationFileBranchEntry> macheteBranchesLevelsMap = new HashMap<>();
     for (var line : lines) {
       int level = getLevel(getIndent(line));
 
       if (level - currentLevel > 1)
-        throw new GitMacheteFileException(
+        throw new BranchRelationFileException(
             MessageFormat.format(
                 "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
                 pathToMacheteFile.toAbsolutePath().toString()));
@@ -62,14 +62,14 @@ public class GitMacheteFile {
         customAnnotation = Optional.empty();
       }
 
-      GitMacheteFileBranchEntry branch;
+      BranchRelationFileBranchEntry branch;
 
       if (level == 0) {
-        branch = new GitMacheteFileBranchEntry(branchName, Optional.empty(), customAnnotation);
+        branch = new BranchRelationFileBranchEntry(branchName, Optional.empty(), customAnnotation);
         rootBranches.add(branch);
       } else {
         branch =
-            new GitMacheteFileBranchEntry(
+            new BranchRelationFileBranchEntry(
                 branchName, Optional.of(macheteBranchesLevelsMap.get(level - 1)), customAnnotation);
         macheteBranchesLevelsMap.get(level - 1).addSubbranch(branch);
       }
@@ -103,7 +103,7 @@ public class GitMacheteFile {
     return indent;
   }
 
-  private int getLevel(int indent) throws GitMacheteFileException {
+  private int getLevel(int indent) throws BranchRelationFileException {
     if (levelWidth == 0 && indent > 0) {
       levelWidth = indent;
       return 1;
@@ -112,7 +112,7 @@ public class GitMacheteFile {
     }
 
     if (indent % levelWidth != 0)
-      throw new GitMacheteFileException(
+      throw new BranchRelationFileException(
           MessageFormat.format(
               "Levels of indentations are not matching in machete file ({0})",
               pathToMacheteFile.toAbsolutePath().toString()));

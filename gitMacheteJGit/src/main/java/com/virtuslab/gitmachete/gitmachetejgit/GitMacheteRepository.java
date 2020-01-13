@@ -2,15 +2,18 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.virtuslab.gitcore.gitcoreapi.*;
-import com.virtuslab.gitmachete.file.GitMacheteFile;
-import com.virtuslab.gitmachete.file.GitMacheteFileBranchEntry;
-import com.virtuslab.gitmachete.file.GitMacheteFileException;
-import com.virtuslab.gitmachete.gitmacheteapi.*;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.virtuslab.branchrelationfile.BranchRelationFile;
+import com.virtuslab.branchrelationfile.BranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.BranchRelationFileException;
+import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitmachete.gitmacheteapi.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -49,11 +52,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
     this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
 
-    GitMacheteFile macheteFile;
+    BranchRelationFile macheteFile;
 
     try {
-      macheteFile = new GitMacheteFile(this.pathToMacheteFile);
-    } catch (GitMacheteFileException e) {
+      macheteFile = new BranchRelationFile(this.pathToMacheteFile);
+    } catch (BranchRelationFileException e) {
       throw new MacheteFileParseException(
           MessageFormat.format(
               "Error occur while parsing machete file: {0}", this.pathToMacheteFile.toString()),
@@ -64,7 +67,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   private void processMacheteEntries(
-      List<GitMacheteFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
+          List<BranchRelationFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
       throws GitMacheteException, GitException {
     GitMacheteBranch branch;
     Optional<IGitCoreLocalBranch> coreBranch;

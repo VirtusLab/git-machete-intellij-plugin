@@ -23,5 +23,5 @@ dependencies {
 
 
     compile project(':gitMacheteApi')
-    compile project(':gitMacheteFile')
+    compile project(':branchRelationFile')
 }
