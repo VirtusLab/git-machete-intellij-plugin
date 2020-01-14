@@ -9,7 +9,7 @@ public interface IBranchRelationFile {
 
   void saveToFile(boolean backupOldFile) throws IOException, BranchRelationFileException;
 
-  Optional<IBranchRelationFileBranchEntry> findBranchByName(String branchName);
+  Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
 
-  List<IBranchRelationFileBranchEntry> getRootBranches();
+  List<IBranchRelationFileEntry> getRootBranches();
 }
