@@ -62,6 +62,13 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       super.paintComponent(g);
 
       Graphics2D g2d = (Graphics2D) g;
+      // The image's origin (after the graphics translate is applied) is rounded by J2D with .5
+      // coordinate ceil'd.
+      // This doesn't correspond to how the rectangle's origin is rounded, with .5 floor'd. As the
+      // result, there may be a gap
+      // b/w the background's top and the image's top (depending on the row number and the graphics
+      // translate). To avoid that,
+      // the graphics y-translate is aligned to int with .5-floor-bias.
       AffineTransform origTx =
           PaintUtil.alignTxToInt(g2d, null, false, true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
       try {

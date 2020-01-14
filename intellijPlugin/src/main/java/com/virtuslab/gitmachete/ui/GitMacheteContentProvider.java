@@ -13,7 +13,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -21,19 +20,18 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
+import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SideBorder;
-import com.intellij.ui.content.impl.ContentImpl;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.graph.repositoryGraph.IRepositoryGraph;
-import com.virtuslab.gitmachete.graph.repositoryGraph.RepositoryGraphImpl;
+import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphImpl;
 import com.virtuslab.gitmachete.graph.repositorygraph.data.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.ui.table.GraphTableModel;
@@ -45,9 +43,8 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 
-public class GitMacheteGraphTableManager implements ProjectComponent {
+public class GitMacheteContentProvider implements ChangesViewContentProvider {
   private static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
-  private static final String GIT_MACHETE_STATUS = "Git Machete";
   private final Project project;
   private final GitMacheteGraphTable view;
   private boolean listCommits;
@@ -58,11 +55,7 @@ public class GitMacheteGraphTableManager implements ProjectComponent {
 
   private boolean disposed = false;
 
-  public static GitMacheteGraphTableManager getInstance(Project myProject) {
-    return myProject.getComponent(GitMacheteGraphTableManager.class);
-  }
-
-  private GitMacheteGraphTableManager(@Nonnull Project project) {
+  public GitMacheteContentProvider(@Nonnull Project project) {
     IGitMacheteRepository repository = createRepository(project);
     this.listCommits = false;
     this.project = project;
@@ -87,36 +80,7 @@ public class GitMacheteGraphTableManager implements ProjectComponent {
   }
 
   @Override
-  public void projectOpened() {
-    if (ApplicationManager.getApplication().isHeadlessEnvironment()) return;
-
-    JComponent panel = createGitMacheteGraphTableComponent();
-    ContentImpl myContent = new ContentImpl(panel, GIT_MACHETE_STATUS, false);
-    myContent.setCloseable(false);
-    project.getComponent(ChangesViewContentI.class).addContent(myContent);
-
-    scheduleRefresh();
-  }
-
-  @Override
-  public void projectClosed() {
-    disposed = true;
-    tableUpdateAlarm.cancelAllRequests();
-
-    synchronized (tableUpdateIndicatorLock) {
-      tableUpdateIndicator.cancel();
-    }
-  }
-
-  private void scheduleRefresh() {
-    if (ApplicationManager.getApplication().isHeadlessEnvironment()) return;
-    if (project.isDisposed()) return;
-    if (!tableUpdateAlarm.isDisposed()) {
-      tableUpdateAlarm.addRequest(this::refreshView, 100);
-    }
-  }
-
-  private JComponent createGitMacheteGraphTableComponent() {
+  public JComponent initContent() {
     ActionToolbar gitMacheteToolbar = createGitMacheteToolbar();
     addBorder(gitMacheteToolbar.getComponent(), createBorder(JBColor.border(), SideBorder.RIGHT));
     BorderLayoutPanel gitMachetePanel =
@@ -143,6 +107,16 @@ public class GitMacheteGraphTableManager implements ProjectComponent {
         };
     panel.setContent(simplePanel(contentPanel));
     return panel;
+  }
+
+  @Override
+  public void disposeContent() {
+    disposed = true;
+    tableUpdateAlarm.cancelAllRequests();
+
+    synchronized (tableUpdateIndicatorLock) {
+      tableUpdateIndicator.cancel();
+    }
   }
 
   @Nonnull

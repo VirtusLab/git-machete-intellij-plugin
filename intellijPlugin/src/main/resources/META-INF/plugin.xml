@@ -14,9 +14,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
 
-    <project-components>
-        <component>
-            <implementation-class>com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager</implementation-class>
-        </component>
-    </project-components>
+    <extensions defaultExtensionNs="com.intellij">
+        <changesViewContent tabName="Git Machete" className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"/>
+    </extensions>
 </idea-plugin>

@@ -42,7 +42,9 @@ public class RepositoryGraphWithCommitsImpl extends RepositoryGraphImpl {
   private void addDownstreamBranchesAndCommits(
       List<GraphElementI> graphElements, IGitMacheteBranch upstreamBranch) throws GitException {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      Lists.reverse(branch.getCommits()).stream().map(CommitElementI::new).forEach(graphElements::add);
+      Lists.reverse(branch.getCommits()).stream()
+          .map(CommitElementI::new)
+          .forEach(graphElements::add);
       graphElements.add(new BranchElementI(branch));
       addDownstreamBranchesAndCommits(graphElements, branch);
     }
