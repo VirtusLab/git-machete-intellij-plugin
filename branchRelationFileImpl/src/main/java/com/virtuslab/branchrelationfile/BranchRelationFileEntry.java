@@ -9,8 +9,9 @@ import lombok.*;
 
 @RequiredArgsConstructor
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BranchRelationFileEntry implements IBranchRelationFileEntry {
-  @NonNull private String name;
+  @EqualsAndHashCode.Include @NonNull private String name;
   @Setter @NonNull private Optional<IBranchRelationFileEntry> upstream;
   private List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
   @NonNull private Optional<String> customAnnotation;
