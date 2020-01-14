@@ -1,29 +1,39 @@
 package com.virtuslab.gitmachete.test;
 
-import com.virtuslab.branchrelationfile.BranchRelationFile;
-import com.virtuslab.branchrelationfile.BranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
+import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 public class Main {
   public static void main(String[] argv) throws Exception {
-    /*IGitMacheteRepository repo = null;
+    IGitMacheteRepository repo = null;
 
     try {
       repo =
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
-                  Paths.get(
-                      System.getProperty("user.home"),
-                      "machete-sandbox"),
-                  Optional.empty());
+                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
-    }*/
+    }
 
-    var macheteFile =
+    printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    repo.getRootBranches().get(0).getBranches().get(0).slideOut();
+
+    System.out.println();
+
+    printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    /*var macheteFile =
         new BranchRelationFile(
             Paths.get(System.getProperty("user.home"), "machete-sandbox", ".git", "machete"));
 
@@ -34,7 +44,7 @@ public class Main {
 
     printBranches(macheteFile.getRootBranches(), 0);
 
-    macheteFile.saveToFile();
+    macheteFile.saveToFile();*/
 
     // System.out.println(repo2.getCurrentBranch().get().getName());
 
@@ -56,11 +66,20 @@ public class Main {
     // System.out.println(repo.getSubmoduleRepositories());
   }
 
-  private static void printBranches(List<BranchRelationFileBranchEntry> branches, int level) {
+  private static void printRelationFileBranches(
+      List<IBranchRelationFileBranchEntry> branches, int level) {
     for (var branch : branches) {
       System.out.println(
           "\t".repeat(level) + branch.getName() + " # " + branch.getCustomAnnotation());
-      printBranches(branch.getSubbranches(), level + 1);
+      printRelationFileBranches(branch.getSubbranches(), level + 1);
+    }
+  }
+
+  private static void printGitMacheteBranches(List<IGitMacheteBranch> branches, int level) {
+    for (var branch : branches) {
+      System.out.println(
+          "\t".repeat(level) + branch.getName() + " # " + branch.getCustomAnnotation());
+      printGitMacheteBranches(branch.getBranches(), level + 1);
     }
   }
 }
