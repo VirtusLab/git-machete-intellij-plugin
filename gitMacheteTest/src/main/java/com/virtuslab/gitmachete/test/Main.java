@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.test;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
@@ -67,7 +67,7 @@ public class Main {
   }
 
   private static void printRelationFileBranches(
-      List<IBranchRelationFileBranchEntry> branches, int level) {
+      List<IBranchRelationFileEntry> branches, int level) {
     for (var branch : branches) {
       System.out.println(
           "\t".repeat(level) + branch.getName() + " # " + branch.getCustomAnnotation());

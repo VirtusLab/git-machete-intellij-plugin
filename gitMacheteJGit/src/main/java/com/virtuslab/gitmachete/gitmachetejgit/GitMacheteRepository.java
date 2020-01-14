@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitcore.gitcoreapi.*;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
 import java.nio.file.Path;
@@ -28,7 +28,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private Path pathToRepoRoot;
   private Path pathToMacheteFile;
-  private IBranchRelationFile macheteFile;
+  private IBranchRelationFile branchRelationFile;
 
   @Getter(AccessLevel.NONE)
   private Character indentType = null;
@@ -59,46 +59,51 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
 
     try {
-      macheteFile = branchRelationFileFactory.create(this.pathToMacheteFile);
+      branchRelationFile = branchRelationFileFactory.create(this.pathToMacheteFile);
     } catch (BranchRelationFileException e) {
       throw new MacheteFileParseException(
-          MessageFormat.format(
-              "Error occur while parsing machete file: {0}", this.pathToMacheteFile.toString()),
+          e.getErrorLine().isEmpty()
+              ? MessageFormat.format(
+                  "Error occurred while parsing machete file: {0}",
+                  this.pathToMacheteFile.toString())
+              : MessageFormat.format(
+                  "Error occurred while parsing machete file on line {1}: {0}",
+                  this.pathToMacheteFile.toString(), e.getErrorLine().get()),
           e);
     }
 
-    processMacheteEntries(macheteFile.getRootBranches(), Optional.empty());
+    processSubtreeOfBranchRelationEntries(Optional.empty(), branchRelationFile.getRootBranches());
   }
 
-  private void processMacheteEntries(
-      List<IBranchRelationFileBranchEntry> entries, Optional<GitMacheteBranch> upstream)
+  private void processSubtreeOfBranchRelationEntries(
+      Optional<GitMacheteBranch> subtreeRoot, List<IBranchRelationFileEntry> entries)
       throws GitMacheteException, GitException {
-    GitMacheteBranch branch;
     Optional<IGitCoreLocalBranch> coreBranch;
     for (var entry : entries) {
+      GitMacheteBranch branch;
       coreBranch = getCoreBranchFromName(entry.getName());
       if (coreBranch.isEmpty())
         throw new GitMacheteException(
             MessageFormat.format(
-                "Branch \"{0}\" defined in machete file ({1}) does not exists in repository",
+                "Branch \"{0}\" defined in machete file ({1}) does not exist in repository",
                 entry.getName(), pathToMacheteFile.toString()));
 
       branch = new GitMacheteBranch(coreBranch.get(), this);
       branch.customAnnotation = entry.getCustomAnnotation();
 
-      if (upstream.isEmpty()) {
+      if (subtreeRoot.isEmpty()) {
         branch.upstreamBranch = Optional.empty();
         rootBranches.add(branch);
       } else {
-        branch.upstreamBranch = Optional.of(upstream.get());
-        upstream.get().childBranches.add(branch);
+        branch.upstreamBranch = Optional.of(subtreeRoot.get());
+        subtreeRoot.get().childBranches.add(branch);
       }
 
-      processMacheteEntries(entry.getSubbranches(), Optional.of(branch));
+      processSubtreeOfBranchRelationEntries(Optional.of(branch), entry.getSubbranches());
     }
   }
 
-  // Return empty if branch does not exists in repo
+  // Return empty if branch does not exist in repo
   private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
     try {
       IGitCoreLocalBranch coreLocalBranch = this.repo.getLocalBranch(branchName);
@@ -125,11 +130,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitMacheteException("Error while creating current git machete branch");
       }
     }
-  }
-
-  @Override
-  public void addRootBranch(IGitMacheteBranch branch) {
-    rootBranches.add(branch);
   }
 
   @Override

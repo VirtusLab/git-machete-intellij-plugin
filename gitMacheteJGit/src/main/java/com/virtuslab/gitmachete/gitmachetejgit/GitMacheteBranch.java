@@ -63,7 +63,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   @Override
   public void slideOut() throws GitMacheteException {
-    var macheteFile = macheteRepository.getMacheteFile();
+    var macheteFile = macheteRepository.getBranchRelationFile();
     var macheteFileBranch = macheteFile.findBranchByName(getName());
     if (macheteFileBranch.isEmpty())
       throw new GitMacheteException(
@@ -76,7 +76,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     } catch (BranchRelationFileException | IOException e) {
       throw new GitMacheteException(
           MessageFormat.format(
-              "Error occur while sliding out branch {0}: {1}", getName(), e.getMessage()),
+              "Error occurred while sliding out branch {0}: {1}", getName(), e.getMessage()),
           e);
     }
   }

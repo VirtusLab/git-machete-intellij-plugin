@@ -1,7 +1,7 @@
 package com.virtuslab.branchrelationfile;
 
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
-import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -9,13 +9,13 @@ import lombok.*;
 
 @RequiredArgsConstructor
 @Getter
-public class BranchRelationFileBranchEntry implements IBranchRelationFileBranchEntry {
+public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   @NonNull private String name;
-  @Setter @NonNull private Optional<IBranchRelationFileBranchEntry> upstream;
-  private List<IBranchRelationFileBranchEntry> subbranches = new LinkedList<>();
+  @Setter @NonNull private Optional<IBranchRelationFileEntry> upstream;
+  private List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
   @NonNull private Optional<String> customAnnotation;
 
-  public void addSubbranch(IBranchRelationFileBranchEntry subbranch) {
+  public void addSubbranch(IBranchRelationFileEntry subbranch) {
     subbranches.add(subbranch);
   }
 
