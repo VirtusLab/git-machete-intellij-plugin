@@ -29,10 +29,12 @@ public class Main {
 
     printBranches(macheteFile.getRootBranches(), 0);
 
-    macheteFile.getRootBranches().get(0).getSubbranches().get(0).getSubbranches().get(0).slideOut();
+    macheteFile.getRootBranches().get(0).getSubbranches().get(0).slideOut();
     System.out.println();
 
     printBranches(macheteFile.getRootBranches(), 0);
+
+    macheteFile.saveToFile();
 
     // System.out.println(repo2.getCurrentBranch().get().getName());
 
