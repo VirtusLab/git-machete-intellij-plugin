@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.ui.table;
 
-import com.virtuslab.gitmachete.graph.model.GraphElement;
+import com.virtuslab.gitmachete.graph.model.GraphElementI;
 import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class GraphTableModel extends AbstractTableModel {
-  private static final int BRANCH_OR_COMMIT_COLUMN = 0;
+  static final int BRANCH_OR_COMMIT_COLUMN = 0;
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
@@ -30,7 +30,7 @@ public class GraphTableModel extends AbstractTableModel {
   public final Object getValueAt(int rowIndex, int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN:
-        GraphElement element = iRepositoryGraph.getGraphElement(rowIndex);
+        GraphElementI element = iRepositoryGraph.getGraphElement(rowIndex);
         return new BranchOrCommitCell(element, iRepositoryGraph.getPrintElements(rowIndex));
       default:
         throw new IllegalArgumentException(

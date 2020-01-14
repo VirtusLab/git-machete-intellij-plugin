@@ -10,8 +10,8 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.graph.IGraphColorManager;
 import com.virtuslab.gitmachete.graph.facade.GraphElementManagerImpl;
-import com.virtuslab.gitmachete.graph.model.BranchElement;
-import com.virtuslab.gitmachete.graph.model.GraphElement;
+import com.virtuslab.gitmachete.graph.model.BranchElementI;
+import com.virtuslab.gitmachete.graph.model.GraphElementI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,15 +23,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class RepositoryGraphImpl implements IRepositoryGraph {
-  @Nonnull private final List<GraphElement> myElements;
-  private final PrintElementGeneratorImpl myPrintElementGenerator;
-  private final IGraphColorManager myColorManager;
+  @Nonnull final List<GraphElementI> elements;
+  private final PrintElementGeneratorImpl printElementGenerator;
 
   public RepositoryGraphImpl(@Nonnull IGitMacheteRepository repository) {
-    myElements = toList(repository);
-    myColorManager =
+    elements = getGraphElementsOfRepository(repository);
+
+    IGraphColorManager myColorManager =
         new IGraphColorManager() {
-          Random random = new Random();
+          final Random random = new Random();
 
           @Override
           public int getColor() {
@@ -42,30 +42,32 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
             return r << 16 | g << 8 | b << 0;
           }
         };
+
     GraphElementManagerImpl myPrintElementManager =
         new GraphElementManagerImpl(this, myColorManager);
-    myPrintElementGenerator = new PrintElementGeneratorImpl(this, myPrintElementManager, false);
+    printElementGenerator = new PrintElementGeneratorImpl(this, myPrintElementManager, false);
   }
 
-  private List<GraphElement> toList(IGitMacheteRepository repository) {
-    List<GraphElement> list = new ArrayList<>();
+  List<GraphElementI> getGraphElementsOfRepository(IGitMacheteRepository repository) {
+    List<GraphElementI> graphElements = new ArrayList<>();
     for (IGitMacheteBranch branch : repository.getRootBranches()) {
-      list.add(new BranchElement(branch));
-      addDownstreamBranches(list, branch);
+      graphElements.add(new BranchElementI(branch));
+      addDownstreamBranches(graphElements, branch);
     }
-    return list;
+    return graphElements;
   }
 
-  private void addDownstreamBranches(List<GraphElement> list, IGitMacheteBranch upstreamBranch) {
+  private void addDownstreamBranches(
+      List<GraphElementI> graphElements, IGitMacheteBranch upstreamBranch) {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      list.add(new BranchElement(branch));
-      addDownstreamBranches(list, branch);
+      graphElements.add(new BranchElementI(branch));
+      addDownstreamBranches(graphElements, branch);
     }
   }
 
   @Override
   public Collection<? extends PrintElement> getPrintElements(int rowIndex) {
-    return myPrintElementGenerator.getPrintElements(rowIndex);
+    return printElementGenerator.getPrintElements(rowIndex);
   }
 
   @Nonnull
@@ -77,25 +79,25 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
 
     List<GraphEdge> adjacentEdges = new ArrayList<>();
 
-    GraphElement currentElement = myElements.get(nodeIndex);
+    GraphElementI currentElement = elements.get(nodeIndex);
 
-    if (filter.downNormal && nodeIndex < myElements.size() - 1) {
-      IGitMacheteBranch branch = ((BranchElement) currentElement).getBranch();
+    if (filter.downNormal && nodeIndex < elements.size() - 1) {
+      IGitMacheteBranch branch = ((BranchElementI) currentElement).getBranch();
       adjacentEdges =
           branch.getBranches().stream()
               .map(
                   b ->
                       GraphEdge.createNormalEdge(
-                          nodeIndex, myElements.indexOf(new BranchElement(b)), GraphEdgeType.USUAL))
+                          nodeIndex, elements.indexOf(new BranchElementI(b)), GraphEdgeType.USUAL))
               .collect(Collectors.toList());
     }
 
     if (filter.upNormal && nodeIndex > 0) {
       int upIndex = -1;
 
-      if (currentElement instanceof BranchElement) {
+      if (currentElement instanceof BranchElementI) {
         // branch over branch
-        upIndex = getUpstreamElementIndex((BranchElement) currentElement);
+        upIndex = getUpstreamElementIndex((BranchElementI) currentElement);
       }
 
       if (upIndex >= 0) {
@@ -106,23 +108,23 @@ public class RepositoryGraphImpl implements IRepositoryGraph {
     return adjacentEdges;
   }
 
-  private int getUpstreamElementIndex(BranchElement graphElement) {
+  int getUpstreamElementIndex(BranchElementI graphElement) {
     int upNode = -1;
     Optional<IGitMacheteBranch> upstreamBranch = graphElement.getBranch().getUpstreamBranch();
     if (upstreamBranch.isPresent()) {
-      upNode = myElements.indexOf(new BranchElement(upstreamBranch.get()));
+      upNode = elements.indexOf(new BranchElementI(upstreamBranch.get()));
     }
     return upNode;
   }
 
   @Override
-  public GraphElement getGraphElement(int rowIndex) {
-    return myElements.get(rowIndex);
+  public GraphElementI getGraphElement(int rowIndex) {
+    return elements.get(rowIndex);
   }
 
   @Override
   public int nodesCount() {
-    return myElements.size();
+    return elements.size();
   }
 
   @Nonnull
