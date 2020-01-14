@@ -3,6 +3,7 @@ package com.virtuslab.branchrelationfile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.*;
 import lombok.Getter;
@@ -118,5 +119,40 @@ public class BranchRelationFile {
               pathToMacheteFile.toAbsolutePath().toString()));
 
     return indent / levelWidth;
+  }
+
+  public void saveToFile() throws IOException {
+    saveToFile(true);
+  }
+
+  public void saveToFile(boolean backupOldFile) throws IOException {
+    var lines = new LinkedList<String>();
+    printBranchesOntoStringList(lines, rootBranches, 0);
+
+    if (backupOldFile) {
+      var pathToBackupFile = pathToMacheteFile.getParent().resolve("machete~");
+      Files.copy(pathToMacheteFile, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    Files.write(pathToMacheteFile, lines);
+  }
+
+  private void printBranchesOntoStringList(
+      List<String> sl, List<BranchRelationFileBranchEntry> branches, int level) {
+    for (var branch : branches) {
+      var sb = new StringBuilder();
+      sb.append(String.valueOf(indentType).repeat(level * levelWidth));
+      sb.append(branch.getName());
+
+      var customAnnotation = branch.getCustomAnnotation();
+      if (customAnnotation.isPresent()) {
+        sb.append(" ");
+        sb.append(customAnnotation.get());
+      }
+
+      sl.add(sb.toString());
+
+      printBranchesOntoStringList(sl, branch.getSubbranches(), level + 1);
+    }
   }
 }
