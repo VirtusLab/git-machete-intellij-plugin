@@ -15,4 +15,5 @@ dependencies {
 
     compile project(':gitMacheteApi')
     compile project(':backendRoot')
+    compile project(':branchRelationFileApi')
 }

@@ -1,4 +1,4 @@
-package com.virtuslab.branchrelationfile;
+package com.virtuslab.branchrelationfile.api;
 
 public class BranchRelationFileException extends Exception {
   public BranchRelationFileException() {
