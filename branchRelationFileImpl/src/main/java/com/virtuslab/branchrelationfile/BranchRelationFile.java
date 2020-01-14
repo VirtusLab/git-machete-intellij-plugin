@@ -1,5 +1,10 @@
 package com.virtuslab.branchrelationfile;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,14 +13,15 @@ import java.text.MessageFormat;
 import java.util.*;
 import lombok.Getter;
 
-public class BranchRelationFile {
+public class BranchRelationFile implements IBranchRelationFile {
   private Path pathToMacheteFile;
-  @Getter private List<BranchRelationFileBranchEntry> rootBranches = new LinkedList<>();
+  @Getter private List<IBranchRelationFileBranchEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
 
-  public BranchRelationFile(Path path) throws BranchRelationFileException {
+  @Inject
+  public BranchRelationFile(@Assisted Path path) throws BranchRelationFileException {
     pathToMacheteFile = path;
 
     List<String> lines;
@@ -40,7 +46,7 @@ public class BranchRelationFile {
               pathToMacheteFile.toAbsolutePath().toString()));
 
     int currentLevel = 0;
-    Map<Integer, BranchRelationFileBranchEntry> macheteBranchesLevelsMap = new HashMap<>();
+    Map<Integer, IBranchRelationFileBranchEntry> macheteBranchesLevelsMap = new HashMap<>();
     for (var line : lines) {
       int level = getLevel(getIndent(line));
 
@@ -63,7 +69,7 @@ public class BranchRelationFile {
         customAnnotation = Optional.empty();
       }
 
-      BranchRelationFileBranchEntry branch;
+      IBranchRelationFileBranchEntry branch;
 
       if (level == 0) {
         branch = new BranchRelationFileBranchEntry(branchName, Optional.empty(), customAnnotation);
@@ -127,7 +133,7 @@ public class BranchRelationFile {
 
   public void saveToFile(boolean backupOldFile) throws IOException {
     var lines = new LinkedList<String>();
-    printBranchesOntoStringList(lines, rootBranches, 0);
+    printBranchesOntoStringList(lines, getRootBranches(), 0);
 
     if (backupOldFile) {
       var pathToBackupFile = pathToMacheteFile.getParent().resolve("machete~");
@@ -138,7 +144,7 @@ public class BranchRelationFile {
   }
 
   private void printBranchesOntoStringList(
-      List<String> sl, List<BranchRelationFileBranchEntry> branches, int level) {
+      List<String> sl, List<IBranchRelationFileBranchEntry> branches, int level) {
     for (var branch : branches) {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentType).repeat(level * levelWidth));
@@ -154,5 +160,21 @@ public class BranchRelationFile {
 
       printBranchesOntoStringList(sl, branch.getSubbranches(), level + 1);
     }
+  }
+
+  public Optional<IBranchRelationFileBranchEntry> findBranchByName(String branchName) {
+    return findBranchByNameInBranches(branchName, getRootBranches());
+  }
+
+  private Optional<IBranchRelationFileBranchEntry> findBranchByNameInBranches(
+      String branchName, List<IBranchRelationFileBranchEntry> branches) {
+    for (var branch : branches) {
+      if (branch.getName().equals(branchName)) return Optional.of(branch);
+
+      var ret = findBranchByNameInBranches(branchName, branch.getSubbranches());
+      if (ret.isPresent()) return ret;
+    }
+
+    return Optional.empty();
   }
 }

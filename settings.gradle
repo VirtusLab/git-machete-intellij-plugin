@@ -6,5 +6,6 @@ include 'intellijPlugin'
 include 'gitMacheteJGit'
 include 'backendRoot'
 include 'gitMacheteTest'
-include 'branchRelationFile'
+include 'branchRelationFileImpl'
+include 'branchRelationFileApi'
 
