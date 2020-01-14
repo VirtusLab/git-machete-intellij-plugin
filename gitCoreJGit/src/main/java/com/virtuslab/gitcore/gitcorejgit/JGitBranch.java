@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -15,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 public abstract class JGitBranch implements IGitCoreBranch {
   protected JGitRepository repo;
@@ -25,6 +27,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
     return branchName;
   }
 
+  @EqualsAndHashCode.Include
   public String getFullName() {
     return getBranchesPath() + branchName;
   }
@@ -140,19 +143,5 @@ public abstract class JGitBranch implements IGitCoreBranch {
     if (!rfit.hasNext()) return true;
 
     return rfit.next().getOldId().equals(ObjectId.zeroId());
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == this) return true;
-
-    if (!(o instanceof JGitBranch)) return false;
-
-    return ((JGitBranch) o).getFullName().equals(getFullName());
-  }
-
-  @Override
-  public int hashCode() {
-    return getFullName().hashCode();
   }
 }
