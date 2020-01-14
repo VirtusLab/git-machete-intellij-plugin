@@ -6,7 +6,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.graph.DefaultColorGenerator;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.graph.repositoryGraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import javax.annotation.Nonnull;

@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.ui.table;
 
 import com.virtuslab.gitmachete.graph.model.GraphElement;
-import com.virtuslab.gitmachete.graph.repositoryGraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;

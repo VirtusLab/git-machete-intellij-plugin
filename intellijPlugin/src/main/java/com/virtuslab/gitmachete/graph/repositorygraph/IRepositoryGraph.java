@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.graph.repositoryGraph;
+package com.virtuslab.gitmachete.graph.repositorygraph;
 
 import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.graph.api.LinearGraph;
