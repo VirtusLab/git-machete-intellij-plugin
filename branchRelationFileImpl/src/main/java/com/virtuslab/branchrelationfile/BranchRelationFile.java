@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.branchrelationfile.api.IBranchRelationFileBranchEntry;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,47 +14,53 @@ import java.util.*;
 import lombok.Getter;
 
 public class BranchRelationFile implements IBranchRelationFile {
-  private Path pathToMacheteFile;
-  @Getter private List<IBranchRelationFileBranchEntry> rootBranches = new LinkedList<>();
+  private Path pathToBranchRelationFile;
+  @Getter private List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
 
   @Inject
   public BranchRelationFile(@Assisted Path path) throws BranchRelationFileException {
-    pathToMacheteFile = path;
+    pathToBranchRelationFile = path;
 
     List<String> lines;
     try {
-      lines = Files.readAllLines(pathToMacheteFile);
+      lines = Files.readAllLines(pathToBranchRelationFile);
     } catch (IOException e) {
       throw new BranchRelationFileException(
           MessageFormat.format(
               "Error while loading machete file ({0})",
-              pathToMacheteFile.toAbsolutePath().toString()),
+              pathToBranchRelationFile.toAbsolutePath().toString()),
           e);
     }
 
-    lines.removeIf(this::isEmptyLine);
-
     if (lines.size() < 1) return;
 
-    if (getIndent(lines.get(0)) > 0)
-      throw new BranchRelationFileException(
-          MessageFormat.format(
-              "The initial line of machete file ({0}) cannot be indented",
-              pathToMacheteFile.toAbsolutePath().toString()));
-
+    boolean isFirstSignificantLine = true;
+    int lineNumber = 1;
     int currentLevel = 0;
-    Map<Integer, IBranchRelationFileBranchEntry> macheteBranchesLevelsMap = new HashMap<>();
+    List<IBranchRelationFileEntry> currentUpstreamList = new LinkedList<>();
     for (var line : lines) {
-      int level = getLevel(getIndent(line));
+      if (isEmptyLine(line)) continue;
+
+      if (isFirstSignificantLine && getIndent(lines.get(0)) > 0)
+        throw new BranchRelationFileException(
+            MessageFormat.format(
+                "The initial line of machete file ({0}) cannot be indented",
+                pathToBranchRelationFile.toAbsolutePath().toString()),
+            lineNumber);
+
+      isFirstSignificantLine = false;
+
+      int level = getLevel(getIndent(line), lineNumber);
 
       if (level - currentLevel > 1)
         throw new BranchRelationFileException(
             MessageFormat.format(
                 "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
-                pathToMacheteFile.toAbsolutePath().toString()));
+                pathToBranchRelationFile.toAbsolutePath().toString()),
+            lineNumber);
 
       String trimmedLine = line.trim();
 
@@ -69,26 +75,26 @@ public class BranchRelationFile implements IBranchRelationFile {
         customAnnotation = Optional.empty();
       }
 
-      IBranchRelationFileBranchEntry branch;
+      IBranchRelationFileEntry branch;
 
       if (level == 0) {
-        branch = new BranchRelationFileBranchEntry(branchName, Optional.empty(), customAnnotation);
+        branch = new BranchRelationFileEntry(branchName, Optional.empty(), customAnnotation);
         rootBranches.add(branch);
       } else {
         branch =
-            new BranchRelationFileBranchEntry(
-                branchName, Optional.of(macheteBranchesLevelsMap.get(level - 1)), customAnnotation);
-        macheteBranchesLevelsMap.get(level - 1).addSubbranch(branch);
+            new BranchRelationFileEntry(
+                branchName, Optional.of(currentUpstreamList.get(level - 1)), customAnnotation);
+        currentUpstreamList.get(level - 1).addSubbranch(branch);
       }
 
-      macheteBranchesLevelsMap.put(level, branch);
+      currentUpstreamList.add(level, branch);
 
       currentLevel = level;
     }
   }
 
   private boolean isEmptyLine(String l) {
-    return l.trim().length() < 1;
+    return l.trim().length() == 0;
   }
 
   private int getIndent(String l) {
@@ -110,7 +116,7 @@ public class BranchRelationFile implements IBranchRelationFile {
     return indent;
   }
 
-  private int getLevel(int indent) throws BranchRelationFileException {
+  private int getLevel(int indent, int lineNumber) throws BranchRelationFileException {
     if (levelWidth == 0 && indent > 0) {
       levelWidth = indent;
       return 1;
@@ -122,7 +128,8 @@ public class BranchRelationFile implements IBranchRelationFile {
       throw new BranchRelationFileException(
           MessageFormat.format(
               "Levels of indentations are not matching in machete file ({0})",
-              pathToMacheteFile.toAbsolutePath().toString()));
+              pathToBranchRelationFile.toAbsolutePath().toString()),
+          lineNumber);
 
     return indent / levelWidth;
   }
@@ -136,15 +143,15 @@ public class BranchRelationFile implements IBranchRelationFile {
     printBranchesOntoStringList(lines, getRootBranches(), 0);
 
     if (backupOldFile) {
-      var pathToBackupFile = pathToMacheteFile.getParent().resolve("machete~");
-      Files.copy(pathToMacheteFile, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
+      var pathToBackupFile = pathToBranchRelationFile.getParent().resolve("machete~");
+      Files.copy(pathToBranchRelationFile, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    Files.write(pathToMacheteFile, lines);
+    Files.write(pathToBranchRelationFile, lines);
   }
 
   private void printBranchesOntoStringList(
-      List<String> sl, List<IBranchRelationFileBranchEntry> branches, int level) {
+      List<String> sl, List<IBranchRelationFileEntry> branches, int level) {
     for (var branch : branches) {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentType).repeat(level * levelWidth));
@@ -162,12 +169,12 @@ public class BranchRelationFile implements IBranchRelationFile {
     }
   }
 
-  public Optional<IBranchRelationFileBranchEntry> findBranchByName(String branchName) {
+  public Optional<IBranchRelationFileEntry> findBranchByName(String branchName) {
     return findBranchByNameInBranches(branchName, getRootBranches());
   }
 
-  private Optional<IBranchRelationFileBranchEntry> findBranchByNameInBranches(
-      String branchName, List<IBranchRelationFileBranchEntry> branches) {
+  private Optional<IBranchRelationFileEntry> findBranchByNameInBranches(
+      String branchName, List<IBranchRelationFileEntry> branches) {
     for (var branch : branches) {
       if (branch.getName().equals(branchName)) return Optional.of(branch);
 
