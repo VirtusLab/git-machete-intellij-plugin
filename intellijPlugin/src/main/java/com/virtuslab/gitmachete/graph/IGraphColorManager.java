@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.api;
+package com.virtuslab.gitmachete.graph;
 
 public interface IGraphColorManager {
   int getColor();

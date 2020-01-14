@@ -6,9 +6,9 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.graph.DefaultColorGenerator;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.api.IRepositoryGraph;
-import com.virtuslab.gitmachete.ui.render.GraphBranchCell;
-import com.virtuslab.gitmachete.ui.render.GraphBranchCellRenderer;
+import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
+import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import javax.annotation.Nonnull;
 
 /* todo: consider applying SpeedSearch for branches and commits */
@@ -26,14 +26,14 @@ public class GitMacheteGraphTable extends JBTable {
             return GitMacheteGraphTable.this.getRowHeight();
           }
         };
-    GraphBranchCellRenderer myGraphBranchCellRenderer =
-        new GraphBranchCellRenderer(graphCellPainter, GitMacheteGraphTable.this);
+    BranchOrCommitCellRenderer branchOrCommitCellRenderer =
+        new BranchOrCommitCellRenderer(GitMacheteGraphTable.this, graphCellPainter);
 
     getEmptyText().setText(GIT_MACHETE_TEXT);
 
     initColumns();
 
-    setDefaultRenderer(GraphBranchCell.class, myGraphBranchCellRenderer);
+    setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
