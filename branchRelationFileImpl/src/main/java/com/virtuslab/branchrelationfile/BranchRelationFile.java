@@ -30,7 +30,7 @@ public class BranchRelationFile implements IBranchRelationFile {
     } catch (IOException e) {
       throw new BranchRelationFileException(
           MessageFormat.format(
-              "Error while loading machete file ({0})",
+              "Error while loading branch relation file ({0})",
               pathToBranchRelationFile.toAbsolutePath().toString()),
           e);
     }
@@ -47,7 +47,7 @@ public class BranchRelationFile implements IBranchRelationFile {
       if (isFirstSignificantLine && getIndent(lines.get(0)) > 0)
         throw new BranchRelationFileException(
             MessageFormat.format(
-                "The initial line of machete file ({0}) cannot be indented",
+                "The initial line of branch relation file ({0}) cannot be indented",
                 pathToBranchRelationFile.toAbsolutePath().toString()),
             lineNumber);
 
@@ -58,7 +58,7 @@ public class BranchRelationFile implements IBranchRelationFile {
       if (level - currentLevel > 1)
         throw new BranchRelationFileException(
             MessageFormat.format(
-                "One of branches in machete file ({0}) has incorrect level in relation to its parent branch",
+                "One of branches in branch relation file ({0}) has incorrect level in relation to its parent branch",
                 pathToBranchRelationFile.toAbsolutePath().toString()),
             lineNumber);
 
@@ -127,23 +127,23 @@ public class BranchRelationFile implements IBranchRelationFile {
     if (indent % levelWidth != 0)
       throw new BranchRelationFileException(
           MessageFormat.format(
-              "Levels of indentations are not matching in machete file ({0})",
+              "Levels of indentations are not matching in branch relation file ({0})",
               pathToBranchRelationFile.toAbsolutePath().toString()),
           lineNumber);
 
     return indent / levelWidth;
   }
 
-  public void saveToFile() throws IOException {
-    saveToFile(true);
-  }
-
+  @Override
   public void saveToFile(boolean backupOldFile) throws IOException {
     var lines = new LinkedList<String>();
     printBranchesOntoStringList(lines, getRootBranches(), 0);
 
     if (backupOldFile) {
-      var pathToBackupFile = pathToBranchRelationFile.getParent().resolve("machete~");
+      var pathToBackupFile =
+          pathToBranchRelationFile
+              .getParent()
+              .resolve(pathToBranchRelationFile.getFileName() + "~");
       Files.copy(pathToBranchRelationFile, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
     }
 
