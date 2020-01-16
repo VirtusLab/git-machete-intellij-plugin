@@ -24,11 +24,12 @@ public class BranchRelationFileEntry implements IBranchRelationFileEntry {
     if (upstream.isEmpty()) throw new BranchRelationFileException("Can not slide out root branch");
 
     var upBranch = upstream.get();
-    int indexOfThatBranch = upBranch.getSubbranches().indexOf(this);
+    int indexInUpstream = upBranch.getSubbranches().indexOf(this);
 
     for (var childBranch : subbranches) {
       childBranch.setUpstream(upstream);
-      upBranch.getSubbranches().add(indexOfThatBranch, childBranch);
+      upBranch.getSubbranches().add(indexInUpstream, childBranch);
+      indexInUpstream++;
     }
 
     upBranch.getSubbranches().remove(this);

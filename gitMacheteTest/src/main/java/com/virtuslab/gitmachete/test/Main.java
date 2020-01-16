@@ -27,7 +27,7 @@ public class Main {
 
     printGitMacheteBranches(repo.getRootBranches(), 0);
 
-    repo.getRootBranches().get(0).getBranches().get(0).slideOut();
+    repo = repo.slideOutBranchWithReinstantiationOfMacheteRepository("allow-ownership-link");
 
     System.out.println();
 

@@ -21,6 +21,4 @@ public interface IGitMacheteBranch {
   SyncToParentStatus getSyncToParentStatus() throws GitException;
 
   SyncToOriginStatus getSyncToOriginStatus() throws GitException;
-
-  void slideOut() throws GitMacheteException;
 }
