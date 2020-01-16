@@ -19,17 +19,13 @@ public class Main {
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
-                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
+                  Paths.get(
+                      System.getProperty("user.home"), "Desktop", "git-machete-intellij-plugin"),
+                  Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
     }
-
-    printGitMacheteBranches(repo.getRootBranches(), 0);
-
-    repo = repo.slideOutBranchWithReinstantiationOfMacheteRepository("allow-ownership-link");
-
-    System.out.println();
 
     printGitMacheteBranches(repo.getRootBranches(), 0);
 

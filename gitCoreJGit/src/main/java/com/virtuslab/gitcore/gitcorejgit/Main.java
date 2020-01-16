@@ -45,8 +45,13 @@ public class Main {
     }*/
 
     JGitRepository r =
-        new JGitRepository(Paths.get(System.getProperty("user.home"), "Documents/test2"));
+        new JGitRepository(
+            Paths.get(System.getProperty("user.home"), "Desktop", "git-machete-intellij-plugin"));
     System.out.println(r.getCurrentBranch().orElseGet(null));
+
+    var b = r.getLocalBranch("fix/submodules");
+
+    System.out.println(b.getForkPoint());
 
     // Branch parent = r.getBranch("parent");
     // Commit c = parent.getPointedCommit();
@@ -55,8 +60,8 @@ public class Main {
 
     // System.out.println(c);
 
-    var child = r.getLocalBranch("branch");
-    var parent = r.getLocalBranch("master");
+    /*var child = r.getLocalBranch("branch");
+    var parent = r.getLocalBranch("master");*/
 
     // System.out.println(parent.getFullName());
 
@@ -67,12 +72,12 @@ public class Main {
     // System.out.println(mb);
 
     // System.out.println(child.getTrackingStatus());
-    System.out.println(parent.getRemoteTrackingStatus());
+    /*System.out.println(parent.getRemoteTrackingStatus());
 
     System.out.println(parent.getPointedCommit().isAncestorOf(child.getPointedCommit()));
     System.out.println(parent.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
     System.out.println(child.getPointedCommit().isAncestorOf(child.getPointedCommit()));
-    System.out.println(child.getPointedCommit().isAncestorOf(parent.getPointedCommit()));
+    System.out.println(child.getPointedCommit().isAncestorOf(parent.getPointedCommit()));*/
 
     /*for(var v : child.getBelongingCommits(parent.getPointedCommit())) {
         System.out.println(v);

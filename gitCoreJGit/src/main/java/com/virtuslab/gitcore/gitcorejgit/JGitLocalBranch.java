@@ -2,7 +2,6 @@ package com.virtuslab.gitcore.gitcorejgit;
 
 import com.virtuslab.gitcore.gitcoreapi.*;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -77,12 +76,13 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
       throw new JGitException(e);
     }
 
-    List<Collection<ReflogEntry>> reflogEntriesList = new LinkedList<>();
+    List<List<ReflogEntry>> reflogEntriesList = new LinkedList<>();
 
     for (var branch : this.repo.getLocalBranches()) {
       if (!branch.equals(this)) {
         try {
-          reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
+          reflogEntriesList.add(
+              repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
         } catch (Exception e) {
           throw new JGitException(e);
         }
@@ -94,7 +94,8 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
     for (var branch : this.repo.getRemoteBranches()) {
       if (remoteTrackingBranch.filter(branch::equals).isEmpty()) {
         try {
-          reflogEntriesList.add(repo.getJgitGit().reflog().setRef(branch.getFullName()).call());
+          reflogEntriesList.add(
+              repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
         } catch (Exception e) {
           throw new JGitException(e);
         }
@@ -103,11 +104,12 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
 
     // Filter reflogs
     for (var entries : reflogEntriesList) {
-      // Checked if the old ID is not zero to exclude the first entry in reflog (just after
-      // creating from other branch)
+      var firstEntryNewID =
+          entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
       entries.removeIf(
           e ->
-              e.getOldId().equals(ObjectId.zeroId())
+              e.getNewId().equals(firstEntryNewID)
+                  || e.getNewId().equals(e.getOldId())
                   || e.getComment().startsWith("branch: Reset to ")
                   || e.getComment().startsWith("reset: moving to "));
     }
