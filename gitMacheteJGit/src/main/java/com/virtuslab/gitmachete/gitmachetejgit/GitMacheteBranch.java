@@ -1,10 +1,7 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.gitcore.gitcoreapi.*;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -59,26 +56,6 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     else if (ts.get().getAhead() > 0) return SyncToOriginStatus.Ahead;
     else if (ts.get().getBehind() > 0) return SyncToOriginStatus.Behind;
     else return SyncToOriginStatus.InSync;
-  }
-
-  @Override
-  public void slideOut() throws GitMacheteException {
-    var macheteFile = macheteRepository.getBranchRelationFile();
-    var macheteFileBranch = macheteFile.findBranchByName(getName());
-    if (macheteFileBranch.isEmpty())
-      throw new GitMacheteException(
-          MessageFormat.format(
-              "Branch {0} was not found in machete file, so can not be slided out", getName()));
-
-    try {
-      macheteFileBranch.get().slideOut();
-      macheteFile.saveToFile();
-    } catch (BranchRelationFileException | IOException e) {
-      throw new GitMacheteException(
-          MessageFormat.format(
-              "Error occurred while sliding out branch {0}: {1}", getName(), e.getMessage()),
-          e);
-    }
   }
 
   public SyncToParentStatus getSyncToParentStatus() throws GitException {
