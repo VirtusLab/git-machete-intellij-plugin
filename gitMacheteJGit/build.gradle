@@ -4,24 +4,19 @@ plugins {
 
 version 'unspecified'
 
-sourceCompatibility = 11
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:'+lombokVersion
+    annotationProcessor 'org.projectlombok:lombok:'+lombokVersion
 
     // https://mvnrepository.com/artifact/com.google.inject/guice
-    compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
+    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
     // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
 
 
     compile project(':gitMacheteApi')
-    compile project(':branchRelationFileApi')
 }

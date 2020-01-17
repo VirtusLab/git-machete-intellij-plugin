@@ -1,18 +1,6 @@
-plugins {
-    id 'java'
-}
-
 version 'unspecified'
 
-sourceCompatibility = 11
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:'+lombokVersion
+    annotationProcessor 'org.projectlombok:lombok:'+lombokVersion
 }

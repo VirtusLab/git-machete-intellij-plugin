@@ -5,6 +5,24 @@ plugins {
 allprojects {
     repositories {
         jcenter()
+        mavenCentral()
+    }
+
+    apply plugin: 'java'
+
+    sourceCompatibility = 11
+
+    ext {
+        junitVersion = '4.13'
+        lombokVersion = '1.18.10'
+        guiceVersion = '4.2.2'
+        slf4jVersion = '1.7.25'
+        jgitVersion = '5.5.1.201910021850-r'
+        javafxVersion = '11'
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: junitVersion
     }
 }
 
