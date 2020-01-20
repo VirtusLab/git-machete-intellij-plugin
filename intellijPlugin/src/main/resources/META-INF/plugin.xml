@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.virtuslab.git-machete</id>
     <name>Git Machete</name>
-    <version>0.0.1</version>
+    <version>"${version}"</version>
     <vendor email="mkondratek@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
 
     <description><![CDATA[

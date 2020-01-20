@@ -8,13 +8,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check formatting
+          name: Check Formatting
           command: |
             ./gradlew spotlessCheck
       - run:
-          name: Install machete CLI
+          name: Install Machete CLI
           command: pip3 install git-machete==2.12.5
       - run:
           name: Build & Test
           command: |
             ./gradlew test
+      - run:
+          name: Build Plugin Artifact
+          command: |
+            ./gradlew intellijPlugin:buildPlugin
+      - store_artifacts:
+          path: ~/git-machete-intellij-plugin/intellijPlugin/build/distributions
+          destination: .
+
