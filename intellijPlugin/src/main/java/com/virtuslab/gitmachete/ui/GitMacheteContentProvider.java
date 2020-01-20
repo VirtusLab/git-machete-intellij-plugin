@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
+import org.jetbrains.annotations.CalledInAwt;
 
 public class GitMacheteContentProvider implements ChangesViewContentProvider {
   private static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
@@ -111,6 +112,11 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
 
   @Override
   public void disposeContent() {
+    disposeMainUi();
+  }
+
+  @CalledInAwt
+  private void disposeMainUi() {
     disposed = true;
     tableUpdateAlarm.cancelAllRequests();
 
@@ -199,4 +205,6 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
       refreshView(); // todo: optimize by keeping repository
     }
   }
+
+  // todo: visibilitypredicate
 }

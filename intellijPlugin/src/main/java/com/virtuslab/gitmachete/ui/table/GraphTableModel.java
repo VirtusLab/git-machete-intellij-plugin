@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.ui.table;
 
-import com.virtuslab.gitmachete.graph.model.GraphElementI;
+import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
@@ -30,7 +30,7 @@ public class GraphTableModel extends AbstractTableModel {
   public final Object getValueAt(int rowIndex, int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN:
-        GraphElementI element = iRepositoryGraph.getGraphElement(rowIndex);
+        IGraphElement element = iRepositoryGraph.getGraphElement(rowIndex);
         return new BranchOrCommitCell(element, iRepositoryGraph.getPrintElements(rowIndex));
       default:
         throw new IllegalArgumentException(

@@ -1,18 +1,18 @@
 package com.virtuslab.gitmachete.ui.cell;
 
 import com.intellij.vcs.log.graph.PrintElement;
-import com.virtuslab.gitmachete.graph.model.GraphElementI;
+import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 
 public final class BranchOrCommitCell {
-  @Getter @Nonnull private final GraphElementI element;
+  @Getter @Nonnull private final IGraphElement element;
   @Getter @Nonnull private final String text;
   @Getter @Nonnull private final Collection<? extends PrintElement> printElements;
 
   public BranchOrCommitCell(
-      @Nonnull GraphElementI graphElement,
+      @Nonnull IGraphElement graphElement,
       @Nonnull Collection<? extends PrintElement> printElements) {
     this.text = graphElement.getValue();
     this.printElements = printElements;
