@@ -35,6 +35,6 @@ public class NullRepository implements IGitMacheteRepository {
 
   @Override
   public Map<String, IGitMacheteRepository> getSubmoduleRepositories() {
-    return null;
+    return Collections.emptyMap();
   }
 }
