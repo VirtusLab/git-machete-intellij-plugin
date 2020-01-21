@@ -10,14 +10,17 @@ import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import javax.annotation.Nonnull;
+import lombok.Getter;
 
 /* todo: consider applying SpeedSearch for branches and commits */
 public class GitMacheteGraphTable extends JBTable {
+  @Getter private final GraphTableModel graphTableModel;
 
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   public GitMacheteGraphTable(@Nonnull IRepositoryGraph IRepositoryGraph) {
-    super(new GraphTableModel(IRepositoryGraph));
+    graphTableModel = new GraphTableModel(IRepositoryGraph);
+    setModel(graphTableModel);
 
     GraphCellPainter graphCellPainter =
         new SimpleGraphCellPainter(new DefaultColorGenerator()) {
