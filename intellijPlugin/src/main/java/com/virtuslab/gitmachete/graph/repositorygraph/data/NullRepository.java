@@ -2,9 +2,9 @@ package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Map<String, IGitMacheteRepository> getSubmoduleRepositories() {
-    return Collections.emptyMap();
+  public List<IGitMacheteSubmoduleEntry> getSubmodules() {
+    return Collections.emptyList();
   }
 }
