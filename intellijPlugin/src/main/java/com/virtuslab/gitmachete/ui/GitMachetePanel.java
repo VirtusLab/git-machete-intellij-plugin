@@ -15,30 +15,34 @@ import lombok.Getter;
 public class GitMachetePanel {
   @Getter private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
 
-  public GitMachetePanel(Project project) {
+  public GitMachetePanel(@Nonnull Project project) {
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project);
-    gitMacheteGraphTableManager.updateModel();
+    gitMacheteGraphTableManager.updateModelGraphRepository();
+    gitMacheteGraphTableManager.refreshUI();
   }
 
   @Nonnull
   public ActionToolbar createGitMacheteToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    DefaultActionGroup refresh = new DefaultActionGroup("Refresh", false);
+    DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /*popup*/ false);
     refresh.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
     refresh.add(new RefreshGitMacheteStatusAction());
 
-    DefaultActionGroup listCommits = new DefaultActionGroup("List Commits", false);
-    listCommits.getTemplatePresentation().setIcon(AllIcons.Actions.Show);
-    listCommits.add(new ToggleListCommitsAction());
+    DefaultActionGroup toggleListCommits =
+        new DefaultActionGroup("Toggle List Commits", /*popup*/ false);
+    toggleListCommits.getTemplatePresentation().setIcon(AllIcons.Actions.Show);
+    toggleListCommits.add(new ToggleListCommitsAction());
 
     gitMacheteActions.add(refresh);
-    gitMacheteActions.add(listCommits);
+    gitMacheteActions.add(toggleListCommits);
 
     ActionToolbar toolbar =
         ActionManager.getInstance()
             .createActionToolbar(
-                GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, false);
+                GitMacheteContentProvider.GIT_MACHETE_TOOLBAR,
+                gitMacheteActions, /*horizontal*/
+                false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }
@@ -50,13 +54,14 @@ public class GitMachetePanel {
 
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
-      gitMacheteGraphTableManager.updateModel();
+      gitMacheteGraphTableManager.updateModelGraphRepository();
+      gitMacheteGraphTableManager.refreshUI();
     }
   }
 
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
     ToggleListCommitsAction() {
-      super("List Commits", "List commits", AllIcons.Actions.ShowHiddens);
+      super("Toggle List Commits", "Toggle list commits", AllIcons.Actions.ShowHiddens);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class GitMachetePanel {
     @Override
     public void setSelected(@Nonnull AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
-      gitMacheteGraphTableManager.updateModel();
+      gitMacheteGraphTableManager.refreshUI();
     }
   }
 }
