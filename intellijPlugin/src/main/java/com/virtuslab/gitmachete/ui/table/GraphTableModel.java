@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.ui.table;
 
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.graph.repositorygraph.IRepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;
@@ -14,11 +14,11 @@ public class GraphTableModel extends AbstractTableModel {
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
-  @Setter @Nonnull private IRepositoryGraph iRepositoryGraph;
+  @Setter @Nonnull private RepositoryGraph repositoryGraph;
 
   @Override
   public int getRowCount() {
-    return iRepositoryGraph.nodesCount();
+    return repositoryGraph.nodesCount();
   }
 
   @Override
@@ -31,8 +31,8 @@ public class GraphTableModel extends AbstractTableModel {
   public final Object getValueAt(int rowIndex, int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN:
-        IGraphElement element = iRepositoryGraph.getGraphElement(rowIndex);
-        return new BranchOrCommitCell(element, iRepositoryGraph.getPrintElements(rowIndex));
+        IGraphElement element = repositoryGraph.getGraphElement(rowIndex);
+        return new BranchOrCommitCell(element, repositoryGraph.getPrintElements(rowIndex));
       default:
         throw new IllegalArgumentException(
             "columnIndex is " + columnIndex + " > " + (getColumnCount() - 1));

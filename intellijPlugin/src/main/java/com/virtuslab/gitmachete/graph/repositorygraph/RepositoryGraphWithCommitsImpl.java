@@ -17,13 +17,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-public class RepositoryGraphWithCommitsImpl extends RepositoryGraphImpl {
+public class RepositoryGraphWithCommitsImpl extends RepositoryGraph {
   public RepositoryGraphWithCommitsImpl(@Nonnull IGitMacheteRepository repository) {
     super(repository);
   }
 
   @Override
-  protected List<IGraphElement> getGraphElementsOfRepository(IGitMacheteRepository repository) {
+  protected List<IGraphElement> getGraphElementsOfRepository(
+      @Nonnull IGitMacheteRepository repository) {
     List<IGraphElement> graphElements = new ArrayList<>();
     for (IGitMacheteBranch branch : repository.getRootBranches()) {
       try {
@@ -31,7 +32,7 @@ public class RepositoryGraphWithCommitsImpl extends RepositoryGraphImpl {
         graphElements.add(new IBranchElement(branch));
         addDownstreamBranchesAndCommits(graphElements, branch);
       } catch (GitException e) {
-        e.printStackTrace();
+        // Unable to get commits of a branch
         graphElements.clear();
         break;
       }

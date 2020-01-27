@@ -33,7 +33,8 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
         simplePanel(gitMachetePanel.getGitMacheteGraphTableManager().getGitMacheteGraphTable())
             .addToLeft(gitMacheteToolbar.getComponent());
 
-    SimpleToolWindowPanel panel = new SimpleToolWindowPanel(false, true);
+    SimpleToolWindowPanel panel =
+        new SimpleToolWindowPanel(/*vertical*/ false, /*borderless*/ true);
     panel.setToolbar(gitMacheteToolbar.getComponent());
     panel.setContent(gitMachetePanelWrapper);
     return panel;
