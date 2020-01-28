@@ -4,8 +4,10 @@ import com.intellij.vcs.log.graph.PrintElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode
 public final class BranchOrCommitCell {
   @Getter @Nonnull private final IGraphElement element;
   @Getter @Nonnull private final String text;
@@ -22,21 +24,5 @@ public final class BranchOrCommitCell {
   @Override
   public String toString() {
     return text;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof BranchOrCommitCell
-        && element.equals(obj)
-        && text.equals(((BranchOrCommitCell) obj).text)
-        && printElements.equals(((BranchOrCommitCell) obj).printElements);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = element.hashCode();
-    result = 31 * result + text.hashCode();
-    result = 37 * result + printElements.hashCode();
-    return result;
   }
 }

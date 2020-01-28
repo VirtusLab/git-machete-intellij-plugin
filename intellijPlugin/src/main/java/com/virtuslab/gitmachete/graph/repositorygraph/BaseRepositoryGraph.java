@@ -4,47 +4,33 @@ import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.graph.api.LinearGraph;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.graph.IGraphColorManager;
 import com.virtuslab.gitmachete.graph.facade.GraphElementManager;
 import com.virtuslab.gitmachete.graph.model.IBranchElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nonnull;
 
 public abstract class BaseRepositoryGraph implements LinearGraph {
   @Nonnull private final PrintElementGeneratorImpl printElementGenerator;
   @Nonnull protected final List<IGraphElement> elements;
+  @Nonnull private final IGitMacheteRepository repository;
 
   public BaseRepositoryGraph(@Nonnull IGitMacheteRepository repository) {
+    this.repository = repository;
     this.elements = getGraphElementsOfRepository(repository);
 
-    IGraphColorManager myColorManager =
-        new IGraphColorManager() {
-          final Random random = new Random();
-
-          @Override
-          public int getColor() {
-
-            int r = (int) (155 + random.nextGaussian() * 100);
-            int g = (int) ((1 - random.nextGaussian()) * (255 - r));
-            int b = 255 - Math.min(g + r, 255);
-            return r << 16 | g << 8 | b << 0;
-          }
-        };
-
-    GraphElementManager myPrintElementManager =
-        new GraphElementManager(/*linearGraph*/ this, myColorManager);
+    GraphElementManager myPrintElementManager = new GraphElementManager(/*repositoryGraph*/ this);
     printElementGenerator =
         new PrintElementGeneratorImpl(
             /*graph*/ this, myPrintElementManager, /*showLongEdges*/ false);
   }
 
-  abstract List<IGraphElement> getGraphElementsOfRepository(
+  protected abstract List<IGraphElement> getGraphElementsOfRepository(
       @Nonnull IGitMacheteRepository repository);
 
   public Collection<? extends PrintElement> getPrintElements(int rowIndex) {
@@ -59,7 +45,7 @@ public abstract class BaseRepositoryGraph implements LinearGraph {
     int upNode = -1;
     Optional<IGitMacheteBranch> upstreamBranch = graphElement.getBranch().getUpstreamBranch();
     if (upstreamBranch.isPresent()) {
-      upNode = elements.indexOf(new IBranchElement(upstreamBranch.get()));
+      upNode = getContainingElementIndex(upstreamBranch.get());
     }
     return upNode;
   }
@@ -87,5 +73,33 @@ public abstract class BaseRepositoryGraph implements LinearGraph {
       return nodeId;
     }
     return null;
+  }
+
+  protected IBranchElement branchElementOf(IGitMacheteBranch gitMacheteBranch) {
+    IBranchElement branchElement = new IBranchElement(gitMacheteBranch);
+
+    IGitMacheteBranch currentBranch = null;
+    try {
+      if (repository.getCurrentBranch() != null) {
+        currentBranch = repository.getCurrentBranch().orElse(null);
+      }
+    } catch (GitMacheteException e) {
+      // Unable to get current branch
+    }
+
+    if (gitMacheteBranch.equals(currentBranch)) {
+      branchElement.setAttributes(IBranchElement.UNDERLINE_BOLD_ATTRIBUTES);
+    }
+
+    return branchElement;
+  }
+
+  protected int getContainingElementIndex(IGitMacheteBranch branch) {
+    IGraphElement graphElement =
+        elements.stream()
+            .filter(e -> e instanceof IBranchElement && e.getBranch().equals(branch))
+            .findFirst()
+            .orElse(null);
+    return elements.indexOf(graphElement);
   }
 }

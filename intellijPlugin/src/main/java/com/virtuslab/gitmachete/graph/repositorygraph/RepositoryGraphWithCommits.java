@@ -28,8 +28,11 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
     List<IGraphElement> graphElements = new ArrayList<>();
     for (IGitMacheteBranch branch : repository.getRootBranches()) {
       try {
-        branch.getCommits().stream().map(ICommitElement::new).forEach(graphElements::add);
-        graphElements.add(new IBranchElement(branch));
+        branch.getCommits().stream()
+            .map(ICommitElement::new)
+            .peek(c -> c.setBranch(branch))
+            .forEach(graphElements::add);
+        graphElements.add(branchElementOf(branch));
         addDownstreamBranchesAndCommits(graphElements, branch);
       } catch (GitException e) {
         // Unable to get commits of a branch
@@ -45,8 +48,9 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
       Lists.reverse(branch.getCommits()).stream()
           .map(ICommitElement::new)
+          .peek(c -> c.setBranch(branch))
           .forEach(graphElements::add);
-      graphElements.add(new IBranchElement(branch));
+      graphElements.add(branchElementOf(branch));
       addDownstreamBranchesAndCommits(graphElements, branch);
     }
   }
@@ -67,7 +71,7 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
         adjacentEdges.add(
             GraphEdge.createNormalEdge(nodeIndex, nodeIndex + 1, GraphEdgeType.USUAL));
       } else {
-        IGitMacheteBranch branch = ((IBranchElement) currentElement).getBranch();
+        IGitMacheteBranch branch = currentElement.getBranch();
         adjacentEdges =
             branch.getBranches().stream()
                 .map(
@@ -105,7 +109,7 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
   }
 
   private int getUpstreamBranchElementIndex(IGitMacheteBranch b) {
-    int idx = elements.indexOf(new IBranchElement(b));
+    int idx = getContainingElementIndex(b);
     try {
       idx -= b.getCommits().size();
     } catch (GitException e) {
