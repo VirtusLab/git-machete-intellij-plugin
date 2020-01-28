@@ -20,10 +20,11 @@ public class RepositoryGraph extends BaseRepositoryGraph {
   }
 
   @Override
-  List<IGraphElement> getGraphElementsOfRepository(@Nonnull IGitMacheteRepository repository) {
+  protected List<IGraphElement> getGraphElementsOfRepository(
+      @Nonnull IGitMacheteRepository repository) {
     List<IGraphElement> graphElements = new ArrayList<>();
     for (IGitMacheteBranch branch : repository.getRootBranches()) {
-      graphElements.add(new IBranchElement(branch));
+      graphElements.add(branchElementOf(branch));
       addDownstreamBranches(graphElements, branch);
     }
     return graphElements;
@@ -32,7 +33,7 @@ public class RepositoryGraph extends BaseRepositoryGraph {
   private void addDownstreamBranches(
       List<IGraphElement> graphElements, IGitMacheteBranch upstreamBranch) {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      graphElements.add(new IBranchElement(branch));
+      graphElements.add(branchElementOf(branch));
       addDownstreamBranches(graphElements, branch);
     }
   }
@@ -49,13 +50,13 @@ public class RepositoryGraph extends BaseRepositoryGraph {
     IGraphElement currentElement = elements.get(nodeIndex);
 
     if (filter.downNormal && nodeIndex < elements.size() - 1) {
-      IGitMacheteBranch branch = ((IBranchElement) currentElement).getBranch();
+      IGitMacheteBranch branch = currentElement.getBranch();
       adjacentEdges =
           branch.getBranches().stream()
               .map(
                   b ->
                       GraphEdge.createNormalEdge(
-                          nodeIndex, elements.indexOf(new IBranchElement(b)), GraphEdgeType.USUAL))
+                          nodeIndex, getContainingElementIndex(b), GraphEdgeType.USUAL))
               .collect(Collectors.toList());
     }
 
