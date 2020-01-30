@@ -8,7 +8,7 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into I
 1. IntelliJ 2019.1+ Community Edition/Ultimate 
 2. [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
 3. Enabled annotation processing (for Lombok): `File | Settings | Build, Execution, Deployment | Compiler | Annotation Processors | Enable Annotation Processing`
-4. Set SDK 11: `Project Structure | Project`
+4. Set Project SDK to JDK 11: `Project Structure | Project`
 5. git
 
 ### Run/Debug
@@ -19,3 +19,8 @@ To run an instance of IDE with Git Machete IntelliJ Plugin execute
 ### Generating plugin zip
 
 To generate a plugin archive run `intellijPlugin:buildPlugin` gradle task. The resulting file will be available under `intellijPlugin/build/distributions`.
+
+### Installing snapshot build of the plugin
+
+Download the zip file from the artifacts of the given build in CircleCI (URL of the form `https://app.circleci.com/jobs/github/VirtusLab/git-machete-intellij-plugin/<<<BUILD_NUMBER>>>/artifacts`).
+Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, select the zip and restart IDE.
