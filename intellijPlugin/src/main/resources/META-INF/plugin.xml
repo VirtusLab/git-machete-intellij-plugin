@@ -15,6 +15,7 @@
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <changesViewContent tabName="Git Machete" className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"/>
+        <changesViewContent tabName="Git Machete" className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"
+        predicateClassName="com.virtuslab.gitmachete.ui.GitMacheteContentProvider$GitMacheteVisibilityPredicate"/>
     </extensions>
 </idea-plugin>
