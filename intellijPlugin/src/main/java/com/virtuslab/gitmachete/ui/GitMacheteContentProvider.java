@@ -7,12 +7,16 @@ import static com.intellij.util.ui.UIUtil.addBorder;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SideBorder;
+import com.intellij.util.NotNullFunction;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import git4idea.GitVcs;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class GitMacheteContentProvider implements ChangesViewContentProvider {
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
@@ -43,5 +47,11 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   @Override
   public void disposeContent() {}
 
-  // todo: visibility predicate (invisible when machete file missing???)
+  public static class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
+    @NotNull
+    @Override
+    public Boolean fun(Project project) {
+      return ProjectLevelVcsManager.getInstance(project).checkVcsIsActive(GitVcs.NAME);
+    }
+  }
 }
