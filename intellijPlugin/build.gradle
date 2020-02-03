@@ -22,6 +22,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
+configurations.all {
+    exclude group: 'org.slf4j'
+}
+
 intellij {
     version '2019.1'
     plugins 'git4idea'

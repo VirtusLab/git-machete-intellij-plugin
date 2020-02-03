@@ -2,13 +2,14 @@ package com.virtuslab.gitmachete.ui;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.BaseRepositoryGraph;
 import com.virtuslab.gitmachete.graph.repositorygraph.data.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import java.nio.file.Path;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class GitMacheteGraphTableManager {
+  private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
   private final Project project;
   @Getter @Setter private boolean isListingCommits;
   @Getter private GitMacheteGraphTable gitMacheteGraphTable;
@@ -37,12 +39,12 @@ public class GitMacheteGraphTableManager {
 
   public void refreshUI() {
     /*
-     * Checks if IDEA is running as a command line applet or in unit test mode.
+     * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
      * No UI should be shown when IDEA is running in this mode.
      */
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) return;
 
-    RepositoryGraph repositoryGraph =
+    BaseRepositoryGraph repositoryGraph =
         RepositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
     gitMacheteGraphTable.getGraphTableModel().setRepositoryGraph(repositoryGraph);
     GuiUtils.invokeLaterIfNeeded(() -> gitMacheteGraphTable.updateUI(), ModalityState.NON_MODAL);
@@ -53,7 +55,7 @@ public class GitMacheteGraphTableManager {
     try {
       repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, Optional.empty());
     } catch (GitMacheteException e) {
-      // Unable to create repository
+      LOG.error("Unable to create Git Machete repository", e);
     }
   }
 }
