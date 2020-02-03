@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.ui.table;
 
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.BaseRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;
@@ -14,7 +14,7 @@ public class GraphTableModel extends AbstractTableModel {
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
-  @Setter @Nonnull private RepositoryGraph repositoryGraph;
+  @Setter @Nonnull private BaseRepositoryGraph repositoryGraph;
 
   @Override
   public int getRowCount() {

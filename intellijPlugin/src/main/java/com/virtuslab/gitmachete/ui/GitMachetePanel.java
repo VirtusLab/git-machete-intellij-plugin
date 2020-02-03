@@ -41,8 +41,8 @@ public class GitMachetePanel {
         ActionManager.getInstance()
             .createActionToolbar(
                 GitMacheteContentProvider.GIT_MACHETE_TOOLBAR,
-                gitMacheteActions, /*horizontal*/
-                false);
+                gitMacheteActions,
+                /*horizontal*/ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }

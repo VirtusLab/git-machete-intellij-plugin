@@ -6,7 +6,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.graph.DefaultColorGenerator;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.BaseRepositoryGraph;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ public class GitMacheteGraphTable extends JBTable {
 
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
-  public GitMacheteGraphTable(@Nonnull RepositoryGraph repositoryGraph) {
+  public GitMacheteGraphTable(@Nonnull BaseRepositoryGraph repositoryGraph) {
     graphTableModel = new GraphTableModel(repositoryGraph);
     setModel(graphTableModel);
 

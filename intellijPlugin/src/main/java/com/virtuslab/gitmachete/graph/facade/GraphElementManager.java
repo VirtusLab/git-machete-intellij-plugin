@@ -13,13 +13,13 @@ import java.util.Comparator;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public class GraphElementManagerImpl implements PrintElementManager {
+public class GraphElementManager implements PrintElementManager {
   @Nonnull private final Comparator<GraphElement> graphElementComparator;
   @Nonnull private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
   @Nonnull private final LinearGraph linearGraph;
   @Nonnull private final Set<Integer> selectedNodesIds = Collections.emptySet();
 
-  public GraphElementManagerImpl(
+  public GraphElementManager(
       @Nonnull LinearGraph linearGraph, @Nonnull IGraphColorManager colorManager) {
     this.linearGraph = linearGraph;
     colorGetterByLayoutIndex = new ColorGetterByLayoutIndex(colorManager);

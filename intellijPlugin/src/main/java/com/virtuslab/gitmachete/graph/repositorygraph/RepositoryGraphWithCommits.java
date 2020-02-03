@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-public class RepositoryGraphWithCommitsImpl extends RepositoryGraph {
-  public RepositoryGraphWithCommitsImpl(@Nonnull IGitMacheteRepository repository) {
+public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
+  public RepositoryGraphWithCommits(@Nonnull IGitMacheteRepository repository) {
     super(repository);
   }
 
