@@ -6,14 +6,14 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public final class ICommitElement implements IGraphElement {
-  @Setter @Getter private IGitMacheteBranch branch = null;
-
   @Getter private final IGitMacheteCommit commit;
+  @Getter private final IGitMacheteBranch branch;
+  @Getter private final int upElementIndex;
+  @Getter private final int branchIndex;
 
   @Override
   public String getValue() {

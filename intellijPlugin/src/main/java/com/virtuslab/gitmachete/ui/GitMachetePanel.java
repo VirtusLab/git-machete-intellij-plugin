@@ -18,7 +18,7 @@ public class GitMachetePanel {
   public GitMachetePanel(@Nonnull Project project) {
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project);
     gitMacheteGraphTableManager.updateModelGraphRepository();
-    gitMacheteGraphTableManager.refreshUI();
+    gitMacheteGraphTableManager.refreshUI(false);
   }
 
   @Nonnull
@@ -55,7 +55,7 @@ public class GitMachetePanel {
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
       gitMacheteGraphTableManager.updateModelGraphRepository();
-      gitMacheteGraphTableManager.refreshUI();
+      gitMacheteGraphTableManager.refreshUI(false);
     }
   }
 
@@ -72,7 +72,7 @@ public class GitMachetePanel {
     @Override
     public void setSelected(@Nonnull AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
-      gitMacheteGraphTableManager.refreshUI();
+      gitMacheteGraphTableManager.refreshUI(true);
     }
   }
 }

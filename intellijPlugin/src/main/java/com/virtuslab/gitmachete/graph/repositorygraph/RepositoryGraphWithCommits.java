@@ -1,11 +1,13 @@
 package com.virtuslab.gitmachete.graph.repositorygraph;
 
 import com.google.common.collect.Lists;
+import com.intellij.util.SmartList;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.graph.model.IBranchElement;
 import com.virtuslab.gitmachete.graph.model.ICommitElement;
@@ -13,8 +15,6 @@ import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
@@ -26,15 +26,16 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
   protected List<IGraphElement> getGraphElementsOfRepository(
       @Nonnull IGitMacheteRepository repository) {
     List<IGraphElement> graphElements = new ArrayList<>();
-    for (IGitMacheteBranch branch : repository.getRootBranches()) {
-      try {
-        branch.getCommits().stream()
-            .map(ICommitElement::new)
-            .peek(c -> c.setBranch(branch))
-            .forEach(graphElements::add);
-        graphElements.add(branchElementOf(branch));
-        addDownstreamBranchesAndCommits(graphElements, branch);
-      } catch (GitException e) {
+    List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
+    for (IGitMacheteBranch branch : rootBranches) {
+      int currentBranchIndex = graphElements.size();
+      boolean commitsSuccessfullyAdded =
+          addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1);
+      boolean downstreamElementsSuccessfullyAdded =
+          addDownstreamCommitsAndBranches(
+              graphElements, branch, /*upstreamBranchIndex*/ currentBranchIndex);
+
+      if (!(commitsSuccessfullyAdded && downstreamElementsSuccessfullyAdded)) {
         // Unable to get commits of a branch
         graphElements.clear();
         break;
@@ -43,16 +44,64 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
     return graphElements;
   }
 
-  private void addDownstreamBranchesAndCommits(
-      List<IGraphElement> graphElements, IGitMacheteBranch upstreamBranch) throws GitException {
-    for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      Lists.reverse(branch.getCommits()).stream()
-          .map(ICommitElement::new)
-          .peek(c -> c.setBranch(branch))
-          .forEach(graphElements::add);
-      graphElements.add(branchElementOf(branch));
-      addDownstreamBranchesAndCommits(graphElements, branch);
+  // returns false when getCommits throws an exception, otherwise true
+  private boolean addDownstreamCommitsAndBranches(
+      List<IGraphElement> graphElements,
+      IGitMacheteBranch upstreamBranch,
+      int upstreamBranchIndex) {
+    List<IGitMacheteBranch> branches = upstreamBranch.getBranches();
+    for (IGitMacheteBranch branch : branches) {
+      ((IBranchElement) graphElements.get(upstreamBranchIndex))
+          .getDownElementsIndexes()
+          .add(graphElements.size());
+
+      boolean commitsSuccessfullyAdded =
+          addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ upstreamBranchIndex);
+      boolean downstreamElementsSuccessfullyAdded =
+          addDownstreamCommitsAndBranches(
+              graphElements, branch, /*upstreamBranchIndex*/ graphElements.size() - 1);
+
+      if (!(commitsSuccessfullyAdded && downstreamElementsSuccessfullyAdded)) {
+        return false;
+      }
     }
+    return true;
+  }
+
+  // returns false when getCommits throws an exception, otherwise true
+  private boolean addCommitsWithBranch(
+      List<IGraphElement> graphElements, IGitMacheteBranch branch, int upstreamBranchIndex) {
+    List<IGitMacheteCommit> commits;
+
+    try {
+      commits = Lists.reverse(branch.getCommits());
+    } catch (GitException e) {
+      return false;
+    }
+
+    int commitsBranchIndex = upstreamBranchIndex + commits.size() + 1;
+
+    if (commits.size() > 0) {
+      ICommitElement c =
+          new ICommitElement(commits.get(0), branch, upstreamBranchIndex, commitsBranchIndex);
+      graphElements.add(c);
+    }
+
+    for (int i = 1, commitsSize = commits.size(); i < commitsSize; i++) {
+      IGitMacheteCommit iGitMacheteCommit = commits.get(i);
+      ICommitElement c =
+          new ICommitElement(
+              iGitMacheteCommit, branch, graphElements.size() - 1, commitsBranchIndex);
+      graphElements.add(c);
+    }
+
+    int upElementIndex = upstreamBranchIndex == -1 ? upstreamBranchIndex : graphElements.size() - 1;
+    IBranchElement element =
+        branchElementOf(
+            branch, /*upElementIndex*/ upElementIndex, /*rowIndex*/ graphElements.size());
+    graphElements.add(element);
+
+    return true;
   }
 
   @Nonnull
@@ -62,8 +111,7 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
       return Collections.emptyList();
     }
 
-    List<GraphEdge> adjacentEdges = new ArrayList<>();
-
+    List<GraphEdge> adjacentEdges = new SmartList<>();
     IGraphElement currentElement = elements.get(nodeIndex);
 
     if (filter.downNormal && nodeIndex < elements.size() - 1) {
@@ -71,58 +119,21 @@ public class RepositoryGraphWithCommits extends BaseRepositoryGraph {
         adjacentEdges.add(
             GraphEdge.createNormalEdge(nodeIndex, nodeIndex + 1, GraphEdgeType.USUAL));
       } else {
-        IGitMacheteBranch branch = currentElement.getBranch();
-        adjacentEdges =
-            branch.getBranches().stream()
-                .map(
-                    b ->
-                        GraphEdge.createNormalEdge(
-                            nodeIndex, getUpstreamBranchElementIndex(b), GraphEdgeType.USUAL))
-                .collect(Collectors.toList());
+        List<Integer> downElementsIndexes =
+            ((IBranchElement) currentElement).getDownElementsIndexes();
+        downElementsIndexes.stream()
+            .map(i -> GraphEdge.createNormalEdge(nodeIndex, i, GraphEdgeType.USUAL))
+            .forEach(adjacentEdges::add);
       }
     }
 
     if (filter.upNormal && nodeIndex > 0) {
-      IGraphElement upElement = elements.get(nodeIndex - 1);
-      int upIndex = -1;
-
-      if (upElement instanceof ICommitElement) {
-        // commit over branch/commit
-        upIndex = nodeIndex - 1;
-      } else if (currentElement instanceof IBranchElement) {
-        // branch over branch
-        upIndex = getUpstreamElementIndex((IBranchElement) currentElement);
-      } else if (currentElement instanceof ICommitElement) {
-        // branch over commit
-        Optional<IGraphElement> branch = getNextBranchElement(nodeIndex);
-        if (branch.isPresent()) {
-          upIndex = getUpstreamElementIndex((IBranchElement) branch.get());
-        }
-      }
-
+      int upIndex = currentElement.getUpElementIndex();
       if (upIndex >= 0) {
         adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, upIndex, GraphEdgeType.USUAL));
       }
     }
 
     return adjacentEdges;
-  }
-
-  private int getUpstreamBranchElementIndex(IGitMacheteBranch b) {
-    int idx = getContainingElementIndex(b);
-    try {
-      idx -= b.getCommits().size();
-    } catch (GitException e) {
-      e.printStackTrace();
-    }
-    return idx;
-  }
-
-  @Nonnull
-  private Optional<IGraphElement> getNextBranchElement(int elementIndex) {
-    return elements.stream()
-        .skip(elementIndex + 1)
-        .filter(IBranchElement.class::isInstance)
-        .findFirst();
   }
 }
