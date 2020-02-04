@@ -12,7 +12,6 @@ import com.virtuslab.gitmachete.graph.model.IBranchElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 
 public abstract class BaseRepositoryGraph implements LinearGraph {
@@ -41,15 +40,6 @@ public abstract class BaseRepositoryGraph implements LinearGraph {
     return elements.get(rowIndex);
   }
 
-  protected int getUpstreamElementIndex(@Nonnull IBranchElement graphElement) {
-    int upNode = -1;
-    Optional<IGitMacheteBranch> upstreamBranch = graphElement.getBranch().getUpstreamBranch();
-    if (upstreamBranch.isPresent()) {
-      upNode = getContainingElementIndex(upstreamBranch.get());
-    }
-    return upNode;
-  }
-
   @Override
   public int nodesCount() {
     return elements.size();
@@ -75,8 +65,10 @@ public abstract class BaseRepositoryGraph implements LinearGraph {
     return null;
   }
 
-  protected IBranchElement branchElementOf(IGitMacheteBranch gitMacheteBranch) {
-    IBranchElement branchElement = new IBranchElement(gitMacheteBranch);
+  protected IBranchElement branchElementOf(
+      IGitMacheteBranch gitMacheteBranch, int upstreamBranchIndex, int rowIndex) {
+    IBranchElement branchElement =
+        new IBranchElement(gitMacheteBranch, upstreamBranchIndex, rowIndex);
 
     IGitMacheteBranch currentBranch = null;
     try {
@@ -92,14 +84,5 @@ public abstract class BaseRepositoryGraph implements LinearGraph {
     }
 
     return branchElement;
-  }
-
-  protected int getContainingElementIndex(IGitMacheteBranch branch) {
-    IGraphElement graphElement =
-        elements.stream()
-            .filter(e -> e instanceof IBranchElement && e.getBranch().equals(branch))
-            .findFirst()
-            .orElse(null);
-    return elements.indexOf(graphElement);
   }
 }

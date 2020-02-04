@@ -6,6 +6,8 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 public interface IGraphElement {
   IGitMacheteBranch getBranch();
 
+  int getUpElementIndex();
+
   String getValue();
 
   SimpleTextAttributes getAttributes();

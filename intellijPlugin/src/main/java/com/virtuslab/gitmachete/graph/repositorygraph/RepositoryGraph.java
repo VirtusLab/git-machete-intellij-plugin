@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.graph.repositorygraph;
 
+import com.intellij.util.SmartList;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
@@ -10,7 +11,6 @@ import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 public class RepositoryGraph extends BaseRepositoryGraph {
@@ -23,18 +23,30 @@ public class RepositoryGraph extends BaseRepositoryGraph {
   protected List<IGraphElement> getGraphElementsOfRepository(
       @Nonnull IGitMacheteRepository repository) {
     List<IGraphElement> graphElements = new ArrayList<>();
-    for (IGitMacheteBranch branch : repository.getRootBranches()) {
-      graphElements.add(branchElementOf(branch));
-      addDownstreamBranches(graphElements, branch);
+    List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
+    for (IGitMacheteBranch branch : rootBranches) {
+      IBranchElement element =
+          branchElementOf(branch, /*upstreamBranchIndex*/ -1, /*rowIndex*/ graphElements.size());
+      graphElements.add(element);
+      addDownstreamBranches(
+          graphElements, branch, /*upstreamBranchIndex*/ graphElements.size() - 1);
     }
     return graphElements;
   }
 
   private void addDownstreamBranches(
-      List<IGraphElement> graphElements, IGitMacheteBranch upstreamBranch) {
+      List<IGraphElement> graphElements,
+      IGitMacheteBranch upstreamBranch,
+      int upstreamBranchIndex) {
     for (IGitMacheteBranch branch : upstreamBranch.getBranches()) {
-      graphElements.add(branchElementOf(branch));
-      addDownstreamBranches(graphElements, branch);
+      IBranchElement element =
+          branchElementOf(branch, upstreamBranchIndex, /*rowIndex*/ graphElements.size());
+      ((IBranchElement) graphElements.get(upstreamBranchIndex))
+          .getDownElementsIndexes()
+          .add(graphElements.size());
+      graphElements.add(element);
+      addDownstreamBranches(
+          graphElements, branch, /*upstreamBranchIndex*/ graphElements.size() - 1);
     }
   }
 
@@ -45,19 +57,15 @@ public class RepositoryGraph extends BaseRepositoryGraph {
       return Collections.emptyList();
     }
 
-    List<GraphEdge> adjacentEdges = new ArrayList<>();
-
+    List<GraphEdge> adjacentEdges = new SmartList<>();
     IGraphElement currentElement = elements.get(nodeIndex);
 
     if (filter.downNormal && nodeIndex < elements.size() - 1) {
-      IGitMacheteBranch branch = currentElement.getBranch();
-      adjacentEdges =
-          branch.getBranches().stream()
-              .map(
-                  b ->
-                      GraphEdge.createNormalEdge(
-                          nodeIndex, getContainingElementIndex(b), GraphEdgeType.USUAL))
-              .collect(Collectors.toList());
+      List<Integer> downElementsIndexes =
+          ((IBranchElement) currentElement).getDownElementsIndexes();
+      downElementsIndexes.stream()
+          .map(i -> GraphEdge.createNormalEdge(nodeIndex, i, GraphEdgeType.USUAL))
+          .forEach(adjacentEdges::add);
     }
 
     if (filter.upNormal && nodeIndex > 0) {
@@ -65,7 +73,7 @@ public class RepositoryGraph extends BaseRepositoryGraph {
 
       if (currentElement instanceof IBranchElement) {
         // branch over branch
-        upIndex = getUpstreamElementIndex((IBranchElement) currentElement);
+        upIndex = currentElement.getUpElementIndex();
       }
 
       if (upIndex >= 0) {

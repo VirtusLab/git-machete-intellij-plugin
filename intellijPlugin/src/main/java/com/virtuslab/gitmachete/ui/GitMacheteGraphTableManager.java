@@ -37,7 +37,8 @@ public class GitMacheteGraphTableManager {
         GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
   }
 
-  public void refreshUI() {
+  public void refreshUI(boolean useCache) {
+    Timer.start("refreshUI");
     /*
      * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
      * No UI should be shown when IDEA is running in this mode.
@@ -45,17 +46,27 @@ public class GitMacheteGraphTableManager {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) return;
 
     BaseRepositoryGraph repositoryGraph =
-        RepositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
+        RepositoryGraphFactory.getRepositoryGraph(repository, isListingCommits, useCache);
     gitMacheteGraphTable.getGraphTableModel().setRepositoryGraph(repositoryGraph);
-    GuiUtils.invokeLaterIfNeeded(() -> gitMacheteGraphTable.updateUI(), ModalityState.NON_MODAL);
+
+    GuiUtils.invokeLaterIfNeeded(
+        () -> {
+          Timer.start("refreshUI (invoke later)");
+          gitMacheteGraphTable.updateUI();
+          Timer.check("refreshUI (invoke later)");
+        },
+        ModalityState.NON_MODAL);
+    Timer.check("refreshUI");
   }
 
   public void updateModelGraphRepository() {
+    Timer.start("modelUpdate");
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
     try {
       repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, Optional.empty());
     } catch (GitMacheteException e) {
       LOG.error("Unable to create Git Machete repository", e);
     }
+    Timer.check("modelUpdate");
   }
 }

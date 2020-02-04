@@ -12,7 +12,6 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SideBorder;
 import com.intellij.util.NotNullFunction;
-import com.intellij.util.ui.components.BorderLayoutPanel;
 import git4idea.GitVcs;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
