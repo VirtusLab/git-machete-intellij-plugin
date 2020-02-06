@@ -160,7 +160,7 @@ public class Tests {
       e.printStackTrace(System.err);
     }
 
-    for (var b : branch.getBranches()) {
+    for (var b : branch.getDownstreamBranches()) {
       printBranch(b, level + 1, sb);
     }
   }

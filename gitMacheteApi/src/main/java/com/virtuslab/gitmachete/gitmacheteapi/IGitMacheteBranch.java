@@ -12,7 +12,7 @@ public interface IGitMacheteBranch {
 
   List<IGitMacheteCommit> getCommits() throws GitException;
 
-  List<IGitMacheteBranch> getBranches();
+  List<IGitMacheteBranch> getDownstreamBranches();
 
   Optional<String> getCustomAnnotation();
 

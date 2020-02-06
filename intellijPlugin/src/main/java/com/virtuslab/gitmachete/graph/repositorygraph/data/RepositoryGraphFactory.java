@@ -1,10 +1,7 @@
 package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.graph.repositorygraph.BaseRepositoryGraph;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
-import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphWithCommits;
-import com.virtuslab.gitmachete.ui.Timer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -12,31 +9,27 @@ import lombok.Getter;
 public class RepositoryGraphFactory {
 
   @Getter
-  public static final BaseRepositoryGraph nullRepositoryGraph =
-      new RepositoryGraph(NullRepository.getInstance());
+  public static final RepositoryGraph nullRepositoryGraph =
+      new RepositoryGraph(NullRepository.getInstance(), RepositoryGraph.DEFAULT_GET_COMMITS);
 
-  private static RepositoryGraphWithCommits repositoryGraphWithCommits;
-  private static RepositoryGraph repositoryGraph;
+  private RepositoryGraph repositoryGraphWithCommits;
+  private RepositoryGraph repositoryGraphWithoutCommits;
+  private IGitMacheteRepository repository;
 
   @Nonnull
-  public static BaseRepositoryGraph getRepositoryGraph(
-      @Nullable IGitMacheteRepository repository, boolean isListingCommits, boolean useCache) {
+  public RepositoryGraph getRepositoryGraphWithoutCommits(
+      @Nullable IGitMacheteRepository repository, boolean isListingCommits) {
     if (repository == null) {
       return nullRepositoryGraph;
-    } else if (isListingCommits) {
-      if (repositoryGraphWithCommits == null || !useCache) {
-        Timer.start("createRGWC");
-        repositoryGraphWithCommits = new RepositoryGraphWithCommits(repository);
-        Timer.check("createRGWC");
-      }
-      return repositoryGraphWithCommits;
     } else {
-      if (repositoryGraph == null || !useCache) {
-        Timer.start("createRG");
-        repositoryGraph = new RepositoryGraph(repository);
-        Timer.check("createRG");
+      if (!repository.equals(this.repository)) {
+        this.repository = repository;
+        repositoryGraphWithCommits =
+            new RepositoryGraph(repository, RepositoryGraph.DEFAULT_GET_COMMITS);
+        repositoryGraphWithoutCommits =
+            new RepositoryGraph(repository, RepositoryGraph.EMPTY_GET_COMMITS);
       }
-      return repositoryGraph;
+      return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
     }
   }
 }

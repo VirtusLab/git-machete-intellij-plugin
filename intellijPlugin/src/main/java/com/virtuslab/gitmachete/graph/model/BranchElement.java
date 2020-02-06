@@ -1,21 +1,17 @@
 package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.SmartList;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public final class IBranchElement implements IGraphElement {
-  @Getter private final IGitMacheteBranch branch;
-  @Getter private final int upElementIndex;
-  @Getter private final int rowIndex;
-  @Getter private final List<Integer> downElementsIndexes = new SmartList<>();
+@EqualsAndHashCode(callSuper = true)
+public final class BranchElement extends BaseGraphElement {
+
+  public BranchElement(IGitMacheteBranch branch, int upElementIndex) {
+    super(branch, upElementIndex);
+  }
 
   public static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES =
       new SimpleTextAttributes(
@@ -26,6 +22,6 @@ public final class IBranchElement implements IGraphElement {
 
   @Override
   public String getValue() {
-    return branch.getName();
+    return super.getBranch().getName();
   }
 }

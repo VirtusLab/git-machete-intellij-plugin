@@ -5,15 +5,24 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public final class ICommitElement implements IGraphElement {
+@EqualsAndHashCode(callSuper = true)
+public final class CommitElement extends BaseGraphElement {
   @Getter private final IGitMacheteCommit commit;
-  @Getter private final IGitMacheteBranch branch;
-  @Getter private final int upElementIndex;
+  /* index of this commit containing graph */
   @Getter private final int branchIndex;
+
+  public CommitElement(
+      IGitMacheteCommit commit,
+      IGitMacheteBranch branch,
+      int upElementIndex,
+      int branchIndex,
+      int downElementIndex) {
+    super(branch, upElementIndex);
+    this.commit = commit;
+    this.branchIndex = branchIndex;
+    getDownElementIndexes().add(downElementIndex);
+  }
 
   @Override
   public String getValue() {
