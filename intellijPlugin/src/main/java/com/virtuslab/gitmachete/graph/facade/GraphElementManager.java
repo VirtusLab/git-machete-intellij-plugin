@@ -6,7 +6,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.api.printer.PrintElementManager;
 import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex;
 import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
-import com.virtuslab.gitmachete.graph.repositorygraph.BaseRepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
@@ -16,10 +16,10 @@ import lombok.Getter;
 public class GraphElementManager implements PrintElementManager {
   @Getter @Nonnull private final Comparator<GraphElement> graphElementComparator;
   @Nonnull private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
-  @Nonnull private final BaseRepositoryGraph repositoryGraph;
+  @Nonnull private final RepositoryGraph repositoryGraph;
   @Nonnull private final Set<Integer> selectedNodesIds = Collections.emptySet();
 
-  public GraphElementManager(@Nonnull BaseRepositoryGraph repositoryGraph) {
+  public GraphElementManager(@Nonnull RepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
     colorGetterByLayoutIndex = new ColorGetterByLayoutIndex(repositoryGraph);
     graphElementComparator =

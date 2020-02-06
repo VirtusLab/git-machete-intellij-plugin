@@ -40,7 +40,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         coreLocalBranch.getCommitsUntil(forkPoint.get()));
   }
 
-  public List<IGitMacheteBranch> getBranches() {
+  public List<IGitMacheteBranch> getDownstreamBranches() {
     return childBranches;
   }
 
