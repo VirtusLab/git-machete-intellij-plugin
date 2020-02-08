@@ -3,6 +3,8 @@ plugins {
 }
 
 allprojects {
+    group = 'com.virtuslab'
+
     repositories {
         jcenter()
         mavenCentral()
@@ -19,6 +21,39 @@ allprojects {
         slf4jVersion = '1.7.25'
         jgitVersion = '5.5.1.201910021850-r'
         javafxVersion = '11'
+
+        lombok = { ->
+            dependencies {
+                compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+                annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+            }
+        }
+
+        guice = { ->
+            dependencies {
+                compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+                compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+            }
+        }
+
+        javafx = { ->
+            dependencies {
+                compile group: 'org.openjfx', name: 'javafx', version: javafxVersion, ext: 'pom'
+            }
+        }
+
+        slf4j = { ->
+            dependencies {
+                compile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+            }
+        }
+
+        jgit = { ->
+            slf4j()
+            dependencies {
+                compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
+            }
+        }
     }
 
     dependencies {

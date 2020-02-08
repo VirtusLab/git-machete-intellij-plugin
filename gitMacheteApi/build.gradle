@@ -1,16 +1,3 @@
-plugins {
-    id 'java'
-}
-
-group 'com.virtuslab'
-version '1.0-SNAPSHOT'
-
-
-repositories {
-    mavenCentral()
-}
-
-
 dependencies {
     compile project(':gitCoreApi')
     compile project(':branchRelationFileApi')

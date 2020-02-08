@@ -1,11 +1,6 @@
-version 'unspecified'
-
 dependencies {
-    compileOnly 'org.projectlombok:lombok:'+lombokVersion
-    annotationProcessor 'org.projectlombok:lombok:'+lombokVersion
-
-    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
-    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+    lombok()
+    guice()
 
     compile project(':branchRelationFileApi')
 }

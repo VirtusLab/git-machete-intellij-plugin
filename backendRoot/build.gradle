@@ -1,10 +1,5 @@
-version 'unspecified'
-
 dependencies {
-    // https://mvnrepository.com/artifact/com.google.inject/guice
-    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
-    // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject
-    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+    guice()
 
     compile project(':gitCoreApi')
     compile project(':gitCoreJGit')

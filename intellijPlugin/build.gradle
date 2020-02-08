@@ -6,12 +6,11 @@ group 'com.virtuslab'
 version '0.0.1-SNAPSHOT'
 
 dependencies {
-    compile group: 'org.openjfx', name: 'javafx', version: javafxVersion, ext: 'pom'
+    javafx()
 
     compile project(':backendRoot')
 
-    compileOnly 'org.projectlombok:lombok:'+lombokVersion
-    annotationProcessor 'org.projectlombok:lombok:'+lombokVersion
+    lombok()
 }
 
 configurations.all {
