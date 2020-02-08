@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.test;
 
-import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
@@ -27,13 +26,29 @@ public class Main {
       e.printStackTrace();
     }
 
+    printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    IBranchRelationFile brf2 =
+        repo.getBranchRelationFile()
+            .slideOutBranchAndGetNewBranchRelationFileInstance("edit-margin-not-allowed");
+
+    IGitMacheteRepository repo2 = repo.getNewRepositoryInstanceFromBranchRelationFile(brf2);
+
+    System.out.println();
+
+    printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    System.out.println();
+
+    printGitMacheteBranches(repo2.getRootBranches(), 0);
+
     // printGitMacheteBranches(repo.getRootBranches(), 0);
 
     // System.out.println();
 
     // printGitMacheteBranches(repo.getRootBranches(), 0);
 
-    IBranchRelationFile brf =
+    /*IBranchRelationFile brf =
         GitFactoryModule.getInjector()
             .getInstance(BranchRelationFileFactory.class)
             .create(
@@ -49,7 +64,7 @@ public class Main {
 
     System.out.println();
 
-    printRelationFileBranches(brf2.getRootBranches(), 0);
+    printRelationFileBranches(brf2.getRootBranches(), 0);*/
 
     /*var macheteFile =
         new BranchRelationFile(

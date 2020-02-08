@@ -49,6 +49,21 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       @Assisted Path pathToRepoRoot,
       @Assisted Optional<String> repositoryName)
       throws GitMacheteException, GitException {
+    this(
+        gitCoreRepositoryFactory,
+        branchRelationFileFactory,
+        pathToRepoRoot,
+        repositoryName,
+        Optional.empty());
+  }
+
+  private GitMacheteRepository(
+      GitCoreRepositoryFactory gitCoreRepositoryFactory,
+      BranchRelationFileFactory branchRelationFileFactory,
+      Path pathToRepoRoot,
+      Optional<String> repositoryName,
+      Optional<IBranchRelationFile> givenBranchRelationFile)
+      throws GitMacheteException, GitException {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.branchRelationFileFactory = branchRelationFileFactory;
 
@@ -58,18 +73,22 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
     this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
 
-    try {
-      branchRelationFile = branchRelationFileFactory.create(this.pathToMacheteFile);
-    } catch (BranchRelationFileException e) {
-      throw new MacheteFileParseException(
-          e.getErrorLine().isEmpty()
-              ? MessageFormat.format(
-                  "Error occurred while parsing machete file: {0}",
-                  this.pathToMacheteFile.toString())
-              : MessageFormat.format(
-                  "Error occurred while parsing machete file on line {1}: {0}",
-                  this.pathToMacheteFile.toString(), e.getErrorLine().get()),
-          e);
+    if (givenBranchRelationFile.isEmpty()) {
+      try {
+        branchRelationFile = branchRelationFileFactory.create(this.pathToMacheteFile);
+      } catch (BranchRelationFileException e) {
+        throw new MacheteFileParseException(
+            e.getErrorLine().isEmpty()
+                ? MessageFormat.format(
+                    "Error occurred while parsing machete file: {0}",
+                    this.pathToMacheteFile.toString())
+                : MessageFormat.format(
+                    "Error occurred while parsing machete file on line {1}: {0}",
+                    this.pathToMacheteFile.toString(), e.getErrorLine().get()),
+            e);
+      }
+    } else {
+      branchRelationFile = givenBranchRelationFile.get();
     }
 
     for (var entry : branchRelationFile.getRootBranches()) {
@@ -151,6 +170,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         subs.stream().map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
 
     return submodules;
+  }
+
+  @Override
+  public IGitMacheteRepository getNewRepositoryInstanceFromBranchRelationFile(
+      IBranchRelationFile branchRelationFile) throws GitException, GitMacheteException {
+    return new GitMacheteRepository(
+        gitCoreRepositoryFactory,
+        branchRelationFileFactory,
+        pathToRepoRoot,
+        repositoryName,
+        Optional.ofNullable(branchRelationFile));
   }
 
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {
