@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.test;
 
+import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
+import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
@@ -19,15 +21,35 @@ public class Main {
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
               .create(
-                  Paths.get(
-                      System.getProperty("user.home"), "Desktop", "git-machete-intellij-plugin"),
-                  Optional.empty());
+                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
     }
 
-    printGitMacheteBranches(repo.getRootBranches(), 0);
+    // printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    // System.out.println();
+
+    // printGitMacheteBranches(repo.getRootBranches(), 0);
+
+    IBranchRelationFile brf =
+        GitFactoryModule.getInjector()
+            .getInstance(BranchRelationFileFactory.class)
+            .create(
+                Paths.get(System.getProperty("user.home"), "machete-sandbox", ".git", "machete"));
+
+    printRelationFileBranches(brf.getRootBranches(), 0);
+
+    var brf2 = brf.slideOutBranchAndGetNewBranchRelationFileInstance("block-cancel-order");
+
+    System.out.println();
+
+    printRelationFileBranches(brf.getRootBranches(), 0);
+
+    System.out.println();
+
+    printRelationFileBranches(brf2.getRootBranches(), 0);
 
     /*var macheteFile =
         new BranchRelationFile(

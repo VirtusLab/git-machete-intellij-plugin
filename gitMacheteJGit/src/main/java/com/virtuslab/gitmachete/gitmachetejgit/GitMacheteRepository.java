@@ -8,7 +8,6 @@ import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitcore.gitcoreapi.*;
 import com.virtuslab.gitmachete.gitmacheteapi.*;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.LinkedList;
@@ -156,35 +155,5 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {
     return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
-  }
-
-  @Override
-  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
-      String branchName) throws GitMacheteException, GitException {
-    var macheteFile = getBranchRelationFile();
-    var macheteFileBranch = macheteFile.findBranchByName(branchName);
-    if (macheteFileBranch.isEmpty())
-      throw new GitMacheteException(
-          MessageFormat.format(
-              "Branch {0} was not found in machete file, so can not be slided out", branchName));
-
-    try {
-      macheteFileBranch.get().slideOut();
-      macheteFile.saveToFile(true);
-    } catch (BranchRelationFileException | IOException e) {
-      throw new GitMacheteException(
-          MessageFormat.format(
-              "Error occurred while sliding out branch {0}: {1}", branchName, e.getMessage()),
-          e);
-    }
-
-    return new GitMacheteRepository(
-        gitCoreRepositoryFactory, branchRelationFileFactory, pathToRepoRoot, repositoryName);
-  }
-
-  @Override
-  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
-      IGitMacheteBranch branch) throws GitMacheteException, GitException {
-    return slideOutBranchWithReinstantiationOfMacheteRepository(branch.getName());
   }
 }

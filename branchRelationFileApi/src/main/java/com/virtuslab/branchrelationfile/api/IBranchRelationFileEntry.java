@@ -3,7 +3,7 @@ package com.virtuslab.branchrelationfile.api;
 import java.util.List;
 import java.util.Optional;
 
-public interface IBranchRelationFileEntry {
+public interface IBranchRelationFileEntry extends Cloneable {
   String getName();
 
   Optional<IBranchRelationFileEntry> getUpstream();
@@ -16,5 +16,5 @@ public interface IBranchRelationFileEntry {
 
   void addSubbranch(IBranchRelationFileEntry subbranch);
 
-  void slideOut() throws BranchRelationFileException;
+  Object clone() throws CloneNotSupportedException;
 }

@@ -13,12 +13,15 @@ import java.text.MessageFormat;
 import java.util.*;
 import lombok.Getter;
 
-public class BranchRelationFile implements IBranchRelationFile {
+public class BranchRelationFile implements IBranchRelationFile, Cloneable {
   private Path pathToBranchRelationFile;
   @Getter private List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
+
+  // For clone()
+  private BranchRelationFile() {}
 
   @Inject
   public BranchRelationFile(@Assisted Path path) throws BranchRelationFileException {
@@ -173,6 +176,75 @@ public class BranchRelationFile implements IBranchRelationFile {
     return findBranchByNameInBranches(branchName, getRootBranches());
   }
 
+  @Override
+  public IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(String branchName)
+      throws BranchRelationFileException, CloneNotSupportedException, IOException {
+    var branch = findBranchByName(branchName);
+    if (branch.isEmpty())
+      throw new BranchRelationFileException(
+          MessageFormat.format("Branch \"{0}\" does not exist", branchName));
+
+    return slideOutBranchAndGetNewBranchRelationFileInstance(branch.get());
+  }
+
+  @Override
+  public IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(
+      IBranchRelationFileEntry relationFileEntry)
+      throws BranchRelationFileException, CloneNotSupportedException, IOException {
+    if (relationFileEntry.getUpstream().isEmpty())
+      throw new BranchRelationFileException("Can not slide out root branch");
+
+    var upBranch = relationFileEntry.getUpstream().get();
+    int indexInUpstream = upBranch.getSubbranches().indexOf(relationFileEntry);
+
+    IBranchRelationFileEntry upBranchCopy = (IBranchRelationFileEntry) upBranch.clone();
+
+    for (var subbranch : relationFileEntry.getSubbranches()) {
+      BranchRelationFileEntry subbranchCopy = (BranchRelationFileEntry) subbranch.clone();
+      subbranchCopy.setUpstream(Optional.of(upBranchCopy));
+      upBranchCopy.getSubbranches().add(indexInUpstream, subbranchCopy);
+      indexInUpstream++;
+    }
+
+    upBranchCopy.getSubbranches().remove(relationFileEntry);
+
+    BranchRelationFile newBranchRelationFile = (BranchRelationFile) this.clone();
+
+    Optional<IBranchRelationFileEntry> oldUpstreamTraversedBranch;
+    IBranchRelationFileEntry newUpstreamTraversedBranch;
+    IBranchRelationFileEntry newTraversedBranch = upBranchCopy;
+    IBranchRelationFileEntry oldTraversedBranch;
+
+    do {
+      oldUpstreamTraversedBranch = newTraversedBranch.getUpstream();
+
+      if (oldUpstreamTraversedBranch.isEmpty()) {
+        oldTraversedBranch =
+            newBranchRelationFile
+                .findBranchByNameInBranches(
+                    newTraversedBranch.getName(), newBranchRelationFile.getRootBranches())
+                .get();
+        Collections.replaceAll(
+            newBranchRelationFile.getRootBranches(), oldTraversedBranch, newTraversedBranch);
+      } else {
+        oldTraversedBranch =
+            newBranchRelationFile
+                .findBranchByNameInBranches(
+                    newTraversedBranch.getName(), oldUpstreamTraversedBranch.get().getSubbranches())
+                .get();
+        newUpstreamTraversedBranch =
+            (IBranchRelationFileEntry) oldUpstreamTraversedBranch.get().clone();
+        Collections.replaceAll(
+            newUpstreamTraversedBranch.getSubbranches(), oldTraversedBranch, newTraversedBranch);
+        newTraversedBranch = newUpstreamTraversedBranch;
+      }
+    } while (oldUpstreamTraversedBranch.isPresent());
+
+    newBranchRelationFile.saveToFile(true);
+
+    return newBranchRelationFile;
+  }
+
   private Optional<IBranchRelationFileEntry> findBranchByNameInBranches(
       String branchName, List<IBranchRelationFileEntry> branches) {
     for (var branch : branches) {
@@ -183,5 +255,16 @@ public class BranchRelationFile implements IBranchRelationFile {
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    BranchRelationFile brfCopy = (BranchRelationFile) super.clone();
+
+    brfCopy.indentType = Character.valueOf(indentType);
+    brfCopy.pathToBranchRelationFile = Path.of(pathToBranchRelationFile.toUri());
+    brfCopy.rootBranches = new LinkedList<>(rootBranches);
+
+    return brfCopy;
   }
 }
