@@ -9,18 +9,14 @@ import lombok.Getter;
 @EqualsAndHashCode(callSuper = true)
 public final class CommitElement extends BaseGraphElement {
   @Getter private final IGitMacheteCommit commit;
-  /* index of this commit containing graph */
-  @Getter private final int branchIndex;
 
   public CommitElement(
       IGitMacheteCommit commit,
       IGitMacheteBranch branch,
       int upElementIndex,
-      int branchIndex,
       int downElementIndex) {
     super(branch, upElementIndex);
     this.commit = commit;
-    this.branchIndex = branchIndex;
     getDownElementIndexes().add(downElementIndex);
   }
 

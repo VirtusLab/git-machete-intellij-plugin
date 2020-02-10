@@ -47,7 +47,7 @@ public class GitMacheteGraphTableManager {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) return;
 
     RepositoryGraph repositoryGraph =
-        repositoryGraphFactory.getRepositoryGraphWithoutCommits(repository, isListingCommits);
+        repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
     gitMacheteGraphTable.getGraphTableModel().setRepositoryGraph(repositoryGraph);
 
     GuiUtils.invokeLaterIfNeeded(() -> gitMacheteGraphTable.updateUI(), ModalityState.NON_MODAL);

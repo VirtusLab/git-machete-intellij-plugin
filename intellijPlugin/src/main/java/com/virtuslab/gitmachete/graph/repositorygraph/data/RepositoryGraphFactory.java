@@ -1,7 +1,11 @@
 package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
+import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.DEFAULT_GET_COMMITS;
+import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.EMPTY_GET_COMMITS;
+
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -10,24 +14,29 @@ public class RepositoryGraphFactory {
 
   @Getter
   public static final RepositoryGraph nullRepositoryGraph =
-      new RepositoryGraph(NullRepository.getInstance(), RepositoryGraph.DEFAULT_GET_COMMITS);
+      RepositoryGraph.getNullRepositoryGraph();
 
   private RepositoryGraph repositoryGraphWithCommits;
   private RepositoryGraph repositoryGraphWithoutCommits;
   private IGitMacheteRepository repository;
 
   @Nonnull
-  public RepositoryGraph getRepositoryGraphWithoutCommits(
+  public RepositoryGraph getRepositoryGraph(
       @Nullable IGitMacheteRepository repository, boolean isListingCommits) {
     if (repository == null) {
       return nullRepositoryGraph;
     } else {
-      if (!repository.equals(this.repository)) {
+      if (repository != this.repository) {
         this.repository = repository;
+
+        // todo use vavr lazy (?)
+        RepositoryGraphBuilder repositoryGraphBuilder =
+            new RepositoryGraphBuilder().repository(repository);
         repositoryGraphWithCommits =
-            new RepositoryGraph(repository, RepositoryGraph.DEFAULT_GET_COMMITS);
+            repositoryGraphBuilder.branchGetCommitsStrategy(DEFAULT_GET_COMMITS).build();
         repositoryGraphWithoutCommits =
-            new RepositoryGraph(repository, RepositoryGraph.EMPTY_GET_COMMITS);
+            repositoryGraphBuilder.branchGetCommitsStrategy(EMPTY_GET_COMMITS).build();
+        ;
       }
       return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
     }

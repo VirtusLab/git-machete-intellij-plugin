@@ -69,7 +69,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
       if (isParentAncestorOfChild) {
         if (forkPoint.isEmpty() || !forkPoint.get().equals(parentBranch.getPointedCommit()))
-          return SyncToParentStatus.NotADirectDescendant;
+          return SyncToParentStatus.InSyncButForkPointOff;
         else return SyncToParentStatus.InSync;
       } else {
         boolean isChildAncestorOfParent =

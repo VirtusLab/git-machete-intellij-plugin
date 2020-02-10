@@ -131,7 +131,7 @@ public class Tests {
         var parentStatus = branch.getSyncToParentStatus();
         if (parentStatus == SyncToParentStatus.InSync) sb.append("o");
         else if (parentStatus == SyncToParentStatus.OutOfSync) sb.append("x");
-        else if (parentStatus == SyncToParentStatus.NotADirectDescendant) sb.append("?");
+        else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff) sb.append("?");
         else if (parentStatus == SyncToParentStatus.Merged) sb.append("m");
         sb.append("-");
       }
