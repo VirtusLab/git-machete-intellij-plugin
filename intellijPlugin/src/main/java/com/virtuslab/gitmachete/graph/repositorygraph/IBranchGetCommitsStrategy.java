@@ -5,6 +5,6 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import java.util.List;
 
-public interface IBranchGetCommitsAdapter {
+public interface IBranchGetCommitsStrategy {
   List<IGitMacheteCommit> getCommitsOf(IGitMacheteBranch branch) throws GitException;
 }

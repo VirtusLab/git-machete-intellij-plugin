@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.graph.facade;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class ColorGetterByLayoutIndex {
+  private static final Logger LOG = Logger.getInstance(ColorGetterByLayoutIndex.class);
   @Nonnull private final RepositoryGraph repositoryGraph;
 
   public int getColorId(@Nonnull GraphElement element) {
@@ -31,11 +33,12 @@ public class ColorGetterByLayoutIndex {
     }
 
     SyncToParentStatus syncToParentStatus = null;
+    IGitMacheteBranch branch = repositoryGraph.getGraphElement(nodeIndex).getBranch();
+    // todo use vavr Try
     try {
-      IGitMacheteBranch branch = repositoryGraph.getGraphElement(nodeIndex).getBranch();
       syncToParentStatus = branch.getSyncToParentStatus();
     } catch (GitException e) {
-      e.printStackTrace();
+      LOG.error("Unable to get a sync to parent status", e);
     }
 
     return syncToParentStatus == null ? 0 : syncToParentStatus.getColorId();

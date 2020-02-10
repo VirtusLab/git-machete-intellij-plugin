@@ -1,8 +1,12 @@
 package com.virtuslab.gitmachete.graph;
 
+import static com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus.InSync;
+import static com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus.InSyncButForkPointOff;
+import static com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus.Merged;
+import static com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus.OutOfSync;
+
 import com.intellij.ui.JBColor;
 import com.intellij.vcs.log.paint.ColorGenerator;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.awt.Color;
 import java.util.Map;
 
@@ -28,10 +32,10 @@ public class GitMacheteColorGenerator implements ColorGenerator {
 
   private static final Map<Integer, JBColor> gitMacheteColors =
       Map.of(
-          SyncToParentStatus.Merged.getColorId(), GRAY,
-          SyncToParentStatus.NotADirectDescendant.getColorId(), YELLOW,
-          SyncToParentStatus.OutOfSync.getColorId(), RED,
-          SyncToParentStatus.InSync.getColorId(), GREEN);
+          Merged.getColorId(), GRAY,
+          InSyncButForkPointOff.getColorId(), YELLOW,
+          OutOfSync.getColorId(), RED,
+          InSync.getColorId(), GREEN);
 
   @Override
   public Color getColor(int colorId) {
