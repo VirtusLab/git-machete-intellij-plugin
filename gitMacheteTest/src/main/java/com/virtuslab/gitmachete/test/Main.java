@@ -29,10 +29,9 @@ public class Main {
     printGitMacheteBranches(repo.getRootBranches(), 0);
 
     IBranchRelationFile brf2 =
-        repo.getBranchRelationFile()
-            .slideOutBranchAndGetNewBranchRelationFileInstance("edit-margin-not-allowed");
+        repo.getBranchRelationFile().withBranchSlideOut("block-cancel-order");
 
-    IGitMacheteRepository repo2 = repo.getNewRepositoryInstanceFromBranchRelationFile(brf2);
+    IGitMacheteRepository repo2 = repo.withBranchRelationFile(brf2);
 
     System.out.println();
 

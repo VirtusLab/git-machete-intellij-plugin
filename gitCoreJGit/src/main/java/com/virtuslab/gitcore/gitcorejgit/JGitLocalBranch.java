@@ -1,6 +1,10 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreRemoteBranch;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;

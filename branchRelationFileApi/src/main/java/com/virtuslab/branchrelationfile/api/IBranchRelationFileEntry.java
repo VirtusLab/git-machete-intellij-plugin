@@ -8,13 +8,11 @@ public interface IBranchRelationFileEntry extends Cloneable {
 
   Optional<IBranchRelationFileEntry> getUpstream();
 
-  void setUpstream(Optional<IBranchRelationFileEntry> upstream);
+  IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream);
 
   List<IBranchRelationFileEntry> getSubbranches();
 
   Optional<String> getCustomAnnotation();
 
   void addSubbranch(IBranchRelationFileEntry subbranch);
-
-  Object clone() throws CloneNotSupportedException;
 }

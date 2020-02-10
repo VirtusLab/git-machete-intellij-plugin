@@ -4,14 +4,14 @@ import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-@RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class BranchRelationFileEntry implements IBranchRelationFileEntry, Cloneable {
+public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   @EqualsAndHashCode.Include private String name;
-  @Setter private Optional<IBranchRelationFileEntry> upstream = Optional.empty();
+  private Optional<IBranchRelationFileEntry> upstream = Optional.empty();
   private List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
   private Optional<String> customAnnotation = Optional.empty();
 
@@ -22,18 +22,23 @@ public class BranchRelationFileEntry implements IBranchRelationFileEntry, Clonea
     this.customAnnotation = customAnnotation;
   }
 
-  public void addSubbranch(IBranchRelationFileEntry subbranch) {
-    subbranches.add(subbranch);
+  public BranchRelationFileEntry(IBranchRelationFileEntry branchRelationFileEntry) {
+    this.name = branchRelationFileEntry.getName();
+    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation();
+    this.upstream = branchRelationFileEntry.getUpstream();
+    this.subbranches = new LinkedList<>(branchRelationFileEntry.getSubbranches());
   }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    BranchRelationFileEntry clone = (BranchRelationFileEntry) super.clone();
+  public IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream) {
+    BranchRelationFileEntry newBrfe = new BranchRelationFileEntry(this);
+    newBrfe.upstream = Optional.ofNullable(newUpstream);
 
-    clone.upstream = Optional.ofNullable(upstream.orElse(null));
-    clone.customAnnotation = Optional.ofNullable(customAnnotation.orElse(null));
-    clone.subbranches = new LinkedList<>(subbranches);
+    return newBrfe;
+  }
 
-    return clone;
+  @Override
+  public void addSubbranch(IBranchRelationFileEntry subbranch) {
+    subbranches.add(subbranch);
   }
 }

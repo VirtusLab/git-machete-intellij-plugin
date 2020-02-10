@@ -12,6 +12,13 @@ jobs:
           command: |
             ./gradlew spotlessCheck
       - run:
+          name: Check wildcard imports
+          command: |
+            if [[ $(grep -r --include "*.java" '^import .*\.\*' | wc -l) -gt 0 ]]
+            then
+              exit -1
+            fi
+      - run:
           name: Install Machete CLI
           command: pip3 install git-machete==2.12.5
       - run:

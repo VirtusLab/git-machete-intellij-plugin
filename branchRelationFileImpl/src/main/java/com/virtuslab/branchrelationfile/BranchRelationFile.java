@@ -10,31 +10,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 
-public class BranchRelationFile implements IBranchRelationFile, Cloneable {
-  private Path pathToBranchRelationFile;
-  @Getter private List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
+@Getter
+public class BranchRelationFile implements IBranchRelationFile {
+  private Path path;
+  private List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
 
-  // For clone()
-  private BranchRelationFile() {}
-
   @Inject
   public BranchRelationFile(@Assisted Path path) throws BranchRelationFileException {
-    pathToBranchRelationFile = path;
+    this.path = path;
 
     List<String> lines;
     try {
-      lines = Files.readAllLines(pathToBranchRelationFile);
+      lines = Files.readAllLines(this.path);
     } catch (IOException e) {
       throw new BranchRelationFileException(
           MessageFormat.format(
               "Error while loading branch relation file ({0})",
-              pathToBranchRelationFile.toAbsolutePath().toString()),
+              this.path.toAbsolutePath().toString()),
           e);
     }
 
@@ -45,25 +46,29 @@ public class BranchRelationFile implements IBranchRelationFile, Cloneable {
     int currentLevel = 0;
     List<IBranchRelationFileEntry> currentUpstreamList = new LinkedList<>();
     for (var line : lines) {
-      if (isEmptyLine(line)) continue;
+      if (line.trim().isEmpty()) {
+        continue;
+      }
 
-      if (isFirstSignificantLine && getIndent(lines.get(0)) > 0)
+      if (isFirstSignificantLine && getIndentLevelWidth(lines.get(0)) > 0) {
         throw new BranchRelationFileException(
             MessageFormat.format(
                 "The initial line of branch relation file ({0}) cannot be indented",
-                pathToBranchRelationFile.toAbsolutePath().toString()),
+                this.path.toAbsolutePath().toString()),
             lineNumber);
+      }
 
       isFirstSignificantLine = false;
 
-      int level = getLevel(getIndent(line), lineNumber);
+      int level = getIndentLevel(getIndentLevelWidth(line), lineNumber);
 
-      if (level - currentLevel > 1)
+      if (level - currentLevel > 1) {
         throw new BranchRelationFileException(
             MessageFormat.format(
                 "One of branches in branch relation file ({0}) has incorrect level in relation to its parent branch",
-                pathToBranchRelationFile.toAbsolutePath().toString()),
+                this.path.toAbsolutePath().toString()),
             lineNumber);
+      }
 
       String trimmedLine = line.trim();
 
@@ -93,33 +98,38 @@ public class BranchRelationFile implements IBranchRelationFile, Cloneable {
       currentUpstreamList.add(level, branch);
 
       currentLevel = level;
+
+      lineNumber++;
     }
   }
 
-  private boolean isEmptyLine(String l) {
-    return l.trim().length() == 0;
+  public BranchRelationFile(IBranchRelationFile branchRelationFile) {
+    this.path = Path.of(branchRelationFile.getPath().toUri());
+    this.rootBranches = new LinkedList<>(branchRelationFile.getRootBranches());
+    this.indentType = branchRelationFile.getIndentType();
+    this.levelWidth = branchRelationFile.getLevelWidth();
   }
 
-  private int getIndent(String l) {
-    int indent = 0;
+  private int getIndentLevelWidth(String l) {
+    int result = 0;
     for (int i = 0; i < l.length(); i++) {
       if (indentType == null) {
         if (l.charAt(i) != ' ' && l.charAt(i) != '\t') {
           break;
         } else {
-          indent++;
+          result++;
           indentType = l.charAt(i);
         }
       } else {
-        if (l.charAt(i) == indentType) indent++;
+        if (l.charAt(i) == indentType) result++;
         else break;
       }
     }
 
-    return indent;
+    return result;
   }
 
-  private int getLevel(int indent, int lineNumber) throws BranchRelationFileException {
+  private int getIndentLevel(int indent, int lineNumber) throws BranchRelationFileException {
     if (levelWidth == 0 && indent > 0) {
       levelWidth = indent;
       return 1;
@@ -127,12 +137,13 @@ public class BranchRelationFile implements IBranchRelationFile, Cloneable {
       return 0;
     }
 
-    if (indent % levelWidth != 0)
+    if (indent % levelWidth != 0) {
       throw new BranchRelationFileException(
           MessageFormat.format(
-              "Levels of indentations are not matching in branch relation file ({0})",
-              pathToBranchRelationFile.toAbsolutePath().toString()),
+              "Levels of indentation are not matching in branch relation file ({0})",
+              path.toAbsolutePath().toString()),
           lineNumber);
+    }
 
     return indent / levelWidth;
   }
@@ -143,14 +154,11 @@ public class BranchRelationFile implements IBranchRelationFile, Cloneable {
     printBranchesOntoStringList(lines, getRootBranches(), 0);
 
     if (backupOldFile) {
-      var pathToBackupFile =
-          pathToBranchRelationFile
-              .getParent()
-              .resolve(pathToBranchRelationFile.getFileName() + "~");
-      Files.copy(pathToBranchRelationFile, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
+      var pathToBackupFile = path.getParent().resolve(path.getFileName() + "~");
+      Files.copy(path, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    Files.write(pathToBranchRelationFile, lines);
+    Files.write(path, lines);
   }
 
   private void printBranchesOntoStringList(
@@ -177,94 +185,86 @@ public class BranchRelationFile implements IBranchRelationFile, Cloneable {
   }
 
   @Override
-  public IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(String branchName)
-      throws BranchRelationFileException, CloneNotSupportedException, IOException {
+  public IBranchRelationFile withBranchSlideOut(String branchName)
+      throws BranchRelationFileException, IOException {
     var branch = findBranchByName(branchName);
-    if (branch.isEmpty())
+    if (branch.isEmpty()) {
       throw new BranchRelationFileException(
           MessageFormat.format("Branch \"{0}\" does not exist", branchName));
+    }
 
-    return slideOutBranchAndGetNewBranchRelationFileInstance(branch.get());
+    return withBranchSlideOut(branch.get());
   }
 
   @Override
-  public IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(
-      IBranchRelationFileEntry relationFileEntry)
-      throws BranchRelationFileException, CloneNotSupportedException, IOException {
-    if (relationFileEntry.getUpstream().isEmpty())
+  public IBranchRelationFile withBranchSlideOut(IBranchRelationFileEntry relationFileEntry)
+      throws BranchRelationFileException, IOException {
+    if (relationFileEntry.getUpstream().isEmpty()) {
       throw new BranchRelationFileException("Can not slide out root branch");
+    }
 
-    var upBranch = relationFileEntry.getUpstream().get();
-    int indexInUpstream = upBranch.getSubbranches().indexOf(relationFileEntry);
+    var upstream = relationFileEntry.getUpstream().get();
+    int indexInUpstream = upstream.getSubbranches().indexOf(relationFileEntry);
 
-    IBranchRelationFileEntry upBranchCopy = (IBranchRelationFileEntry) upBranch.clone();
+    IBranchRelationFileEntry upstreamCopy = new BranchRelationFileEntry(upstream);
 
     for (var subbranch : relationFileEntry.getSubbranches()) {
-      BranchRelationFileEntry subbranchCopy = (BranchRelationFileEntry) subbranch.clone();
-      subbranchCopy.setUpstream(Optional.of(upBranchCopy));
-      upBranchCopy.getSubbranches().add(indexInUpstream, subbranchCopy);
+      IBranchRelationFileEntry subbranchCopy = subbranch.withUpstream(upstreamCopy);
+      upstreamCopy.getSubbranches().add(indexInUpstream, subbranchCopy);
       indexInUpstream++;
     }
 
-    upBranchCopy.getSubbranches().remove(relationFileEntry);
+    upstreamCopy.getSubbranches().remove(relationFileEntry);
 
-    BranchRelationFile newBranchRelationFile = (BranchRelationFile) this.clone();
+    BranchRelationFile newBranchRelationFile = new BranchRelationFile(this);
 
-    Optional<IBranchRelationFileEntry> oldUpstreamTraversedBranch;
-    IBranchRelationFileEntry newUpstreamTraversedBranch;
-    IBranchRelationFileEntry newTraversedBranch = upBranchCopy;
-    IBranchRelationFileEntry oldTraversedBranch;
-
-    do {
-      oldUpstreamTraversedBranch = newTraversedBranch.getUpstream();
-
-      if (oldUpstreamTraversedBranch.isEmpty()) {
-        oldTraversedBranch =
-            newBranchRelationFile
-                .findBranchByNameInBranches(
-                    newTraversedBranch.getName(), newBranchRelationFile.getRootBranches())
-                .get();
-        Collections.replaceAll(
-            newBranchRelationFile.getRootBranches(), oldTraversedBranch, newTraversedBranch);
-      } else {
-        oldTraversedBranch =
-            newBranchRelationFile
-                .findBranchByNameInBranches(
-                    newTraversedBranch.getName(), oldUpstreamTraversedBranch.get().getSubbranches())
-                .get();
-        newUpstreamTraversedBranch =
-            (IBranchRelationFileEntry) oldUpstreamTraversedBranch.get().clone();
-        Collections.replaceAll(
-            newUpstreamTraversedBranch.getSubbranches(), oldTraversedBranch, newTraversedBranch);
-        newTraversedBranch = newUpstreamTraversedBranch;
-      }
-    } while (oldUpstreamTraversedBranch.isPresent());
+    traverseBranchesUpToRoot(newBranchRelationFile, upstreamCopy);
 
     newBranchRelationFile.saveToFile(true);
 
     return newBranchRelationFile;
   }
 
+  private void traverseBranchesUpToRoot(
+      BranchRelationFile newBranchRelationFile, IBranchRelationFileEntry branchToTraverse) {
+    var oldUpstreamBranch = branchToTraverse.getUpstream();
+    IBranchRelationFileEntry oldBranchToTraverse;
+
+    if (oldUpstreamBranch.isEmpty()) {
+      oldBranchToTraverse =
+          newBranchRelationFile
+              .findBranchByNameInBranches(
+                  branchToTraverse.getName(), newBranchRelationFile.getRootBranches())
+              .get();
+      Collections.replaceAll(
+          newBranchRelationFile.getRootBranches(), oldBranchToTraverse, branchToTraverse);
+    } else {
+      oldBranchToTraverse =
+          newBranchRelationFile
+              .findBranchByNameInBranches(
+                  branchToTraverse.getName(), oldUpstreamBranch.get().getSubbranches())
+              .get();
+      var newUpstreamBranch = new BranchRelationFileEntry(oldUpstreamBranch.get());
+      Collections.replaceAll(
+          newUpstreamBranch.getSubbranches(), oldBranchToTraverse, branchToTraverse);
+
+      traverseBranchesUpToRoot(newBranchRelationFile, newUpstreamBranch);
+    }
+  }
+
   private Optional<IBranchRelationFileEntry> findBranchByNameInBranches(
       String branchName, List<IBranchRelationFileEntry> branches) {
     for (var branch : branches) {
-      if (branch.getName().equals(branchName)) return Optional.of(branch);
+      if (branch.getName().equals(branchName)) {
+        return Optional.of(branch);
+      }
 
       var ret = findBranchByNameInBranches(branchName, branch.getSubbranches());
-      if (ret.isPresent()) return ret;
+      if (ret.isPresent()) {
+        return ret;
+      }
     }
 
     return Optional.empty();
-  }
-
-  @Override
-  public Object clone() throws CloneNotSupportedException {
-    BranchRelationFile brfCopy = (BranchRelationFile) super.clone();
-
-    brfCopy.indentType = Character.valueOf(indentType);
-    brfCopy.pathToBranchRelationFile = Path.of(pathToBranchRelationFile.toUri());
-    brfCopy.rootBranches = new LinkedList<>(rootBranches);
-
-    return brfCopy;
   }
 }

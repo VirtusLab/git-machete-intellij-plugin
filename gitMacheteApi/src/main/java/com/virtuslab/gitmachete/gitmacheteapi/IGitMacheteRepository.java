@@ -16,6 +16,6 @@ public interface IGitMacheteRepository {
 
   IBranchRelationFile getBranchRelationFile();
 
-  IGitMacheteRepository getNewRepositoryInstanceFromBranchRelationFile(
-      IBranchRelationFile branchRelationFile) throws GitException, GitMacheteException;
+  IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
+      throws GitException, GitMacheteException;
 }

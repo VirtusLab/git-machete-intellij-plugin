@@ -6,8 +6,17 @@ import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
-import com.virtuslab.gitcore.gitcoreapi.*;
-import com.virtuslab.gitmachete.gitmacheteapi.*;
+import com.virtuslab.gitcore.gitcoreapi.GitCoreRepositoryFactory;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreRepository;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreSubmoduleEntry;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteJGitException;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
+import com.virtuslab.gitmachete.gitmacheteapi.MacheteFileParseException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.LinkedList;
@@ -27,14 +36,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   List<IGitMacheteBranch> rootBranches = new LinkedList<>();
 
   private Path pathToRepoRoot;
-  private Path pathToMacheteFile;
+  private Path pathToBranchRelationFile;
   private IBranchRelationFile branchRelationFile;
-
-  @Getter(AccessLevel.NONE)
-  private Character indentType = null;
-
-  @Getter(AccessLevel.NONE)
-  private int levelWidth = 0;
 
   @Getter(AccessLevel.NONE)
   private GitCoreRepositoryFactory gitCoreRepositoryFactory;
@@ -71,20 +74,20 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repositoryName = repositoryName;
 
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
-    this.pathToMacheteFile = this.repo.getGitFolderPath().resolve("machete");
+    this.pathToBranchRelationFile = this.repo.getGitFolderPath().resolve("machete");
 
     if (givenBranchRelationFile.isEmpty()) {
       try {
-        branchRelationFile = branchRelationFileFactory.create(this.pathToMacheteFile);
+        branchRelationFile = branchRelationFileFactory.create(this.pathToBranchRelationFile);
       } catch (BranchRelationFileException e) {
         throw new MacheteFileParseException(
             e.getErrorLine().isEmpty()
                 ? MessageFormat.format(
                     "Error occurred while parsing machete file: {0}",
-                    this.pathToMacheteFile.toString())
+                    this.pathToBranchRelationFile.toString())
                 : MessageFormat.format(
                     "Error occurred while parsing machete file on line {1}: {0}",
-                    this.pathToMacheteFile.toString(), e.getErrorLine().get()),
+                    this.pathToBranchRelationFile.toString(), e.getErrorLine().get()),
             e);
       }
     } else {
@@ -93,7 +96,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     for (var entry : branchRelationFile.getRootBranches()) {
       var branch = createMacheteBranchOrThrowException(entry);
-      branch.upstreamBranch = Optional.empty();
+      branch.setUpstreamBranch(Optional.empty());
       rootBranches.add(branch);
       processSubtree(branch, entry.getSubbranches());
     }
@@ -102,13 +105,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private GitMacheteBranch createMacheteBranchOrThrowException(IBranchRelationFileEntry branchEntry)
       throws GitMacheteException, GitException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
-    if (coreBranch.isEmpty())
+    if (coreBranch.isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format(
               "Branch \"{0}\" defined in machete file ({1}) does not exist in repository",
-              branchEntry.getName(), pathToMacheteFile.toString()));
-    var branch = new GitMacheteBranch(coreBranch.get(), this);
-    branch.customAnnotation = branchEntry.getCustomAnnotation();
+              branchEntry.getName(), pathToBranchRelationFile.toString()));
+    }
+    var branch = new GitMacheteBranch(coreBranch.get(), branchEntry.getCustomAnnotation());
 
     return branch;
   }
@@ -119,8 +122,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     for (var entry : directDownstreamEntries) {
       var branch = createMacheteBranchOrThrowException(entry);
 
-      branch.upstreamBranch = Optional.of(subtreeRoot);
-      subtreeRoot.childBranches.add(branch);
+      branch.setUpstreamBranch(Optional.of(subtreeRoot));
+      subtreeRoot.getBranches().add(branch);
 
       processSubtree(branch, entry.getSubbranches());
     }
@@ -145,10 +148,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       throw new GitMacheteJGitException("Error occurred while getting current branch object", e);
     }
 
-    if (branch.isEmpty()) return Optional.empty();
-    else {
+    if (branch.isEmpty()) {
+      return Optional.empty();
+    } else {
       try {
-        return Optional.of(new GitMacheteBranch(branch.get(), this));
+        return Optional.of(new GitMacheteBranch(branch.get()));
       } catch (GitException e) {
         throw new GitMacheteException("Error while creating current git machete branch");
       }
@@ -173,8 +177,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitMacheteRepository getNewRepositoryInstanceFromBranchRelationFile(
-      IBranchRelationFile branchRelationFile) throws GitException, GitMacheteException {
+  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
+      throws GitException, GitMacheteException {
     return new GitMacheteRepository(
         gitCoreRepositoryFactory,
         branchRelationFileFactory,

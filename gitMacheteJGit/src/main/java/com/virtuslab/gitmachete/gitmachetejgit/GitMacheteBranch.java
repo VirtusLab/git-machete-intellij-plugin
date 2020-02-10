@@ -1,44 +1,51 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.*;
-import com.virtuslab.gitmachete.gitmacheteapi.*;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Getter
 public class GitMacheteBranch implements IGitMacheteBranch {
-  private IGitCoreLocalBranch coreLocalBranch;
+  @Getter private IGitCoreLocalBranch coreLocalBranch;
 
-  @Getter(AccessLevel.NONE)
-  private IGitMacheteRepository macheteRepository;
+  @EqualsAndHashCode.Include @Getter private String name;
+  @Getter @Setter private Optional<IGitMacheteBranch> upstreamBranch;
+  @Getter private Optional<String> customAnnotation;
 
-  @EqualsAndHashCode.Include private String name;
-  Optional<IGitMacheteBranch> upstreamBranch;
-  Optional<String> customAnnotation;
-
-  @Getter(AccessLevel.NONE)
-  List<IGitMacheteBranch> childBranches = new LinkedList<>();
+  private List<IGitMacheteBranch> childBranches = new LinkedList<>();
 
   SyncToParentStatus syncToParentStatus = null;
 
-  public GitMacheteBranch(
-      IGitCoreLocalBranch coreLocalBranch, IGitMacheteRepository macheteRepository)
+  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch) throws GitException {
+    this.coreLocalBranch = coreLocalBranch;
+    this.name = this.coreLocalBranch.getName();
+  }
+
+  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch, Optional<String> customAnnotation)
       throws GitException {
     this.coreLocalBranch = coreLocalBranch;
     this.name = this.coreLocalBranch.getName();
-    this.macheteRepository = macheteRepository;
+    this.customAnnotation = customAnnotation;
   }
 
   public List<IGitMacheteCommit> getCommits() throws GitException {
     if (upstreamBranch.isEmpty()) return List.of();
 
     Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
-    if (forkPoint.isEmpty()) return List.of();
+    if (forkPoint.isEmpty()) {
+      return List.of();
+    }
 
     return translateIGitCoreCommitsToIGitMacheteCommits(
         coreLocalBranch.getCommitsUntil(forkPoint.get()));
@@ -50,7 +57,9 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   public SyncToOriginStatus getSyncToOriginStatus() throws GitException {
     Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.getRemoteTrackingStatus();
-    if (ts.isEmpty()) return SyncToOriginStatus.Untracked;
+    if (ts.isEmpty()) {
+      return SyncToOriginStatus.Untracked;
+    }
 
     if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) return SyncToOriginStatus.Diverged;
     else if (ts.get().getAhead() > 0) return SyncToOriginStatus.Ahead;
@@ -59,28 +68,38 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   public SyncToParentStatus getSyncToParentStatus() throws GitException {
-    if (upstreamBranch.isEmpty()) return SyncToParentStatus.InSync;
+    if (upstreamBranch.isEmpty()) {
+      return SyncToParentStatus.InSync;
+    }
 
     IGitCoreLocalBranch parentBranch = upstreamBranch.get().getCoreLocalBranch();
 
     if (coreLocalBranch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
-      if (coreLocalBranch.hasJustBeenCreated()) return SyncToParentStatus.InSync;
-      else return SyncToParentStatus.Merged;
+      if (coreLocalBranch.hasJustBeenCreated()) {
+        return SyncToParentStatus.InSync;
+      } else {
+        return SyncToParentStatus.Merged;
+      }
     } else {
       Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
       boolean isParentAncestorOfChild =
           parentBranch.getPointedCommit().isAncestorOf(coreLocalBranch.getPointedCommit());
 
       if (isParentAncestorOfChild) {
-        if (forkPoint.isEmpty() || !forkPoint.get().equals(parentBranch.getPointedCommit()))
+        if (forkPoint.isEmpty() || !forkPoint.get().equals(parentBranch.getPointedCommit())) {
           return SyncToParentStatus.InSyncButForkPointOff;
-        else return SyncToParentStatus.InSync;
+        } else {
+          return SyncToParentStatus.InSync;
+        }
       } else {
         boolean isChildAncestorOfParent =
             coreLocalBranch.getPointedCommit().isAncestorOf(parentBranch.getPointedCommit());
 
-        if (isChildAncestorOfParent) return SyncToParentStatus.Merged;
-        else return SyncToParentStatus.OutOfSync;
+        if (isChildAncestorOfParent) {
+          return SyncToParentStatus.Merged;
+        } else {
+          return SyncToParentStatus.OutOfSync;
+        }
       }
     }
   }

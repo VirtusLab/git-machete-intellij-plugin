@@ -1,9 +1,16 @@
 package com.virtuslab.gitcore.gitcorejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.*;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.GitNoSuchBranchException;
+import com.virtuslab.gitcore.gitcoreapi.GitNoSuchCommitException;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranch;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.api.errors.GitAPIException;

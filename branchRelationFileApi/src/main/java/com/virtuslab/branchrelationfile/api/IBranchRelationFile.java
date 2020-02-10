@@ -1,22 +1,26 @@
 package com.virtuslab.branchrelationfile.api;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
 public interface IBranchRelationFile extends Cloneable {
   void saveToFile(boolean backupOldFile) throws IOException, BranchRelationFileException;
 
-  Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
+  Path getPath();
 
   List<IBranchRelationFileEntry> getRootBranches();
 
-  IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(String branchName)
+  Character getIndentType();
+
+  int getLevelWidth();
+
+  Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
+
+  IBranchRelationFile withBranchSlideOut(String branchName)
       throws BranchRelationFileException, CloneNotSupportedException, IOException;
 
-  IBranchRelationFile slideOutBranchAndGetNewBranchRelationFileInstance(
-      IBranchRelationFileEntry relationFileEntry)
+  IBranchRelationFile withBranchSlideOut(IBranchRelationFileEntry relationFileEntry)
       throws BranchRelationFileException, CloneNotSupportedException, IOException;
-
-  Object clone() throws CloneNotSupportedException;
 }
