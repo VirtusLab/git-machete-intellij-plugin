@@ -41,14 +41,8 @@ public class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
-      String branchName) throws GitMacheteException, GitException {
-    return this;
-  }
-
-  @Override
-  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
-      IGitMacheteBranch branch) throws GitMacheteException, GitException {
+  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
+      throws GitException, GitMacheteException {
     return this;
   }
 }
