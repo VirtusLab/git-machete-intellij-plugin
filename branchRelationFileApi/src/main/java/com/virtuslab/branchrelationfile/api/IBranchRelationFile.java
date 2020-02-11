@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public interface IBranchRelationFile extends Cloneable {
+public interface IBranchRelationFile {
   void saveToFile(boolean backupOldFile) throws IOException, BranchRelationFileException;
 
   Path getPath();
@@ -18,9 +18,9 @@ public interface IBranchRelationFile extends Cloneable {
 
   Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
 
-  IBranchRelationFile withBranchSlideOut(String branchName)
+  IBranchRelationFile withBranchSlidOut(String branchName)
       throws BranchRelationFileException, CloneNotSupportedException, IOException;
 
-  IBranchRelationFile withBranchSlideOut(IBranchRelationFileEntry relationFileEntry)
+  IBranchRelationFile withBranchSlidOut(IBranchRelationFileEntry relationFileEntry)
       throws BranchRelationFileException, CloneNotSupportedException, IOException;
 }

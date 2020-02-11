@@ -28,8 +28,7 @@ public class Main {
 
     printGitMacheteBranches(repo.getRootBranches(), 0);
 
-    IBranchRelationFile brf2 =
-        repo.getBranchRelationFile().withBranchSlideOut("block-cancel-order");
+    IBranchRelationFile brf2 = repo.getBranchRelationFile().withBranchSlidOut("block-cancel-order");
 
     IGitMacheteRepository repo2 = repo.withBranchRelationFile(brf2);
 

@@ -42,10 +42,11 @@ public class BranchRelationFile implements IBranchRelationFile {
     if (lines.size() < 1) return;
 
     boolean isFirstSignificantLine = true;
-    int lineNumber = 1;
+    int lineNumber = 0;
     int currentLevel = 0;
     List<IBranchRelationFileEntry> currentUpstreamList = new LinkedList<>();
     for (var line : lines) {
+      lineNumber++;
       if (line.trim().isEmpty()) {
         continue;
       }
@@ -98,13 +99,11 @@ public class BranchRelationFile implements IBranchRelationFile {
       currentUpstreamList.add(level, branch);
 
       currentLevel = level;
-
-      lineNumber++;
     }
   }
 
   public BranchRelationFile(IBranchRelationFile branchRelationFile) {
-    this.path = Path.of(branchRelationFile.getPath().toUri());
+    this.path = branchRelationFile.getPath();
     this.rootBranches = new LinkedList<>(branchRelationFile.getRootBranches());
     this.indentType = branchRelationFile.getIndentType();
     this.levelWidth = branchRelationFile.getLevelWidth();
@@ -185,7 +184,7 @@ public class BranchRelationFile implements IBranchRelationFile {
   }
 
   @Override
-  public IBranchRelationFile withBranchSlideOut(String branchName)
+  public IBranchRelationFile withBranchSlidOut(String branchName)
       throws BranchRelationFileException, IOException {
     var branch = findBranchByName(branchName);
     if (branch.isEmpty()) {
@@ -193,11 +192,11 @@ public class BranchRelationFile implements IBranchRelationFile {
           MessageFormat.format("Branch \"{0}\" does not exist", branchName));
     }
 
-    return withBranchSlideOut(branch.get());
+    return withBranchSlidOut(branch.get());
   }
 
   @Override
-  public IBranchRelationFile withBranchSlideOut(IBranchRelationFileEntry relationFileEntry)
+  public IBranchRelationFile withBranchSlidOut(IBranchRelationFileEntry relationFileEntry)
       throws BranchRelationFileException, IOException {
     if (relationFileEntry.getUpstream().isEmpty()) {
       throw new BranchRelationFileException("Can not slide out root branch");

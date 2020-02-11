@@ -13,14 +13,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GitMacheteBranch implements IGitMacheteBranch {
   @Getter private IGitCoreLocalBranch coreLocalBranch;
 
   @EqualsAndHashCode.Include @Getter private String name;
-  @Getter @Setter private Optional<IGitMacheteBranch> upstreamBranch;
+  @Getter private Optional<IGitMacheteBranch> upstreamBranch;
   @Getter private Optional<String> customAnnotation;
 
   private List<IGitMacheteBranch> childBranches = new LinkedList<>();
@@ -37,6 +36,17 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     this.coreLocalBranch = coreLocalBranch;
     this.name = this.coreLocalBranch.getName();
     this.customAnnotation = customAnnotation;
+  }
+
+  public GitMacheteBranch(
+      IGitCoreLocalBranch coreLocalBranch,
+      Optional<String> customAnnotation,
+      Optional<IGitMacheteBranch> upstreamBranch)
+      throws GitException {
+    this.coreLocalBranch = coreLocalBranch;
+    this.name = this.coreLocalBranch.getName();
+    this.customAnnotation = customAnnotation;
+    this.upstreamBranch = upstreamBranch;
   }
 
   public List<IGitMacheteCommit> getCommits() throws GitException {

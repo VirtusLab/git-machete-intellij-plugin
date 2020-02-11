@@ -95,14 +95,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     for (var entry : branchRelationFile.getRootBranches()) {
-      var branch = createMacheteBranchOrThrowException(entry);
-      branch.setUpstreamBranch(Optional.empty());
+      var branch = createMacheteBranchOrThrowException(entry, Optional.empty());
       rootBranches.add(branch);
       processSubtree(branch, entry.getSubbranches());
     }
   }
 
-  private GitMacheteBranch createMacheteBranchOrThrowException(IBranchRelationFileEntry branchEntry)
+  private GitMacheteBranch createMacheteBranchOrThrowException(
+      IBranchRelationFileEntry branchEntry, Optional<IGitMacheteBranch> upstreamBranch)
       throws GitMacheteException, GitException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
@@ -111,7 +111,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
               "Branch \"{0}\" defined in machete file ({1}) does not exist in repository",
               branchEntry.getName(), pathToBranchRelationFile.toString()));
     }
-    var branch = new GitMacheteBranch(coreBranch.get(), branchEntry.getCustomAnnotation());
+    var branch =
+        new GitMacheteBranch(coreBranch.get(), branchEntry.getCustomAnnotation(), upstreamBranch);
 
     return branch;
   }
@@ -120,9 +121,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       GitMacheteBranch subtreeRoot, List<IBranchRelationFileEntry> directDownstreamEntries)
       throws GitMacheteException, GitException {
     for (var entry : directDownstreamEntries) {
-      var branch = createMacheteBranchOrThrowException(entry);
+      var branch = createMacheteBranchOrThrowException(entry, Optional.of(subtreeRoot));
 
-      branch.setUpstreamBranch(Optional.of(subtreeRoot));
       subtreeRoot.getBranches().add(branch);
 
       processSubtree(branch, entry.getSubbranches());

@@ -14,9 +14,11 @@ jobs:
       - run:
           name: Check wildcard imports
           command: |
-            if [[ $(grep -r --include "*.java" '^import .*\.\*' | wc -l) -gt 0 ]]
+            git grep "^import .*\.\*" "*.java"
+            if [[ $? -eq 0 ]]
             then
-              exit -1
+              echo "Wildcard import has been detected!" >&2
+              exit 1
             fi
       - run:
           name: Install Machete CLI
