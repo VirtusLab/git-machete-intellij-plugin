@@ -103,6 +103,9 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
     }
 
     // Filter reflogs
+    // Note: Machete CLI do this in a little different way: it exclude also all reflog entries that
+    // have the same NewId as entries that starts with "branch: Reset to" or "reset: moving to"
+    // See: https://github.com/VirtusLab/git-machete/pull/73
     for (var entries : reflogEntriesList) {
       var firstEntryNewID =
           entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
