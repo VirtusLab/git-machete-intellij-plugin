@@ -123,7 +123,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     for (var entry : directDownstreamEntries) {
       var branch = createMacheteBranchOrThrowException(entry, Optional.of(subtreeRoot));
 
-      subtreeRoot.getBranches().add(branch);
+      subtreeRoot.getDownstreamBranches().add(branch);
 
       processSubtree(branch, entry.getSubbranches());
     }
