@@ -10,6 +10,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
 import com.virtuslab.gitmachete.graph.facade.GraphElementManager;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.graph.repositorygraph.data.NullRepository;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,8 @@ import lombok.Getter;
 
 public class RepositoryGraph implements LinearGraph {
   @Nonnull @Getter
-  private static final RepositoryGraph nullRepositoryGraph = new RepositoryGraphBuilder().build();
+  private static final RepositoryGraph nullRepositoryGraph =
+      new RepositoryGraphBuilder().repository(NullRepository.getInstance()).build();
 
   @Nonnull protected final List<IGraphElement> elements;
   @Nonnull private final PrintElementGeneratorImpl printElementGenerator;

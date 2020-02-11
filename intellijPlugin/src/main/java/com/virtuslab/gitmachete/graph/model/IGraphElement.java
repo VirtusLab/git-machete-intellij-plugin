@@ -21,7 +21,7 @@ public interface IGraphElement {
    */
   List<Integer> getDownElementIndexes();
 
-  /** @return The text (commit msg/branch name) to be displayed in the table. */
+  /** @return The text (commit message/branch name) to be displayed in the table. */
   String getValue();
 
   /** @return Attributes (eg. boldness) to be used by the displayed text. */
