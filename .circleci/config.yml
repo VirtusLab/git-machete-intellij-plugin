@@ -13,7 +13,7 @@ jobs:
             ./gradlew spotlessCheck
       - run:
           name: Check wildcard imports
-          command: .circleci/wildcard_imports_check.sh
+          command: ./.circleci/wildcard_imports_check.sh
       - run:
           name: Install Machete CLI
           command: pip3 install git-machete==2.12.5
