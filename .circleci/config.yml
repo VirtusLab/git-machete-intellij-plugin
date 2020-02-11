@@ -13,7 +13,15 @@ jobs:
             ./gradlew spotlessCheck
       - run:
           name: Check wildcard imports
-          command: sudo ./.circleci/wildcard_imports_check.sh
+          command: |
+            RESULT=$(git grep -n 'import .*\.\*' '*.java')
+            RESULT_COUNT=$(echo "$RESULT" | wc -l)
+            if [[ ${#RESULT} -gt 0 ]]
+            then
+              echo "$RESULT_COUNT wildcard import(s) has been detected:"
+              echo "$RESULT"
+              exit 1
+            fi
       - run:
           name: Install Machete CLI
           command: pip3 install git-machete==2.12.5
