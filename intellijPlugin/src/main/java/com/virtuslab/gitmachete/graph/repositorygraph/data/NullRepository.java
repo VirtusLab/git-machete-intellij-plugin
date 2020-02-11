@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
+import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
@@ -8,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.Getter;
-import org.apache.commons.lang.NotImplementedException;
 
 public class NullRepository implements IGitMacheteRepository {
   @Getter @Nonnull private static NullRepository instance = new NullRepository();
@@ -16,11 +18,6 @@ public class NullRepository implements IGitMacheteRepository {
   @Override
   public List<IGitMacheteBranch> getRootBranches() {
     return Collections.emptyList();
-  }
-
-  @Override
-  public void addRootBranch(IGitMacheteBranch branch) {
-    throw new NotImplementedException();
   }
 
   @Override
@@ -36,5 +33,22 @@ public class NullRepository implements IGitMacheteRepository {
   @Override
   public List<IGitMacheteSubmoduleEntry> getSubmodules() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public IBranchRelationFile getBranchRelationFile() {
+    return null;
+  }
+
+  @Override
+  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
+      String branchName) throws GitMacheteException, GitException {
+    return this;
+  }
+
+  @Override
+  public IGitMacheteRepository slideOutBranchWithReinstantiationOfMacheteRepository(
+      IGitMacheteBranch branch) throws GitMacheteException, GitException {
+    return this;
   }
 }
