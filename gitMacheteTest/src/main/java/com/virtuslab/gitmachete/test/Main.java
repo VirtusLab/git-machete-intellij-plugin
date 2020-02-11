@@ -75,7 +75,7 @@ public class Main {
     for (var branch : branches) {
       System.out.println(
           "\t".repeat(level) + branch.getName() + " # " + branch.getCustomAnnotation());
-      printGitMacheteBranches(branch.getBranches(), level + 1);
+      printGitMacheteBranches(branch.getDownstreamBranches(), level + 1);
     }
   }
 }
