@@ -14,10 +14,9 @@ jobs:
       - run:
           name: Check wildcard imports
           command: |
-            git grep "^import .*\.\*" "*.java"
-            if [[ $? -eq 0 ]]
+            if [[ $(git grep "^import .*\.\*" "*.java" | wc -l) -gt 0 ]]
             then
-              echo "Wildcard import has been detected!" >&2
+              echo "Wildcard import has been detected!"
               exit 1
             fi
       - run:
