@@ -41,6 +41,7 @@ public class ColorGetterByLayoutIndex {
       LOG.error("Unable to get a sync to parent status", e);
     }
 
-    return syncToParentStatus == null ? 0 : syncToParentStatus.getColorId();
+    assert syncToParentStatus != null;
+    return syncToParentStatus.getColorId();
   }
 }

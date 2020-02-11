@@ -14,6 +14,7 @@ import com.virtuslab.gitmachete.graph.repositorygraph.data.NullRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -39,26 +40,34 @@ public class RepositoryGraphBuilder {
     return new RepositoryGraph(elementsOfRepository);
   }
 
+  @Nonnull
   private List<IGraphElement> computeGraphElements() throws GitException {
     List<IGraphElement> graphElements = new ArrayList<>();
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
     for (IGitMacheteBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
       addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1);
-      addDownstreamCommitsAndBranches(graphElements, /*upstreamBranchIndex*/ currentBranchIndex);
+      addDownstreamCommitsAndBranches(graphElements, currentBranchIndex);
     }
     return graphElements;
   }
 
-  private void addDownstreamCommitsAndBranches(
-      List<IGraphElement> graphElements, int upstreamBranchIndex) throws GitException {
+  /**
+   * @param graphElements the collection to store downstream commits and branches
+   * @param branchIndex the index of branch which downstream branches (with their commits) are to be
+   *     added
+   */
+  private void addDownstreamCommitsAndBranches(List<IGraphElement> graphElements, int branchIndex)
+      throws GitException {
     List<IGitMacheteBranch> branches =
-        graphElements.get(upstreamBranchIndex).getBranch().getDownstreamBranches();
+        graphElements.get(branchIndex).getBranch().getDownstreamBranches();
     for (IGitMacheteBranch branch : branches) {
-      graphElements.get(upstreamBranchIndex).getDownElementIndexes().add(graphElements.size());
-      addCommitsWithBranch(graphElements, branch, upstreamBranchIndex);
-      addDownstreamCommitsAndBranches(
-          graphElements, /*upstreamBranchIndex*/ graphElements.size() - 1);
+      int downElementIndex = graphElements.size();
+      graphElements.get(branchIndex).getDownElementIndexes().add(downElementIndex);
+      addCommitsWithBranch(graphElements, branch, branchIndex);
+
+      int upstreamBranchIndex = graphElements.size() - 1;
+      addDownstreamCommitsAndBranches(graphElements, upstreamBranchIndex);
     }
   }
 
@@ -70,38 +79,42 @@ public class RepositoryGraphBuilder {
 
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
-      int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : graphElements.size() - 1;
-      CommitElement c =
-          new CommitElement(
-              commit, branch, upElementIndex, /*downElementIndex*/ graphElements.size() + 1);
+      int lastElementIndex = graphElements.size() - 1;
+      int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
+      int downElementIndex = graphElements.size() + 1;
+      CommitElement c = new CommitElement(commit, branch, upElementIndex, downElementIndex);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }
 
-    int upElementIndex =
-        upstreamBranchIndex == -1 || isFirstNodeInBranch
-            ? upstreamBranchIndex
-            : graphElements.size() - 1;
+    int lastElementIndex = graphElements.size() - 1;
+    /*
+     * If a branch has no commits (due to commits getting strategy or because its a root branch)
+     * its upElementIndex is just the upstreamBranchIndex.
+     * Otherwise the upElementIndex is an index of most recently added element (its last commit).
+     */
+    int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
+
     BranchElement element = createBranchElementFor(branch, upElementIndex);
     graphElements.add(element);
   }
 
   /**
-   * @return BranchElement for given branch and upstreamBranchIndex and provide additional
-   *     attributes if the branch is the current one.
+   * @return {@code BranchElement} for given {@code branch} and {@code upstreamBranchIndex} and
+   *     provide additional attributes if the branch is the current one.
    */
+  @Nonnull
   private BranchElement createBranchElementFor(IGitMacheteBranch branch, int upstreamBranchIndex) {
     BranchElement branchElement = new BranchElement(branch, upstreamBranchIndex);
 
-    IGitMacheteBranch currentBranch = null;
+    Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {
-      currentBranch = repository.getCurrentBranch().orElse(null);
+      currentBranch = repository.getCurrentBranch();
     } catch (GitMacheteException e) {
-      // Unable to get current branch
       LOG.error("Unable to get current branch", e);
     }
 
-    if (branch.equals(currentBranch)) {
+    if (currentBranch.isPresent() && currentBranch.get().equals(branch)) {
       branchElement.setAttributes(BranchElement.UNDERLINE_BOLD_ATTRIBUTES);
     }
 
