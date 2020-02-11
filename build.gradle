@@ -59,12 +59,7 @@ allprojects {
     dependencies {
         testCompile group: 'junit', name: 'junit', version: junitVersion
     }
-}
 
-subprojects {
-    version = '1.0'
-
-    apply plugin: 'java'
 
     apply plugin: 'com.diffplug.gradle.spotless'
 
@@ -74,7 +69,6 @@ subprojects {
         }
     }
 }
-
 
 afterEvaluate {
     tasks.getByName('spotlessCheck').dependsOn(tasks.getByName('spotlessApply'))
