@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Check wildcard imports
           command: |
-            RESULT=$(git grep -n 'import .*\.\*' '*.java')
+            RESULT=$(git grep -n 'import .*\.\*' '*.java') || true
             RESULT_COUNT=$(echo "$RESULT" | wc -l)
             if [[ ${#RESULT} -gt 0 ]]
             then
