@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u -x
+
+git_hash_short=$(git rev-parse --short HEAD)
+sed -i "/^version '.*-SNAPSHOT'\$/ s/SNAPSHOT/$git_hash_short/" intellijPlugin/build.gradle

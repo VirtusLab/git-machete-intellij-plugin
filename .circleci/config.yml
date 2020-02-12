@@ -8,27 +8,29 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Prepare Build
+          command: |
+            set -x
+            ./scripts/check-version-bump-on-prs
+            ./scripts/check-wildcard-imports
+            ./scripts/specify-snapshot-revision
+      - run:
+          name: Start Gradle Daemon
+          command: |
+            ./gradlew
+      - run:
           name: Check Formatting
           command: |
             ./gradlew spotlessCheck
       - run:
-          name: Check wildcard imports
-          command: |
-            RESULT=$(git grep -n 'import .*\.\*' '*.java') || true
-            RESULT_COUNT=$(echo "$RESULT" | wc -l)
-            if [[ ${#RESULT} -gt 0 ]]
-            then
-              echo "$RESULT_COUNT wildcard import(s) has been detected:"
-              echo "$RESULT"
-              exit 1
-            fi
-      - run:
-          name: Install Machete CLI
+          name: Install git-machete CLI
           command: pip3 install git-machete==2.12.5
       - run:
           name: Build & Test
           command: |
             ./gradlew test
+      - store_test_results:
+          path: backendRoot/build/test-results/
       - run:
           name: Build Plugin Artifact
           command: |

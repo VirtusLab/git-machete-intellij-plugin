@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+# Skip this check for non-PR builds.
+[[ ${CI_PULL_REQUEST-} ]] || exit 0
+
+# In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+pr_num=${CI_PULL_REQUEST##*/}
+# A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to based, available on GH under refs/pull/<pr-number>/merge...
+git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge
+#  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
+base_commit=$(git rev-parse origin/pull-$pr_num/merge^1)
+
+function derive_version() {
+  revision=$1
+  var_prefix=$2
+  # `git show ... | grep -Po ...` is necessary (instead of `git grep -Po ...`) since the old version of git (2.7.x) installed on the build image doesn't support `-o` flag of `git grep`.
+  version=$(git show "$revision":intellijPlugin/build.gradle | grep -Po "(?<=^version ')[0-9]+\.[0-9]+\.[0-9]+")
+  IFS=. read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch <<< "$version"
+}
+
+derive_version HEAD head
+derive_version $base_commit base
+
+function die() {
+  echo "$1"
+  exit 1
+}
+
+[[ $head_major -gt $base_major ]] && exit 0
+[[ $head_major -eq $base_major ]] || \
+  die "Major version ($head_major) must not be lower than in PR base commit $base_commit ($base_major)"
+
+[[ $head_minor -gt $base_minor ]] && exit 0
+[[ $head_minor -eq $base_minor ]] || \
+  die "Minor version ($head_minor) must not be lower than in PR base commit $base_commit ($base_minor)"
+
+[[ $head_patch -gt $base_patch ]] && exit 0
+[[ $head_patch -eq $base_patch ]] && \
+  die "Version must not be identical as in the PR base commit $base_commit" || \
+  die "Patch version ($head_patch) must not be lower than in PR base commit $base_commit ($base_patch)"
