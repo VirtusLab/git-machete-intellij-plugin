@@ -4,10 +4,13 @@ import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitRebaseParameters;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +78,29 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     else if (ts.get().getAhead() > 0) return SyncToOriginStatus.Ahead;
     else if (ts.get().getBehind() > 0) return SyncToOriginStatus.Behind;
     else return SyncToOriginStatus.InSync;
+  }
+
+  @Override
+  public IGitRebaseParameters getRebaseParameters() throws GitMacheteException, GitException {
+    if (getUpstreamBranch().isEmpty())
+      throw new GitMacheteException(
+          MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
+
+    var forkPoint = coreLocalBranch.getForkPoint();
+    if (forkPoint.isEmpty())
+      throw new GitMacheteException(
+          MessageFormat.format("Can not find fork point for branch \"{0}\"", getName()));
+
+    var mergeBase = coreLocalBranch.getMergeBase(getUpstreamBranch().get().getCoreLocalBranch());
+    if (mergeBase.isEmpty())
+      throw new GitMacheteException(
+          MessageFormat.format("Can not find merge base for branch \"{0}\"", getName()));
+
+    return new GitRebaseParameters(
+        getName(),
+        getUpstreamBranch().get().getName(),
+        mergeBase.get().getHash().getHashString(),
+        forkPoint.get().getHash().getHashString());
   }
 
   public SyncToParentStatus computeSyncToParentStatus() throws GitException {

@@ -21,4 +21,6 @@ public interface IGitMacheteBranch {
   SyncToParentStatus computeSyncToParentStatus() throws GitException;
 
   SyncToOriginStatus computeSyncToOriginStatus() throws GitException;
+
+  IGitRebaseParameters getRebaseParameters() throws GitException, GitMacheteException;
 }

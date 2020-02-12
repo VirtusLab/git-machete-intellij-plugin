@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.test;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
@@ -26,19 +25,9 @@ public class Main {
       e.printStackTrace();
     }
 
-    printGitMacheteBranches(repo.getRootBranches(), 0);
+    var branch = repo.getRootBranches().get(0).getDownstreamBranches().get(1);
 
-    IBranchRelationFile brf2 = repo.getBranchRelationFile().withBranchSlidOut("block-cancel-order");
-
-    IGitMacheteRepository repo2 = repo.withBranchRelationFile(brf2);
-
-    System.out.println();
-
-    printGitMacheteBranches(repo.getRootBranches(), 0);
-
-    System.out.println();
-
-    printGitMacheteBranches(repo2.getRootBranches(), 0);
+    System.out.println(branch.getRebaseParameters());
 
     // printGitMacheteBranches(repo.getRootBranches(), 0);
 
