@@ -12,6 +12,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.graph.repositorygraph.data.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
+import com.virtuslab.gitmachete.ui.table.GraphTableModel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -32,13 +33,15 @@ public class GitMacheteGraphTableManager {
   public GitMacheteGraphTableManager(@Nonnull Project project) {
     this.project = project;
     this.isListingCommits = false;
-    this.gitMacheteGraphTable =
-        new GitMacheteGraphTable(RepositoryGraphFactory.getNullRepositoryGraph());
+    GraphTableModel graphTableModel =
+        new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel);
     this.gitMacheteRepositoryFactory =
         GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
   }
 
+  /** Creates new repository graph and sets it to the graph table model. */
   public void refreshUI() {
     /*
      * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
@@ -48,12 +51,16 @@ public class GitMacheteGraphTableManager {
 
     RepositoryGraph repositoryGraph =
         repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
-    gitMacheteGraphTable.getGraphTableModel().setRepositoryGraph(repositoryGraph);
+    gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
 
     GuiUtils.invokeLaterIfNeeded(() -> gitMacheteGraphTable.updateUI(), ModalityState.NON_MODAL);
   }
 
-  public void updateModelGraphRepository() {
+  /**
+   * Updates repository which is the base of graph table model. The change will be seen after {@code
+   * refreshUI()}.
+   */
+  public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
     try {
       repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, Optional.empty());

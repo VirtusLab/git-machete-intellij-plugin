@@ -18,7 +18,7 @@ public interface IGitMacheteBranch {
 
   Optional<IGitMacheteBranch> getUpstreamBranch();
 
-  SyncToParentStatus getSyncToParentStatus() throws GitException;
+  SyncToParentStatus computeSyncToParentStatus() throws GitException;
 
   SyncToOriginStatus getSyncToOriginStatus() throws GitException;
 }

@@ -77,7 +77,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     else return SyncToOriginStatus.InSync;
   }
 
-  public SyncToParentStatus getSyncToParentStatus() throws GitException {
+  public SyncToParentStatus computeSyncToParentStatus() throws GitException {
     if (upstreamBranch.isEmpty()) {
       return SyncToParentStatus.InSync;
     }

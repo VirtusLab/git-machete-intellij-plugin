@@ -17,7 +17,7 @@ public class GitMachetePanel {
 
   public GitMachetePanel(@Nonnull Project project) {
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project);
-    gitMacheteGraphTableManager.updateModelGraphRepository();
+    gitMacheteGraphTableManager.updateRepository();
     gitMacheteGraphTableManager.refreshUI();
   }
 
@@ -54,7 +54,7 @@ public class GitMachetePanel {
 
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
-      gitMacheteGraphTableManager.updateModelGraphRepository();
+      gitMacheteGraphTableManager.updateRepository();
       gitMacheteGraphTableManager.refreshUI();
     }
   }

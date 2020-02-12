@@ -7,6 +7,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
@@ -47,27 +48,31 @@ public class RepositoryGraphBuilder {
     for (IGitMacheteBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
       addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1);
-      addDownstreamCommitsAndBranches(graphElements, currentBranchIndex);
+      List<IGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches();
+      addDownstreamCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
     }
     return graphElements;
   }
 
   /**
    * @param graphElements the collection to store downstream commits and branches
+   * @param downstreamBranches branches to add with their commits
    * @param branchIndex the index of branch which downstream branches (with their commits) are to be
    *     added
    */
-  private void addDownstreamCommitsAndBranches(List<IGraphElement> graphElements, int branchIndex)
+  private void addDownstreamCommitsAndBranches(
+      List<IGraphElement> graphElements,
+      List<IGitMacheteBranch> downstreamBranches,
+      int branchIndex)
       throws GitException {
-    List<IGitMacheteBranch> branches =
-        graphElements.get(branchIndex).getBranch().getDownstreamBranches();
-    for (IGitMacheteBranch branch : branches) {
+    for (IGitMacheteBranch branch : downstreamBranches) {
       int downElementIndex = graphElements.size();
       graphElements.get(branchIndex).getDownElementIndexes().add(downElementIndex);
       addCommitsWithBranch(graphElements, branch, branchIndex);
 
       int upstreamBranchIndex = graphElements.size() - 1;
-      addDownstreamCommitsAndBranches(graphElements, upstreamBranchIndex);
+      List<IGitMacheteBranch> branches = branch.getDownstreamBranches();
+      addDownstreamCommitsAndBranches(graphElements, /*downstream*/ branches, upstreamBranchIndex);
     }
   }
 
@@ -77,12 +82,16 @@ public class RepositoryGraphBuilder {
 
     List<IGitMacheteCommit> commits = Lists.reverse(branchGetCommitsStrategy.getCommitsOf(branch));
 
+    // todo set syncToParentStatus later (?)
+    SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
+
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
       int lastElementIndex = graphElements.size() - 1;
       int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
       int downElementIndex = graphElements.size() + 1;
-      CommitElement c = new CommitElement(commit, branch, upElementIndex, downElementIndex);
+      CommitElement c =
+          new CommitElement(commit, upElementIndex, downElementIndex, syncToParentStatus);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }
@@ -95,7 +104,7 @@ public class RepositoryGraphBuilder {
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
-    BranchElement element = createBranchElementFor(branch, upElementIndex);
+    BranchElement element = createBranchElementFor(branch, upElementIndex, syncToParentStatus);
     graphElements.add(element);
   }
 
@@ -104,8 +113,10 @@ public class RepositoryGraphBuilder {
    *     provide additional attributes if the branch is the current one.
    */
   @Nonnull
-  private BranchElement createBranchElementFor(IGitMacheteBranch branch, int upstreamBranchIndex) {
-    BranchElement branchElement = new BranchElement(branch, upstreamBranchIndex);
+  private BranchElement createBranchElementFor(
+      IGitMacheteBranch branch, int upstreamBranchIndex, SyncToParentStatus syncToParentStatus) {
+    BranchElement branchElement =
+        new BranchElement(branch, upstreamBranchIndex, syncToParentStatus);
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {

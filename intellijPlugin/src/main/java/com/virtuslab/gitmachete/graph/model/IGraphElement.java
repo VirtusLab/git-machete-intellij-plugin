@@ -1,15 +1,10 @@
 package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.util.List;
 
 public interface IGraphElement {
-  /**
-   * @return The represented branch or (in case of representing a commit) a branch that contains the
-   *     commit.
-   */
-  IGitMacheteBranch getBranch();
 
   /**
    * @return The index of element above (in table) that is connected directly in graph to this one.
@@ -26,4 +21,7 @@ public interface IGraphElement {
 
   /** @return Attributes (eg. boldness) to be used by the displayed text. */
   SimpleTextAttributes getAttributes();
+
+  /** @return result of {@code IGitMacheteBranch::computeSyncToParentStatus()}. */
+  SyncToParentStatus getComputedSyncToParentStatus();
 }

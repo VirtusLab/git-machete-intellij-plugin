@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -12,10 +12,10 @@ public final class CommitElement extends BaseGraphElement {
 
   public CommitElement(
       IGitMacheteCommit commit,
-      IGitMacheteBranch branch,
       int upElementIndex,
-      int downElementIndex) {
-    super(branch, upElementIndex);
+      int downElementIndex,
+      SyncToParentStatus syncToParentStatus) {
+    super(upElementIndex, syncToParentStatus);
     this.commit = commit;
     getDownElementIndexes().add(downElementIndex);
   }

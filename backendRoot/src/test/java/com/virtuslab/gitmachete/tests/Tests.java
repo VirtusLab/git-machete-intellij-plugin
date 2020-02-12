@@ -128,7 +128,7 @@ public class Tests {
 
         sb.append("  ");
         sb.append("| ".repeat(level - 1));
-        var parentStatus = branch.getSyncToParentStatus();
+        var parentStatus = branch.computeSyncToParentStatus();
         if (parentStatus == SyncToParentStatus.InSync) sb.append("o");
         else if (parentStatus == SyncToParentStatus.OutOfSync) sb.append("x");
         else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff) sb.append("?");

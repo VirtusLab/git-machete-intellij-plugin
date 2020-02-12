@@ -1,17 +1,13 @@
 package com.virtuslab.gitmachete.ui;
 
-import static com.intellij.ui.IdeBorderFactory.createBorder;
-import static com.intellij.util.ui.UIUtil.addBorder;
-
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.SideBorder;
 import com.intellij.util.NotNullFunction;
+import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import git4idea.GitVcs;
 import javax.annotation.Nonnull;
 import javax.swing.JComponent;
@@ -20,7 +16,6 @@ import javax.swing.JScrollPane;
 public class GitMacheteContentProvider implements ChangesViewContentProvider {
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
   private final Project project;
-  private GitMachetePanel gitMachetePanel;
 
   public GitMacheteContentProvider(@Nonnull Project project) {
     this.project = project;
@@ -28,19 +23,19 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
 
   @Override
   public JComponent initContent() {
-    gitMachetePanel = new GitMachetePanel(project);
+    GitMachetePanel gitMachetePanel = new GitMachetePanel(project);
     ActionToolbar gitMacheteToolbar = gitMachetePanel.createGitMacheteToolbar();
-    addBorder(gitMacheteToolbar.getComponent(), createBorder(JBColor.border(), SideBorder.RIGHT));
 
-    JScrollPane scrollTable =
-        ScrollPaneFactory.createScrollPane(
-            gitMachetePanel.getGitMacheteGraphTableManager().getGitMacheteGraphTable());
+    GitMacheteGraphTable gitMacheteGraphTable =
+        gitMachetePanel.getGitMacheteGraphTableManager().getGitMacheteGraphTable();
+    JScrollPane scrollTable = ScrollPaneFactory.createScrollPane(gitMacheteGraphTable);
 
-    SimpleToolWindowPanel panel =
+    SimpleToolWindowPanel toolbarAndTable =
         new SimpleToolWindowPanel(/*vertical*/ false, /*borderless*/ true);
-    panel.setToolbar(gitMacheteToolbar.getComponent());
-    panel.setContent(scrollTable);
-    return panel;
+    toolbarAndTable.setToolbar(gitMacheteToolbar.getComponent());
+    toolbarAndTable.setContent(scrollTable);
+
+    return toolbarAndTable;
   }
 
   @Override
