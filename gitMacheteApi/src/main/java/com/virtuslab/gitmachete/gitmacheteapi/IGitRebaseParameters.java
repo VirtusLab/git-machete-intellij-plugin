@@ -5,7 +5,5 @@ public interface IGitRebaseParameters {
 
   String getNewBaseBranchName();
 
-  String getMergeBaseCommitHash();
-
   String getForkPointCommitHash();
 }

@@ -11,6 +11,5 @@ import lombok.ToString;
 public class GitRebaseParameters implements IGitRebaseParameters {
   private String currentBranchName;
   private String newBaseBranchName;
-  private String mergeBaseCommitHash;
   private String forkPointCommitHash;
 }

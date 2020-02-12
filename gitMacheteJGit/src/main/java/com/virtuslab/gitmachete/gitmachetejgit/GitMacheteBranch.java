@@ -91,16 +91,8 @@ public class GitMacheteBranch implements IGitMacheteBranch {
       throw new GitMacheteException(
           MessageFormat.format("Can not find fork point for branch \"{0}\"", getName()));
 
-    var mergeBase = coreLocalBranch.getMergeBase(getUpstreamBranch().get().getCoreLocalBranch());
-    if (mergeBase.isEmpty())
-      throw new GitMacheteException(
-          MessageFormat.format("Can not find merge base for branch \"{0}\"", getName()));
-
     return new GitRebaseParameters(
-        getName(),
-        getUpstreamBranch().get().getName(),
-        mergeBase.get().getHash().getHashString(),
-        forkPoint.get().getHash().getHashString());
+        getName(), getUpstreamBranch().get().getName(), forkPoint.get().getHash().getHashString());
   }
 
   public SyncToParentStatus computeSyncToParentStatus() throws GitException {
