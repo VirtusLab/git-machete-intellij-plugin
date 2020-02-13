@@ -8,7 +8,6 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 public class Main {
   public static void main(String[] argv) throws Exception {
@@ -18,8 +17,7 @@ public class Main {
       repo =
           GitFactoryModule.getInjector()
               .getInstance(GitMacheteRepositoryFactory.class)
-              .create(
-                  Paths.get(System.getProperty("user.home"), "machete-sandbox"), Optional.empty());
+              .create(Paths.get(System.getProperty("user.home"), "machete-sandbox"), null);
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();

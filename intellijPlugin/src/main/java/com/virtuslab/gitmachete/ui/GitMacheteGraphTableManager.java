@@ -16,7 +16,6 @@ import com.virtuslab.gitmachete.ui.table.GraphTableModel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,7 +62,7 @@ public class GitMacheteGraphTableManager {
   public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
     try {
-      repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, Optional.empty());
+      repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, null);
     } catch (GitMacheteException e) {
       LOG.error("Unable to create Git Machete repository", e);
     }

@@ -24,29 +24,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
+import javax.annotation.Nullable;
 import lombok.Getter;
 
-@Getter
 public class GitMacheteRepository implements IGitMacheteRepository {
-  private final Optional<String> repositoryName;
+  private final String repositoryName;
 
-  @Getter(AccessLevel.NONE)
   private final IGitCoreRepository repo;
 
-  private final List<IGitMacheteBranch> rootBranches = new LinkedList<>();
+  @Getter private final List<IGitMacheteBranch> rootBranches = new LinkedList<>();
 
-  private final Path pathToRepoRoot;
-  private final Path pathToBranchRelationFile;
-  private final IBranchRelationFile branchRelationFile;
+  @Getter private final Path pathToRepoRoot;
+  @Getter private final Path pathToBranchRelationFile;
+  @Getter private final IBranchRelationFile branchRelationFile;
 
   private IGitMacheteBranch currentBranch = null;
   private final IGitCoreBranch currentCoreBranch;
 
-  @Getter(AccessLevel.NONE)
   private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  @Getter(AccessLevel.NONE)
   private final BranchRelationFileFactory branchRelationFileFactory;
 
   @Inject
@@ -54,22 +50,22 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
       BranchRelationFileFactory branchRelationFileFactory,
       @Assisted Path pathToRepoRoot,
-      @Assisted Optional<String> repositoryName)
+      @Assisted @Nullable String repositoryName)
       throws GitMacheteException, GitException {
     this(
         gitCoreRepositoryFactory,
         branchRelationFileFactory,
         pathToRepoRoot,
         repositoryName,
-        Optional.empty());
+        /*givenBranchRelationFile*/ null);
   }
 
   private GitMacheteRepository(
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
       BranchRelationFileFactory branchRelationFileFactory,
       Path pathToRepoRoot,
-      Optional<String> repositoryName,
-      Optional<IBranchRelationFile> givenBranchRelationFile)
+      String repositoryName,
+      IBranchRelationFile givenBranchRelationFile)
       throws GitMacheteException, GitException {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.branchRelationFileFactory = branchRelationFileFactory;
@@ -87,7 +83,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       currentCoreBranch = null;
     }
 
-    if (givenBranchRelationFile.isEmpty()) {
+    if (givenBranchRelationFile == null) {
       try {
         branchRelationFile = branchRelationFileFactory.create(this.pathToBranchRelationFile);
       } catch (BranchRelationFileException e) {
@@ -102,18 +98,23 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             e);
       }
     } else {
-      branchRelationFile = givenBranchRelationFile.get();
+      branchRelationFile = givenBranchRelationFile;
     }
 
     for (var entry : branchRelationFile.getRootBranches()) {
-      var branch = createMacheteBranchOrThrowException(entry, Optional.empty());
+      var branch = createMacheteBranchOrThrowException(entry, /*upstreamBranch*/ null);
       rootBranches.add(branch);
       processSubtree(branch, entry.getSubbranches());
     }
   }
 
+  @Override
+  public Optional<String> getRepositoryName() {
+    return Optional.ofNullable(repositoryName);
+  }
+
   private GitMacheteBranch createMacheteBranchOrThrowException(
-      IBranchRelationFileEntry branchEntry, Optional<IGitMacheteBranch> upstreamBranch)
+      IBranchRelationFileEntry branchEntry, IGitMacheteBranch upstreamBranch)
       throws GitMacheteException, GitException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
@@ -124,7 +125,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     var branch =
-        new GitMacheteBranch(coreBranch.get(), branchEntry.getCustomAnnotation(), upstreamBranch);
+        new GitMacheteBranch(
+            coreBranch.get(), branchEntry.getCustomAnnotation().orElse(null), upstreamBranch);
 
     if (coreBranch.get().equals(currentCoreBranch)) {
       currentBranch = branch;
@@ -137,7 +139,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       GitMacheteBranch subtreeRoot, List<IBranchRelationFileEntry> directDownstreamEntries)
       throws GitMacheteException, GitException {
     for (var entry : directDownstreamEntries) {
-      var branch = createMacheteBranchOrThrowException(entry, Optional.of(subtreeRoot));
+      var branch = createMacheteBranchOrThrowException(entry, subtreeRoot);
 
       subtreeRoot.getDownstreamBranches().add(branch);
 
@@ -185,7 +187,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         branchRelationFileFactory,
         pathToRepoRoot,
         repositoryName,
-        Optional.ofNullable(branchRelationFile));
+        branchRelationFile);
   }
 
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {

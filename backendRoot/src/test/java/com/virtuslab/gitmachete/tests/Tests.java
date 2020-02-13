@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class Tests {
     repo =
         GitFactoryModule.getInjector()
             .getInstance(GitMacheteRepositoryFactory.class)
-            .create(TestPaths.repo, Optional.empty());
+            .create(TestPaths.repo, null);
 
     // Test
     String myResult = repoStatusLikeCli();

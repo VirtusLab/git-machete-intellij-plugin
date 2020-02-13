@@ -22,15 +22,15 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   @Getter private final IGitCoreLocalBranch coreLocalBranch;
 
   @EqualsAndHashCode.Include @Getter private final String name;
-  @Getter private final Optional<IGitMacheteBranch> upstreamBranch;
-  @Getter private final Optional<String> customAnnotation;
+  private final IGitMacheteBranch upstreamBranch;
+  private final String customAnnotation;
 
   private final List<IGitMacheteBranch> childBranches = new LinkedList<>();
 
   public GitMacheteBranch(
       IGitCoreLocalBranch coreLocalBranch,
-      Optional<String> customAnnotation,
-      Optional<IGitMacheteBranch> upstreamBranch)
+      String customAnnotation,
+      IGitMacheteBranch upstreamBranch)
       throws GitException {
     this.coreLocalBranch = coreLocalBranch;
     this.name = this.coreLocalBranch.getName();
@@ -38,8 +38,18 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     this.upstreamBranch = upstreamBranch;
   }
 
+  @Override
+  public Optional<String> getCustomAnnotation() {
+    return Optional.ofNullable(customAnnotation);
+  }
+
+  @Override
+  public Optional<IGitMacheteBranch> getUpstreamBranch() {
+    return Optional.ofNullable(upstreamBranch);
+  }
+
   public List<IGitMacheteCommit> computeCommits() throws GitException {
-    if (upstreamBranch.isEmpty()) {
+    if (upstreamBranch == null) {
       return List.of();
     }
 
@@ -93,11 +103,11 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   public SyncToParentStatus computeSyncToParentStatus() throws GitException {
-    if (upstreamBranch.isEmpty()) {
+    if (upstreamBranch == null) {
       return SyncToParentStatus.InSync;
     }
 
-    IGitCoreLocalBranch parentBranch = upstreamBranch.get().getCoreLocalBranch();
+    IGitCoreLocalBranch parentBranch = upstreamBranch.getCoreLocalBranch();
 
     if (coreLocalBranch.getPointedCommit().equals(parentBranch.getPointedCommit())) {
       if (coreLocalBranch.hasJustBeenCreated()) {

@@ -74,25 +74,25 @@ public class BranchRelationFile implements IBranchRelationFile {
       String trimmedLine = line.trim();
 
       String branchName;
-      Optional<String> customAnnotation;
+      String customAnnotation;
       int indexOfSpace = trimmedLine.indexOf(' ');
       if (indexOfSpace > -1) {
         branchName = trimmedLine.substring(0, indexOfSpace);
-        customAnnotation = Optional.of(trimmedLine.substring(indexOfSpace + 1).trim());
+        customAnnotation = trimmedLine.substring(indexOfSpace + 1).trim();
       } else {
         branchName = trimmedLine;
-        customAnnotation = Optional.empty();
+        customAnnotation = null;
       }
 
       IBranchRelationFileEntry branch;
 
       if (level == 0) {
-        branch = new BranchRelationFileEntry(branchName, Optional.empty(), customAnnotation);
+        branch = new BranchRelationFileEntry(branchName, /*upstream*/ null, customAnnotation);
         rootBranches.add(branch);
       } else {
         branch =
             new BranchRelationFileEntry(
-                branchName, Optional.of(currentUpstreamList.get(level - 1)), customAnnotation);
+                branchName, currentUpstreamList.get(level - 1), customAnnotation);
         currentUpstreamList.get(level - 1).addSubbranch(branch);
       }
 

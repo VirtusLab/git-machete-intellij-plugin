@@ -7,34 +7,49 @@ import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-@Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BranchRelationFileEntry implements IBranchRelationFileEntry {
-  @EqualsAndHashCode.Include private String name;
-  private Optional<IBranchRelationFileEntry> upstream = Optional.empty();
-  private List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
-  private Optional<String> customAnnotation = Optional.empty();
+  @EqualsAndHashCode.Include @Getter private final String name;
+  private final IBranchRelationFileEntry upstream;
+  @Getter private final List<IBranchRelationFileEntry> subbranches;
+  private final String customAnnotation;
 
   public BranchRelationFileEntry(
-      String name, Optional<IBranchRelationFileEntry> upstream, Optional<String> customAnnotation) {
+      String name, IBranchRelationFileEntry upstream, String customAnnotation) {
     this.name = name;
     this.upstream = upstream;
     this.customAnnotation = customAnnotation;
+    this.subbranches = new LinkedList<>();
   }
 
   public BranchRelationFileEntry(IBranchRelationFileEntry branchRelationFileEntry) {
     this.name = branchRelationFileEntry.getName();
-    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation();
-    this.upstream = branchRelationFileEntry.getUpstream();
+    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
+    this.upstream = branchRelationFileEntry.getUpstream().orElse(null);
+    this.subbranches = new LinkedList<>(branchRelationFileEntry.getSubbranches());
+  }
+
+  public BranchRelationFileEntry(
+      IBranchRelationFileEntry branchRelationFileEntry, IBranchRelationFileEntry upstream) {
+    this.name = branchRelationFileEntry.getName();
+    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
+    this.upstream = upstream;
     this.subbranches = new LinkedList<>(branchRelationFileEntry.getSubbranches());
   }
 
   @Override
-  public IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream) {
-    BranchRelationFileEntry newBrfe = new BranchRelationFileEntry(this);
-    newBrfe.upstream = Optional.ofNullable(newUpstream);
+  public Optional<IBranchRelationFileEntry> getUpstream() {
+    return Optional.ofNullable(upstream);
+  }
 
-    return newBrfe;
+  @Override
+  public Optional<String> getCustomAnnotation() {
+    return Optional.ofNullable(customAnnotation);
+  }
+
+  @Override
+  public IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream) {
+    return new BranchRelationFileEntry(/* branchRelationFileEntry */ this, newUpstream);
   }
 
   @Override
