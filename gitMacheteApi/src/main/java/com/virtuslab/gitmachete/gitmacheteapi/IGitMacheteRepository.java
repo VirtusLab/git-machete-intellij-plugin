@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface IGitMacheteRepository {
   List<IGitMacheteBranch> getRootBranches();
 
-  Optional<IGitMacheteBranch> getCurrentBranch() throws GitMacheteException;
+  Optional<IGitMacheteBranch> getCurrentBranchIfManaged() throws GitMacheteException;
 
   Optional<String> getRepositoryName();
 

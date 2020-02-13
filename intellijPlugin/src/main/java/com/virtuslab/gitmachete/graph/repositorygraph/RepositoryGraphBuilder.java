@@ -128,7 +128,7 @@ public class RepositoryGraphBuilder {
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {
-      currentBranch = repository.getCurrentBranch();
+      currentBranch = repository.getCurrentBranchIfManaged();
     } catch (GitMacheteException e) {
       LOG.error("Unable to get current branch", e);
     }

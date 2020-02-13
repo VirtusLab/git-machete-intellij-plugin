@@ -8,6 +8,7 @@ import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitcore.gitcoreapi.GitCoreRepositoryFactory;
 import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranch;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreRepository;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreSubmoduleEntry;
@@ -38,6 +39,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private Path pathToRepoRoot;
   private Path pathToBranchRelationFile;
   private IBranchRelationFile branchRelationFile;
+
+  private IGitMacheteBranch currentBranch = null;
+  private IGitCoreBranch currentCoreBranch = null;
 
   @Getter(AccessLevel.NONE)
   private GitCoreRepositoryFactory gitCoreRepositoryFactory;
@@ -76,6 +80,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
     this.pathToBranchRelationFile = this.repo.getGitFolderPath().resolve("machete");
 
+    repo.getCurrentBranch().ifPresent(b -> currentCoreBranch = b);
+
     if (givenBranchRelationFile.isEmpty()) {
       try {
         branchRelationFile = branchRelationFileFactory.create(this.pathToBranchRelationFile);
@@ -111,8 +117,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
               "Branch \"{0}\" defined in machete file ({1}) does not exist in repository",
               branchEntry.getName(), pathToBranchRelationFile.toString()));
     }
+
     var branch =
         new GitMacheteBranch(coreBranch.get(), branchEntry.getCustomAnnotation(), upstreamBranch);
+
+    if (coreBranch.get().equals(currentCoreBranch)) {
+      currentBranch = branch;
+    }
 
     return branch;
   }
@@ -140,23 +151,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getCurrentBranch() throws GitMacheteException {
-    Optional<IGitCoreLocalBranch> branch;
-    try {
-      branch = repo.getCurrentBranch();
-    } catch (GitException e) {
-      throw new GitMacheteJGitException("Error occurred while getting current branch object", e);
-    }
-
-    if (branch.isEmpty()) {
-      return Optional.empty();
-    } else {
-      try {
-        return Optional.of(new GitMacheteBranch(branch.get()));
-      } catch (GitException e) {
-        throw new GitMacheteException("Error while creating current git machete branch");
-      }
-    }
+  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
+    return Optional.ofNullable(currentBranch);
   }
 
   @Override

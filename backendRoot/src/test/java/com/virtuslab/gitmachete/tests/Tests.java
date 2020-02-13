@@ -138,7 +138,7 @@ public class Tests {
 
       sb.append(branch.getName());
 
-      var currBranch = repo.getCurrentBranch();
+      var currBranch = repo.getCurrentBranchIfManaged();
       if (currBranch.isPresent() && currBranch.get().equals(branch)) sb.append(" *");
 
       if (branch.getCustomAnnotation().isPresent()) {

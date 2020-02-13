@@ -21,7 +21,7 @@ public class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getCurrentBranch() {
+  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Optional.empty();
   }
 
