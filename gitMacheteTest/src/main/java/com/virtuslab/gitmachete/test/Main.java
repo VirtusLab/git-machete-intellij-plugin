@@ -30,9 +30,12 @@ public class Main {
     var rp = branch.computeRebaseParameters();
 
     System.out.println(rp.getCurrentBranch().getName());
-    System.out.println(rp.getNewBaseBranch().getName());
+    System.out.println(rp.getNewBaseCommit().getMessage());
+    System.out.println(rp.getNewBaseCommit().getHash());
     System.out.println(rp.getForkPointCommit().getMessage());
     System.out.println(rp.getForkPointCommit().getHash());
+
+    printGitMacheteBranches(repo.getRootBranches(), 0);
 
     // printGitMacheteBranches(repo.getRootBranches(), 0);
 
@@ -102,8 +105,11 @@ public class Main {
 
   private static void printGitMacheteBranches(List<IGitMacheteBranch> branches, int level) {
     for (var branch : branches) {
-      System.out.println(
-          "\t".repeat(level) + branch.getName() + " # " + branch.getCustomAnnotation());
+      System.out.print("\t".repeat(level) + branch.getName() + "(UPSTREAM: ");
+      branch
+          .getUpstreamBranch()
+          .ifPresentOrElse(b -> System.out.print(b.getName()), () -> System.out.print("EMPTY"));
+      System.out.println(" # " + branch.getCustomAnnotation());
       printGitMacheteBranches(branch.getDownstreamBranches(), level + 1);
     }
   }

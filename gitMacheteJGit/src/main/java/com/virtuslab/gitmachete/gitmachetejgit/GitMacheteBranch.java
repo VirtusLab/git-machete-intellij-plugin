@@ -66,7 +66,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   @Override
   public IGitMacheteCommit getPointedCommit() throws GitException {
-    return translateIGitCoreCommitToIGitMacheteCommit(coreLocalBranch.getPointedCommit());
+    return new GitMacheteCommit(coreLocalBranch.getPointedCommit());
   }
 
   public List<IGitMacheteBranch> getDownstreamBranches() {
@@ -99,9 +99,9 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     }
 
     return new GitRebaseParameters(
-        this,
-        getUpstreamBranch().get(),
-        translateIGitCoreCommitToIGitMacheteCommit(forkPoint.get()));
+        /*currentBranch*/ this,
+        getUpstreamBranch().get().getPointedCommit(),
+        new GitMacheteCommit(forkPoint.get()));
   }
 
   public SyncToParentStatus computeSyncToParentStatus() throws GitException {
@@ -141,17 +141,12 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     }
   }
 
-  private IGitMacheteCommit translateIGitCoreCommitToIGitMacheteCommit(IGitCoreCommit coreCommit)
-      throws GitException {
-    return new GitMacheteCommit(coreCommit.getMessage(), coreCommit.getHash().getHashString());
-  }
-
   private List<IGitMacheteCommit> translateIGitCoreCommitListToIGitMacheteCommitList(
       List<IGitCoreCommit> list) throws GitException {
     var l = new LinkedList<IGitMacheteCommit>();
 
     for (var c : list) {
-      l.add(translateIGitCoreCommitToIGitMacheteCommit(c));
+      l.add(new GitMacheteCommit(c));
     }
 
     return l;
