@@ -8,8 +8,8 @@ import lombok.Getter;
 @EqualsAndHashCode
 @Getter
 public class JGitSubmoduleEntry implements IGitCoreSubmoduleEntry {
-  private Path path;
-  private String name;
+  private final Path path;
+  private final String name;
 
   public JGitSubmoduleEntry(Path path, String name) {
     this.path = path;

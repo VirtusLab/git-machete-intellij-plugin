@@ -12,8 +12,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 @EqualsAndHashCode
 public class JGitCommit implements IGitCoreCommit {
-  @Getter private RevCommit jgitCommit;
-  @EqualsAndHashCode.Exclude private JGitRepository repo;
+  @Getter private final RevCommit jgitCommit;
+  @EqualsAndHashCode.Exclude private final JGitRepository repo;
 
   public JGitCommit(RevCommit commit, JGitRepository repo) {
     if (commit == null)

@@ -8,8 +8,8 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class JGitBranchTrackingStatus implements IGitCoreBranchTrackingStatus {
-  @Getter private int ahead;
-  @Getter private int behind;
+  @Getter private final int ahead;
+  @Getter private final int behind;
 
   static JGitBranchTrackingStatus build(int ahead, int behind) {
     return new JGitBranchTrackingStatus(ahead, behind);

@@ -8,6 +8,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GitMacheteSubmoduleEntry implements IGitMacheteSubmoduleEntry {
-  private Path path;
-  private String name;
+  private final Path path;
+  private final String name;
 }

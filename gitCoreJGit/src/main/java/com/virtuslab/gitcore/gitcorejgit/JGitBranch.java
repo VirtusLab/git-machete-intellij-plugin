@@ -26,8 +26,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 public abstract class JGitBranch implements IGitCoreBranch {
-  protected JGitRepository repo;
-  protected String branchName;
+  protected final JGitRepository repo;
+  protected final String branchName;
 
   @Override
   public String getName() {

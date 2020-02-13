@@ -32,10 +32,10 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
 
 public class JGitRepository implements IGitCoreRepository {
-  @Getter private org.eclipse.jgit.lib.Repository jgitRepo;
-  @Getter private Git jgitGit;
-  @Getter private Path repositoryPath;
-  @Getter private Path gitFolderPath;
+  @Getter private final org.eclipse.jgit.lib.Repository jgitRepo;
+  @Getter private final Git jgitGit;
+  @Getter private final Path repositoryPath;
+  @Getter private final Path gitFolderPath;
 
   @Inject
   public JGitRepository(@Assisted Path repositoryPath)

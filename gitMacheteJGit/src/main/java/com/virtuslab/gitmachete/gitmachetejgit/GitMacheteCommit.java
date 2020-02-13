@@ -9,8 +9,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GitMacheteCommit implements IGitMacheteCommit {
-  private String message;
-  private String hash;
+  private final String message;
+  private final String hash;
 
   public GitMacheteCommit(IGitCoreCommit coreCommit) throws GitException {
     message = coreCommit.getMessage();

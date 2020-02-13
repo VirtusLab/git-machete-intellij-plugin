@@ -18,7 +18,7 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
-  public static String branchesPath = "refs/heads/";
+  public static final String branchesPath = "refs/heads/";
 
   public JGitLocalBranch(JGitRepository repo, String branchName) {
     super(repo, branchName);

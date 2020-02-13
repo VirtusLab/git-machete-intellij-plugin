@@ -19,27 +19,13 @@ import lombok.Getter;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GitMacheteBranch implements IGitMacheteBranch {
-  @Getter private IGitCoreLocalBranch coreLocalBranch;
+  @Getter private final IGitCoreLocalBranch coreLocalBranch;
 
-  @EqualsAndHashCode.Include @Getter private String name;
-  @Getter private Optional<IGitMacheteBranch> upstreamBranch;
-  @Getter private Optional<String> customAnnotation;
+  @EqualsAndHashCode.Include @Getter private final String name;
+  @Getter private final Optional<IGitMacheteBranch> upstreamBranch;
+  @Getter private final Optional<String> customAnnotation;
 
-  private List<IGitMacheteBranch> childBranches = new LinkedList<>();
-
-  SyncToParentStatus syncToParentStatus = null;
-
-  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch) throws GitException {
-    this.coreLocalBranch = coreLocalBranch;
-    this.name = this.coreLocalBranch.getName();
-  }
-
-  public GitMacheteBranch(IGitCoreLocalBranch coreLocalBranch, Optional<String> customAnnotation)
-      throws GitException {
-    this.coreLocalBranch = coreLocalBranch;
-    this.name = this.coreLocalBranch.getName();
-    this.customAnnotation = customAnnotation;
-  }
+  private final List<IGitMacheteBranch> childBranches = new LinkedList<>();
 
   public GitMacheteBranch(
       IGitCoreLocalBranch coreLocalBranch,
@@ -53,7 +39,9 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   public List<IGitMacheteCommit> computeCommits() throws GitException {
-    if (upstreamBranch.isEmpty()) return List.of();
+    if (upstreamBranch.isEmpty()) {
+      return List.of();
+    }
 
     Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
     if (forkPoint.isEmpty()) {

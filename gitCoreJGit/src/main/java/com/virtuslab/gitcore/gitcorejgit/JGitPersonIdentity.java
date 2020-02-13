@@ -6,7 +6,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 
 @EqualsAndHashCode
 public class JGitPersonIdentity implements IGitCorePersonIdentity {
-  private PersonIdent jgitPerson;
+  private final PersonIdent jgitPerson;
 
   public JGitPersonIdentity(PersonIdent person) {
     if (person == null)

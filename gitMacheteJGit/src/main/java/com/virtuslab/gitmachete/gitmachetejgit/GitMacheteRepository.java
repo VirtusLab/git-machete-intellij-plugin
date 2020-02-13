@@ -29,25 +29,25 @@ import lombok.Getter;
 
 @Getter
 public class GitMacheteRepository implements IGitMacheteRepository {
-  private Optional<String> repositoryName;
+  private final Optional<String> repositoryName;
 
   @Getter(AccessLevel.NONE)
-  private IGitCoreRepository repo;
+  private final IGitCoreRepository repo;
 
-  List<IGitMacheteBranch> rootBranches = new LinkedList<>();
+  private final List<IGitMacheteBranch> rootBranches = new LinkedList<>();
 
-  private Path pathToRepoRoot;
-  private Path pathToBranchRelationFile;
-  private IBranchRelationFile branchRelationFile;
+  private final Path pathToRepoRoot;
+  private final Path pathToBranchRelationFile;
+  private final IBranchRelationFile branchRelationFile;
 
   private IGitMacheteBranch currentBranch = null;
-  private IGitCoreBranch currentCoreBranch = null;
+  private final IGitCoreBranch currentCoreBranch;
 
   @Getter(AccessLevel.NONE)
-  private GitCoreRepositoryFactory gitCoreRepositoryFactory;
+  private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
 
   @Getter(AccessLevel.NONE)
-  private BranchRelationFileFactory branchRelationFileFactory;
+  private final BranchRelationFileFactory branchRelationFileFactory;
 
   @Inject
   public GitMacheteRepository(
@@ -80,7 +80,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.repo = gitCoreRepositoryFactory.create(pathToRepoRoot);
     this.pathToBranchRelationFile = this.repo.getGitFolderPath().resolve("machete");
 
-    repo.getCurrentBranch().ifPresent(b -> currentCoreBranch = b);
+    var currentCoreBranchOptional = repo.getCurrentBranch();
+    if (currentCoreBranchOptional.isPresent()) {
+      currentCoreBranch = currentCoreBranchOptional.get();
+    } else {
+      currentCoreBranch = null;
+    }
 
     if (givenBranchRelationFile.isEmpty()) {
       try {
