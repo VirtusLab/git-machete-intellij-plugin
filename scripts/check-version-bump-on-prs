@@ -7,15 +7,17 @@ set -e -o pipefail -u
 
 # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
 pr_num=${CI_PULL_REQUEST##*/}
-# A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to based, available on GH under refs/pull/<pr-number>/merge...
+# A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to the base,
+# available on GH under refs/pull/<pr-number>/merge...
 git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge
 #  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
-base_commit=$(git rev-parse origin/pull-$pr_num/merge^1)
+base_commit=$(git rev-parse --short origin/pull-$pr_num/merge^1)
 
 function derive_version() {
   revision=$1
   var_prefix=$2
-  # `git show ... | grep -Po ...` is necessary (instead of `git grep -Po ...`) since the old version of git (2.7.x) installed on the build image doesn't support `-o` flag of `git grep`.
+  # `git show ... | grep -Po ...` is necessary (instead of `git grep -Po ...`)
+  # since the old version of git (2.7.x) installed on the build image doesn't support `-o` flag of `git grep`.
   version=$(git show "$revision":intellijPlugin/build.gradle | grep -Po "(?<=^version ')[0-9]+\.[0-9]+\.[0-9]+")
   IFS=. read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch <<< "$version"
 }

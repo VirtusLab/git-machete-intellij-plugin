@@ -8,33 +8,31 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Prepare Build
+          name: Prepare build
           command: |
             set -x
             ./scripts/check-version-bump-on-prs
             ./scripts/check-wildcard-imports
             ./scripts/specify-snapshot-revision
+
       - run:
-          name: Start Gradle Daemon
-          command: |
-            ./gradlew
+          name: Start gradle daemon
+          command: ./gradlew
       - run:
-          name: Check Formatting
-          command: |
-            ./gradlew spotlessCheck
+          name: Check formatting
+          command: ./gradlew spotlessCheck
       - run:
           name: Install git-machete CLI
           command: pip3 install git-machete==2.12.5
       - run:
-          name: Build & Test
-          command: |
-            ./gradlew test
+          name: Build & test
+          command: ./gradlew test
       - store_test_results:
           path: backendRoot/build/test-results/
+
       - run:
-          name: Build Plugin Artifact
-          command: |
-            ./gradlew intellijPlugin:buildPlugin
+          name: Build plugin artifact
+          command: ./gradlew intellijPlugin:buildPlugin
       - store_artifacts:
           path: ~/git-machete-intellij-plugin/intellijPlugin/build/distributions
           destination: .
