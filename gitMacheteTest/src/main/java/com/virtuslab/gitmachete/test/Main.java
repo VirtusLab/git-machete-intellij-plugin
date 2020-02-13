@@ -25,9 +25,14 @@ public class Main {
       e.printStackTrace();
     }
 
-    var branch = repo.getRootBranches().get(0).getDownstreamBranches().get(1);
+    var branch = repo.getRootBranches().get(0).getDownstreamBranches().get(0);
 
-    System.out.println(branch.getRebaseParameters());
+    var rp = branch.computeRebaseParameters();
+
+    System.out.println(rp.getCurrentBranch().getName());
+    System.out.println(rp.getNewBaseBranch().getName());
+    System.out.println(rp.getForkPointCommit().getMessage());
+    System.out.println(rp.getForkPointCommit().getHash());
 
     // printGitMacheteBranches(repo.getRootBranches(), 0);
 

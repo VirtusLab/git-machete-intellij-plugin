@@ -8,4 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GitMacheteCommit implements IGitMacheteCommit {
   private String message;
+  private String hash;
 }

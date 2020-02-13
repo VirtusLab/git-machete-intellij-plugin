@@ -12,6 +12,8 @@ public interface IGitMacheteBranch {
 
   List<IGitMacheteCommit> computeCommits() throws GitException;
 
+  IGitMacheteCommit getPointedCommit() throws GitException;
+
   List<IGitMacheteBranch> getDownstreamBranches();
 
   Optional<String> getCustomAnnotation();
@@ -22,5 +24,5 @@ public interface IGitMacheteBranch {
 
   SyncToOriginStatus computeSyncToOriginStatus() throws GitException;
 
-  IGitRebaseParameters getRebaseParameters() throws GitException, GitMacheteException;
+  IGitRebaseParameters computeRebaseParameters() throws GitException, GitMacheteException;
 }

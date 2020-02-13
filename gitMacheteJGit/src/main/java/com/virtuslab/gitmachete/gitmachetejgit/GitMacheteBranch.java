@@ -60,8 +60,13 @@ public class GitMacheteBranch implements IGitMacheteBranch {
       return List.of();
     }
 
-    return translateIGitCoreCommitsToIGitMacheteCommits(
+    return translateIGitCoreCommitListToIGitMacheteCommitList(
         coreLocalBranch.getCommitsUntil(forkPoint.get()));
+  }
+
+  @Override
+  public IGitMacheteCommit getPointedCommit() throws GitException {
+    return translateIGitCoreCommitToIGitMacheteCommit(coreLocalBranch.getPointedCommit());
   }
 
   public List<IGitMacheteBranch> getDownstreamBranches() {
@@ -81,18 +86,22 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public IGitRebaseParameters getRebaseParameters() throws GitMacheteException, GitException {
-    if (getUpstreamBranch().isEmpty())
+  public IGitRebaseParameters computeRebaseParameters() throws GitMacheteException, GitException {
+    if (getUpstreamBranch().isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
+    }
 
     var forkPoint = coreLocalBranch.getForkPoint();
-    if (forkPoint.isEmpty())
+    if (forkPoint.isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format("Can not find fork point for branch \"{0}\"", getName()));
+    }
 
     return new GitRebaseParameters(
-        getName(), getUpstreamBranch().get().getName(), forkPoint.get().getHash().getHashString());
+        this,
+        getUpstreamBranch().get(),
+        translateIGitCoreCommitToIGitMacheteCommit(forkPoint.get()));
   }
 
   public SyncToParentStatus computeSyncToParentStatus() throws GitException {
@@ -132,12 +141,17 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     }
   }
 
-  private List<IGitMacheteCommit> translateIGitCoreCommitsToIGitMacheteCommits(
+  private IGitMacheteCommit translateIGitCoreCommitToIGitMacheteCommit(IGitCoreCommit coreCommit)
+      throws GitException {
+    return new GitMacheteCommit(coreCommit.getMessage(), coreCommit.getHash().getHashString());
+  }
+
+  private List<IGitMacheteCommit> translateIGitCoreCommitListToIGitMacheteCommitList(
       List<IGitCoreCommit> list) throws GitException {
     var l = new LinkedList<IGitMacheteCommit>();
 
     for (var c : list) {
-      l.add(new GitMacheteCommit(c.getMessage()));
+      l.add(translateIGitCoreCommitToIGitMacheteCommit(c));
     }
 
     return l;
