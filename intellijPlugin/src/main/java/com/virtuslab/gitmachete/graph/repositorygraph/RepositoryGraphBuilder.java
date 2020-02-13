@@ -25,10 +25,13 @@ public class RepositoryGraphBuilder {
   private static final Logger LOG = Logger.getInstance(RepositoryGraphBuilder.class);
 
   @Nonnull @Setter private IGitMacheteRepository repository = NullRepository.getInstance();
-  @Nonnull @Setter private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteBranch::computeCommits;
-  public static IBranchGetCommitsStrategy EMPTY_GET_COMMITS = b -> Collections.emptyList();
+  @Nonnull @Setter
+  private IBranchComputeCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
+
+  public static IBranchComputeCommitsStrategy DEFAULT_COMPUTE_COMMITS =
+      IGitMacheteBranch::computeCommits;
+  public static IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
 
   public RepositoryGraph build() {
     List<IGraphElement> elementsOfRepository;
@@ -80,7 +83,8 @@ public class RepositoryGraphBuilder {
       List<IGraphElement> graphElements, IGitMacheteBranch branch, int upstreamBranchIndex)
       throws GitException {
 
-    List<IGitMacheteCommit> commits = Lists.reverse(branchGetCommitsStrategy.getCommitsOf(branch));
+    List<IGitMacheteCommit> commits =
+        Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 
     // todo set syncToParentStatus later (?)
     SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
@@ -92,7 +96,10 @@ public class RepositoryGraphBuilder {
       int downElementIndex = graphElements.size() + 1;
       CommitElement c =
           new CommitElement(
-              commit, upElementIndex, downElementIndex, syncToParentStatus /*OfContainingBranch*/);
+              commit,
+              upElementIndex,
+              downElementIndex,
+              /*containingBranchSyncToParentStatus*/ syncToParentStatus);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }

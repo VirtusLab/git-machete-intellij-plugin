@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
-import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.DEFAULT_GET_COMMITS;
-import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.EMPTY_GET_COMMITS;
+import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.DEFAULT_COMPUTE_COMMITS;
+import static com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder.EMPTY_COMPUTE_COMMITS;
 
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
@@ -33,9 +33,9 @@ public class RepositoryGraphFactory {
         RepositoryGraphBuilder repositoryGraphBuilder =
             new RepositoryGraphBuilder().repository(repository);
         repositoryGraphWithCommits =
-            repositoryGraphBuilder.branchGetCommitsStrategy(DEFAULT_GET_COMMITS).build();
+            repositoryGraphBuilder.branchComputeCommitsStrategy(DEFAULT_COMPUTE_COMMITS).build();
         repositoryGraphWithoutCommits =
-            repositoryGraphBuilder.branchGetCommitsStrategy(EMPTY_GET_COMMITS).build();
+            repositoryGraphBuilder.branchComputeCommitsStrategy(EMPTY_COMPUTE_COMMITS).build();
         ;
       }
       return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;

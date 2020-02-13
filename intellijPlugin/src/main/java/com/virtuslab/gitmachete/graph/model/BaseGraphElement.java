@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class BaseGraphElement implements IGraphElement {
   private final int upElementIndex;
 
-  /** For {@code CommitElement} this is status of the commit containing branch. */
+  /** For {@code CommitElement} this is status of the branch that contains the commit. */
   private final SyncToParentStatus syncToParentStatus;
 
   /*
