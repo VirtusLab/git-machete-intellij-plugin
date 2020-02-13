@@ -14,8 +14,8 @@ public final class CommitElement extends BaseGraphElement {
       IGitMacheteCommit commit,
       int upElementIndex,
       int downElementIndex,
-      SyncToParentStatus syncToParentStatus) {
-    super(upElementIndex, syncToParentStatus);
+      SyncToParentStatus containingBranchSyncToParentStatus) {
+    super(upElementIndex, containingBranchSyncToParentStatus);
     this.commit = commit;
     getDownElementIndexes().add(downElementIndex);
   }

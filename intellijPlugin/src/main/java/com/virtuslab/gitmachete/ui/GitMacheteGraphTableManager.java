@@ -41,7 +41,7 @@ public class GitMacheteGraphTableManager {
     this.repositoryGraphFactory = new RepositoryGraphFactory();
   }
 
-  /** Creates new repository graph and sets it to the graph table model. */
+  /** Creates a new repository graph and sets it to the graph table model. */
   public void refreshUI() {
     /*
      * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.

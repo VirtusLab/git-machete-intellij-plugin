@@ -22,6 +22,5 @@ public interface IGraphElement {
   /** @return Attributes (eg. boldness) to be used by the displayed text. */
   SimpleTextAttributes getAttributes();
 
-  /** @return result of {@code IGitMacheteBranch::computeSyncToParentStatus()}. */
-  SyncToParentStatus getComputedSyncToParentStatus();
+  SyncToParentStatus getSyncToParentStatus();
 }

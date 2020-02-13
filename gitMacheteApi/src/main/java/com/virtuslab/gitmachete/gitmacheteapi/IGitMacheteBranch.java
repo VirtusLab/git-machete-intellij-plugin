@@ -10,7 +10,7 @@ public interface IGitMacheteBranch {
 
   String getName();
 
-  List<IGitMacheteCommit> getCommits() throws GitException;
+  List<IGitMacheteCommit> computeCommits() throws GitException;
 
   List<IGitMacheteBranch> getDownstreamBranches();
 
@@ -20,5 +20,5 @@ public interface IGitMacheteBranch {
 
   SyncToParentStatus computeSyncToParentStatus() throws GitException;
 
-  SyncToOriginStatus getSyncToOriginStatus() throws GitException;
+  SyncToOriginStatus computeSyncToOriginStatus() throws GitException;
 }

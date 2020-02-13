@@ -27,7 +27,7 @@ public class RepositoryGraphBuilder {
   @Nonnull @Setter private IGitMacheteRepository repository = NullRepository.getInstance();
   @Nonnull @Setter private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteBranch::getCommits;
+  public static IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteBranch::computeCommits;
   public static IBranchGetCommitsStrategy EMPTY_GET_COMMITS = b -> Collections.emptyList();
 
   public RepositoryGraph build() {
@@ -91,7 +91,8 @@ public class RepositoryGraphBuilder {
       int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
       int downElementIndex = graphElements.size() + 1;
       CommitElement c =
-          new CommitElement(commit, upElementIndex, downElementIndex, syncToParentStatus);
+          new CommitElement(
+              commit, upElementIndex, downElementIndex, syncToParentStatus /*OfContainingBranch*/);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }

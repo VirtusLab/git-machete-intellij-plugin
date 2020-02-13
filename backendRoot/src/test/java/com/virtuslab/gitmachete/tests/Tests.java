@@ -116,7 +116,7 @@ public class Tests {
 
         sb.append(System.lineSeparator());
 
-        var commits = branch.getCommits();
+        var commits = branch.computeCommits();
         Collections.reverse(commits);
 
         for (var c : commits) {
@@ -145,7 +145,7 @@ public class Tests {
         sb.append("  ");
         sb.append(branch.getCustomAnnotation().get());
       }
-      var originSync = branch.getSyncToOriginStatus();
+      var originSync = branch.computeSyncToOriginStatus();
       if (originSync != SyncToOriginStatus.InSync) {
         sb.append(" (");
         if (originSync == SyncToOriginStatus.Ahead) sb.append("ahead of origin");

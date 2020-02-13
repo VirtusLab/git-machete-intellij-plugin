@@ -49,7 +49,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     this.upstreamBranch = upstreamBranch;
   }
 
-  public List<IGitMacheteCommit> getCommits() throws GitException {
+  public List<IGitMacheteCommit> computeCommits() throws GitException {
     if (upstreamBranch.isEmpty()) return List.of();
 
     Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
@@ -65,7 +65,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     return childBranches;
   }
 
-  public SyncToOriginStatus getSyncToOriginStatus() throws GitException {
+  public SyncToOriginStatus computeSyncToOriginStatus() throws GitException {
     Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.getRemoteTrackingStatus();
     if (ts.isEmpty()) {
       return SyncToOriginStatus.Untracked;
