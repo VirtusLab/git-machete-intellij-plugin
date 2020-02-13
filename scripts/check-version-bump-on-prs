@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail -u
+set -e -o pipefail -u -x
 
-# Skip this check for non-PR builds.
-[[ ${CI_PULL_REQUEST-} ]] || exit 0
-
-# In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
-pr_num=${CI_PULL_REQUEST##*/}
-# A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to the base,
-# available on GH under refs/pull/<pr-number>/merge...
-git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge
-#  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
-base_commit=$(git rev-parse --short origin/pull-$pr_num/merge^1)
+if [[ ${CI_PULL_REQUEST-} ]]; then
+  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+  pr_num=${CI_PULL_REQUEST##*/}
+  # A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to the base,
+  # available on GH under refs/pull/<pr-number>/merge...
+  git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge
+  #  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
+  base_commit=$(git rev-parse --short origin/pull-$pr_num/merge^1)
+  base_msg="PR base commit $base_commit"
+elif [[ ${CIRCLE_BRANCH-} != master ]]; then
+  # For non-PR builds (builds of branches other than master), just compare the version to what's in the current master.
+  base_commit=$(git rev-parse --short origin/master)
+  base_msg="master head commit $base_commit"
+else # master build
+  exit 0
+fi
 
 function derive_version() {
   revision=$1
@@ -32,13 +38,13 @@ function die() {
 
 [[ $head_major -gt $base_major ]] && exit 0
 [[ $head_major -eq $base_major ]] || \
-  die "Major version ($head_major) must not be lower than in PR base commit $base_commit ($base_major)"
+  die "Major version ($head_major) must not be lower than in $base_msg ($base_major)"
 
 [[ $head_minor -gt $base_minor ]] && exit 0
 [[ $head_minor -eq $base_minor ]] || \
-  die "Minor version ($head_minor) must not be lower than in PR base commit $base_commit ($base_minor)"
+  die "Minor version ($head_minor) must not be lower than in $base_msg ($base_minor)"
 
 [[ $head_patch -gt $base_patch ]] && exit 0
 [[ $head_patch -eq $base_patch ]] && \
-  die "Version must not be identical as in the PR base commit $base_commit" || \
-  die "Patch version ($head_patch) must not be lower than in PR base commit $base_commit ($base_patch)"
+  die "Version must not be identical as in $base_msg" || \
+  die "Patch version ($head_patch) must not be lower than in $base_msg ($base_patch)"
