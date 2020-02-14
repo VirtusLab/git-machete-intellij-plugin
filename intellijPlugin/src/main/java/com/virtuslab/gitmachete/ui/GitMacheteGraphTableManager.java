@@ -26,7 +26,7 @@ public class GitMacheteGraphTableManager {
   @Getter @Setter private boolean isListingCommits;
   @Getter private GitMacheteGraphTable gitMacheteGraphTable;
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory;
-  private IGitMacheteRepository repository;
+  @Getter private IGitMacheteRepository repository;
   private final RepositoryGraphFactory repositoryGraphFactory;
 
   public GitMacheteGraphTableManager(@Nonnull Project project) {

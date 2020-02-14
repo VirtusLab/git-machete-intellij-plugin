@@ -9,10 +9,12 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.virtuslab.gitmachete.actions.GitInteractiveRebaseAction;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 
 public class GitMachetePanel {
+
   @Getter private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
 
   public GitMachetePanel(@Nonnull Project project) {
@@ -26,16 +28,19 @@ public class GitMachetePanel {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /*popup*/ false);
-    refresh.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
     refresh.add(new RefreshGitMacheteStatusAction());
 
     DefaultActionGroup toggleListCommits =
         new DefaultActionGroup("Toggle List Commits", /*popup*/ false);
-    toggleListCommits.getTemplatePresentation().setIcon(AllIcons.Actions.Show);
     toggleListCommits.add(new ToggleListCommitsAction());
+
+    DefaultActionGroup updateCurrentBranch =
+        new DefaultActionGroup("Update Current Branch", /*popup*/ false);
+    updateCurrentBranch.add(new GitInteractiveRebaseAction(gitMacheteGraphTableManager));
 
     gitMacheteActions.add(refresh);
     gitMacheteActions.add(toggleListCommits);
+    gitMacheteActions.add(updateCurrentBranch);
 
     ActionToolbar toolbar =
         ActionManager.getInstance()

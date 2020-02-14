@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.intellij' version '0.4.14'
+    id 'org.jetbrains.intellij' version '0.4.16'
 }
 
 group 'com.virtuslab'
@@ -18,7 +18,7 @@ configurations.all {
 }
 
 intellij {
-    version '2019.1'
+    version '2019.2'
     plugins 'git4idea'
 }
 
