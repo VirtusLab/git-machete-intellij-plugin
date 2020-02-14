@@ -1,7 +1,6 @@
 package com.virtuslab.branchrelationfile.api;
 
 import java.util.Optional;
-import lombok.Getter;
 
 public class BranchRelationFileException extends Exception {
   private final Integer errorLine;
@@ -45,7 +44,6 @@ public class BranchRelationFileException extends Exception {
     super(message, e);
     this.errorLine = errorLine;
   }
-
 
   public Optional<Integer> getErrorLine() {
     return Optional.ofNullable(errorLine);
