@@ -7,6 +7,7 @@ import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMergeParameters;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitRebaseParameters;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
@@ -148,5 +149,15 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     }
 
     return l;
+  }
+
+  @Override
+  public IGitMergeParameters getMergeParameters() throws GitMacheteException {
+    if (getUpstreamBranch().isEmpty()) {
+      throw new GitMacheteException(
+          MessageFormat.format("Can not get merge parameters for root branch \"{0}\"", getName()));
+    }
+
+    return new GitMergeParameters(/*currentBranch*/ this, getUpstreamBranch().get());
   }
 }
