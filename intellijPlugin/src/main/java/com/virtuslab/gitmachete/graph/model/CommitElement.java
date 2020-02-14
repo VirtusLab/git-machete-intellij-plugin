@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.UIUtil;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,8 @@ public final class CommitElement extends BaseGraphElement {
 
   @Override
   public SimpleTextAttributes getAttributes() {
-    return SimpleTextAttributes.GRAYED_ATTRIBUTES;
+    return new SimpleTextAttributes(
+        SimpleTextAttributes.STYLE_ITALIC | SimpleTextAttributes.STYLE_SMALLER,
+        UIUtil.getInactiveTextColor());
   }
 }
