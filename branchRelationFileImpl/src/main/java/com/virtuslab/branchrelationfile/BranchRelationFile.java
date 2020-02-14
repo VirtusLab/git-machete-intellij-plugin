@@ -215,11 +215,12 @@ public class BranchRelationFile implements IBranchRelationFile {
 
     upstreamCopy.getSubbranches().remove(relationFileEntry);
 
-    BranchRelationFile newBranchRelationFile = new BranchRelationFile(this);
+    // Copy constructor
+    BranchRelationFile newBranchRelationFile = new BranchRelationFile(/*branchRelationFile*/ this);
 
     traverseBranchesUpToRoot(newBranchRelationFile, upstreamCopy);
 
-    newBranchRelationFile.saveToFile(true);
+    newBranchRelationFile.saveToFile(/*backupOldFile*/ true);
 
     return newBranchRelationFile;
   }

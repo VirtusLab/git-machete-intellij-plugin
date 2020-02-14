@@ -94,7 +94,7 @@ public class JGitRepository implements IGitCoreRepository {
           MessageFormat.format(
               "Local branch \"{0}\" does not exist in this repository", branchName));
 
-    return new JGitLocalBranch(this, branchName);
+    return new JGitLocalBranch(/*repo*/ this, branchName);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class JGitRepository implements IGitCoreRepository {
           MessageFormat.format(
               "Remote branch \"{0}\" does not exist in this repository", branchName));
 
-    return new JGitRemoteBranch(this, branchName);
+    return new JGitRemoteBranch(/*repo*/ this, branchName);
   }
 
   @Override
@@ -113,7 +113,8 @@ public class JGitRepository implements IGitCoreRepository {
     try {
       for (Ref ref : this.getJgitGit().branchList().call()) {
         list.add(
-            new JGitLocalBranch(this, ref.getName().replace(JGitLocalBranch.branchesPath, "")));
+            new JGitLocalBranch(
+                /*repo*/ this, ref.getName().replace(JGitLocalBranch.branchesPath, "")));
       }
     } catch (GitAPIException e) {
       throw new JGitException("Error while getting list of local branches", e);
@@ -129,7 +130,8 @@ public class JGitRepository implements IGitCoreRepository {
       for (Ref ref :
           this.getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {
         list.add(
-            new JGitRemoteBranch(this, ref.getName().replace(JGitRemoteBranch.branchesPath, "")));
+            new JGitRemoteBranch(
+                /*repo*/ this, ref.getName().replace(JGitRemoteBranch.branchesPath, "")));
       }
     } catch (GitAPIException e) {
       throw new JGitException("Error while getting list of remote branches", e);

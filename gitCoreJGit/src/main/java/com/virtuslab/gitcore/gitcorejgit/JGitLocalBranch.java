@@ -36,7 +36,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
 
   @Override
   public String getBranchTypeString() {
-    return getBranchTypeString(false);
+    return getBranchTypeString(/*capitalized*/ false);
   }
 
   @Override

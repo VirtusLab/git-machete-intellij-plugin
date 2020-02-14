@@ -61,7 +61,9 @@ public class JGitCommit implements IGitCoreCommit {
     }
 
     for (var c : walk) {
-      if (c.getId().equals(jgitCommit.getId())) return true;
+      if (c.getId().equals(jgitCommit.getId())) {
+        return true;
+      }
     }
 
     return false;

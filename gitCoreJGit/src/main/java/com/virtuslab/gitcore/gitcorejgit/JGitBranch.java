@@ -63,7 +63,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
         throw new GitNoSuchBranchException(
             MessageFormat.format(
                 "{1} branch \"{0}\" does not exist in this repository",
-                branchName, getBranchTypeString(true)));
+                branchName, getBranchTypeString(/*capitalized*/ true)));
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
       throw new GitNoSuchCommitException(
@@ -80,8 +80,8 @@ public abstract class JGitBranch implements IGitCoreBranch {
   public Optional<IGitCoreCommit> getMergeBase(IGitCoreBranch branch) throws GitException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
 
-    walk.sort(RevSort.TOPO, true);
-    walk.sort(RevSort.COMMIT_TIME_DESC, true);
+    walk.sort(RevSort.TOPO, /*use*/ true);
+    walk.sort(RevSort.COMMIT_TIME_DESC, /*use*/ true);
 
     try {
       /*
@@ -147,7 +147,9 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
     var rfit = rf.iterator();
 
-    if (!rfit.hasNext()) return true;
+    if (!rfit.hasNext()) {
+      return true;
+    }
 
     return rfit.next().getOldId().equals(ObjectId.zeroId());
   }

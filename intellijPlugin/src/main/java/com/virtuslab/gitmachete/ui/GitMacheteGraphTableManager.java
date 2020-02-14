@@ -62,7 +62,7 @@ public class GitMacheteGraphTableManager {
   public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
     try {
-      repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, null);
+      repository = gitMacheteRepositoryFactory.create(pathToRepoRoot, /*repositoryName*/ null);
     } catch (GitMacheteException e) {
       LOG.error("Unable to create Git Machete repository", e);
     }

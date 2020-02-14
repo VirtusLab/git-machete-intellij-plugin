@@ -41,7 +41,7 @@ public class Tests {
     repo =
         GitFactoryModule.getInjector()
             .getInstance(GitMacheteRepositoryFactory.class)
-            .create(TestPaths.repo, null);
+            .create(TestPaths.repo, /*repositoryName*/ null);
 
     // Test
     String myResult = repoStatusLikeCli();
