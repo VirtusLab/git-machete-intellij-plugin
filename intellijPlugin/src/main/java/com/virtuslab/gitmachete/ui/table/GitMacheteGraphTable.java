@@ -33,6 +33,7 @@ public class GitMacheteGraphTable extends JBTable {
     initColumns();
 
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
+    setCellSelectionEnabled(false);
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
