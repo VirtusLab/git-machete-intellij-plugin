@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+
+[[ ${1-} ]] || die "usage: $(basename "$0") <branch-name>"
+branch=$1
+
+function ansi_esc {
+  [[ ${ASCII_ONLY-} = true ]] || echo -n "$1"
+}
+dim=$(ansi_esc '\033[2m')
+endc=$(ansi_esc '\033[0m')
+
+echo -ne "${dim}v$(derive_version $branch)${endc}"

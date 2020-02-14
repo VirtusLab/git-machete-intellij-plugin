@@ -1,7 +1,6 @@
 dependencies {
-
-    jgit()
     guice()
+    jgit()
     lombok()
 
     compile project(':gitCoreApi')

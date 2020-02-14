@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+
+if [ $# -eq 3 ]; then
+  new_base=$1
+  fork_point=$2
+  current_branch=$3
+
+  parse_version "$new_base" base
+  parse_version "$current_branch" head
+
+  if [[ $head_patch -ne 0 ]]; then
+    target_version="$base_major.$base_minor.$((base_patch + 1))"
+  elif [[ $head_minor -ne 0 ]]; then
+    target_version="$base_major.$((base_minor + 1)).0"
+  else
+    target_version="$((base_major + 1)).0.0"
+  fi
+
+  if [[ $head_version != $target_version ]]; then
+    echo "Rewriting the commits: setting version in build.gradle to $target_version..."
+    self_path="$(cd "$(dirname "$0")" &>/dev/null; pwd -P)"/"$(basename "$0")"
+    git filter-branch -f --tree-filter "$self_path $target_version" "$fork_point".."$current_branch"
+  fi
+elif [ $# -eq 1 ]; then
+  target_version=$1
+
+  sed -i "/^\s*version '.*-SNAPSHOT'\$/ s/'.*'/'$target_version-SNAPSHOT'/" build.gradle
+fi

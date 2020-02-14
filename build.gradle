@@ -3,7 +3,8 @@ plugins {
 }
 
 allprojects {
-    group = 'com.virtuslab'
+    group 'com.virtuslab'
+    version '0.0.11-SNAPSHOT'
 
     repositories {
         jcenter()
@@ -11,8 +12,14 @@ allprojects {
     }
 
     apply plugin: 'java'
-
     sourceCompatibility = 11
+
+    apply plugin: 'com.diffplug.gradle.spotless'
+    spotless {
+        java {
+            googleJavaFormat()
+        }
+    }
 
     ext {
         junitVersion = '4.13'
@@ -58,15 +65,6 @@ allprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: junitVersion
-    }
-
-
-    apply plugin: 'com.diffplug.gradle.spotless'
-
-    spotless {
-        java {
-            googleJavaFormat()
-        }
     }
 }
 

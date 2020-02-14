@@ -2,5 +2,8 @@
 
 set -e -o pipefail -u -x
 
-git_hash_short=$(git rev-parse --short HEAD)
-sed -i "/^version '.*-SNAPSHOT'\$/ s/SNAPSHOT/$git_hash_short/" intellijPlugin/build.gradle
+# Using the conventions as per https://semver.org/
+build_metadata=+$(git rev-parse --short HEAD)
+# Retain '-SNAPSHOT' pre-release indicator after git commit hash for non-master builds.
+[[ ${CIRCLE_BRANCH-} = master ]] && pre_release_indicator='' || pre_release_indicator=-SNAPSHOT
+sed -i "/^\s*version '.*-SNAPSHOT'\$/ s/-SNAPSHOT/$pre_release_indicator$build_metadata/" build.gradle

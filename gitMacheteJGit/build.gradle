@@ -1,5 +1,6 @@
 dependencies {
-    lombok()
     guice()
+    lombok()
+
     compile project(':gitMacheteApi')
 }

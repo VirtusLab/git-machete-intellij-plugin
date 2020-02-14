@@ -1,6 +1,6 @@
 dependencies {
-    lombok()
     guice()
+    lombok()
 
     compile project(':branchRelationFileApi')
 }

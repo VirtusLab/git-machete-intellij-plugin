@@ -11,8 +11,9 @@ jobs:
           name: Prepare build
           command: |
             set -x
-            ./scripts/check-version-bump-on-prs
-            ./scripts/check-wildcard-imports
+            ./scripts/enforce-version-bump
+            ./scripts/prohibit-trailing-whitespace
+            ./scripts/prohibit-wildcard-imports
             ./scripts/specify-snapshot-revision
 
       - run:

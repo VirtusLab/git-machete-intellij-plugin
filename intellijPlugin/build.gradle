@@ -2,15 +2,11 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.16'
 }
 
-group 'com.virtuslab'
-version '0.0.10-SNAPSHOT'
-
 dependencies {
     javafx()
+    lombok()
 
     compile project(':backendRoot')
-
-    lombok()
 }
 
 configurations.all {

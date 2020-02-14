@@ -1,0 +1,8 @@
+[core]
+	autocrlf = input
+[diff]
+	renameLimit = 999
+	renames = copies
+[status]
+	relativePaths = false
+	showUntrackedFiles = all
