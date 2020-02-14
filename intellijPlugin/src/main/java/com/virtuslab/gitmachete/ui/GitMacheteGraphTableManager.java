@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
+import com.intellij.util.messages.Topic;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
@@ -13,6 +14,8 @@ import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.graph.repositorygraph.data.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.ui.table.GraphTableModel;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -38,6 +41,7 @@ public class GitMacheteGraphTableManager {
     this.gitMacheteRepositoryFactory =
         GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
+    subscribeToMappingChanged();
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
@@ -66,5 +70,26 @@ public class GitMacheteGraphTableManager {
     } catch (GitMacheteException e) {
       LOG.error("Unable to create Git Machete repository", e);
     }
+  }
+
+  protected void updateLater() {
+    if (project != null && !project.isDisposed()) {
+      Runnable updateAndRefresh =
+          () -> {
+            updateRepository();
+            refreshUI();
+          };
+      ApplicationManager.getApplication().invokeLater(updateAndRefresh, project.getDisposed());
+    }
+  }
+
+  private void subscribeToMappingChanged() {
+    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
+    GitRepositoryChangeListener listener =
+        repository -> {
+          LOG.debug("update after git4idea repository change");
+          updateLater();
+        };
+    project.getMessageBus().connect().subscribe(topic, listener);
   }
 }
