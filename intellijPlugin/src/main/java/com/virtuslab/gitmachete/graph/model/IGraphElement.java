@@ -23,4 +23,6 @@ public interface IGraphElement {
   SimpleTextAttributes getAttributes();
 
   SyncToParentStatus getSyncToParentStatus();
+
+  boolean haveCircle();
 }

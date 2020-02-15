@@ -7,6 +7,7 @@ import com.intellij.ui.paint.PaintUtil;
 import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.graph.EdgePrintElement;
+import com.intellij.vcs.log.graph.NodePrintElement;
 import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.PaintParameters;
@@ -21,6 +22,7 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.swing.JTable;
 import lombok.AllArgsConstructor;
@@ -90,7 +92,15 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      graphImage = getGraphImage(cell.getPrintElements());
+      if (cell.getElement().haveCircle()) {
+        graphImage = getGraphImage(cell.getPrintElements());
+      } else {
+        graphImage =
+            getGraphImage(
+                cell.getPrintElements().stream()
+                    .filter(e -> !(e instanceof NodePrintElement))
+                    .collect(Collectors.toList()));
+      }
 
       append(""); // appendTextPadding wont work without this
 

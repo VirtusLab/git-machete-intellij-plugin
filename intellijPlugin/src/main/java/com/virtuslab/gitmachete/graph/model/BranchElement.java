@@ -28,4 +28,9 @@ public final class BranchElement extends BaseGraphElement {
   public String getValue() {
     return branch.getName();
   }
+
+  @Override
+  public boolean haveCircle() {
+    return true;
+  }
 }
