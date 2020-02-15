@@ -13,7 +13,11 @@ import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
+import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
+import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -92,7 +96,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      if (cell.getElement().hasBulletPoint()) {
+      var element = cell.getElement();
+
+      if (element.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements());
       } else {
         graphImage =
@@ -105,7 +111,44 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       append(""); // appendTextPadding wont work without this
 
       appendTextPadding(graphImage.getWidth() + LabelPainter.RIGHT_PADDING.get());
-      SimpleTextAttributes attributes = cell.getElement().getAttributes();
+      SimpleTextAttributes attributes = element.getAttributes();
+      appendText(cell, attributes, isSelected);
+
+      if (element instanceof BranchElement) {
+        var branch = ((BranchElement) element).getBranch();
+        var customAnnotation = branch.getCustomAnnotation();
+        if (customAnnotation.isPresent()) {
+          SimpleTextAttributes customAnnotationTextAttributes =
+              SimpleTextAttributes.GRAY_ATTRIBUTES;
+          append("   " + customAnnotation.get(), customAnnotationTextAttributes, isSelected);
+        }
+
+        SyncToOriginStatus syncToOriginStatus;
+        try {
+          syncToOriginStatus = branch.computeSyncToOriginStatus();
+          if (syncToOriginStatus != SyncToOriginStatus.InSync) {
+            SimpleTextAttributes textAttributes;
+            if (syncToOriginStatus == SyncToOriginStatus.Untracked) {
+              textAttributes =
+                  new SimpleTextAttributes(
+                      SimpleTextAttributes.STYLE_PLAIN, syncToOriginStatus.getColor());
+            } else {
+              textAttributes =
+                  new SimpleTextAttributes(
+                      SimpleTextAttributes.STYLE_PLAIN, syncToOriginStatus.getColor());
+            }
+            append("  (" + syncToOriginStatus.getDescription() + ")", textAttributes);
+          }
+        } catch (GitException e) {
+          append(
+              "  (Can't get sync to origin status)",
+              new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, new Color(170, 0, 0)));
+        }
+      }
+    }
+
+    private void appendText(
+        BranchOrCommitCell cell, SimpleTextAttributes attributes, boolean isSelected) {
       append(cell.getText(), attributes);
     }
 

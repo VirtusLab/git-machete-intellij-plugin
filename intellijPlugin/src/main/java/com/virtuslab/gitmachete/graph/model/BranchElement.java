@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @EqualsAndHashCode(callSuper = true)
 public final class BranchElement extends BaseGraphElement {
-  private final IGitMacheteBranch branch;
+  @Getter private final IGitMacheteBranch branch;
 
   public BranchElement(
       IGitMacheteBranch branch, int upElementIndex, SyncToParentStatus syncToParentStatus) {
