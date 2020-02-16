@@ -5,6 +5,7 @@ import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.paint.PaintUtil;
 import com.intellij.ui.speedSearch.SpeedSearchUtil;
+import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.graph.EdgePrintElement;
 import com.intellij.vcs.log.graph.PrintElement;
@@ -55,7 +56,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
     @Nonnull
     GraphImage graphImage =
-        new GraphImage(UIUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
+        new GraphImage(ImageUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
 
     @Override
     public void paintComponent(Graphics g) {

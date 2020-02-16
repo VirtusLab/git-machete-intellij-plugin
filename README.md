@@ -5,7 +5,7 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into I
 ## Development
 
 ### Requirements
-1. IntelliJ 2019.1+ Community Edition/Ultimate
+1. IntelliJ 2019.3+ Community Edition/Ultimate
 2. [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
 3. Enabled annotation processing (for Lombok): `File | Settings | Build, Execution, Deployment | Compiler | Annotation Processors | Enable Annotation Processing`
 4. Set Project SDK to JDK 11: `Project Structure | Project`

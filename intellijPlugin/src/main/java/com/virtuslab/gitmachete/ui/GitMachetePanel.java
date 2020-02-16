@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.virtuslab.gitmachete.actions.GitInteractiveRebaseAction;
+import com.virtuslab.gitmachete.actions.RebaseCurrentBranchOntoParentAction;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 
@@ -34,13 +34,12 @@ public class GitMachetePanel {
         new DefaultActionGroup("Toggle List Commits", /*popup*/ false);
     toggleListCommits.add(new ToggleListCommitsAction());
 
-    DefaultActionGroup updateCurrentBranch =
-        new DefaultActionGroup("Update Current Branch", /*popup*/ false);
-    updateCurrentBranch.add(new GitInteractiveRebaseAction(gitMacheteGraphTableManager));
+    DefaultActionGroup rebaseCurrentBranchOntoParent =
+        new DefaultActionGroup("Rebase Current Branch Onto Parent", /*popup*/ false);
+    rebaseCurrentBranchOntoParent.add(
+        new RebaseCurrentBranchOntoParentAction(gitMacheteGraphTableManager));
 
-    gitMacheteActions.add(refresh);
-    gitMacheteActions.add(toggleListCommits);
-    gitMacheteActions.add(updateCurrentBranch);
+    gitMacheteActions.addAll(refresh, toggleListCommits, rebaseCurrentBranchOntoParent);
 
     ActionToolbar toolbar =
         ActionManager.getInstance()

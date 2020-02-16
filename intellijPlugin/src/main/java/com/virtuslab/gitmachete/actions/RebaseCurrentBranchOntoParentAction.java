@@ -18,40 +18,40 @@ import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
 
-public class GitInteractiveRebaseAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(GitInteractiveRebaseAction.class);
+public class RebaseCurrentBranchOntoParentAction extends AnAction {
+  private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
 
-  public GitInteractiveRebaseAction(
+  public RebaseCurrentBranchOntoParentAction(
       @Nonnull GitMacheteGraphTableManager gitMacheteGraphTableManager) {
-    super("Update Current Branch", "Update current branch", AllIcons.Actions.Menu_cut);
+    super(
+        "Rebase Current Branch Onto Parent",
+        "Rebase current branch onto parent",
+        AllIcons.Actions.Menu_cut);
     this.gitMacheteGraphTableManager = gitMacheteGraphTableManager;
   }
 
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    // todo prohibit rebase during rebase
+    // todo prohibit rebase during rebase #79
   }
 
   @Override
-  public final void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
-    actionPerformedAfterChecks(anActionEvent);
-  }
-
-  public void actionPerformedAfterChecks(@Nonnull AnActionEvent anActionEvent) {
+  public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
+    assert project != null;
     GitRepository repository = getRepository(project);
     GitVersion gitVersion = repository.getVcs().getVersion();
 
     IGitMacheteRepository gitMacheteRepository = gitMacheteGraphTableManager.getRepository();
     Optional<IGitRebaseParameters> gitRebaseParameters =
-        getGitRebaseParameters(gitMacheteRepository);
+        computeGitRebaseParameters(gitMacheteRepository);
 
     if (gitRebaseParameters.isEmpty()) {
       LOG.error("Unable to get rebase parameters");
@@ -73,22 +73,25 @@ public class GitInteractiveRebaseAction extends AnAction {
                 newBase,
                 /*upstream*/ forkPoint,
                 /*interactive*/ true,
-                /*preserveMerges*/ false); // interactive and do not preserve merges
-        assert project != null;
+                /*preserveMerges*/ false);
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
 
       @Override
       public void onSuccess() {
-        // todo only refresh sync statuses (but commits may get squashed)
+        /* todo
+            Refresh only sync statuses (not whole repository).
+            Keep in mind potential changes to commits.
+            (eg. commits may get squashed so the graph structure changes)
+        */
         gitMacheteGraphTableManager.updateRepository();
         gitMacheteGraphTableManager.refreshUI();
       }
     }.queue();
   }
 
-  @NotNull
-  private Optional<IGitRebaseParameters> getGitRebaseParameters(
+  @Nonnull
+  private Optional<IGitRebaseParameters> computeGitRebaseParameters(
       IGitMacheteRepository gitMacheteRepository) {
     Optional<IGitMacheteBranch> gitMacheteCurrentBranch;
     Optional<IGitRebaseParameters> gitRebaseParameters = Optional.empty();
@@ -98,15 +101,23 @@ public class GitInteractiveRebaseAction extends AnAction {
         gitRebaseParameters = Optional.of(gitMacheteCurrentBranch.get().computeRebaseParameters());
       }
     } catch (GitMacheteException | GitException e) {
-      e.printStackTrace();
       LOG.error("Unable to compute rebase parameters", e);
     }
 
     return gitRebaseParameters;
   }
 
+  /**
+   * The visibility predicate {@link
+   * com.virtuslab.gitmachete.ui.GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
+   * {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(java.lang.String)}
+   * which is true when the specified VCS is used by at least one module in the project. Therefore
+   * it is guaranteed that while the Git Machete plugin tab is visible, a git repository exists.
+   */
   protected GitRepository getRepository(Project project) {
-    // todo handle multiple repositories
-    return GitUtil.getRepositories(project).iterator().next();
+    // todo handle multiple repositories #64
+    Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
+    assert iterator.hasNext();
+    return iterator.next();
   }
 }
