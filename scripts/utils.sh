@@ -4,8 +4,7 @@ function derive_version() {
 
   # `git show ... | grep -Po ...` is necessary (instead of `git grep -Po ...`)
   # since the old version of git (2.7.x) installed on the build image doesn't support `-o` flag of `git grep`.
-  git show "$revision":build.gradle | grep -Po "(?<=version ')[0-9]+\.[0-9]+\.[0-9]+" || \
-    git show "$revision":intellijPlugin/build.gradle | grep -Po "(?<=^version ')[0-9]+\.[0-9]+\.[0-9]+" # TODO remove once chore/git-hooks is merged
+  git show "$revision":build.gradle | grep -Po "(?<=version ')[0-9]+\.[0-9]+\.[0-9]+"
 }
 
 function parse_version() {
