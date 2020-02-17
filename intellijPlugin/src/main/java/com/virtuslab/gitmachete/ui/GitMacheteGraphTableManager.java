@@ -76,7 +76,7 @@ public class GitMacheteGraphTableManager {
 
   public void updateAndRefreshInBackground() {
     if (project != null && !project.isDisposed()) {
-      new Task.Backgroundable(project, "Update Git Machete Repository And Refresh") {
+      new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
         @Override
         public void run(@Nonnull ProgressIndicator indicator) {
           updateRepository();
