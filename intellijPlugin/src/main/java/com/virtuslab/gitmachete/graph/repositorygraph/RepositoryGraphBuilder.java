@@ -12,6 +12,8 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.graph.model.PhantomElement;
+import com.virtuslab.gitmachete.graph.model.SplittingElement;
 import com.virtuslab.gitmachete.graph.repositorygraph.data.NullRepository;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +53,9 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
     for (IGitMacheteBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
-      addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1);
+      // todo set syncToParentStatus later (?)
+      SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
+      addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1, syncToParentStatus);
       List<IGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches();
       addDownstreamCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
     }
@@ -69,26 +73,33 @@ public class RepositoryGraphBuilder {
       List<IGitMacheteBranch> downstreamBranches,
       int branchIndex)
       throws GitException {
+    int upElementIndex = branchIndex;
     for (IGitMacheteBranch branch : downstreamBranches) {
-      int downElementIndex = graphElements.size();
-      graphElements.get(branchIndex).getDownElementIndexes().add(downElementIndex);
-      addCommitsWithBranch(graphElements, branch, branchIndex);
+      // todo set syncToParentStatus later (?)
+      SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
+      addSplittingGraphElement(graphElements, upElementIndex, syncToParentStatus);
 
+      int splittingElementIndex = graphElements.size() - 1;
+      addCommitsWithBranch(
+          graphElements, branch, /*upElementIndex*/ splittingElementIndex, syncToParentStatus);
+
+      upElementIndex = graphElements.size() - 2;
       int upstreamBranchIndex = graphElements.size() - 1;
       List<IGitMacheteBranch> branches = branch.getDownstreamBranches();
       addDownstreamCommitsAndBranches(graphElements, /*downstream*/ branches, upstreamBranchIndex);
     }
+
+    addPhantomGraphElementIfNeeded(graphElements, branchIndex, upElementIndex);
   }
 
   private void addCommitsWithBranch(
-      List<IGraphElement> graphElements, IGitMacheteBranch branch, int upstreamBranchIndex)
+      List<IGraphElement> graphElements,
+      IGitMacheteBranch branch,
+      int upstreamBranchIndex,
+      SyncToParentStatus syncToParentStatus)
       throws GitException {
-
     List<IGitMacheteCommit> commits =
         Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
-
-    // todo set syncToParentStatus later (?)
-    SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
 
     SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
 
@@ -121,7 +132,47 @@ public class RepositoryGraphBuilder {
   }
 
   /**
-   * @return {@code BranchElement} for given {@code branch} and {@code upstreamBranchIndex} and
+   * @param graphElements the collection to store downstream commits and branches
+   * @param upElementIndex upElementIndex for the splitting element
+   * @param syncToParentStatus syncToParentStatus of the branch that will be added just after the
+   *     splitting element
+   */
+  private void addSplittingGraphElement(
+      List<IGraphElement> graphElements,
+      int upElementIndex,
+      SyncToParentStatus syncToParentStatus) {
+    int downElementIndex = graphElements.size() + 1;
+    int splittingElementIndex = graphElements.size();
+    SplittingElement splittingElement =
+        new SplittingElement(upElementIndex, downElementIndex, syncToParentStatus);
+    graphElements.add(splittingElement);
+    graphElements.get(upElementIndex).getDownElementIndexes().add(splittingElementIndex);
+  }
+
+  /**
+   * Adds element that purpose is to keep downstream branches nodes in the same column (shifts right
+   * the last one). It is not intended to show this element. This is a hackish solution to solve the
+   * problem. It should be treated as temporary and an appropriate one shall be implemented (own
+   * {@link com.intellij.vcs.log.graph.api.printer.PrintElementGenerator} might be needed).
+   *
+   * <p>From the method name "Needed" means that element at {@code branchIndex} has any down
+   * elements (its {@code downElementIndexes} is not empty).
+   *
+   * @param graphElements the collection to store downstream commits and branches
+   * @param branchIndex index of branch after which phantom element might be needed
+   * @param upElementIndex upElementIndex for the phantom element
+   */
+  private void addPhantomGraphElementIfNeeded(
+      List<IGraphElement> graphElements, int branchIndex, int upElementIndex) {
+    if (!graphElements.get(branchIndex).getDownElementIndexes().isEmpty()) {
+      graphElements.add(new PhantomElement(upElementIndex));
+      int phantomElementIndex = graphElements.size() - 1;
+      graphElements.get(upElementIndex).getDownElementIndexes().add(phantomElementIndex);
+    }
+  }
+
+  /**
+   * @return {@link BranchElement} for given {@code branch} and {@code upstreamBranchIndex} and
    *     provide additional attributes if the branch is the current one.
    */
   @Nonnull

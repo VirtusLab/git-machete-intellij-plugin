@@ -7,6 +7,7 @@ import com.intellij.vcs.log.graph.utils.LinearGraphUtils;
 import com.intellij.vcs.log.graph.utils.NormalEdge;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.graph.model.PhantomElement;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import javax.annotation.Nonnull;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,12 @@ public class ColorGetterByLayoutIndex {
     }
 
     IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
-    SyncToParentStatus syncToParentStatus = graphElement.getSyncToParentStatus();
-    return syncToParentStatus.getId();
+
+    if (graphElement instanceof PhantomElement) { // todo find a better solution, issue #86
+      return -1;
+    } else {
+      SyncToParentStatus syncToParentStatus = graphElement.getSyncToParentStatus();
+      return syncToParentStatus.getId();
+    }
   }
 }

@@ -32,9 +32,4 @@ public final class CommitElement extends BaseGraphElement {
         SimpleTextAttributes.STYLE_ITALIC | SimpleTextAttributes.STYLE_SMALLER,
         UIUtil.getInactiveTextColor());
   }
-
-  @Override
-  public boolean hasBulletPoint() {
-    return false;
-  }
 }

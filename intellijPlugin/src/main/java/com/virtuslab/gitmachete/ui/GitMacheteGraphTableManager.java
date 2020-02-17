@@ -62,8 +62,8 @@ public class GitMacheteGraphTableManager {
   }
 
   /**
-   * Updates repository which is the base of graph table model. The change will be seen after {@code
-   * refreshUI()}.
+   * Updates repository which is the base of graph table model. The change will be seen after {@link
+   * GitMacheteGraphTableManager#refreshUI()}.
    */
   public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));

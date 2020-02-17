@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus.OutOfSyn
 import static com.virtuslab.gitmachete.graph.ColorDefinitions.GRAY;
 import static com.virtuslab.gitmachete.graph.ColorDefinitions.GREEN;
 import static com.virtuslab.gitmachete.graph.ColorDefinitions.RED;
+import static com.virtuslab.gitmachete.graph.ColorDefinitions.TRANSPARENT;
 import static com.virtuslab.gitmachete.graph.ColorDefinitions.YELLOW;
 
 import com.intellij.ui.JBColor;
@@ -25,6 +26,6 @@ public class SyncToParentStatusEdgeColorGenerator implements ColorGenerator {
 
   @Override
   public Color getColor(int statusId) {
-    return colors.getOrDefault(statusId, JBColor.GRAY);
+    return colors.getOrDefault(statusId, TRANSPARENT);
   }
 }
