@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.graph.model;
 
+import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import java.awt.Color;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,11 +25,15 @@ public final class BranchElement extends BaseGraphElement {
     this.syncToOriginStatus = syncToOriginStatus;
   }
 
+  private static final JBColor branchTextColor = new JBColor(Color.BLACK, Color.WHITE);
+
   public static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES =
       new SimpleTextAttributes(
-          SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, /*fgColor*/ null);
+          SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, branchTextColor);
 
-  @Getter @Setter private SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
+  @Getter @Setter
+  private SimpleTextAttributes attributes =
+      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, branchTextColor);
 
   @Override
   public String getValue() {
