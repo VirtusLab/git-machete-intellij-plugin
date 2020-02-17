@@ -77,16 +77,11 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
 
-      @Override
-      public void onSuccess() {
-        /* todo
-            Refresh only sync statuses (not whole repository).
-            Keep in mind potential changes to commits.
-            (eg. commits may get squashed so the graph structure changes)
-        */
-        gitMacheteGraphTableManager.updateRepository();
-        gitMacheteGraphTableManager.refreshUI();
-      }
+      /* todo on success
+          Refresh only sync statuses (not whole repository).
+          Keep in mind potential changes to commits.
+          (eg. commits may get squashed so the graph structure changes)
+      */
     }.queue();
   }
 

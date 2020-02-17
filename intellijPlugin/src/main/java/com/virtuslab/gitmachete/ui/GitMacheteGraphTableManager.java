@@ -3,6 +3,8 @@ package com.virtuslab.gitmachete.ui;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
@@ -41,7 +43,7 @@ public class GitMacheteGraphTableManager {
     this.gitMacheteRepositoryFactory =
         GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    subscribeToMappingChanged();
+    subscribeToGitRepositoryChanges();
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
@@ -72,24 +74,21 @@ public class GitMacheteGraphTableManager {
     }
   }
 
-  protected void updateLater() {
+  public void updateAndRefreshInBackground() {
     if (project != null && !project.isDisposed()) {
-      Runnable updateAndRefresh =
-          () -> {
-            updateRepository();
-            refreshUI();
-          };
-      ApplicationManager.getApplication().invokeLater(updateAndRefresh, project.getDisposed());
+      new Task.Backgroundable(project, "Update Git Machete Repository And Refresh") {
+        @Override
+        public void run(@Nonnull ProgressIndicator indicator) {
+          updateRepository();
+          refreshUI();
+        }
+      }.queue();
     }
   }
 
-  private void subscribeToMappingChanged() {
+  private void subscribeToGitRepositoryChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener =
-        repository -> {
-          LOG.debug("update after git4idea repository change");
-          updateLater();
-        };
+    GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 }

@@ -4,8 +4,8 @@ import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.paint.PaintUtil;
-import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.ImageUtil;
+import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.graph.EdgePrintElement;
 import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.paint.GraphCellPainter;
@@ -96,10 +96,6 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       appendTextPadding(graphImage.getWidth() + LabelPainter.RIGHT_PADDING.get());
       SimpleTextAttributes attributes = cell.getElement().getAttributes();
-      appendText(cell, attributes);
-    }
-
-    private void appendText(BranchOrCommitCell cell, SimpleTextAttributes attributes) {
       append(cell.getText(), attributes);
     }
 
