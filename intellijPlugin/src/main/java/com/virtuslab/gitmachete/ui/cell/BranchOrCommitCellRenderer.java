@@ -13,11 +13,13 @@ import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
-import com.virtuslab.gitcore.gitcoreapi.GitException;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
+import com.virtuslab.gitmachete.graph.SyncToOriginStatusColorGenerator;
+import com.virtuslab.gitmachete.graph.SyncToOriginStatusDescriptionGenerator;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
+import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -26,6 +28,7 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.swing.JTable;
@@ -96,7 +99,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      var element = cell.getElement();
+      IGraphElement element = cell.getElement();
 
       if (element.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements());
@@ -115,34 +118,29 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       appendText(cell, attributes, isSelected);
 
       if (element instanceof BranchElement) {
-        var branch = ((BranchElement) element).getBranch();
-        var customAnnotation = branch.getCustomAnnotation();
+        IGitMacheteBranch branch = ((BranchElement) element).getBranch();
+        Optional<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isPresent()) {
           SimpleTextAttributes customAnnotationTextAttributes =
               SimpleTextAttributes.GRAY_ATTRIBUTES;
           append("   " + customAnnotation.get(), customAnnotationTextAttributes, isSelected);
         }
 
+        SyncToOriginStatusColorGenerator colorGenerator = new SyncToOriginStatusColorGenerator();
         SyncToOriginStatus syncToOriginStatus;
-        try {
-          syncToOriginStatus = branch.computeSyncToOriginStatus();
-          if (syncToOriginStatus != SyncToOriginStatus.InSync) {
-            SimpleTextAttributes textAttributes;
-            if (syncToOriginStatus == SyncToOriginStatus.Untracked) {
-              textAttributes =
-                  new SimpleTextAttributes(
-                      SimpleTextAttributes.STYLE_PLAIN, syncToOriginStatus.getColor());
-            } else {
-              textAttributes =
-                  new SimpleTextAttributes(
-                      SimpleTextAttributes.STYLE_PLAIN, syncToOriginStatus.getColor());
-            }
-            append("  (" + syncToOriginStatus.getDescription() + ")", textAttributes);
-          }
-        } catch (GitException e) {
+
+        syncToOriginStatus = ((BranchElement) element).getSyncToOriginStatus();
+        if (syncToOriginStatus != SyncToOriginStatus.InSync) {
+          SimpleTextAttributes textAttributes =
+              new SimpleTextAttributes(
+                  SimpleTextAttributes.STYLE_PLAIN,
+                  colorGenerator.getColor(syncToOriginStatus.getId()));
           append(
-              "  (Can't get sync to origin status)",
-              new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, new Color(170, 0, 0)));
+              "  ("
+                  + SyncToOriginStatusDescriptionGenerator.getDescription(
+                      syncToOriginStatus.getId())
+                  + ")",
+              textAttributes);
         }
       }
     }

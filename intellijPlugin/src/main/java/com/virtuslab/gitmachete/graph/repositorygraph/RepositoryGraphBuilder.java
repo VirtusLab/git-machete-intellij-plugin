@@ -7,6 +7,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
@@ -89,6 +90,8 @@ public class RepositoryGraphBuilder {
     // todo set syncToParentStatus later (?)
     SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
 
+    SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
+
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
       int lastElementIndex = graphElements.size() - 1;
@@ -112,7 +115,8 @@ public class RepositoryGraphBuilder {
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
-    BranchElement element = createBranchElementFor(branch, upElementIndex, syncToParentStatus);
+    BranchElement element =
+        createBranchElementFor(branch, upElementIndex, syncToParentStatus, syncToOriginStatus);
     graphElements.add(element);
   }
 
@@ -122,9 +126,12 @@ public class RepositoryGraphBuilder {
    */
   @Nonnull
   private BranchElement createBranchElementFor(
-      IGitMacheteBranch branch, int upstreamBranchIndex, SyncToParentStatus syncToParentStatus) {
+      IGitMacheteBranch branch,
+      int upstreamBranchIndex,
+      SyncToParentStatus syncToParentStatus,
+      SyncToOriginStatus syncToOriginStatus) {
     BranchElement branchElement =
-        new BranchElement(branch, upstreamBranchIndex, syncToParentStatus);
+        new BranchElement(branch, upstreamBranchIndex, syncToParentStatus, syncToOriginStatus);
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {

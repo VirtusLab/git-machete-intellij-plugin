@@ -10,13 +10,13 @@ import com.intellij.vcs.log.paint.ColorGenerator;
 import java.awt.Color;
 import java.util.Map;
 
-public class GitMacheteColorGenerator implements ColorGenerator {
+public class GitMacheteEdgeColorGenerator implements ColorGenerator {
 
   public static final Color gray = Color.decode("#AAAAAA");
   public static final Color dark_gray = Color.decode("#555555");
   public static final Color yellow = Color.decode("#C4A000");
   public static final Color red = Color.decode("#CD0000");
-  public static final Color orange = Color.decode("#7F0000");
+  public static final Color orange = Color.decode("#FDA909");
   public static final Color green = Color.decode("#008000");
 
   /*
