@@ -6,13 +6,13 @@ public enum SyncToParentStatus {
   OutOfSync(2),
   InSync(3);
 
-  private final int colorId;
+  private final int id;
 
-  SyncToParentStatus(int colorId) {
-    this.colorId = colorId;
+  SyncToParentStatus(int id) {
+    this.id = id;
   }
 
-  public int getColorId() {
-    return colorId;
+  public int getId() {
+    return id;
   }
 }

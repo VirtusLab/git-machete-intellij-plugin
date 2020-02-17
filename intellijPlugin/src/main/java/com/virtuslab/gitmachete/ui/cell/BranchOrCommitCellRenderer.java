@@ -15,8 +15,8 @@ import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
-import com.virtuslab.gitmachete.graph.SyncToOriginStatusColorGenerator;
 import com.virtuslab.gitmachete.graph.SyncToOriginStatusDescriptionGenerator;
+import com.virtuslab.gitmachete.graph.SyncToOriginStatusTextColorGenerator;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
@@ -120,13 +120,12 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (element instanceof BranchElement) {
         IGitMacheteBranch branch = ((BranchElement) element).getBranch();
         Optional<String> customAnnotation = branch.getCustomAnnotation();
-        if (customAnnotation.isPresent()) {
-          SimpleTextAttributes customAnnotationTextAttributes =
-              SimpleTextAttributes.GRAY_ATTRIBUTES;
-          append("   " + customAnnotation.get(), customAnnotationTextAttributes, isSelected);
-        }
+        customAnnotation.ifPresent(
+            annotationText ->
+                append("   " + annotationText, SimpleTextAttributes.GRAY_ATTRIBUTES, isSelected));
 
-        SyncToOriginStatusColorGenerator colorGenerator = new SyncToOriginStatusColorGenerator();
+        SyncToOriginStatusTextColorGenerator colorGenerator =
+            new SyncToOriginStatusTextColorGenerator();
         SyncToOriginStatus syncToOriginStatus;
 
         syncToOriginStatus = ((BranchElement) element).getSyncToOriginStatus();

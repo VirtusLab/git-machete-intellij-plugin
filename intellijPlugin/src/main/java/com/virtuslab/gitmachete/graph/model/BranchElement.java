@@ -8,7 +8,6 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.awt.Color;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
 @EqualsAndHashCode(callSuper = true)
 public final class BranchElement extends BaseGraphElement {
@@ -19,21 +18,24 @@ public final class BranchElement extends BaseGraphElement {
       IGitMacheteBranch branch,
       int upElementIndex,
       SyncToParentStatus syncToParentStatus,
-      SyncToOriginStatus syncToOriginStatus) {
+      SyncToOriginStatus syncToOriginStatus,
+      boolean isCurrentBranch) {
     super(upElementIndex, syncToParentStatus);
     this.branch = branch;
     this.syncToOriginStatus = syncToOriginStatus;
+    this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
   }
 
   private static final JBColor branchTextColor = new JBColor(Color.BLACK, Color.WHITE);
 
-  public static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES =
+  private static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES =
       new SimpleTextAttributes(
           SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, branchTextColor);
 
-  @Getter @Setter
-  private SimpleTextAttributes attributes =
+  private static final SimpleTextAttributes NORMAL_ATTRIBUTES =
       new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, branchTextColor);
+
+  @Getter private final SimpleTextAttributes attributes;
 
   @Override
   public String getValue() {

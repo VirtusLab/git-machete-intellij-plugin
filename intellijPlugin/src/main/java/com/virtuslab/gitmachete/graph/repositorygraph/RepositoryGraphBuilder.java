@@ -130,8 +130,7 @@ public class RepositoryGraphBuilder {
       int upstreamBranchIndex,
       SyncToParentStatus syncToParentStatus,
       SyncToOriginStatus syncToOriginStatus) {
-    BranchElement branchElement =
-        new BranchElement(branch, upstreamBranchIndex, syncToParentStatus, syncToOriginStatus);
+    BranchElement branchElement;
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {
@@ -141,7 +140,21 @@ public class RepositoryGraphBuilder {
     }
 
     if (currentBranch.isPresent() && currentBranch.get().equals(branch)) {
-      branchElement.setAttributes(BranchElement.UNDERLINE_BOLD_ATTRIBUTES);
+      branchElement =
+          new BranchElement(
+              branch,
+              upstreamBranchIndex,
+              syncToParentStatus,
+              syncToOriginStatus,
+              /*isCurrentBranch*/ true);
+    } else {
+      branchElement =
+          new BranchElement(
+              branch,
+              upstreamBranchIndex,
+              syncToParentStatus,
+              syncToOriginStatus,
+              /*isCurrentBranch*/ false);
     }
 
     return branchElement;

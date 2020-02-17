@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class SyncToOriginStatusDescriptionGenerator {
 
-  private static final Map<Integer, String> gitMacheteDescriptions =
+  private static final Map<Integer, String> descriptions =
       Map.of(
           Untracked.getId(), "untracked",
           Ahead.getId(), "ahead of origin",
@@ -17,6 +17,6 @@ public class SyncToOriginStatusDescriptionGenerator {
           Diverged.getId(), "diverged from origin");
 
   public static String getDescription(int statusId) {
-    return gitMacheteDescriptions.getOrDefault(statusId, "sync to origin unknown");
+    return descriptions.getOrDefault(statusId, "sync to origin unknown");
   }
 }

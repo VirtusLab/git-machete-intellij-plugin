@@ -5,7 +5,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.graph.GitMacheteEdgeColorGenerator;
+import com.virtuslab.gitmachete.graph.SyncToParentStatusEdgeColorGenerator;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import javax.annotation.Nonnull;
@@ -19,7 +19,7 @@ public class GitMacheteGraphTable extends JBTable {
     super(graphTableModel);
 
     GraphCellPainter graphCellPainter =
-        new SimpleGraphCellPainter(new GitMacheteEdgeColorGenerator()) {
+        new SimpleGraphCellPainter(new SyncToParentStatusEdgeColorGenerator()) {
           @Override
           protected int getRowHeight() {
             return GitMacheteGraphTable.this.getRowHeight();

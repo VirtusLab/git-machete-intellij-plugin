@@ -31,6 +31,6 @@ public class ColorGetterByLayoutIndex {
 
     IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
     SyncToParentStatus syncToParentStatus = graphElement.getSyncToParentStatus();
-    return syncToParentStatus.getColorId();
+    return syncToParentStatus.getId();
   }
 }
