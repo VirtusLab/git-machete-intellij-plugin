@@ -24,5 +24,5 @@ public interface IGraphElement {
 
   SyncToParentStatus getSyncToParentStatus();
 
-  boolean haveCircle();
+  boolean hasBulletPoint();
 }

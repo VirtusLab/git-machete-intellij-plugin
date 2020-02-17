@@ -34,7 +34,7 @@ public final class CommitElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean haveCircle() {
+  public boolean hasBulletPoint() {
     return false;
   }
 }

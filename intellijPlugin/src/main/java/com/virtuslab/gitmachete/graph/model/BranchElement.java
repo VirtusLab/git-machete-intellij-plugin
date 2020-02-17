@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.graph.model;
 import com.intellij.ui.SimpleTextAttributes;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
-import java.awt.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,7 @@ public final class BranchElement extends BaseGraphElement {
 
   public static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES =
       new SimpleTextAttributes(
-          SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, null);
+          SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, /*fgColor*/ null);
 
   @Getter @Setter private SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
@@ -30,7 +29,7 @@ public final class BranchElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean haveCircle() {
+  public boolean hasBulletPoint() {
     return true;
   }
 }

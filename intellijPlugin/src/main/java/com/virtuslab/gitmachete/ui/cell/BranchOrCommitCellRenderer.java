@@ -92,7 +92,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      if (cell.getElement().haveCircle()) {
+      if (cell.getElement().hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements());
       } else {
         graphImage =
