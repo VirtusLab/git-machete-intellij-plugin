@@ -49,12 +49,10 @@ public class CheckoutBranchAction extends AnAction {
                 project,
                 Git.getInstance(),
                 new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
-            .checkout(nameOfBranchToCheckout, false, List.of(repository));
+            .checkout(nameOfBranchToCheckout, /*detach*/ false, List.of(repository));
       }
       /* todo on success
-          Refresh only sync statuses (not whole repository).
-          Keep in mind potential changes to commits.
-          (eg. commits may get squashed so the graph structure changes)
+          Refresh only indication of current branch
       */
     }.queue();
   }

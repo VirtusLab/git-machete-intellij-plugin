@@ -46,4 +46,9 @@ public final class BranchElement extends BaseGraphElement {
   public boolean hasBulletPoint() {
     return true;
   }
+
+  @Override
+  public boolean isBranch() {
+    return true;
+  }
 }

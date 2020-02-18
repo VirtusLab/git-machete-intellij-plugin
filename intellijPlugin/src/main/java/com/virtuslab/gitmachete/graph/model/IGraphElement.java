@@ -27,4 +27,6 @@ public interface IGraphElement {
   boolean hasBulletPoint();
 
   boolean isVisible();
+
+  boolean isBranch();
 }
