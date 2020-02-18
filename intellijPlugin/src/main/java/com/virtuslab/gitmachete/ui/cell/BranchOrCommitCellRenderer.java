@@ -40,6 +40,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
   @Nonnull private final MyComponent myComponent;
 
+  private static final SyncToOriginStatusTextColorGenerator colorGenerator =
+      new SyncToOriginStatusTextColorGenerator();
+
   public BranchOrCommitCellRenderer(
       @Nonnull GitMacheteGraphTable table, @Nonnull GraphCellPainter painter) {
     myComponent = new MyComponent(table, painter);
@@ -120,12 +123,10 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (element instanceof BranchElement) {
         IGitMacheteBranch branch = ((BranchElement) element).getBranch();
         Optional<String> customAnnotation = branch.getCustomAnnotation();
-        customAnnotation.ifPresent(
-            annotationText ->
-                append("   " + annotationText, SimpleTextAttributes.GRAY_ATTRIBUTES, isSelected));
+        if (customAnnotation.isPresent()) {
+          append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES, isSelected);
+        }
 
-        SyncToOriginStatusTextColorGenerator colorGenerator =
-            new SyncToOriginStatusTextColorGenerator();
         SyncToOriginStatus syncToOriginStatus;
 
         syncToOriginStatus = ((BranchElement) element).getSyncToOriginStatus();
@@ -139,7 +140,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
                   + SyncToOriginStatusDescriptionGenerator.getDescription(
                       syncToOriginStatus.getId())
                   + ")",
-              textAttributes);
+              textAttributes,
+              isSelected);
         }
       }
     }

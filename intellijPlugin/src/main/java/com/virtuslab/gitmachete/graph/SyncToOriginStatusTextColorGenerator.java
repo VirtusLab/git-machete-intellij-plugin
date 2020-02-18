@@ -10,8 +10,7 @@ import com.intellij.vcs.log.paint.ColorGenerator;
 import java.awt.Color;
 import java.util.Map;
 
-public class SyncToOriginStatusTextColorGenerator extends ColorDefinitions
-    implements ColorGenerator {
+public class SyncToOriginStatusTextColorGenerator implements IColorGenerator, ColorGenerator {
 
   private static final Map<Integer, JBColor> colors =
       Map.of(

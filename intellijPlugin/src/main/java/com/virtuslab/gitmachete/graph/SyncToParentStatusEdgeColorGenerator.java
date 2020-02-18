@@ -10,8 +10,7 @@ import com.intellij.vcs.log.paint.ColorGenerator;
 import java.awt.Color;
 import java.util.Map;
 
-public class SyncToParentStatusEdgeColorGenerator extends ColorDefinitions
-    implements ColorGenerator {
+public class SyncToParentStatusEdgeColorGenerator implements IColorGenerator, ColorGenerator {
 
   private static final Map<Integer, JBColor> colors =
       Map.of(
@@ -21,7 +20,7 @@ public class SyncToParentStatusEdgeColorGenerator extends ColorDefinitions
           InSync.getId(), GREEN);
 
   @Override
-  public Color getColor(int colorId) {
-    return colors.getOrDefault(colorId, JBColor.GRAY);
+  public Color getColor(int statusId) {
+    return colors.getOrDefault(statusId, JBColor.GRAY);
   }
 }
