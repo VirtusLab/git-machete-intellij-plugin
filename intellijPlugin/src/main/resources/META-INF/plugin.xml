@@ -18,4 +18,15 @@
         <changesViewContent tabName="Git Machete" className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"
         predicateClassName="com.virtuslab.gitmachete.ui.GitMacheteContentProvider$GitMacheteVisibilityPredicate"/>
     </extensions>
+
+    <actions>
+        <action id="GitMachete.CheckoutBranchAction" class="com.virtuslab.gitmachete.actions.CheckoutBranchAction"
+                text="_Checkout Branch"
+                description="Checkout this branch"
+        />
+
+        <group id="GitMachete.ContextMenu">
+            <reference id="GitMachete.CheckoutBranchAction"/>
+        </group>
+    </actions>
 </idea-plugin>
