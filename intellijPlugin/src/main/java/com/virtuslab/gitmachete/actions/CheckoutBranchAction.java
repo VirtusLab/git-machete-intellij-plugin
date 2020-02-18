@@ -27,7 +27,6 @@ public class CheckoutBranchAction extends AnAction {
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    // todo prohibit rebase during rebase #79
   }
 
   @Override
@@ -52,7 +51,6 @@ public class CheckoutBranchAction extends AnAction {
                 new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
             .checkout(nameOfBranchToCheckout, false, List.of(repository));
       }
-
       /* todo on success
           Refresh only sync statuses (not whole repository).
           Keep in mind potential changes to commits.

@@ -1,13 +1,9 @@
 package com.virtuslab.gitmachete.ui.table;
 
-import com.intellij.ide.DataManager;
-import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
@@ -26,8 +22,6 @@ import javax.swing.SwingUtilities;
 
 /* todo: consider applying SpeedSearch for branches and commits */
 public class GitMacheteGraphTable extends JBTable {
-  private static final Logger LOG = Logger.getInstance(GitMacheteGraphTable.class);
-
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   public GitMacheteGraphTable(@Nonnull GraphTableModel graphTableModel) {
@@ -60,8 +54,6 @@ public class GitMacheteGraphTable extends JBTable {
     ScrollingUtil.installActions(this, false);
 
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
-
-    //CustomizationUtil.installPopupHandler(this, "GitMachete.ContextMenu", "GitMachete.ContextMenu");
   }
 
   private void initColumns() {
@@ -78,6 +70,9 @@ public class GitMacheteGraphTable extends JBTable {
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
+    //This group with id "GitMachete.ContextMenu" is defined in plugin.xml file
+    private static final String GROUP_TO_INVOKE_AS_CONTEXT_MENU = "GitMachete.ContextMenu";
+
     private final GitMacheteGraphTable graphTable;
 
     public GitMacheteGraphTableMouseAdapter(GitMacheteGraphTable graphTable) {
@@ -85,19 +80,25 @@ public class GitMacheteGraphTable extends JBTable {
     }
 
     public void mouseClicked(MouseEvent e) {
-      System.out.println("CLICK!");
       if (SwingUtilities.isRightMouseButton(e)) {
         Point point = e.getPoint();
+        int row = rowAtPoint(point);
+        int col = columnAtPoint(point);
+
+        // check if we click on one of branches
+        if(row < 0 || col < 0)
+          return;
+
         String branchName = getValueAt(rowAtPoint(point), columnAtPoint(point)).toString();
-        System.out.println("BRANCH NAME: "+branchName + " r: "+rowAtPoint(point)+" c: "+columnAtPoint(point));
         CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
+
         ActionPopupMenu actionPopupMenu =
-                ActionManager.getInstance().createActionPopupMenu(ActionPlaces.UNKNOWN,(ActionGroup)ActionManager.getInstance().getAction("GitMachete.ContextMenu")) ;
-        actionPopupMenu.getComponent().show(graphTable, (int)point.getX(), (int)point.getY());
-        /*ActionManager am = ActionManager.getInstance();
-        am.getAction("GitMachete.CheckoutBranchAction").actionPerformed(new AnActionEvent(null, DataManager.getInstance().getDataContext(),
-                ActionPlaces.UNKNOWN, new Presentation(),
-                ActionManager.getInstance(), 0));*/
+            ActionManager.getInstance()
+                .createActionPopupMenu(
+                    ActionPlaces.UNKNOWN,
+                    (ActionGroup)
+                        ActionManager.getInstance().getAction(GROUP_TO_INVOKE_AS_CONTEXT_MENU));
+        actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
       }
     }
   }
