@@ -130,7 +130,6 @@ public class RepositoryGraphBuilder {
       int upstreamBranchIndex,
       SyncToParentStatus syncToParentStatus,
       SyncToOriginStatus syncToOriginStatus) {
-    BranchElement branchElement;
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {
@@ -139,24 +138,9 @@ public class RepositoryGraphBuilder {
       LOG.error("Unable to get current branch", e);
     }
 
-    if (currentBranch.isPresent() && currentBranch.get().equals(branch)) {
-      branchElement =
-          new BranchElement(
-              branch,
-              upstreamBranchIndex,
-              syncToParentStatus,
-              syncToOriginStatus,
-              /*isCurrentBranch*/ true);
-    } else {
-      branchElement =
-          new BranchElement(
-              branch,
-              upstreamBranchIndex,
-              syncToParentStatus,
-              syncToOriginStatus,
-              /*isCurrentBranch*/ false);
-    }
+    boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
-    return branchElement;
+    return new BranchElement(
+        branch, upstreamBranchIndex, syncToParentStatus, syncToOriginStatus, isCurrentBranch);
   }
 }
