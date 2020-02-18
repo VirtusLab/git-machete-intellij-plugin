@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -70,7 +69,7 @@ public class GitMacheteGraphTable extends JBTable {
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-    //This group with id "GitMachete.ContextMenu" is defined in plugin.xml file
+    // This group with id "GitMachete.ContextMenu" is defined in plugin.xml file
     private static final String GROUP_TO_INVOKE_AS_CONTEXT_MENU = "GitMachete.ContextMenu";
 
     private final GitMacheteGraphTable graphTable;
@@ -86,8 +85,7 @@ public class GitMacheteGraphTable extends JBTable {
         int col = columnAtPoint(point);
 
         // check if we click on one of branches
-        if(row < 0 || col < 0)
-          return;
+        if (row < 0 || col < 0) return;
 
         String branchName = getValueAt(rowAtPoint(point), columnAtPoint(point)).toString();
         CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
