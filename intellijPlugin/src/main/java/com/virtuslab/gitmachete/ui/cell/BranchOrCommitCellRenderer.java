@@ -18,7 +18,9 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.graph.SyncToOriginStatusDescriptionGenerator;
 import com.virtuslab.gitmachete.graph.SyncToOriginStatusTextColorGenerator;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
+import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -116,9 +118,10 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       append(""); // appendTextPadding wont work without this
 
-      appendTextPadding(graphImage.getWidth() + LabelPainter.RIGHT_PADDING.get());
+      int width = calculateTextPadding(element);
+      appendTextPadding(width);
       SimpleTextAttributes attributes = element.getAttributes();
-      appendText(cell, attributes, isSelected);
+      append(cell.getText(), attributes);
 
       if (element instanceof BranchElement) {
         IGitMacheteBranch branch = ((BranchElement) element).getBranch();
@@ -140,15 +143,25 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
                   + SyncToOriginStatusDescriptionGenerator.getDescription(
                       syncToOriginStatus.getId())
                   + ")",
-              textAttributes,
-              isSelected);
+              textAttributes);
         }
       }
     }
 
-    private void appendText(
-        BranchOrCommitCell cell, SimpleTextAttributes attributes, boolean isSelected) {
-      append(cell.getText(), attributes);
+    /* todo
+     * The padding is calculated for all commits in the same branch (and the branch). The time
+     * consumed could be reduce by using some lazy value, caching, or ident storing.
+     */
+    private int calculateTextPadding(IGraphElement element) {
+      int width = graphImage.getWidth();
+      if (element instanceof CommitElement) {
+        RepositoryGraph repositoryGraph = graphTable.getModel().getRepositoryGraph();
+        Collection<? extends PrintElement> printElements =
+            repositoryGraph.getPrintElements(((CommitElement) element).getBranchElementIndex());
+        double maxIndex = getMaxGraphElementIndex(printElements);
+        width = (int) (maxIndex * PaintParameters.getNodeWidth(graphTable.getRowHeight()));
+      }
+      return width + LabelPainter.RIGHT_PADDING.get();
     }
 
     @Nonnull

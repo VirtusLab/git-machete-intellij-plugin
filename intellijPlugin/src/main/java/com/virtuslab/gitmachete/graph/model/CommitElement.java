@@ -10,14 +10,17 @@ import lombok.Getter;
 @EqualsAndHashCode(callSuper = true)
 public final class CommitElement extends BaseGraphElement {
   @Getter private final IGitMacheteCommit commit;
+  @Getter private final int branchElementIndex;
 
   public CommitElement(
       IGitMacheteCommit commit,
       int upElementIndex,
       int downElementIndex,
+      int branchElementIndex,
       SyncToParentStatus containingBranchSyncToParentStatus) {
     super(upElementIndex, containingBranchSyncToParentStatus);
     this.commit = commit;
+    this.branchElementIndex = branchElementIndex;
     getDownElementIndexes().add(downElementIndex);
   }
 

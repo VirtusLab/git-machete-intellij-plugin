@@ -102,6 +102,7 @@ public class RepositoryGraphBuilder {
         Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 
     SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
+    int branchElementIndex = graphElements.size() + commits.size();
 
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
@@ -113,6 +114,7 @@ public class RepositoryGraphBuilder {
               commit,
               upElementIndex,
               downElementIndex,
+              branchElementIndex,
               /*containingBranchSyncToParentStatus*/ syncToParentStatus);
       graphElements.add(c);
       isFirstNodeInBranch = false;

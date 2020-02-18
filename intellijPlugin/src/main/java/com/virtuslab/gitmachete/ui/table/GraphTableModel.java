@@ -6,6 +6,7 @@ import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
@@ -14,7 +15,7 @@ public class GraphTableModel extends AbstractTableModel {
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
-  @Setter @Nonnull private RepositoryGraph repositoryGraph;
+  @Getter @Setter @Nonnull private RepositoryGraph repositoryGraph;
 
   @Override
   public int getRowCount() {
