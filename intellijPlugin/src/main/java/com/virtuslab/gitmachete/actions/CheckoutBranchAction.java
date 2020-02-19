@@ -19,7 +19,7 @@ import lombok.Setter;
 public class CheckoutBranchAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(CheckoutBranchAction.class);
 
-  @Setter private static String nameOfBranchToCheckout;
+  @Setter private static String nameOfBranchToCheckout; // issue #91
 
   public CheckoutBranchAction() {}
 

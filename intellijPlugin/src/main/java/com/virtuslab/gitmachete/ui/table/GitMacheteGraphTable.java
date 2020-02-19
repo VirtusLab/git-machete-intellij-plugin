@@ -100,7 +100,7 @@ public class GitMacheteGraphTable extends JBTable {
       }
 
       String branchName = element.getValue();
-      CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
+      CheckoutBranchAction.setNameOfBranchToCheckout(branchName); // issue #91
 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuGroup =
