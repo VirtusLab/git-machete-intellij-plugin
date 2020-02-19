@@ -39,7 +39,8 @@ public class GitMacheteGraphTableManager {
     this.isListingCommits = false;
     GraphTableModel graphTableModel =
         new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel);
+    this.gitMacheteGraphTable =
+        new GitMacheteGraphTable(graphTableModel, project, /*tableManager*/ this);
     this.gitMacheteRepositoryFactory =
         GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();

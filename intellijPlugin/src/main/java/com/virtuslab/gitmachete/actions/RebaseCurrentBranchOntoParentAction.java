@@ -1,9 +1,17 @@
 package com.virtuslab.gitmachete.actions;
 
+import static com.virtuslab.gitmachete.actions.ActionIDs.ACTION_REBASE;
+import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
+import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_TABLE_MANAGER;
+
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.testFramework.MapDataContext;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -11,29 +19,18 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitRebaseParameters;
-import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
-import git4idea.GitUtil;
-import git4idea.branch.GitRebaseParams;
-import git4idea.config.GitVersion;
-import git4idea.rebase.GitRebaseUtils;
-import git4idea.repo.GitRepository;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
 public class RebaseCurrentBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
-  private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
 
-  public RebaseCurrentBranchOntoParentAction(
-      @Nonnull GitMacheteGraphTableManager gitMacheteGraphTableManager) {
+  public RebaseCurrentBranchOntoParentAction() {
     super(
         "Rebase Current Branch Onto Parent",
         "Rebase current branch onto parent",
         AllIcons.Actions.Menu_cut);
-    this.gitMacheteGraphTableManager = gitMacheteGraphTableManager;
   }
 
   @Override
@@ -44,73 +41,43 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
 
   @Override
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
-    Project project = anActionEvent.getProject();
-    assert project != null;
-    GitRepository repository = getRepository(project);
-    GitVersion gitVersion = repository.getVcs().getVersion();
+    IGitMacheteRepository gitMacheteRepository =
+        anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
 
-    IGitMacheteRepository gitMacheteRepository = gitMacheteGraphTableManager.getRepository();
-    Optional<IGitRebaseParameters> gitRebaseParameters =
-        computeGitRebaseParameters(gitMacheteRepository);
+    Optional<IGitMacheteBranch> branchToRebase;
 
-    if (gitRebaseParameters.isEmpty()) {
-      LOG.error("Unable to get rebase parameters");
+    try {
+      branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
+    } catch (GitMacheteException e) {
+      LOG.error("Exception occurred while getting current branch");
       return;
     }
 
-    IGitRebaseParameters parameters = gitRebaseParameters.get();
-    String currentBranch = parameters.getCurrentBranch().getName();
-    String newBase = parameters.getNewBaseCommit().getHash();
-    String forkPoint = parameters.getForkPointCommit().getHash();
-
-    new Task.Backgroundable(project, "Rebasing") {
-      @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
-        GitRebaseParams params =
-            new GitRebaseParams(
-                gitVersion,
-                currentBranch,
-                newBase,
-                /*upstream*/ forkPoint,
-                /*interactive*/ true,
-                /*preserveMerges*/ false);
-        GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
-      }
-
-      /* TODO (#95): on success, refresh only sync statuses (not the whole repository).
-       * Keep in mind potential changes to commits (eg. commits may get squashed so the graph structure changes).
-       */
-    }.queue();
-  }
-
-  @Nonnull
-  private Optional<IGitRebaseParameters> computeGitRebaseParameters(
-      IGitMacheteRepository gitMacheteRepository) {
-    Optional<IGitMacheteBranch> gitMacheteCurrentBranch;
-    Optional<IGitRebaseParameters> gitRebaseParameters = Optional.empty();
-    try {
-      gitMacheteCurrentBranch = gitMacheteRepository.getCurrentBranchIfManaged();
-      if (gitMacheteCurrentBranch.isPresent()) {
-        gitRebaseParameters = Optional.of(gitMacheteCurrentBranch.get().computeRebaseParameters());
-      }
-    } catch (GitMacheteException | GitCoreException e) {
-      LOG.error("Unable to compute rebase parameters", e);
+    if (branchToRebase.isEmpty()) {
+      LOG.error("There is no current branch managed by Git-Machete");
+      return;
     }
 
-    return gitRebaseParameters;
-  }
+    DataContext actualDataContext = anActionEvent.getDataContext();
 
-  /**
-   * The visibility predicate {@link
-   * com.virtuslab.gitmachete.ui.GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
-   * {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(java.lang.String)}
-   * which is true when the specified VCS is used by at least one module in the project. Therefore
-   * it is guaranteed that while the Git Machete plugin tab is visible, a git repository exists.
-   */
-  protected GitRepository getRepository(Project project) {
-    // TODO (#64): handle multiple repositories
-    Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
-    assert iterator.hasNext();
-    return iterator.next();
+    MapDataContext dataContext =
+        new MapDataContext(
+            Map.of(
+                CommonDataKeys.PROJECT,
+                actualDataContext.getData(CommonDataKeys.PROJECT),
+                KEY_TABLE_MANAGER,
+                actualDataContext.getData(KEY_TABLE_MANAGER),
+                KEY_SELECTED_BRANCH,
+                branchToRebase.get()));
+
+    AnActionEvent actionEvent =
+        new AnActionEvent(
+            anActionEvent.getInputEvent(),
+            dataContext,
+            anActionEvent.getPlace(),
+            anActionEvent.getPresentation(),
+            anActionEvent.getActionManager(),
+            anActionEvent.getModifiers());
+    ActionManager.getInstance().getAction(ACTION_REBASE).actionPerformed(actionEvent);
   }
 }

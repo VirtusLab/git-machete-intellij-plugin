@@ -10,6 +10,8 @@ public interface IGitMacheteRepository {
 
   Optional<IGitMacheteBranch> getCurrentBranchIfManaged() throws GitMacheteException;
 
+  Optional<IGitMacheteBranch> getBranch(String branchName);
+
   Optional<String> getRepositoryName();
 
   List<IGitMacheteSubmoduleEntry> getSubmodules() throws GitMacheteException;

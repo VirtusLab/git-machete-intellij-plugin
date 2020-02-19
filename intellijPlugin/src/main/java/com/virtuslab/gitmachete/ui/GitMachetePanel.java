@@ -24,7 +24,7 @@ public class GitMachetePanel {
 
   @Nonnull
   public ActionToolbar createGitMacheteToolbar() {
-    DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
+    DefaultActionGroup gitMacheteActions = new DefaultActionGroup("MyGroup", /*popup*/ false);
 
     DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /*popup*/ false);
     refresh.add(new RefreshGitMacheteStatusAction());
@@ -35,8 +35,7 @@ public class GitMachetePanel {
 
     DefaultActionGroup rebaseCurrentBranchOntoParent =
         new DefaultActionGroup("Rebase Current Branch Onto Parent", /*popup*/ false);
-    rebaseCurrentBranchOntoParent.add(
-        new RebaseCurrentBranchOntoParentAction(gitMacheteGraphTableManager));
+    rebaseCurrentBranchOntoParent.add(new RebaseCurrentBranchOntoParentAction());
 
     gitMacheteActions.addAll(refresh, toggleListCommits, rebaseCurrentBranchOntoParent);
 

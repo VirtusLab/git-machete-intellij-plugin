@@ -1,20 +1,29 @@
 package com.virtuslab.gitmachete.ui.table;
 
+import static com.virtuslab.gitmachete.actions.ActionIDs.ACTION_CHECKOUT;
+import static com.virtuslab.gitmachete.actions.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING;
+import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_TABLE_MANAGER_STRING;
+
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.actions.CheckoutBranchAction;
 import com.virtuslab.gitmachete.graph.SyncToParentStatusEdgeColorGenerator;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCellRenderer;
 import java.awt.Point;
@@ -22,13 +31,26 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.annotation.Nonnull;
 import javax.swing.SwingUtilities;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
-public class GitMacheteGraphTable extends JBTable {
+public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
-  public GitMacheteGraphTable(@Nonnull GraphTableModel graphTableModel) {
+  private final Project project;
+  private final GitMacheteGraphTableManager tableManager;
+
+  private static String selectedBranchName;
+
+  public GitMacheteGraphTable(
+      @Nonnull GraphTableModel graphTableModel,
+      Project project,
+      GitMacheteGraphTableManager tableManager) {
     super(graphTableModel);
+
+    this.project = project;
+    this.tableManager = tableManager;
 
     GraphCellPainter graphCellPainter =
         new SimpleGraphCellPainter(new SyncToParentStatusEdgeColorGenerator()) {
@@ -72,10 +94,22 @@ public class GitMacheteGraphTable extends JBTable {
     return (GraphTableModel) super.getModel();
   }
 
+  @Nullable
+  @Override
+  public Object getData(@NotNull String dataId) {
+    if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
+      return project;
+    } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
+      return FileEditorManager.getInstance(project).getSelectedEditor();
+    } else if (dataId.equals(KEY_TABLE_MANAGER_STRING)) {
+      return tableManager;
+    } else if (dataId.equals(KEY_SELECTED_BRANCH_NAME_STRING)) {
+      return selectedBranchName;
+    }
+    return null;
+  }
+
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-    // This group and action are defined in plugin.xml file
-    private static final String GROUP_TO_INVOKE_AS_CONTEXT_MENU = "GitMachete.ContextMenu";
-    private static final String CHECKOUT_ACTION = "GitMachete.CheckoutBranchAction";
 
     private final GitMacheteGraphTable graphTable;
 
@@ -99,9 +133,7 @@ public class GitMacheteGraphTable extends JBTable {
         return;
       }
 
-      String branchName = element.getValue();
-      // TODO (#91): find way to pass parameter of clicked branch to action
-      CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
+      selectedBranchName = element.getValue();
 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuGroup =
@@ -120,7 +152,7 @@ public class GitMacheteGraphTable extends JBTable {
                 new Presentation(),
                 ActionManager.getInstance(),
                 /*modifiers*/ 0);
-        ActionManager.getInstance().getAction(CHECKOUT_ACTION).actionPerformed(actionEvent);
+        ActionManager.getInstance().getAction(ACTION_CHECKOUT).actionPerformed(actionEvent);
       }
     }
   }

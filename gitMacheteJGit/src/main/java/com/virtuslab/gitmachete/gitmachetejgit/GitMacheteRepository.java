@@ -20,8 +20,10 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.MacheteFileParseException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -40,6 +42,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private IGitMacheteBranch currentBranch = null;
   private final IGitCoreBranch currentCoreBranch;
+
+  private final Map<String, IGitMacheteBranch> mapOfBranches = new HashMap<>();
 
   private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
 
@@ -100,6 +104,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     for (var entry : branchRelationFile.getRootBranches()) {
       var branch = createMacheteBranchOrThrowException(entry, /*upstreamBranch*/ null);
       rootBranches.add(branch);
+      mapOfBranches.put(branch.getName(), branch);
       processSubtree(branch, entry.getSubbranches());
     }
   }
@@ -138,6 +143,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       subtreeRoot.getDownstreamBranches().add(branch);
 
+      mapOfBranches.put(branch.getName(), branch);
+
       processSubtree(branch, entry.getSubbranches());
     }
   }
@@ -155,6 +162,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Override
   public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Optional.ofNullable(currentBranch);
+  }
+
+  @Override
+  public Optional<IGitMacheteBranch> getBranch(String branchName) {
+    return Optional.ofNullable(mapOfBranches.getOrDefault(branchName, null));
   }
 
   @Override

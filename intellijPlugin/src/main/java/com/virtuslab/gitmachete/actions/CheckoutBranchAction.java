@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.actions;
 
+import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -14,13 +16,9 @@ import git4idea.repo.GitRepository;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nonnull;
-import lombok.Setter;
 
 public class CheckoutBranchAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(CheckoutBranchAction.class);
-
-  // TODO (#91): find way to pass parameter of clicked branch to action
-  @Setter private static String nameOfBranchToCheckout;
 
   public CheckoutBranchAction() {}
 
@@ -31,7 +29,8 @@ public class CheckoutBranchAction extends AnAction {
 
   @Override
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
-    if (nameOfBranchToCheckout == null) {
+    String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
+    if (selectedBranchName == null) {
       LOG.error("Branch to checkout was not given");
       return;
     }
@@ -47,7 +46,7 @@ public class CheckoutBranchAction extends AnAction {
                 project,
                 Git.getInstance(),
                 new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
-            .checkout(nameOfBranchToCheckout, /*detach*/ false, List.of(repository));
+            .checkout(selectedBranchName, /*detach*/ false, List.of(repository));
       }
       // TODO (#95): on success, refresh only indication of the current branch
     }.queue();
