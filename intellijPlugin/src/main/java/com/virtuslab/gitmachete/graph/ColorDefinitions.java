@@ -11,7 +11,7 @@ public final class ColorDefinitions {
   private static final Color green = Color.decode("#008000");
   private static final Color gray = Color.decode("#AAAAAA");
   private static final Color dark_gray = Color.decode("#555555");
-  public static final Color transparent = new Color(0, 0, 0, 0);
+  private static final Color transparent = new Color(0, 0, 0, 0);
 
   /*
    * JBColor are pairs of colors for light and dark IDE theme.

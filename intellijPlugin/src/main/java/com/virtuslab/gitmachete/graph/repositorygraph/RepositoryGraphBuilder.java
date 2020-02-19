@@ -135,8 +135,8 @@ public class RepositoryGraphBuilder {
 
   /**
    * @param graphElements the collection to store downstream commits and branches
-   * @param upElementIndex upElementIndex for the splitting element
-   * @param syncToParentStatus syncToParentStatus of the branch that will be added just after the
+   * @param upElementIndex up element index for the splitting element
+   * @param syncToParentStatus sync to parent status of the branch that will be added just after the
    *     splitting element
    */
   private void addSplittingGraphElement(
@@ -152,17 +152,12 @@ public class RepositoryGraphBuilder {
   }
 
   /**
-   * Adds element that purpose is to keep downstream branches nodes in the same column (shifts right
-   * the last one). It is not intended to show this element. This is a hackish solution to solve the
-   * problem. It should be treated as temporary and an appropriate one shall be implemented (own
-   * {@link com.intellij.vcs.log.graph.api.printer.PrintElementGenerator} might be needed).
-   *
-   * <p>From the method name "Needed" means that element at {@code branchIndex} has any down
-   * elements (its {@code downElementIndexes} is not empty).
+   * From the method name "Needed" means that element at {@code branchIndex} has any down elements
+   * (its {@code downElementIndexes} is not empty).
    *
    * @param graphElements the collection to store downstream commits and branches
    * @param branchIndex index of branch after which phantom element might be needed
-   * @param upElementIndex upElementIndex for the phantom element
+   * @param upElementIndex up element index for the phantom element
    */
   private void addPhantomGraphElementIfNeeded(
       List<IGraphElement> graphElements, int branchIndex, int upElementIndex) {

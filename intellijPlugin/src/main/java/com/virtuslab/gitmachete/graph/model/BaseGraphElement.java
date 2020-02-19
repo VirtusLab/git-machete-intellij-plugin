@@ -35,4 +35,14 @@ public abstract class BaseGraphElement implements IGraphElement {
   public SimpleTextAttributes getAttributes() {
     return SimpleTextAttributes.REGULAR_ATTRIBUTES;
   }
+
+  @Override
+  public boolean hasBulletPoint() {
+    return false;
+  }
+
+  @Override
+  public boolean isVisible() {
+    return false;
+  }
 }
