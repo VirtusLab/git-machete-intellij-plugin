@@ -73,9 +73,8 @@ public class GitMacheteGraphTable extends JBTable {
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-    // This group with id "GitMachete.ContextMenu" is defined in plugin.xml file
+    // This group and action are defined in plugin.xml file
     private static final String GROUP_TO_INVOKE_AS_CONTEXT_MENU = "GitMachete.ContextMenu";
-    // This action is also defined in plugin.xml file
     private static final String CHECKOUT_ACTION = "GitMachete.CheckoutBranchAction";
 
     private final GitMacheteGraphTable graphTable;
@@ -104,25 +103,23 @@ public class GitMacheteGraphTable extends JBTable {
       CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
 
       if (SwingUtilities.isRightMouseButton(e)) {
+        ActionGroup contextMenuGroup =
+            (ActionGroup) ActionManager.getInstance().getAction(GROUP_TO_INVOKE_AS_CONTEXT_MENU);
         ActionPopupMenu actionPopupMenu =
             ActionManager.getInstance()
-                .createActionPopupMenu(
-                    ActionPlaces.UNKNOWN,
-                    (ActionGroup)
-                        ActionManager.getInstance().getAction(GROUP_TO_INVOKE_AS_CONTEXT_MENU));
+                .createActionPopupMenu(ActionPlaces.UNKNOWN, contextMenuGroup);
         actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        ActionManager.getInstance()
-            .getAction(CHECKOUT_ACTION)
-            .actionPerformed(
-                new AnActionEvent(
-                    null,
-                    DataManager.getInstance().getDataContext(graphTable),
-                    ActionPlaces.UNKNOWN,
-                    new Presentation(),
-                    ActionManager.getInstance(),
-                    0));
+        AnActionEvent actionEvent =
+            new AnActionEvent(
+                /*inputEvent*/ null,
+                DataManager.getInstance().getDataContext(graphTable),
+                ActionPlaces.UNKNOWN,
+                new Presentation(),
+                ActionManager.getInstance(),
+                /*modifiers*/ 0);
+        ActionManager.getInstance().getAction(CHECKOUT_ACTION).actionPerformed(actionEvent);
       }
     }
   }

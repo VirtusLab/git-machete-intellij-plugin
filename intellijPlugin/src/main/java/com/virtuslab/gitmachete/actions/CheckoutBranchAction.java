@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
@@ -33,8 +32,6 @@ public class CheckoutBranchAction extends AnAction {
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
     if (nameOfBranchToCheckout == null) {
       LOG.error("Branch to checkout was not given");
-      Messages.showErrorDialog(
-          "Internal plugin error occurred while checking out branch", "Ooops...");
       return;
     }
 
