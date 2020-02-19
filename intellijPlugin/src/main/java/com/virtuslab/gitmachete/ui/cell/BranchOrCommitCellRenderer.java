@@ -149,8 +149,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     /* todo
-     * The padding is calculated for all commits in the same branch (and the branch). The time
-     * consumed could be reduce by using some lazy value, caching, or indent storing.
+     * The padding is calculated for all commits in the same branch (and the branch itself). The time
+     * consumed could be reduced by using some lazy value, caching, or indent storing.
      */
     private int calculateTextPadding(IGraphElement element) {
       int width = graphImage.getWidth();
