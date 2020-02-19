@@ -118,8 +118,7 @@ public class GitMacheteGraphTable extends JBTable {
             .actionPerformed(
                 new AnActionEvent(
                     null,
-                    DataManager.getInstance()
-                        .getDataContext(), // todo: replace with something that is not deprecated
+                    DataManager.getInstance().getDataContext(graphTable),
                     ActionPlaces.UNKNOWN,
                     new Presentation(),
                     ActionManager.getInstance(),

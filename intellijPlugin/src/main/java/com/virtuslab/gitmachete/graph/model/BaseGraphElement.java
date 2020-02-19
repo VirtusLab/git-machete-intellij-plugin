@@ -45,4 +45,9 @@ public abstract class BaseGraphElement implements IGraphElement {
   public boolean isVisible() {
     return false;
   }
+
+  @Override
+  public boolean isBranch() {
+    return false;
+  }
 }
