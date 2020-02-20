@@ -36,7 +36,6 @@ public class RepositoryGraphFactory {
             repositoryGraphBuilder.branchComputeCommitsStrategy(DEFAULT_COMPUTE_COMMITS).build();
         repositoryGraphWithoutCommits =
             repositoryGraphBuilder.branchComputeCommitsStrategy(EMPTY_COMPUTE_COMMITS).build();
-        ;
       }
       return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
     }

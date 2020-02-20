@@ -18,8 +18,8 @@ import lombok.Getter;
 
 @Getter
 public class BranchRelationFile implements IBranchRelationFile {
-  private Path path;
-  private List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
+  private final Path path;
+  private final List<IBranchRelationFileEntry> rootBranches = new LinkedList<>();
 
   private Character indentType = null;
   private int levelWidth = 0;
@@ -90,10 +90,9 @@ public class BranchRelationFile implements IBranchRelationFile {
         branch = new BranchRelationFileEntry(branchName, /*upstream*/ null, customAnnotation);
         rootBranches.add(branch);
       } else {
-        branch =
-            new BranchRelationFileEntry(
-                branchName, currentUpstreamList.get(level - 1), customAnnotation);
-        currentUpstreamList.get(level - 1).addSubbranch(branch);
+        var upstream = currentUpstreamList.get(level - 1);
+        branch = new BranchRelationFileEntry(branchName, upstream, customAnnotation);
+        upstream.addSubbranch(branch);
       }
 
       currentUpstreamList.add(level, branch);
@@ -104,7 +103,7 @@ public class BranchRelationFile implements IBranchRelationFile {
 
   public BranchRelationFile(IBranchRelationFile branchRelationFile) {
     this.path = branchRelationFile.getPath();
-    this.rootBranches = new LinkedList<>(branchRelationFile.getRootBranches());
+    this.rootBranches.addAll(branchRelationFile.getRootBranches());
     this.indentType = branchRelationFile.getIndentType();
     this.levelWidth = branchRelationFile.getLevelWidth();
   }
@@ -205,7 +204,7 @@ public class BranchRelationFile implements IBranchRelationFile {
     var upstream = relationFileEntry.getUpstream().get();
     int indexInUpstream = upstream.getSubbranches().indexOf(relationFileEntry);
 
-    IBranchRelationFileEntry upstreamCopy = new BranchRelationFileEntry(upstream);
+    IBranchRelationFileEntry upstreamCopy = BranchRelationFileEntry.of(upstream);
 
     for (var subbranch : relationFileEntry.getSubbranches()) {
       IBranchRelationFileEntry subbranchCopy = subbranch.withUpstream(upstreamCopy);
@@ -227,23 +226,23 @@ public class BranchRelationFile implements IBranchRelationFile {
   private void traverseBranchesUpToRoot(
       BranchRelationFile newBranchRelationFile, IBranchRelationFileEntry branchToTraverse) {
     var oldUpstreamBranch = branchToTraverse.getUpstream();
-    IBranchRelationFileEntry oldBranchToTraverse;
 
     if (oldUpstreamBranch.isEmpty()) {
-      oldBranchToTraverse =
-          newBranchRelationFile
-              .findBranchByNameInBranches(
-                  branchToTraverse.getName(), newBranchRelationFile.getRootBranches())
-              .get();
+      var branchByNameInBranches =
+          newBranchRelationFile.findBranchByNameInBranches(
+              branchToTraverse.getName(), newBranchRelationFile.getRootBranches());
+      assert branchByNameInBranches.isPresent() : "Unable to find old branch to traverse";
+      var oldBranchToTraverse = branchByNameInBranches.get();
+
       Collections.replaceAll(
           newBranchRelationFile.getRootBranches(), oldBranchToTraverse, branchToTraverse);
     } else {
-      oldBranchToTraverse =
-          newBranchRelationFile
-              .findBranchByNameInBranches(
-                  branchToTraverse.getName(), oldUpstreamBranch.get().getSubbranches())
-              .get();
-      var newUpstreamBranch = new BranchRelationFileEntry(oldUpstreamBranch.get());
+      var branchByNameInBranches =
+          newBranchRelationFile.findBranchByNameInBranches(
+              branchToTraverse.getName(), oldUpstreamBranch.get().getSubbranches());
+      assert branchByNameInBranches.isPresent() : "Unable to find old branch to traverse";
+      var oldBranchToTraverse = branchByNameInBranches.get();
+      var newUpstreamBranch = BranchRelationFileEntry.of(oldUpstreamBranch.get());
       Collections.replaceAll(
           newUpstreamBranch.getSubbranches(), oldBranchToTraverse, branchToTraverse);
 

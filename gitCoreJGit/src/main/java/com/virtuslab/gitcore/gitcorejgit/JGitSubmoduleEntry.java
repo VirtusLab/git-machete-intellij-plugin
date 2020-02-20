@@ -2,17 +2,10 @@ package com.virtuslab.gitcore.gitcorejgit;
 
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreSubmoduleEntry;
 import java.nio.file.Path;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 
-@EqualsAndHashCode
-@Getter
+@Data
 public class JGitSubmoduleEntry implements IGitCoreSubmoduleEntry {
   private final Path path;
   private final String name;
-
-  public JGitSubmoduleEntry(Path path, String name) {
-    this.path = path;
-    this.name = name;
-  }
 }

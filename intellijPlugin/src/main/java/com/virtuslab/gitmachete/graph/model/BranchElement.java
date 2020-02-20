@@ -10,9 +10,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @EqualsAndHashCode(callSuper = true)
+@Getter
 public final class BranchElement extends BaseGraphElement {
-  @Getter private final IGitMacheteBranch branch;
-  @Getter private final SyncToOriginStatus syncToOriginStatus;
+  private final IGitMacheteBranch branch;
+  private final SyncToOriginStatus syncToOriginStatus;
 
   public BranchElement(
       IGitMacheteBranch branch,

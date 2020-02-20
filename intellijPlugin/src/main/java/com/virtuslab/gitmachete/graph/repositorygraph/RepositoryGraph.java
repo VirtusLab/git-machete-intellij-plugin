@@ -22,7 +22,7 @@ public class RepositoryGraph implements LinearGraph {
   private static final RepositoryGraph nullRepositoryGraph =
       new RepositoryGraphBuilder().repository(NullRepository.getInstance()).build();
 
-  @Nonnull protected final List<IGraphElement> elements;
+  @Nonnull private final List<IGraphElement> elements;
   @Nonnull private final PrintElementGeneratorImpl printElementGenerator;
 
   public RepositoryGraph(@Nonnull List<IGraphElement> elements) {

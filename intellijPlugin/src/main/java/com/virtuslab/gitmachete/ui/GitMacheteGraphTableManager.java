@@ -29,7 +29,7 @@ public class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
   private final Project project;
   @Getter @Setter private boolean isListingCommits;
-  @Getter private GitMacheteGraphTable gitMacheteGraphTable;
+  @Getter private final GitMacheteGraphTable gitMacheteGraphTable;
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory;
   @Getter private IGitMacheteRepository repository;
   private final RepositoryGraphFactory repositoryGraphFactory;

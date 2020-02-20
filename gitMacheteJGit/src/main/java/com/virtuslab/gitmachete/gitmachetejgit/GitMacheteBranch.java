@@ -15,29 +15,15 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Data
 public class GitMacheteBranch implements IGitMacheteBranch {
-  @Getter private final IGitCoreLocalBranch coreLocalBranch;
-
-  @EqualsAndHashCode.Include @Getter private final String name;
+  private final IGitCoreLocalBranch coreLocalBranch;
+  private final String name;
   private final IGitMacheteBranch upstreamBranch;
   private final String customAnnotation;
-
   private final List<IGitMacheteBranch> childBranches = new LinkedList<>();
-
-  public GitMacheteBranch(
-      IGitCoreLocalBranch coreLocalBranch,
-      String customAnnotation,
-      IGitMacheteBranch upstreamBranch)
-      throws GitException {
-    this.coreLocalBranch = coreLocalBranch;
-    this.name = this.coreLocalBranch.getName();
-    this.customAnnotation = customAnnotation;
-    this.upstreamBranch = upstreamBranch;
-  }
 
   @Override
   public Optional<String> getCustomAnnotation() {

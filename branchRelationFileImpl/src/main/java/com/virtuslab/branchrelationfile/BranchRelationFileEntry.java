@@ -4,37 +4,29 @@ import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Data
 public class BranchRelationFileEntry implements IBranchRelationFileEntry {
-  @EqualsAndHashCode.Include @Getter private final String name;
+  private final String name;
   private final IBranchRelationFileEntry upstream;
-  @Getter private final List<IBranchRelationFileEntry> subbranches;
   private final String customAnnotation;
+  private final List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
 
-  public BranchRelationFileEntry(
-      String name, IBranchRelationFileEntry upstream, String customAnnotation) {
-    this.name = name;
-    this.upstream = upstream;
-    this.customAnnotation = customAnnotation;
-    this.subbranches = new LinkedList<>();
-  }
-
-  public BranchRelationFileEntry(IBranchRelationFileEntry branchRelationFileEntry) {
-    this.name = branchRelationFileEntry.getName();
-    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
-    this.upstream = branchRelationFileEntry.getUpstream().orElse(null);
-    this.subbranches = new LinkedList<>(branchRelationFileEntry.getSubbranches());
-  }
-
-  public BranchRelationFileEntry(
+  public static IBranchRelationFileEntry of(
       IBranchRelationFileEntry branchRelationFileEntry, IBranchRelationFileEntry upstream) {
-    this.name = branchRelationFileEntry.getName();
-    this.customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
-    this.upstream = upstream;
-    this.subbranches = new LinkedList<>(branchRelationFileEntry.getSubbranches());
+    var result =
+        new BranchRelationFileEntry(
+            branchRelationFileEntry.getName(),
+            upstream,
+            branchRelationFileEntry.getCustomAnnotation().orElse(null));
+    result.getSubbranches().addAll(branchRelationFileEntry.getSubbranches());
+    return result;
+  }
+
+  public static IBranchRelationFileEntry of(IBranchRelationFileEntry branchRelationFileEntry) {
+    var upstream = branchRelationFileEntry.getUpstream().orElse(null);
+    return BranchRelationFileEntry.of(branchRelationFileEntry, upstream);
   }
 
   @Override
@@ -49,7 +41,7 @@ public class BranchRelationFileEntry implements IBranchRelationFileEntry {
 
   @Override
   public IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream) {
-    return new BranchRelationFileEntry(/* branchRelationFileEntry */ this, newUpstream);
+    return BranchRelationFileEntry.of(/* branchRelationFileEntry */ this, newUpstream);
   }
 
   @Override

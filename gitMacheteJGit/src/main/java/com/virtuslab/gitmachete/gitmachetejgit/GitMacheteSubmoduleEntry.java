@@ -2,11 +2,9 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import java.nio.file.Path;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
+@Data
 public class GitMacheteSubmoduleEntry implements IGitMacheteSubmoduleEntry {
   private final Path path;
   private final String name;

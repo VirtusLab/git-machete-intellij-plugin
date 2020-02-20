@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -23,8 +23,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@AllArgsConstructor
+@Data
 public abstract class JGitBranch implements IGitCoreBranch {
   protected final JGitRepository repo;
   protected final String branchName;
@@ -41,9 +40,6 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
   public abstract String getBranchesPath();
 
-  @Override
-  public abstract boolean isLocal();
-
   public abstract String getBranchTypeString();
 
   public abstract String getBranchTypeString(boolean capitalized);
@@ -59,11 +55,12 @@ public abstract class JGitBranch implements IGitCoreBranch {
     RevCommit c;
     try {
       ObjectId o = jgitRepo.resolve(getFullName());
-      if (o == null)
+      if (o == null) {
         throw new GitNoSuchBranchException(
             MessageFormat.format(
                 "{1} branch \"{0}\" does not exist in this repository",
                 branchName, getBranchTypeString(/*capitalized*/ true)));
+      }
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
       throw new GitNoSuchCommitException(

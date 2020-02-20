@@ -13,7 +13,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 @EqualsAndHashCode
 public class JGitCommit implements IGitCoreCommit {
   @Getter private final RevCommit jgitCommit;
-  @EqualsAndHashCode.Exclude private final JGitRepository repo;
+  private final JGitRepository repo; // todo issue #93
 
   public JGitCommit(RevCommit commit, JGitRepository repo) {
     if (commit == null)

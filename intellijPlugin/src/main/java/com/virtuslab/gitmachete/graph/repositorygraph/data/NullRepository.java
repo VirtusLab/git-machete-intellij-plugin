@@ -1,8 +1,6 @@
 package com.virtuslab.gitmachete.graph.repositorygraph.data;
 
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
@@ -12,8 +10,8 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 
-public class NullRepository implements IGitMacheteRepository {
-  @Getter @Nonnull private static NullRepository instance = new NullRepository();
+public final class NullRepository implements IGitMacheteRepository {
+  @Getter @Nonnull private static final NullRepository instance = new NullRepository();
 
   @Override
   public List<IGitMacheteBranch> getRootBranches() {
@@ -41,8 +39,7 @@ public class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
-      throws GitException, GitMacheteException {
+  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile) {
     return this;
   }
 }

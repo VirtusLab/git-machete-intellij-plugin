@@ -26,7 +26,6 @@ public class JGitRemoteBranch extends JGitBranch implements IGitCoreRemoteBranch
 
   @Override
   public String getBranchTypeString(boolean capitalized) {
-    if (capitalized) return "Remote";
-    else return "remote";
+    return capitalized ? "Remote" : "remote";
   }
 }

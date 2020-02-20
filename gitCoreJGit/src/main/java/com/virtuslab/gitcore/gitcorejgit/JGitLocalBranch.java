@@ -41,8 +41,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
 
   @Override
   public String getBranchTypeString(boolean capitalized) {
-    if (capitalized) return "Local";
-    else return "local";
+    return capitalized ? "Local" : "local";
   }
 
   @Override
@@ -56,7 +55,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
 
     if (ts == null) return Optional.empty();
 
-    return Optional.of(JGitBranchTrackingStatus.build(ts.getAheadCount(), ts.getBehindCount()));
+    return Optional.of(JGitBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount()));
   }
 
   @Override

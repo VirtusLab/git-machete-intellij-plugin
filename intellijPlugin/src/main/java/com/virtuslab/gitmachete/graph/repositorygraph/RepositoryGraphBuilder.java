@@ -32,9 +32,10 @@ public class RepositoryGraphBuilder {
   @Nonnull @Setter
   private IBranchComputeCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
 
-  public static IBranchComputeCommitsStrategy DEFAULT_COMPUTE_COMMITS =
+  public static final IBranchComputeCommitsStrategy DEFAULT_COMPUTE_COMMITS =
       IGitMacheteBranch::computeCommits;
-  public static IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
+  public static final IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS =
+      b -> Collections.emptyList();
 
   public RepositoryGraph build() {
     List<IGraphElement> elementsOfRepository;

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -27,15 +28,18 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
 
+@Getter
 public class JGitRepository implements IGitCoreRepository {
-  @Getter private final org.eclipse.jgit.lib.Repository jgitRepo;
-  @Getter private final Git jgitGit;
-  @Getter private final Path repositoryPath;
-  @Getter private final Path gitFolderPath;
+  private final Repository jgitRepo;
+  private final Git jgitGit;
+  private final Path repositoryPath;
+  private final Path gitFolderPath;
+
+  @Getter(AccessLevel.NONE)
+  private final Pattern gitDirPattern = Pattern.compile("gitdir:\\s*(.*)");
 
   @Inject
   public JGitRepository(@Assisted Path repositoryPath)
@@ -45,11 +49,12 @@ public class JGitRepository implements IGitCoreRepository {
 
     if (Files.isDirectory(gitPath)) {
       this.gitFolderPath = gitPath;
-    } else if (Files.isRegularFile(gitPath))
+    } else if (Files.isRegularFile(gitPath)) {
       this.gitFolderPath = getGitFolderPathFromGitFile(gitPath);
-    else
+    } else {
       throw new GitNoSuchRepositoryException(
           MessageFormat.format("Repository in path \"{0}\" does not exists", repositoryPath));
+    }
 
     jgitRepo = new FileRepository(this.gitFolderPath.toString());
     jgitGit = new Git(jgitRepo);
@@ -58,8 +63,7 @@ public class JGitRepository implements IGitCoreRepository {
   private Path getGitFolderPathFromGitFile(Path gitFilePath)
       throws IOException, GitNoSuchRepositoryException {
     String gitFile = Files.readString(gitFilePath);
-    Pattern pattern = Pattern.compile("gitdir:\\s*(.*)");
-    Matcher matcher = pattern.matcher(gitFile);
+    Matcher matcher = gitDirPattern.matcher(gitFile);
     if (matcher.find()) {
       return gitFilePath.getParent().resolve(matcher.group(1)).normalize();
     }
@@ -81,29 +85,28 @@ public class JGitRepository implements IGitCoreRepository {
 
     if (r.isSymbolic())
       return Optional.of(
-          new JGitLocalBranch(
-              this, org.eclipse.jgit.lib.Repository.shortenRefName(r.getTarget().getName())));
+          new JGitLocalBranch(this, Repository.shortenRefName(r.getTarget().getName())));
 
     return Optional.empty();
   }
 
   @Override
   public JGitLocalBranch getLocalBranch(String branchName) throws GitException {
-    if (!checkIfBranchExist(JGitLocalBranch.branchesPath + branchName))
+    if (branchIsMissing(JGitLocalBranch.branchesPath + branchName)) {
       throw new GitNoSuchBranchException(
           MessageFormat.format(
               "Local branch \"{0}\" does not exist in this repository", branchName));
-
+    }
     return new JGitLocalBranch(/*repo*/ this, branchName);
   }
 
   @Override
   public JGitRemoteBranch getRemoteBranch(String branchName) throws GitException {
-    if (!checkIfBranchExist(JGitRemoteBranch.branchesPath + branchName))
+    if (branchIsMissing(JGitRemoteBranch.branchesPath + branchName)) {
       throw new GitNoSuchBranchException(
           MessageFormat.format(
               "Remote branch \"{0}\" does not exist in this repository", branchName));
-
+    }
     return new JGitRemoteBranch(/*repo*/ this, branchName);
   }
 
@@ -163,13 +166,10 @@ public class JGitRepository implements IGitCoreRepository {
     return submodules;
   }
 
-  private boolean checkIfBranchExist(String path) throws JGitException {
-    RevWalk rw = new RevWalk(jgitRepo);
-    RevCommit c;
+  private boolean branchIsMissing(String path) throws JGitException {
     try {
       ObjectId o = jgitRepo.resolve(path);
-
-      return o != null;
+      return o == null;
     } catch (RevisionSyntaxException | IOException e) {
       throw new JGitException(e);
     }

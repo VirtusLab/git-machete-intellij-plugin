@@ -77,11 +77,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     this.pathToBranchRelationFile = this.repo.getGitFolderPath().resolve("machete");
 
     var currentCoreBranchOptional = repo.getCurrentBranch();
-    if (currentCoreBranchOptional.isPresent()) {
-      currentCoreBranch = currentCoreBranchOptional.get();
-    } else {
-      currentCoreBranch = null;
-    }
+    currentCoreBranch = currentCoreBranchOptional.orElse(null);
 
     if (givenBranchRelationFile == null) {
       try {
@@ -124,9 +120,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
               branchEntry.getName(), pathToBranchRelationFile.toString()));
     }
 
+    String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
     var branch =
         new GitMacheteBranch(
-            coreBranch.get(), branchEntry.getCustomAnnotation().orElse(null), upstreamBranch);
+            coreBranch.get(), coreBranch.get().getName(), upstreamBranch, customAnnotation);
 
     if (coreBranch.get().equals(currentCoreBranch)) {
       currentBranch = branch;
@@ -164,7 +161,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public List<IGitMacheteSubmoduleEntry> getSubmodules() throws GitMacheteException {
-    List<IGitMacheteSubmoduleEntry> submodules = new LinkedList<>();
     List<IGitCoreSubmoduleEntry> subs;
 
     try {
@@ -173,10 +169,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       throw new GitMacheteJGitException("Error while getting submodules", e);
     }
 
-    submodules =
-        subs.stream().map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
-
-    return submodules;
+    return subs.stream().map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
   }
 
   @Override

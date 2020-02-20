@@ -4,13 +4,9 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-@Getter
+@Data
 public abstract class BaseGraphElement implements IGraphElement {
   private static final String EMPTY_VALUE = "";
 

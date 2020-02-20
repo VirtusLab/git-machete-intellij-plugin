@@ -3,11 +3,9 @@ package com.virtuslab.gitmachete.gitmachetejgit;
 import com.virtuslab.gitcore.gitcoreapi.GitException;
 import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
+@Data
 public class GitMacheteCommit implements IGitMacheteCommit {
   private final String message;
   private final String hash;
