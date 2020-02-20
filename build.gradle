@@ -1,5 +1,6 @@
 plugins {
-    id "com.diffplug.gradle.spotless" version "3.26.1"
+    id 'com.diffplug.gradle.spotless' version '3.26.1'
+    id 'java-library'
 }
 
 allprojects {
@@ -10,6 +11,8 @@ allprojects {
         jcenter()
         mavenCentral()
     }
+
+    apply plugin: 'java-library'
 
     apply plugin: 'java'
     sourceCompatibility = 11
@@ -39,35 +42,36 @@ allprojects {
 
         guice = { ->
             dependencies {
-                compile group: 'com.google.inject', name: 'guice', version: guiceVersion
-                compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+                implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
+                implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+                implementation group: 'com.google.inject.extensions', name: 'guice-multibindings', version: guiceVersion
             }
         }
 
         javafx = { ->
             dependencies {
-                compile group: 'org.openjfx', name: 'javafx', version: javafxVersion, ext: 'pom'
+                implementation group: 'org.openjfx', name: 'javafx', version: javafxVersion, ext: 'pom'
             }
         }
 
         slf4j = { ->
             dependencies {
-                compile group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+                implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
             }
         }
 
         jgit = { ->
             slf4j()
             dependencies {
-                compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
+                implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
             }
         }
     }
 
     dependencies {
-        testCompile group: 'junit', name: 'junit', version: junitVersion
-        testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
-        testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+        testImplementation group: 'junit', name: 'junit', version: junitVersion
+        testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
+        testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
     }
 }
 

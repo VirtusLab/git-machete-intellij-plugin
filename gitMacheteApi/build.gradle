@@ -1,4 +1,4 @@
 dependencies {
-    compile project(':gitCoreApi')
-    compile project(':branchRelationFileApi')
+    implementation project(':gitCoreApi')
+    implementation project(':branchRelationFileApi')
 }

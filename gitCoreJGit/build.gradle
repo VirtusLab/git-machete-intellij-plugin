@@ -3,5 +3,5 @@ dependencies {
     jgit()
     lombok()
 
-    compile project(':gitCoreApi')
+    api project(':gitCoreApi')
 }

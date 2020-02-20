@@ -1,10 +1,10 @@
 dependencies {
     guice()
 
-    compile project(':gitCoreApi')
-    compile project(':gitCoreJGit')
-    compile project(':gitMacheteApi')
-    compile project(':gitMacheteJGit')
-    compile project(':branchRelationFileApi')
-    compile project(':branchRelationFileImpl')
+    implementation project(':gitCoreApi')
+    implementation project(':gitCoreJGit')
+    implementation project(':gitMacheteApi')
+    implementation project(':gitMacheteJGit')
+    implementation project(':branchRelationFileApi')
+    implementation project(':branchRelationFileImpl')
 }

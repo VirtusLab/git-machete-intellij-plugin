@@ -5,8 +5,11 @@ plugins {
 dependencies {
     javafx()
     lombok()
+    guice()
 
-    compile project(':backendRoot')
+    implementation project(':backendRoot')
+    implementation project(':gitMacheteApi')
+    implementation project(':gitCoreApi')
 }
 
 configurations.all {

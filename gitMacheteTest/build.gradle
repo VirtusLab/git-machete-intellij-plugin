@@ -1,3 +1,7 @@
 dependencies {
-    compile project(':backendRoot')
+    guice()
+
+    implementation project(':backendRoot')
+    implementation project(':gitMacheteApi')
+    implementation project(':branchRelationFileApi')
 }

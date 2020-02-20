@@ -2,5 +2,7 @@ dependencies {
     guice()
     lombok()
 
-    compile project(':gitMacheteApi')
+    implementation project(':gitCoreApi')
+    api project(':gitMacheteApi')
+    implementation project(':branchRelationFileApi')
 }
