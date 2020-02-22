@@ -23,7 +23,7 @@ import java.awt.event.MouseEvent;
 import javax.annotation.Nonnull;
 import javax.swing.SwingUtilities;
 
-/* todo: consider applying SpeedSearch for branches and commits */
+// TODO (#99): consider applying SpeedSearch for branches and commits
 public class GitMacheteGraphTable extends JBTable {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
@@ -100,7 +100,8 @@ public class GitMacheteGraphTable extends JBTable {
       }
 
       String branchName = element.getValue();
-      CheckoutBranchAction.setNameOfBranchToCheckout(branchName); // issue #91
+      // TODO (#91): find way to pass parameter of clicked branch to action
+      CheckoutBranchAction.setNameOfBranchToCheckout(branchName);
 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuGroup =

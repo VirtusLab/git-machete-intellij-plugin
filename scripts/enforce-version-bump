@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail -u -x
+set -e -o pipefail -u
 
 source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
 
@@ -12,11 +12,11 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge
   #  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
   base_commit=$(git rev-parse --short origin/pull-$pr_num/merge^1)
-  base_msg="PR base commit $base_commit"
+  base_desc="PR base commit $base_commit"
 elif [[ ${CIRCLE_BRANCH-} != master ]]; then
   # For non-PR builds (builds of branches other than master), just compare the version to what's in the current master.
   base_commit=$(git rev-parse --short origin/master)
-  base_msg="master head commit $base_commit"
+  base_desc="master head commit $base_commit"
 else # master build
   exit 0
 fi
@@ -26,13 +26,13 @@ parse_version $base_commit base
 
 [[ $head_major -gt $base_major ]] && exit 0
 [[ $head_major -eq $base_major ]] || \
-  die "Major version ($head_major) must not be lower than in $base_msg ($base_major)"
+  die "Major version ($head_major) must not be lower than in $base_desc ($base_major)"
 
 [[ $head_minor -gt $base_minor ]] && exit 0
 [[ $head_minor -eq $base_minor ]] || \
-  die "Minor version ($head_minor) must not be lower than in $base_msg ($base_minor)"
+  die "Minor version ($head_minor) must not be lower than in $base_desc ($base_minor)"
 
 [[ $head_patch -gt $base_patch ]] && exit 0
 [[ $head_patch -eq $base_patch ]] && \
-  die "Version must not be identical as in $base_msg" || \
-  die "Patch version ($head_patch) must not be lower than in $base_msg ($base_patch)"
+  die "Version must not be identical as in $base_desc" || \
+  die "Patch version ($head_patch) must not be lower than in $base_desc ($base_patch)"

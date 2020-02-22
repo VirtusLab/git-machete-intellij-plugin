@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Negative lookahead (?!...), requires Perl syntax (-P): find fixmes/todos NOT followed by issue number
+if git --no-pager grep -PIin '(\*|//|#)\s*(fixme|todo)(?! \(#[0-9]+\): )'; then
+  echo -e "\nUse 'TODO|FIXME (#<issue-number>): ' format for the above TODOs and FIXMEs"
+  exit 1
+fi

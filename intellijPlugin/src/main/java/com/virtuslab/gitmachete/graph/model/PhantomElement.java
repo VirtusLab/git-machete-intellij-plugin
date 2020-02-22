@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.graph.model;
 
-// todo issue #90
+// TODO (#90): find and apply a proper approach for indents handling
 /**
  * An element whose purpose is to keep the child branch ({@link CommitElement}s and theirs {@link
  * BranchElement}) horizontally aligned (shifts right the last one). This element is not intended to

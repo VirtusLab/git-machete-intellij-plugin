@@ -11,6 +11,7 @@ jobs:
           name: Prepare build
           command: |
             set -x
+            ./scripts/enforce-issue-number-for-todos
             ./scripts/enforce-version-bump
             ./scripts/prohibit-trailing-whitespace
             ./scripts/prohibit-wildcard-imports

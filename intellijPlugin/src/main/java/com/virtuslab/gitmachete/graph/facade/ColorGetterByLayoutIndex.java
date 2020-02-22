@@ -35,7 +35,7 @@ public class ColorGetterByLayoutIndex {
       SyncToParentStatus syncToParentStatus = graphElement.getSyncToParentStatus();
       return syncToParentStatus.getId();
     } else {
-      return -1; // todo find a better solution, issue #86
+      return -1; // TODO (#86): find a better solution
     }
   }
 }

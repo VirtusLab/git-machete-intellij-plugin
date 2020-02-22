@@ -19,7 +19,8 @@ import lombok.Setter;
 public class CheckoutBranchAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(CheckoutBranchAction.class);
 
-  @Setter private static String nameOfBranchToCheckout; // issue #91
+  // TODO (#91): find way to pass parameter of clicked branch to action
+  @Setter private static String nameOfBranchToCheckout;
 
   public CheckoutBranchAction() {}
 
@@ -48,14 +49,12 @@ public class CheckoutBranchAction extends AnAction {
                 new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
             .checkout(nameOfBranchToCheckout, /*detach*/ false, List.of(repository));
       }
-      /* todo on success
-          Refresh only indication of current branch
-      */
+      // TODO (#95): on success, refresh only indication of the current branch
     }.queue();
   }
 
   protected GitRepository getRepository(Project project) {
-    // todo handle multiple repositories #64
+    // TODO (#64): handle multiple repositories
     Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
     assert iterator.hasNext();
     return iterator.next();

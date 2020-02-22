@@ -39,7 +39,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    // todo prohibit rebase during rebase #79
+    // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
   @Override
@@ -77,11 +77,9 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
 
-      /* todo on success
-          Refresh only sync statuses (not whole repository).
-          Keep in mind potential changes to commits.
-          (eg. commits may get squashed so the graph structure changes)
-      */
+      /* TODO (#95): on success, refresh only sync statuses (not the whole repository).
+       * Keep in mind potential changes to commits (eg. commits may get squashed so the graph structure changes).
+       */
     }.queue();
   }
 
@@ -110,7 +108,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
    * it is guaranteed that while the Git Machete plugin tab is visible, a git repository exists.
    */
   protected GitRepository getRepository(Project project) {
-    // todo handle multiple repositories #64
+    // TODO (#64): handle multiple repositories
     Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
     assert iterator.hasNext();
     return iterator.next();

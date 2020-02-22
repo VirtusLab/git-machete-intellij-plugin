@@ -53,7 +53,7 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
     for (IGitMacheteBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
-      // todo set syncToParentStatus later (?)
+      // TODO (#97): set syncToParentStatus later (?)
       SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
       addCommitsWithBranch(graphElements, branch, /*upstreamBranchIndex*/ -1, syncToParentStatus);
       List<IGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches();
@@ -75,7 +75,7 @@ public class RepositoryGraphBuilder {
       throws GitException {
     int upElementIndex = branchIndex;
     for (IGitMacheteBranch branch : downstreamBranches) {
-      // todo set syncToParentStatus later (?)
+      // TODO (#97): set syncToParentStatus later (?)
       SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
       addSplittingGraphElement(graphElements, upElementIndex, syncToParentStatus);
 
