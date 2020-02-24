@@ -39,7 +39,7 @@ public class JGitRepository implements IGitCoreRepository {
   private final Path gitFolderPath;
 
   @Getter(AccessLevel.NONE)
-  private final Pattern gitDirPattern = Pattern.compile("gitdir:\\s*(.*)");
+  private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
 
   @Inject
   public JGitRepository(@Assisted Path repositoryPath)
@@ -63,7 +63,7 @@ public class JGitRepository implements IGitCoreRepository {
   private Path getGitFolderPathFromGitFile(Path gitFilePath)
       throws IOException, GitNoSuchRepositoryException {
     String gitFile = Files.readString(gitFilePath);
-    Matcher matcher = gitDirPattern.matcher(gitFile);
+    Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
     if (matcher.find()) {
       return gitFilePath.getParent().resolve(matcher.group(1)).normalize();
     }
@@ -92,7 +92,7 @@ public class JGitRepository implements IGitCoreRepository {
 
   @Override
   public JGitLocalBranch getLocalBranch(String branchName) throws GitException {
-    if (branchIsMissing(JGitLocalBranch.branchesPath + branchName)) {
+    if (isBranchMissing(JGitLocalBranch.branchesPath + branchName)) {
       throw new GitNoSuchBranchException(
           MessageFormat.format(
               "Local branch \"{0}\" does not exist in this repository", branchName));
@@ -102,7 +102,7 @@ public class JGitRepository implements IGitCoreRepository {
 
   @Override
   public JGitRemoteBranch getRemoteBranch(String branchName) throws GitException {
-    if (branchIsMissing(JGitRemoteBranch.branchesPath + branchName)) {
+    if (isBranchMissing(JGitRemoteBranch.branchesPath + branchName)) {
       throw new GitNoSuchBranchException(
           MessageFormat.format(
               "Remote branch \"{0}\" does not exist in this repository", branchName));
@@ -166,7 +166,7 @@ public class JGitRepository implements IGitCoreRepository {
     return submodules;
   }
 
-  private boolean branchIsMissing(String path) throws JGitException {
+  private boolean isBranchMissing(String path) throws JGitException {
     try {
       ObjectId o = jgitRepo.resolve(path);
       return o == null;

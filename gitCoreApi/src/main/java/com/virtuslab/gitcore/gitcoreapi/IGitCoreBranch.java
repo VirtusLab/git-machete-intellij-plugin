@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGitCoreBranch {
-  String getName() throws GitException;
+  String getName();
 
   String getFullName() throws GitException;
 

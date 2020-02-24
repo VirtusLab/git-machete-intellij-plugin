@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Data;
 
+/** To make the most of Lombok benefits static factory methods are used */
 @Data
 public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   private final String name;

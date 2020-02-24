@@ -13,7 +13,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 @EqualsAndHashCode
 public class JGitCommit implements IGitCoreCommit {
   @Getter private final RevCommit jgitCommit;
-  private final JGitRepository repo; // todo issue #93
+  // TODO (#93): separate (and reimplement) isAncestorOf logic, remove the following field
+  private final JGitRepository repo;
 
   public JGitCommit(RevCommit commit, JGitRepository repo) {
     if (commit == null)

@@ -126,7 +126,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (element instanceof BranchElement) {
         IGitMacheteBranch branch = ((BranchElement) element).getBranch();
         Optional<String> customAnnotation = branch.getCustomAnnotation();
-        customAnnotation.ifPresent(s -> append("   " + s, SimpleTextAttributes.GRAY_ATTRIBUTES));
+        if (customAnnotation.isPresent()) {
+          append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+        }
 
         SyncToOriginStatus syncToOriginStatus;
 

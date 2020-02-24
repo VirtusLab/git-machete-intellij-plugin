@@ -20,7 +20,6 @@ import lombok.Data;
 @Data
 public class GitMacheteBranch implements IGitMacheteBranch {
   private final IGitCoreLocalBranch coreLocalBranch;
-  private final String name;
   private final IGitMacheteBranch upstreamBranch;
   private final String customAnnotation;
   private final List<IGitMacheteBranch> childBranches = new LinkedList<>();
@@ -28,6 +27,11 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   @Override
   public Optional<String> getCustomAnnotation() {
     return Optional.ofNullable(customAnnotation);
+  }
+
+  @Override
+  public String getName() {
+    return coreLocalBranch.getName();
   }
 
   @Override
