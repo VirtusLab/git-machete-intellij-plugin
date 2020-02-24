@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.graph.repositorygraph;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
@@ -43,7 +42,7 @@ public class RepositoryGraphBuilder {
     List<IGraphElement> elementsOfRepository;
     try {
       elementsOfRepository = computeGraphElements();
-    } catch (GitCoreException e) {
+    } catch (GitMacheteException e) {
       LOG.error("Unable to build elements of repository graph", e);
       elementsOfRepository = Collections.emptyList();
     }
@@ -51,7 +50,7 @@ public class RepositoryGraphBuilder {
   }
 
   @Nonnull
-  private List<IGraphElement> computeGraphElements() throws GitCoreException {
+  private List<IGraphElement> computeGraphElements() throws GitMacheteException {
     List<IGraphElement> graphElements = new ArrayList<>();
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
     for (IGitMacheteBranch branch : rootBranches) {
@@ -75,7 +74,7 @@ public class RepositoryGraphBuilder {
       List<IGraphElement> graphElements,
       List<IGitMacheteBranch> downstreamBranches,
       int branchIndex)
-      throws GitCoreException {
+      throws GitMacheteException {
     int upElementIndex = branchIndex;
     for (IGitMacheteBranch branch : downstreamBranches) {
       // TODO (#97): set syncToParentStatus later (?)
@@ -100,7 +99,7 @@ public class RepositoryGraphBuilder {
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
       SyncToParentStatus syncToParentStatus)
-      throws GitCoreException {
+      throws GitMacheteException {
     List<IGitMacheteCommit> commits =
         Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 

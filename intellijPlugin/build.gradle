@@ -9,7 +9,6 @@ dependencies {
 
     implementation project(':backendRoot')
     implementation project(':gitMacheteApi')
-    implementation project(':gitCoreApi')
 }
 
 configurations.all {

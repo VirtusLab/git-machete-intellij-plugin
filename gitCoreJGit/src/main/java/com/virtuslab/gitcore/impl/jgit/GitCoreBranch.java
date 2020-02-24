@@ -47,7 +47,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
 
   @Override
   public GitCoreCommit getPointedCommit() throws GitCoreException {
-    return new GitCoreCommit(computePointedRevCommit(), repo);
+    return new GitCoreCommit(computePointedRevCommit());
   }
 
   protected RevCommit computePointedRevCommit() throws GitCoreException {
@@ -103,7 +103,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     for (var c : walk) {
       for (var p : c.getParents()) {
         if (ancestorsOfStartCommits.contains(p.getId())) {
-          return Optional.of(new GitCoreCommit(p, repo));
+          return Optional.of(new GitCoreCommit(p));
         } else {
           ancestorsOfStartCommits.add(p);
         }
@@ -130,7 +130,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     for (var c : walk) {
       if (c.getId().getName().equals(upToCommit.getHash().getHashString())) break;
 
-      list.add(new GitCoreCommit(c, repo));
+      list.add(new GitCoreCommit(c));
     }
 
     return list;

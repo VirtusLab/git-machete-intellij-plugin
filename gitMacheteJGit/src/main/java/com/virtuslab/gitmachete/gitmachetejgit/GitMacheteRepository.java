@@ -45,10 +45,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
 
-  private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
-
-  private final BranchRelationFileFactory branchRelationFileFactory;
-
   @Inject
   public GitMacheteRepository(
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
@@ -71,8 +67,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       String repositoryName,
       IBranchRelationFile givenBranchRelationFile)
       throws GitMacheteException, GitCoreException {
-    this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
-    this.branchRelationFileFactory = branchRelationFileFactory;
 
     this.pathToRepoRoot = pathToRepoRoot;
     this.repositoryName = repositoryName;
@@ -126,7 +120,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
-    var branch = new GitMacheteBranch(coreBranch.get(), upstreamBranch, customAnnotation);
+    var branch =
+        new GitMacheteBranch(
+            coreBranch.get(), upstreamBranch, customAnnotation, repo.getAncestorityChecker());
 
     if (coreBranch.get().equals(currentCoreBranch)) {
       currentBranch = branch;
@@ -180,17 +176,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     return subs.stream().map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
-  }
-
-  @Override
-  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
-      throws GitCoreException, GitMacheteException {
-    return new GitMacheteRepository(
-        gitCoreRepositoryFactory,
-        branchRelationFileFactory,
-        pathToRepoRoot,
-        repositoryName,
-        branchRelationFile);
   }
 
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {

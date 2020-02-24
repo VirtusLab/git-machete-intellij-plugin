@@ -20,4 +20,6 @@ public interface IGitCoreRepository {
   Path getGitFolderPath();
 
   List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
+
+  IAncestorityChecker getAncestorityChecker();
 }

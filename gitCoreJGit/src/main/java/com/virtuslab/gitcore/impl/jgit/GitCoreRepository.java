@@ -5,6 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
+import com.virtuslab.gitcore.api.IAncestorityChecker;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -37,6 +38,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   private final Git jgitGit;
   private final Path repositoryPath;
   private final Path gitFolderPath;
+  private final IAncestorityChecker ancestorityChecker;
 
   @Getter(AccessLevel.NONE)
   private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
@@ -58,6 +60,8 @@ public class GitCoreRepository implements IGitCoreRepository {
 
     jgitRepo = new FileRepository(this.gitFolderPath.toString());
     jgitGit = new Git(jgitRepo);
+
+    ancestorityChecker = new AncestorityChecker(jgitRepo);
   }
 
   private Path getGitFolderPathFromGitFile(Path gitFilePath)

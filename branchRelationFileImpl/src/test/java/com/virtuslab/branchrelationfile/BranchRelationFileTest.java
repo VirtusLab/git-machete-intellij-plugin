@@ -1,16 +1,11 @@
 package com.virtuslab.branchrelationfile;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,24 +13,19 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BranchRelationFile.class)
 public class BranchRelationFileTest {
 
   BranchRelationFile branchRelationFile;
-  static final Path TEST_PATH = Path.of("");
 
   @Before
-  public void init() throws IOException {
-    PowerMockito.mockStatic(Files.class);
-    PowerMockito.suppress(method(BranchRelationFile.class, "saveToFile"));
-    PowerMockito.when(Files.readAllLines(TEST_PATH)).thenReturn(Collections.emptyList());
-    try {
-      branchRelationFile = spy(new BranchRelationFile(TEST_PATH));
-    } catch (Exception e) {
-      fail();
-    }
+  public void init() {
+    branchRelationFile = Whitebox.newInstance(BranchRelationFile.class);
+    Whitebox.setInternalState(branchRelationFile, "rootBranches", new LinkedList<>());
+    PowerMockito.suppress(PowerMockito.method(BranchRelationFile.class, "saveToFile"));
   }
 
   @Test(expected = BranchRelationFileException.class)

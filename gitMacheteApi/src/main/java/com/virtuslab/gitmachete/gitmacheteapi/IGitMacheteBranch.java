@@ -1,18 +1,14 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
-import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import java.util.List;
 import java.util.Optional;
 
 public interface IGitMacheteBranch {
-  IGitCoreLocalBranch getCoreLocalBranch();
-
   String getName();
 
-  List<IGitMacheteCommit> computeCommits() throws GitCoreException;
+  List<IGitMacheteCommit> computeCommits() throws GitMacheteException;
 
-  IGitMacheteCommit getPointedCommit() throws GitCoreException;
+  IGitMacheteCommit getPointedCommit() throws GitMacheteException;
 
   List<IGitMacheteBranch> getDownstreamBranches();
 
@@ -20,11 +16,11 @@ public interface IGitMacheteBranch {
 
   Optional<IGitMacheteBranch> getUpstreamBranch();
 
-  SyncToParentStatus computeSyncToParentStatus() throws GitCoreException;
+  SyncToParentStatus computeSyncToParentStatus() throws GitMacheteException;
 
-  SyncToOriginStatus computeSyncToOriginStatus() throws GitCoreException;
+  SyncToOriginStatus computeSyncToOriginStatus() throws GitMacheteException;
 
-  IGitRebaseParameters computeRebaseParameters() throws GitCoreException, GitMacheteException;
+  IGitRebaseParameters computeRebaseParameters() throws GitMacheteException;
 
   IGitMergeParameters getMergeParameters() throws GitMacheteException;
 }

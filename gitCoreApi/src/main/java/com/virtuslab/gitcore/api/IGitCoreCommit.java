@@ -12,6 +12,4 @@ public interface IGitCoreCommit {
   Date getCommitTime() throws GitCoreException;
 
   IGitCoreCommitHash getHash() throws GitCoreException;
-
-  boolean isAncestorOf(IGitCoreCommit parentCommit) throws GitCoreException;
 }

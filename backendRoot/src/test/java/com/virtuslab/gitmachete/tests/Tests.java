@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.tests;
 
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
@@ -154,7 +153,7 @@ public class Tests {
         sb.append(")");
       }
       sb.append(System.lineSeparator());
-    } catch (GitCoreException | GitMacheteException e) {
+    } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace(System.err);
     }

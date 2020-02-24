@@ -12,10 +12,11 @@ allprojects {
         mavenCentral()
     }
 
-    apply plugin: 'java-library'
 
     apply plugin: 'java'
     sourceCompatibility = 11
+
+    apply plugin: 'java-library'
 
     apply plugin: 'com.diffplug.gradle.spotless'
     spotless {

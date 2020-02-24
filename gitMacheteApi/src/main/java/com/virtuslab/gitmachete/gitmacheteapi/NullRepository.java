@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.gitmachete.api.GitMacheteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +36,5 @@ public final class NullRepository implements IGitMacheteRepository {
   @Override
   public List<IGitMacheteSubmoduleEntry> getSubmodules() {
     return Collections.emptyList();
-  }
-
-  @Override
-  public IBranchRelationFile getBranchRelationFile() {
-    return null;
-  }
-
-  @Override
-  public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile) {
-    return this;
   }
 }

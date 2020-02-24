@@ -10,7 +10,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
@@ -96,7 +95,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     Optional<IGitRebaseParameters> gitRebaseParameters = Optional.empty();
     try {
       gitRebaseParameters = Optional.of(gitMacheteCurrentBranch.computeRebaseParameters());
-    } catch (GitMacheteException | GitCoreException e) {
+    } catch (GitMacheteException e) {
       LOG.error("Unable to compute rebase parameters", e);
     }
 

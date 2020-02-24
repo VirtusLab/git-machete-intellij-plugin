@@ -126,7 +126,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       for (var branchReflog : reflogEntriesList) {
         for (var branchReflogEntry : branchReflog) {
           if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
-            return Optional.of(new GitCoreCommit(curBranchCommit, repo));
+            return Optional.of(new GitCoreCommit(curBranchCommit));
           }
         }
       }
