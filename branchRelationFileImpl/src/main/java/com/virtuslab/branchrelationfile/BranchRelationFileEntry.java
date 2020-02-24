@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Data;
 
-/** To make the most of Lombok benefits static factory methods are used */
 @Data
 public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   private final String name;
@@ -14,13 +13,12 @@ public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   private final String customAnnotation;
   private final List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
 
+  // can't be c'tors coz Lombok wouldn't then generate any c'tor itself
   public static IBranchRelationFileEntry of(
       IBranchRelationFileEntry branchRelationFileEntry, IBranchRelationFileEntry upstream) {
+    String customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
     var result =
-        new BranchRelationFileEntry(
-            branchRelationFileEntry.getName(),
-            upstream,
-            branchRelationFileEntry.getCustomAnnotation().orElse(null));
+        new BranchRelationFileEntry(branchRelationFileEntry.getName(), upstream, customAnnotation);
     result.getSubbranches().addAll(branchRelationFileEntry.getSubbranches());
     return result;
   }
