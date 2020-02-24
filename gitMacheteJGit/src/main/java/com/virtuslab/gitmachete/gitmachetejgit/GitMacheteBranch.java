@@ -44,13 +44,13 @@ public class GitMacheteBranch implements IGitMacheteBranch {
       return List.of();
     }
 
-    Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
+    Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
     if (forkPoint.isEmpty()) {
       return List.of();
     }
 
     return translateIGitCoreCommitListToIGitMacheteCommitList(
-        coreLocalBranch.getCommitsUntil(forkPoint.get()));
+        coreLocalBranch.computeCommitsUntil(forkPoint.get()));
   }
 
   @Override
@@ -63,7 +63,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   public SyncToOriginStatus computeSyncToOriginStatus() throws GitException {
-    Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.getRemoteTrackingStatus();
+    Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.computeRemoteTrackingStatus();
     if (ts.isEmpty()) {
       return SyncToOriginStatus.Untracked;
     }
@@ -81,7 +81,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
           MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
     }
 
-    var forkPoint = coreLocalBranch.getForkPoint();
+    var forkPoint = coreLocalBranch.computeForkPoint();
     if (forkPoint.isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format("Can not find fork point for branch \"{0}\"", getName()));
@@ -107,7 +107,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         return SyncToParentStatus.Merged;
       }
     } else {
-      Optional<IGitCoreCommit> forkPoint = coreLocalBranch.getForkPoint();
+      Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
       boolean isParentAncestorOfChild =
           parentBranch.getPointedCommit().isAncestorOf(coreLocalBranch.getPointedCommit());
 

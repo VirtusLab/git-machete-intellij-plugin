@@ -45,7 +45,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
   }
 
   @Override
-  public Optional<IGitCoreBranchTrackingStatus> getRemoteTrackingStatus() throws JGitException {
+  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws JGitException {
     BranchTrackingStatus ts;
     try {
       ts = BranchTrackingStatus.of(repo.getJgitRepo(), getName());
@@ -69,10 +69,10 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
   }
 
   @Override
-  public Optional<IGitCoreCommit> getForkPoint() throws GitException {
+  public Optional<IGitCoreCommit> computeForkPoint() throws GitException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = getPointedRevCommit();
+    RevCommit commit = computePointedRevCommit();
     try {
       walk.markStart(commit);
     } catch (Exception e) {

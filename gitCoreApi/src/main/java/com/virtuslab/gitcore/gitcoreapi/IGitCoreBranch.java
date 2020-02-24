@@ -12,9 +12,9 @@ public interface IGitCoreBranch {
 
   boolean isLocal();
 
-  List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException;
+  List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitException;
 
   boolean hasJustBeenCreated() throws GitException;
 
-  Optional<IGitCoreCommit> getMergeBase(IGitCoreBranch branch) throws GitException;
+  Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitException;
 }

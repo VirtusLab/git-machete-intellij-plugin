@@ -10,11 +10,17 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Getter
 public class JGitCommit implements IGitCoreCommit {
-  @Getter private final RevCommit jgitCommit;
+  private final RevCommit jgitCommit;
   // TODO (#93): separate (and reimplement) isAncestorOf logic, remove the following field
   private final JGitRepository repo;
+  private final String message;
+  private final JGitPersonIdentity author;
+  private final JGitPersonIdentity committer;
+  private final Date commitTime;
+  @EqualsAndHashCode.Include private final JGitCommitHash hash;
 
   public JGitCommit(RevCommit commit, JGitRepository repo) {
     if (commit == null)
@@ -23,31 +29,11 @@ public class JGitCommit implements IGitCoreCommit {
       throw new NullPointerException("JGit repository passed to Commit constructor cannot be null");
     this.jgitCommit = commit;
     this.repo = repo;
-  }
-
-  @Override
-  public String getMessage() {
-    return jgitCommit.getFullMessage();
-  }
-
-  @Override
-  public JGitPersonIdentity getAuthor() {
-    return new JGitPersonIdentity(jgitCommit.getAuthorIdent());
-  }
-
-  @Override
-  public JGitPersonIdentity getCommitter() {
-    return new JGitPersonIdentity(jgitCommit.getCommitterIdent());
-  }
-
-  @Override
-  public Date getCommitTime() {
-    return new Date(jgitCommit.getCommitTime());
-  }
-
-  @Override
-  public JGitCommitHash getHash() {
-    return new JGitCommitHash(jgitCommit.getId().getName());
+    this.message = jgitCommit.getFullMessage();
+    this.author = new JGitPersonIdentity(jgitCommit.getAuthorIdent());
+    this.committer = new JGitPersonIdentity(jgitCommit.getCommitterIdent());
+    this.commitTime = new Date(jgitCommit.getCommitTime());
+    this.hash = new JGitCommitHash(jgitCommit.getId().getName());
   }
 
   @Override

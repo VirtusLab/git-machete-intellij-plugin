@@ -19,6 +19,7 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -46,11 +47,11 @@ public abstract class JGitBranch implements IGitCoreBranch {
 
   @Override
   public JGitCommit getPointedCommit() throws GitException {
-    return new JGitCommit(getPointedRevCommit(), repo);
+    return new JGitCommit(computePointedRevCommit(), repo);
   }
 
-  protected RevCommit getPointedRevCommit() throws GitException {
-    org.eclipse.jgit.lib.Repository jgitRepo = repo.getJgitRepo();
+  protected RevCommit computePointedRevCommit() throws GitException {
+    Repository jgitRepo = repo.getJgitRepo();
     RevWalk rw = new RevWalk(jgitRepo);
     RevCommit c;
     try {
@@ -74,7 +75,8 @@ public abstract class JGitBranch implements IGitCoreBranch {
     return c;
   }
 
-  public Optional<IGitCoreCommit> getMergeBase(IGitCoreBranch branch) throws GitException {
+  @Override
+  public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
 
     walk.sort(RevSort.TOPO, /*use*/ true);
@@ -112,10 +114,10 @@ public abstract class JGitBranch implements IGitCoreBranch {
   }
 
   @Override
-  public List<IGitCoreCommit> getCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
+  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = getPointedRevCommit();
+    RevCommit commit = computePointedRevCommit();
     try {
       walk.markStart(commit);
     } catch (Exception e) {
