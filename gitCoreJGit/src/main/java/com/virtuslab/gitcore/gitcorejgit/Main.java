@@ -51,7 +51,7 @@ public class Main {
 
     var b = r.getLocalBranch("fix/submodules");
 
-    System.out.println(b.getForkPoint());
+    System.out.println(b.computeForkPoint());
 
     // Branch parent = r.getBranch("parent");
     // Commit c = parent.getPointedCommit();
