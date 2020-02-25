@@ -9,17 +9,13 @@ import org.eclipse.jgit.lib.PersonIdent;
 @EqualsAndHashCode
 @Getter
 public class JGitPersonIdentity implements IGitCorePersonIdentity {
-  @Getter(AccessLevel.NONE)
-  private final PersonIdent jgitPerson;
-
   private final String name;
   private final String email;
 
   public JGitPersonIdentity(PersonIdent person) {
     if (person == null)
       throw new NullPointerException("Person passed to PersonIdentity constructor cannot be null");
-    this.jgitPerson = person;
-    this.name = jgitPerson.getName();
-    this.email = jgitPerson.getEmailAddress();
+    this.name = person.getName();
+    this.email = person.getEmailAddress();
   }
 }
