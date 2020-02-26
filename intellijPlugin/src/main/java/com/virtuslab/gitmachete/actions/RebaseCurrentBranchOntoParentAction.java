@@ -58,15 +58,15 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
       return;
     }
 
-    DataContext actualDataContext = anActionEvent.getDataContext();
+    DataContext originalDataContext = anActionEvent.getDataContext();
 
     MapDataContext dataContext =
         new MapDataContext(
             Map.of(
                 CommonDataKeys.PROJECT,
-                actualDataContext.getData(CommonDataKeys.PROJECT),
+                originalDataContext.getData(CommonDataKeys.PROJECT),
                 KEY_TABLE_MANAGER,
-                actualDataContext.getData(KEY_TABLE_MANAGER),
+                originalDataContext.getData(KEY_TABLE_MANAGER),
                 KEY_SELECTED_BRANCH,
                 branchToRebase.get()));
 

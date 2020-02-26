@@ -24,7 +24,7 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getBranch(String branchName) {
+  public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
     return Optional.empty();
   }
 

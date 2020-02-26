@@ -24,7 +24,7 @@ public class GitMachetePanel {
 
   @Nonnull
   public ActionToolbar createGitMacheteToolbar() {
-    DefaultActionGroup gitMacheteActions = new DefaultActionGroup("MyGroup", /*popup*/ false);
+    DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /*popup*/ false);
     refresh.add(new RefreshGitMacheteStatusAction());

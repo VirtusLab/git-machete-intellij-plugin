@@ -44,10 +44,10 @@ public class RebaseBranchOntoParentAction extends AnAction {
     IGitMacheteRepository gitMacheteRepository =
         anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
 
-    IGitMacheteBranch branchToRebase;
-    if ((branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH)) == null) {
+    IGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
+    if (branchToRebase == null) {
       Optional<IGitMacheteBranch> branchToRebaseOptional =
-          gitMacheteRepository.getBranch(anActionEvent.getData(KEY_SELECTED_BRANCH_NAME));
+          gitMacheteRepository.getBranchByName(anActionEvent.getData(KEY_SELECTED_BRANCH_NAME));
       if (branchToRebaseOptional.isEmpty()) {
         LOG.error("Can't get branch to rebase");
         return;

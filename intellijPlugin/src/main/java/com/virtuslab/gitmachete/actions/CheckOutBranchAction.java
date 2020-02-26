@@ -17,10 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-public class CheckoutBranchAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(CheckoutBranchAction.class);
+public class CheckOutBranchAction extends AnAction {
+  private static final Logger LOG = Logger.getInstance(CheckOutBranchAction.class);
 
-  public CheckoutBranchAction() {}
+  public CheckOutBranchAction() {}
 
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
@@ -31,7 +31,7 @@ public class CheckoutBranchAction extends AnAction {
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
     String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
     if (selectedBranchName == null) {
-      LOG.error("Branch to checkout was not given");
+      LOG.error("Branch to check out was not given");
       return;
     }
 

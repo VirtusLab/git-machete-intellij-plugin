@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.ui.table;
 
-import static com.virtuslab.gitmachete.actions.ActionIDs.ACTION_CHECKOUT;
+import static com.virtuslab.gitmachete.actions.ActionIDs.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.actions.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING;
 import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_TABLE_MANAGER_STRING;
@@ -41,7 +41,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private final Project project;
   private final GitMacheteGraphTableManager tableManager;
 
-  private static String selectedBranchName;
+  private String selectedBranchName;
 
   public GitMacheteGraphTable(
       @Nonnull GraphTableModel graphTableModel,
@@ -97,6 +97,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @Nullable
   @Override
   public Object getData(@NotNull String dataId) {
+    // TODO: replace with Vavr (Case) (#103)
     if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
       return project;
     } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
@@ -152,7 +153,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
                 new Presentation(),
                 ActionManager.getInstance(),
                 /*modifiers*/ 0);
-        ActionManager.getInstance().getAction(ACTION_CHECKOUT).actionPerformed(actionEvent);
+        ActionManager.getInstance().getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }
   }

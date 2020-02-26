@@ -15,25 +15,29 @@
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <changesViewContent tabName="Git Machete" className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"
-        predicateClassName="com.virtuslab.gitmachete.ui.GitMacheteContentProvider$GitMacheteVisibilityPredicate"/>
+        <changesViewContent tabName="Git Machete"
+                            className="com.virtuslab.gitmachete.ui.GitMacheteContentProvider"
+                            predicateClassName="com.virtuslab.gitmachete.ui.GitMacheteContentProvider$GitMacheteVisibilityPredicate"/>
     </extensions>
 
     <actions>
-        <action id="GitMachete.RebaseCurrentBranchOntoParentAction" class="com.virtuslab.gitmachete.actions.RebaseCurrentBranchOntoParentAction"
+        <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
+                class="com.virtuslab.gitmachete.actions.RebaseCurrentBranchOntoParentAction"
                 text="_Rebase Current Branch Onto Parent"
                 description="Rebase current branch onto parent" />
 
-        <action id="GitMachete.CheckoutBranchAction" class="com.virtuslab.gitmachete.actions.CheckoutBranchAction"
-                text="_Checkout Branch"
-                description="Checkout this branch" />
+        <action id="GitMachete.CheckOutBranchAction"
+                class="com.virtuslab.gitmachete.actions.CheckOutBranchAction"
+                text="_Check Out Branch"
+                description="Check out this branch" />
 
         <action id="GitMachete.RebaseBranchOntoParentAction"
-                class="com.virtuslab.gitmachete.actions.RebaseBranchOntoParentAction" text="Rebase Branch"
+                class="com.virtuslab.gitmachete.actions.RebaseBranchOntoParentAction"
+                text="_Rebase Branch"
                 description="Rebase selected branch onto parent" />
 
         <group id="GitMachete.ContextMenu">
-            <reference id="GitMachete.CheckoutBranchAction"/>
+            <reference id="GitMachete.CheckOutBranchAction"/>
             <reference id="GitMachete.RebaseBranchOntoParentAction"/>
         </group>
     </actions>
