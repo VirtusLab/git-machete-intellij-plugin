@@ -1,17 +1,17 @@
-package com.virtuslab.gitcore.gitcorejgit;
+package com.virtuslab.gitcore.impl.jgit;
 
-import com.virtuslab.gitcore.gitcoreapi.IGitCorePersonIdentity;
+import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.eclipse.jgit.lib.PersonIdent;
 
 @EqualsAndHashCode
 @Getter
-public class JGitPersonIdentity implements IGitCorePersonIdentity {
+public class GitCorePersonIdentity implements IGitCorePersonIdentity {
   private final String name;
   private final String email;
 
-  public JGitPersonIdentity(PersonIdent person) {
+  public GitCorePersonIdentity(PersonIdent person) {
     if (person == null)
       throw new NullPointerException("Person passed to PersonIdentity constructor cannot be null");
     this.name = person.getName();

@@ -1,4 +1,4 @@
-package com.virtuslab.gitcore.gitcorejgit;
+package com.virtuslab.gitcore.impl.jgit;
 
 /*import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxIGraphLayout;
@@ -44,8 +44,8 @@ public class Main {
         System.out.println(e);
     }*/
 
-    JGitRepository r =
-        new JGitRepository(
+    GitCoreRepository r =
+        new GitCoreRepository(
             Paths.get(System.getProperty("user.home"), "Desktop", "git-machete-intellij-plugin"));
     System.out.println(r.getCurrentBranch().orElseGet(null));
 

@@ -1,11 +1,11 @@
-package com.virtuslab.gitcore.gitcorejgit;
+package com.virtuslab.gitcore.impl.jgit;
 
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import java.text.MessageFormat;
 import lombok.Data;
 
 @Data(staticConstructor = "of")
-public class JGitBranchTrackingStatus implements IGitCoreBranchTrackingStatus {
+public class GitCoreBranchTrackingStatus implements IGitCoreBranchTrackingStatus {
   private final int ahead;
   private final int behind;
 

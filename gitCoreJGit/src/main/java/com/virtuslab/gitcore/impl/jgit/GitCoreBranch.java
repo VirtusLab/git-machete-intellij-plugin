@@ -1,10 +1,10 @@
-package com.virtuslab.gitcore.gitcorejgit;
+package com.virtuslab.gitcore.impl.jgit;
 
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.GitNoSuchBranchException;
-import com.virtuslab.gitcore.gitcoreapi.GitNoSuchCommitException;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranch;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
+import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
+import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
+import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -25,8 +25,8 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 @Data
-public abstract class JGitBranch implements IGitCoreBranch {
-  protected final JGitRepository repo;
+public abstract class GitCoreBranch implements IGitCoreBranch {
+  protected final GitCoreRepository repo;
   protected final String branchName;
 
   @Override
@@ -46,37 +46,37 @@ public abstract class JGitBranch implements IGitCoreBranch {
   public abstract String getBranchTypeString(boolean capitalized);
 
   @Override
-  public JGitCommit getPointedCommit() throws GitException {
-    return new JGitCommit(computePointedRevCommit(), repo);
+  public GitCoreCommit getPointedCommit() throws GitCoreException {
+    return new GitCoreCommit(computePointedRevCommit(), repo);
   }
 
-  protected RevCommit computePointedRevCommit() throws GitException {
+  protected RevCommit computePointedRevCommit() throws GitCoreException {
     Repository jgitRepo = repo.getJgitRepo();
     RevWalk rw = new RevWalk(jgitRepo);
     RevCommit c;
     try {
       ObjectId o = jgitRepo.resolve(getFullName());
       if (o == null) {
-        throw new GitNoSuchBranchException(
+        throw new GitCoreNoSuchBranchException(
             MessageFormat.format(
                 "{1} branch \"{0}\" does not exist in this repository",
                 branchName, getBranchTypeString(/*capitalized*/ true)));
       }
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
-      throw new GitNoSuchCommitException(
+      throw new GitCoreNoSuchCommitException(
           MessageFormat.format(
               "Commit pointed by {1} branch \"{0}\" does not exist in this repository",
               branchName, getBranchTypeString()));
     } catch (RevisionSyntaxException | IOException e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     return c;
   }
 
   @Override
-  public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitException {
+  public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
 
     walk.sort(RevSort.TOPO, /*use*/ true);
@@ -95,7 +95,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
       ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
       walk.markStart(walk.parseCommit(objectId));
     } catch (Exception e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     List<ObjectId> ancestorsOfStartCommits = new LinkedList<>();
@@ -103,7 +103,7 @@ public abstract class JGitBranch implements IGitCoreBranch {
     for (var c : walk) {
       for (var p : c.getParents()) {
         if (ancestorsOfStartCommits.contains(p.getId())) {
-          return Optional.of(new JGitCommit(p, repo));
+          return Optional.of(new GitCoreCommit(p, repo));
         } else {
           ancestorsOfStartCommits.add(p);
         }
@@ -114,14 +114,14 @@ public abstract class JGitBranch implements IGitCoreBranch {
   }
 
   @Override
-  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitException {
+  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();
     try {
       walk.markStart(commit);
     } catch (Exception e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     var list = new LinkedList<IGitCoreCommit>();
@@ -129,19 +129,19 @@ public abstract class JGitBranch implements IGitCoreBranch {
     for (var c : walk) {
       if (c.getId().getName().equals(upToCommit.getHash().getHashString())) break;
 
-      list.add(new JGitCommit(c, repo));
+      list.add(new GitCoreCommit(c, repo));
     }
 
     return list;
   }
 
   @Override
-  public boolean hasJustBeenCreated() throws JGitException {
+  public boolean hasJustBeenCreated() throws GitCoreException {
     Collection<ReflogEntry> rf;
     try {
       rf = repo.getJgitGit().reflog().setRef(getFullName()).call();
     } catch (GitAPIException e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     var rfit = rf.iterator();

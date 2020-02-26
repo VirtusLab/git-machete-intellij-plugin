@@ -6,12 +6,12 @@ import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
-import com.virtuslab.gitcore.gitcoreapi.GitCoreRepositoryFactory;
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranch;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreRepository;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreSubmoduleEntry;
+import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
+import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteJGitException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
@@ -51,7 +51,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       BranchRelationFileFactory branchRelationFileFactory,
       @Assisted Path pathToRepoRoot,
       @Assisted @Nullable String repositoryName)
-      throws GitMacheteException, GitException {
+      throws GitMacheteException, GitCoreException {
     this(
         gitCoreRepositoryFactory,
         branchRelationFileFactory,
@@ -66,7 +66,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       Path pathToRepoRoot,
       String repositoryName,
       IBranchRelationFile givenBranchRelationFile)
-      throws GitMacheteException, GitException {
+      throws GitMacheteException, GitCoreException {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.branchRelationFileFactory = branchRelationFileFactory;
 
@@ -147,7 +147,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     try {
       IGitCoreLocalBranch coreLocalBranch = this.repo.getLocalBranch(branchName);
       return Optional.of(coreLocalBranch);
-    } catch (GitException e) {
+    } catch (GitCoreException e) {
       return Optional.empty();
     }
   }
@@ -163,7 +163,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     try {
       subs = this.repo.getSubmodules();
-    } catch (GitException e) {
+    } catch (GitCoreException e) {
       throw new GitMacheteJGitException("Error while getting submodules", e);
     }
 
@@ -172,7 +172,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public IGitMacheteRepository withBranchRelationFile(IBranchRelationFile branchRelationFile)
-      throws GitException, GitMacheteException {
+      throws GitCoreException, GitMacheteException {
     return new GitMacheteRepository(
         gitCoreRepositoryFactory,
         branchRelationFileFactory,

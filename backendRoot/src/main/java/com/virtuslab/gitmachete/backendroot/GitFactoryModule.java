@@ -7,9 +7,9 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.virtuslab.branchrelationfile.BranchRelationFile;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.gitcore.gitcoreapi.GitCoreRepositoryFactory;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreRepository;
-import com.virtuslab.gitcore.gitcorejgit.JGitRepository;
+import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
+import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepository;
@@ -25,7 +25,7 @@ public class GitFactoryModule extends AbstractModule {
             .build(GitMacheteRepositoryFactory.class));
     install(
         new FactoryModuleBuilder()
-            .implement(IGitCoreRepository.class, JGitRepository.class)
+            .implement(IGitCoreRepository.class, GitCoreRepository.class)
             .build(GitCoreRepositoryFactory.class));
     install(
         new FactoryModuleBuilder()

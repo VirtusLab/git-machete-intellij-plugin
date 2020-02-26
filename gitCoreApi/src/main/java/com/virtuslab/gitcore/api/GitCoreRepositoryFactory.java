@@ -1,4 +1,4 @@
-package com.virtuslab.gitcore.gitcoreapi;
+package com.virtuslab.gitcore.api;
 
 import java.nio.file.Path;
 

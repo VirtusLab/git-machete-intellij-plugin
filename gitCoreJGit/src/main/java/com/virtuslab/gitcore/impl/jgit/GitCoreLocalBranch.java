@@ -1,10 +1,10 @@
-package com.virtuslab.gitcore.gitcorejgit;
+package com.virtuslab.gitcore.impl.jgit;
 
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreRemoteBranch;
+import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,10 +17,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
+public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBranch {
   public static final String branchesPath = "refs/heads/";
 
-  public JGitLocalBranch(JGitRepository repo, String branchName) {
+  public GitCoreLocalBranch(GitCoreRepository repo, String branchName) {
     super(repo, branchName);
   }
 
@@ -45,17 +45,17 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
   }
 
   @Override
-  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws JGitException {
+  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws GitCoreException {
     BranchTrackingStatus ts;
     try {
       ts = BranchTrackingStatus.of(repo.getJgitRepo(), getName());
     } catch (IOException e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     if (ts == null) return Optional.empty();
 
-    return Optional.of(JGitBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount()));
+    return Optional.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount()));
   }
 
   @Override
@@ -65,18 +65,18 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
     if (remoteName == null) return Optional.empty();
     else
       return Optional.of(
-          new JGitRemoteBranch(repo, remoteName.substring(JGitRemoteBranch.branchesPath.length())));
+          new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.branchesPath.length())));
   }
 
   @Override
-  public Optional<IGitCoreCommit> computeForkPoint() throws GitException {
+  public Optional<IGitCoreCommit> computeForkPoint() throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();
     try {
       walk.markStart(commit);
     } catch (Exception e) {
-      throw new JGitException(e);
+      throw new GitCoreException(e);
     }
 
     List<List<ReflogEntry>> reflogEntriesList = new LinkedList<>();
@@ -87,7 +87,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
           reflogEntriesList.add(
               repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
         } catch (Exception e) {
-          throw new JGitException(e);
+          throw new GitCoreException(e);
         }
       }
     }
@@ -100,7 +100,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
           reflogEntriesList.add(
               repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
         } catch (Exception e) {
-          throw new JGitException(e);
+          throw new GitCoreException(e);
         }
       }
     }
@@ -124,7 +124,7 @@ public class JGitLocalBranch extends JGitBranch implements IGitCoreLocalBranch {
       for (var branchReflog : reflogEntriesList) {
         for (var branchReflogEntry : branchReflog) {
           if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
-            return Optional.of(new JGitCommit(curBranchCommit, repo));
+            return Optional.of(new GitCoreCommit(curBranchCommit, repo));
           }
         }
       }

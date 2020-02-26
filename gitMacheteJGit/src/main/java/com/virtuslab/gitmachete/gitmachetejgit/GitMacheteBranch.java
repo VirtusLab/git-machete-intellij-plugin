@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.gitmachetejgit;
 
-import com.virtuslab.gitcore.gitcoreapi.GitException;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreBranchTrackingStatus;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreCommit;
-import com.virtuslab.gitcore.gitcoreapi.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
@@ -39,7 +39,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     return Optional.ofNullable(upstreamBranch);
   }
 
-  public List<IGitMacheteCommit> computeCommits() throws GitException {
+  public List<IGitMacheteCommit> computeCommits() throws GitCoreException {
     if (upstreamBranch == null) {
       return List.of();
     }
@@ -54,7 +54,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public IGitMacheteCommit getPointedCommit() throws GitException {
+  public IGitMacheteCommit getPointedCommit() throws GitCoreException {
     return new GitMacheteCommit(coreLocalBranch.getPointedCommit());
   }
 
@@ -62,7 +62,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     return childBranches;
   }
 
-  public SyncToOriginStatus computeSyncToOriginStatus() throws GitException {
+  public SyncToOriginStatus computeSyncToOriginStatus() throws GitCoreException {
     Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.computeRemoteTrackingStatus();
     if (ts.isEmpty()) {
       return SyncToOriginStatus.Untracked;
@@ -75,7 +75,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public IGitRebaseParameters computeRebaseParameters() throws GitMacheteException, GitException {
+  public IGitRebaseParameters computeRebaseParameters() throws GitMacheteException, GitCoreException {
     if (getUpstreamBranch().isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
@@ -93,7 +93,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         new GitMacheteCommit(forkPoint.get()));
   }
 
-  public SyncToParentStatus computeSyncToParentStatus() throws GitException {
+  public SyncToParentStatus computeSyncToParentStatus() throws GitCoreException {
     if (upstreamBranch == null) {
       return SyncToParentStatus.InSync;
     }
@@ -131,7 +131,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   private List<IGitMacheteCommit> translateIGitCoreCommitListToIGitMacheteCommitList(
-      List<IGitCoreCommit> list) throws GitException {
+      List<IGitCoreCommit> list) throws GitCoreException {
     var l = new LinkedList<IGitMacheteCommit>();
 
     for (var c : list) {
