@@ -114,7 +114,8 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
   }
 
   @Override
-  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
+  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit)
+      throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();

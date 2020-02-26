@@ -45,7 +45,8 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws GitCoreException {
+  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus()
+      throws GitCoreException {
     BranchTrackingStatus ts;
     try {
       ts = BranchTrackingStatus.of(repo.getJgitRepo(), getName());
@@ -65,7 +66,8 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     if (remoteName == null) return Optional.empty();
     else
       return Optional.of(
-          new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.branchesPath.length())));
+          new GitCoreRemoteBranch(
+              repo, remoteName.substring(GitCoreRemoteBranch.branchesPath.length())));
   }
 
   @Override

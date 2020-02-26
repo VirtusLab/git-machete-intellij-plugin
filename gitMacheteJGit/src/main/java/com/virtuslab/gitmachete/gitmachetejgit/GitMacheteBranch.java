@@ -75,7 +75,8 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public IGitRebaseParameters computeRebaseParameters() throws GitMacheteException, GitCoreException {
+  public IGitRebaseParameters computeRebaseParameters()
+      throws GitMacheteException, GitCoreException {
     if (getUpstreamBranch().isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
