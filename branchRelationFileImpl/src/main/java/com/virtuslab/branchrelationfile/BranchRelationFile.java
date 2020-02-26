@@ -10,10 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.Getter;
 
 @Getter
@@ -201,10 +201,14 @@ public class BranchRelationFile implements IBranchRelationFile {
       throw new BranchRelationFileException("Can not slide out root branch");
     }
 
-    var upstream = relationFileEntry.getUpstream().get();
-    int indexInUpstream = upstream.getSubbranches().indexOf(relationFileEntry);
+    Predicate<IBranchRelationFileEntry> hasGivenRelationFileEntryName =
+        getHasGivenNamePredicate(relationFileEntry.getName());
 
-    IBranchRelationFileEntry upstreamCopy = BranchRelationFileEntry.of(upstream);
+    var upstream = relationFileEntry.getUpstream().get();
+    // TODO (#40): use io.vavr.collection.indexWhere
+    int indexInUpstream = indexWhere(upstream.getSubbranches(), hasGivenRelationFileEntryName);
+
+    var upstreamCopy = BranchRelationFileEntry.of(upstream);
 
     for (var subbranch : relationFileEntry.getSubbranches()) {
       IBranchRelationFileEntry subbranchCopy = subbranch.withUpstream(upstreamCopy);
@@ -212,7 +216,7 @@ public class BranchRelationFile implements IBranchRelationFile {
       indexInUpstream++;
     }
 
-    upstreamCopy.getSubbranches().remove(relationFileEntry);
+    upstreamCopy.getSubbranches().removeIf(hasGivenRelationFileEntryName);
 
     BranchRelationFile newBranchRelationFile = new BranchRelationFile(/*branchRelationFile*/ this);
 
@@ -223,34 +227,53 @@ public class BranchRelationFile implements IBranchRelationFile {
     return newBranchRelationFile;
   }
 
-  private void traverseBranchesUpToRoot(
+  private static Predicate<IBranchRelationFileEntry> getHasGivenNamePredicate(String name) {
+    return a -> a.getName().equals(name);
+  }
+
+  private int indexWhere(
+      List<IBranchRelationFileEntry> entries, Predicate<IBranchRelationFileEntry> predicate) {
+    int index = 0;
+    for (var iterator = entries.iterator(); iterator.hasNext(); index++) {
+      if (predicate.test(iterator.next())) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  private static void traverseBranchesUpToRoot(
       BranchRelationFile newBranchRelationFile, IBranchRelationFileEntry branchToTraverse) {
     var oldUpstreamBranch = branchToTraverse.getUpstream();
 
     if (oldUpstreamBranch.isEmpty()) {
       var branchByNameInBranches =
-          newBranchRelationFile.findBranchByNameInBranches(
+          findBranchByNameInBranches(
               branchToTraverse.getName(), newBranchRelationFile.getRootBranches());
       assert branchByNameInBranches.isPresent() : "Unable to find old branch to traverse";
       var oldBranchToTraverse = branchByNameInBranches.get();
+      var predicate = getHasGivenNamePredicate(oldBranchToTraverse.getName());
+      newBranchRelationFile
+          .getRootBranches()
+          .replaceAll(entry -> predicate.test(entry) ? branchToTraverse : entry);
 
-      Collections.replaceAll(
-          newBranchRelationFile.getRootBranches(), oldBranchToTraverse, branchToTraverse);
     } else {
       var branchByNameInBranches =
-          newBranchRelationFile.findBranchByNameInBranches(
+          findBranchByNameInBranches(
               branchToTraverse.getName(), oldUpstreamBranch.get().getSubbranches());
       assert branchByNameInBranches.isPresent() : "Unable to find old branch to traverse";
       var oldBranchToTraverse = branchByNameInBranches.get();
       var newUpstreamBranch = BranchRelationFileEntry.of(oldUpstreamBranch.get());
-      Collections.replaceAll(
-          newUpstreamBranch.getSubbranches(), oldBranchToTraverse, branchToTraverse);
+      var predicate = getHasGivenNamePredicate(oldBranchToTraverse.getName());
+      newUpstreamBranch
+          .getSubbranches()
+          .replaceAll(entry -> predicate.test(entry) ? branchToTraverse : entry);
 
       traverseBranchesUpToRoot(newBranchRelationFile, newUpstreamBranch);
     }
   }
 
-  private Optional<IBranchRelationFileEntry> findBranchByNameInBranches(
+  private static Optional<IBranchRelationFileEntry> findBranchByNameInBranches(
       String branchName, List<IBranchRelationFileEntry> branches) {
     for (var branch : branches) {
       if (branch.getName().equals(branchName)) {

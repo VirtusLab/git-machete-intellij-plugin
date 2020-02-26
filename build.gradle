@@ -23,6 +23,8 @@ allprojects {
 
     ext {
         junitVersion = '4.13'
+        easymockVersion = '3.1'
+        powerMockVersion = '2.0.5'
         lombokVersion = '1.18.10'
         guiceVersion = '4.2.2'
         slf4jVersion = '1.7.25'
@@ -65,6 +67,11 @@ allprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: junitVersion
+        testCompile group: 'org.easymock', name: 'easymock', version: easymockVersion
+        testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: powerMockVersion
+        testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+        testCompile group: 'org.powermock', name: 'powermock-core', version: powerMockVersion
+        testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
     }
 }
 

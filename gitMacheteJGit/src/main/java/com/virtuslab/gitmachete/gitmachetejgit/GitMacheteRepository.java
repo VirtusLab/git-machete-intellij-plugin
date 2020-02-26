@@ -111,7 +111,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private GitMacheteBranch createMacheteBranchOrThrowException(
       IBranchRelationFileEntry branchEntry, IGitMacheteBranch upstreamBranch)
-      throws GitMacheteException, GitException {
+      throws GitMacheteException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
       throw new GitMacheteException(
@@ -132,7 +132,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private void processSubtree(
       GitMacheteBranch subtreeRoot, List<IBranchRelationFileEntry> directDownstreamEntries)
-      throws GitMacheteException, GitException {
+      throws GitMacheteException {
     for (var entry : directDownstreamEntries) {
       var branch = createMacheteBranchOrThrowException(entry, subtreeRoot);
 
