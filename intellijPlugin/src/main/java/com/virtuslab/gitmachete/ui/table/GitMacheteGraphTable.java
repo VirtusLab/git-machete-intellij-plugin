@@ -97,7 +97,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @Nullable
   @Override
   public Object getData(@NotNull String dataId) {
-    // TODO: replace with Vavr (Case) (#103)
+    // TODO (#103): replace with Vavr (Case)
     if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
       return project;
     } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
