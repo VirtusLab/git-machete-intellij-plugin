@@ -12,11 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.easymock.PowerMock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -30,10 +28,9 @@ public class BranchRelationFileTest {
 
   @Before
   public void init() throws IOException {
-    PowerMock.mockStatic(Files.class);
+    PowerMockito.mockStatic(Files.class);
     PowerMockito.suppress(method(BranchRelationFile.class, "saveToFile"));
-    EasyMock.expect(Files.readAllLines(TEST_PATH)).andReturn(Collections.emptyList());
-    PowerMock.replayAll();
+    PowerMockito.when(Files.readAllLines(TEST_PATH)).thenReturn(Collections.emptyList());
     try {
       branchRelationFile = spy(new BranchRelationFile(TEST_PATH));
     } catch (Exception e) {
