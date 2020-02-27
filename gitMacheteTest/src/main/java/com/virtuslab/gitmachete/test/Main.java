@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.test;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import java.nio.file.Paths;
@@ -16,8 +16,9 @@ public class Main {
     try {
       repo =
           GitFactoryModule.getInjector()
-              .getInstance(GitMacheteRepositoryFactory.class)
-              .create(Paths.get(System.getProperty("user.home"), "machete-sandbox"), null);
+              .getInstance(GitMacheteRepositoryBuilderFactory.class)
+              .create(Paths.get(System.getProperty("user.home"), "machete-sandbox"))
+              .build();
     } catch (GitMacheteException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
