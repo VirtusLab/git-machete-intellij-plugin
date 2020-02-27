@@ -10,9 +10,9 @@ import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryFactory;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepository;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
+import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepositoryBuilder;
 
 public class GitFactoryModule extends AbstractModule {
   private static final Injector injector = Guice.createInjector(new GitFactoryModule());
@@ -21,8 +21,8 @@ public class GitFactoryModule extends AbstractModule {
   protected void configure() {
     install(
         new FactoryModuleBuilder()
-            .implement(IGitMacheteRepository.class, GitMacheteRepository.class)
-            .build(GitMacheteRepositoryFactory.class));
+            .implement(IGitMacheteRepositoryBuilder.class, GitMacheteRepositoryBuilder.class)
+            .build(GitMacheteRepositoryBuilderFactory.class));
     install(
         new FactoryModuleBuilder()
             .implement(IGitCoreRepository.class, GitCoreRepository.class)
