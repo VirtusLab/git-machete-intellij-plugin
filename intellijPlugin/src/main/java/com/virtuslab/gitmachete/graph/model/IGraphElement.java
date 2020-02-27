@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 import java.util.List;
 
 public interface IGraphElement {
@@ -22,7 +22,7 @@ public interface IGraphElement {
   /** @return Attributes (eg. boldness) to be used by the displayed text. */
   SimpleTextAttributes getAttributes();
 
-  SyncToParentStatus getSyncToParentStatus();
+  GraphEdgeColor getGraphEdgeColor();
 
   boolean hasBulletPoint();
 

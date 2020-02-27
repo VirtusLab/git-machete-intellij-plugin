@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.graph.model;
 
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 
 /**
  * Graph element that precedes every non-root branch (or {@link CommitElement}s and their {@link
@@ -14,9 +14,8 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
  * indent for it is handled with {@link PhantomElement}.
  */
 public class SplittingElement extends BaseGraphElement {
-  public SplittingElement(
-      int upElementIndex, int downElementIndex, SyncToParentStatus syncToParentStatus) {
-    super(upElementIndex, syncToParentStatus);
+  public SplittingElement(int upElementIndex, int downElementIndex, GraphEdgeColor graphEdgeColor) {
+    super(upElementIndex, graphEdgeColor);
     getDownElementIndexes().add(downElementIndex);
   }
 }

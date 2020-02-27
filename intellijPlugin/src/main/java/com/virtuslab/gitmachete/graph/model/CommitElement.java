@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.graph.model;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -17,8 +17,8 @@ public final class CommitElement extends BaseGraphElement {
       int upElementIndex,
       int downElementIndex,
       int branchElementIndex,
-      SyncToParentStatus containingBranchSyncToParentStatus) {
-    super(upElementIndex, containingBranchSyncToParentStatus);
+      GraphEdgeColor containingBranchGraphEdgeColor) {
+    super(upElementIndex, containingBranchGraphEdgeColor);
     this.commit = commit;
     this.branchElementIndex = branchElementIndex;
     getDownElementIndexes().add(downElementIndex);

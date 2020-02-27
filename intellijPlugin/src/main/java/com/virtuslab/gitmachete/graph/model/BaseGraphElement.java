@@ -2,7 +2,7 @@ package com.virtuslab.gitmachete.graph.model;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 import java.util.List;
 import lombok.Data;
 
@@ -13,7 +13,7 @@ public abstract class BaseGraphElement implements IGraphElement {
   private final int upElementIndex;
 
   /** For {@link CommitElement} this is status of the branch that contains the commit. */
-  private final SyncToParentStatus syncToParentStatus;
+  private final GraphEdgeColor graphEdgeColor;
 
   /*
    * Final (reference initialized once),

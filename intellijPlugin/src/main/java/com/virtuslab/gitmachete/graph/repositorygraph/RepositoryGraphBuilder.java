@@ -9,6 +9,8 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.graph.SyncToParentStatusGraphEdgeColorGenerator;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
@@ -102,6 +104,8 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteCommit> commits =
         Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 
+    GraphEdgeColor graphEdgeColor =
+        SyncToParentStatusGraphEdgeColorGenerator.getGraphEdgeColor(syncToParentStatus);
     SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
@@ -112,11 +116,7 @@ public class RepositoryGraphBuilder {
       int downElementIndex = graphElements.size() + 1;
       CommitElement c =
           new CommitElement(
-              commit,
-              upElementIndex,
-              downElementIndex,
-              branchElementIndex,
-              /*containingBranchSyncToParentStatus*/ syncToParentStatus);
+              commit, upElementIndex, downElementIndex, branchElementIndex, graphEdgeColor);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }
@@ -130,7 +130,7 @@ public class RepositoryGraphBuilder {
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
     BranchElement element =
-        createBranchElementFor(branch, upElementIndex, syncToParentStatus, syncToOriginStatus);
+        createBranchElementFor(branch, upElementIndex, graphEdgeColor, syncToOriginStatus);
     graphElements.add(element);
   }
 
@@ -147,7 +147,10 @@ public class RepositoryGraphBuilder {
     int downElementIndex = graphElements.size() + 1;
     int splittingElementIndex = graphElements.size();
     SplittingElement splittingElement =
-        new SplittingElement(upElementIndex, downElementIndex, syncToParentStatus);
+        new SplittingElement(
+            upElementIndex,
+            downElementIndex,
+            SyncToParentStatusGraphEdgeColorGenerator.getGraphEdgeColor(syncToParentStatus));
     graphElements.add(splittingElement);
     graphElements.get(upElementIndex).getDownElementIndexes().add(splittingElementIndex);
   }
@@ -177,7 +180,7 @@ public class RepositoryGraphBuilder {
   private BranchElement createBranchElementFor(
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
-      SyncToParentStatus syncToParentStatus,
+      GraphEdgeColor graphEdgeColor,
       SyncToOriginStatus syncToOriginStatus) {
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
@@ -190,6 +193,6 @@ public class RepositoryGraphBuilder {
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
     return new BranchElement(
-        branch, upstreamBranchIndex, syncToParentStatus, syncToOriginStatus, isCurrentBranch);
+        branch, upstreamBranchIndex, graphEdgeColor, syncToOriginStatus, isCurrentBranch);
   }
 }
