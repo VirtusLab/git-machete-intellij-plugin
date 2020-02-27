@@ -21,24 +21,20 @@
     </extensions>
 
     <actions>
-        <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
-                class="com.virtuslab.gitmachete.actions.RebaseCurrentBranchOntoParentAction"
-                text="_Rebase Current Branch Onto Parent"
-                description="Rebase current branch onto parent" />
-
+        <!-- This actions are used in right-click context menu on branches -->
         <action id="GitMachete.CheckOutBranchAction"
                 class="com.virtuslab.gitmachete.actions.CheckOutBranchAction"
                 text="_Check Out Branch"
                 description="Check out this branch" />
 
-        <action id="GitMachete.RebaseBranchOntoParentAction"
-                class="com.virtuslab.gitmachete.actions.RebaseBranchOntoParentAction"
+        <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
+                class="com.virtuslab.gitmachete.actions.RebaseSelectedBranchOntoParentAction"
                 text="_Rebase Branch"
                 description="Rebase selected branch onto parent" />
 
         <group id="GitMachete.ContextMenu">
             <reference id="GitMachete.CheckOutBranchAction"/>
-            <reference id="GitMachete.RebaseBranchOntoParentAction"/>
+            <reference id="GitMachete.RebaseSelectedBranchOntoParentAction"/>
         </group>
     </actions>
 </idea-plugin>

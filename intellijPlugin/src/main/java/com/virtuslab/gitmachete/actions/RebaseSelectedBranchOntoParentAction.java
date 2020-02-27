@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
-public class RebaseBranchOntoParentAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(RebaseBranchOntoParentAction.class);
+public class RebaseSelectedBranchOntoParentAction extends AnAction {
+  private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
 
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
