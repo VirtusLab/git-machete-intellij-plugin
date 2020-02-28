@@ -11,9 +11,12 @@ import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteJGitException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.MacheteFileParseException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -22,32 +25,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Accessors(chain = true)
+@Accessors(chain = true, fluent = true)
 @Getter(AccessLevel.PACKAGE)
 public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder {
-  @Setter private String repositoryName = null;
-
   private IGitCoreRepository gitCoreRepository;
-
-  private final List<IGitMacheteBranch> rootBranches = new LinkedList<>();
-
-  private final Path pathToRepoRoot;
-  private Path pathToBranchRelationFile;
-  @Setter private IBranchRelationFile branchRelationFile = null;
-
   private IGitMacheteBranch currentBranch = null;
   private IGitCoreBranch currentCoreBranch;
-
   private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
 
   private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
-
   private final BranchRelationFileFactory branchRelationFileFactory;
+
+  private final Path pathToRepoRoot;
+  @Setter private String repositoryName = null;
+  @Setter private IBranchRelationFile branchRelationFile = null;
 
   @Inject
   public GitMacheteRepositoryBuilder(
@@ -60,8 +57,10 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   public GitMacheteRepository build() throws GitMacheteException {
-    this.gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
-    this.pathToBranchRelationFile = this.gitCoreRepository.getGitFolderPath().resolve("machete");
+    List<IGitMacheteBranch> rootBranches = new LinkedList<>();
+
+    gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
+    Path pathToBranchRelationFile = gitCoreRepository.getGitFolderPath().resolve("machete");
 
     Optional<IGitCoreLocalBranch> currentCoreBranchOptional = null;
     try {
@@ -73,16 +72,16 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
     if (branchRelationFile == null) {
       try {
-        branchRelationFile = branchRelationFileFactory.create(this.pathToBranchRelationFile);
+        branchRelationFile = branchRelationFileFactory.create(pathToBranchRelationFile);
       } catch (BranchRelationFileException e) {
         throw new MacheteFileParseException(
             e.getErrorLine().isEmpty()
                 ? MessageFormat.format(
                     "Error occurred while parsing machete file: {0}",
-                    this.pathToBranchRelationFile.toString())
+                    pathToBranchRelationFile.toString())
                 : MessageFormat.format(
                     "Error occurred while parsing machete file on line {1}: {0}",
-                    this.pathToBranchRelationFile.toString(), e.getErrorLine().get()),
+                    pathToBranchRelationFile.toString(), e.getErrorLine().get()),
             e);
       }
     }
@@ -94,7 +93,30 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       processSubtree(branch, entry.getSubbranches());
     }
 
-    return new GitMacheteRepository(this);
+    List<IGitCoreSubmoduleEntry> coreSubmodules;
+
+    try {
+      coreSubmodules = gitCoreRepository.getSubmodules();
+    } catch (GitCoreException e) {
+      throw new GitMacheteJGitException("Error while getting submodules", e);
+    }
+
+    List<IGitMacheteSubmoduleEntry> macheteSubmodules =
+        coreSubmodules.stream()
+            .map(this::convertToGitMacheteSubmoduleEntry)
+            .collect(Collectors.toList());
+
+    return new GitMacheteRepository(
+        repositoryName,
+        rootBranches,
+        macheteSubmodules,
+        branchRelationFile,
+        currentBranch,
+        branchByName);
+  }
+
+  private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {
+    return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 
   private GitMacheteBranch createMacheteBranchOrThrowException(
@@ -104,8 +126,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     if (coreBranch.isEmpty()) {
       throw new GitMacheteException(
           MessageFormat.format(
-              "Branch \"{0}\" defined in machete file ({1}) does not exist in repository",
-              branchEntry.getName(), pathToBranchRelationFile.toString()));
+              "Branch \"{0}\" defined in machete file does not exist in repository",
+              branchEntry.getName()));
     }
 
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
@@ -132,10 +154,13 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
   }
 
-  // Return empty if branch does not exist in repo
+  /**
+   * @return Optional of {@link IGitCoreLocalBranch} or if that with given name doesn't exist
+   *     returns empty Optional
+   */
   private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
     try {
-      IGitCoreLocalBranch coreLocalBranch = this.gitCoreRepository.getLocalBranch(branchName);
+      IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.getLocalBranch(branchName);
       return Optional.of(coreLocalBranch);
     } catch (GitCoreException e) {
       return Optional.empty();

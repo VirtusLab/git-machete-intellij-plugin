@@ -13,7 +13,7 @@ public interface IGitMacheteRepository {
 
   Optional<String> getRepositoryName();
 
-  List<IGitMacheteSubmoduleEntry> getSubmodules() throws GitMacheteException;
+  List<IGitMacheteSubmoduleEntry> getSubmodules();
 
   IBranchRelationFile getBranchRelationFile();
 }
