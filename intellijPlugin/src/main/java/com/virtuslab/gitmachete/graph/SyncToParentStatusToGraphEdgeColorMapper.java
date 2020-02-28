@@ -3,7 +3,9 @@ package com.virtuslab.gitmachete.graph;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.util.Map;
 
-public class SyncToParentStatusGraphEdgeColorGenerator {
+public final class SyncToParentStatusToGraphEdgeColorMapper {
+  private SyncToParentStatusToGraphEdgeColorMapper() {}
+
   private static final Map<SyncToParentStatus, GraphEdgeColor> edges =
       Map.of(
           SyncToParentStatus.Merged, GraphEdgeColor.GRAY,

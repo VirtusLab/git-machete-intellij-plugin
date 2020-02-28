@@ -7,7 +7,8 @@ import static com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus.Untracke
 
 import java.util.Map;
 
-public class SyncToOriginStatusDescriptionGenerator {
+public final class SyncToOriginStatusDescriptionGenerator {
+  private SyncToOriginStatusDescriptionGenerator() {}
 
   private static final Map<Integer, String> descriptions =
       Map.of(

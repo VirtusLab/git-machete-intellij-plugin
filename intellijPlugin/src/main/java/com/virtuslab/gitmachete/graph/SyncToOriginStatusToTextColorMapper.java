@@ -8,11 +8,10 @@ import static com.virtuslab.gitmachete.graph.ColorDefinitions.ORANGE;
 import static com.virtuslab.gitmachete.graph.ColorDefinitions.RED;
 
 import com.intellij.ui.JBColor;
-import com.intellij.vcs.log.paint.ColorGenerator;
-import java.awt.Color;
 import java.util.Map;
 
-public class SyncToOriginStatusTextColorGenerator implements ColorGenerator {
+public final class SyncToOriginStatusToTextColorMapper {
+  private SyncToOriginStatusToTextColorMapper() {}
 
   private static final Map<Integer, JBColor> colors =
       Map.of(
@@ -21,8 +20,7 @@ public class SyncToOriginStatusTextColorGenerator implements ColorGenerator {
           Behind.getId(), RED,
           Diverged.getId(), RED);
 
-  @Override
-  public Color getColor(int statusId) {
+  public static JBColor getColor(int statusId) {
     return colors.getOrDefault(statusId, JBColor.GRAY);
   }
 }

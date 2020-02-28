@@ -16,7 +16,7 @@ import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.graph.SyncToOriginStatusDescriptionGenerator;
-import com.virtuslab.gitmachete.graph.SyncToOriginStatusTextColorGenerator;
+import com.virtuslab.gitmachete.graph.SyncToOriginStatusToTextColorMapper;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
@@ -41,9 +41,6 @@ import lombok.RequiredArgsConstructor;
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
 
   @Nonnull private final MyComponent myComponent;
-
-  private static final SyncToOriginStatusTextColorGenerator colorGenerator =
-      new SyncToOriginStatusTextColorGenerator();
 
   public BranchOrCommitCellRenderer(
       @Nonnull GitMacheteGraphTable table, @Nonnull GraphCellPainter painter) {
@@ -137,7 +134,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
           SimpleTextAttributes textAttributes =
               new SimpleTextAttributes(
                   SimpleTextAttributes.STYLE_PLAIN,
-                  colorGenerator.getColor(syncToOriginStatus.getId()));
+                  SyncToOriginStatusToTextColorMapper.getColor(syncToOriginStatus.getId()));
           append(
               "  ("
                   + SyncToOriginStatusDescriptionGenerator.getDescription(

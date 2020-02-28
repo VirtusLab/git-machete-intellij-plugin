@@ -12,7 +12,6 @@ public abstract class BaseGraphElement implements IGraphElement {
 
   private final int upElementIndex;
 
-  /** For {@link CommitElement} this is status of the branch that contains the commit. */
   private final GraphEdgeColor graphEdgeColor;
 
   /*

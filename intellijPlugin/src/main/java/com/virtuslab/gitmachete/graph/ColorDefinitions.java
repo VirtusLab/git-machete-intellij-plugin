@@ -4,6 +4,8 @@ import com.intellij.ui.JBColor;
 import java.awt.Color;
 
 public final class ColorDefinitions {
+  private ColorDefinitions() {}
+
   private static final Color red = Color.decode("#FF0000");
   private static final Color orange = Color.decode("#FDA909");
   private static final Color dark_orange = Color.decode("#D68C00");

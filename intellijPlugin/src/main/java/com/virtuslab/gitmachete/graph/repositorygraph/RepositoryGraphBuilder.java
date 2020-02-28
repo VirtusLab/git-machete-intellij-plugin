@@ -10,7 +10,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import com.virtuslab.gitmachete.graph.GraphEdgeColor;
-import com.virtuslab.gitmachete.graph.SyncToParentStatusGraphEdgeColorGenerator;
+import com.virtuslab.gitmachete.graph.SyncToParentStatusToGraphEdgeColorMapper;
 import com.virtuslab.gitmachete.graph.model.BranchElement;
 import com.virtuslab.gitmachete.graph.model.CommitElement;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
@@ -105,7 +105,7 @@ public class RepositoryGraphBuilder {
         Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 
     GraphEdgeColor graphEdgeColor =
-        SyncToParentStatusGraphEdgeColorGenerator.getGraphEdgeColor(syncToParentStatus);
+        SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
     SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
@@ -150,7 +150,7 @@ public class RepositoryGraphBuilder {
         new SplittingElement(
             upElementIndex,
             downElementIndex,
-            SyncToParentStatusGraphEdgeColorGenerator.getGraphEdgeColor(syncToParentStatus));
+            SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus));
     graphElements.add(splittingElement);
     graphElements.get(upElementIndex).getDownElementIndexes().add(splittingElementIndex);
   }

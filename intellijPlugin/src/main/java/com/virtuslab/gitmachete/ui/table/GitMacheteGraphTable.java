@@ -21,7 +21,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import com.virtuslab.gitmachete.graph.GraphEdgeColorEdgeJBColorGenerator;
+import com.virtuslab.gitmachete.graph.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
 import com.virtuslab.gitmachete.ui.cell.BranchOrCommitCell;
@@ -53,7 +53,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     this.tableManager = tableManager;
 
     GraphCellPainter graphCellPainter =
-        new SimpleGraphCellPainter(new GraphEdgeColorEdgeJBColorGenerator()) {
+        new SimpleGraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
           @Override
           protected int getRowHeight() {
             return GitMacheteGraphTable.this.getRowHeight();
