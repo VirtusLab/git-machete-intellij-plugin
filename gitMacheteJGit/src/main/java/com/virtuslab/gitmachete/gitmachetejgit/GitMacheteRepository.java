@@ -120,9 +120,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
-    var branch =
-        new GitMacheteBranch(
-            coreBranch.get(), upstreamBranch, customAnnotation, repo.getAncestorityChecker());
+    var branch = new GitMacheteBranch(coreBranch.get(), upstreamBranch, customAnnotation, repo);
 
     if (coreBranch.get().equals(currentCoreBranch)) {
       currentBranch = branch;

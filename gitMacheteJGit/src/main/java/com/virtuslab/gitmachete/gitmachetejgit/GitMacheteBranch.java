@@ -4,6 +4,7 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IAncestorityChecker;
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
@@ -13,9 +14,11 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitRebaseParameters;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
@@ -52,8 +55,10 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         return List.of();
       }
 
-      return translateIGitCoreCommitListToIGitMacheteCommitList(
-          coreLocalBranch.computeCommitsUntil(forkPoint.get()));
+      // translate IGitCoreCommit list to IGitMacheteCommit list
+      return coreLocalBranch.computeCommitsUntil(forkPoint.get()).stream()
+          .map(GitMacheteCommit::new)
+          .collect(Collectors.toList());
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -120,8 +125,9 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         return SyncToParentStatus.InSync;
       }
 
-      var upstreamBranchPointedCommitHash = upstreamBranch.getPointedCommit().getHash();
-      var myPointedCommitHash = coreLocalBranch.getPointedCommit().getHash().getHashString();
+      IGitCoreCommitHash upstreamBranchPointedCommitHash =
+          upstreamBranch.getPointedCommit()::getHash;
+      IGitCoreCommitHash myPointedCommitHash = coreLocalBranch.getPointedCommit().getHash();
 
       if (myPointedCommitHash.equals(upstreamBranchPointedCommitHash)) {
         if (coreLocalBranch.hasJustBeenCreated()) {
@@ -130,24 +136,25 @@ public class GitMacheteBranch implements IGitMacheteBranch {
           return SyncToParentStatus.Merged;
         }
       } else {
-        Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
-        boolean isParentAncestorOfChild =
-            ancestorityChecker.check(upstreamBranchPointedCommitHash, myPointedCommitHash);
+        var isParentAncestorOfChild =
+            ancestorityChecker.isAncestor(
+                /*presumedAncestor*/ myPointedCommitHash,
+                /*presumedDescendant*/ upstreamBranchPointedCommitHash);
 
         if (isParentAncestorOfChild) {
+          var cmp = Comparator.comparing(IGitCoreCommitHash::getHashString);
+          Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
           if (forkPoint.isEmpty()
-              || !forkPoint
-                  .get()
-                  .getHash()
-                  .getHashString()
-                  .equals(upstreamBranchPointedCommitHash)) {
+              || cmp.compare(forkPoint.get().getHash(), upstreamBranchPointedCommitHash) != 0) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             return SyncToParentStatus.InSync;
           }
         } else {
-          boolean isChildAncestorOfParent =
-              ancestorityChecker.check(myPointedCommitHash, upstreamBranchPointedCommitHash);
+          var isChildAncestorOfParent =
+              ancestorityChecker.isAncestor(
+                  /*presumedAncestor*/ upstreamBranchPointedCommitHash,
+                  /*presumedDescendant*/ myPointedCommitHash);
 
           if (isChildAncestorOfParent) {
             return SyncToParentStatus.Merged;
@@ -160,17 +167,6 @@ public class GitMacheteBranch implements IGitMacheteBranch {
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
-  }
-
-  private List<IGitMacheteCommit> translateIGitCoreCommitListToIGitMacheteCommitList(
-      List<IGitCoreCommit> list) throws GitCoreException {
-    var l = new LinkedList<IGitMacheteCommit>();
-
-    for (var c : list) {
-      l.add(new GitMacheteCommit(c));
-    }
-
-    return l;
   }
 
   @Override

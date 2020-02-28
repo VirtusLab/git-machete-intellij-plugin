@@ -9,6 +9,7 @@ import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,11 +17,15 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class Tests {
   IGitMacheteRepository repo;
+  private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory =
+      GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryFactory.class);
 
   private static class TestPaths {
     public static final Path tmp = Paths.get("/tmp/machete-tests");
@@ -29,32 +34,27 @@ public class Tests {
     public static final Path repo = tmp.resolve("machete-sandbox");
   }
 
-  @Test
-  public void StatusTest()
-      throws GitMacheteException, IOException, URISyntaxException, InterruptedException {
+  @Before
+  public void init() throws Exception {
     // Prepare repo
     createDirStructure();
     copyScriptFromResources("repo1.sh");
     prepareRepoFromScript();
 
-    repo =
-        GitFactoryModule.getInjector()
-            .getInstance(GitMacheteRepositoryFactory.class)
-            .create(TestPaths.repo, /*repositoryName*/ null);
+    repo = gitMacheteRepositoryFactory.create(TestPaths.repo, /*repositoryName*/ null);
+  }
 
-    // Test
-    String myResult = repoStatusLikeCli();
-    String gitMacheteResult = gitMacheteCliStatusResult();
+  @Test
+  public void StatusTest() throws Exception {
+    String myResult = repositoryStatus();
+    String gitMacheteCliStatus = gitMacheteCliStatus();
 
     System.out.println("CLI OUTPUT:");
-    System.out.println(gitMacheteResult);
+    System.out.println(gitMacheteCliStatus);
     System.out.println("MY OUTPUT:");
     System.out.println(myResult);
 
-    Assert.assertEquals(gitMacheteResult, myResult);
-
-    // Cleanup
-    cleanup();
+    Assert.assertEquals(gitMacheteCliStatus, myResult);
   }
 
   private void createDirStructure() throws IOException {
@@ -77,7 +77,7 @@ public class Tests {
     r.waitFor(1, TimeUnit.SECONDS);
   }
 
-  private String gitMacheteCliStatusResult() throws IOException {
+  private String gitMacheteCliStatus() throws IOException {
     var gitMacheteProcessBuilder = new ProcessBuilder();
     gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
     gitMacheteProcessBuilder.directory(TestPaths.repo.toFile());
@@ -85,14 +85,15 @@ public class Tests {
     return convertStreamToString(gitMacheteProcess.getInputStream());
   }
 
-  private void cleanup() throws IOException {
+  @After
+  public void cleanup() throws IOException {
     Files.walk(TestPaths.tmp)
         .sorted(Comparator.reverseOrder())
         .map(Path::toFile)
         .forEach(File::delete);
   }
 
-  private String repoStatusLikeCli() {
+  private String repositoryStatus() {
     var sb = new StringBuilder();
     int lastRootBranch = repo.getRootBranches().size() - 1;
     var branches = repo.getRootBranches();
@@ -163,7 +164,7 @@ public class Tests {
     }
   }
 
-  private static String convertStreamToString(java.io.InputStream is) {
+  private static String convertStreamToString(InputStream is) {
     java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
     return s.hasNext() ? s.next() : "";
   }

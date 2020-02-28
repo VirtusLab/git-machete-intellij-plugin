@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public interface IGitCoreRepository {
+public interface IGitCoreRepository extends IAncestorityChecker {
   Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
 
   IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
@@ -20,6 +20,4 @@ public interface IGitCoreRepository {
   Path getGitFolderPath();
 
   List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
-
-  IAncestorityChecker getAncestorityChecker();
 }

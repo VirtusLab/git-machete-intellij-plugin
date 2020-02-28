@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
-import com.virtuslab.gitcore.api.IAncestorityChecker;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -30,6 +30,8 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
 
 @Getter
@@ -38,7 +40,6 @@ public class GitCoreRepository implements IGitCoreRepository {
   private final Git jgitGit;
   private final Path repositoryPath;
   private final Path gitFolderPath;
-  private final IAncestorityChecker ancestorityChecker;
 
   @Getter(AccessLevel.NONE)
   private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
@@ -60,8 +61,6 @@ public class GitCoreRepository implements IGitCoreRepository {
 
     jgitRepo = new FileRepository(this.gitFolderPath.toString());
     jgitGit = new Git(jgitRepo);
-
-    ancestorityChecker = new AncestorityChecker(jgitRepo);
   }
 
   private Path getGitFolderPathFromGitFile(Path gitFilePath)
@@ -177,5 +176,27 @@ public class GitCoreRepository implements IGitCoreRepository {
     } catch (RevisionSyntaxException | IOException e) {
       throw new GitCoreException(e);
     }
+  }
+
+  @Override
+  public boolean isAncestor(
+      IGitCoreCommitHash presumedAncestor, IGitCoreCommitHash presumedDescendant)
+      throws GitCoreException {
+    RevWalk walk = new RevWalk(jgitRepo);
+    walk.sort(RevSort.TOPO);
+    try {
+      ObjectId objectId = jgitRepo.resolve(presumedDescendant.getHashString());
+      walk.markStart(walk.parseCommit(jgitRepo.resolve(presumedAncestor.getHashString())));
+
+      for (var c : walk) {
+        if (c.getId().equals(objectId)) {
+          return true;
+        }
+      }
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+
+    return false;
   }
 }
