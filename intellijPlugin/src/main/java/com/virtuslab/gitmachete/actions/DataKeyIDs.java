@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.DataKey;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
 
-public abstract class DataKeyIDs {
+public final class DataKeyIDs {
   private DataKeyIDs() {}
 
   public static final String KEY_TABLE_MANAGER_STRING = "TABLE_MANAGER";
