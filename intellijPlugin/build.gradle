@@ -12,7 +12,7 @@ dependencies {
 }
 
 configurations.all {
-    exclude group: 'org.slf4j'
+    //exclude group: 'org.slf4j'
 }
 
 intellij {
