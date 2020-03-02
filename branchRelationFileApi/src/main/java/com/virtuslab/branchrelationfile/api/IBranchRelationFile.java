@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IBranchRelationFile {
-  void saveToFile(boolean backupOldFile) throws IOException, BranchRelationFileException;
+	void saveToFile(boolean backupOldFile) throws IOException, BranchRelationFileException;
 
-  Path getPath();
+	Path getPath();
 
-  List<IBranchRelationFileEntry> getRootBranches();
+	List<IBranchRelationFileEntry> getRootBranches();
 
-  Character getIndentType();
+	Character getIndentType();
 
-  int getLevelWidth();
+	int getLevelWidth();
 
-  Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
+	Optional<IBranchRelationFileEntry> findBranchByName(String branchName);
 
-  IBranchRelationFile withBranchSlidOut(String branchName)
-      throws BranchRelationFileException, CloneNotSupportedException, IOException;
+	IBranchRelationFile withBranchSlidOut(String branchName)
+			throws BranchRelationFileException, CloneNotSupportedException, IOException;
 
-  IBranchRelationFile withBranchSlidOut(IBranchRelationFileEntry relationFileEntry)
-      throws BranchRelationFileException, CloneNotSupportedException, IOException;
+	IBranchRelationFile withBranchSlidOut(IBranchRelationFileEntry relationFileEntry)
+			throws BranchRelationFileException, CloneNotSupportedException, IOException;
 }

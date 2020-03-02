@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
 public interface IGitRebaseParameters {
-  IGitMacheteBranch getCurrentBranch();
+	IGitMacheteBranch getCurrentBranch();
 
-  IGitMacheteCommit getNewBaseCommit();
+	IGitMacheteCommit getNewBaseCommit();
 
-  IGitMacheteCommit getForkPointCommit();
+	IGitMacheteCommit getForkPointCommit();
 }

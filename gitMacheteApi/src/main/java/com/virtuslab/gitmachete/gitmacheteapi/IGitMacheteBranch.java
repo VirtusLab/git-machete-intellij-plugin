@@ -4,23 +4,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGitMacheteBranch {
-  String getName();
+	String getName();
 
-  List<IGitMacheteCommit> computeCommits() throws GitMacheteException;
+	List<IGitMacheteCommit> computeCommits() throws GitMacheteException;
 
-  IGitMacheteCommit getPointedCommit() throws GitMacheteException;
+	IGitMacheteCommit getPointedCommit() throws GitMacheteException;
 
-  List<IGitMacheteBranch> getDownstreamBranches();
+	List<IGitMacheteBranch> getDownstreamBranches();
 
-  Optional<String> getCustomAnnotation();
+	Optional<String> getCustomAnnotation();
 
-  Optional<IGitMacheteBranch> getUpstreamBranch();
+	Optional<IGitMacheteBranch> getUpstreamBranch();
 
-  SyncToParentStatus computeSyncToParentStatus() throws GitMacheteException;
+	SyncToParentStatus computeSyncToParentStatus() throws GitMacheteException;
 
-  SyncToOriginStatus computeSyncToOriginStatus() throws GitMacheteException;
+	SyncToOriginStatus computeSyncToOriginStatus() throws GitMacheteException;
 
-  IGitRebaseParameters computeRebaseParameters() throws GitMacheteException;
+	IGitRebaseParameters computeRebaseParameters() throws GitMacheteException;
 
-  IGitMergeParameters getMergeParameters() throws GitMacheteException;
+	IGitMergeParameters getMergeParameters() throws GitMacheteException;
 }

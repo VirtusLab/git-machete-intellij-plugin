@@ -4,6 +4,11 @@ import static com.virtuslab.gitmachete.actions.ActionIDs.ACTION_REBASE;
 import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
 import static com.virtuslab.gitmachete.actions.DataKeyIDs.KEY_TABLE_MANAGER;
 
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -15,65 +20,47 @@ import com.intellij.testFramework.MapDataContext;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import java.util.Map;
-import java.util.Optional;
-import javax.annotation.Nonnull;
 
 public class RebaseCurrentBranchOntoParentAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
+	private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
 
-  public RebaseCurrentBranchOntoParentAction() {
-    super(
-        "Rebase Current Branch Onto Parent",
-        "Rebase current branch onto parent",
-        AllIcons.Actions.Menu_cut);
-  }
+	public RebaseCurrentBranchOntoParentAction() {
+		super("Rebase Current Branch Onto Parent", "Rebase current branch onto parent", AllIcons.Actions.Menu_cut);
+	}
 
-  @Override
-  public void update(@Nonnull AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
-    // TODO (#79): prohibit rebase during rebase/merge/revert etc.
-  }
+	@Override
+	public void update(@Nonnull AnActionEvent anActionEvent) {
+		super.update(anActionEvent);
+		// TODO (#79): prohibit rebase during rebase/merge/revert etc.
+	}
 
-  @Override
-  public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository =
-        anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
+	@Override
+	public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+		IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
 
-    Optional<IGitMacheteBranch> branchToRebase;
+		Optional<IGitMacheteBranch> branchToRebase;
 
-    try {
-      branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
-    } catch (GitMacheteException e) {
-      LOG.error("Exception occurred while getting current branch");
-      return;
-    }
+		try {
+			branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
+		} catch (GitMacheteException e) {
+			LOG.error("Exception occurred while getting current branch");
+			return;
+		}
 
-    if (branchToRebase.isEmpty()) {
-      LOG.error("There is no current branch managed by Git-Machete");
-      return;
-    }
+		if (branchToRebase.isEmpty()) {
+			LOG.error("There is no current branch managed by Git-Machete");
+			return;
+		}
 
-    DataContext originalDataContext = anActionEvent.getDataContext();
+		DataContext originalDataContext = anActionEvent.getDataContext();
 
-    MapDataContext dataContext =
-        new MapDataContext(
-            Map.of(
-                CommonDataKeys.PROJECT,
-                originalDataContext.getData(CommonDataKeys.PROJECT),
-                KEY_TABLE_MANAGER,
-                originalDataContext.getData(KEY_TABLE_MANAGER),
-                KEY_SELECTED_BRANCH,
-                branchToRebase.get()));
+		MapDataContext dataContext = new MapDataContext(
+				Map.of(CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT), KEY_TABLE_MANAGER,
+						originalDataContext.getData(KEY_TABLE_MANAGER), KEY_SELECTED_BRANCH, branchToRebase.get()));
 
-    AnActionEvent actionEvent =
-        new AnActionEvent(
-            anActionEvent.getInputEvent(),
-            dataContext,
-            anActionEvent.getPlace(),
-            anActionEvent.getPresentation(),
-            anActionEvent.getActionManager(),
-            anActionEvent.getModifiers());
-    ActionManager.getInstance().getAction(ACTION_REBASE).actionPerformed(actionEvent);
-  }
+		AnActionEvent actionEvent = new AnActionEvent(anActionEvent.getInputEvent(), dataContext,
+				anActionEvent.getPlace(), anActionEvent.getPresentation(), anActionEvent.getActionManager(),
+				anActionEvent.getModifiers());
+		ActionManager.getInstance().getAction(ACTION_REBASE).actionPerformed(actionEvent);
+	}
 }

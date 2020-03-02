@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
 public interface IGitMacheteCommit {
-  String getMessage();
+	String getMessage();
 
-  String getHash();
+	String getHash();
 }

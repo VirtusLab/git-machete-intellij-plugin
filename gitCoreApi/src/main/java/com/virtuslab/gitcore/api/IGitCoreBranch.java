@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGitCoreBranch {
-  String getName();
+	String getName();
 
-  String getFullName() throws GitCoreException;
+	String getFullName() throws GitCoreException;
 
-  IGitCoreCommit getPointedCommit() throws GitCoreException;
+	IGitCoreCommit getPointedCommit() throws GitCoreException;
 
-  boolean isLocal();
+	boolean isLocal();
 
-  List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException;
+	List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException;
 
-  boolean hasJustBeenCreated() throws GitCoreException;
+	boolean hasJustBeenCreated() throws GitCoreException;
 
-  Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException;
+	Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException;
 }

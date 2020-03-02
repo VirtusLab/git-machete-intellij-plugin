@@ -10,25 +10,20 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 
 public class BackendFactoryModule extends AbstractModule {
-  private static final Injector injector = Guice.createInjector(new BackendFactoryModule());
+	private static final Injector injector = Guice.createInjector(new BackendFactoryModule());
 
-  @Override
-  protected void configure() {
-    install(
-        new FactoryModuleBuilder()
-            .implement(IGitMacheteRepositoryBuilder.class, GitMacheteRepositoryBuilder.class)
-            .build(GitMacheteRepositoryBuilderFactory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(IGitCoreRepository.class, GitCoreRepository.class)
-            .build(GitCoreRepositoryFactory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(IBranchRelationFile.class, BranchRelationFile.class)
-            .build(BranchRelationFileFactory.class));
-  }
+	@Override
+	protected void configure() {
+		install(new FactoryModuleBuilder()
+				.implement(IGitMacheteRepositoryBuilder.class, GitMacheteRepositoryBuilder.class)
+				.build(GitMacheteRepositoryBuilderFactory.class));
+		install(new FactoryModuleBuilder().implement(IGitCoreRepository.class, GitCoreRepository.class)
+				.build(GitCoreRepositoryFactory.class));
+		install(new FactoryModuleBuilder().implement(IBranchRelationFile.class, BranchRelationFile.class)
+				.build(BranchRelationFileFactory.class));
+	}
 
-  public static Injector getInjector() {
-    return injector;
-  }
+	public static Injector getInjector() {
+		return injector;
+	}
 }

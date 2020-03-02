@@ -5,19 +5,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGitCoreRepository extends IAncestorityChecker {
-  Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
+	Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
 
-  IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
+	IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
 
-  IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException;
+	IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException;
 
-  List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
+	List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
 
-  List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException;
+	List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException;
 
-  Path getRepositoryPath();
+	Path getRepositoryPath();
 
-  Path getGitFolderPath();
+	Path getGitFolderPath();
 
-  List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
+	List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
 }

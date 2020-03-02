@@ -5,9 +5,9 @@ import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 
 public interface IGitMacheteRepositoryBuilder {
-  IGitMacheteRepositoryBuilder repositoryName(String repositoryName);
+	IGitMacheteRepositoryBuilder repositoryName(String repositoryName);
 
-  IGitMacheteRepositoryBuilder branchRelationFile(IBranchRelationFile branchRelationFile);
+	IGitMacheteRepositoryBuilder branchRelationFile(IBranchRelationFile branchRelationFile);
 
-  IGitMacheteRepository build() throws GitMacheteException;
+	IGitMacheteRepository build() throws GitMacheteException;
 }

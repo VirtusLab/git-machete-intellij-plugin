@@ -3,6 +3,17 @@ plugins {
     id 'java-library'
 }
 
+subprojects {
+    apply plugin: 'com.diffplug.gradle.spotless'
+    spotless {
+        java {
+            importOrderFile '../our.importorder'
+            eclipse().configFile '../formatting-rules.xml'
+            removeUnusedImports()
+        }
+    }
+}
+
 allprojects {
     def PLUGIN_VERSION = '0.0.21-SNAPSHOT'
 
@@ -19,13 +30,6 @@ allprojects {
     sourceCompatibility = 11
 
     apply plugin: 'java-library'
-
-    apply plugin: 'com.diffplug.gradle.spotless'
-    spotless {
-        java {
-            googleJavaFormat()
-        }
-    }
 
     ext {
         junitVersion = '4.13'

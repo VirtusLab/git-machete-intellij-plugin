@@ -3,13 +3,13 @@ package com.virtuslab.gitcore.api;
 import java.util.Date;
 
 public interface IGitCoreCommit {
-  String getMessage();
+	String getMessage();
 
-  IGitCorePersonIdentity getAuthor();
+	IGitCorePersonIdentity getAuthor();
 
-  IGitCorePersonIdentity getCommitter();
+	IGitCorePersonIdentity getCommitter();
 
-  Date getCommitTime();
+	Date getCommitTime();
 
-  IGitCoreCommitHash getHash();
+	IGitCoreCommitHash getHash();
 }
