@@ -5,7 +5,6 @@ import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.utils.LinearGraphUtils;
 import com.intellij.vcs.log.graph.utils.NormalEdge;
-import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 import javax.annotation.Nonnull;
@@ -31,10 +30,6 @@ public class ColorGetterByLayoutIndex {
 
     IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
 
-    if (graphElement.isVisible()) {
-      return graphElement.getGraphEdgeColor().getId();
-    } else {
-      return GraphEdgeColor.TRANSPARENT.getId();
-    }
+    return graphElement.getGraphEdgeColor().getId();
   }
 }

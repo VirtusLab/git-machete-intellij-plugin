@@ -1,6 +1,9 @@
 package com.virtuslab.gitmachete.graph.model;
 
 // TODO (#90): find and apply a proper approach for indents handling
+
+import com.virtuslab.gitmachete.graph.GraphEdgeColor;
+
 /**
  * An element whose purpose is to keep the child branch ({@link CommitElement}s and theirs {@link
  * BranchElement}) horizontally aligned (shifts right the last one). This element is not intended to
@@ -19,7 +22,7 @@ public class PhantomElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean isVisible() {
-    return false;
+  public GraphEdgeColor getGraphEdgeColor() {
+    return GraphEdgeColor.TRANSPARENT;
   }
 }
