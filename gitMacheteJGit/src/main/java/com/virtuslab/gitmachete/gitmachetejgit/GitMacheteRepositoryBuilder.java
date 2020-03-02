@@ -155,7 +155,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   /**
-   * @return Optional of {@link IGitCoreLocalBranch} or if that with given name doesn't exist
+   * @return Optional of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist
    *     returns empty Optional
    */
   private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {

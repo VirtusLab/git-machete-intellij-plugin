@@ -1,7 +1,0 @@
-dependencies {
-    guice()
-
-    implementation project(':backendRoot')
-    implementation project(':gitMacheteApi')
-    implementation project(':branchRelationFileApi')
-}
