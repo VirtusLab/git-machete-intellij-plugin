@@ -26,7 +26,7 @@ public class GitCoreCommit implements IGitCoreCommit {
     this.message = jgitCommit.getFullMessage();
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());
     this.committer = new GitCorePersonIdentity(jgitCommit.getCommitterIdent());
-    this.commitTime = new Date((long)jgitCommit.getCommitTime() * 1000);
+    this.commitTime = new Date((long) jgitCommit.getCommitTime() * 1000);
     this.hash = new GitCoreCommitHash(jgitCommit.getId().getName());
   }
 
