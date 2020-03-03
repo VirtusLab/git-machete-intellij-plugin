@@ -30,72 +30,72 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 
 public class GitMacheteGraphTableManager {
-	private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
-	private final Project project;
-	@Getter
-	@Setter
-	private boolean isListingCommits;
-	@Getter
-	private final GitMacheteGraphTable gitMacheteGraphTable;
-	private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
-	@Getter
-	private IGitMacheteRepository repository;
-	private final RepositoryGraphFactory repositoryGraphFactory;
+  private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
+  private final Project project;
+  @Getter
+  @Setter
+  private boolean isListingCommits;
+  @Getter
+  private final GitMacheteGraphTable gitMacheteGraphTable;
+  private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
+  @Getter
+  private IGitMacheteRepository repository;
+  private final RepositoryGraphFactory repositoryGraphFactory;
 
-	public GitMacheteGraphTableManager(@Nonnull Project project) {
-		this.project = project;
-		this.isListingCommits = false;
-		GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-		this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, /* tableManager */ this);
-		this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
-				.getInstance(GitMacheteRepositoryBuilderFactory.class);
-		this.repositoryGraphFactory = new RepositoryGraphFactory();
-		subscribeToGitRepositoryChanges();
-	}
+  public GitMacheteGraphTableManager(@Nonnull Project project) {
+    this.project = project;
+    this.isListingCommits = false;
+    GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, /* tableManager */ this);
+    this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
+        .getInstance(GitMacheteRepositoryBuilderFactory.class);
+    this.repositoryGraphFactory = new RepositoryGraphFactory();
+    subscribeToGitRepositoryChanges();
+  }
 
-	/** Creates a new repository graph and sets it to the graph table model. */
-	public void refreshUI() {
-		/*
-		 * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode. No UI should be
-		 * shown when IDEA is running in this mode.
-		 */
-		if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode())
-			return;
+  /** Creates a new repository graph and sets it to the graph table model. */
+  public void refreshUI() {
+    /*
+     * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode. No UI should be shown
+     * when IDEA is running in this mode.
+     */
+    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode())
+      return;
 
-		RepositoryGraph repositoryGraph = repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
-		gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
+    RepositoryGraph repositoryGraph = repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
+    gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
 
-		GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
-	}
+    GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
+  }
 
-	/**
-	 * Updates repository which is the base of graph table model. The change will be seen after
-	 * {@link GitMacheteGraphTableManager#refreshUI()}.
-	 */
-	public void updateRepository() {
-		Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
-		try {
-			repository = gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build();
-		} catch (GitMacheteException e) {
-			LOG.error("Unable to create Git Machete repository", e);
-		}
-	}
+  /**
+   * Updates repository which is the base of graph table model. The change will be seen after
+   * {@link GitMacheteGraphTableManager#refreshUI()}.
+   */
+  public void updateRepository() {
+    Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
+    try {
+      repository = gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build();
+    } catch (GitMacheteException e) {
+      LOG.error("Unable to create Git Machete repository", e);
+    }
+  }
 
-	public void updateAndRefreshInBackground() {
-		if (project != null && !project.isDisposed()) {
-			new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
-				@Override
-				public void run(@Nonnull ProgressIndicator indicator) {
-					updateRepository();
-					refreshUI();
-				}
-			}.queue();
-		}
-	}
+  public void updateAndRefreshInBackground() {
+    if (project != null && !project.isDisposed()) {
+      new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
+        @Override
+        public void run(@Nonnull ProgressIndicator indicator) {
+          updateRepository();
+          refreshUI();
+        }
+      }.queue();
+    }
+  }
 
-	private void subscribeToGitRepositoryChanges() {
-		Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-		GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
-		project.getMessageBus().connect().subscribe(topic, listener);
-	}
+  private void subscribeToGitRepositoryChanges() {
+    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
+    GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
+    project.getMessageBus().connect().subscribe(topic, listener);
+  }
 }

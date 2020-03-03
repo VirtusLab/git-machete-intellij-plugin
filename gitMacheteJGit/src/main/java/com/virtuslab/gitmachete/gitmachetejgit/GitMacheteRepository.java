@@ -14,32 +14,32 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 
 @RequiredArgsConstructor
 public class GitMacheteRepository implements IGitMacheteRepository {
-	private final String repositoryName;
+  private final String repositoryName;
 
-	@Getter
-	private final List<IGitMacheteBranch> rootBranches;
-	@Getter
-	private final List<IGitMacheteSubmoduleEntry> submodules;
+  @Getter
+  private final List<IGitMacheteBranch> rootBranches;
+  @Getter
+  private final List<IGitMacheteSubmoduleEntry> submodules;
 
-	@Getter
-	private final IBranchRelationFile branchRelationFile;
+  @Getter
+  private final IBranchRelationFile branchRelationFile;
 
-	private final IGitMacheteBranch currentBranch;
+  private final IGitMacheteBranch currentBranch;
 
-	private final Map<String, IGitMacheteBranch> branchByName;
+  private final Map<String, IGitMacheteBranch> branchByName;
 
-	@Override
-	public Optional<String> getRepositoryName() {
-		return Optional.ofNullable(repositoryName);
-	}
+  @Override
+  public Optional<String> getRepositoryName() {
+    return Optional.ofNullable(repositoryName);
+  }
 
-	@Override
-	public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
-		return Optional.ofNullable(currentBranch);
-	}
+  @Override
+  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
+    return Optional.ofNullable(currentBranch);
+  }
 
-	@Override
-	public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
-		return Optional.ofNullable(branchByName.getOrDefault(branchName, null));
-	}
+  @Override
+  public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
+    return Optional.ofNullable(branchByName.getOrDefault(branchName, null));
+  }
 }

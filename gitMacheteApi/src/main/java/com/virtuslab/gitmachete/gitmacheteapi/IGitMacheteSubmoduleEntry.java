@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.gitmacheteapi;
 import java.nio.file.Path;
 
 public interface IGitMacheteSubmoduleEntry {
-	Path getPath();
+  Path getPath();
 
-	String getName();
+  String getName();
 }

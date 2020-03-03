@@ -12,25 +12,25 @@ import com.virtuslab.gitmachete.graph.model.IGraphElement;
 
 @EqualsAndHashCode
 public final class BranchOrCommitCell {
-	@Getter
-	@Nonnull
-	private final IGraphElement element;
-	@Getter
-	@Nonnull
-	private final String text;
-	@Getter
-	@Nonnull
-	private final Collection<? extends PrintElement> printElements;
+  @Getter
+  @Nonnull
+  private final IGraphElement element;
+  @Getter
+  @Nonnull
+  private final String text;
+  @Getter
+  @Nonnull
+  private final Collection<? extends PrintElement> printElements;
 
-	public BranchOrCommitCell(@Nonnull IGraphElement graphElement,
-			@Nonnull Collection<? extends PrintElement> printElements) {
-		this.text = graphElement.getValue();
-		this.printElements = printElements;
-		this.element = graphElement;
-	}
+  public BranchOrCommitCell(@Nonnull IGraphElement graphElement,
+      @Nonnull Collection<? extends PrintElement> printElements) {
+    this.text = graphElement.getValue();
+    this.printElements = printElements;
+    this.element = graphElement;
+  }
 
-	@Override
-	public String toString() {
-		return text;
-	}
+  @Override
+  public String toString() {
+    return text;
+  }
 }

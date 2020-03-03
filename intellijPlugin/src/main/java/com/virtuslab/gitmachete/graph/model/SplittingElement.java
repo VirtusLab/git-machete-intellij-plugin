@@ -13,8 +13,8 @@ import com.virtuslab.gitmachete.graph.GraphEdgeColor;
  * {@link PhantomElement}.
  */
 public class SplittingElement extends BaseGraphElement {
-	public SplittingElement(int upElementIndex, int downElementIndex, GraphEdgeColor graphEdgeColor) {
-		super(upElementIndex, graphEdgeColor);
-		getDownElementIndexes().add(downElementIndex);
-	}
+  public SplittingElement(int upElementIndex, int downElementIndex, GraphEdgeColor graphEdgeColor) {
+    super(upElementIndex, graphEdgeColor);
+    getDownElementIndexes().add(downElementIndex);
+  }
 }

@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IBranchRelationFileEntry {
-	String getName();
+  String getName();
 
-	Optional<IBranchRelationFileEntry> getUpstream();
+  Optional<IBranchRelationFileEntry> getUpstream();
 
-	IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream);
+  IBranchRelationFileEntry withUpstream(IBranchRelationFileEntry newUpstream);
 
-	List<IBranchRelationFileEntry> getSubbranches();
+  List<IBranchRelationFileEntry> getSubbranches();
 
-	Optional<String> getCustomAnnotation();
+  Optional<String> getCustomAnnotation();
 
-	void addSubbranch(IBranchRelationFileEntry subbranch);
+  void addSubbranch(IBranchRelationFileEntry subbranch);
 }

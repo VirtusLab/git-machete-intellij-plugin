@@ -14,29 +14,29 @@ import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraphBuilder;
 
 public class RepositoryGraphFactory {
 
-	@Getter
-	public static final RepositoryGraph nullRepositoryGraph = RepositoryGraph.getNullRepositoryGraph();
+  @Getter
+  public static final RepositoryGraph nullRepositoryGraph = RepositoryGraph.getNullRepositoryGraph();
 
-	private RepositoryGraph repositoryGraphWithCommits;
-	private RepositoryGraph repositoryGraphWithoutCommits;
-	private IGitMacheteRepository repository;
+  private RepositoryGraph repositoryGraphWithCommits;
+  private RepositoryGraph repositoryGraphWithoutCommits;
+  private IGitMacheteRepository repository;
 
-	@Nonnull
-	public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository repository, boolean isListingCommits) {
-		if (repository == null) {
-			return nullRepositoryGraph;
-		} else {
-			if (repository != this.repository) {
-				this.repository = repository;
+  @Nonnull
+  public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository repository, boolean isListingCommits) {
+    if (repository == null) {
+      return nullRepositoryGraph;
+    } else {
+      if (repository != this.repository) {
+        this.repository = repository;
 
-				// TODO (#40): use io.vavr.Lazy (?)
-				RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(repository);
-				repositoryGraphWithCommits = repositoryGraphBuilder
-						.branchComputeCommitsStrategy(DEFAULT_COMPUTE_COMMITS).build();
-				repositoryGraphWithoutCommits = repositoryGraphBuilder
-						.branchComputeCommitsStrategy(EMPTY_COMPUTE_COMMITS).build();
-			}
-			return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
-		}
-	}
+        // TODO (#40): use io.vavr.Lazy (?)
+        RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(repository);
+        repositoryGraphWithCommits = repositoryGraphBuilder.branchComputeCommitsStrategy(DEFAULT_COMPUTE_COMMITS)
+            .build();
+        repositoryGraphWithoutCommits = repositoryGraphBuilder.branchComputeCommitsStrategy(EMPTY_COMPUTE_COMMITS)
+            .build();
+      }
+      return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
+    }
+  }
 }

@@ -7,5 +7,5 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
 
 public interface IBranchComputeCommitsStrategy {
-	List<IGitMacheteCommit> computeCommitsOf(IGitMacheteBranch branch) throws GitMacheteException;
+  List<IGitMacheteCommit> computeCommitsOf(IGitMacheteBranch branch) throws GitMacheteException;
 }

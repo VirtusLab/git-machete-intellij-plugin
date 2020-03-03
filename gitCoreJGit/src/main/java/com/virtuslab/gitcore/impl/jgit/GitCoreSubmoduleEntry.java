@@ -8,6 +8,6 @@ import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 
 @Data
 public class GitCoreSubmoduleEntry implements IGitCoreSubmoduleEntry {
-	private final Path path;
-	private final String name;
+  private final Path path;
+  private final String name;
 }

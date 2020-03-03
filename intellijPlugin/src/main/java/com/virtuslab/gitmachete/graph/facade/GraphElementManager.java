@@ -15,24 +15,24 @@ import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphEleme
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 
 public class GraphElementManager implements PrintElementManager {
-	@Getter
-	@Nonnull
-	private final Comparator<GraphElement> graphElementComparator;
-	@Nonnull
-	private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
+  @Getter
+  @Nonnull
+  private final Comparator<GraphElement> graphElementComparator;
+  @Nonnull
+  private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
 
-	public GraphElementManager(@Nonnull RepositoryGraph repositoryGraph) {
-		colorGetterByLayoutIndex = new ColorGetterByLayoutIndex(repositoryGraph);
-		graphElementComparator = new GraphElementComparatorByLayoutIndex(repositoryGraph::getNodeId).reversed();
-	}
+  public GraphElementManager(@Nonnull RepositoryGraph repositoryGraph) {
+    colorGetterByLayoutIndex = new ColorGetterByLayoutIndex(repositoryGraph);
+    graphElementComparator = new GraphElementComparatorByLayoutIndex(repositoryGraph::getNodeId).reversed();
+  }
 
-	@Override
-	public boolean isSelected(@NotNull PrintElementWithGraphElement printElement) {
-		return false;
-	}
+  @Override
+  public boolean isSelected(@NotNull PrintElementWithGraphElement printElement) {
+    return false;
+  }
 
-	@Override
-	public int getColorId(@Nonnull GraphElement element) {
-		return colorGetterByLayoutIndex.getColorId(element);
-	}
+  @Override
+  public int getColorId(@Nonnull GraphElement element) {
+    return colorGetterByLayoutIndex.getColorId(element);
+  }
 }

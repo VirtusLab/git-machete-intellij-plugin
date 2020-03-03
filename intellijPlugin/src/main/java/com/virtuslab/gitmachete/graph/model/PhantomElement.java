@@ -16,12 +16,12 @@ import com.virtuslab.gitmachete.graph.GraphEdgeColor;
  * actual indent cause. The phantom element is an extension of this edge.
  */
 public class PhantomElement extends BaseGraphElement {
-	public PhantomElement(int upElementIndex) {
-		super(upElementIndex, /* syncToParentStatus */ null);
-	}
+  public PhantomElement(int upElementIndex) {
+    super(upElementIndex, /* syncToParentStatus */ null);
+  }
 
-	@Override
-	public GraphEdgeColor getGraphEdgeColor() {
-		return GraphEdgeColor.TRANSPARENT;
-	}
+  @Override
+  public GraphEdgeColor getGraphEdgeColor() {
+    return GraphEdgeColor.TRANSPARENT;
+  }
 }

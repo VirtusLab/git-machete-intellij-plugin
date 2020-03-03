@@ -6,5 +6,5 @@ import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
 @Data
 public class GitCoreObjectHash implements IGitCoreCommitHash {
-	private final String hashString;
+  private final String hashString;
 }

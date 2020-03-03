@@ -14,25 +14,25 @@ import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 
 @AllArgsConstructor
 public class ColorGetterByLayoutIndex {
-	@Nonnull
-	private final RepositoryGraph repositoryGraph;
+  @Nonnull
+  private final RepositoryGraph repositoryGraph;
 
-	public int getColorId(@Nonnull GraphElement element) {
-		int nodeIndex;
-		if (element instanceof GraphNode) {
-			nodeIndex = ((GraphNode) element).getNodeIndex();
-		} else {
-			GraphEdge edge = (GraphEdge) element;
-			NormalEdge normalEdge = LinearGraphUtils.asNormalEdge(edge);
-			if (normalEdge != null) {
-				nodeIndex = normalEdge.down;
-			} else {
-				nodeIndex = LinearGraphUtils.getNotNullNodeIndex(edge);
-			}
-		}
+  public int getColorId(@Nonnull GraphElement element) {
+    int nodeIndex;
+    if (element instanceof GraphNode) {
+      nodeIndex = ((GraphNode) element).getNodeIndex();
+    } else {
+      GraphEdge edge = (GraphEdge) element;
+      NormalEdge normalEdge = LinearGraphUtils.asNormalEdge(edge);
+      if (normalEdge != null) {
+        nodeIndex = normalEdge.down;
+      } else {
+        nodeIndex = LinearGraphUtils.getNotNullNodeIndex(edge);
+      }
+    }
 
-		IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
+    IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
 
-		return graphElement.getGraphEdgeColor().getId();
-	}
+    return graphElement.getGraphEdgeColor().getId();
+  }
 }

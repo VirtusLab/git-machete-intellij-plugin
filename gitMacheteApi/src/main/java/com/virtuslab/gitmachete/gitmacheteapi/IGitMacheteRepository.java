@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGitMacheteRepository {
-	List<IGitMacheteBranch> getRootBranches();
+  List<IGitMacheteBranch> getRootBranches();
 
-	Optional<IGitMacheteBranch> getCurrentBranchIfManaged() throws GitMacheteException;
+  Optional<IGitMacheteBranch> getCurrentBranchIfManaged() throws GitMacheteException;
 
-	Optional<IGitMacheteBranch> getBranchByName(String branchName);
+  Optional<IGitMacheteBranch> getBranchByName(String branchName);
 
-	Optional<String> getRepositoryName();
+  Optional<String> getRepositoryName();
 
-	List<IGitMacheteSubmoduleEntry> getSubmodules();
+  List<IGitMacheteSubmoduleEntry> getSubmodules();
 }

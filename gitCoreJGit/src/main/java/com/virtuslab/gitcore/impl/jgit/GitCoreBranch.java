@@ -29,130 +29,129 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 
 @Data
 public abstract class GitCoreBranch implements IGitCoreBranch {
-	protected final GitCoreRepository repo;
-	protected final String branchName;
+  protected final GitCoreRepository repo;
+  protected final String branchName;
 
-	@Override
-	public String getName() {
-		return branchName;
-	}
+  @Override
+  public String getName() {
+    return branchName;
+  }
 
-	@EqualsAndHashCode.Include
-	public String getFullName() {
-		return getBranchesPath() + branchName;
-	}
+  @EqualsAndHashCode.Include
+  public String getFullName() {
+    return getBranchesPath() + branchName;
+  }
 
-	public abstract String getBranchesPath();
+  public abstract String getBranchesPath();
 
-	public abstract String getBranchTypeString();
+  public abstract String getBranchTypeString();
 
-	public abstract String getBranchTypeString(boolean capitalized);
+  public abstract String getBranchTypeString(boolean capitalized);
 
-	@Override
-	public GitCoreCommit getPointedCommit() throws GitCoreException {
-		return new GitCoreCommit(computePointedRevCommit());
-	}
+  @Override
+  public GitCoreCommit getPointedCommit() throws GitCoreException {
+    return new GitCoreCommit(computePointedRevCommit());
+  }
 
-	protected RevCommit computePointedRevCommit() throws GitCoreException {
-		Repository jgitRepo = repo.getJgitRepo();
-		RevWalk rw = new RevWalk(jgitRepo);
-		RevCommit c;
-		try {
-			ObjectId o = jgitRepo.resolve(getFullName());
-			if (o == null) {
-				throw new GitCoreNoSuchBranchException(
-						MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName,
-								getBranchTypeString(/* capitalized */ true)));
-			}
-			c = rw.parseCommit(o);
-		} catch (MissingObjectException | IncorrectObjectTypeException e) {
-			throw new GitCoreNoSuchCommitException(
-					MessageFormat.format("Commit pointed by {1} branch \"{0}\" does not exist in this repository",
-							branchName, getBranchTypeString()));
-		} catch (RevisionSyntaxException | IOException e) {
-			throw new GitCoreException(e);
-		}
+  protected RevCommit computePointedRevCommit() throws GitCoreException {
+    Repository jgitRepo = repo.getJgitRepo();
+    RevWalk rw = new RevWalk(jgitRepo);
+    RevCommit c;
+    try {
+      ObjectId o = jgitRepo.resolve(getFullName());
+      if (o == null) {
+        throw new GitCoreNoSuchBranchException(
+            MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName,
+                getBranchTypeString(/* capitalized */ true)));
+      }
+      c = rw.parseCommit(o);
+    } catch (MissingObjectException | IncorrectObjectTypeException e) {
+      throw new GitCoreNoSuchCommitException(MessageFormat.format(
+          "Commit pointed by {1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString()));
+    } catch (RevisionSyntaxException | IOException e) {
+      throw new GitCoreException(e);
+    }
 
-		return c;
-	}
+    return c;
+  }
 
-	@Override
-	public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
-		RevWalk walk = new RevWalk(repo.getJgitRepo());
+  @Override
+  public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
+    RevWalk walk = new RevWalk(repo.getJgitRepo());
 
-		walk.sort(RevSort.TOPO, /* use */ true);
-		walk.sort(RevSort.COMMIT_TIME_DESC, /* use */ true);
+    walk.sort(RevSort.TOPO, /* use */ true);
+    walk.sort(RevSort.COMMIT_TIME_DESC, /* use */ true);
 
-		try {
-			/*
-			 * I mark both commits as a start commit, because I want to traverse tree of commits starting from that
-			 * points. In every iteration iterator from "walk" give me next commit from one of this path depend on the
-			 * commit date. In every iteration of iterator I try add current commit's parent(s) (actually their
-			 * ObjectId's) to "ancestorsOfStartCommits" list. If one of parent's ObjectId is already in this list, that
-			 * mean (in consideration of this sorting) that it's a merge base (the first common ancestor)
-			 */
-			walk.markStart(this.getPointedCommit().getJgitCommit());
+    try {
+      /*
+       * I mark both commits as a start commit, because I want to traverse tree of commits starting from that points. In
+       * every iteration iterator from "walk" give me next commit from one of this path depend on the commit date. In
+       * every iteration of iterator I try add current commit's parent(s) (actually their ObjectId's) to
+       * "ancestorsOfStartCommits" list. If one of parent's ObjectId is already in this list, that mean (in
+       * consideration of this sorting) that it's a merge base (the first common ancestor)
+       */
+      walk.markStart(this.getPointedCommit().getJgitCommit());
 
-			String commitHash = branch.getPointedCommit().getHash().getHashString();
-			ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
-			walk.markStart(walk.parseCommit(objectId));
-		} catch (Exception e) {
-			throw new GitCoreException(e);
-		}
+      String commitHash = branch.getPointedCommit().getHash().getHashString();
+      ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
+      walk.markStart(walk.parseCommit(objectId));
+    } catch (Exception e) {
+      throw new GitCoreException(e);
+    }
 
-		List<ObjectId> ancestorsOfStartCommits = new LinkedList<>();
+    List<ObjectId> ancestorsOfStartCommits = new LinkedList<>();
 
-		for (var c : walk) {
-			for (var p : c.getParents()) {
-				if (ancestorsOfStartCommits.contains(p.getId())) {
-					return Optional.of(new GitCoreCommit(p));
-				} else {
-					ancestorsOfStartCommits.add(p);
-				}
-			}
-		}
+    for (var c : walk) {
+      for (var p : c.getParents()) {
+        if (ancestorsOfStartCommits.contains(p.getId())) {
+          return Optional.of(new GitCoreCommit(p));
+        } else {
+          ancestorsOfStartCommits.add(p);
+        }
+      }
+    }
 
-		return Optional.empty();
-	}
+    return Optional.empty();
+  }
 
-	@Override
-	public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
-		RevWalk walk = new RevWalk(repo.getJgitRepo());
-		walk.sort(RevSort.TOPO);
-		RevCommit commit = computePointedRevCommit();
-		try {
-			walk.markStart(commit);
-		} catch (Exception e) {
-			throw new GitCoreException(e);
-		}
+  @Override
+  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
+    RevWalk walk = new RevWalk(repo.getJgitRepo());
+    walk.sort(RevSort.TOPO);
+    RevCommit commit = computePointedRevCommit();
+    try {
+      walk.markStart(commit);
+    } catch (Exception e) {
+      throw new GitCoreException(e);
+    }
 
-		var list = new LinkedList<IGitCoreCommit>();
+    var list = new LinkedList<IGitCoreCommit>();
 
-		for (var c : walk) {
-			if (c.getId().getName().equals(upToCommit.getHash().getHashString()))
-				break;
+    for (var c : walk) {
+      if (c.getId().getName().equals(upToCommit.getHash().getHashString()))
+        break;
 
-			list.add(new GitCoreCommit(c));
-		}
+      list.add(new GitCoreCommit(c));
+    }
 
-		return list;
-	}
+    return list;
+  }
 
-	@Override
-	public boolean hasJustBeenCreated() throws GitCoreException {
-		Collection<ReflogEntry> rf;
-		try {
-			rf = repo.getJgitGit().reflog().setRef(getFullName()).call();
-		} catch (GitAPIException e) {
-			throw new GitCoreException(e);
-		}
+  @Override
+  public boolean hasJustBeenCreated() throws GitCoreException {
+    Collection<ReflogEntry> rf;
+    try {
+      rf = repo.getJgitGit().reflog().setRef(getFullName()).call();
+    } catch (GitAPIException e) {
+      throw new GitCoreException(e);
+    }
 
-		var rfit = rf.iterator();
+    var rfit = rf.iterator();
 
-		if (!rfit.hasNext()) {
-			return true;
-		}
+    if (!rfit.hasNext()) {
+      return true;
+    }
 
-		return rfit.next().getOldId().equals(ObjectId.zeroId());
-	}
+    return rfit.next().getOldId().equals(ObjectId.zeroId());
+  }
 }
