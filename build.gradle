@@ -45,7 +45,6 @@ allprojects {
             dependencies {
                 implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
                 implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
-                implementation group: 'com.google.inject.extensions', name: 'guice-multibindings', version: guiceVersion
             }
         }
 
