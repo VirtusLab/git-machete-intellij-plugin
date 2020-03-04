@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    def PLUGIN_VERSION = '0.0.22-SNAPSHOT'
+    def PLUGIN_VERSION = '0.0.23-SNAPSHOT'
 
     group 'com.virtuslab'
     version PLUGIN_VERSION
@@ -27,6 +27,7 @@ allprojects {
     apply plugin: 'com.github.spotbugs'
 
     spotbugs {
+        // ignoreFailures here because violations plugin is responsible for that
         ignoreFailures = true
         effort = "min"
         showProgress = true
@@ -52,6 +53,7 @@ allprojects {
         slf4jVersion = '1.7.25'
         jgitVersion = '5.5.1.201910021850-r'
         javafxVersion = '11'
+        spotbugsVersion = '3.0.0'
 
         lombok = { ->
             dependencies {
@@ -91,11 +93,13 @@ allprojects {
         testImplementation group: 'junit', name: 'junit', version: junitVersion
         testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
         testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
-        compile "com.github.spotbugs:spotbugs-gradle-plugin:3.0.0"
+        compile group: 'com.github.spotbugs', name: 'spotbugs-gradle-plugin', version: spotbugsVersion
     }
 }
 
 subprojects {
+    // This task is only for subprojects because spotbugs does not generate report file for main module
+    // in case when there are no code in it so running this task for root module as well cause error
     task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
         //
         // Optional config
