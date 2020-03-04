@@ -11,10 +11,6 @@ dependencies {
     implementation project(':gitMacheteApi')
 }
 
-configurations.all {
-    //exclude group: 'org.slf4j'
-}
-
 intellij {
     version '2019.3'
     plugins 'git4idea'
