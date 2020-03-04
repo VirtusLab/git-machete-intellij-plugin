@@ -43,9 +43,7 @@ public class Tests {
     prepareRepoFromScript();
 
     IGitMacheteRepositoryBuilder repoBuilder =
-        BackendFactoryModule.getInjector()
-            .getInstance(GitMacheteRepositoryBuilderFactory.class)
-            .create(TestPaths.repo);
+        gitMacheteRepositoryBuilderFactory.create(TestPaths.repo);
 
     repo = repoBuilder.build();
   }
