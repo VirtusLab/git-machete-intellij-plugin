@@ -85,8 +85,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       // b/w the background's top and the image's top (depending on the row number and the graphics
       // translate). To avoid that,
       // the graphics y-translate is aligned to int with .5-floor-bias.
-      AffineTransform origTx = PaintUtil.alignTxToInt(/* graphics2d */g2d, /* offset */null, /* alignX */false,
-          /* alignY */true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
+      AffineTransform origTx = PaintUtil.alignTxToInt(/* graphics2d */ g2d, /* offset */ null, /* alignX */ false,
+          /* alignY */ true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
       try {
         UIUtil.drawImage(g, graphImage.getImage(), 0, 0, null);
       } finally {

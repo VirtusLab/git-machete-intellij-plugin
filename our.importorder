@@ -1,6 +1,6 @@
 #Organize Import Order
-#Mon Mar 02 18:01:00 CET 2020
 0=java
 1=javax
+#all other packages like jgit, powermock, lombok
 2=com
 3=com.virtuslab

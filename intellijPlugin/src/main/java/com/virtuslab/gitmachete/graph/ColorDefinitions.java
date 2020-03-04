@@ -16,9 +16,9 @@ public final class ColorDefinitions {
   private static final Color dark_gray = Color.decode("#555555");
   private static final Color transparent = new Color(0, 0, 0, 0);
 
-  /*
-   * JBColor are pairs of colors for light and dark IDE theme. Lhs colors names are their "general" description. They
-   * may differ from rhs (which are actual and specific colors).
+  /**
+   * {@link com.intellij.ui.JBColor} are pairs of colors for light and dark IDE theme. LHS colors names are their
+   * "general" description. They may differ from RHS (which are actual and specific colors).
    */
   public static final JBColor RED = new JBColor(red, red);
   public static final JBColor ORANGE = new JBColor(dark_orange, orange);
