@@ -57,7 +57,8 @@ public class GitMacheteBranch implements IGitMacheteBranch {
       }
 
       // translate IGitCoreCommit list to IGitMacheteCommit list
-      return coreLocalBranch.computeCommitsUntil(forkPoint.get()).stream().map(GitMacheteCommit::new)
+      return coreLocalBranch.computeCommitsUntil(forkPoint.get()).stream()
+          .map(GitMacheteCommit::new)
           .collect(Collectors.toList());
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);

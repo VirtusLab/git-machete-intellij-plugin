@@ -31,6 +31,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
+
 import com.virtuslab.gitmachete.graph.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
@@ -46,7 +47,9 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   private String selectedBranchName;
 
-  public GitMacheteGraphTable(@Nonnull GraphTableModel graphTableModel, Project project,
+  public GitMacheteGraphTable(
+      @Nonnull GraphTableModel graphTableModel,
+      Project project,
       GitMacheteGraphTableManager tableManager) {
     super(graphTableModel);
 

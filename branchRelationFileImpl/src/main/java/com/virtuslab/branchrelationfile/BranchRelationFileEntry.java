@@ -16,8 +16,8 @@ public class BranchRelationFileEntry implements IBranchRelationFileEntry {
   private final List<IBranchRelationFileEntry> subbranches = new LinkedList<>();
 
   // can't be c'tors coz Lombok wouldn't then generate any c'tor itself
-  public static IBranchRelationFileEntry of(IBranchRelationFileEntry branchRelationFileEntry,
-      IBranchRelationFileEntry upstream) {
+  public static IBranchRelationFileEntry of(
+      IBranchRelationFileEntry branchRelationFileEntry, IBranchRelationFileEntry upstream) {
     String customAnnotation = branchRelationFileEntry.getCustomAnnotation().orElse(null);
     var result = new BranchRelationFileEntry(branchRelationFileEntry.getName(), upstream, customAnnotation);
     result.getSubbranches().addAll(branchRelationFileEntry.getSubbranches());

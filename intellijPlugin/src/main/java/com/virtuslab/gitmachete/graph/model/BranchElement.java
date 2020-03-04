@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.graph.GraphEdgeColor;
@@ -17,8 +18,12 @@ public final class BranchElement extends BaseGraphElement {
   private final IGitMacheteBranch branch;
   private final SyncToOriginStatus syncToOriginStatus;
 
-  public BranchElement(IGitMacheteBranch branch, int upElementIndex, GraphEdgeColor graphEdgeColor,
-      SyncToOriginStatus syncToOriginStatus, boolean isCurrentBranch) {
+  public BranchElement(
+      IGitMacheteBranch branch,
+      int upElementIndex,
+      GraphEdgeColor graphEdgeColor,
+      SyncToOriginStatus syncToOriginStatus,
+      boolean isCurrentBranch) {
     super(upElementIndex, graphEdgeColor);
     this.branch = branch;
     this.syncToOriginStatus = syncToOriginStatus;

@@ -16,6 +16,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
@@ -86,8 +87,9 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
 
   @Nonnull
   private Optional<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
-    if (gitMacheteCurrentBranch == null)
+    if (gitMacheteCurrentBranch == null) {
       return Optional.empty();
+    }
 
     Optional<IGitRebaseParameters> gitRebaseParameters = Optional.empty();
     try {

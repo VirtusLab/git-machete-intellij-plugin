@@ -61,10 +61,12 @@ public class BranchRelationFileTest {
     String childName0 = "child0";
     String childName1 = "child1";
 
-    // root root
-    // parent slide out
-    // child0 -----> child0
-    // child1 child1
+    /*-
+        root                           root
+            parent         slide out
+                  child0    ----->         child0
+                  child1                   child1
+    */
 
     var rootEntry = new BranchRelationFileEntry(rootName, null, null);
     var entry = new BranchRelationFileEntry(branchToSlideOutName, rootEntry, null);

@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -128,8 +127,9 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     var list = new LinkedList<IGitCoreCommit>();
 
     for (var c : walk) {
-      if (c.getId().getName().equals(upToCommit.getHash().getHashString()))
+      if (c.getId().getName().equals(upToCommit.getHash().getHashString())) {
         break;
+      }
 
       list.add(new GitCoreCommit(c));
     }

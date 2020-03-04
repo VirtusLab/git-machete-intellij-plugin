@@ -14,6 +14,7 @@ import lombok.Getter;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
@@ -39,8 +40,9 @@ public class BranchRelationFile implements IBranchRelationFile {
           e);
     }
 
-    if (lines.size() < 1)
+    if (lines.size() < 1) {
       return;
+    }
 
     boolean isFirstSignificantLine = true;
     int lineNumber = 0;
@@ -112,16 +114,12 @@ public class BranchRelationFile implements IBranchRelationFile {
       if (indentType == null) {
         if (l.charAt(i) != ' ' && l.charAt(i) != '\t') {
           break;
-        } else {
-          result++;
-          indentType = l.charAt(i);
         }
-      } else {
-        if (l.charAt(i) == indentType)
-          result++;
-        else
-          break;
+        indentType = l.charAt(i);
+      } else if (l.charAt(i) != indentType) {
+        break;
       }
+      result++;
     }
 
     return result;

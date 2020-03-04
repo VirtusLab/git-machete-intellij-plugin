@@ -8,11 +8,13 @@ import static com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus.Untracke
 import java.util.Map;
 
 public final class SyncToOriginStatusDescriptionGenerator {
-  private SyncToOriginStatusDescriptionGenerator() {
-  }
+  private SyncToOriginStatusDescriptionGenerator() {}
 
-  private static final Map<Integer, String> descriptions = Map.of(Untracked.getId(), "untracked", Ahead.getId(),
-      "ahead of origin", Behind.getId(), "behind origin", Diverged.getId(), "diverged from origin");
+  private static final Map<Integer, String> descriptions = Map.of(
+      Untracked.getId(), "untracked",
+      Ahead.getId(), "ahead of origin",
+      Behind.getId(), "behind origin",
+      Diverged.getId(), "diverged from origin");
 
   public static String getDescription(int statusId) {
     return descriptions.getOrDefault(statusId, "sync to origin unknown");

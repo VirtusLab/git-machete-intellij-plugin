@@ -1,12 +1,12 @@
 package com.virtuslab.gitmachete.actions;
 
 import com.intellij.openapi.actionSystem.DataKey;
+
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.ui.GitMacheteGraphTableManager;
 
 public final class DataKeyIDs {
-  private DataKeyIDs() {
-  }
+  private DataKeyIDs() {}
 
   public static final String KEY_TABLE_MANAGER_STRING = "TABLE_MANAGER";
   public static final String KEY_SELECTED_BRANCH_NAME_STRING = "SELECTED_BRANCH_NAME";

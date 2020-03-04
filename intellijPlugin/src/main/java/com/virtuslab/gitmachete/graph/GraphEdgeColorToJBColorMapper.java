@@ -12,11 +12,13 @@ import com.intellij.ui.JBColor;
 
 public final class GraphEdgeColorToJBColorMapper {
 
-  private GraphEdgeColorToJBColorMapper() {
-  }
+  private GraphEdgeColorToJBColorMapper() {}
 
-  private static final Map<GraphEdgeColor, JBColor> colors = Map.of(GraphEdgeColor.GRAY, GRAY, GraphEdgeColor.YELLOW,
-      YELLOW, GraphEdgeColor.RED, RED, GraphEdgeColor.GREEN, GREEN);
+  private static final Map<GraphEdgeColor, JBColor> colors = Map.of(
+      GraphEdgeColor.GRAY, GRAY,
+      GraphEdgeColor.YELLOW, YELLOW,
+      GraphEdgeColor.RED, RED,
+      GraphEdgeColor.GREEN, GREEN);
 
   public static JBColor getColor(GraphEdgeColor graphEdgeColor) {
     return colors.getOrDefault(graphEdgeColor, TRANSPARENT);

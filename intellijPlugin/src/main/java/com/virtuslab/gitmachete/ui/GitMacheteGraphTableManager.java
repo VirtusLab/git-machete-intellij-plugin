@@ -17,6 +17,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
+
 import com.virtuslab.gitmachete.backendroot.BackendFactoryModule;
 import com.virtuslab.gitmachete.backendroot.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
@@ -59,8 +60,9 @@ public class GitMacheteGraphTableManager {
      * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode. No UI should be shown
      * when IDEA is running in this mode.
      */
-    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode())
+    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       return;
+    }
 
     RepositoryGraph repositoryGraph = repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);

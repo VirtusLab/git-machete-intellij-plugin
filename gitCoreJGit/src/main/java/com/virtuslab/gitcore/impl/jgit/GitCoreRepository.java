@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -28,6 +27,7 @@ import org.eclipse.jgit.submodule.SubmoduleWalk;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
@@ -85,12 +85,13 @@ public class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException("Cannot get current branch", e);
     }
 
-    if (r == null)
+    if (r == null) {
       throw new GitCoreException("Error occur while getting current branch ref");
+    }
 
-    if (r.isSymbolic())
+    if (r.isSymbolic()) {
       return Optional.of(new GitCoreLocalBranch(this, Repository.shortenRefName(r.getTarget().getName())));
-
+    }
     return Optional.empty();
   }
 

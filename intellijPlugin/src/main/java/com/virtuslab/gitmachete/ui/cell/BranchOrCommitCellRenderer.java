@@ -31,6 +31,7 @@ import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
+
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.graph.SyncToOriginStatusDescriptionGenerator;
@@ -51,8 +52,13 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
   }
 
   @Override
-  protected SimpleColoredComponent getTableCellRendererComponentImpl(@Nonnull JTable table,
-      @Nonnull BranchOrCommitCell value, boolean isSelected, boolean hasFocus, int row, int column) {
+  protected SimpleColoredComponent getTableCellRendererComponentImpl(
+      @Nonnull JTable table,
+      @Nonnull BranchOrCommitCell value,
+      boolean isSelected,
+      boolean hasFocus,
+      int row,
+      int column) {
     myComponent.customize(value, isSelected, hasFocus, row, column);
     return myComponent;
   }
@@ -79,12 +85,14 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       // b/w the background's top and the image's top (depending on the row number and the graphics
       // translate). To avoid that,
       // the graphics y-translate is aligned to int with .5-floor-bias.
-      AffineTransform origTx = PaintUtil.alignTxToInt(g2d, null, false, true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
+      AffineTransform origTx = PaintUtil.alignTxToInt(/* graphics2d */g2d, /* offset */null, /* alignX */false,
+          /* alignY */true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
       try {
         UIUtil.drawImage(g, graphImage.getImage(), 0, 0, null);
       } finally {
-        if (origTx != null)
+        if (origTx != null) {
           g2d.setTransform(origTx);
+        }
       }
     }
 

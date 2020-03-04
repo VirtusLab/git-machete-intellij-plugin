@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+
 import com.virtuslab.branchrelationfile.BranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.gitcore.api.IGitCoreRepository;

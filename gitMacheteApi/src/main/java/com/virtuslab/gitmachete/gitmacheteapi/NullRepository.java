@@ -7,8 +7,7 @@ import java.util.Optional;
 public final class NullRepository implements IGitMacheteRepository {
   private static NullRepository instance = new NullRepository();
 
-  private NullRepository() {
-  }
+  private NullRepository() {}
 
   public static IGitMacheteRepository getInstance() {
     return instance;

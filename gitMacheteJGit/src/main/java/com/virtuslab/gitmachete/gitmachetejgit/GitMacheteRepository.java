@@ -20,7 +20,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final List<IGitMacheteBranch> rootBranches;
   @Getter
   private final List<IGitMacheteSubmoduleEntry> submodules;
-
   @Getter
   private final IBranchRelationFile branchRelationFile;
 

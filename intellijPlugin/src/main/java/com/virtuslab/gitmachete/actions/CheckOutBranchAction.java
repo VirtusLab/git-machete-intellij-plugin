@@ -23,8 +23,7 @@ import git4idea.repo.GitRepository;
 public class CheckOutBranchAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(CheckOutBranchAction.class);
 
-  public CheckOutBranchAction() {
-  }
+  public CheckOutBranchAction() {}
 
   @Override
   public void update(@Nonnull AnActionEvent anActionEvent) {
@@ -47,8 +46,8 @@ public class CheckOutBranchAction extends AnAction {
       @Override
       public void run(@Nonnull ProgressIndicator indicator) {
         new GitBranchWorker(project, Git.getInstance(),
-            new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator)).checkout(selectedBranchName,
-                /* detach */ false, List.of(repository));
+            new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
+                .checkout(selectedBranchName, /* detach */ false, List.of(repository));
       }
       // TODO (#95): on success, refresh only indication of the current branch
     }.queue();

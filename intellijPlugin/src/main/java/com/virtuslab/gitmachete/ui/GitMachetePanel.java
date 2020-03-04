@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+
 import com.virtuslab.gitmachete.actions.RebaseCurrentBranchOntoParentAction;
 
 public class GitMachetePanel {

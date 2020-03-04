@@ -5,13 +5,13 @@ import java.util.Comparator;
 import javax.annotation.Nonnull;
 
 import lombok.Getter;
-
 import org.jetbrains.annotations.NotNull;
 
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.printer.PrintElementManager;
 import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex;
 import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
+
 import com.virtuslab.gitmachete.graph.repositorygraph.RepositoryGraph;
 
 public class GraphElementManager implements PrintElementManager {

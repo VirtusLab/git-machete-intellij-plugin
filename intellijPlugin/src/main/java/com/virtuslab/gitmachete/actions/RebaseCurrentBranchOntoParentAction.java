@@ -17,6 +17,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.testFramework.MapDataContext;
+
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
@@ -55,8 +56,10 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     DataContext originalDataContext = anActionEvent.getDataContext();
 
     MapDataContext dataContext = new MapDataContext(
-        Map.of(CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT), KEY_TABLE_MANAGER,
-            originalDataContext.getData(KEY_TABLE_MANAGER), KEY_SELECTED_BRANCH, branchToRebase.get()));
+        Map.of(
+            CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT),
+            KEY_TABLE_MANAGER, originalDataContext.getData(KEY_TABLE_MANAGER),
+            KEY_SELECTED_BRANCH, branchToRebase.get()));
 
     AnActionEvent actionEvent = new AnActionEvent(anActionEvent.getInputEvent(), dataContext, anActionEvent.getPlace(),
         anActionEvent.getPresentation(), anActionEvent.getActionManager(), anActionEvent.getModifiers());

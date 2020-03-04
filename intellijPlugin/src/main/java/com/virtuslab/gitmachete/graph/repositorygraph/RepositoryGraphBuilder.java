@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
+
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteCommit;
@@ -76,8 +77,11 @@ public class RepositoryGraphBuilder {
    * @param branchIndex
    *          the index of branch which downstream branches (with their commits) are to be added
    */
-  private void addDownstreamCommitsAndBranches(List<IGraphElement> graphElements,
-      List<IGitMacheteBranch> downstreamBranches, int branchIndex) throws GitMacheteException {
+  private void addDownstreamCommitsAndBranches(
+      List<IGraphElement> graphElements,
+      List<IGitMacheteBranch> downstreamBranches,
+      int branchIndex)
+      throws GitMacheteException {
     int upElementIndex = branchIndex;
     for (IGitMacheteBranch branch : downstreamBranches) {
       // TODO (#97): set syncToParentStatus later (?)
@@ -96,8 +100,12 @@ public class RepositoryGraphBuilder {
     addPhantomGraphElementIfNeeded(graphElements, branchIndex, upElementIndex);
   }
 
-  private void addCommitsWithBranch(List<IGraphElement> graphElements, IGitMacheteBranch branch,
-      int upstreamBranchIndex, SyncToParentStatus syncToParentStatus) throws GitMacheteException {
+  private void addCommitsWithBranch(
+      List<IGraphElement> graphElements,
+      IGitMacheteBranch branch,
+      int upstreamBranchIndex,
+      SyncToParentStatus syncToParentStatus)
+      throws GitMacheteException {
     List<IGitMacheteCommit> commits = Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
@@ -115,10 +123,10 @@ public class RepositoryGraphBuilder {
     }
 
     int lastElementIndex = graphElements.size() - 1;
-    /*
-     * If a branch has no commits (due to commits getting strategy or because its a root branch) its upElementIndex is
-     * just the upstreamBranchIndex. Otherwise the upElementIndex is an index of most recently added element (its last
-     * commit).
+    /**
+     * If a branch has no commits (due to commits getting strategy or because its a root branch) its
+     * {@code upElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code upElementIndex} is an index
+     * of most recently added element (its last commit).
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
@@ -134,7 +142,9 @@ public class RepositoryGraphBuilder {
    * @param syncToParentStatus
    *          sync to parent status of the branch that will be added just after the splitting element
    */
-  private void addSplittingGraphElement(List<IGraphElement> graphElements, int upElementIndex,
+  private void addSplittingGraphElement(
+      List<IGraphElement> graphElements,
+      int upElementIndex,
       SyncToParentStatus syncToParentStatus) {
     int downElementIndex = graphElements.size() + 1;
     int splittingElementIndex = graphElements.size();
@@ -168,8 +178,11 @@ public class RepositoryGraphBuilder {
    *         attributes if the branch is the current one.
    */
   @Nonnull
-  private BranchElement createBranchElementFor(IGitMacheteBranch branch, int upstreamBranchIndex,
-      GraphEdgeColor graphEdgeColor, SyncToOriginStatus syncToOriginStatus) {
+  private BranchElement createBranchElementFor(
+      IGitMacheteBranch branch,
+      int upstreamBranchIndex,
+      GraphEdgeColor graphEdgeColor,
+      SyncToOriginStatus syncToOriginStatus) {
 
     Optional<IGitMacheteBranch> currentBranch = Optional.empty();
     try {

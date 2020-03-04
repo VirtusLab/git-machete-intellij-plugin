@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
@@ -51,8 +52,10 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private IBranchRelationFile branchRelationFile = null;
 
   @Inject
-  public GitMacheteRepositoryBuilder(GitCoreRepositoryFactory gitCoreRepositoryFactory,
-      BranchRelationFileFactory branchRelationFileFactory, @Assisted Path pathToRepoRoot) {
+  public GitMacheteRepositoryBuilder(
+      GitCoreRepositoryFactory gitCoreRepositoryFactory,
+      BranchRelationFileFactory branchRelationFileFactory,
+      @Assisted Path pathToRepoRoot) {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.branchRelationFileFactory = branchRelationFileFactory;
     this.pathToRepoRoot = pathToRepoRoot;

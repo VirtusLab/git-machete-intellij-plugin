@@ -6,6 +6,7 @@ import lombok.Data;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
+
 import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 
 @Data
@@ -16,9 +17,9 @@ public abstract class BaseGraphElement implements IGraphElement {
 
   private final GraphEdgeColor graphEdgeColor;
 
-  /*
-   * Final (reference initialized once), but in some cases downElementIndexes are not known while instance construction
-   * and they have to be added later.
+  /**
+   * Final (reference initialized once), but in some cases {@code downElementIndexes} are not known while instance
+   * construction and they have to be added later.
    */
   private final List<Integer> downElementIndexes = new SmartList<>();
 

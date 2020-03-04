@@ -11,6 +11,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.NotNullFunction;
+
 import com.virtuslab.gitmachete.ui.table.GitMacheteGraphTable;
 import git4idea.GitVcs;
 
@@ -39,8 +40,7 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   }
 
   @Override
-  public void disposeContent() {
-  }
+  public void disposeContent() {}
 
   public static class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
     @Nonnull

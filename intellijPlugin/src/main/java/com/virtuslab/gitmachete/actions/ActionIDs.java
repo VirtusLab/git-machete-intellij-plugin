@@ -1,8 +1,7 @@
 package com.virtuslab.gitmachete.actions;
 
 public final class ActionIDs {
-  private ActionIDs() {
-  }
+  private ActionIDs() {}
 
   // This entries are defined in plugin.xml file
   public static final String ACTION_REBASE = "GitMachete.RebaseSelectedBranchOntoParentAction";

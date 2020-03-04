@@ -5,8 +5,7 @@ import java.awt.Color;
 import com.intellij.ui.JBColor;
 
 public final class ColorDefinitions {
-  private ColorDefinitions() {
-  }
+  private ColorDefinitions() {}
 
   private static final Color red = Color.decode("#FF0000");
   private static final Color orange = Color.decode("#FDA909");

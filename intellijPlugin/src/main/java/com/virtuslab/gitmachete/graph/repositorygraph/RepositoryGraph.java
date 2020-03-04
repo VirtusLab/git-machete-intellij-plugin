@@ -16,6 +16,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
+
 import com.virtuslab.gitmachete.gitmacheteapi.NullRepository;
 import com.virtuslab.gitmachete.graph.facade.GraphElementManager;
 import com.virtuslab.gitmachete.graph.model.IGraphElement;

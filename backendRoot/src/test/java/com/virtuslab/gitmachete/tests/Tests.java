@@ -44,8 +44,7 @@ public class Tests {
     copyScriptFromResources("repo1.sh");
     prepareRepoFromScript();
 
-    IGitMacheteRepositoryBuilder repoBuilder = BackendFactoryModule.getInjector()
-        .getInstance(GitMacheteRepositoryBuilderFactory.class).create(TestPaths.repo);
+    IGitMacheteRepositoryBuilder repoBuilder = gitMacheteRepositoryBuilderFactory.create(TestPaths.repo);
 
     repo = repoBuilder.build();
   }

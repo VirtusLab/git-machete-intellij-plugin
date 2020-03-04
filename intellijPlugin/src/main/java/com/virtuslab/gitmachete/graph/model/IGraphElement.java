@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.graph.model;
 import java.util.List;
 
 import com.intellij.ui.SimpleTextAttributes;
+
 import com.virtuslab.gitmachete.graph.GraphEdgeColor;
 
 public interface IGraphElement {

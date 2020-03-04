@@ -4,7 +4,6 @@ import java.util.Date;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;

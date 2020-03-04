@@ -55,8 +55,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       throw new GitCoreException(e);
     }
 
-    if (ts == null)
+    if (ts == null) {
       return Optional.empty();
+    }
 
     return Optional.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount()));
   }
@@ -65,11 +66,12 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   public Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
     var bc = new BranchConfig(repo.getJgitRepo().getConfig(), getName());
     String remoteName = bc.getRemoteTrackingBranch();
-    if (remoteName == null)
+    if (remoteName == null) {
       return Optional.empty();
-    else
+    } else {
       return Optional
           .of(new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.branchesPath.length())));
+    }
   }
 
   @Override
