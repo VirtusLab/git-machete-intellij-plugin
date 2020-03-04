@@ -1,5 +1,6 @@
 dependencies {
     guice()
+    lombok()
 
     implementation project(':gitCoreApi')
     implementation project(':gitCoreJGit')

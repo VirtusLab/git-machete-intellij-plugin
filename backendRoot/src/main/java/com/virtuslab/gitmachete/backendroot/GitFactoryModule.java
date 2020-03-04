@@ -5,14 +5,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.virtuslab.branchrelationfile.BranchRelationFile;
-import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
-import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepositoryBuilder;
 
 public class GitFactoryModule extends AbstractModule {
   private static final Injector injector = Guice.createInjector(new GitFactoryModule());

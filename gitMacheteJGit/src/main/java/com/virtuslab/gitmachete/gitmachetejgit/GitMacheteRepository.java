@@ -7,11 +7,10 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 public class GitMacheteRepository implements IGitMacheteRepository {
   private final String repositoryName;
 

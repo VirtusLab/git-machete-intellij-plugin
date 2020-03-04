@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.tests;
 
 import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
+import com.virtuslab.gitmachete.backendroot.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;

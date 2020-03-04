@@ -1,13 +1,11 @@
-package com.virtuslab.gitmachete.gitmachetejgit;
+package com.virtuslab.gitmachete.backendroot;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
-import com.virtuslab.branchrelationfile.api.BranchRelationFileFactory;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFileEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.GitCoreRepositoryFactory;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -18,6 +16,9 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.MacheteFileParseException;
+import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteBranch;
+import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteRepository;
+import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteSubmoduleEntry;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.HashMap;
