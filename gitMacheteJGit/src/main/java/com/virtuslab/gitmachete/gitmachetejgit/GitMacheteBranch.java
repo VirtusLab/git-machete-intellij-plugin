@@ -14,7 +14,6 @@ import com.virtuslab.gitmachete.gitmacheteapi.IGitRebaseParameters;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
 import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
 import java.text.MessageFormat;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -142,10 +141,13 @@ public class GitMacheteBranch implements IGitMacheteBranch {
                 /*presumedDescendant*/ upstreamBranchPointedCommitHash);
 
         if (isParentAncestorOfChild) {
-          var cmp = Comparator.comparing(IGitCoreCommitHash::getHashString);
           Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
           if (forkPoint.isEmpty()
-              || cmp.compare(forkPoint.get().getHash(), upstreamBranchPointedCommitHash) != 0) {
+              || !forkPoint
+                  .get()
+                  .getHash()
+                  .getHashString()
+                  .equals(upstreamBranchPointedCommitHash.getHashString())) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             return SyncToParentStatus.InSync;
