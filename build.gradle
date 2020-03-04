@@ -4,8 +4,10 @@ plugins {
 }
 
 allprojects {
+    def PLUGIN_VERSION = '0.0.22-SNAPSHOT'
+
     group 'com.virtuslab'
-    version '0.0.22-SNAPSHOT'
+    version PLUGIN_VERSION
 
     repositories {
         jcenter()
