@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
-import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
+import com.virtuslab.gitmachete.backendroot.BackendFactoryModule;
 import com.virtuslab.gitmachete.backendroot.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
@@ -42,7 +42,7 @@ public class GitMacheteGraphTableManager {
     this.gitMacheteGraphTable =
         new GitMacheteGraphTable(graphTableModel, project, /*tableManager*/ this);
     this.gitMacheteRepositoryBuilderFactory =
-        GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
+        BackendFactoryModule.getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     subscribeToGitRepositoryChanges();
   }

@@ -8,10 +8,9 @@ import com.virtuslab.branchrelationfile.BranchRelationFile;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
 
-public class GitFactoryModule extends AbstractModule {
-  private static final Injector injector = Guice.createInjector(new GitFactoryModule());
+public class BackendFactoryModule extends AbstractModule {
+  private static final Injector injector = Guice.createInjector(new BackendFactoryModule());
 
   @Override
   protected void configure() {

@@ -13,7 +13,6 @@ import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteJGitException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepositoryBuilder;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.gitmacheteapi.MacheteFileParseException;
 import com.virtuslab.gitmachete.gitmachetejgit.GitMacheteBranch;
@@ -132,7 +131,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
 
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
-    var branch = new GitMacheteBranch(coreBranch.get(), upstreamBranch, customAnnotation);
+    var branch =
+        new GitMacheteBranch(coreBranch.get(), upstreamBranch, customAnnotation, gitCoreRepository);
 
     if (coreBranch.get().equals(currentCoreBranch)) {
       currentBranch = branch;

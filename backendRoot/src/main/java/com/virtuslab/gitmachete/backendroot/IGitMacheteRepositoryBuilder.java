@@ -1,6 +1,8 @@
-package com.virtuslab.gitmachete.gitmacheteapi;
+package com.virtuslab.gitmachete.backendroot;
 
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
+import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
+import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
 
 public interface IGitMacheteRepositoryBuilder {
   IGitMacheteRepositoryBuilder repositoryName(String repositoryName);

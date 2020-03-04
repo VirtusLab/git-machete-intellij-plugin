@@ -1,7 +1,8 @@
 package com.virtuslab.gitmachete.tests;
 
-import com.virtuslab.gitmachete.backendroot.GitFactoryModule;
+import com.virtuslab.gitmachete.backendroot.BackendFactoryModule;
 import com.virtuslab.gitmachete.backendroot.GitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.backendroot.IGitMacheteRepositoryBuilder;
 import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
 import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
@@ -25,7 +26,7 @@ import org.junit.Test;
 public class Tests {
   IGitMacheteRepository repo;
   private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory =
-      GitFactoryModule.getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
+      BackendFactoryModule.getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
 
   private static class TestPaths {
     public static final Path tmp = Paths.get("/tmp/machete-tests");
@@ -41,7 +42,12 @@ public class Tests {
     copyScriptFromResources("repo1.sh");
     prepareRepoFromScript();
 
-    repo = gitMacheteRepositoryBuilderFactory.create(TestPaths.repo).build();
+    IGitMacheteRepositoryBuilder repoBuilder =
+        BackendFactoryModule.getInjector()
+            .getInstance(GitMacheteRepositoryBuilderFactory.class)
+            .create(TestPaths.repo);
+
+    repo = repoBuilder.build();
   }
 
   @Test

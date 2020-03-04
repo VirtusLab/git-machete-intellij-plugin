@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.gitmacheteapi;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +13,4 @@ public interface IGitMacheteRepository {
   Optional<String> getRepositoryName();
 
   List<IGitMacheteSubmoduleEntry> getSubmodules();
-
-  IBranchRelationFile getBranchRelationFile();
 }
