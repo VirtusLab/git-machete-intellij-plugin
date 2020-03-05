@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/git-machete-intellij-plugin
     docker:
-      - image: openkbs/jdk11-mvn-py3
+      - image: micpiotrowski/git-machete-intellij-plugin
 
     steps:
       - checkout
@@ -41,4 +41,3 @@ jobs:
       - store_artifacts:
           path: ~/git-machete-intellij-plugin/build/distributions
           destination: .
-
