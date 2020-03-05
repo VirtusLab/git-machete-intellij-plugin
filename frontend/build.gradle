@@ -1,0 +1,26 @@
+plugins {
+    id 'org.jetbrains.intellij'
+}
+
+dependencies {
+    javafx()
+    lombok()
+    guice()
+
+    implementation project(':backendRoot')
+    implementation project(':backendApi')
+}
+
+intellij {
+    version '2019.3'
+    plugins 'git4idea'
+}
+
+patchPluginXml {
+    untilBuild '201.*'
+}
+
+runIde {
+    jbrVersion '11_0_2b159'
+    jvmArgs '-Djdk.gtk.version=2'
+}

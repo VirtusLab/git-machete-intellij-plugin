@@ -16,6 +16,8 @@ import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.branchrelationfile.api.BranchRelationFileException;
 import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
+import com.virtuslab.branchrelationfile.impl.BranchRelationFile;
+import com.virtuslab.branchrelationfile.impl.BranchRelationFileEntry;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BranchRelationFile.class)

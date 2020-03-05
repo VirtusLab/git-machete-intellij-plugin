@@ -16,14 +16,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virtuslab.gitmachete.backendroot.BackendFactoryModule;
-import com.virtuslab.gitmachete.backendroot.GitMacheteRepositoryBuilderFactory;
-import com.virtuslab.gitmachete.backendroot.IGitMacheteRepositoryBuilder;
-import com.virtuslab.gitmachete.gitmacheteapi.GitMacheteException;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteBranch;
-import com.virtuslab.gitmachete.gitmacheteapi.IGitMacheteRepository;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToOriginStatus;
-import com.virtuslab.gitmachete.gitmacheteapi.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
+import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilder;
 
 public class Tests {
   IGitMacheteRepository repo;

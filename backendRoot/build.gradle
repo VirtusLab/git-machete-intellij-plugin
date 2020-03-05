@@ -4,8 +4,8 @@ dependencies {
 
     implementation project(':gitCoreApi')
     implementation project(':gitCoreJGit')
-    implementation project(':gitMacheteApi')
-    implementation project(':gitMacheteJGit')
+    implementation project(':backendApi')
+    implementation project(':backendImpl')
     implementation project(':branchRelationFileApi')
     implementation project(':branchRelationFileImpl')
 }

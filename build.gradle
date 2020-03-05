@@ -3,10 +3,11 @@ plugins {
     id "com.github.spotbugs" version "3.0.0"
     id "se.bjurr.violations.violations-gradle-plugin" version "1.40"
     id 'java-library'
+    id 'org.jetbrains.intellij' version '0.4.16'
 }
 
 allprojects {
-    def PLUGIN_VERSION = '0.0.23-SNAPSHOT'
+    def PLUGIN_VERSION = '0.0.24-SNAPSHOT'
 
     group 'com.virtuslab'
     version PLUGIN_VERSION

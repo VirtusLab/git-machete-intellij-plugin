@@ -1,0 +1,9 @@
+dependencies {
+    guice()
+    lombok()
+
+    implementation project(':gitCoreApi')
+    implementation project(':branchRelationFileApi')
+
+    api project(':backendApi')
+}
