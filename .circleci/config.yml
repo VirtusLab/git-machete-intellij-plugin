@@ -34,7 +34,7 @@ jobs:
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew --debug :buildPlugin
+          command: ./gradlew --stacktrace :buildPlugin
       - store_artifacts:
           path: ~/git-machete-intellij-plugin/build/distributions
           destination: .
