@@ -18,9 +18,6 @@ jobs:
             ./scripts/specify-snapshot-revision
 
       - run:
-          name: Start gradle daemon
-          command: ./gradlew --info
-      - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
@@ -37,7 +34,7 @@ jobs:
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew buildPlugin
+          command: ./gradlew --info :buildPlugin
       - store_artifacts:
-          path: ~/git-machete-intellij-plugin/frontend/build/distributions/
+          path: ~/git-machete-intellij-plugin/build/distributions
           destination: .
