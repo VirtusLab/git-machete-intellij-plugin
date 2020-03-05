@@ -26,12 +26,12 @@ ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 
 ### Run/Debug
 
-To run an instance of IDE with Git Machete IntelliJ Plugin execute `intellijPlugin:runIde` gradle task.
+To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` gradle task.
 
 ### Generate plugin zip
 
-To generate a plugin archive run `intellijPlugin:buildPlugin` gradle task.
-The resulting file will be available under `intellijPlugin/build/distributions`.
+To generate a plugin archive run `:buildPlugin` gradle task.
+The resulting file will be available under `build/distributions`.
 
 ### Install snapshot build of the plugin
 
