@@ -19,7 +19,7 @@ jobs:
 
       - run:
           name: Start gradle daemon
-          command: ./gradlew
+          command: ./gradlew --info
       - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
