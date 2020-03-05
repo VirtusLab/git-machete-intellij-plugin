@@ -14,7 +14,7 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        //For spotbugs
+        // For spotbugs
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -27,7 +27,7 @@ allprojects {
     apply plugin: 'com.github.spotbugs'
 
     spotbugs {
-        // ignoreFailures here because violations plugin is responsible for that
+        // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
         ignoreFailures = true
         effort = "min"
         showProgress = true
@@ -99,7 +99,8 @@ allprojects {
 
 subprojects {
     // This task is only for subprojects because spotbugs does not generate report file for main module
-    // in case when there are no code in it so running this task for root module as well cause error
+    // in case when there is no code in it so running this task for root module as well will cause error since violations
+    // plugin expects a report for each Gradle module, including the implicit module located in the project root
     task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
         //
         // Optional config
@@ -112,7 +113,7 @@ subprojects {
 
 
         //
-        // Global configuration, remove if you dont want to report violations for
+        // Global configuration, remove if you don't want to report violations for
         // the entire repo.
         //
         minSeverity = 'WARN' // INFO, WARN or ERROR
@@ -131,6 +132,6 @@ subprojects {
         ]
     }
 
-    //Run violations task after each spotbugsMain run
+    // Run violations task after each spotbugsMain run
     spotbugsMain.finalizedBy violations
 }
