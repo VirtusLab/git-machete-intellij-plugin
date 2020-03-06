@@ -1,1 +1,5 @@
-docker-image/.dockerignore
+**/build/
+.git/
+.gradle
+.idea/
+**/*.java

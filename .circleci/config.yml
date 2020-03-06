@@ -18,10 +18,13 @@ jobs:
             ./scripts/specify-snapshot-revision
 
       - run:
+          name: Start gradle daemon
+          command: ./gradlew
+      - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
-          name: Static code analyzer
+          name: Run static code analyzer
           command: ./gradlew spotbugsMain
       - run:
           name: Build & test

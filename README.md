@@ -37,3 +37,9 @@ The resulting file will be available under `frontend/build/distributions/`.
 
 Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
 Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, select the zip and restart IDE.
+
+### Rebuild the CI base image
+
+```shell script
+DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t micpiotrowski/git-machete-intellij-plugin .
+```
