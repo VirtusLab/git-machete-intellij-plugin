@@ -1,5 +1,0 @@
-*
-!gradle/
-!gradlew
-!*.gradle
-!/docker-image/prepare-image.sh

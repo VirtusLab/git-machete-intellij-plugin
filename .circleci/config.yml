@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/git-machete-intellij-plugin
     docker:
-      - image: micpiotrowski/git-machete-intellij-plugin
+      - image: tilius/git-machete-intellij-plugin
 
     steps:
       - checkout
@@ -18,20 +18,23 @@ jobs:
             ./scripts/specify-snapshot-revision
 
       - run:
-          name: Check formatting
-          command: ./gradlew spotlessCheck
+          name: Start gradle daemon
+          command: ./gradlew --info
       - run:
-          name: Static code analyzer
-          command: ./gradlew spotbugsMain
+          name: Check formatting
+          command: ./gradlew --info spotlessCheck
+      - run:
+          name: Run static code analyzer
+          command: ./gradlew --info spotbugsMain
       - run:
           name: Build & test
-          command: ./gradlew test
+          command: ./gradlew --info test
       - store_test_results:
           path: backendRoot/build/test-results/
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew :buildPlugin
+          command: ./gradlew --info :buildPlugin
       - store_artifacts:
           path: ~/git-machete-intellij-plugin/build/distributions
           destination: .
