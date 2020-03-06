@@ -24,9 +24,6 @@ jobs:
           name: Static code analyzer
           command: ./gradlew spotbugsMain
       - run:
-          name: Install git-machete CLI
-          command: pip3 install git-machete==2.12.5
-      - run:
           name: Build & test
           command: ./gradlew test
       - store_test_results:
