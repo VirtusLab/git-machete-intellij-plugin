@@ -20,7 +20,7 @@ RUN --mount=type=bind,source=.,target=/original_repo \
   mkdir /prepared_repo && \
   shopt -s globstar && \
   cd /original_repo && \
-  cp --parents -r gradle/ gradlew **/*.gradle  /prepared_repo/ && \
+  cp --parents -r gradle.properties gradle/ gradlew **/*.gradle  /prepared_repo/ && \
   cd /prepared_repo && \
   ./gradlew --info && \
   rm -r /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/LATEST-EAP-SNAPSHOT/ # workaround for https://github.com/JetBrains/gradle-intellij-plugin/issues/443
