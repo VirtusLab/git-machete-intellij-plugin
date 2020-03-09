@@ -28,5 +28,5 @@ if [ $# -eq 3 ]; then
 elif [ $# -eq 1 ]; then
   target_version=$1
 
-  sed -i "/^\s*version '.*-SNAPSHOT'\$/ s/'.*'/'$target_version-SNAPSHOT'/" build.gradle
+  sed -i "/^\s*def PLUGIN_VERSION = '.*-SNAPSHOT'\$/  s/'.*'/'$target_version-SNAPSHOT'/" build.gradle
 fi
