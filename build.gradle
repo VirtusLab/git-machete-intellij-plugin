@@ -9,7 +9,7 @@ plugins {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.28-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.29-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
@@ -74,6 +74,7 @@ subprojects {
     junitVersion = '4.13'
     powerMockVersion = '2.0.5'
     slf4jVersion = '1.7.25'
+    vavrVersion = '1.0.0-alpha-3'
 
     guice = { ->
       dependencies {
@@ -106,5 +107,12 @@ subprojects {
         implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
     }
+
+    vavr = { ->
+      dependencies {
+        implementation group: 'io.vavr', name: 'vavr', version: vavrVersion
+      }
+    }
+
   }
 }

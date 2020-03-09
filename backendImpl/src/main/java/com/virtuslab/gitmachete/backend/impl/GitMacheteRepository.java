@@ -7,7 +7,7 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
+import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
@@ -21,7 +21,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Getter
   private final List<IGitMacheteSubmoduleEntry> submodules;
   @Getter
-  private final IBranchRelationFile branchRelationFile;
+  private final IBranchLayout branchLayout;
 
   private final IGitMacheteBranch currentBranch;
 

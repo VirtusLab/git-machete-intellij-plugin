@@ -2,5 +2,6 @@
 0=java
 1=javax
 #all other packages like jgit, powermock, lombok
-2=com
-3=com.virtuslab
+2=io.vavr
+3=com
+4=com.virtuslab

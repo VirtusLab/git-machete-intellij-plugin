@@ -2,16 +2,17 @@ package com.virtuslab.gitmachete.frontend.ui.table;
 
 import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -98,20 +99,16 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   @Nullable
   @Override
-  public Object getData(@NotNull String dataId) {
-    // TODO (#40): replace with Vavr (Case)
-    if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
-      return project;
-    } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
-      // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return class
-      // com.intellij.openapi.editor.Editor
-      return FileEditorManager.getInstance(project).getSelectedTextEditor();
-    } else if (dataId.equals(DataKeyIDs.KEY_TABLE_MANAGER_STRING)) {
-      return tableManager;
-    } else if (dataId.equals(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING)) {
-      return selectedBranchName;
-    }
-    return null;
+  public Object getData(@Nonnull String dataId) {
+    return Match(dataId).of(
+        Case($(CommonDataKeys.PROJECT.getName()), project),
+        // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return class
+        // com.intellij.openapi.editor.Editor
+        Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
+        Case($(DataKeyIDs.KEY_TABLE_MANAGER_STRING), tableManager),
+        Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), project),
+        Case($(CommonDataKeys.PROJECT.getName()), selectedBranchName),
+        Case($(), () -> null));
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {

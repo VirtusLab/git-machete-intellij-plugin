@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -13,7 +16,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -55,7 +57,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       branchToRebase = branchToRebaseOptional.get();
     }
 
-    Optional<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseParameters(branchToRebase);
+    Option<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseParameters(branchToRebase);
 
     if (gitRebaseParameters.isEmpty()) {
       LOG.error("Unable to get rebase parameters");
@@ -83,19 +85,14 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
   }
 
   @Nonnull
-  private Optional<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
+  private Option<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
     if (gitMacheteCurrentBranch == null) {
-      return Optional.empty();
+      return Option.none();
     }
 
-    Optional<IGitRebaseParameters> gitRebaseParameters = Optional.empty();
-    try {
-      gitRebaseParameters = Optional.of(gitMacheteCurrentBranch.computeRebaseParameters());
-    } catch (GitMacheteException e) {
-      LOG.error("Unable to compute rebase parameters", e);
-    }
-
-    return gitRebaseParameters;
+    return Try.of(() -> Option.of(gitMacheteCurrentBranch.computeRebaseParameters()))
+        .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
+        .getOrElse(Option::none);
   }
 
   /**

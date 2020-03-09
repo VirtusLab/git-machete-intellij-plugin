@@ -4,8 +4,9 @@ generateLombokConfig.enabled=false
 dependencies {
   guice()
   junit()
+  vavr()
 
   implementation project(':gitCoreJGit')
-  implementation project(':branchRelationFileImpl')
+  implementation project(':branchLayoutFile')
   implementation project(':backendImpl')
 }

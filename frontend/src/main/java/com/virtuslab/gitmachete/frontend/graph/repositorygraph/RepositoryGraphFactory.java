@@ -27,7 +27,6 @@ public class RepositoryGraphFactory {
       if (repository != this.repository) {
         this.repository = repository;
 
-        // TODO (#40): use io.vavr.Lazy (?)
         RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(repository);
         repositoryGraphWithCommits = repositoryGraphBuilder.branchComputeCommitsStrategy(DEFAULT_COMPUTE_COMMITS)
             .build();

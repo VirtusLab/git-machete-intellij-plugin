@@ -5,7 +5,6 @@ import java.util.Comparator;
 import javax.annotation.Nonnull;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.printer.PrintElementManager;
@@ -27,7 +26,7 @@ public class GraphElementManager implements PrintElementManager {
   }
 
   @Override
-  public boolean isSelected(@NotNull PrintElementWithGraphElement printElement) {
+  public boolean isSelected(@Nonnull PrintElementWithGraphElement printElement) {
     return false;
   }
 

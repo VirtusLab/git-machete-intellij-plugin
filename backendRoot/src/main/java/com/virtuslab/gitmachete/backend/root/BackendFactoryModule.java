@@ -5,8 +5,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
-import com.virtuslab.branchrelationfile.api.IBranchRelationFile;
-import com.virtuslab.branchrelationfile.impl.BranchRelationFile;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 
@@ -19,8 +17,7 @@ public class BackendFactoryModule extends AbstractModule {
         .build(GitMacheteRepositoryBuilderFactory.class));
     install(new FactoryModuleBuilder().implement(IGitCoreRepository.class, GitCoreRepository.class)
         .build(GitCoreRepositoryFactory.class));
-    install(new FactoryModuleBuilder().implement(IBranchRelationFile.class, BranchRelationFile.class)
-        .build(BranchRelationFileFactory.class));
+    install(new FactoryModuleBuilder().build(BranchLayoutFileParserFactory.class));
   }
 
   public static Injector getInjector() {

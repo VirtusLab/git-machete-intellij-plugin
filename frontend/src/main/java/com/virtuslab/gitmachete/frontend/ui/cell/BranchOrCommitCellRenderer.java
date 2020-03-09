@@ -87,12 +87,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       // the graphics y-translate is aligned to int with .5-floor-bias.
       AffineTransform origTx = PaintUtil.alignTxToInt(/* graphics2d */ g2d, /* offset */ null, /* alignX */ false,
           /* alignY */ true, PaintUtil.RoundingMode.ROUND_FLOOR_BIAS);
-      try {
-        UIUtil.drawImage(g, graphImage.getImage(), 0, 0, null);
-      } finally {
-        if (origTx != null) {
-          g2d.setTransform(origTx);
-        }
+      UIUtil.drawImage(g, graphImage.getImage(), 0, 0, null);
+      if (origTx != null) {
+        g2d.setTransform(origTx);
       }
     }
 

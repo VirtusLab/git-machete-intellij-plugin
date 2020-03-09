@@ -3,6 +3,7 @@ generateLombokConfig.enabled=false
 
 dependencies {
   guice()
+  vavr()
 
   implementation project(':backendRoot')
   implementation project(':backendApi')

@@ -5,7 +5,7 @@ dependencies {
   guice()
 
   implementation project(':gitCoreApi')
-  implementation project(':branchRelationFileApi')
+  implementation project(':branchLayoutApi')
 
   api project(':backendApi')
 }

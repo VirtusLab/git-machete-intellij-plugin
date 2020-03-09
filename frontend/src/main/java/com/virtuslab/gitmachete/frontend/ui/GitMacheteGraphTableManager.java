@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
 
+import io.vavr.control.Try;
+
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
@@ -18,7 +20,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
@@ -76,11 +77,8 @@ public class GitMacheteGraphTableManager {
    */
   public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
-    try {
-      repository = gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build();
-    } catch (GitMacheteException e) {
-      LOG.error("Unable to create Git Machete repository", e);
-    }
+    repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build())
+        .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
   }
 
   public void updateAndRefreshInBackground() {

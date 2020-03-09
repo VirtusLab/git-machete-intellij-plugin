@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import io.vavr.control.Try;
+
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 
@@ -44,13 +46,10 @@ public class RepositoryGraphBuilder {
   public static final IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
 
   public RepositoryGraph build() {
-    List<IGraphElement> elementsOfRepository;
-    try {
-      elementsOfRepository = computeGraphElements();
-    } catch (GitMacheteException e) {
-      LOG.error("Unable to build elements of repository graph", e);
-      elementsOfRepository = Collections.emptyList();
-    }
+    List<IGraphElement> elementsOfRepository = Try.of(this::computeGraphElements)
+        .onFailure(e -> LOG.error("Unable to build elements of repository graph", e))
+        .getOrElse(Collections::emptyList);
+
     return new RepositoryGraph(elementsOfRepository);
   }
 
@@ -184,12 +183,8 @@ public class RepositoryGraphBuilder {
       GraphEdgeColor graphEdgeColor,
       SyncToOriginStatus syncToOriginStatus) {
 
-    Optional<IGitMacheteBranch> currentBranch = Optional.empty();
-    try {
-      currentBranch = repository.getCurrentBranchIfManaged();
-    } catch (GitMacheteException e) {
-      LOG.error("Unable to get current branch", e);
-    }
+    Optional<IGitMacheteBranch> currentBranch = Try.of(repository::getCurrentBranchIfManaged)
+        .onFailure(e -> LOG.error("Unable to get current branch", e)).get();
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
