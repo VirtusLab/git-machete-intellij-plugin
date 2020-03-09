@@ -1,136 +1,117 @@
 plugins {
-    id 'com.diffplug.gradle.spotless' version '3.26.1'
-    id 'com.github.spotbugs' version '3.0.0'
-    id 'se.bjurr.violations.violations-gradle-plugin' version '1.40'
-    id 'java-library'
-}
+  id 'org.gradle.java-library'
 
-allprojects {
-    def PLUGIN_VERSION = '0.0.26-SNAPSHOT'
-
-    group 'com.virtuslab'
-    version PLUGIN_VERSION
-
-    repositories {
-        jcenter()
-        mavenCentral()
-        // For spotbugs
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-
-    apply plugin: 'java'
-    sourceCompatibility = 11
-
-    apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
-    apply plugin: 'com.github.spotbugs'
-
-    spotbugs {
-        // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
-        ignoreFailures = true
-        effort = 'min'
-        showProgress = true
-        reportLevel = 'low'
-    }
-
-    apply plugin: 'com.diffplug.gradle.spotless'
-    spotless {
-        java {
-            importOrderFile "${rootProject.projectDir}/our.importorder"
-            eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
-            removeUnusedImports()
-        }
-    }
-
-    apply plugin: 'java-library'
-
-    ext {
-        junitVersion = '4.13'
-        powerMockVersion = '2.0.5'
-        lombokVersion = '1.18.10'
-        guiceVersion = '4.2.2'
-        slf4jVersion = '1.7.25'
-        jgitVersion = '5.5.1.201910021850-r'
-        spotbugsVersion = '3.0.0'
-
-        lombok = { ->
-            dependencies {
-                compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-                annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-            }
-        }
-
-        guice = { ->
-            dependencies {
-                implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
-                implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
-            }
-        }
-
-        slf4j = { ->
-            dependencies {
-                implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
-            }
-        }
-
-        jgit = { ->
-            slf4j()
-            dependencies {
-                implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
-            }
-        }
-    }
-
-    dependencies {
-        testImplementation group: 'junit', name: 'junit', version: junitVersion
-        testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
-        testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
-        compile group: 'com.github.spotbugs', name: 'spotbugs-gradle-plugin', version: spotbugsVersion
-    }
+  id 'com.diffplug.gradle.spotless' version '3.26.1' apply false
+  id 'com.github.spotbugs' version '3.0.0' apply false
+  id 'org.jetbrains.intellij' version '0.4.16' apply false
+  id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
 subprojects {
-    // This task is only for subprojects because spotbugs does not generate report file for main module
-    // in case when there is no code in it so running this task for root module as well will cause error since violations
-    // plugin expects a report for each Gradle module, including the implicit module located in the project root
-    task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
-        //
-        // Optional config
-        //
-        maxReporterColumnWidth = 0 // 0 means "no limit"
-        maxRuleColumnWidth = 60
-        maxSeverityColumnWidth = 0
-        maxLineColumnWidth = 0
-        maxMessageColumnWidth = 100
+  def PLUGIN_VERSION = '0.0.26-SNAPSHOT'
 
+  group 'com.virtuslab'
+  version PLUGIN_VERSION
 
-        //
-        // Global configuration, remove if you don't want to report violations for
-        // the entire repo.
-        //
-        minSeverity = 'WARN' // INFO, WARN or ERROR
-        detailLevel = 'VERBOSE' // PER_FILE_COMPACT, COMPACT or VERBOSE
-        maxViolations = 0 // Will fail the build if total number of found violations is higher
-        printViolations = true // Will print violations found in diff
+  repositories {
+    jcenter()
+    mavenCentral()
+    // For spotbugs
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
 
+  apply plugin: 'org.gradle.java-library'
+  sourceCompatibility = 11
 
-        //
-        // This is mandatory regardless of if you want to report violations between
-        // revisions or the entire repo.
-        //
-        // Many more formats available, see: https://github.com/tomasbjerre/violations-lib
-        violations = [
-                ['FINDBUGS', buildDir.path, '.*/spotbugs/.*\\.xml\$', 'Spotbugs']
-        ]
+  apply plugin: 'com.diffplug.gradle.spotless'
+  spotless {
+    java {
+      importOrderFile "${rootProject.projectDir}/our.importorder"
+      eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
+      removeUnusedImports()
+    }
+  }
+
+  apply plugin: 'com.github.spotbugs'
+  spotbugs {
+    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
+    ignoreFailures = true
+    effort = 'min'
+    showProgress = true
+    reportLevel = 'low'
+  }
+
+  apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
+  task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
+    // Optional config
+    maxReporterColumnWidth = 0 // 0 means "no limit"
+    maxRuleColumnWidth = 60
+    maxSeverityColumnWidth = 0
+    maxLineColumnWidth = 0
+    maxMessageColumnWidth = 100
+
+    // Global configuration, remove if you don't want to report violations for the entire repo.
+    minSeverity = 'WARN' // INFO, WARN or ERROR
+    detailLevel = 'VERBOSE' // PER_FILE_COMPACT, COMPACT or VERBOSE
+    maxViolations = 0 // Will fail the build if total number of found violations is higher
+    printViolations = true // Will print violations found in diff
+
+    // This is mandatory regardless of if you want to report violations between revisions or the entire repo.
+    // Many more formats available, see: https://github.com/tomasbjerre/violations-lib
+    violations = [
+      ['FINDBUGS', buildDir.path, '.*/spotbugs/.*\\.xml\$', 'Spotbugs']
+    ]
+  }
+  // Run violations task after each spotbugsMain run
+  spotbugsMain.finalizedBy(violations)
+
+  ext {
+    guiceVersion = '4.2.2'
+    jgitVersion = '5.5.1.201910021850-r'
+    junitVersion = '4.13'
+    lombokVersion = '1.18.10'
+    powerMockVersion = '2.0.5'
+    slf4jVersion = '1.7.25'
+
+    guice = { ->
+      dependencies {
+        implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
+        implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
+      }
     }
 
-    // Run violations task after each spotbugsMain run
-    spotbugsMain.finalizedBy violations
-}
+    jgit = { ->
+      dependencies {
+        implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
+      }
+    }
 
-task renameArtifact(type: Copy) {
-    from "${rootProject.projectDir}/frontend/build/distributions/"
-    into "${rootProject.projectDir}/artifacts/"
-    rename 'frontend-(.*)', 'git-machete-intellij-plugin-$1'
+    junit = { ->
+      dependencies {
+        testImplementation group: 'junit', name: 'junit', version: junitVersion
+      }
+    }
+
+    lombok = { ->
+      dependencies {
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+      }
+    }
+
+    powerMock = { ->
+      dependencies {
+        testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
+        testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+      }
+    }
+
+    slf4j = { ->
+      dependencies {
+        implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+      }
+    }
+  }
 }

@@ -1,25 +1,24 @@
-plugins {
-    id 'org.jetbrains.intellij' version '0.4.16'
-}
-
 dependencies {
-    lombok()
-    guice()
+  lombok()
+  guice()
 
-    implementation project(':backendRoot')
-    implementation project(':backendApi')
+  implementation project(':backendRoot')
+  implementation project(':backendApi')
 }
+
+apply plugin: 'org.jetbrains.intellij'
 
 intellij {
-    version '2019.3'
-    plugins 'git4idea'
+  pluginName 'git-machete-intellij-plugin'
+  version '2019.3'
+  plugins 'git4idea'
 }
 
 patchPluginXml {
-    untilBuild '201.*'
+  untilBuild '201.*'
 }
 
 runIde {
-    jbrVersion '11_0_2b159'
-    jvmArgs '-Djdk.gtk.version=2'
+  jbrVersion '11_0_2b159'
+  jvmArgs '-Djdk.gtk.version=2'
 }

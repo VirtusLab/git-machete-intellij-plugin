@@ -26,15 +26,14 @@ ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 
 ### Run/Debug
 
-To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` gradle task.
+To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gradle task (`Gradle panel | Tasks | intellij | runIde` or `./gradlew runIde`).
 
 ### Generate plugin zip
 
-To generate a plugin archive run `:buildPlugin` gradle task.
-The resulting file will be available under `build/distributions`.
+To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel | Tasks | intellij | buildPlugin` or `./gradlew buildPlugin`).
+The resulting file will be available under `frontend/build/distributions/`.
 
 ### Install snapshot build of the plugin
 
-Download the zip file from the artifacts of the given build in CircleCI
-(URL of the form `https://app.circleci.com/jobs/github/VirtusLab/git-machete-intellij-plugin/<<<BUILD_NUMBER>>>/artifacts`).
+Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
 Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, select the zip and restart IDE.

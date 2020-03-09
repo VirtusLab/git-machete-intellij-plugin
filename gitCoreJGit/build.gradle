@@ -1,7 +1,8 @@
 dependencies {
-    guice()
-    jgit()
-    lombok()
+  guice()
+  jgit()
+  lombok()
+  slf4j()
 
-    api project(':gitCoreApi')
+  api project(':gitCoreApi')
 }

@@ -37,8 +37,7 @@ jobs:
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew frontend:buildPlugin renameArtifact
+          command: ./gradlew buildPlugin
       - store_artifacts:
-          path: ~/git-machete-intellij-plugin/artifacts
+          path: ~/git-machete-intellij-plugin/frontend/build/distributions/
           destination: .
-

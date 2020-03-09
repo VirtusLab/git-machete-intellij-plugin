@@ -1,6 +1,8 @@
 dependencies {
-    guice()
-    lombok()
+  guice()
+  junit()
+  lombok()
+  powerMock()
 
-    api project(':branchRelationFileApi')
+  api project(':branchRelationFileApi')
 }

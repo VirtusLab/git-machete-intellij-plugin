@@ -1,8 +1,9 @@
 dependencies {
-    guice()
-    lombok()
+  guice()
+  junit()
+  lombok()
 
-    implementation project(':gitCoreJGit')
-    implementation project(':backendImpl')
-    implementation project(':branchRelationFileImpl')
+  implementation project(':gitCoreJGit')
+  implementation project(':branchRelationFileImpl')
+  implementation project(':backendImpl')
 }
