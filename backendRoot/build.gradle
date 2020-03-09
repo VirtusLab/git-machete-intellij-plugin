@@ -2,10 +2,7 @@ dependencies {
     guice()
     lombok()
 
-    implementation project(':gitCoreApi')
     implementation project(':gitCoreJGit')
-    implementation project(':backendApi')
     implementation project(':backendImpl')
-    implementation project(':branchRelationFileApi')
     implementation project(':branchRelationFileImpl')
 }

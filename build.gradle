@@ -52,7 +52,6 @@ allprojects {
         guiceVersion = '4.2.2'
         slf4jVersion = '1.7.25'
         jgitVersion = '5.5.1.201910021850-r'
-        javafxVersion = '11'
         spotbugsVersion = '3.0.0'
 
         lombok = { ->
@@ -66,12 +65,6 @@ allprojects {
             dependencies {
                 implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
                 implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
-            }
-        }
-
-        javafx = { ->
-            dependencies {
-                implementation group: 'org.openjfx', name: 'javafx', version: javafxVersion, ext: 'pom'
             }
         }
 
