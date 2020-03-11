@@ -103,7 +103,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
       return project;
     } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
-      return FileEditorManager.getInstance(project).getSelectedEditor();
+      return FileEditorManager.getInstance(project).getSelectedTextEditor();
     } else if (dataId.equals(DataKeyIDs.KEY_TABLE_MANAGER_STRING)) {
       return tableManager;
     } else if (dataId.equals(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING)) {
