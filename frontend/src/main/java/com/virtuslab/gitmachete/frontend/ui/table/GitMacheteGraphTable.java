@@ -103,6 +103,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     if (dataId.equals(CommonDataKeys.PROJECT.getName())) {
       return project;
     } else if (dataId.equals(CommonDataKeys.EDITOR.getName())) {
+      // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return class
+      // com.intellij.openapi.editor.Editor
       return FileEditorManager.getInstance(project).getSelectedTextEditor();
     } else if (dataId.equals(DataKeyIDs.KEY_TABLE_MANAGER_STRING)) {
       return tableManager;
