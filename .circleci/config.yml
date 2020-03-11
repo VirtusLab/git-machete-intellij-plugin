@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/git-machete-intellij-plugin
     docker:
-      - image: gitmachete/intellij-plugin
+      - image: gitmachete/intellij-plugin-ci
 
     steps:
       - checkout

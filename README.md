@@ -41,5 +41,5 @@ Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, s
 ### Rebuild the CI base image
 
 ```shell script
-DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin .
+DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin-ci .
 ```
