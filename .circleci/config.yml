@@ -24,7 +24,7 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
-          name: Run static code analyzer
+          name: Static code analyzer
           command: ./gradlew spotbugsMain
       - run:
           name: Build & test
@@ -34,7 +34,7 @@ jobs:
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew :buildPlugin
+          command: ./gradlew buildPlugin
       - store_artifacts:
-          path: ~/git-machete-intellij-plugin/build/distributions
+          path: ~/git-machete-intellij-plugin/frontend/build/distributions/
           destination: .
