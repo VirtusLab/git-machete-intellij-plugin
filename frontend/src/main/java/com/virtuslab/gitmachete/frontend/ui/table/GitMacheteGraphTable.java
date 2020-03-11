@@ -37,20 +37,26 @@ import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   private final Project project;
+  @UnknownInitialization
   private final GitMacheteGraphTableManager tableManager;
 
+  @Nullable
   private String selectedBranchName;
 
+  @SuppressWarnings({"method.invocation.invalid", "argument.type.incompatible"})
   public GitMacheteGraphTable(
       @Nonnull GraphTableModel graphTableModel,
       Project project,
-      GitMacheteGraphTableManager tableManager) {
+      @UnderInitialization GitMacheteGraphTableManager tableManager) {
     super(graphTableModel);
 
     this.project = project;
@@ -97,7 +103,6 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     return (GraphTableModel) super.getModel();
   }
 
-  @Nullable
   @Override
   public Object getData(@Nonnull String dataId) {
     return Match(dataId).of(
@@ -107,8 +112,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
         Case($(DataKeyIDs.KEY_TABLE_MANAGER_STRING), tableManager),
         Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
-        Case($(CommonDataKeys.PROJECT.getName()), project),
-        Case($(), () -> null));
+        Case($(CommonDataKeys.PROJECT.getName()), project));
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
@@ -145,9 +149,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        AnActionEvent actionEvent = new AnActionEvent(/* inputEvent */ null,
-            DataManager.getInstance().getDataContext(graphTable), ActionPlaces.UNKNOWN, new Presentation(),
-            ActionManager.getInstance(), /* modifiers */ 0);
+        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(graphTable));
         ActionManager.getInstance().getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }

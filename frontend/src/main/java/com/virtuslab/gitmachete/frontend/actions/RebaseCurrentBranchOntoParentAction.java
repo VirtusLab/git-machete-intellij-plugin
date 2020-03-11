@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_REBASE;
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
 
+import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,9 +39,14 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
 
   @Override
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
+    GitMacheteGraphTableManager tableManager = anActionEvent.getData(KEY_TABLE_MANAGER);
+    assert tableManager != null : "Can't get table manager";
 
-    Optional<IGitMacheteBranch> branchToRebase = Try.of(() -> gitMacheteRepository.getCurrentBranchIfManaged())
+    IGitMacheteRepository gitMacheteRepository = tableManager.getRepository();
+    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+
+    @SuppressWarnings("methodref.return.invalid")
+    Optional<IGitMacheteBranch> branchToRebase = Try.of(gitMacheteRepository::getCurrentBranchIfManaged)
         .onFailure(e -> LOG.error("Exception occurred while getting current branch")).get();
 
     if (branchToRebase.isEmpty()) {

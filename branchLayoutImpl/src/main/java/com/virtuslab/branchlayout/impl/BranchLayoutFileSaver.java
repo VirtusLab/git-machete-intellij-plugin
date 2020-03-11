@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class BranchLayoutFileSaver {
     for (var branch : branches) {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentCharacter).repeat(level * levelWidth)).append(branch.getName());
-      var customAnnotation = branch.getCustomAnnotation();
+      Optional<String> customAnnotation = branch.getCustomAnnotation();
       if (customAnnotation.isPresent()) {
         sb.append(" ").append(customAnnotation.get());
       }

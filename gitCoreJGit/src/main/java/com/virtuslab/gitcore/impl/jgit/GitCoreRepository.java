@@ -56,7 +56,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     if (Files.isDirectory(gitPath)) {
       this.gitFolderPath = gitPath;
     } else if (Files.isRegularFile(gitPath)) {
-      this.gitFolderPath = getGitFolderPathFromGitFile(gitPath);
+      this.gitFolderPath = getGitFolderPathFromGitFile(gitPath, repositoryPath);
     } else {
       throw new GitCoreNoSuchRepositoryException(
           MessageFormat.format("Repository in path \"{0}\" does not exists", repositoryPath));
@@ -66,15 +66,21 @@ public class GitCoreRepository implements IGitCoreRepository {
     jgitGit = new Git(jgitRepo);
   }
 
-  private Path getGitFolderPathFromGitFile(Path gitFilePath) throws IOException, GitCoreNoSuchRepositoryException {
+  private static Path getGitFolderPathFromGitFile(Path gitFilePath, Path repositoryPath)
+      throws IOException, GitCoreNoSuchRepositoryException {
     String gitFile = Files.readString(gitFilePath);
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
     if (matcher.find()) {
-      return gitFilePath.getParent().resolve(matcher.group(1)).normalize();
+      String firstGroup = matcher.group(1);
+      if (firstGroup == null) {
+        throw new GitCoreNoSuchRepositoryException(
+            MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
+      }
+      return gitFilePath.getParent().resolve(firstGroup).normalize();
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        MessageFormat.format("Path \"{0}\" does not contain any submodule", this.repositoryPath));
+        MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
   }
 
   @Override
@@ -159,11 +165,16 @@ public class GitCoreRepository implements IGitCoreRepository {
     RevWalk walk = new RevWalk(jgitRepo);
     walk.sort(RevSort.TOPO);
     try {
-      ObjectId objectId = jgitRepo.resolve(presumedDescendant.getHashString());
-      walk.markStart(walk.parseCommit(jgitRepo.resolve(presumedAncestor.getHashString())));
+      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHashString());
+      assert descendantObjectId != null : "Cannot find descendant";
+
+      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHashString());
+      assert ancestorObjectId != null : "Cannot find ancestor";
+
+      walk.markStart(walk.parseCommit(ancestorObjectId));
 
       for (var c : walk) {
-        if (c.getId().equals(objectId)) {
+        if (c.getId().equals(descendantObjectId)) {
           return true;
         }
       }

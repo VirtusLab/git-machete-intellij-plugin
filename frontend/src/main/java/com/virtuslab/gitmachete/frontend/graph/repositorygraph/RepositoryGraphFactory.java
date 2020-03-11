@@ -9,7 +9,9 @@ import javax.annotation.Nullable;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+@SuppressWarnings("initialization.fields.uninitialized")
 public class RepositoryGraphFactory {
 
   @Getter

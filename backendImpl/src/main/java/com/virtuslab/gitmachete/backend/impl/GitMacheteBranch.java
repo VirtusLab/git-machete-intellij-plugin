@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import lombok.Data;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IAncestorityChecker;
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
@@ -26,7 +28,9 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 @Data
 public class GitMacheteBranch implements IGitMacheteBranch {
   private final IGitCoreLocalBranch coreLocalBranch;
+  @Nullable
   private final IGitMacheteBranch upstreamBranch;
+  @Nullable
   private final String customAnnotation;
   private final IAncestorityChecker ancestorityChecker;
   private final List<IGitMacheteBranch> childBranches = new LinkedList<>();

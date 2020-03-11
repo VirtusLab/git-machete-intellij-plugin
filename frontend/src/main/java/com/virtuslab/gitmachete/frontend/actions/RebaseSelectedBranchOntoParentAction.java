@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
+import io.vavr.control.Option;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,9 @@ import com.intellij.openapi.project.Project;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
@@ -40,12 +45,20 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     GitRepository repository = getRepository(project);
     GitVersion gitVersion = repository.getVcs().getVersion();
 
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeyIDs.KEY_TABLE_MANAGER).getRepository();
+    GitMacheteGraphTableManager tableManager = anActionEvent.getData(KEY_TABLE_MANAGER);
+    assert tableManager != null : "Can't get table manager";
 
-    IGitMacheteBranch branchToRebase = anActionEvent.getData(DataKeyIDs.KEY_SELECTED_BRANCH);
+    IGitMacheteRepository gitMacheteRepository = tableManager.getRepository();
+    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+
+    IGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
     if (branchToRebase == null) {
+      String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
+      assert selectedBranchName != null : "Can't get selected branch";
+
+      @SuppressWarnings("assignment.type.incompatible")
       Optional<IGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
-          .getBranchByName(anActionEvent.getData(DataKeyIDs.KEY_SELECTED_BRANCH_NAME));
+          .getBranchByName(selectedBranchName);
       if (branchToRebaseOptional.isEmpty()) {
         LOG.error("Can't get branch to rebase");
         return;
@@ -85,9 +98,11 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       return Optional.empty();
     }
 
-    return Try.of(() -> Optional.of(gitMacheteCurrentBranch.computeRebaseParameters()))
+    Option<IGitRebaseParameters> result = Try.of(() -> Option.of(gitMacheteCurrentBranch.computeRebaseParameters()))
         .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
-        .getOrElse(() -> Optional.empty());
+        .getOrElse(Option::none);
+
+    return Optional.ofNullable(result.get());
   }
 
   protected GitRepository getRepository(Project project) {

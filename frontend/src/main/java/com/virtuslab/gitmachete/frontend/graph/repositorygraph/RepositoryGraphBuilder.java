@@ -29,6 +29,7 @@ import com.virtuslab.gitmachete.frontend.graph.model.CommitElement;
 import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.model.PhantomElement;
 import com.virtuslab.gitmachete.frontend.graph.model.SplittingElement;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {
@@ -181,10 +182,9 @@ public class RepositoryGraphBuilder {
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      SyncToOriginStatus syncToOriginStatus) {
+      SyncToOriginStatus syncToOriginStatus) throws GitMacheteException {
 
-    Optional<IGitMacheteBranch> currentBranch = Try.of(() -> repository.getCurrentBranchIfManaged())
-        .onFailure(e -> LOG.error("Unable to get current branch", e)).get();
+    Optional<@Nullable IGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 

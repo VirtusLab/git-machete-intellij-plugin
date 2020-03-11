@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.JTable;
 
 import lombok.AllArgsConstructor;
@@ -93,6 +94,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       }
     }
 
+    // For setBorder(null)
+    @SuppressWarnings("argument.type.incompatible")
     void customize(@Nonnull BranchOrCommitCell cell, boolean isSelected, boolean hasFocus, int row, int column) {
       clear();
       setPaintFocusBorder(false);

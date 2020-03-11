@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import lombok.Getter;
 
 import com.intellij.util.SmartList;
@@ -32,6 +33,7 @@ public class RepositoryGraph implements LinearGraph {
   @Nonnull
   private final PrintElementGeneratorImpl printElementGenerator;
 
+  @SuppressWarnings({"argument.type.incompatible", "assignment.type.incompatible"})
   public RepositoryGraph(@Nonnull List<IGraphElement> elements) {
     this.elements = elements;
 
@@ -66,6 +68,7 @@ public class RepositoryGraph implements LinearGraph {
   }
 
   @Override
+  @Nullable
   public Integer getNodeIndex(int nodeId) {
     if (nodeId >= 0 && nodeId < nodesCount()) {
       return nodeId;

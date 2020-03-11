@@ -14,6 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.vavr.control.Try;
 
 import com.google.inject.Inject;
@@ -40,7 +43,9 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteSubmoduleEntry;
 @Getter(AccessLevel.PACKAGE)
 public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder {
   private IGitCoreRepository gitCoreRepository;
+  @Nullable
   private IGitMacheteBranch currentBranch = null;
+  @Nullable
   private IGitCoreBranch currentCoreBranch;
   private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
 
@@ -48,8 +53,10 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   private final Path pathToRepoRoot;
   @Setter
+  @Nullable
   private String repositoryName = null;
   @Setter
+  @MonotonicNonNull
   private IBranchLayout branchLayout = null;
 
   @Inject
@@ -58,6 +65,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       @Assisted Path pathToRepoRoot) {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.pathToRepoRoot = pathToRepoRoot;
+    gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
   }
 
   public GitMacheteRepository build() throws GitMacheteException {
@@ -101,7 +109,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   private GitMacheteBranch createMacheteBranchOrThrowException(IBranchLayoutEntry branchEntry,
-      IGitMacheteBranch upstreamBranch) throws GitMacheteException {
+      @Nullable IGitMacheteBranch upstreamBranch) throws GitMacheteException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
       throw new GitMacheteException(MessageFormat
