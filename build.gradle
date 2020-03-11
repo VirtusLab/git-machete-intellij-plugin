@@ -9,7 +9,7 @@ plugins {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.26-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.27-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
