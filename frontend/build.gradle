@@ -1,5 +1,7 @@
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false
+
 dependencies {
-  lombok()
   guice()
 
   implementation project(':backendRoot')

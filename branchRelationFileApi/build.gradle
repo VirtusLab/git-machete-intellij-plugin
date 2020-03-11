@@ -1,3 +1,2 @@
-dependencies {
-  lombok()
-}
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false

@@ -1,7 +1,9 @@
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false
+
 dependencies {
   guice()
   jgit()
-  lombok()
   slf4j()
 
   api project(':gitCoreApi')

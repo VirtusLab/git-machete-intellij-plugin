@@ -1,6 +1,8 @@
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false
+
 dependencies {
   guice()
-  lombok()
 
   implementation project(':gitCoreApi')
   implementation project(':branchRelationFileApi')

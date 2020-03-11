@@ -1,7 +1,9 @@
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false
+
 dependencies {
   guice()
   junit()
-  lombok()
   powerMock()
 
   api project(':branchRelationFileApi')

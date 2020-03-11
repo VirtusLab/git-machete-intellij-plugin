@@ -3,6 +3,7 @@ plugins {
 
   id 'com.diffplug.gradle.spotless' version '3.26.1' apply false
   id 'com.github.spotbugs' version '3.0.0' apply false
+  id 'io.freefair.lombok' version '5.0.0-rc4' apply false
   id 'org.jetbrains.intellij' version '0.4.16' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
@@ -71,7 +72,6 @@ subprojects {
     guiceVersion = '4.2.2'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
-    lombokVersion = '1.18.10'
     powerMockVersion = '2.0.5'
     slf4jVersion = '1.7.25'
 
@@ -91,13 +91,6 @@ subprojects {
     junit = { ->
       dependencies {
         testImplementation group: 'junit', name: 'junit', version: junitVersion
-      }
-    }
-
-    lombok = { ->
-      dependencies {
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
       }
     }
 
