@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.file;
+package com.virtuslab.branchlayout.impl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,26 +9,28 @@ import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.branchlayout.file.impl.BranchLayout;
-import com.virtuslab.branchlayout.file.impl.BranchLayoutEntry;
 
-public class BranchLayoutFileParser extends BranchLayoutFileDefinition {
+@Data
+public class BranchLayoutFileParser {
+  private final Path path;
 
-  @Inject
-  public BranchLayoutFileParser(@Assisted Path path) {
-    super(path);
-  }
+  @Setter(AccessLevel.PRIVATE)
+  Character indentCharacter = ' ';
+
+  @Setter(AccessLevel.PRIVATE)
+  int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
     List<IBranchLayoutEntry> roots = List.empty();
-    List<String> lines = getFileLines().filterNot(String::isBlank);
+    List<String> lines = getFileLines().reject(String::isBlank);
 
-    calculateIndentCharacter(lines);
+    deriveIndentCharacter(lines);
 
     if (!lines.isEmpty()) {
       Array<Tuple2<Integer, Integer>> lineIndexToIdentLevelAndUpstreamLineIndex = parseToArrayRepresentation(lines);
@@ -42,7 +44,7 @@ public class BranchLayoutFileParser extends BranchLayoutFileDefinition {
    * Searches for first line preceded some indent character and based on that sets {@code indentCharacter} and
    * {@code levelWidth} fields.
    */
-  private void calculateIndentCharacter(List<String> lines) {
+  private void deriveIndentCharacter(List<String> lines) {
     var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
     if (firstLineWithBlankPrefixOption.isDefined()) {
       indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
@@ -70,8 +72,8 @@ public class BranchLayoutFileParser extends BranchLayoutFileDefinition {
   }
 
   /**
-   * Parses line to {@link BranchLayoutEntry#BranchLayoutEntry} arguments and creates an entry with specified
-   * {@code subbranches}.
+   * Parses line to {@link com.virtuslab.branchlayout.impl.BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
+   * entry with specified {@code subbranches}.
    */
   private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> subbranches) {
     String trimmedLine = line.trim();

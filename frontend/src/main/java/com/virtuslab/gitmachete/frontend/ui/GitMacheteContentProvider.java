@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
+import git4idea.GitVcs;
+
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -13,7 +15,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.NotNullFunction;
 
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
-import git4idea.GitVcs;
 
 public class GitMacheteContentProvider implements ChangesViewContentProvider {
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";

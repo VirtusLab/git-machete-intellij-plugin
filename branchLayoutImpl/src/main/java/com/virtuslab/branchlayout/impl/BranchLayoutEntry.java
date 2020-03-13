@@ -1,9 +1,9 @@
-package com.virtuslab.branchlayout.file.impl;
-
-import lombok.Data;
+package com.virtuslab.branchlayout.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+
+import lombok.Data;
 
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 

@@ -40,7 +40,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
   public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_TABLE_MANAGER).getRepository();
 
-    Optional<IGitMacheteBranch> branchToRebase = Try.of(gitMacheteRepository::getCurrentBranchIfManaged)
+    Optional<IGitMacheteBranch> branchToRebase = Try.of(() -> gitMacheteRepository.getCurrentBranchIfManaged())
         .onFailure(e -> LOG.error("Exception occurred while getting current branch")).get();
 
     if (branchToRebase.isEmpty()) {

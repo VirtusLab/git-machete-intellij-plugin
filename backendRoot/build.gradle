@@ -7,6 +7,6 @@ dependencies {
   vavr()
 
   implementation project(':gitCoreJGit')
-  implementation project(':branchLayoutFile')
+  implementation project(':branchLayoutImpl')
   implementation project(':backendImpl')
 }

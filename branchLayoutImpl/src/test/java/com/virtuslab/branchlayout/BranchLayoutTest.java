@@ -1,18 +1,18 @@
-package com.virtuslab.branchlayout.file;
+package com.virtuslab.branchlayout;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import io.vavr.collection.List;
+
+import org.junit.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.branchlayout.file.impl.BranchLayout;
-import com.virtuslab.branchlayout.file.impl.BranchLayoutEntry;
+import com.virtuslab.branchlayout.impl.BranchLayout;
+import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
 
-public class BranchLayoutFileTest {
+public class BranchLayoutTest {
 
   @Test(expected = BranchLayoutException.class)
   public void withBranchSlideOut_givenRootBranch_throwsException() throws BranchLayoutException {

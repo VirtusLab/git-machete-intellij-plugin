@@ -9,6 +9,12 @@ import javax.annotation.Nonnull;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 
+import git4idea.GitUtil;
+import git4idea.branch.GitRebaseParams;
+import git4idea.config.GitVersion;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -20,12 +26,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.frontend.ui.GitMacheteContentProvider;
-
-import git4idea.GitUtil;
-import git4idea.branch.GitRebaseParams;
-import git4idea.config.GitVersion;
-import git4idea.rebase.GitRebaseUtils;
-import git4idea.repo.GitRepository;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);

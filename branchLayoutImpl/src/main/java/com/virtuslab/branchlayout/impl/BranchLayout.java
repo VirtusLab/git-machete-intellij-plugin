@@ -1,12 +1,12 @@
-package com.virtuslab.branchlayout.file.impl;
+package com.virtuslab.branchlayout.impl;
 
 import java.text.MessageFormat;
 import java.util.function.Predicate;
 
-import lombok.Data;
-
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+
+import lombok.Data;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;

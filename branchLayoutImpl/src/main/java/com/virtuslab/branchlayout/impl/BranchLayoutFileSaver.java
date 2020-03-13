@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.file;
+package com.virtuslab.branchlayout.impl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,13 +7,16 @@ import java.nio.file.StandardCopyOption;
 
 import io.vavr.collection.List;
 
+import lombok.Data;
+
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
-public class BranchLayoutFileSaver extends BranchLayoutFileDefinition {
-  public BranchLayoutFileSaver(Path path) {
-    super(path);
-  }
+@Data
+public class BranchLayoutFileSaver {
+  final Path path;
+  Character indentCharacter = ' ';
+  int levelWidth = 0;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws IOException {
     var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);

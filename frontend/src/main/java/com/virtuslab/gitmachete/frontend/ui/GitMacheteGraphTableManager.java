@@ -6,10 +6,13 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
+import io.vavr.control.Try;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import io.vavr.control.Try;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -27,9 +30,6 @@ import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GraphTableModel;
-
-import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryChangeListener;
 
 public class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);

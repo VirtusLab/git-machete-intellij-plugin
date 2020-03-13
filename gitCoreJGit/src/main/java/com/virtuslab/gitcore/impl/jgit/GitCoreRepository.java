@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;

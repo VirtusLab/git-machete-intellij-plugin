@@ -1,6 +1,6 @@
 package com.virtuslab.branchlayout.api;
 
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public class BranchLayoutException extends Exception {
   private final Integer errorLine;
@@ -23,7 +23,7 @@ public class BranchLayoutException extends Exception {
     this(null, message, e);
   }
 
-  public Optional<Integer> getErrorLine() {
-    return Optional.ofNullable(errorLine);
+  public Option<Integer> getErrorLine() {
+    return Option.of(errorLine);
   }
 }

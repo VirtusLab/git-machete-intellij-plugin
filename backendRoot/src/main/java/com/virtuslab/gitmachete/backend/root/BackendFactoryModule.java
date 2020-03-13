@@ -17,7 +17,6 @@ public class BackendFactoryModule extends AbstractModule {
         .build(GitMacheteRepositoryBuilderFactory.class));
     install(new FactoryModuleBuilder().implement(IGitCoreRepository.class, GitCoreRepository.class)
         .build(GitCoreRepositoryFactory.class));
-    install(new FactoryModuleBuilder().build(BranchLayoutFileParserFactory.class));
   }
 
   public static Injector getInjector() {

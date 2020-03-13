@@ -2,7 +2,6 @@ apply plugin: 'io.freefair.lombok'
 generateLombokConfig.enabled=false
 
 dependencies {
-  guice()
   junit()
   powerMock()
   vavr()

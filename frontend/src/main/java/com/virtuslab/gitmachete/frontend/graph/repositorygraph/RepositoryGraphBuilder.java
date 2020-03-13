@@ -7,10 +7,10 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import io.vavr.control.Try;
+
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import io.vavr.control.Try;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
@@ -183,7 +183,7 @@ public class RepositoryGraphBuilder {
       GraphEdgeColor graphEdgeColor,
       SyncToOriginStatus syncToOriginStatus) {
 
-    Optional<IGitMacheteBranch> currentBranch = Try.of(repository::getCurrentBranchIfManaged)
+    Optional<IGitMacheteBranch> currentBranch = Try.of(() -> repository.getCurrentBranchIfManaged())
         .onFailure(e -> LOG.error("Unable to get current branch", e)).get();
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);

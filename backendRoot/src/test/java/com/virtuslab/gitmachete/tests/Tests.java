@@ -23,19 +23,18 @@ import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
-import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilder;
 
 public class Tests {
-  IGitMacheteRepository repo;
+  IGitMacheteRepository gitMacheteRepository;
   private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule
       .getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
 
-  private static class TestPaths {
-    public static final Path tmp = Paths.get("/tmp/machete-tests");
-    public static final Path scripts = tmp.resolve("scripts");
-    public static final Path repoScript = scripts.resolve("repo.sh");
-    public static final Path repo = tmp.resolve("machete-sandbox");
-  }
+  public static final Path tmpTestDir = Paths.get("/tmp/machete-tests");
+  public static final Path scriptsDir = tmpTestDir.resolve("scripts");
+  public static final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
+  public static final Path repositoryDir = tmpTestDir.resolve("machete-sandbox");
+  public static final String repositoryPreparingCommand = String.format("/bin/bash %s %s",
+      repositoryBuildingScript.toAbsolutePath().toString(), tmpTestDir.toAbsolutePath().toString());
 
   @Before
   public void init() throws Exception {
@@ -44,9 +43,12 @@ public class Tests {
     copyScriptFromResources("repo1.sh");
     prepareRepoFromScript();
 
-    IGitMacheteRepositoryBuilder repoBuilder = gitMacheteRepositoryBuilderFactory.create(TestPaths.repo);
+    gitMacheteRepository = gitMacheteRepositoryBuilderFactory.create(repositoryDir).build();
+  }
 
-    repo = repoBuilder.build();
+  @After
+  public void cleanup() throws IOException {
+    Files.walk(tmpTestDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
   }
 
   @Test
@@ -63,37 +65,30 @@ public class Tests {
   }
 
   private void createDirStructure() throws IOException {
-    Files.createDirectory(TestPaths.tmp);
-    Files.createDirectory(TestPaths.scripts);
+    Files.createDirectory(tmpTestDir);
+    Files.createDirectory(scriptsDir);
   }
 
   private void copyScriptFromResources(String scriptName) throws URISyntaxException, IOException {
-    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), TestPaths.repoScript);
+    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), repositoryBuildingScript);
   }
 
   private void prepareRepoFromScript() throws IOException, InterruptedException {
-    var r = Runtime.getRuntime().exec("/bin/bash " + TestPaths.repoScript.toAbsolutePath().toString() + " "
-        + TestPaths.tmp.toAbsolutePath().toString());
-    r.waitFor(1, TimeUnit.SECONDS);
+    Runtime.getRuntime().exec(repositoryPreparingCommand).waitFor(1, TimeUnit.SECONDS);
   }
 
   private String gitMacheteCliStatus() throws IOException {
     var gitMacheteProcessBuilder = new ProcessBuilder();
     gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
-    gitMacheteProcessBuilder.directory(TestPaths.repo.toFile());
+    gitMacheteProcessBuilder.directory(repositoryDir.toFile());
     var gitMacheteProcess = gitMacheteProcessBuilder.start();
     return convertStreamToString(gitMacheteProcess.getInputStream());
   }
 
-  @After
-  public void cleanup() throws IOException {
-    Files.walk(TestPaths.tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-  }
-
   private String repositoryStatus() {
     var sb = new StringBuilder();
-    int lastRootBranch = repo.getRootBranches().size() - 1;
-    var branches = repo.getRootBranches();
+    int lastRootBranch = gitMacheteRepository.getRootBranches().size() - 1;
+    var branches = gitMacheteRepository.getRootBranches();
     for (int currentRootBranch = 0; currentRootBranch <= lastRootBranch; currentRootBranch++) {
       var b = branches.get(currentRootBranch);
       printBranch(b, 0, sb);
@@ -139,7 +134,7 @@ public class Tests {
 
       sb.append(branch.getName());
 
-      var currBranch = repo.getCurrentBranchIfManaged();
+      var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
       if (currBranch.isPresent() && currBranch.get().equals(branch))
         sb.append(" *");
 

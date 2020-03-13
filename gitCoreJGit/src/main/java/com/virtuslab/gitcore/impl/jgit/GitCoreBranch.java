@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;

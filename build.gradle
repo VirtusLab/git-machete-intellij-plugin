@@ -1,7 +1,7 @@
 plugins {
   id 'org.gradle.java-library'
 
-  id 'com.diffplug.gradle.spotless' version '3.26.1' apply false
+  id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'com.github.spotbugs' version '3.0.0' apply false
   id 'io.freefair.lombok' version '5.0.0-rc4' apply false
   id 'org.jetbrains.intellij' version '0.4.16' apply false
@@ -29,7 +29,7 @@ subprojects {
   apply plugin: 'com.diffplug.gradle.spotless'
   spotless {
     java {
-      importOrderFile "${rootProject.projectDir}/our.importorder"
+      importOrder 'java', 'javax', 'io.vavr', 'lombok', '', 'com', 'com.virtuslab'
       eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
       removeUnusedImports()
     }
@@ -74,7 +74,7 @@ subprojects {
     junitVersion = '4.13'
     powerMockVersion = '2.0.5'
     slf4jVersion = '1.7.25'
-    vavrVersion = '1.0.0-alpha-3'
+    vavrVersion = '0.10.2'
 
     guice = { ->
       dependencies {

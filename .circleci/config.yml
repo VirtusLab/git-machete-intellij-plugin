@@ -13,6 +13,7 @@ jobs:
             set -x
             ./scripts/enforce-issue-number-for-todos
             ./scripts/enforce-version-bump
+            ./scripts/enforce-vavr-usage
             ./scripts/prohibit-trailing-whitespace
             ./scripts/prohibit-wildcard-imports
             ./scripts/specify-snapshot-revision

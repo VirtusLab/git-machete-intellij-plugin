@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import io.vavr.control.Try;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -22,6 +22,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
+import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -44,7 +45,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
 
   private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
-  private final BranchLayoutFileParserFactory branchLayoutFileParserFactory;
 
   private final Path pathToRepoRoot;
   @Setter
@@ -55,10 +55,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   @Inject
   public GitMacheteRepositoryBuilder(
       GitCoreRepositoryFactory gitCoreRepositoryFactory,
-      BranchLayoutFileParserFactory branchLayoutFileParserFactory,
       @Assisted Path pathToRepoRoot) {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
-    this.branchLayoutFileParserFactory = branchLayoutFileParserFactory;
     this.pathToRepoRoot = pathToRepoRoot;
   }
 
@@ -66,14 +64,14 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     List<IGitMacheteBranch> rootBranches = new LinkedList<>();
 
     gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
-    Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
 
-    Optional<IGitCoreLocalBranch> currentCoreBranchOptional = Try.of(() -> gitCoreRepository.getCurrentBranch())
-        .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
-    currentCoreBranch = currentCoreBranchOptional.orElse(null);
+    currentCoreBranch = Try.of(() -> Option.ofOptional(gitCoreRepository.getCurrentBranch()))
+        .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
+        .getOrElse(() -> null);
 
     if (branchLayout == null) {
-      branchLayout = Try.of(() -> branchLayoutFileParserFactory.create(pathToBranchLayoutFile).parse())
+      Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
+      branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
           .getOrElseThrow(e -> new MacheteFileParseException(((BranchLayoutException) e).getErrorLine().isEmpty()
               ? MessageFormat.format("Error occurred while parsing machete file: {0}",
                   pathToBranchLayoutFile.toString())
@@ -89,11 +87,11 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       processSubtree(branch, entry.getSubbranches().asJava());
     }
 
-    List<IGitCoreSubmoduleEntry> coreSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
-        .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e));
-
-    List<IGitMacheteSubmoduleEntry> macheteSubmodules = coreSubmodules.stream()
-        .map(this::convertToGitMacheteSubmoduleEntry).collect(Collectors.toList());
+    List<IGitMacheteSubmoduleEntry> macheteSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
+        .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e))
+        .stream()
+        .map(this::convertToGitMacheteSubmoduleEntry)
+        .collect(Collectors.toList());
 
     return new GitMacheteRepository(repositoryName, rootBranches, macheteSubmodules, branchLayout, currentBranch,
         branchByName);
@@ -105,7 +103,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   private GitMacheteBranch createMacheteBranchOrThrowException(IBranchLayoutEntry branchEntry,
       IGitMacheteBranch upstreamBranch) throws GitMacheteException {
-    Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
+    Option<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
       throw new GitMacheteException(MessageFormat
           .format("Branch \"{0}\" defined in machete file does not exist in repository", branchEntry.getName()));
@@ -135,9 +133,9 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   /**
-   * @return Optional of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Optional
+   * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
    */
-  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
-    return Try.of(() -> Optional.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(Optional::empty);
+  private Option<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
+    return Try.of(() -> Option.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(Option::none);
   }
 }
