@@ -5,7 +5,7 @@ set -u
 result=$(git grep -n 'import .*\.\*' '*.java')
 result_count=$(echo "$result" | wc -l)
 if [[ $result ]]; then
-  echo "$result_count wildcard import(s) has been detected:"
+  echo "$result_count wildcard import(s) have been detected:"
   echo "$result"
   exit 1
 fi

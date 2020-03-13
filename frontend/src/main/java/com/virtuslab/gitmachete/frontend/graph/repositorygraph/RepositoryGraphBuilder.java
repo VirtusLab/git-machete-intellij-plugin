@@ -46,7 +46,7 @@ public class RepositoryGraphBuilder {
   public static final IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
 
   public RepositoryGraph build() {
-    List<IGraphElement> elementsOfRepository = Try.of(this::computeGraphElements)
+    List<IGraphElement> elementsOfRepository = Try.of(() -> computeGraphElements())
         .onFailure(e -> LOG.error("Unable to build elements of repository graph", e))
         .getOrElse(Collections::emptyList);
 

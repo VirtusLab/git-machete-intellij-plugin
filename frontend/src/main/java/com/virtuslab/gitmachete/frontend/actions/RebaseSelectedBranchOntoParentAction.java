@@ -92,7 +92,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
 
     return Try.of(() -> Option.of(gitMacheteCurrentBranch.computeRebaseParameters()))
         .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
-        .getOrElse(Option::none);
+        .getOrElse(() -> Option.none());
   }
 
   /**

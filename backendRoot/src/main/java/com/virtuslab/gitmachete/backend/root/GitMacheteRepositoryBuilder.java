@@ -136,6 +136,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
    * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
    */
   private Option<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
-    return Try.of(() -> Option.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(Option::none);
+    return Try.of(() -> Option.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(() -> Option.none());
   }
 }

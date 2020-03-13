@@ -9,22 +9,18 @@ import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
-@Data
+@RequiredArgsConstructor
+@Getter
 public class BranchLayoutFileParser {
   private final Path path;
-
-  @Setter(AccessLevel.PRIVATE)
-  Character indentCharacter = ' ';
-
-  @Setter(AccessLevel.PRIVATE)
-  int levelWidth = 0;
+  private Character indentCharacter = ' ';
+  private int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
     List<IBranchLayoutEntry> roots = List.empty();

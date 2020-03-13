@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -u
+
+java_collections_prohibiting_modules=('branchLayoutApi' 'branchLayoutImpl')
+
+for module in ${java_collections_prohibiting_modules[*]}
+do
+  result=$(git grep -nE 'java\.util\.(List|Optional)' "$module/*.java")
+  result_count=$(echo "$result" | wc -l)
+  if [[ $result ]]; then
+    echo "$result_count prohibited java.util use(s) have been detected:"
+    echo "$result"
+    exit 1
+  fi
+done

@@ -55,8 +55,8 @@ public class BranchLayoutTest {
     */
 
     List<IBranchLayoutEntry> childBranches = List.of(
-        new BranchLayoutEntry(childName0, /* customAnnotation */null, List.empty()),
-        new BranchLayoutEntry(childName1, /* customAnnotation */null, List.empty()));
+        new BranchLayoutEntry(childName0, /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry(childName1, /* customAnnotation */ null, List.empty()));
 
     var entry = new BranchLayoutEntry(branchToSlideOutName, /* customAnnotation */ null, childBranches);
     var rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, List.of(entry));

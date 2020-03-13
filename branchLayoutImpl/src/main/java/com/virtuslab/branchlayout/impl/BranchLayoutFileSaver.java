@@ -7,16 +7,18 @@ import java.nio.file.StandardCopyOption;
 
 import io.vavr.collection.List;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
-@Data
+@RequiredArgsConstructor
+@Getter
 public class BranchLayoutFileSaver {
-  final Path path;
-  Character indentCharacter = ' ';
-  int levelWidth = 0;
+  private final Path path;
+  private Character indentCharacter = ' ';
+  private int levelWidth = 0;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws IOException {
     var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);
