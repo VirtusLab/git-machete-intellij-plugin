@@ -8,8 +8,25 @@ plugins {
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
+task resolveDependencies {
+  doLast {
+    project.rootProject.allprojects.each { subProject ->
+      subProject.buildscript.configurations.each { configuration ->
+        if (configuration.canBeResolved) {
+          configuration.resolve()
+        }
+      }
+      subProject.configurations.each { configuration ->
+        if (configuration.canBeResolved) {
+          configuration.resolve()
+        }
+      }
+    }
+  }
+}
+
 subprojects {
-  def PLUGIN_VERSION = '0.0.29-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.30-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION

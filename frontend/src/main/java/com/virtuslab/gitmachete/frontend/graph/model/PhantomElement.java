@@ -5,7 +5,7 @@ package com.virtuslab.gitmachete.frontend.graph.model;
 import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
 
 /**
- * An element whose purpose is to keep the child branch ({@link CommitElement}s and theirs {@link BranchElement})
+ * An element whose purpose is to keep the child branch ({@link CommitElement}s and their {@link BranchElement}s)
  * horizontally aligned (shifts right the last one). This element is not intended to be shown. This is a hackish
  * solution to solve the problem. It should be treated as temporary and an appropriate one shall be implemented (own
  * {@link com.intellij.vcs.log.graph.api.printer.PrintElementGenerator} might be needed, #90).
@@ -17,7 +17,7 @@ import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
  */
 public class PhantomElement extends BaseGraphElement {
   public PhantomElement(int upElementIndex) {
-    super(upElementIndex, /* syncToParentStatus */ null);
+    super(upElementIndex, /* graphEdgeColor */ null);
   }
 
   @Override

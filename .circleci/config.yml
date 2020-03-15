@@ -25,10 +25,16 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
-          name: Static code analyzer
+          name: Compile production code
+          command: ./gradlew compileJava
+      - run:
+          name: Check Javadoc correctness
+          command: ./gradlew javadoc
+      - run:
+          name: Run static code analyzer
           command: ./gradlew spotbugsMain
       - run:
-          name: Build & test
+          name: Compile & run tests
           command: ./gradlew test
       - store_test_results:
           path: backendRoot/build/test-results/

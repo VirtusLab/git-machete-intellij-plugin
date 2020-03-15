@@ -25,7 +25,6 @@ import com.intellij.openapi.project.Project;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteContentProvider;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
@@ -77,10 +76,8 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
 
-      /*
-       * TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential changes
-       * to commits (eg. commits may get squashed so the graph structure changes).
-       */
+      // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential changes
+      // to commits (eg. commits may get squashed so the graph structure changes).
     }.queue();
   }
 
@@ -95,15 +92,13 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
         .getOrElse(() -> Option.none());
   }
 
-  /**
-   * The visibility predicate {@link GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
-   * {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)} which is true when the specified
-   * VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin tab
-   * is visible, a git repository exists.
-   */
   protected GitRepository getRepository(Project project) {
     // TODO (#64): handle multiple repositories
     Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
+    // The visibility predicate {@link GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
+    // {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)} which is true when the specified
+    // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
+    // tab is visible, a git repository exists.
     assert iterator.hasNext();
     return iterator.next();
   }
