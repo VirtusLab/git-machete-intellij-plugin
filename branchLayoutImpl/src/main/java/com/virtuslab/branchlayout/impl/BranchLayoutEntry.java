@@ -1,7 +1,8 @@
 package com.virtuslab.branchlayout.impl;
 
+import java.util.Optional;
+
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 
 import lombok.Data;
 
@@ -14,7 +15,7 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
   private final List<IBranchLayoutEntry> subbranches;
 
   @Override
-  public Option<String> getCustomAnnotation() {
-    return Option.of(customAnnotation);
+  public Optional<String> getCustomAnnotation() {
+    return Optional.ofNullable(customAnnotation);
   }
 }

@@ -37,7 +37,7 @@ public class BranchLayoutFileSaver {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentCharacter).repeat(level * levelWidth)).append(branch.getName());
       var customAnnotation = branch.getCustomAnnotation();
-      if (customAnnotation.isDefined()) {
+      if (customAnnotation.isPresent()) {
         sb.append(" ").append(customAnnotation.get());
       }
 

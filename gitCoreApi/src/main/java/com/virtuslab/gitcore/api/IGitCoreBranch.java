@@ -1,12 +1,13 @@
 package com.virtuslab.gitcore.api;
 
-import java.util.List;
 import java.util.Optional;
+
+import io.vavr.collection.List;
 
 public interface IGitCoreBranch {
   String getName();
 
-  String getFullName() throws GitCoreException;
+  String getFullName();
 
   IGitCoreCommit getPointedCommit() throws GitCoreException;
 

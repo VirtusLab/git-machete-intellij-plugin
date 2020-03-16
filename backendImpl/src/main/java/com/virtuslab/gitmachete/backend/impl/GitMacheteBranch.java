@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -47,19 +48,20 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   public List<IGitMacheteCommit> computeCommits() throws GitMacheteException {
     if (upstreamBranch == null) {
-      return List.of();
+      return Collections.emptyList();
     }
 
     try {
       Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
       if (forkPoint.isEmpty()) {
-        return List.of();
+        return Collections.emptyList();
       }
 
       // translate IGitCoreCommit list to IGitMacheteCommit list
-      return coreLocalBranch.computeCommitsUntil(forkPoint.get()).stream()
+      return coreLocalBranch.computeCommitsUntil(forkPoint.get())
           .map(GitMacheteCommit::new)
           .collect(Collectors.toList());
+
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -85,14 +87,15 @@ public class GitMacheteBranch implements IGitMacheteBranch {
         return SyncToOriginStatus.Untracked;
       }
 
-      if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0)
+      if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) {
         return SyncToOriginStatus.Diverged;
-      else if (ts.get().getAhead() > 0)
+      } else if (ts.get().getAhead() > 0) {
         return SyncToOriginStatus.Ahead;
-      else if (ts.get().getBehind() > 0)
+      } else if (ts.get().getBehind() > 0) {
         return SyncToOriginStatus.Behind;
-      else
+      } else {
         return SyncToOriginStatus.InSync;
+      }
 
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);

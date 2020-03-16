@@ -5,6 +5,7 @@ dependencies {
   guice()
   jgit()
   slf4j()
+  vavr()
 
   api project(':gitCoreApi')
 }

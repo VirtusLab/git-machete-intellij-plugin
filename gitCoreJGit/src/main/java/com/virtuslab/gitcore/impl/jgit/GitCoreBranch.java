@@ -2,20 +2,21 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+
+import io.vavr.collection.Iterator;
+import io.vavr.collection.List;
+import io.vavr.control.Try;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -99,19 +100,17 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
       throw new GitCoreException(e);
     }
 
-    List<ObjectId> ancestorsOfStartCommits = new LinkedList<>();
-
-    for (var c : walk) {
-      for (var p : c.getParents()) {
-        if (ancestorsOfStartCommits.contains(p.getId())) {
-          return Optional.of(new GitCoreCommit(p));
-        } else {
-          ancestorsOfStartCommits.add(p);
-        }
-      }
-    }
-
-    return Optional.empty();
+    Set<ObjectId> ancestorsOfStartCommits = new HashSet<>();
+    return Iterator.ofAll(walk)
+        .toStream()
+        .map(RevCommit::getParents)
+        .map(List::of)
+        .flatMap(i -> i)
+        .peek(ancestorsOfStartCommits::add)
+        .filter(ancestorsOfStartCommits::contains)
+        .map(ref -> (IGitCoreCommit) new GitCoreCommit(ref))
+        .headOption()
+        .toJavaOptional();
   }
 
   @Override
@@ -119,40 +118,23 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();
-    try {
+
+    return Try.of(() -> {
       walk.markStart(commit);
-    } catch (Exception e) {
-      throw new GitCoreException(e);
-    }
-
-    var list = new LinkedList<IGitCoreCommit>();
-
-    for (var c : walk) {
-      if (c.getId().getName().equals(upToCommit.getHash().getHashString())) {
-        break;
-      }
-
-      list.add(new GitCoreCommit(c));
-    }
-
-    return list;
+      return walk;
+    }).map(Iterator::ofAll)
+        .getOrElseThrow(e -> new GitCoreException(e))
+        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
+        .map(GitCoreCommit::new)
+        .collect(List.collector());
   }
 
   @Override
   public boolean hasJustBeenCreated() throws GitCoreException {
-    Collection<ReflogEntry> rf;
-    try {
-      rf = repo.getJgitGit().reflog().setRef(getFullName()).call();
-    } catch (GitAPIException e) {
-      throw new GitCoreException(e);
-    }
-
-    var rfit = rf.iterator();
-
-    if (!rfit.hasNext()) {
-      return true;
-    }
-
-    return rfit.next().getOldId().equals(ObjectId.zeroId());
+    return Try.of(() -> repo.getJgitGit().reflog().setRef(getFullName()).call())
+        .map(List::ofAll)
+        .getOrElseThrow(e -> new GitCoreException(e))
+        .map(entry -> entry.getOldId().equals(ObjectId.zeroId()))
+        .getOrElse(true);
   }
 }

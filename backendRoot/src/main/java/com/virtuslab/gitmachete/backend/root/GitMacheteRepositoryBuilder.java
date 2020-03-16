@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import lombok.AccessLevel;
@@ -65,9 +65,9 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
     gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
 
-    currentCoreBranch = Try.of(() -> Option.ofOptional(gitCoreRepository.getCurrentBranch()))
+    currentCoreBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
-        .getOrElse(() -> null);
+        .orElse(null);
 
     if (branchLayout == null) {
       Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
@@ -89,7 +89,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
     List<IGitMacheteSubmoduleEntry> macheteSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
         .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e))
-        .stream()
         .map(this::convertToGitMacheteSubmoduleEntry)
         .collect(Collectors.toList());
 
@@ -103,13 +102,13 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   private GitMacheteBranch createMacheteBranchOrThrowException(IBranchLayoutEntry branchEntry,
       IGitMacheteBranch upstreamBranch) throws GitMacheteException {
-    Option<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
+    Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
     if (coreBranch.isEmpty()) {
       throw new GitMacheteException(MessageFormat
           .format("Branch \"{0}\" defined in machete file does not exist in repository", branchEntry.getName()));
     }
 
-    String customAnnotation = branchEntry.getCustomAnnotation().getOrNull();
+    String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
     var branch = new GitMacheteBranch(coreBranch.get(), upstreamBranch, customAnnotation, gitCoreRepository);
 
     if (coreBranch.get().equals(currentCoreBranch)) {
@@ -135,7 +134,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   /**
    * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
    */
-  private Option<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
-    return Try.of(() -> Option.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(() -> Option.none());
+  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
+    return Try.of(() -> Optional.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(() -> Optional.empty());
   }
 }

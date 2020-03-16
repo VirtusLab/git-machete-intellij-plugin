@@ -1,10 +1,10 @@
 package com.virtuslab.branchlayout.impl;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 
 import lombok.Data;
 
@@ -17,7 +17,7 @@ public class BranchLayout implements IBranchLayout {
   private final List<IBranchLayoutEntry> rootBranches;
 
   @Override
-  public Option<IBranchLayoutEntry> findEntryByName(String branchName) {
+  public Optional<IBranchLayoutEntry> findEntryByName(String branchName) {
     return findEntryRecursively(getRootBranches(), e -> e.getName().equals(branchName));
   }
 
@@ -36,7 +36,7 @@ public class BranchLayout implements IBranchLayout {
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
   private IBranchLayout slideOut(IBranchLayoutEntry entryToSlideOut) {
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
-    assert upstreamEntryOption.isDefined();
+    assert upstreamEntryOption.isPresent();
     var upstream = upstreamEntryOption.get();
 
     var indexInUpstream = upstream.getSubbranches().indexOf(entryToSlideOut);
@@ -59,7 +59,7 @@ public class BranchLayout implements IBranchLayout {
       return new BranchLayout(rootBranches.replace(entry, newEntry));
     } else {
       var entryUpstreamOption = findUpstreamEntryForEntry(entry);
-      assert entryUpstreamOption.isDefined();
+      assert entryUpstreamOption.isPresent();
       var upstreamEntry = entryUpstreamOption.get();
 
       var updatedSubbranches = upstreamEntry.getSubbranches().replace(entry, newEntry);
@@ -72,29 +72,29 @@ public class BranchLayout implements IBranchLayout {
   /** @return a copy of the {@code entry} but with specified {@code subbranches} list */
   private IBranchLayoutEntry updateSubbranchesForEntry(IBranchLayoutEntry entry, List<IBranchLayoutEntry> subbranches) {
     var name = entry.getName();
-    var customAnnotation = entry.getCustomAnnotation().getOrNull();
+    var customAnnotation = entry.getCustomAnnotation().orElse(null);
     return new BranchLayoutEntry(name, customAnnotation, subbranches);
   }
 
-  private Option<IBranchLayoutEntry> findUpstreamEntryForEntry(IBranchLayoutEntry entry) {
+  private Optional<IBranchLayoutEntry> findUpstreamEntryForEntry(IBranchLayoutEntry entry) {
     return findEntryRecursively(rootBranches, e -> e.getSubbranches().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */
-  private static Option<IBranchLayoutEntry> findEntryRecursively(
+  private static Optional<IBranchLayoutEntry> findEntryRecursively(
       List<IBranchLayoutEntry> branches,
       Predicate<IBranchLayoutEntry> predicate) {
     for (var branch : branches) {
       if (predicate.test(branch)) {
-        return Option.of(branch);
+        return Optional.of(branch);
       }
 
       var result = findEntryRecursively(branch.getSubbranches(), predicate);
-      if (result.isDefined()) {
+      if (result.isPresent()) {
         return result;
       }
     }
 
-    return Option.none();
+    return Optional.empty();
   }
 }

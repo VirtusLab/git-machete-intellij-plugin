@@ -1,8 +1,9 @@
 package com.virtuslab.gitcore.api;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
+
+import io.vavr.collection.List;
 
 public interface IGitCoreRepository extends IAncestorityChecker {
   Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;

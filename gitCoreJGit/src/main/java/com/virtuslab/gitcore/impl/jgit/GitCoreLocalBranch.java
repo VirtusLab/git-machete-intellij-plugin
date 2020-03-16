@@ -1,9 +1,10 @@
 package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
+
+import io.vavr.collection.List;
+import io.vavr.control.Try;
 
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
@@ -85,47 +86,42 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       throw new GitCoreException(e);
     }
 
-    List<List<ReflogEntry>> reflogEntriesList = new LinkedList<>();
-
-    for (var branch : this.repo.getLocalBranches()) {
-      if (!branch.equals(this)) {
-        try {
-          reflogEntriesList.add(repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
-        } catch (Exception e) {
-          throw new GitCoreException(e);
-        }
-      }
-    }
+    List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
+        .map(b -> Try.of(() -> repo.getJgitRepo().getReflogReader(b.getFullName()).getReverseEntries()))
+        .map(Try::get) // throwable
+        .map(List::ofAll)
+        .collect(List.collector()))
+        .getOrElseThrow(e -> new GitCoreException(e));
 
     Optional<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
-    for (var branch : this.repo.getRemoteBranches()) {
-      if (remoteTrackingBranch.filter(branch::equals).isEmpty()) {
-        try {
-          reflogEntriesList.add(repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries());
-        } catch (Exception e) {
-          throw new GitCoreException(e);
-        }
-      }
-    }
+    List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
+        .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
+            .map(branch -> Try.of(() -> repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries()))
+            .map(Try::get) // throwable
+            .map(List::ofAll)
+            .collect(List.collector()))
+        .getOrElseThrow(e -> new GitCoreException(e));
+
+    List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
+        .appendAll(reflogEntryListsOfRemoteBranches);
 
     // Filter reflogs
     // Note: Machete CLI do this in a little different way: it exclude also all reflog entries that
     // have the same NewId as entries that starts with "branch: Reset to" or "reset: moving to"
     // See: https://github.com/VirtusLab/git-machete/pull/73
-    for (var entries : reflogEntriesList) {
-      var firstEntryNewID = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
-      entries.removeIf(e -> e.getNewId().equals(firstEntryNewID) || e.getNewId().equals(e.getOldId())
-          || e.getComment().startsWith("branch: Reset to ") || e.getComment().startsWith("reset: moving to "));
-    }
 
     for (var curBranchCommit : walk) {
-      for (var branchReflog : reflogEntriesList) {
-        for (var branchReflogEntry : branchReflog) {
-          if (curBranchCommit.getId().equals(branchReflogEntry.getNewId())) {
-            return Optional.of(new GitCoreCommit(curBranchCommit));
-          }
-        }
+      boolean defined = reflogEntryLists.map(entries -> {
+        var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
+        return entries.reject(e -> e.getNewId().equals(firstEntryNewId) || e.getNewId().equals(e.getOldId())
+            || e.getComment().startsWith("branch: Reset to ") || e.getComment().startsWith("reset: moving to "));
+      })
+          .flatMap(i -> i)
+          .filter(branchReflogEntry -> curBranchCommit.getId().equals(branchReflogEntry.getNewId()))
+          .headOption().isDefined();
+      if (defined) {
+        return Optional.of(new GitCoreCommit(curBranchCommit));
       }
     }
 

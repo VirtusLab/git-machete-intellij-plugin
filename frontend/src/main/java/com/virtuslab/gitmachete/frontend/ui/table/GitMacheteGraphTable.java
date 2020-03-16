@@ -106,8 +106,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         // com.intellij.openapi.editor.Editor
         Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
         Case($(DataKeyIDs.KEY_TABLE_MANAGER_STRING), tableManager),
-        Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), project),
-        Case($(CommonDataKeys.PROJECT.getName()), selectedBranchName),
+        Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
+        Case($(CommonDataKeys.PROJECT.getName()), project),
         Case($(), () -> null));
   }
 

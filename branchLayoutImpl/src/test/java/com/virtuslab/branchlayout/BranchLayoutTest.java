@@ -31,7 +31,7 @@ public class BranchLayoutTest {
   public void withBranchSlideOut_givenNonExistingBranch_throwsException() throws BranchLayoutException {
     // given
     var branchToSlideOutName = "branch";
-    var branchLayoutFile = new BranchLayout(List.of());
+    var branchLayoutFile = new BranchLayout(List.empty());
 
     // when
     branchLayoutFile.slideOut(branchToSlideOutName);

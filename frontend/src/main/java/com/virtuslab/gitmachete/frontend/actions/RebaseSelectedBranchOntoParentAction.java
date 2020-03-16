@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import git4idea.GitUtil;
@@ -56,7 +55,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       branchToRebase = branchToRebaseOptional.get();
     }
 
-    Option<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseParameters(branchToRebase);
+    Optional<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseParameters(branchToRebase);
 
     if (gitRebaseParameters.isEmpty()) {
       LOG.error("Unable to get rebase parameters");
@@ -82,14 +81,14 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
   }
 
   @Nonnull
-  private Option<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
+  private Optional<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
     if (gitMacheteCurrentBranch == null) {
-      return Option.none();
+      return Optional.empty();
     }
 
-    return Try.of(() -> Option.of(gitMacheteCurrentBranch.computeRebaseParameters()))
+    return Try.of(() -> Optional.of(gitMacheteCurrentBranch.computeRebaseParameters()))
         .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
-        .getOrElse(() -> Option.none());
+        .getOrElse(() -> Optional.empty());
   }
 
   protected GitRepository getRepository(Project project) {
