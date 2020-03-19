@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui.table;
 
-import javax.annotation.Nonnull;
 import javax.swing.table.AbstractTableModel;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +18,6 @@ public class GraphTableModel extends AbstractTableModel {
 
   @Getter
   @Setter
-  @Nonnull
   private RepositoryGraph repositoryGraph;
 
   @Override
@@ -32,7 +30,6 @@ public class GraphTableModel extends AbstractTableModel {
     return COLUMN_COUNT;
   }
 
-  @Nonnull
   @Override
   public final Object getValueAt(int rowIndex, int columnIndex) {
     switch (columnIndex) {

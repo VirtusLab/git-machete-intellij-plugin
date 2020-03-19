@@ -1,19 +1,23 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
+
 import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import io.vavr.control.Option;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
+import io.vavr.control.Try;
 
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -25,21 +29,19 @@ import com.intellij.openapi.project.Project;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
+import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
 
   @Override
-  public void update(@Nonnull AnActionEvent anActionEvent) {
+  public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
   @Override
-  public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
     assert project != null;
     GitRepository repository = getRepository(project);
@@ -81,7 +83,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
 
     new Task.Backgroundable(project, "Rebasing") {
       @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
+      public void run(ProgressIndicator indicator) {
         GitRebaseParams params = new GitRebaseParams(gitVersion, currentBranch, newBase, /* upstream */ forkPoint,
             /* interactive */ true, /* preserveMerges */ false);
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
@@ -92,7 +94,6 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     }.queue();
   }
 
-  @Nonnull
   private Optional<IGitRebaseParameters> computeGitRebaseParameters(IGitMacheteBranch gitMacheteCurrentBranch) {
     if (gitMacheteCurrentBranch == null) {
       return Optional.empty();

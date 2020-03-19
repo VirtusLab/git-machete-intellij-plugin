@@ -97,7 +97,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
 
       String commitHash = branch.getPointedCommit().getHash().getHashString();
       ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
-      assert objectId != null : "objectId i null";
+      assert objectId != null : "objectId is null";
       walk.markStart(walk.parseCommit(objectId));
     } catch (Exception e) {
       throw new GitCoreException(e);

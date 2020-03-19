@@ -4,9 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import javax.annotation.Nullable;
+
 import lombok.Getter;
 
 import com.intellij.util.SmartList;
@@ -23,18 +22,15 @@ import com.virtuslab.gitmachete.frontend.graph.facade.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 
 public class RepositoryGraph implements LinearGraph {
-  @Nonnull
   @Getter
   private static final RepositoryGraph nullRepositoryGraph = new RepositoryGraphBuilder()
       .repository(NullRepository.getInstance()).build();
 
-  @Nonnull
   private final List<IGraphElement> elements;
-  @Nonnull
   private final PrintElementGeneratorImpl printElementGenerator;
 
   @SuppressWarnings({"argument.type.incompatible", "assignment.type.incompatible"})
-  public RepositoryGraph(@Nonnull List<IGraphElement> elements) {
+  public RepositoryGraph(List<IGraphElement> elements) {
     this.elements = elements;
 
     GraphElementManager printElementManager = new GraphElementManager(/* repositoryGraph */ this);
@@ -55,7 +51,6 @@ public class RepositoryGraph implements LinearGraph {
     return elements.size();
   }
 
-  @Nonnull
   @Override
   public GraphNode getGraphNode(int nodeIndex) {
     return new GraphNode(nodeIndex);
@@ -76,9 +71,8 @@ public class RepositoryGraph implements LinearGraph {
     return null;
   }
 
-  @Nonnull
   @Override
-  public List<GraphEdge> getAdjacentEdges(int nodeIndex, @Nonnull EdgeFilter filter) {
+  public List<GraphEdge> getAdjacentEdges(int nodeIndex, EdgeFilter filter) {
     if (filter == EdgeFilter.SPECIAL) {
       return Collections.emptyList();
     }

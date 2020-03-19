@@ -11,8 +11,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.JTable;
 
 import lombok.AllArgsConstructor;
@@ -45,17 +43,16 @@ import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
 
-  @Nonnull
   private final MyComponent myComponent;
 
-  public BranchOrCommitCellRenderer(@Nonnull GitMacheteGraphTable table, @Nonnull GraphCellPainter painter) {
+  public BranchOrCommitCellRenderer(GitMacheteGraphTable table, GraphCellPainter painter) {
     myComponent = new MyComponent(table, painter);
   }
 
   @Override
   protected SimpleColoredComponent getTableCellRendererComponentImpl(
-      @Nonnull JTable table,
-      @Nonnull BranchOrCommitCell value,
+      JTable table,
+      BranchOrCommitCell value,
       boolean isSelected,
       boolean hasFocus,
       int row,
@@ -66,12 +63,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
   @RequiredArgsConstructor
   private static class MyComponent extends SimpleColoredRenderer {
-    @Nonnull
     private final GitMacheteGraphTable graphTable;
-    @Nonnull
     private final GraphCellPainter painter;
 
-    @Nonnull
     GraphImage graphImage = new GraphImage(ImageUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
 
     @Override
@@ -96,7 +90,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
     // For setBorder(null)
     @SuppressWarnings("argument.type.incompatible")
-    void customize(@Nonnull BranchOrCommitCell cell, boolean isSelected, boolean hasFocus, int row, int column) {
+    void customize(BranchOrCommitCell cell, boolean isSelected, boolean hasFocus, int row, int column) {
       clear();
       setPaintFocusBorder(false);
       acquireState(graphTable, isSelected, hasFocus, row, column);
@@ -154,8 +148,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       return width + LabelPainter.RIGHT_PADDING.get();
     }
 
-    @Nonnull
-    private GraphImage getGraphImage(@Nonnull Collection<? extends PrintElement> printElements) {
+    private GraphImage getGraphImage(Collection<? extends PrintElement> printElements) {
       double maxIndex = getMaxGraphElementIndex(printElements);
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           (int) (PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxIndex + 2)), graphTable.getRowHeight(),
@@ -167,7 +160,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       return new GraphImage(image, width);
     }
 
-    private double getMaxGraphElementIndex(@Nonnull Collection<? extends PrintElement> printElements) {
+    private double getMaxGraphElementIndex(Collection<? extends PrintElement> printElements) {
       double maxIndex = 0;
       for (PrintElement printElement : printElements) {
         maxIndex = Math.max(maxIndex, printElement.getPositionInCurrentRow());
@@ -190,7 +183,6 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
   @AllArgsConstructor
   @Getter
   private static class GraphImage {
-    @Nonnull
     private final Image image;
     private final int width;
   }

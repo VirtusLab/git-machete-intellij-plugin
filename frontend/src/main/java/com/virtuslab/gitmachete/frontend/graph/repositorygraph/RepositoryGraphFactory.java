@@ -3,15 +3,12 @@ package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
 import static com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphBuilder.DEFAULT_COMPUTE_COMMITS;
 import static com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphBuilder.EMPTY_COMPUTE_COMMITS;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-@SuppressWarnings("initialization.fields.uninitialized")
 public class RepositoryGraphFactory {
 
   @Getter
@@ -21,7 +18,6 @@ public class RepositoryGraphFactory {
   private RepositoryGraph repositoryGraphWithoutCommits;
   private IGitMacheteRepository repository;
 
-  @Nonnull
   public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository repository, boolean isListingCommits) {
     if (repository == null) {
       return nullRepositoryGraph;

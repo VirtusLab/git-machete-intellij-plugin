@@ -4,11 +4,8 @@ import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_REBASE;
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
 
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.Nonnull;
 
 import io.vavr.control.Try;
 
@@ -23,6 +20,7 @@ import com.intellij.testFramework.MapDataContext;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 
 public class RebaseCurrentBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
@@ -32,13 +30,13 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
   }
 
   @Override
-  public void update(@Nonnull AnActionEvent anActionEvent) {
+  public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
   @Override
-  public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     GitMacheteGraphTableManager tableManager = anActionEvent.getData(KEY_TABLE_MANAGER);
     assert tableManager != null : "Can't get table manager";
 

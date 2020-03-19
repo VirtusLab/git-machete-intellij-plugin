@@ -65,7 +65,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       @Assisted Path pathToRepoRoot) {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.pathToRepoRoot = pathToRepoRoot;
-    gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
   }
 
   public GitMacheteRepository build() throws GitMacheteException {

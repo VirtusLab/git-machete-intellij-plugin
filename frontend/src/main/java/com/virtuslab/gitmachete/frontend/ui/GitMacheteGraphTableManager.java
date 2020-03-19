@@ -4,14 +4,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
+import io.vavr.control.Try;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import io.vavr.control.Try;
+import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -29,25 +30,22 @@ import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GraphTableModel;
-import org.checkerframework.checker.initialization.qual.Initialized;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
   private final Project project;
+  @Getter
+  @Setter
   private boolean isListingCommits;
+  @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
-  @MonotonicNonNull
+  @Getter
   private IGitMacheteRepository repository;
   private final RepositoryGraphFactory repositoryGraphFactory;
 
   @SuppressWarnings("method.invocation.invalid")
-  public GitMacheteGraphTableManager(@Nonnull Project project) {
+  public GitMacheteGraphTableManager(Project project) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
@@ -93,7 +91,7 @@ public class GitMacheteGraphTableManager {
     if (project != null && !project.isDisposed()) {
       new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
         @Override
-        public void run(@Nonnull ProgressIndicator indicator) {
+        public void run(ProgressIndicator indicator) {
           updateRepository();
           refreshUI();
         }
@@ -105,23 +103,5 @@ public class GitMacheteGraphTableManager {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
     project.getMessageBus().connect().subscribe(topic, listener);
-  }
-
-
-  public boolean isListingCommits() {
-    return isListingCommits;
-  }
-
-  public void setListingCommits(boolean listingCommits) {
-    isListingCommits = listingCommits;
-  }
-
-  public GitMacheteGraphTable getGitMacheteGraphTable() {
-    return gitMacheteGraphTable;
-  }
-
-  @Nullable
-  public IGitMacheteRepository getRepository() {
-    return repository;
   }
 }

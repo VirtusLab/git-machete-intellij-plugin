@@ -10,9 +10,11 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
+
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -37,9 +39,6 @@ import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
-import org.checkerframework.dataflow.qual.SideEffectFree;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public class GitMacheteGraphTable extends JBTable implements DataProvider {
@@ -54,7 +53,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   @SuppressWarnings({"method.invocation.invalid", "argument.type.incompatible"})
   public GitMacheteGraphTable(
-      @Nonnull GraphTableModel graphTableModel,
+      GraphTableModel graphTableModel,
       Project project,
       @UnderInitialization GitMacheteGraphTableManager tableManager) {
     super(graphTableModel);
@@ -98,13 +97,14 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   }
 
   @Override
-  @Nonnull
   public GraphTableModel getModel() {
     return (GraphTableModel) super.getModel();
   }
 
+  @Nullable
   @Override
-  public Object getData(@Nonnull String dataId) {
+  @SuppressWarnings("return.type.incompatible")
+  public Object getData(String dataId) {
     return Match(dataId).of(
         Case($(CommonDataKeys.PROJECT.getName()), project),
         // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return class
@@ -112,7 +112,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
         Case($(DataKeyIDs.KEY_TABLE_MANAGER_STRING), tableManager),
         Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
-        Case($(CommonDataKeys.PROJECT.getName()), project));
+        Case($(CommonDataKeys.PROJECT.getName()), project),
+        Case($(), () -> null));
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
@@ -149,7 +150,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(graphTable));
+        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(),
+            DataManager.getInstance().getDataContext(graphTable));
         ActionManager.getInstance().getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }

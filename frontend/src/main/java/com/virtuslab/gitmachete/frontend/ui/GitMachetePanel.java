@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
-import javax.annotation.Nonnull;
-
 import lombok.Getter;
 
 import com.intellij.icons.AllIcons;
@@ -21,12 +19,11 @@ public class GitMachetePanel {
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
 
-  public GitMachetePanel(@Nonnull Project project) {
+  public GitMachetePanel(Project project) {
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }
 
-  @Nonnull
   public ActionToolbar createGitMacheteToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
@@ -54,7 +51,7 @@ public class GitMachetePanel {
     }
 
     @Override
-    public void actionPerformed(@Nonnull AnActionEvent e) {
+    public void actionPerformed(AnActionEvent e) {
       gitMacheteGraphTableManager.updateAndRefreshInBackground();
     }
   }
@@ -65,12 +62,12 @@ public class GitMachetePanel {
     }
 
     @Override
-    public boolean isSelected(@Nonnull AnActionEvent e) {
+    public boolean isSelected(AnActionEvent e) {
       return gitMacheteGraphTableManager.isListingCommits();
     }
 
     @Override
-    public void setSelected(@Nonnull AnActionEvent e, boolean state) {
+    public void setSelected(AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
       gitMacheteGraphTableManager.refreshUI();
     }

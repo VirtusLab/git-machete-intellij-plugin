@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
@@ -24,12 +22,12 @@ public class CheckOutBranchAction extends AnAction {
   public CheckOutBranchAction() {}
 
   @Override
-  public void update(@Nonnull AnActionEvent anActionEvent) {
+  public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
   }
 
   @Override
-  public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     String selectedBranchName = anActionEvent.getData(DataKeyIDs.KEY_SELECTED_BRANCH_NAME);
     if (selectedBranchName == null) {
       LOG.error("Branch to check out was not given");
@@ -42,7 +40,7 @@ public class CheckOutBranchAction extends AnAction {
 
     new Task.Backgroundable(project, "Checking out") {
       @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
+      public void run(ProgressIndicator indicator) {
         new GitBranchWorker(project, Git.getInstance(),
             new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
                 .checkout(selectedBranchName, /* detach */ false, List.of(repository));

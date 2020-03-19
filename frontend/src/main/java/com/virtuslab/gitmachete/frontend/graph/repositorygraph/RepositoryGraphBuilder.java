@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
+import io.vavr.control.Try;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import io.vavr.control.Try;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
@@ -29,17 +29,14 @@ import com.virtuslab.gitmachete.frontend.graph.model.CommitElement;
 import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.model.PhantomElement;
 import com.virtuslab.gitmachete.frontend.graph.model.SplittingElement;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {
   private static final Logger LOG = Logger.getInstance(RepositoryGraphBuilder.class);
 
-  @Nonnull
   @Setter
   private IGitMacheteRepository repository = NullRepository.getInstance();
 
-  @Nonnull
   @Setter
   private IBranchComputeCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
 
@@ -47,14 +44,13 @@ public class RepositoryGraphBuilder {
   public static final IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
 
   public RepositoryGraph build() {
-    List<IGraphElement> elementsOfRepository = Try.of(() -> computeGraphElements())
+    List<IGraphElement> elementsOfRepository = Try.of(this::computeGraphElements)
         .onFailure(e -> LOG.error("Unable to build elements of repository graph", e))
         .getOrElse(Collections::emptyList);
 
     return new RepositoryGraph(elementsOfRepository);
   }
 
-  @Nonnull
   private List<IGraphElement> computeGraphElements() throws GitMacheteException {
     List<IGraphElement> graphElements = new ArrayList<>();
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
@@ -177,7 +173,6 @@ public class RepositoryGraphBuilder {
    * @return {@link BranchElement} for given {@code branch} and {@code upstreamBranchIndex} and provide additional
    *         attributes if the branch is the current one.
    */
-  @Nonnull
   private BranchElement createBranchElementFor(
       IGitMacheteBranch branch,
       int upstreamBranchIndex,

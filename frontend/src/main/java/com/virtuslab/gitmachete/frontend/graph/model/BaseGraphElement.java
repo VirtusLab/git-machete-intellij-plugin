@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.graph.model;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
 import lombok.Data;
 
 import com.intellij.ui.SimpleTextAttributes;

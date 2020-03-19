@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.facade;
 
-import javax.annotation.Nonnull;
-
 import lombok.AllArgsConstructor;
 
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
@@ -15,10 +13,9 @@ import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
 
 @AllArgsConstructor
 public class ColorGetterByLayoutIndex {
-  @Nonnull
   private final RepositoryGraph repositoryGraph;
 
-  public int getColorId(@Nonnull GraphElement element) {
+  public int getColorId(GraphElement element) {
     int nodeIndex;
     if (element instanceof GraphNode) {
       nodeIndex = ((GraphNode) element).getNodeIndex();

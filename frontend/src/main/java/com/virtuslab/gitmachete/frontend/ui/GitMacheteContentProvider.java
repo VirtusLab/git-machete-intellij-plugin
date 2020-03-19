@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
-import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
@@ -20,7 +19,7 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
   private final Project project;
 
-  public GitMacheteContentProvider(@Nonnull Project project) {
+  public GitMacheteContentProvider(Project project) {
     this.project = project;
   }
 
@@ -44,7 +43,6 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   public void disposeContent() {}
 
   public static class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
-    @Nonnull
     @Override
     public Boolean fun(Project project) {
       return ProjectLevelVcsManager.getInstance(project).checkVcsIsActive(GitVcs.NAME);

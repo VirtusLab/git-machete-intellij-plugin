@@ -32,17 +32,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final Map<String, IGitMacheteBranch> branchByName;
 
   @Override
-  public Optional<@Nullable String> getRepositoryName() {
+  public Optional<String> getRepositoryName() {
     return Optional.ofNullable(repositoryName);
   }
 
   @Override
-  public Optional<@Nullable IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Optional.ofNullable(currentBranch);
   }
 
   @Override
-  public Optional<@Nullable IGitMacheteBranch> getBranchByName(String branchName) {
+  public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
     return Optional.ofNullable(branchByName.get(branchName));
   }
 }
