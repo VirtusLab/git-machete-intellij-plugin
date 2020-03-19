@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,7 +71,9 @@ public class Tests {
   }
 
   private void copyScriptFromResources(String scriptName) throws URISyntaxException, IOException {
-    Files.copy(Paths.get(getClass().getResource("/" + scriptName).toURI()), repositoryBuildingScript);
+    URL resourceUrl = getClass().getResource("/" + scriptName);
+    assert resourceUrl != null : "Can't get resource";
+    Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript);
   }
 
   private void prepareRepoFromScript() throws IOException, InterruptedException {
