@@ -1,11 +1,10 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
@@ -49,12 +48,8 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   @Override
   public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws GitCoreException {
-    BranchTrackingStatus ts;
-    try {
-      ts = BranchTrackingStatus.of(repo.getJgitRepo(), getName());
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
+    BranchTrackingStatus ts = Try.of(() -> BranchTrackingStatus.of(repo.getJgitRepo(), getName()))
+        .getOrElseThrow(e -> new GitCoreException(e));
 
     if (ts == null) {
       return Optional.empty();
@@ -106,20 +101,21 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
         .appendAll(reflogEntryListsOfRemoteBranches);
 
-    // Filter reflogs
-    // Note: Machete CLI do this in a little different way: it exclude also all reflog entries that
-    // have the same NewId as entries that starts with "branch: Reset to" or "reset: moving to"
-    // See: https://github.com/VirtusLab/git-machete/pull/73
-
     for (var curBranchCommit : walk) {
-      boolean defined = reflogEntryLists.map(entries -> {
-        var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
-        return entries.reject(e -> e.getNewId().equals(firstEntryNewId) || e.getNewId().equals(e.getOldId())
-            || e.getComment().startsWith("branch: Reset to ") || e.getComment().startsWith("reset: moving to "));
-      })
-          .flatMap(i -> i)
-          .filter(branchReflogEntry -> curBranchCommit.getId().equals(branchReflogEntry.getNewId()))
-          .headOption().isDefined();
+      List<ReflogEntry> reflogEntries = reflogEntryLists
+          .flatMap(entries -> {
+            var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
+
+            Predicate<ReflogEntry> entriesRejectingPredicate = e -> e.getNewId().equals(firstEntryNewId)
+                || e.getNewId().equals(e.getOldId())
+                || e.getComment().startsWith("branch: Reset to ")
+                || e.getComment().startsWith("reset: moving to ");
+
+            return entries.reject(entriesRejectingPredicate);
+          });
+
+      boolean defined = reflogEntries
+          .exists(branchReflogEntry -> curBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (defined) {
         return Optional.of(new GitCoreCommit(curBranchCommit));
       }

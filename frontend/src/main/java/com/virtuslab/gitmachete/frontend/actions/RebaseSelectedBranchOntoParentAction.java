@@ -6,13 +6,12 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import io.vavr.control.Try;
-
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Try;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

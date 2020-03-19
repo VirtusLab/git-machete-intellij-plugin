@@ -6,13 +6,12 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import io.vavr.control.Try;
-
 import lombok.Getter;
 import lombok.Setter;
 
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.control.Try;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;

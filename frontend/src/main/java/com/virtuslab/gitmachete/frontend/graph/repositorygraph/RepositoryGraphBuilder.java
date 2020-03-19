@@ -7,10 +7,10 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import io.vavr.control.Try;
-
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import io.vavr.control.Try;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;

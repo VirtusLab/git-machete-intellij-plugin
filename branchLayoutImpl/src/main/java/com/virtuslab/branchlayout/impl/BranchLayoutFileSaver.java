@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import io.vavr.collection.List;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import io.vavr.collection.List;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;

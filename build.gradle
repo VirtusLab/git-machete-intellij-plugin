@@ -3,7 +3,7 @@ plugins {
 
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'com.github.spotbugs' version '3.0.0' apply false
-  id 'io.freefair.lombok' version '5.0.0-rc6' apply false
+  id 'io.freefair.lombok' version '4.1.6' apply false
   id 'org.jetbrains.intellij' version '0.4.16' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
@@ -46,7 +46,7 @@ subprojects {
   apply plugin: 'com.diffplug.gradle.spotless'
   spotless {
     java {
-      importOrder 'java', 'javax', 'io.vavr', 'lombok', '', 'com', 'com.virtuslab'
+      importOrder 'java', 'javax', 'lombok', '', 'com', 'com.virtuslab'
       eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
       removeUnusedImports()
     }

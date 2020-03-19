@@ -4,9 +4,9 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import io.vavr.collection.List;
-
 import lombok.Data;
+
+import io.vavr.collection.List;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;

@@ -5,7 +5,6 @@ import static org.powermock.api.mockito.PowerMockito.doReturn;
 import java.nio.file.Path;
 
 import io.vavr.collection.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

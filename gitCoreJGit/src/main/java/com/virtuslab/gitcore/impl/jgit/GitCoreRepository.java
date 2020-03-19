@@ -9,12 +9,12 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.vavr.collection.List;
-import io.vavr.control.Try;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import io.vavr.collection.List;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -83,7 +83,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
 
     if (ref == null) {
-      throw new GitCoreException("Error occur while getting current branch ref");
+      throw new GitCoreException("Error occured while getting current branch ref");
     }
 
     if (ref.isSymbolic()) {
@@ -112,32 +112,28 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException {
-    return Try.of(() -> getJgitGit().branchList().call()
+    return Try.of(() -> getJgitGit().branchList().call())
+        .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .map(ref -> (IGitCoreLocalBranch) new GitCoreLocalBranch(/* repo */ this,
             ref.getName().replace(GitCoreLocalBranch.branchesPath, /* replacement */ "")))
-        .collect(List.collector()))
-        .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e));
+        .collect(List.collector());
   }
 
   @Override
   public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException {
-    return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
+    return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
+        .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .map(ref -> (IGitCoreRemoteBranch) new GitCoreRemoteBranch(/* repo */ this,
-            ref.getName().replace(GitCoreRemoteBranch.branchesPath, "")))
-        .collect(List.collector()))
-        .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e));
+            ref.getName().replace(GitCoreRemoteBranch.branchesPath, /* replacement */ "")))
+        .collect(List.collector());
   }
 
   @Override
   public List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException {
-    SubmoduleWalk sWalk;
-    try {
-      sWalk = SubmoduleWalk.forIndex(this.jgitRepo);
-    } catch (IOException e) {
-      throw new GitCoreException("Error while initializing submodule walk", e);
-    }
+    SubmoduleWalk sWalk = Try.of(() -> SubmoduleWalk.forIndex(this.jgitRepo))
+        .getOrElseThrow(e -> new GitCoreException("Error while initializing submodule walk", e));
 
     return Try.of(() -> {
 
@@ -151,9 +147,10 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchMissing(String path) throws GitCoreException {
-    return Try.of(() -> jgitRepo.resolve(path))
+    return Try.of(() -> Option.of(jgitRepo.resolve(path)))
+        .getOrElseThrow(e -> new GitCoreException(e))
         .map(Objects::isNull)
-        .getOrElseThrow(e -> new GitCoreException(e));
+        .get();
   }
 
   @Override

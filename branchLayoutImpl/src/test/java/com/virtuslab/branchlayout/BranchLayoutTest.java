@@ -3,7 +3,6 @@ package com.virtuslab.branchlayout;
 import static org.junit.Assert.assertEquals;
 
 import io.vavr.collection.List;
-
 import org.junit.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;

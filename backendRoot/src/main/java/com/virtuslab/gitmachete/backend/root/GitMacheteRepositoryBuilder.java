@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.vavr.control.Try;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import io.vavr.control.Try;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;

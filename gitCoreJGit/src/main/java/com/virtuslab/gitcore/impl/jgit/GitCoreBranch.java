@@ -2,21 +2,23 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import io.vavr.collection.Iterator;
-import io.vavr.collection.List;
-import io.vavr.control.Try;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import io.vavr.collection.Iterator;
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
+import io.vavr.control.Try;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -104,12 +106,9 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     return Iterator.ofAll(walk)
         .toStream()
         .map(RevCommit::getParents)
-        .map(List::of)
-        .flatMap(i -> i)
-        .peek(ancestorsOfStartCommits::add)
-        .filter(ancestorsOfStartCommits::contains)
-        .map(ref -> (IGitCoreCommit) new GitCoreCommit(ref))
-        .headOption()
+        .flatMap(Stream::of)
+        .find(e -> !ancestorsOfStartCommits.add(e))
+        .<IGitCoreCommit>map(GitCoreCommit::new)
         .toJavaOptional();
   }
 
@@ -119,11 +118,12 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();
 
-    return Try.of(() -> {
+    RevWalk revWalk = Try.of(() -> {
       walk.markStart(commit);
       return walk;
-    }).map(Iterator::ofAll)
-        .getOrElseThrow(e -> new GitCoreException(e))
+    }).getOrElseThrow(e -> new GitCoreException(e));
+
+    return Iterator.ofAll(revWalk)
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
         .map(GitCoreCommit::new)
         .collect(List.collector());
@@ -131,10 +131,15 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
 
   @Override
   public boolean hasJustBeenCreated() throws GitCoreException {
-    return Try.of(() -> repo.getJgitGit().reflog().setRef(getFullName()).call())
-        .map(List::ofAll)
-        .getOrElseThrow(e -> new GitCoreException(e))
-        .map(entry -> entry.getOldId().equals(ObjectId.zeroId()))
-        .getOrElse(true);
+    Collection<ReflogEntry> rf = Try.of(() -> repo.getJgitGit().reflog().setRef(getFullName()).call())
+        .getOrElseThrow(e -> new GitCoreException(e));
+
+    var rfit = rf.iterator();
+
+    if (!rfit.hasNext()) {
+      return true;
+    }
+
+    return rfit.next().getOldId().equals(ObjectId.zeroId());
   }
 }
