@@ -102,19 +102,19 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
         .appendAll(reflogEntryListsOfRemoteBranches);
 
     for (var curBranchCommit : walk) {
-      List<ReflogEntry> reflogEntries = reflogEntryLists
+      List<ReflogEntry> filteredReflogsEntries = reflogEntryLists
           .flatMap(entries -> {
             var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
 
-            Predicate<ReflogEntry> entriesRejectingPredicate = e -> e.getNewId().equals(firstEntryNewId)
+            Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(firstEntryNewId)
                 || e.getNewId().equals(e.getOldId())
                 || e.getComment().startsWith("branch: Reset to ")
                 || e.getComment().startsWith("reset: moving to ");
 
-            return entries.reject(entriesRejectingPredicate);
+            return entries.reject(isEntryExcluded);
           });
 
-      boolean defined = reflogEntries
+      boolean defined = filteredReflogsEntries
           .exists(branchReflogEntry -> curBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (defined) {
         return Optional.of(new GitCoreCommit(curBranchCommit));

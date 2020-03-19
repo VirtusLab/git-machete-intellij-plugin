@@ -1,5 +1,6 @@
 package com.virtuslab.gitcore.api;
 
+import java.util.HashSet;
 public class GitCoreNoSuchBranchException extends GitCoreException {
   public GitCoreNoSuchBranchException() {
     super();

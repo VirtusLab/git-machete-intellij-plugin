@@ -103,6 +103,8 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     }
 
     Set<ObjectId> ancestorsOfStartCommits = new HashSet<>();
+
+    // basically looking for a first repeated element in the list
     return Iterator.ofAll(walk)
         .toStream()
         .map(RevCommit::getParents)

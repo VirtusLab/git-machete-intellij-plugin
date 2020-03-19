@@ -6,7 +6,7 @@ java_collections_prohibiting_modules=('branchLayoutApi' 'gitCoreApi')
 
 for module in ${java_collections_prohibiting_modules[*]}
 do
-  result=$(git grep -nE 'java\.util\..*(List|Map|Set|Queue|Deque|Vector|Stack)' "$module/*.java")
+  result=$(git grep -nE 'java\.util\.[.a-zA-Z0-9]*(List|Map|Set|Queue|Deque|Vector|Stack)' "$module/*.java")
   result_count=$(echo "$result" | wc -l)
   if [[ $result ]]; then
     echo "$result_count prohibited java.util use(s) have been detected:"

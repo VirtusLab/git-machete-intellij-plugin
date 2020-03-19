@@ -83,7 +83,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
 
     if (ref == null) {
-      throw new GitCoreException("Error occured while getting current branch ref");
+      throw new GitCoreException("Error occurred while getting current branch ref");
     }
 
     if (ref.isSymbolic()) {
@@ -115,7 +115,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     return Try.of(() -> getJgitGit().branchList().call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
-        .map(ref -> (IGitCoreLocalBranch) new GitCoreLocalBranch(/* repo */ this,
+        .map(ref -> new GitCoreLocalBranch(/* repo */ this,
             ref.getName().replace(GitCoreLocalBranch.branchesPath, /* replacement */ "")))
         .collect(List.collector());
   }
@@ -125,7 +125,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
-        .map(ref -> (IGitCoreRemoteBranch) new GitCoreRemoteBranch(/* repo */ this,
+        .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
             ref.getName().replace(GitCoreRemoteBranch.branchesPath, /* replacement */ "")))
         .collect(List.collector());
   }
