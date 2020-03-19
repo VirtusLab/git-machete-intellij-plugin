@@ -101,23 +101,25 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
         .appendAll(reflogEntryListsOfRemoteBranches);
 
-    for (var curBranchCommit : walk) {
-      List<ReflogEntry> filteredReflogsEntries = reflogEntryLists
-          .flatMap(entries -> {
-            var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
+    List<ReflogEntry> filteredReflogEntries = reflogEntryLists
+        .flatMap(entries -> {
+          var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
 
-            Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(firstEntryNewId)
-                || e.getNewId().equals(e.getOldId())
-                || e.getComment().startsWith("branch: Reset to ")
-                || e.getComment().startsWith("reset: moving to ");
+          Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(firstEntryNewId)
+              || e.getNewId().equals(e.getOldId())
+              || e.getComment().startsWith("branch: Reset to ")
+              || e.getComment().startsWith("reset: moving to ");
 
-            return entries.reject(isEntryExcluded);
-          });
+          return entries.reject(isEntryExcluded);
+        });
 
-      boolean defined = filteredReflogsEntries
-          .exists(branchReflogEntry -> curBranchCommit.getId().equals(branchReflogEntry.getNewId()));
-      if (defined) {
-        return Optional.of(new GitCoreCommit(curBranchCommit));
+    for (var currentBranchCommit : walk) {
+      // Checked if the old ID is not zero to exclude the first entry in reflog (just after
+      // creating from other branch)
+      boolean currentBranchCommitInReflogs = filteredReflogEntries
+          .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
+      if (currentBranchCommitInReflogs) {
+        return Optional.of(new GitCoreCommit(currentBranchCommit));
       }
     }
 
