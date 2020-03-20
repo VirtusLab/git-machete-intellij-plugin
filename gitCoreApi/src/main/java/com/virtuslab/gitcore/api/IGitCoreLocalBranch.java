@@ -7,5 +7,5 @@ public interface IGitCoreLocalBranch extends IGitCoreBranch {
 
   Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch();
 
-  Optional<BaseGitCoreCommit> computeForkPoint() throws GitCoreException;
+  Optional<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException;
 }

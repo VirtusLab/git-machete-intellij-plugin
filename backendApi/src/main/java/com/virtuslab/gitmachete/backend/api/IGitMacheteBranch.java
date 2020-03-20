@@ -19,5 +19,5 @@ public interface IGitMacheteBranch {
 
   SyncToOriginStatus getSyncToOriginStatus();
 
-  Optional<IGitMacheteCommit> computeForkPoint() throws GitMacheteException;
+  Optional<IGitMacheteCommit> deriveForkPoint() throws GitMacheteException;
 }

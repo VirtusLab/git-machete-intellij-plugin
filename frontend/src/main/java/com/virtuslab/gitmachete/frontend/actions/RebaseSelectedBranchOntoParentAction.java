@@ -13,7 +13,6 @@ import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -98,11 +97,9 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       return Optional.empty();
     }
 
-    Option<IGitRebaseParameters> result = Try.of(() -> Optional.of(repository.computeRebaseOntoParentParameters(gitMacheteCurrentBranch)))
+    return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
         .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
-        .getOrElse(Option::none);
-
-    return Optional.ofNullable(result.get());
+        .getOrElse(() -> Optional.empty());
   }
 
   protected GitRepository getRepository(Project project) {

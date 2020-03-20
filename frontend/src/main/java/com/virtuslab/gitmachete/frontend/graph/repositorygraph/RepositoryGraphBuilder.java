@@ -7,10 +7,8 @@ import java.util.Optional;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
@@ -35,14 +33,13 @@ public class RepositoryGraphBuilder {
   private IGitMacheteRepository repository = NullRepository.getInstance();
 
   @Setter
-  private IBranchGetCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
+  private IBranchGetCommitsStrategy branchComputeCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static final IBranchGetCommitsStrategy DEFAULT_COMPUTE_COMMITS = IGitMacheteBranch::getCommits;
-  public static final IBranchGetCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> io.vavr.collection.List.empty();
+  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteBranch::getCommits;
+  public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = b -> io.vavr.collection.List.empty();
 
   public RepositoryGraph build() {
-    List<IGraphElement> elementsOfRepository = computeGraphElements();
-    return new RepositoryGraph(elementsOfRepository);
+    return new RepositoryGraph(computeGraphElements());
   }
 
   private List<IGraphElement> computeGraphElements() {
@@ -167,7 +164,7 @@ public class RepositoryGraphBuilder {
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      SyncToOriginStatus syncToOriginStatus) throws GitMacheteException {
+      SyncToOriginStatus syncToOriginStatus) {
 
     Optional<@Nullable IGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
 

@@ -1,9 +1,10 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import lombok.Data;
+
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
-public class GitCoreCommitHash extends GitCoreObjectHash implements IGitCoreCommitHash {
-  public GitCoreCommitHash(String hashString) {
-    super(hashString);
-  }
+@Data
+public class GitCoreCommitHash implements IGitCoreCommitHash {
+  private final String hashString;
 }

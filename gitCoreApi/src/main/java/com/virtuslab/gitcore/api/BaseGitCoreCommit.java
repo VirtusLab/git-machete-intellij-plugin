@@ -2,6 +2,8 @@ package com.virtuslab.gitcore.api;
 
 import java.util.Date;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public abstract class BaseGitCoreCommit {
   public abstract String getMessage();
 
@@ -13,7 +15,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract IGitCoreCommitHash getHash();
 
-  public final boolean equals(Object other) {
+  public final boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     } else if (!(other instanceof BaseGitCoreCommit)) {

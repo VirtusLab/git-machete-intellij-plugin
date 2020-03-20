@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import io.vavr.collection.List;
 
-public interface IGitCoreRepository extends IAncestorityChecker {
+public interface IGitCoreRepository {
   Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
 
   IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
@@ -21,4 +21,7 @@ public interface IGitCoreRepository extends IAncestorityChecker {
   Path getGitFolderPath();
 
   List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
+
+  boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
+      throws GitCoreException;
 }

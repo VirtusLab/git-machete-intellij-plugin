@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.api;
 
 import java.util.Optional;
 
+import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 
 public final class NullRepository implements IGitMacheteRepository {
@@ -39,17 +40,17 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> deriveUpstreamBranch(IGitMacheteBranch branch) {
+  public Optional<IGitMacheteBranch> deriveExistingUpstreamBranch(IGitMacheteBranch branch) {
     return Optional.empty();
   }
 
   @Override
-  public IGitRebaseParameters computeRebaseOntoParentParameters(IGitMacheteBranch branch) {
-    return null;
+  public IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) {
+    throw new NotImplementedError();
   }
 
   @Override
-  public IGitMergeParameters getMergeIntoParentParameters(IGitMacheteBranch upstreamBranch) {
-    return null;
+  public IGitMergeParameters deriveParametersForMergeIntoParent(IGitMacheteBranch upstreamBranch) {
+    throw new NotImplementedError();
   }
 }

@@ -28,7 +28,7 @@ public class BranchLayout implements IBranchLayout {
       throw new BranchLayoutException(MessageFormat.format("Branch entry \"{0}\" does not exist", branchName));
     }
     if (rootBranches.contains(entryOption.get())) {
-      throw new BranchLayoutException("Can not slide out root branch entry");
+      throw new BranchLayoutException("Cannot slide out root branch entry");
     }
     return slideOut(entryOption.get());
   }

@@ -11,18 +11,19 @@ import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 
-public class GitMacheteRepositoryBuilder_computeSyncToOriginStatusTest {
+public class GitMacheteRepositoryBuilder_deriveSyncToOriginStatusTest {
+
+  private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
 
   private SyncToOriginStatus invokeComputeSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryBuilder.class),
-        "computeSyncToOriginStatus",
+        "deriveSyncToOriginStatus",
         coreLocalBranch);
   }
 
   @Test
-  public void computeSyncToOriginStatus_Untracked() throws Exception {
+  public void deriveSyncToOriginStatus_Untracked() throws Exception {
     // given
-    IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(Optional.empty()).when(coreLocalBranch).computeRemoteTrackingStatus();
 
     // when
@@ -33,9 +34,8 @@ public class GitMacheteRepositoryBuilder_computeSyncToOriginStatusTest {
   }
 
   @Test
-  public void computeSyncToOriginStatus_Diverged() throws Exception {
+  public void deriveSyncToOriginStatus_Diverged() throws Exception {
     // given
-    IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(getTrackingStatusOptional(1, 1)).when(coreLocalBranch).computeRemoteTrackingStatus();
 
     // when
@@ -46,9 +46,8 @@ public class GitMacheteRepositoryBuilder_computeSyncToOriginStatusTest {
   }
 
   @Test
-  public void computeSyncToOriginStatus_Ahead() throws Exception {
+  public void deriveSyncToOriginStatus_Ahead() throws Exception {
     // given
-    IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(getTrackingStatusOptional(1, 0)).when(coreLocalBranch).computeRemoteTrackingStatus();
 
     // when
@@ -59,9 +58,8 @@ public class GitMacheteRepositoryBuilder_computeSyncToOriginStatusTest {
   }
 
   @Test
-  public void computeSyncToOriginStatus_Behind() throws Exception {
+  public void deriveSyncToOriginStatus_Behind() throws Exception {
     // given
-    IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(getTrackingStatusOptional(0, 1)).when(coreLocalBranch).computeRemoteTrackingStatus();
 
     // when
@@ -72,9 +70,8 @@ public class GitMacheteRepositoryBuilder_computeSyncToOriginStatusTest {
   }
 
   @Test
-  public void computeSyncToOriginStatus_InSync() throws Exception {
+  public void deriveSyncToOriginStatus_InSync() throws Exception {
     // given
-    IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(getTrackingStatusOptional(0, 0)).when(coreLocalBranch).computeRemoteTrackingStatus();
 
     // when

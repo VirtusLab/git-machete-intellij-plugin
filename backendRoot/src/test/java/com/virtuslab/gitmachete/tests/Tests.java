@@ -120,7 +120,7 @@ public class Tests {
       sb.append("  ");
       sb.append("| ".repeat(level - 1));
 
-      var upstreamBranch = gitMacheteRepository.deriveUpstreamBranch(branch);
+      var upstreamBranch = gitMacheteRepository.deriveExistingUpstreamBranch(branch);
       assert upstreamBranch.isPresent();
 
       var parentStatus = branch.getSyncToParentStatus();
@@ -142,7 +142,7 @@ public class Tests {
       sb.append(" *");
 
     var customAnnotation = branch.getCustomAnnotation();
-    if (branch.getCustomAnnotation().isPresent()) {
+    if (customAnnotation.isPresent()) {
       sb.append("  ");
       sb.append(customAnnotation.get());
     }

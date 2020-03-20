@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -172,17 +173,12 @@ public class GitCoreRepository implements IGitCoreRepository {
       ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHash().getHashString());
       assert ancestorObjectId != null : "Cannot find ancestor";
 
-      walk.markStart(walk.parseCommit(ancestorObjectId));
+      walk.markStart(walk.parseCommit(descendantObjectId));
 
-      for (var c : walk) {
-        if (c.getId().equals(descendantObjectId)) {
-          return true;
-        }
-      }
+      return Iterator.ofAll(walk).find(revCommit -> revCommit.getId().equals(ancestorObjectId)).isDefined();
+
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
-
-    return false;
   }
 }

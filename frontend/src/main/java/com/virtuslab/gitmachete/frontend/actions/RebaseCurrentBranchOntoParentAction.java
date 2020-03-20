@@ -7,8 +7,6 @@ import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MAN
 import java.util.Map;
 import java.util.Optional;
 
-import io.vavr.control.Try;
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;

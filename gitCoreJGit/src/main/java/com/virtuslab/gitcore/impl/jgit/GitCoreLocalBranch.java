@@ -72,7 +72,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<BaseGitCoreCommit> computeForkPoint() throws GitCoreException {
+  public Optional<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();

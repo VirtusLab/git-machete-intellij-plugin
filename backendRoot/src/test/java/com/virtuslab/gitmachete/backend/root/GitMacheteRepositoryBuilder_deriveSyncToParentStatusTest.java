@@ -21,7 +21,8 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
-public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
+@SuppressWarnings({"return.type.incompatible", "argument.type.incompatible"})
+public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
 
   private static final GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = PowerMockito
       .mock(GitMacheteRepositoryBuilder.class);
@@ -39,7 +40,7 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -50,11 +51,11 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     // given
     BaseGitCoreCommit pointedCommit = getCommit(null);
     IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit, /* forkPoint */null,
-        /* hasJustBeenCreated */true);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit, /* forkPoint */ null,
+        /* hasJustBeenCreated */ true);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -67,7 +68,7 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit);
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
@@ -82,7 +83,7 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -99,7 +100,7 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, forkPointCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
@@ -114,7 +115,7 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
@@ -130,21 +131,21 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeComputeSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
     // then
     Assert.assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
   }
 
   TestGitCoreCommit getCommit(BaseGitCoreCommit parentCommit) {
-    // assert parentCommit instanceof TestGitCoreCommit;
+    assert parentCommit == null || parentCommit instanceof TestGitCoreCommit;
     return new TestGitCoreCommit((TestGitCoreCommit) parentCommit);
   }
 
-  SyncToParentStatus invokeComputeSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
+  SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
       IGitCoreBranch parentCoreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
-        "computeSyncToParentStatus",
+        "deriveSyncToParentStatus",
         coreLocalBranch,
         parentCoreLocalBranch);
   }
@@ -164,16 +165,18 @@ public class GitMacheteRepositoryBuilder_computeSyncToParentStatusTest {
       throws GitCoreException {
     IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
-    PowerMockito.doReturn(Optional.ofNullable(forkPoint)).when(mock).computeForkPoint();
+    PowerMockito.doReturn(Optional.ofNullable(forkPoint)).when(mock).deriveForkPoint();
     PowerMockito.doReturn(hasJustBeenCreated).when(mock).hasJustBeenCreated();
     return mock;
   }
 }
 
+@SuppressWarnings({"override.return.invalid", "return.type.incompatible"})
 class TestGitCoreCommit extends BaseGitCoreCommit {
   private static int counter;
 
   private final int id;
+
   private final TestGitCoreCommit parentCommit;
 
   TestGitCoreCommit(TestGitCoreCommit parentCommit) {
@@ -184,6 +187,7 @@ class TestGitCoreCommit extends BaseGitCoreCommit {
   TestGitCoreCommit getParentCommit() {
     return parentCommit;
   }
+
   @Override
   public String getMessage() {
     return null;
@@ -210,6 +214,7 @@ class TestGitCoreCommit extends BaseGitCoreCommit {
   }
 }
 
+@SuppressWarnings({"override.return.invalid", "return.type.incompatible"})
 class TestGitCoreRepository implements IGitCoreRepository {
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant) {

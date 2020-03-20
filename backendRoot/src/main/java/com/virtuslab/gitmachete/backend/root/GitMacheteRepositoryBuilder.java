@@ -112,30 +112,32 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         branchByName);
   }
 
+  private List<IGitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
+    return List.ofAll(directDownstreamEntries)
+        .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
+        .peek(branch -> branchByName.put(branch.getName(), branch))
+        .collect(List.collector());
+  }
+
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {
     return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 
   private IGitMacheteBranch createMacheteBranch(IBranchLayoutEntry branchEntry,
-      List<IGitMacheteBranch> downstreamBranches) throws GitMacheteException {
-    Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
-    if (!coreBranch.isPresent()) {
-      throw new GitMacheteException(MessageFormat
-          .format("Branch \"{0}\" defined in machete file does not exist in repository", branchEntry.getName()));
-    }
-
+      List<IGitMacheteBranch> downstreamBranches) {
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
 
     GitMacheteBranchData gitMacheteBranchData = branchNameToGitMacheteBranchData.get(branchEntry.getName());
+    assert gitMacheteBranchData != null;
 
-    var branch = new GitMacheteBranch(coreBranch.get(), coreBranch.get().getName(), customAnnotation,
-        downstreamBranches,
+    var branch = new GitMacheteBranch(branchEntry.getName(), customAnnotation, downstreamBranches,
         gitMacheteBranchData.pointedCommit,
         gitMacheteBranchData.commits,
         gitMacheteBranchData.syncToOriginStatus,
-        gitMacheteBranchData.syncToParentStatus);
+        gitMacheteBranchData.syncToParentStatus,
+        gitMacheteBranchData.coreBranch);
 
-    if (coreBranch.get().equals(currentCoreBranch)) {
+    if (gitMacheteBranchData.coreBranch.equals(currentCoreBranch)) {
       currentBranch = branch;
     }
 
@@ -147,32 +149,34 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
    * Additionally some git machete branch data is collected and stored. Those operations are performed in advance to
    * simplify further process of a machete repository construction.
    */
-  private void verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(IGitCoreLocalBranch parentEntryCoreLocalBranch,
+  private void verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(
+      @Nullable IGitCoreLocalBranch parentEntryCoreLocalBranch,
       List<IBranchLayoutEntry> entries)
       throws GitMacheteException {
     for (var entry : entries) {
-      Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(entry.getName());
-      if (coreBranch.isEmpty()) {
+      Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(entry.getName());
+      if (!coreBranchOptional.isPresent()) {
         throw new GitMacheteException(MessageFormat
             .format("Branch \"{0}\" defined in machete file does not exist in repository", entry.getName()));
       } else {
+        IGitCoreLocalBranch coreLocalBranch = coreBranchOptional.get();
 
         try {
-          Optional<BaseGitCoreCommit> forkPoint = coreBranch.get().computeForkPoint();
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
 
           // translate IGitCoreCommit list to IGitMacheteCommit list
-          List<IGitMacheteCommit> commits = forkPoint.isEmpty()
+          List<IGitMacheteCommit> commits = !forkPoint.isPresent()
               ? List.empty()
-              : coreBranch.get().computeCommitsUntil(forkPoint.get())
+              : coreLocalBranch.computeCommitsUntil(forkPoint.get())
                   .map(GitMacheteCommit::new)
                   .collect(List.collector());
 
-          var pointedCommit = new GitMacheteCommit(coreBranch.get().getPointedCommit());
-          var syncToOriginStatus = computeSyncToOriginStatus(coreBranch.get());
-          var syncToParentStatus = computeSyncToParentStatus(coreBranch.get(), parentEntryCoreLocalBranch);
+          var pointedCommit = new GitMacheteCommit(coreLocalBranch.getPointedCommit());
+          var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
+          var syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentEntryCoreLocalBranch);
 
           var gitMacheteBranchData = GitMacheteBranchData.of(pointedCommit, commits, syncToOriginStatus,
-              syncToParentStatus);
+              syncToParentStatus, coreLocalBranch);
 
           branchNameToGitMacheteBranchData.put(entry.getName(), gitMacheteBranchData);
 
@@ -180,16 +184,15 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           throw new GitMacheteException(e);
         }
 
+        verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(coreLocalBranch, entry.getSubbranches());
       }
-
-      verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(coreBranch.get(), entry.getSubbranches());
     }
   }
 
-  private SyncToOriginStatus computeSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
+  private SyncToOriginStatus deriveSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     try {
       Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.computeRemoteTrackingStatus();
-      if (ts.isEmpty()) {
+      if (!ts.isPresent()) {
         return SyncToOriginStatus.Untracked;
       }
 
@@ -208,8 +211,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
   }
 
-  private SyncToParentStatus computeSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
-      IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
+  private SyncToParentStatus deriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
+      @Nullable IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
     try {
       if (parentCoreLocalBranch == null) {
         return SyncToParentStatus.InSync;
@@ -229,8 +232,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
-          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
-          if (forkPoint.isEmpty() || !forkPoint.get().equals(parentPointedCommit)) {
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
+          if (!forkPoint.isPresent() || !forkPoint.get().equals(parentPointedCommit)) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             return SyncToParentStatus.InSync;
@@ -252,13 +255,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
   }
 
-  private List<IGitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
-    return List.ofAll(directDownstreamEntries)
-        .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
-        .peek(branch -> branchByName.put(branch.getName(), branch))
-        .collect(List.collector());
-  }
-
   /**
    * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
    */
@@ -272,5 +268,6 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     final List<IGitMacheteCommit> commits;
     final SyncToOriginStatus syncToOriginStatus;
     final SyncToParentStatus syncToParentStatus;
+    final IGitCoreLocalBranch coreBranch;
   }
 }
