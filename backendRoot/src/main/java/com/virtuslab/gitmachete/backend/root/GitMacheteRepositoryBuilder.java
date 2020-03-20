@@ -14,10 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import io.vavr.control.Try;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;

@@ -83,7 +83,11 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     }
 
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
-        .map(b -> Try.of(() -> repo.getJgitRepo().getReflogReader(b.getFullName()).getReverseEntries()))
+        .map(b -> Try.of(() -> {
+          ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(b.getFullName());
+          assert reflogReader != null : "Error while getting reflog reader";
+          return reflogReader.getReverseEntries();
+        }))
         .map(Try::get) // throwable
         .map(List::ofAll)
         .collect(List.collector()))
@@ -93,7 +97,11 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
         .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
-            .map(branch -> Try.of(() -> repo.getJgitRepo().getReflogReader(branch.getFullName()).getReverseEntries()))
+            .map(branch -> Try.of(() -> {
+              ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
+              assert reflogReader != null : "Error while getting reflog reader";
+              return reflogReader.getReverseEntries();
+            }))
             .map(Try::get) // throwable
             .map(List::ofAll)
             .collect(List.collector()))

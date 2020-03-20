@@ -2,10 +2,9 @@ package com.virtuslab.branchlayout.impl;
 
 import java.util.Optional;
 
-import io.vavr.collection.List;
-
 import lombok.Data;
 
+import io.vavr.collection.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;

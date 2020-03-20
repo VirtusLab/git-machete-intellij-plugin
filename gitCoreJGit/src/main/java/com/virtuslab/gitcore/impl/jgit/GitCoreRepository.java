@@ -85,6 +85,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
+    @SuppressWarnings("return.type.incompatible")
     Ref ref = Try.of(() -> jgitRepo.getRefDatabase().findRef(Constants.HEAD))
         .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
 

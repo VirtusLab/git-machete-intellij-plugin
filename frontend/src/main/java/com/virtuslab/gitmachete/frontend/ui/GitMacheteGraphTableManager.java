@@ -4,13 +4,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import io.vavr.control.Try;
-
 import lombok.Getter;
 import lombok.Setter;
 
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.control.Try;
 import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.NonNull;
 

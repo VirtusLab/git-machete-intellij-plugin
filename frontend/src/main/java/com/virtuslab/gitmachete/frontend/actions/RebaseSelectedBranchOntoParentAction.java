@@ -4,20 +4,17 @@ import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
 
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
-import io.vavr.control.Option;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-
-import io.vavr.control.Try;
 
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
