@@ -4,9 +4,9 @@ plugins {
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'com.github.spotbugs' version '3.0.0' apply false
   id 'io.freefair.lombok' version '4.1.6' apply false
+  id 'org.checkerframework' version '0.4.13' apply false
   id 'org.jetbrains.intellij' version '0.4.16' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
-  id 'org.checkerframework' version '0.4.13' apply false
 }
 
 task resolveDependencies {
@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.31-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.32-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION

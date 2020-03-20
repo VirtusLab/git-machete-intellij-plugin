@@ -106,7 +106,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
             .collect(Collectors.toList()));
       }
 
-      append(""); // appendTextPadding wont work without this
+      append(""); // appendTextPadding won't work without this
 
       int width = calculateTextPadding(element);
       appendTextPadding(width);
