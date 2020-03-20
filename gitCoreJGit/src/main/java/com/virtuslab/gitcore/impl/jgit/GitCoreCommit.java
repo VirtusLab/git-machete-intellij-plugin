@@ -2,23 +2,21 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.util.Date;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.BaseGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
-public class GitCoreCommit implements IGitCoreCommit {
+public class GitCoreCommit extends BaseGitCoreCommit {
   private final RevCommit jgitCommit;
   private final String message;
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
   private final Date commitTime;
-  @EqualsAndHashCode.Include
-  private final GitCoreCommitHash hash;
+  private final IGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
     if (commit == null)

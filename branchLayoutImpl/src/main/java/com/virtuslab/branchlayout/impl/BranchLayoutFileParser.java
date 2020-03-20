@@ -29,8 +29,8 @@ public class BranchLayoutFileParser {
     deriveIndentCharacter(lines);
 
     if (!lines.isEmpty()) {
-      Array<Tuple2<Integer, Integer>> lineIndexToIdentLevelAndUpstreamLineIndex = parseToArrayRepresentation(lines);
-      roots = buildEntriesStructure(lines, lineIndexToIdentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
+      Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(lines);
+      roots = buildEntriesStructure(lines, lineIndexToIndentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
     }
 
     return new BranchLayout(roots);

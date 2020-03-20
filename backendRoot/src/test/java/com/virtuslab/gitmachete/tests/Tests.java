@@ -8,7 +8,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +16,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -53,7 +51,7 @@ public class Tests {
   }
 
   @Test
-  public void StatusTest() throws Exception {
+  public void statusTest() throws Exception {
     String myResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
 
@@ -103,67 +101,65 @@ public class Tests {
   }
 
   private void printBranch(IGitMacheteBranch branch, int level, StringBuilder sb) {
-    try {
-      sb.append("  ");
+    sb.append("  ");
 
-      if (level > 0) {
-        sb.append("| ".repeat(level));
+    if (level > 0) {
+      sb.append("| ".repeat(level));
 
-        sb.append(System.lineSeparator());
-
-        var commits = branch.computeCommits();
-        Collections.reverse(commits);
-
-        for (var c : commits) {
-          sb.append("  ");
-          sb.append("| ".repeat(level));
-          sb.append(c.getMessage().split("\n", 2)[0]);
-          sb.append(System.lineSeparator());
-        }
-
-        sb.append("  ");
-        sb.append("| ".repeat(level - 1));
-        var parentStatus = branch.computeSyncToParentStatus();
-        if (parentStatus == SyncToParentStatus.InSync)
-          sb.append("o");
-        else if (parentStatus == SyncToParentStatus.OutOfSync)
-          sb.append("x");
-        else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
-          sb.append("?");
-        else if (parentStatus == SyncToParentStatus.Merged)
-          sb.append("m");
-        sb.append("-");
-      }
-
-      sb.append(branch.getName());
-
-      var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
-      if (currBranch.isPresent() && currBranch.get().equals(branch))
-        sb.append(" *");
-
-      var customAnnotation = branch.getCustomAnnotation();
-      if (customAnnotation.isPresent()) {
-        sb.append("  ");
-        sb.append(customAnnotation.get());
-      }
-      var originSync = branch.computeSyncToOriginStatus();
-      if (originSync != SyncToOriginStatus.InSync) {
-        sb.append(" (");
-        if (originSync == SyncToOriginStatus.Ahead)
-          sb.append("ahead of origin");
-        if (originSync == SyncToOriginStatus.Behind)
-          sb.append("behind origin");
-        if (originSync == SyncToOriginStatus.Untracked)
-          sb.append("untracked");
-        if (originSync == SyncToOriginStatus.Diverged)
-          sb.append("diverged from origin");
-        sb.append(")");
-      }
       sb.append(System.lineSeparator());
-    } catch (GitMacheteException e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace(System.err);
+
+      var commits = branch.getCommits().reverse();
+
+      for (var c : commits) {
+        sb.append("  ");
+        sb.append("| ".repeat(level));
+        sb.append(c.getMessage().split("\n", 2)[0]);
+        sb.append(System.lineSeparator());
+      }
+
+      sb.append("  ");
+      sb.append("| ".repeat(level - 1));
+
+      var upstreamBranch = gitMacheteRepository.deriveUpstreamBranch(branch);
+      assert upstreamBranch.isPresent();
+
+      var parentStatus = branch.getSyncToParentStatus();
+      if (parentStatus == SyncToParentStatus.InSync)
+        sb.append("o");
+      else if (parentStatus == SyncToParentStatus.OutOfSync)
+        sb.append("x");
+      else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
+        sb.append("?");
+      else if (parentStatus == SyncToParentStatus.Merged)
+        sb.append("m");
+      sb.append("-");
     }
+
+    sb.append(branch.getName());
+
+    var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
+    if (currBranch.isPresent() && currBranch.get().equals(branch))
+      sb.append(" *");
+
+    var customAnnotation = branch.getCustomAnnotation();
+    if (branch.getCustomAnnotation().isPresent()) {
+      sb.append("  ");
+      sb.append(customAnnotation.get());
+    }
+    var originSync = branch.getSyncToOriginStatus();
+    if (originSync != SyncToOriginStatus.InSync) {
+      sb.append(" (");
+      if (originSync == SyncToOriginStatus.Ahead)
+        sb.append("ahead of origin");
+      if (originSync == SyncToOriginStatus.Behind)
+        sb.append("behind origin");
+      if (originSync == SyncToOriginStatus.Untracked)
+        sb.append("untracked");
+      if (originSync == SyncToOriginStatus.Diverged)
+        sb.append("diverged from origin");
+      sb.append(")");
+    }
+    sb.append(System.lineSeparator());
 
     for (var b : branch.getDownstreamBranches()) {
       printBranch(b, level + 1, sb);

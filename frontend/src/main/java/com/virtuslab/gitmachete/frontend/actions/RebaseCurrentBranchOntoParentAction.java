@@ -44,8 +44,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
     @SuppressWarnings("methodref.return.invalid")
-    Optional<IGitMacheteBranch> branchToRebase = Try.of(gitMacheteRepository::getCurrentBranchIfManaged)
-        .onFailure(e -> LOG.error("Exception occurred while getting current branch")).get();
+    Optional<IGitMacheteBranch> branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
 
     if (!branchToRebase.isPresent()) {
       LOG.error("There is no current branch managed by Git-Machete");

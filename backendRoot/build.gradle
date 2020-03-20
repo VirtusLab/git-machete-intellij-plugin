@@ -3,8 +3,9 @@ generateLombokConfig.enabled=false
 
 dependencies {
   guice()
-  junit()
   vavr()
+  junit()
+  powerMock()
 
   implementation project(':gitCoreJGit')
   implementation project(':branchLayoutImpl')

@@ -24,11 +24,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
-import com.virtuslab.gitcore.api.IGitCoreCommit;
 
 @Data
 public abstract class GitCoreBranch implements IGitCoreBranch {
@@ -79,7 +79,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
   }
 
   @Override
-  public Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
+  public Optional<BaseGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
 
     walk.sort(RevSort.TOPO, /* use */ true);
@@ -111,12 +111,12 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
         .map(RevCommit::getParents)
         .flatMap(Stream::of)
         .find(e -> !ancestorsOfStartCommits.add(e))
-        .<IGitCoreCommit>map(GitCoreCommit::new)
+        .<BaseGitCoreCommit>map(GitCoreCommit::new)
         .toJavaOptional();
   }
 
   @Override
-  public List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
+  public List<BaseGitCoreCommit> computeCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = computePointedRevCommit();

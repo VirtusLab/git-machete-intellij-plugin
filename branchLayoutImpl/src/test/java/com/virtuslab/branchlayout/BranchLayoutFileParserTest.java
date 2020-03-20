@@ -80,7 +80,7 @@ public class BranchLayoutFileParserTest {
   }
 
   @Test(expected = BranchLayoutException.class)
-  public void parse_givenFileWithIdentWidthNotAMultiplicityOfLevelWidth_throwsException() throws Exception {
+  public void parse_givenFileWithIndentWidthNotAMultiplicityOfLevelWidth_throwsException() throws Exception {
     // given
     List<String> linesToReturn = List.of("A", "   B", " C");
     BranchLayoutFileParser parser = getBranchLayoutFileParserForLines(linesToReturn);
@@ -92,7 +92,7 @@ public class BranchLayoutFileParserTest {
   }
 
   @Test(expected = BranchLayoutException.class)
-  public void parse_givenFileWithSubentryIdentGreaterThanOneToParent_throwsException() throws Exception {
+  public void parse_givenFileWithSubentryIndentGreaterThanOneToParent_throwsException() throws Exception {
     // given
     List<String> linesToReturn = List.of("A", "  B", "      C");
     BranchLayoutFileParser parser = getBranchLayoutFileParserForLines(linesToReturn);

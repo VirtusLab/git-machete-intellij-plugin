@@ -2,7 +2,7 @@
 
 set -u
 
-java_collections_prohibiting_modules=('branchLayoutApi' 'gitCoreApi')
+java_collections_prohibiting_modules=('branchLayoutApi' 'gitCoreApi' 'backendApi')
 
 for module in ${java_collections_prohibiting_modules[*]}
 do

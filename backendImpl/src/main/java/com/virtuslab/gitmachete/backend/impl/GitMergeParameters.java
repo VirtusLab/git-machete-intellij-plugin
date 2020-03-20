@@ -8,5 +8,5 @@ import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 @Data
 public class GitMergeParameters implements IGitMergeParameters {
   private final IGitMacheteBranch currentBranch;
-  private final IGitMacheteBranch upstreamBranch;
+  private final IGitMacheteBranch branchToMergeInto;
 }

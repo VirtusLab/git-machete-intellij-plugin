@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.33-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.34-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION

@@ -1,26 +1,23 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import java.util.List;
 import java.util.Optional;
+
+import io.vavr.collection.List;
 
 public interface IGitMacheteBranch {
   String getName();
 
-  List<IGitMacheteCommit> computeCommits() throws GitMacheteException;
+  List<IGitMacheteCommit> getCommits();
 
-  IGitMacheteCommit getPointedCommit() throws GitMacheteException;
+  IGitMacheteCommit getPointedCommit();
 
   List<IGitMacheteBranch> getDownstreamBranches();
 
   Optional<String> getCustomAnnotation();
 
-  Optional<IGitMacheteBranch> getUpstreamBranch();
+  SyncToParentStatus getSyncToParentStatus();
 
-  SyncToParentStatus computeSyncToParentStatus() throws GitMacheteException;
+  SyncToOriginStatus getSyncToOriginStatus();
 
-  SyncToOriginStatus computeSyncToOriginStatus() throws GitMacheteException;
-
-  IGitRebaseParameters computeRebaseParameters() throws GitMacheteException;
-
-  IGitMergeParameters getMergeParameters() throws GitMacheteException;
+  Optional<IGitMacheteCommit> computeForkPoint() throws GitMacheteException;
 }

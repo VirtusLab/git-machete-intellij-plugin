@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+import io.vavr.collection.List;
+
 public final class NullRepository implements IGitMacheteRepository {
-  private static NullRepository instance = new NullRepository();
+  private static final NullRepository instance = new NullRepository();
 
   private NullRepository() {}
 
@@ -15,7 +15,7 @@ public final class NullRepository implements IGitMacheteRepository {
 
   @Override
   public List<IGitMacheteBranch> getRootBranches() {
-    return Collections.emptyList();
+    return List.empty();
   }
 
   @Override
@@ -35,6 +35,21 @@ public final class NullRepository implements IGitMacheteRepository {
 
   @Override
   public List<IGitMacheteSubmoduleEntry> getSubmodules() {
-    return Collections.emptyList();
+    return List.empty();
+  }
+
+  @Override
+  public Optional<IGitMacheteBranch> deriveUpstreamBranch(IGitMacheteBranch branch) {
+    return Optional.empty();
+  }
+
+  @Override
+  public IGitRebaseParameters computeRebaseOntoParentParameters(IGitMacheteBranch branch) {
+    return null;
+  }
+
+  @Override
+  public IGitMergeParameters getMergeIntoParentParameters(IGitMacheteBranch upstreamBranch) {
+    return null;
   }
 }

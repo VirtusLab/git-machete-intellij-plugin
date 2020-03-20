@@ -5,7 +5,7 @@ import java.util.Optional;
 public interface IGitCoreLocalBranch extends IGitCoreBranch {
   Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws GitCoreException;
 
-  Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch() throws GitCoreException;
+  Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch();
 
-  Optional<IGitCoreCommit> computeForkPoint() throws GitCoreException;
+  Optional<BaseGitCoreCommit> computeForkPoint() throws GitCoreException;
 }

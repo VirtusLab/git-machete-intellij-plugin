@@ -29,10 +29,10 @@ import org.eclipse.jgit.submodule.SubmoduleWalk;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
-import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -161,15 +161,15 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public boolean isAncestor(IGitCoreCommitHash presumedAncestor, IGitCoreCommitHash presumedDescendant)
+  public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException {
     RevWalk walk = new RevWalk(jgitRepo);
     walk.sort(RevSort.TOPO);
     try {
-      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHashString());
+      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHash().getHashString());
       assert descendantObjectId != null : "Cannot find descendant";
 
-      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHashString());
+      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHash().getHashString());
       assert ancestorObjectId != null : "Cannot find ancestor";
 
       walk.markStart(walk.parseCommit(ancestorObjectId));

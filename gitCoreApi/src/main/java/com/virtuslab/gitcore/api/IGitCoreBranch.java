@@ -9,13 +9,13 @@ public interface IGitCoreBranch {
 
   String getFullName();
 
-  IGitCoreCommit getPointedCommit() throws GitCoreException;
+  BaseGitCoreCommit getPointedCommit() throws GitCoreException;
 
   boolean isLocal();
 
-  List<IGitCoreCommit> computeCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException;
+  List<BaseGitCoreCommit> computeCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException;
 
   boolean hasJustBeenCreated() throws GitCoreException;
 
-  Optional<IGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException;
+  Optional<BaseGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException;
 }

@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +13,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -37,28 +35,24 @@ public class RepositoryGraphBuilder {
   private IGitMacheteRepository repository = NullRepository.getInstance();
 
   @Setter
-  private IBranchComputeCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
+  private IBranchGetCommitsStrategy branchComputeCommitsStrategy = DEFAULT_COMPUTE_COMMITS;
 
-  public static final IBranchComputeCommitsStrategy DEFAULT_COMPUTE_COMMITS = IGitMacheteBranch::computeCommits;
-  public static final IBranchComputeCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> Collections.emptyList();
+  public static final IBranchGetCommitsStrategy DEFAULT_COMPUTE_COMMITS = IGitMacheteBranch::getCommits;
+  public static final IBranchGetCommitsStrategy EMPTY_COMPUTE_COMMITS = b -> io.vavr.collection.List.empty();
 
   public RepositoryGraph build() {
-    List<IGraphElement> elementsOfRepository = Try.of(this::computeGraphElements)
-        .onFailure(e -> LOG.error("Unable to build elements of repository graph", e))
-        .getOrElse(Collections::emptyList);
-
+    List<IGraphElement> elementsOfRepository = computeGraphElements();
     return new RepositoryGraph(elementsOfRepository);
   }
 
-  private List<IGraphElement> computeGraphElements() throws GitMacheteException {
+  private List<IGraphElement> computeGraphElements() {
     List<IGraphElement> graphElements = new ArrayList<>();
-    List<IGitMacheteBranch> rootBranches = repository.getRootBranches();
+    List<IGitMacheteBranch> rootBranches = repository.getRootBranches().asJava();
     for (IGitMacheteBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
-      // TODO (#97): set syncToParentStatus later (?)
-      SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
+      SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
       addCommitsWithBranch(graphElements, branch, /* upstreamBranchIndex */ -1, syncToParentStatus);
-      List<IGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches();
+      List<IGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches().asJava();
       addDownstreamCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
     }
     return graphElements;
@@ -75,12 +69,10 @@ public class RepositoryGraphBuilder {
   private void addDownstreamCommitsAndBranches(
       List<IGraphElement> graphElements,
       List<IGitMacheteBranch> downstreamBranches,
-      int branchIndex)
-      throws GitMacheteException {
+      int branchIndex) {
     int upElementIndex = branchIndex;
     for (IGitMacheteBranch branch : downstreamBranches) {
-      // TODO (#97): set syncToParentStatus later (?)
-      SyncToParentStatus syncToParentStatus = branch.computeSyncToParentStatus();
+      SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
       addSplittingGraphElement(graphElements, upElementIndex, syncToParentStatus);
 
       int splittingElementIndex = graphElements.size() - 1;
@@ -88,7 +80,7 @@ public class RepositoryGraphBuilder {
 
       upElementIndex = graphElements.size() - 2;
       int upstreamBranchIndex = graphElements.size() - 1;
-      List<IGitMacheteBranch> branches = branch.getDownstreamBranches();
+      List<IGitMacheteBranch> branches = branch.getDownstreamBranches().asJava();
       addDownstreamCommitsAndBranches(graphElements, /* downstream */ branches, upstreamBranchIndex);
     }
 
@@ -99,12 +91,11 @@ public class RepositoryGraphBuilder {
       List<IGraphElement> graphElements,
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
-      SyncToParentStatus syncToParentStatus)
-      throws GitMacheteException {
-    List<IGitMacheteCommit> commits = Lists.reverse(branchComputeCommitsStrategy.computeCommitsOf(branch));
+      SyncToParentStatus syncToParentStatus) {
+    List<IGitMacheteCommit> commits = branchComputeCommitsStrategy.getCommitsOf(branch).reverse().asJava();
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
-    SyncToOriginStatus syncToOriginStatus = branch.computeSyncToOriginStatus();
+    SyncToOriginStatus syncToOriginStatus = branch.getSyncToOriginStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
     boolean isFirstNodeInBranch = true;
