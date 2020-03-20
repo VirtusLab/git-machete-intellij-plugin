@@ -1,26 +1,17 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_GIT_MACHETE_REPOSITORY;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH_NAME;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
-import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -30,70 +21,45 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 /**
  * Expects DataKeys:
  * <ul>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>exactly one of:
- *    <ul>
- *      <li>{@link DataKeys#KEY_SELECTED_BRANCH}</li>
- *      <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
- *    </ul>
- *  </li>
+ *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  * </ul>
  */
-public class RebaseSelectedBranchOntoParentAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
+public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
 
   @Override
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    // TODO (#79): prohibit rebase during rebase/merge/revert etc.
+    Optional<BaseGitMacheteBranch> selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    if (selectedMacheteBranchOption.isPresent()) {
+      prohibitRootBranchRebase(anActionEvent);
+      if (presentation.isEnabledAndVisible()) {
+        updateIfVisibleDescription(selectedMacheteBranchOption.get(), presentation);
+      }
+    }
   }
 
   @Override
-  public void actionPerformed(AnActionEvent anActionEvent) {
+  public void actionPerformedAfterChecks(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
     assert project != null;
-    GitRepository repository = getRepository(project);
-    GitVersion gitVersion = repository.getVcs().getVersion();
 
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
-    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+    Optional<BaseGitMacheteBranch> selectedGitMacheteBranch = getSelectedMacheteBranch(anActionEvent);
+    assert selectedGitMacheteBranch.isPresent();
 
-    BaseGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
-    if (branchToRebase == null) {
-      String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
-      assert selectedBranchName != null : "Can't get selected branch";
-
-      Optional<BaseGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
-          .getBranchByName(selectedBranchName);
-      if (!branchToRebaseOptional.isPresent()) {
-        LOG.error("Can't get branch to rebase");
-        return;
-      }
-
-      branchToRebase = branchToRebaseOptional.get();
-    }
-
-    // TODO (#154): prohibit rebasing a root branch.
+    IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
+    // TODO prohibit rebasing a root branch.
     // The line below is completely unsafe (will throw if `branchToRebase` is a root).
-    Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(gitMacheteRepository,
-        branchToRebase.asNonRootBranch());
+    Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(macheteRepository,
+        selectedGitMacheteBranch.get().asNonRootBranch());
+    assert gitRebaseParameters.isPresent();
 
-    if (!gitRebaseParameters.isPresent()) {
-      LOG.error("Unable to get rebase parameters");
-      return;
-    }
-
-    IGitRebaseParameters parameters = gitRebaseParameters.get();
-    String currentBranch = parameters.getCurrentBranch().getName();
-    String newBase = parameters.getNewBaseCommit().getHash();
-    String forkPoint = parameters.getForkPointCommit().getHash();
+    GitRepository repository = getIdeaRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Rebasing") {
       @Override
       public void run(ProgressIndicator indicator) {
-        GitRebaseParams params = new GitRebaseParams(gitVersion, currentBranch, newBase, /* upstream */ forkPoint,
-            /* interactive */ true, /* preserveMerges */ false);
+        GitRebaseParams params = getIdeaRebaseParamsOf(anActionEvent, gitRebaseParameters.get());
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
 
@@ -102,22 +68,33 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     }.queue();
   }
 
-  private Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
-      BaseGitMacheteNonRootBranch gitMacheteCurrentBranch) {
-
-    return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
-        .onFailure(e -> LOG.error("Unable to derive rebase parameters", e))
-        .getOrElse(() -> Optional.empty());
+  private void updateIfVisibleDescription(BaseGitMacheteBranch branch, Presentation presentation) {
+    if (presentation.isVisible()) {
+      assert branch.getUpstreamBranch().isPresent();
+      @SuppressWarnings("method.invocation.invalid")
+      BaseGitMacheteBranch upstream = branch.getUpstreamBranch().get();
+      String description = String.format("Rebase \"%s\" onto \"%s\"", branch.getName(), upstream.getName());
+      presentation.setDescription(description);
+    }
   }
 
-  protected GitRepository getRepository(Project project) {
-    // TODO (#64): handle multiple repositories
-    Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
-    // The visibility predicate `GitMacheteContentProvider.GitMacheteVisibilityPredicate` performs
-    // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` which is true when the specified
-    // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
-    // tab is visible, a git repository exists.
-    assert iterator.hasNext();
-    return iterator.next();
+  private void prohibitRootBranchRebase(AnActionEvent anActionEvent) {
+    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+    Optional<BaseGitMacheteBranch> branchToRebase = getSelectedMacheteBranch(anActionEvent);
+
+    var presentation = anActionEvent.getPresentation();
+    if (presentation.isVisible() && branchToRebase.isPresent()) {
+      if (gitMacheteRepository.getRootBranches().contains(branchToRebase.get())) {
+        presentation.setEnabled(false);
+        presentation.setVisible(false);
+      }
+    }
+  }
+
+  private Optional<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
+    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
+    assert selectedBranchName != null : "Can't get selected branch";
+    return gitMacheteRepository.getBranchByName(selectedBranchName);
   }
 }

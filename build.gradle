@@ -126,12 +126,12 @@ subprojects {
 
 
   ext {
-    guiceVersion = '4.2.2'
+    guiceVersion = '4.2.3'
     intellijVersion = '2019.3'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
-    powerMockVersion = '2.0.5'
-    slf4jVersion = '1.7.25'
+    powerMockVersion = '2.0.6'
+    slf4jVersion = '1.7.30'
     vavrVersion = '0.10.2'
 
     // For frontend modules other than `frontendUi`, we only use the Intellij plugin to provide dependencies,

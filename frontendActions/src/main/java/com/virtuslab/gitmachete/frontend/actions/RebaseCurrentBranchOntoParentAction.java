@@ -1,68 +1,87 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_REBASE;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_GIT_MACHETE_REPOSITORY;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH;
-
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.testFramework.MapDataContext;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import git4idea.branch.GitRebaseParams;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
 /**
  * Expects DataKeys:
- * <ul>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- * </ul>
+ * none
  */
-public class RebaseCurrentBranchOntoParentAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
+public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
+  private static final String ACTION_TEXT = "Rebase Current Branch Onto Parent";
+  private static final String ACTION_DESCRIPTION = "Rebase current branch onto parent";
 
   public RebaseCurrentBranchOntoParentAction() {
-    super("Rebase Current Branch Onto Parent", "Rebase current branch onto parent", AllIcons.Actions.Menu_cut);
+    super(ACTION_TEXT, ACTION_DESCRIPTION, AllIcons.Actions.Menu_cut);
   }
 
   @Override
   public void update(AnActionEvent anActionEvent) {
+    anActionEvent.getPresentation().setDescription(ACTION_DESCRIPTION);
     super.update(anActionEvent);
-    // TODO (#79): prohibit rebase during rebase/merge/revert etc.
+    prohibitRebaseOfNonManagedOrRootBranch(anActionEvent);
   }
 
   @Override
-  public void actionPerformed(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
-    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+  public void actionPerformedAfterChecks(@Nonnull AnActionEvent anActionEvent) {
+    Optional<BaseGitMacheteBranch> branchToRebase = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
+    assert branchToRebase.isPresent();
 
-    Optional<BaseGitMacheteBranch> branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
+    Project project = anActionEvent.getProject();
+    assert project != null;
 
-    if (!branchToRebase.isPresent()) {
-      LOG.error("There is no current branch managed by Git-Machete");
-      return;
+    IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
+    Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(macheteRepository,
+        branchToRebase.get());
+    assert gitRebaseParameters.isPresent();
+
+    GitRepository repository = getIdeaRepository(anActionEvent);
+
+    new Task.Backgroundable(project, "Rebasing") {
+      @Override
+      public void run(@Nonnull ProgressIndicator indicator) {
+        GitRebaseParams params = getIdeaRebaseParamsOf(anActionEvent, gitRebaseParameters.get());
+        GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
+      }
+
+      // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential changes
+      // to commits (eg. commits may get squashed so the graph structure changes).
+    }.queue();
+  }
+
+  private void prohibitRebaseOfNonManagedOrRootBranch(AnActionEvent anActionEvent) {
+    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+
+    Presentation presentation = anActionEvent.getPresentation();
+    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
+
+    if (presentation.isEnabledAndVisible()) {
+      if (!currentBranchOption.isPresent()) {
+        presentation.setDescription("Current branch is not managed by Git Machete");
+        presentation.setEnabled(false);
+
+      } else if (gitMacheteRepository.getRootBranches().contains(currentBranchOption.get())) {
+        String description = String.format("Can't rebase git machete root branch \"%s\"",
+            currentBranchOption.get().getName());
+        presentation.setDescription(description);
+        presentation.setEnabled(false);
+      }
     }
-
-    DataContext originalDataContext = anActionEvent.getDataContext();
-
-    MapDataContext dataContext = new MapDataContext(
-        Map.of(
-            CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT),
-            KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository,
-            KEY_SELECTED_BRANCH, branchToRebase.get()));
-
-    AnActionEvent actionEvent = new AnActionEvent(anActionEvent.getInputEvent(), dataContext, anActionEvent.getPlace(),
-        anActionEvent.getPresentation(), anActionEvent.getActionManager(), anActionEvent.getModifiers());
-    // Effectively delegating the action to RebaseSelectedBranchOntoParentAction (see the action id -> action class
-    // binding in plugin.xml).
-    ActionManager.getInstance().getAction(ACTION_REBASE).actionPerformed(actionEvent);
   }
 }

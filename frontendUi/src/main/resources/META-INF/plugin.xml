@@ -29,7 +29,7 @@
 
         <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
                 class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction"
-                text="_Rebase Branch"
+                text="_Rebase Branch Onto Parent"
                 description="Rebase selected branch onto parent" />
 
         <group id="GitMachete.ContextMenu">
