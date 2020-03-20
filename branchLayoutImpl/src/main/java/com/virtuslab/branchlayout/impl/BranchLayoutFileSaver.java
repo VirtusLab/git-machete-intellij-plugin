@@ -32,6 +32,7 @@ public class BranchLayoutFileSaver {
     Files.write(path, lines);
   }
 
+  @SuppressWarnings("prefer.ifpresent")
   private List<String> printBranchesOntoStringList(List<IBranchLayoutEntry> branches, int level) {
     List<String> stringList = List.empty();
     for (var branch : branches) {

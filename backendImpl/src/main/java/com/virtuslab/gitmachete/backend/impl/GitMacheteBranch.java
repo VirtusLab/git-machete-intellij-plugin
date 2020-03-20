@@ -57,7 +57,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
     try {
       Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
-      if (forkPoint.isEmpty()) {
+      if (!forkPoint.isPresent()) {
         return Collections.emptyList();
       }
 
@@ -86,16 +86,17 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   public SyncToOriginStatus computeSyncToOriginStatus() throws GitMacheteException {
     try {
-      Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.computeRemoteTrackingStatus();
-      if (ts.isEmpty()) {
+      Optional<IGitCoreBranchTrackingStatus> tsOption = coreLocalBranch.computeRemoteTrackingStatus();
+      if (!tsOption.isPresent()) {
         return SyncToOriginStatus.Untracked;
       }
 
-      if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) {
+      var ts = tsOption.get();
+      if (ts.getAhead() > 0 && ts.getBehind() > 0) {
         return SyncToOriginStatus.Diverged;
-      } else if (ts.get().getAhead() > 0) {
+      } else if (ts.getAhead() > 0) {
         return SyncToOriginStatus.Ahead;
-      } else if (ts.get().getBehind() > 0) {
+      } else if (ts.getBehind() > 0) {
         return SyncToOriginStatus.Behind;
       } else {
         return SyncToOriginStatus.InSync;
@@ -109,17 +110,18 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   @Override
   public IGitRebaseParameters computeRebaseParameters() throws GitMacheteException {
     try {
-      if (getUpstreamBranch().isEmpty()) {
+      var upstreamBranch = getUpstreamBranch();
+      if (!upstreamBranch.isPresent()) {
         throw new GitMacheteException(
-            MessageFormat.format("Can not get rebase parameters for root branch \"{0}\"", getName()));
+            MessageFormat.format("Cannot get rebase parameters for root branch \"{0}\"", getName()));
       }
 
       var forkPoint = coreLocalBranch.computeForkPoint();
-      if (forkPoint.isEmpty()) {
-        throw new GitMacheteException(MessageFormat.format("Can not find fork point for branch \"{0}\"", getName()));
+      if (!forkPoint.isPresent()) {
+        throw new GitMacheteException(MessageFormat.format("Cannot find fork point for branch \"{0}\"", getName()));
       }
 
-      return new GitRebaseParameters(/* currentBranch */ this, getUpstreamBranch().get().getPointedCommit(),
+      return new GitRebaseParameters(/* currentBranch */ this, upstreamBranch.get().getPointedCommit(),
           new GitMacheteCommit(forkPoint.get()));
 
     } catch (GitCoreException e) {
@@ -148,7 +150,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
         if (isParentAncestorOfChild) {
           Optional<IGitCoreCommit> forkPoint = coreLocalBranch.computeForkPoint();
-          if (forkPoint.isEmpty()
+          if (!forkPoint.isPresent()
               || !forkPoint.get().getHash().getHashString().equals(upstreamBranchPointedCommitHash.getHashString())) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
@@ -173,11 +175,12 @@ public class GitMacheteBranch implements IGitMacheteBranch {
 
   @Override
   public IGitMergeParameters getMergeParameters() throws GitMacheteException {
-    if (getUpstreamBranch().isEmpty()) {
+    var upstreamBranch = getUpstreamBranch();
+    if (!upstreamBranch.isPresent()) {
       throw new GitMacheteException(
-          MessageFormat.format("Can not get merge parameters for root branch \"{0}\"", getName()));
+          MessageFormat.format("Cannot get merge parameters for root branch \"{0}\"", getName()));
     }
 
-    return new GitMergeParameters(/* currentBranch */ this, getUpstreamBranch().get());
+    return new GitMergeParameters(/* currentBranch */ this, upstreamBranch.get());
   }
 }

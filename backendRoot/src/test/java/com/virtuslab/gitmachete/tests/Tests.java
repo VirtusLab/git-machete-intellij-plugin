@@ -141,9 +141,10 @@ public class Tests {
       if (currBranch.isPresent() && currBranch.get().equals(branch))
         sb.append(" *");
 
-      if (branch.getCustomAnnotation().isPresent()) {
+      var customAnnotation = branch.getCustomAnnotation();
+      if (customAnnotation.isPresent()) {
         sb.append("  ");
-        sb.append(branch.getCustomAnnotation().get());
+        sb.append(customAnnotation.get());
       }
       var originSync = branch.computeSyncToOriginStatus();
       if (originSync != SyncToOriginStatus.InSync) {

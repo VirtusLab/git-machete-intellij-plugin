@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.32-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.33-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
@@ -47,7 +47,8 @@ subprojects {
   apply plugin: 'org.checkerframework'
   checkerFramework {
     checkers = [
-            'org.checkerframework.checker.nullness.NullnessChecker'
+            'org.checkerframework.checker.nullness.NullnessChecker',
+            'org.checkerframework.checker.optional.OptionalChecker'
     ]
     extraJavacArgs = [
             '-AassumeAssertionsAreEnabled',

@@ -118,10 +118,10 @@ public class RepositoryGraphBuilder {
     }
 
     int lastElementIndex = graphElements.size() - 1;
-    /**
-     * If a branch has no commits (due to commits getting strategy or because its a root branch) its
-     * {@code upElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code upElementIndex} is an index
-     * of most recently added element (its last commit).
+    /*
+     * If a branch has no commits (due to commits getting strategy or because it's a root branch) its {@code
+     * upElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code upElementIndex} is an index of most
+     * recently added element (its last commit).
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 

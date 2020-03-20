@@ -58,7 +58,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       @SuppressWarnings("assignment.type.incompatible")
       Optional<IGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
           .getBranchByName(selectedBranchName);
-      if (branchToRebaseOptional.isEmpty()) {
+      if (!branchToRebaseOptional.isPresent()) {
         LOG.error("Can't get branch to rebase");
         return;
       }
@@ -68,7 +68,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
 
     Optional<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseParameters(branchToRebase);
 
-    if (gitRebaseParameters.isEmpty()) {
+    if (!gitRebaseParameters.isPresent()) {
       LOG.error("Unable to get rebase parameters");
       return;
     }

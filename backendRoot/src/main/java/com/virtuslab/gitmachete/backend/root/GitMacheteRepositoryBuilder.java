@@ -78,12 +78,15 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     if (branchLayout == null) {
       Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
       branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
-          .getOrElseThrow(e -> new MacheteFileParseException(((BranchLayoutException) e).getErrorLine().isEmpty()
-              ? MessageFormat.format("Error occurred while parsing machete file: {0}",
-                  pathToBranchLayoutFile.toString())
-              : MessageFormat.format("Error occurred while parsing machete file on line {0}: {1}",
-                  ((BranchLayoutException) e).getErrorLine().get(), pathToBranchLayoutFile.toString()),
-              e));
+          .getOrElseThrow(e -> {
+            var errorLine = ((BranchLayoutException) e).getErrorLine();
+            return new MacheteFileParseException(errorLine.isPresent()
+                ? MessageFormat.format("Error occurred while parsing machete file {0} in line {1}",
+                    pathToBranchLayoutFile.toString(), errorLine.get())
+                : MessageFormat.format("Error occurred while parsing machete file {0}",
+                    pathToBranchLayoutFile.toString()),
+                e);
+          });
     }
 
     for (var entry : branchLayout.getRootBranches()) {
@@ -109,7 +112,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private GitMacheteBranch createMacheteBranchOrThrowException(IBranchLayoutEntry branchEntry,
       @Nullable IGitMacheteBranch upstreamBranch) throws GitMacheteException {
     Optional<IGitCoreLocalBranch> coreBranch = getCoreBranchFromName(branchEntry.getName());
-    if (coreBranch.isEmpty()) {
+    if (!coreBranch.isPresent()) {
       throw new GitMacheteException(MessageFormat
           .format("Branch \"{0}\" defined in machete file does not exist in repository", branchEntry.getName()));
     }
