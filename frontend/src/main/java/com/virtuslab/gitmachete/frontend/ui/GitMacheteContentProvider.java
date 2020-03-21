@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.frontend.ui;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
-import git4idea.GitVcs;
-
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -12,6 +10,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.NotNullFunction;
+import git4idea.GitVcs;
 
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 

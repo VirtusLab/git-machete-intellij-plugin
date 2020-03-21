@@ -6,10 +6,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
+import io.vavr.collection.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import io.vavr.collection.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;

@@ -13,9 +13,6 @@ import java.awt.event.MouseEvent;
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
 
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
-
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -32,6 +29,8 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 import com.virtuslab.gitmachete.frontend.actions.DataKeyIDs;
 import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColorToJBColorMapper;

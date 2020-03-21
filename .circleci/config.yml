@@ -26,7 +26,8 @@ jobs:
           command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
-          command: ./gradlew compileJava
+          # TODO (#136): investigate why some builds fail here (likely OOM)
+          command: ./gradlew --stacktrace --max-workers=2 compileJava
       - run:
           name: Check Javadoc correctness
           command: ./gradlew javadoc

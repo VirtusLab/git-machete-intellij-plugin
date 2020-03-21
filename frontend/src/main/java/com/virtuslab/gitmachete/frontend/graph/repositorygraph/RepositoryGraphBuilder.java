@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;

@@ -4,10 +4,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import lombok.Data;
-
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
+import lombok.Data;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
 

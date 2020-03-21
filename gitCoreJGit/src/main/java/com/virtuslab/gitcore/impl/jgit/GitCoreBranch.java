@@ -7,13 +7,12 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;

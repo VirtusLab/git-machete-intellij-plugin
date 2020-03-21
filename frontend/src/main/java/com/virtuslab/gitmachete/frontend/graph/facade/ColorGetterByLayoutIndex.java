@@ -1,12 +1,11 @@
 package com.virtuslab.gitmachete.frontend.graph.facade;
 
-import lombok.AllArgsConstructor;
-
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.utils.LinearGraphUtils;
 import com.intellij.vcs.log.graph.utils.NormalEdge;
+import lombok.AllArgsConstructor;
 
 import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;

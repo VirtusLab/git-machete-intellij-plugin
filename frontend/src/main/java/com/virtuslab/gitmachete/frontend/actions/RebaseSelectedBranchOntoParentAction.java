@@ -8,19 +8,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import git4idea.GitUtil;
-import git4idea.branch.GitRebaseParams;
-import git4idea.config.GitVersion;
-import git4idea.rebase.GitRebaseUtils;
-import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
-
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import git4idea.GitUtil;
+import git4idea.branch.GitRebaseParams;
+import git4idea.config.GitVersion;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
+import io.vavr.control.Try;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;

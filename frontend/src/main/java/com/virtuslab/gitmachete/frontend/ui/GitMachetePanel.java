@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
-import lombok.Getter;
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -11,6 +9,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
 

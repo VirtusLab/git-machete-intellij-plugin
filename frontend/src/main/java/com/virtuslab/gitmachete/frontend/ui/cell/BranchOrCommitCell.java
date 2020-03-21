@@ -2,9 +2,8 @@ package com.virtuslab.gitmachete.frontend.ui.cell;
 
 import java.util.Collection;
 
-import lombok.Data;
-
 import com.intellij.vcs.log.graph.PrintElement;
+import lombok.Data;
 
 import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
 

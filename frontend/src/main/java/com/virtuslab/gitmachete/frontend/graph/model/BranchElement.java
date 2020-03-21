@@ -2,11 +2,10 @@ package com.virtuslab.gitmachete.frontend.graph.model;
 
 import java.awt.Color;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;

@@ -2,10 +2,9 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.util.Optional;
 
-import lombok.Data;
-
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import lombok.Data;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;

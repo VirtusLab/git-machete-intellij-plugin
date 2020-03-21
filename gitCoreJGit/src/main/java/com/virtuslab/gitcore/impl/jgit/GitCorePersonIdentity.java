@@ -2,7 +2,6 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
 import org.eclipse.jgit.lib.PersonIdent;
 
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;

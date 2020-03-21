@@ -2,12 +2,11 @@ package com.virtuslab.gitmachete.frontend.graph.facade;
 
 import java.util.Comparator;
 
-import lombok.Getter;
-
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.api.printer.PrintElementManager;
 import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex;
 import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
+import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
 

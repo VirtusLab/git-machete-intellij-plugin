@@ -7,19 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import io.vavr.collection.List;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import io.vavr.collection.List;
-import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;

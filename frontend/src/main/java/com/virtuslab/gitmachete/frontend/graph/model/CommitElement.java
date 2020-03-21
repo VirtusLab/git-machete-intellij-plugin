@@ -1,10 +1,9 @@
 package com.virtuslab.gitmachete.frontend.graph.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;

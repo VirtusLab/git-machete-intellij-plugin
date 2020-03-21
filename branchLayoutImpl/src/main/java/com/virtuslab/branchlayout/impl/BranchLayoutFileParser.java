@@ -4,13 +4,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;

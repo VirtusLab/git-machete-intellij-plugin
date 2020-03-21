@@ -9,13 +9,14 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -26,9 +27,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;

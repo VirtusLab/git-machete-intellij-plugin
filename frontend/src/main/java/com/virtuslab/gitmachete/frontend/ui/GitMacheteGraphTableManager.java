@@ -4,15 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryChangeListener;
-import io.vavr.control.Try;
-import org.checkerframework.checker.initialization.qual.Initialized;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
@@ -21,6 +12,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.control.Try;
+import lombok.Getter;
+import lombok.Setter;
+import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
