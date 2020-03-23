@@ -9,8 +9,8 @@ if [ $# -eq 3 ]; then
   fork_point=$2
   current_branch=$3
 
-  parse_version "$new_base" base
-  parse_version "$current_branch" head
+  parse_version_from_git_revision "$new_base" base
+  parse_version_from_git_revision "$current_branch" head
 
   if [[ $head_patch -ne 0 ]]; then
     target_version="$base_major.$base_minor.$((base_patch + 1))"

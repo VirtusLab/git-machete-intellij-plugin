@@ -34,8 +34,12 @@ jobs:
       - run:
           name: Run static code analyzer
           command: ./gradlew spotbugsMain
+
       - run:
-          name: Compile & run tests
+          name: Compile tests
+          command: ./gradlew compileTestJava
+      - run:
+          name: Run tests
           command: ./gradlew test
       - store_test_results:
           path: backendRoot/build/test-results/
@@ -43,6 +47,15 @@ jobs:
       - run:
           name: Build plugin artifact
           command: ./gradlew buildPlugin
+      - run:
+          name: Verify binary compatibility with supported IntelliJ versions
+          command: |
+            if [[ $CIRCLE_BRANCH == master ]]; then
+              apt-get update && apt-get install -y curl
+              ./scripts/enforce-binary-compatibility
+            else
+              echo Skipping, not a master build
+            fi
       - store_artifacts:
           path: ~/git-machete-intellij-plugin/frontend/build/distributions/
           destination: .

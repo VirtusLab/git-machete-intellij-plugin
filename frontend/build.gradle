@@ -18,10 +18,12 @@ intellij {
 }
 
 patchPluginXml {
-  untilBuild '201.*'
+  // Note: update scripts/enforce-binary-compatibility when updating the compatibility data
+  sinceBuild '192.*' // aka 2019.2
+  untilBuild '201.*' // aka 2020.1 (exclusive)
 }
 
 runIde {
-  jbrVersion '11_0_2b159'
+  jbrVersion '11_0_3b304'
   jvmArgs '-Djdk.gtk.version=2'
 }

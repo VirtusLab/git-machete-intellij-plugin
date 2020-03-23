@@ -21,8 +21,8 @@ else # master build
   exit 0
 fi
 
-parse_version HEAD head
-parse_version $base_commit base
+parse_version_from_git_revision HEAD head
+parse_version_from_git_revision $base_commit base
 
 [[ $head_major -gt $base_major ]] && exit 0
 [[ $head_major -eq $base_major ]] || \

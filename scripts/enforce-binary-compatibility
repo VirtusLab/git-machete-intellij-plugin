@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+
+# Note: this should be kept in sync with frontend/build.gradle.
+# We're not including any 193.* (aka 2019.3) release here since that's the version we're currently building against anyway
+# (see frontend/build.gradle -> intellij.version).
+intellij_versions=(192.5728.98)
+# Also tested against 2020.1 EAP (201.6487.11); passes the check successfully.
+# As for now, we're declaring ourselves incompatible with 201.*.
+# 2020.1 is only available as EAP so far anyway, let's wait until it's oficially released.
+
+verifier_version=1.231
+plugin_version=$(extract_version_from_build_gradle_stdin < build.gradle)
+plugin_zip=$(echo frontend/build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip)
+
+[[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"
+
+set -x
+
+# See https://github.com/JetBrains/intellij-plugin-verifier
+verifier_jar=verifier-all.jar
+if ! [[ -f $verifier_jar ]]; then
+  curl -fsL -o $verifier_jar https://dl.bintray.com/jetbrains/intellij-plugin-service/org/jetbrains/intellij/plugins/verifier-cli/${verifier_version}/verifier-cli-${verifier_version}-all.jar
+fi
+
+for iv in ${intellij_versions[*]}; do
+  year=20${iv:0:2}
+  release=${iv:2:1}
+  idea_dir=idea-IC-${iv}
+  if ! [[ -d $idea_dir ]]; then
+    # Released packages apparently aren't available under version.build file name, only under year.release name
+    # EAP packages apparently aren't available under year.release file name, only under version.build name
+    {
+      curl -fsL https://download.jetbrains.com/idea/ideaIC-${year}.${release}.tar.gz \
+      || curl -fsL https://download.jetbrains.com/idea/ideaIC-${iv}.tar.gz
+    } | tar xzf -
+  fi
+
+  java -jar "$verifier_jar" check-plugin -vrd "frontend/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}"
+done

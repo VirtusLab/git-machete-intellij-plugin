@@ -5,7 +5,7 @@ plugins {
   id 'com.github.spotbugs' version '3.0.0' apply false
   id 'io.freefair.lombok' version '4.1.6' apply false
   id 'org.checkerframework' version '0.4.13' apply false
-  id 'org.jetbrains.intellij' version '0.4.16' apply false
+  id 'org.jetbrains.intellij' version '0.4.17' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.35-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.36-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
@@ -60,6 +60,7 @@ subprojects {
   spotless {
     java {
       importOrder 'java', 'javax', '', 'com.virtuslab'
+      // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
       eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
       removeUnusedImports()
     }

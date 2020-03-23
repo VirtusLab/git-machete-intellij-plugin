@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -u
+set -o pipefail -u
 
-java_collections_prohibiting_modules=('branchLayoutApi' 'gitCoreApi' 'backendApi')
+java_collections_prohibiting_modules=(branchLayoutApi gitCoreApi backendApi)
 
 for module in ${java_collections_prohibiting_modules[*]}
 do
