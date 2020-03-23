@@ -13,7 +13,6 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
-import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
@@ -209,8 +208,8 @@ class TestGitCoreCommit extends BaseGitCoreCommit {
   }
 
   @Override
-  public IGitCoreCommitHash getHash() {
-    return () -> String.valueOf(id);
+  public String getHashString() {
+    return String.valueOf(id);
   }
 }
 

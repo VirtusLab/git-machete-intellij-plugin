@@ -95,7 +95,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
        */
       walk.markStart(this.getPointedCommit().getJgitCommit());
 
-      String commitHash = branch.getPointedCommit().getHash().getHashString();
+      String commitHash = branch.getPointedCommit().getHashString();
       ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
       assert objectId != null : "objectId is null";
       walk.markStart(walk.parseCommit(objectId));
@@ -127,7 +127,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     }).getOrElseThrow(e -> new GitCoreException(e));
 
     return Iterator.ofAll(revWalk)
-        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
+        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHashString()))
         .map(GitCoreCommit::new)
         .collect(List.collector());
   }
