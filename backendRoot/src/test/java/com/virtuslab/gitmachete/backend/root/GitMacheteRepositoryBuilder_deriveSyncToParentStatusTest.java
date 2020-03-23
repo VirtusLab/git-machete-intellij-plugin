@@ -222,6 +222,7 @@ class TestGitCoreRepository implements IGitCoreRepository {
     while (presumedDescendant != null && !presumedDescendant.equals(presumedAncestor)) {
       presumedDescendant = ((TestGitCoreCommit) presumedDescendant).getParentCommit();
     }
+    assert presumedDescendant == null || presumedAncestor.hashCode() == presumedDescendant.hashCode();
     return presumedDescendant != null;
   }
 

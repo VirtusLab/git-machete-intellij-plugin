@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.tests;
+package com.virtuslab.gitmachete.backend.integration;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
 
-public class Tests {
+public class GitMacheteStatusTest {
   IGitMacheteRepository gitMacheteRepository;
   private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule
       .getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);

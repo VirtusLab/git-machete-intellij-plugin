@@ -15,6 +15,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract String getHashString();
 
+  @Override
   public final boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
@@ -23,5 +24,10 @@ public abstract class BaseGitCoreCommit {
     } else {
       return getHashString().equals(((BaseGitCoreCommit) other).getHashString());
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return getHashString().hashCode();
   }
 }
