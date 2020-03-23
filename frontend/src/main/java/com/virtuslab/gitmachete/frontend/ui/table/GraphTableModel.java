@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 
 @AllArgsConstructor

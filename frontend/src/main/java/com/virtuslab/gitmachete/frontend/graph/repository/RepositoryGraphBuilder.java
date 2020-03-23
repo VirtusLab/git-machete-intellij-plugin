@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
+package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +15,13 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
-import com.virtuslab.gitmachete.frontend.graph.SyncToParentStatusToGraphEdgeColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.model.BranchElement;
-import com.virtuslab.gitmachete.frontend.graph.model.CommitElement;
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.model.PhantomElement;
-import com.virtuslab.gitmachete.frontend.graph.model.SplittingElement;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.PhantomElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.SplittingElement;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {

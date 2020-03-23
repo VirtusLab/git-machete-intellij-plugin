@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
+package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import io.vavr.collection.List;
 

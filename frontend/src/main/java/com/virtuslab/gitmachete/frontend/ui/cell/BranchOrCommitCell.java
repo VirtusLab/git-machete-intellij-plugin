@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.intellij.vcs.log.graph.PrintElement;
 import lombok.Data;
 
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 
 @Data
 public final class BranchOrCommitCell {

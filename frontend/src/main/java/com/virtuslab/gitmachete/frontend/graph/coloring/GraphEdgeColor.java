@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph;
+package com.virtuslab.gitmachete.frontend.graph.coloring;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.model;
+package com.virtuslab.gitmachete.frontend.graph.elements;
 
 import java.awt.Color;
 
@@ -9,7 +9,7 @@ import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter

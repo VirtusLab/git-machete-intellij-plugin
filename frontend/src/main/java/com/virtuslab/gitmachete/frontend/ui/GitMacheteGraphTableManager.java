@@ -23,8 +23,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GraphTableModel;
 

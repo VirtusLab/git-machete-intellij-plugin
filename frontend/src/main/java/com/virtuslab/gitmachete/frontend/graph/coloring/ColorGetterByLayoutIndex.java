@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.facade;
+package com.virtuslab.gitmachete.frontend.graph.coloring;
 
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
@@ -7,8 +7,8 @@ import com.intellij.vcs.log.graph.utils.LinearGraphUtils;
 import com.intellij.vcs.log.graph.utils.NormalEdge;
 import lombok.AllArgsConstructor;
 
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
 @AllArgsConstructor
 public class ColorGetterByLayoutIndex {

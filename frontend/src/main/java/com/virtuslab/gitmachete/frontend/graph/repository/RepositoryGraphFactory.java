@@ -1,7 +1,7 @@
-package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
+package com.virtuslab.gitmachete.frontend.graph.repository;
 
-import static com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphBuilder.DEFAULT_GET_COMMITS;
-import static com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraphBuilder.EMPTY_GET_COMMITS;
+import static com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphBuilder.DEFAULT_GET_COMMITS;
+import static com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphBuilder.EMPTY_GET_COMMITS;
 
 import javax.annotation.Nullable;
 

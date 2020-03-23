@@ -1,6 +1,6 @@
-package com.virtuslab.gitmachete.frontend.graph.model;
+package com.virtuslab.gitmachete.frontend.graph.elements;
 
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 /**
  * Graph element that precedes every non-root branch (or {@link CommitElement}s and their {@link BranchElement}). It is

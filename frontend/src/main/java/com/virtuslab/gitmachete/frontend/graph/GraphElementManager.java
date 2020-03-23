@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.facade;
+package com.virtuslab.gitmachete.frontend.graph;
 
 import java.util.Comparator;
 
@@ -8,7 +8,8 @@ import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex
 import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
 import lombok.Getter;
 
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.coloring.ColorGetterByLayoutIndex;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
 public class GraphElementManager implements PrintElementManager {
   @Getter

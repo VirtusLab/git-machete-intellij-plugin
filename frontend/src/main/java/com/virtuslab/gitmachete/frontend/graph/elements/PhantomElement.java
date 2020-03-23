@@ -1,8 +1,8 @@
-package com.virtuslab.gitmachete.frontend.graph.model;
+package com.virtuslab.gitmachete.frontend.graph.elements;
 
 // TODO (#90): find and apply a proper approach for indents handling
 
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 /**
  * An element whose purpose is to keep the child branch ({@link CommitElement}s and their {@link BranchElement}s)

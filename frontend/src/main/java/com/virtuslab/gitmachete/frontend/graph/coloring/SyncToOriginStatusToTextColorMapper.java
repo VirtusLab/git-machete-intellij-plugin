@@ -1,11 +1,11 @@
-package com.virtuslab.gitmachete.frontend.graph;
+package com.virtuslab.gitmachete.frontend.graph.coloring;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToOriginStatus.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToOriginStatus.Behind;
 import static com.virtuslab.gitmachete.backend.api.SyncToOriginStatus.Diverged;
 import static com.virtuslab.gitmachete.backend.api.SyncToOriginStatus.Untracked;
-import static com.virtuslab.gitmachete.frontend.graph.ColorDefinitions.ORANGE;
-import static com.virtuslab.gitmachete.frontend.graph.ColorDefinitions.RED;
+import static com.virtuslab.gitmachete.frontend.graph.coloring.ColorDefinitions.ORANGE;
+import static com.virtuslab.gitmachete.frontend.graph.coloring.ColorDefinitions.RED;
 
 import java.util.Map;
 

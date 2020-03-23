@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.model;
+package com.virtuslab.gitmachete.frontend.graph.elements;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter

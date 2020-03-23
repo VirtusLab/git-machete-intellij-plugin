@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.model;
+package com.virtuslab.gitmachete.frontend.graph.elements;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
 import lombok.Data;
 
-import com.virtuslab.gitmachete.frontend.graph.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Data
 public abstract class BaseGraphElement implements IGraphElement {

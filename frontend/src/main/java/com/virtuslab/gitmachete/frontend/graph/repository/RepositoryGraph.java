@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.repositorygraph;
+package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,8 +17,8 @@ import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
-import com.virtuslab.gitmachete.frontend.graph.facade.GraphElementManager;
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 
 public class RepositoryGraph implements LinearGraph {
   @Getter

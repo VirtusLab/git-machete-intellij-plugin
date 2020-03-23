@@ -32,11 +32,11 @@ import lombok.RequiredArgsConstructor;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.frontend.graph.SyncToOriginStatusDescriptionGenerator;
-import com.virtuslab.gitmachete.frontend.graph.SyncToOriginStatusToTextColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.model.BranchElement;
-import com.virtuslab.gitmachete.frontend.graph.model.CommitElement;
-import com.virtuslab.gitmachete.frontend.graph.model.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.repositorygraph.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToOriginStatusToTextColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
+import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
