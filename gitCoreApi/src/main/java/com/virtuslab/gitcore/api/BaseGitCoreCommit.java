@@ -13,7 +13,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract Date getCommitTime();
 
-  public abstract String getHashString();
+  public abstract IGitCoreCommitHash getHash();
 
   @Override
   public final boolean equals(@Nullable Object other) {
@@ -22,12 +22,12 @@ public abstract class BaseGitCoreCommit {
     } else if (!(other instanceof BaseGitCoreCommit)) {
       return false;
     } else {
-      return getHashString().equals(((BaseGitCoreCommit) other).getHashString());
+      return getHash().getHashString().equals(((BaseGitCoreCommit) other).getHash().getHashString());
     }
   }
 
   @Override
   public int hashCode() {
-    return getHashString().hashCode();
+    return getHash().getHashString().hashCode();
   }
 }

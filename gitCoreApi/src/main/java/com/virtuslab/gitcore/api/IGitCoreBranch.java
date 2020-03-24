@@ -13,9 +13,9 @@ public interface IGitCoreBranch {
 
   boolean isLocal();
 
-  List<BaseGitCoreCommit> computeCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException;
+  List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException;
 
   boolean hasJustBeenCreated() throws GitCoreException;
 
-  Optional<BaseGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException;
+  Optional<BaseGitCoreCommit> deriveMergeBase(IGitCoreBranch branch) throws GitCoreException;
 }

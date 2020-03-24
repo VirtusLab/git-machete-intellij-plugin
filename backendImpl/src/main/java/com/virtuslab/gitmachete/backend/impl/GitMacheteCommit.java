@@ -12,6 +12,6 @@ public class GitMacheteCommit implements IGitMacheteCommit {
 
   public GitMacheteCommit(BaseGitCoreCommit coreCommit) {
     message = coreCommit.getMessage();
-    hash = coreCommit.getHashString();
+    hash = coreCommit.getHash().getHashString();
   }
 }

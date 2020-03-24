@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
 @Getter
 public class GitCoreCommit extends BaseGitCoreCommit {
@@ -15,7 +16,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
   private final Date commitTime;
-  private final String hashString;
+  private final IGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
     if (commit == null)
@@ -25,7 +26,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());
     this.committer = new GitCorePersonIdentity(jgitCommit.getCommitterIdent());
     this.commitTime = new Date((long) jgitCommit.getCommitTime() * 1000);
-    this.hashString = jgitCommit.getId().getName();
+    this.hash = new GitCoreCommitHash(jgitCommit.getId().getName());
   }
 
   @Override

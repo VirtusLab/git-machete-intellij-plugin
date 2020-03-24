@@ -48,7 +48,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<IGitCoreBranchTrackingStatus> computeRemoteTrackingStatus() throws GitCoreException {
+  public Optional<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
     BranchTrackingStatus ts = Try.of(() -> BranchTrackingStatus.of(repo.getJgitRepo(), getName()))
         .getOrElseThrow(e -> new GitCoreException(e));
 
@@ -75,7 +75,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   public Optional<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = computePointedRevCommit();
+    RevCommit commit = derivePointedRevCommit();
     try {
       walk.markStart(commit);
     } catch (Exception e) {

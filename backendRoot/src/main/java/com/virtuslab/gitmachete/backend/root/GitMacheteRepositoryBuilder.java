@@ -167,7 +167,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           // translate IGitCoreCommit list to IGitMacheteCommit list
           List<IGitMacheteCommit> commits = !forkPoint.isPresent()
               ? List.empty()
-              : coreLocalBranch.computeCommitsUntil(forkPoint.get())
+              : coreLocalBranch.deriveCommitsUntil(forkPoint.get())
                   .map(GitMacheteCommit::new)
                   .collect(List.collector());
 
@@ -191,7 +191,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   private SyncToOriginStatus deriveSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     try {
-      Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.computeRemoteTrackingStatus();
+      Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (!ts.isPresent()) {
         return SyncToOriginStatus.Untracked;
       }

@@ -26,8 +26,8 @@ public class RepositoryGraphFactory {
         this.repository = repository;
 
         RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(repository);
-        repositoryGraphWithCommits = repositoryGraphBuilder.branchComputeCommitsStrategy(DEFAULT_GET_COMMITS).build();
-        repositoryGraphWithoutCommits = repositoryGraphBuilder.branchComputeCommitsStrategy(EMPTY_GET_COMMITS).build();
+        repositoryGraphWithCommits = repositoryGraphBuilder.branchGetCommitsStrategy(DEFAULT_GET_COMMITS).build();
+        repositoryGraphWithoutCommits = repositoryGraphBuilder.branchGetCommitsStrategy(EMPTY_GET_COMMITS).build();
       }
       return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
     }

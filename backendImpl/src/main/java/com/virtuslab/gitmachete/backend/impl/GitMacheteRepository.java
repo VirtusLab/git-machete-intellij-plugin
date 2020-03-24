@@ -56,9 +56,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public Optional<IGitMacheteBranch> deriveExistingUpstreamBranch(IGitMacheteBranch branch) {
-    Predicate<IGitMacheteBranch> isUpstreamForBranch = b -> b.getDownstreamBranches().contains(branch);
+    Predicate<IGitMacheteBranch> isUpstreamForBranch = gitMacheteBranch -> gitMacheteBranch.getDownstreamBranches()
+        .contains(branch);
     return branchNameToUpstream.computeIfAbsent(branch.getName(),
-        b -> findBranchRecursively(rootBranches, isUpstreamForBranch));
+        branchName -> findBranchRecursively(rootBranches, isUpstreamForBranch));
   }
 
   @Override

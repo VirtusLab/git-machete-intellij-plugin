@@ -65,7 +65,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       branchToRebase = branchToRebaseOptional.get();
     }
 
-    Optional<IGitRebaseParameters> gitRebaseParameters = computeGitRebaseOntoParentParameters(gitMacheteRepository,
+    Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(gitMacheteRepository,
         branchToRebase);
 
     if (!gitRebaseParameters.isPresent()) {
@@ -91,14 +91,14 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     }.queue();
   }
 
-  private Optional<IGitRebaseParameters> computeGitRebaseOntoParentParameters(IGitMacheteRepository repository,
+  private Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
       IGitMacheteBranch gitMacheteCurrentBranch) {
     if (gitMacheteCurrentBranch == null) {
       return Optional.empty();
     }
 
     return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
-        .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
+        .onFailure(e -> LOG.error("Unable to derive rebase parameters", e))
         .getOrElse(() -> Optional.empty());
   }
 

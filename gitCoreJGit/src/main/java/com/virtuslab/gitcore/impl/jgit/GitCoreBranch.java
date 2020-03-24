@@ -53,10 +53,10 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
 
   @Override
   public GitCoreCommit getPointedCommit() throws GitCoreException {
-    return new GitCoreCommit(computePointedRevCommit());
+    return new GitCoreCommit(derivePointedRevCommit());
   }
 
-  protected RevCommit computePointedRevCommit() throws GitCoreException {
+  protected RevCommit derivePointedRevCommit() throws GitCoreException {
     Repository jgitRepo = repo.getJgitRepo();
     RevWalk rw = new RevWalk(jgitRepo);
     RevCommit c;
@@ -79,7 +79,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
   }
 
   @Override
-  public Optional<BaseGitCoreCommit> computeMergeBase(IGitCoreBranch branch) throws GitCoreException {
+  public Optional<BaseGitCoreCommit> deriveMergeBase(IGitCoreBranch branch) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
 
     walk.sort(RevSort.TOPO, /* use */ true);
@@ -95,7 +95,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
        */
       walk.markStart(this.getPointedCommit().getJgitCommit());
 
-      String commitHash = branch.getPointedCommit().getHashString();
+      String commitHash = branch.getPointedCommit().getHash().getHashString();
       ObjectId objectId = repo.getJgitRepo().resolve(commitHash);
       assert objectId != null : "objectId is null";
       walk.markStart(walk.parseCommit(objectId));
@@ -116,10 +116,10 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
   }
 
   @Override
-  public List<BaseGitCoreCommit> computeCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
+  public List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = computePointedRevCommit();
+    RevCommit commit = derivePointedRevCommit();
 
     RevWalk revWalk = Try.of(() -> {
       walk.markStart(commit);
@@ -127,7 +127,7 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     }).getOrElseThrow(e -> new GitCoreException(e));
 
     return Iterator.ofAll(revWalk)
-        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHashString()))
+        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
         .map(GitCoreCommit::new)
         .collect(List.collector());
   }

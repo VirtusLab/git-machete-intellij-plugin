@@ -9,8 +9,6 @@ import lombok.experimental.Accessors;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.intellij.openapi.diagnostic.Logger;
-
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -27,22 +25,21 @@ import com.virtuslab.gitmachete.frontend.graph.model.SplittingElement;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {
-  private static final Logger LOG = Logger.getInstance(RepositoryGraphBuilder.class);
 
   @Setter
   private IGitMacheteRepository repository = NullRepository.getInstance();
 
   @Setter
-  private IBranchGetCommitsStrategy branchComputeCommitsStrategy = DEFAULT_GET_COMMITS;
+  private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
   public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteBranch::getCommits;
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = b -> io.vavr.collection.List.empty();
 
   public RepositoryGraph build() {
-    return new RepositoryGraph(computeGraphElements());
+    return new RepositoryGraph(deriveGraphElements());
   }
 
-  private List<IGraphElement> computeGraphElements() {
+  private List<IGraphElement> deriveGraphElements() {
     List<IGraphElement> graphElements = new ArrayList<>();
     List<IGitMacheteBranch> rootBranches = repository.getRootBranches().asJava();
     for (IGitMacheteBranch branch : rootBranches) {
@@ -89,7 +86,7 @@ public class RepositoryGraphBuilder {
       IGitMacheteBranch branch,
       int upstreamBranchIndex,
       SyncToParentStatus syncToParentStatus) {
-    List<IGitMacheteCommit> commits = branchComputeCommitsStrategy.getCommitsOf(branch).reverse().asJava();
+    List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse().asJava();
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
     SyncToOriginStatus syncToOriginStatus = branch.getSyncToOriginStatus();

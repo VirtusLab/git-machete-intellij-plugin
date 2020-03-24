@@ -13,6 +13,7 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
@@ -208,8 +209,8 @@ class TestGitCoreCommit extends BaseGitCoreCommit {
   }
 
   @Override
-  public String getHashString() {
-    return String.valueOf(id);
+  public IGitCoreCommitHash getHash() {
+    return () -> String.valueOf(id);
   }
 }
 
@@ -222,7 +223,6 @@ class TestGitCoreRepository implements IGitCoreRepository {
     while (presumedDescendant != null && !presumedDescendant.equals(presumedAncestor)) {
       presumedDescendant = ((TestGitCoreCommit) presumedDescendant).getParentCommit();
     }
-    assert presumedDescendant == null || presumedAncestor.hashCode() == presumedDescendant.hashCode();
     return presumedDescendant != null;
   }
 

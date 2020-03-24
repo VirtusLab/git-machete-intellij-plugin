@@ -167,10 +167,10 @@ public class GitCoreRepository implements IGitCoreRepository {
     RevWalk walk = new RevWalk(jgitRepo);
     walk.sort(RevSort.TOPO);
     try {
-      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHashString());
+      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHash().getHashString());
       assert descendantObjectId != null : "Cannot find descendant";
 
-      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHashString());
+      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHash().getHashString());
       assert ancestorObjectId != null : "Cannot find ancestor";
 
       walk.markStart(walk.parseCommit(descendantObjectId));
