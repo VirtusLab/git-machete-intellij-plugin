@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.vavr.collection.Iterator;
@@ -84,14 +86,16 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
-    @SuppressWarnings("return.type.incompatible")
-    Ref ref = Try.of(() -> jgitRepo.getRefDatabase().findRef(Constants.HEAD))
-        .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
-
+    @Nullable
+    Ref ref;
+    try {
+      ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
+    } catch (IOException e) {
+      throw new GitCoreException("Cannot get current branch", e);
+    }
     if (ref == null) {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
-
     if (ref.isSymbolic()) {
       return Optional.of(new GitCoreLocalBranch(this, Repository.shortenRefName(ref.getTarget().getName())));
     }

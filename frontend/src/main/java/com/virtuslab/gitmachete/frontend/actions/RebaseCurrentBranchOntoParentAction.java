@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
 import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_REBASE;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_GIT_MACHETE_REPOSITORY;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH;
 
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +18,6 @@ import com.intellij.testFramework.MapDataContext;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class RebaseCurrentBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
@@ -35,13 +34,9 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    GitMacheteGraphTableManager tableManager = anActionEvent.getData(KEY_TABLE_MANAGER);
-    assert tableManager != null : "Can't get table manager";
-
-    IGitMacheteRepository gitMacheteRepository = tableManager.getRepository();
+    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
-    @SuppressWarnings("methodref.return.invalid")
     Optional<IGitMacheteBranch> branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
 
     if (!branchToRebase.isPresent()) {
@@ -54,7 +49,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     MapDataContext dataContext = new MapDataContext(
         Map.of(
             CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT),
-            KEY_TABLE_MANAGER, originalDataContext.getData(KEY_TABLE_MANAGER),
+            KEY_GIT_MACHETE_REPOSITORY, originalDataContext.getData(KEY_GIT_MACHETE_REPOSITORY),
             KEY_SELECTED_BRANCH, branchToRebase.get()));
 
     AnActionEvent actionEvent = new AnActionEvent(anActionEvent.getInputEvent(), dataContext, anActionEvent.getPlace(),

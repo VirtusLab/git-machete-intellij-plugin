@@ -9,6 +9,7 @@ import static io.vavr.API.Match;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
@@ -29,10 +30,9 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
-import com.virtuslab.gitmachete.frontend.actions.DataKeyIDs;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
@@ -43,8 +43,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   private final Project project;
-  @UnknownInitialization
-  private final GitMacheteGraphTableManager tableManager;
+  private final AtomicReference<IGitMacheteRepository> gitMacheteRepositoryRef;
 
   @Nullable
   private String selectedBranchName;
@@ -53,11 +52,11 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
       Project project,
-      @UnderInitialization GitMacheteGraphTableManager tableManager) {
+      AtomicReference<IGitMacheteRepository> gitMacheteRepositoryRef) {
     super(graphTableModel);
 
     this.project = project;
-    this.tableManager = tableManager;
+    this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
 
     GraphCellPainter graphCellPainter = new SimpleGraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
       @Override
@@ -90,7 +89,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private void initColumns() {
     createDefaultColumnsFromModel();
 
-    // otherwise sizes are recalculated after each TableColumn re-initialization
+    // Otherwise sizes would be recalculated after each TableColumn re-initialization
     setAutoCreateColumnsFromModel(false);
   }
 
@@ -105,11 +104,11 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   public Object getData(String dataId) {
     return Match(dataId).of(
         Case($(CommonDataKeys.PROJECT.getName()), project),
-        // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return class
-        // com.intellij.openapi.editor.Editor
+        // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
+        // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
         Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
-        Case($(DataKeyIDs.KEY_TABLE_MANAGER_STRING), tableManager),
-        Case($(DataKeyIDs.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
+        Case($(DataKeys.KEY_GIT_MACHETE_REPOSITORY_STRING), gitMacheteRepositoryRef.get()),
+        Case($(DataKeys.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
         Case($(CommonDataKeys.PROJECT.getName()), project),
         Case($(), () -> null));
   }

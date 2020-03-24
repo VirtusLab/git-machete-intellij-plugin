@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.table;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -17,8 +18,6 @@ import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
-import org.checkerframework.checker.initialization.qual.Initialized;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
@@ -35,21 +34,15 @@ public class GitMacheteGraphTableManager {
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
-  @Getter
-  private IGitMacheteRepository repository;
+  private final AtomicReference<IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
 
-  @SuppressWarnings("method.invocation.invalid")
+  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges`
   public GitMacheteGraphTableManager(Project project) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-    @SuppressWarnings("assignment.type.incompatible")
-    @Initialized
-    @NonNull
-    // GitMacheteGraphTable extracted to local variable only for allow to use @SuppressWarnings
-    GitMacheteGraphTable graphTable = new GitMacheteGraphTable(graphTableModel, project, /* tableManager */ this);
-    this.gitMacheteGraphTable = graphTable;
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef);
     this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
         .getInstance(GitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
@@ -66,7 +59,7 @@ public class GitMacheteGraphTableManager {
       return;
     }
 
-    RepositoryGraph repositoryGraph = repositoryGraphFactory.getRepositoryGraph(repository, isListingCommits);
+    RepositoryGraph repositoryGraph = repositoryGraphFactory.getRepositoryGraph(repositoryRef.get(), isListingCommits);
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
 
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
@@ -78,8 +71,9 @@ public class GitMacheteGraphTableManager {
    */
   public void updateRepository() {
     Path pathToRepoRoot = Paths.get(Objects.requireNonNull(project.getBasePath()));
-    repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build())
+    var repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build())
         .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
+    repositoryRef.set(repository);
   }
 
   public void updateAndRefreshInBackground() {

@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_SELECTED_BRANCH_NAME;
-import static com.virtuslab.gitmachete.frontend.actions.DataKeyIDs.KEY_TABLE_MANAGER;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_GIT_MACHETE_REPOSITORY;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH;
+import static com.virtuslab.gitmachete.frontend.actions.DataKeys.KEY_SELECTED_BRANCH_NAME;
 
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +24,6 @@ import io.vavr.control.Try;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
@@ -42,10 +41,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     GitRepository repository = getRepository(project);
     GitVersion gitVersion = repository.getVcs().getVersion();
 
-    GitMacheteGraphTableManager tableManager = anActionEvent.getData(KEY_TABLE_MANAGER);
-    assert tableManager != null : "Can't get table manager";
-
-    IGitMacheteRepository gitMacheteRepository = tableManager.getRepository();
+    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
     IGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
@@ -53,7 +49,6 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
       assert selectedBranchName != null : "Can't get selected branch";
 
-      @SuppressWarnings("assignment.type.incompatible")
       Optional<IGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
           .getBranchByName(selectedBranchName);
       if (!branchToRebaseOptional.isPresent()) {
@@ -104,8 +99,8 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
   protected GitRepository getRepository(Project project) {
     // TODO (#64): handle multiple repositories
     Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
-    // The visibility predicate {@link GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
-    // {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)} which is true when the specified
+    // The visibility predicate `GitMacheteContentProvider.GitMacheteVisibilityPredicate` performs
+    // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` which is true when the specified
     // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
     // tab is visible, a git repository exists.
     assert iterator.hasNext();
