@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class GitMachetePanel {
 

@@ -35,7 +35,6 @@ import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import com.virtuslab.gitmachete.frontend.actions.DataKeyIDs;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 

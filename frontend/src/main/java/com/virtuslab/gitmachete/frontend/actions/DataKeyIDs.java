@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions;
 import com.intellij.openapi.actionSystem.DataKey;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public final class DataKeyIDs {
   private DataKeyIDs() {}

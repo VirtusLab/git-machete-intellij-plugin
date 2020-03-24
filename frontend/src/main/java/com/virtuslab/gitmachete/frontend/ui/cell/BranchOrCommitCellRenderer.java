@@ -31,11 +31,11 @@ import lombok.RequiredArgsConstructor;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
-import com.virtuslab.gitmachete.frontend.graph.SyncToOriginStatusDescriptionGenerator;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToOriginStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToOriginStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
@@ -126,7 +126,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
         if (syncToOriginStatus != SyncToOriginStatus.InSync) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
               SyncToOriginStatusToTextColorMapper.getColor(syncToOriginStatus.getId()));
-          append("  (" + SyncToOriginStatusDescriptionGenerator.getDescription(syncToOriginStatus.getId()) + ")",
+          append("  (" + SyncToOriginStatusLabelGenerator.getLabel(syncToOriginStatus.getId()) + ")",
               textAttributes);
         }
       }

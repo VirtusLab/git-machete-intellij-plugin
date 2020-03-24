@@ -24,7 +24,7 @@ import io.vavr.control.Try;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.frontend.ui.GitMacheteGraphTableManager;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.intellij.openapi.diagnostic.Logger;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.Nullable;
