@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.38-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.39-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
@@ -101,11 +101,26 @@ subprojects {
 
   ext {
     guiceVersion = '4.2.2'
+    intellijVersion = '2019.3'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
     powerMockVersion = '2.0.5'
     slf4jVersion = '1.7.25'
     vavrVersion = '0.10.2'
+
+    // For frontend modules other than `frontendUi`, we only use the Intellij plugin to provide dependencies,
+    // but don't want the associated tasks to be available.
+    disableIntellijTasks = { ->
+      buildPlugin.enabled = false
+      patchPluginXml.enabled = false
+      prepareSandbox.enabled = false
+      prepareTestingSandbox.enabled = false
+      buildSearchableOptions.enabled = false
+      jarSearchableOptions.enabled = false
+      runIde.enabled = false
+      publishPlugin.enabled = false
+      verifyPlugin.enabled = false
+    }
 
     guice = { ->
       dependencies {
@@ -144,6 +159,5 @@ subprojects {
         implementation group: 'io.vavr', name: 'vavr', version: vavrVersion
       }
     }
-
   }
 }

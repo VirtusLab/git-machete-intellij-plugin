@@ -1,0 +1,14 @@
+apply plugin: 'io.freefair.lombok'
+generateLombokConfig.enabled=false
+
+dependencies {
+  vavr()
+
+  implementation project(':backendApi')
+}
+
+apply plugin: 'org.jetbrains.intellij'
+disableIntellijTasks()
+intellij {
+  version intellijVersion
+}

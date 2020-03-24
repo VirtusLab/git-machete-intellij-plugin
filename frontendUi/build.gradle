@@ -7,13 +7,15 @@ dependencies {
 
   implementation project(':backendRoot')
   implementation project(':backendApi')
+  implementation project(':frontendActions')
+  implementation project(':frontendGraph')
 }
 
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
   pluginName 'git-machete-intellij-plugin'
-  version '2019.3'
+  version intellijVersion
   plugins 'git4idea'
 }
 

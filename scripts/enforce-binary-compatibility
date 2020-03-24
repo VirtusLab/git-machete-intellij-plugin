@@ -4,9 +4,9 @@ set -e -o pipefail -u
 
 source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
 
-# Note: this should be kept in sync with frontend/build.gradle.
+# Note: this should be kept in sync with frontendUi/build.gradle.
 # We're not including any 193.* (aka 2019.3) release here since that's the version we're currently building against anyway
-# (see frontend/build.gradle -> intellij.version).
+# (see build.gradle -> subprojects.ext.intellijVersion).
 intellij_versions=(192.5728.98)
 # Also tested against 2020.1 EAP (201.6487.11); passes the check successfully.
 # As for now, we're declaring ourselves incompatible with 201.*.
@@ -14,7 +14,7 @@ intellij_versions=(192.5728.98)
 
 verifier_version=1.231
 plugin_version=$(extract_version_from_build_gradle_stdin < build.gradle)
-plugin_zip=$(echo frontend/build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip)
+plugin_zip=$(echo frontendUi/build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip)
 
 [[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"
 
@@ -39,5 +39,5 @@ for iv in ${intellij_versions[*]}; do
     } | tar xzf -
   fi
 
-  java -jar "$verifier_jar" check-plugin -vrd "frontend/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}"
+  java -jar "$verifier_jar" check-plugin -vrd "frontendUi/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}"
 done

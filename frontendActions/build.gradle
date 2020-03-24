@@ -1,0 +1,12 @@
+dependencies {
+  vavr()
+
+  implementation project(':backendApi')
+}
+
+apply plugin: 'org.jetbrains.intellij'
+disableIntellijTasks()
+intellij {
+  version intellijVersion
+  plugins 'git4idea'
+}
