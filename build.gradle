@@ -35,10 +35,6 @@ subprojects {
   repositories {
     jcenter()
     mavenCentral()
-    // For spotbugs
-    maven {
-      url 'https://plugins.gradle.org/m2/'
-    }
   }
 
   apply plugin: 'org.gradle.java-library'

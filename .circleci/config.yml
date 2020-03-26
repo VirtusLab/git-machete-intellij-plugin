@@ -33,7 +33,7 @@ jobs:
           command: ./gradlew javadoc
       - run:
           name: Run static code analyzer
-          command: ./gradlew spotbugsMain
+          command: ./gradlew checkstyleMain
 
       - run:
           name: Compile tests
