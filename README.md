@@ -17,7 +17,7 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into a
 
 From the main project folder, run the following commands:
 
-```shell script
+```
 git config --local include.path ../.gitconfig
 ln -s ../../scripts/git-hooks/machete-pre-rebase .git/hooks/machete-pre-rebase
 ln -s ../../scripts/git-hooks/machete-status-branch .git/hooks/machete-status-branch
@@ -40,6 +40,6 @@ Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, s
 
 ### Rebuild the CI base image
 
-```shell script
+```
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin-ci .
 ```

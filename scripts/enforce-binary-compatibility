@@ -10,7 +10,7 @@ source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
 intellij_versions=(192.5728.98)
 # Also tested against 2020.1 EAP (201.6487.11); passes the check successfully.
 # As for now, we're declaring ourselves incompatible with 201.*.
-# 2020.1 is only available as EAP so far anyway, let's wait until it's oficially released.
+# 2020.1 is only available as EAP so far anyway, let's wait until it's officially released.
 
 verifier_version=1.231
 plugin_version=$(extract_version_from_build_gradle_stdin < build.gradle)
