@@ -29,13 +29,13 @@ public final class BranchElement extends BaseGraphElement {
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
   }
 
-  private static final JBColor branchTextColor = new JBColor(Color.BLACK, Color.WHITE);
+  private static final JBColor BRANCH_TEXT_COLOR = new JBColor(Color.BLACK, Color.WHITE);
 
   private static final SimpleTextAttributes UNDERLINE_BOLD_ATTRIBUTES = new SimpleTextAttributes(
-      SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, branchTextColor);
+      SimpleTextAttributes.STYLE_UNDERLINE | SimpleTextAttributes.STYLE_BOLD, BRANCH_TEXT_COLOR);
 
   private static final SimpleTextAttributes NORMAL_ATTRIBUTES = new SimpleTextAttributes(
-      SimpleTextAttributes.STYLE_PLAIN, branchTextColor);
+      SimpleTextAttributes.STYLE_PLAIN, BRANCH_TEXT_COLOR);
 
   @Getter
   private final SimpleTextAttributes attributes;

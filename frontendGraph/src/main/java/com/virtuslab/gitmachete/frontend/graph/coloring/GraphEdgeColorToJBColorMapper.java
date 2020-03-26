@@ -8,14 +8,14 @@ public final class GraphEdgeColorToJBColorMapper {
 
   private GraphEdgeColorToJBColorMapper() {}
 
-  private static final Map<GraphEdgeColor, JBColor> colors = Map.of(
+  private static final Map<GraphEdgeColor, JBColor> COLORS = Map.of(
       GraphEdgeColor.GRAY, ColorDefinitions.GRAY,
       GraphEdgeColor.YELLOW, ColorDefinitions.YELLOW,
       GraphEdgeColor.RED, ColorDefinitions.RED,
       GraphEdgeColor.GREEN, ColorDefinitions.GREEN);
 
   public static JBColor getColor(GraphEdgeColor graphEdgeColor) {
-    return colors.getOrDefault(graphEdgeColor, ColorDefinitions.TRANSPARENT);
+    return COLORS.getOrDefault(graphEdgeColor, ColorDefinitions.TRANSPARENT);
   }
 
   public static JBColor getColor(int colorId) {

@@ -18,8 +18,9 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   private final IGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
-    if (commit == null)
+    if (commit == null) {
       throw new NullPointerException("JGit commit passed to Commit constructor cannot be null");
+    }
     this.jgitCommit = commit;
     this.message = jgitCommit.getFullMessage();
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());

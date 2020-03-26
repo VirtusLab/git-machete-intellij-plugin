@@ -71,17 +71,24 @@ public class GitCoreRepository implements IGitCoreRepository {
       throws IOException, GitCoreNoSuchRepositoryException {
     String gitFile = Files.readString(gitFilePath);
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
+
+    String submoduleErrorMessage = "Path \"{0}\" does not contain any submodule";
+
     if (matcher.find()) {
       String firstGroup = matcher.group(1);
       if (firstGroup == null) {
         throw new GitCoreNoSuchRepositoryException(
-            MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
+            MessageFormat.format(submoduleErrorMessage, repositoryPath));
       }
-      return gitFilePath.getParent().resolve(firstGroup).normalize();
+
+      Path parentDirectory = gitFilePath.getParent();
+      assert parentDirectory != null : "Can't get parent directory";
+
+      return parentDirectory.resolve(firstGroup).normalize();
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
+        MessageFormat.format(submoduleErrorMessage, repositoryPath));
   }
 
   @Override
@@ -104,7 +111,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
-    if (isBranchMissing(GitCoreLocalBranch.branchesPath + branchName)) {
+    if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchBranchException(
           MessageFormat.format("Local branch \"{0}\" does not exist in this repository", branchName));
     }
@@ -113,7 +120,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public GitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException {
-    if (isBranchMissing(GitCoreRemoteBranch.branchesPath + branchName)) {
+    if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchBranchException(
           MessageFormat.format("Remote branch \"{0}\" does not exist in this repository", branchName));
     }
@@ -126,7 +133,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .map(ref -> new GitCoreLocalBranch(/* repo */ this,
-            ref.getName().replace(GitCoreLocalBranch.branchesPath, /* replacement */ "")))
+            ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
   }
 
@@ -136,7 +143,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
-            ref.getName().replace(GitCoreRemoteBranch.branchesPath, /* replacement */ "")))
+            ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
   }
 

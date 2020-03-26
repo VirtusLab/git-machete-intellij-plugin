@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks="ConstantName" files="BackendFactoryModule\.java" lines="12" />
+    <suppress checks="ConstantName" files="RepositoryGraphFactory\.java" lines="15" />
+    <suppress checks="ConstantName" files="RepositoryGraph\.java" lines="25" />
+    <suppress checks="ConstantName" files="NullRepository\.java" lines="9" />
+</suppressions>

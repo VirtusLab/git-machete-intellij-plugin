@@ -18,13 +18,15 @@ public class RepositoryGraphFactory {
   private RepositoryGraph repositoryGraphWithoutCommits;
   private IGitMacheteRepository repository;
 
-  public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository repository, boolean isListingCommits) {
-    if (repository == null)
+  public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository givenRepository, boolean isListingCommits) {
+    if (givenRepository == null) {
       return nullRepositoryGraph;
-    if (repository != this.repository) {
-      this.repository = repository;
+    }
 
-      RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(repository);
+    if (givenRepository != this.repository) {
+      this.repository = givenRepository;
+
+      RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(givenRepository);
       repositoryGraphWithCommits = repositoryGraphBuilder.branchGetCommitsStrategy(DEFAULT_GET_COMMITS).build();
       repositoryGraphWithoutCommits = repositoryGraphBuilder.branchGetCommitsStrategy(EMPTY_GET_COMMITS).build();
     }

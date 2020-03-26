@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.table;
+package com.virtuslab.gitmachete.frontend.ui;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,6 +24,8 @@ import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.table.GraphTableModel;
 
 public class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);

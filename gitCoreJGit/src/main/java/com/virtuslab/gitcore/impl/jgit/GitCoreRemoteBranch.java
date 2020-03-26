@@ -3,7 +3,7 @@ package com.virtuslab.gitcore.impl.jgit;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreRemoteBranch extends GitCoreBranch implements IGitCoreRemoteBranch {
-  public static final String branchesPath = "refs/remotes/";
+  public static final String BRANCHES_PATH = "refs/remotes/";
 
   public GitCoreRemoteBranch(GitCoreRepository repo, String branchName) {
     super(repo, branchName);
@@ -11,7 +11,7 @@ public class GitCoreRemoteBranch extends GitCoreBranch implements IGitCoreRemote
 
   @Override
   public String getBranchesPath() {
-    return branchesPath;
+    return BRANCHES_PATH;
   }
 
   @Override

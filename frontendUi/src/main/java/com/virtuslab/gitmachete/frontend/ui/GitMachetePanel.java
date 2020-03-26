@@ -12,9 +12,9 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
-import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class GitMachetePanel {
+  private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";
 
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
@@ -30,7 +30,7 @@ public class GitMachetePanel {
     DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /* popup */ false);
     refresh.add(new RefreshGitMacheteStatusAction());
 
-    DefaultActionGroup toggleListCommits = new DefaultActionGroup("Toggle List Commits", /* popup */ false);
+    DefaultActionGroup toggleListCommits = new DefaultActionGroup(TOGGLE_LIST_COMMIT_TEXT, /* popup */ false);
     toggleListCommits.add(new ToggleListCommitsAction());
 
     DefaultActionGroup rebaseCurrentBranchOntoParent = new DefaultActionGroup("Rebase Current Branch Onto Parent",
@@ -58,7 +58,7 @@ public class GitMachetePanel {
 
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
     ToggleListCommitsAction() {
-      super("Toggle List Commits", "Toggle list commits", AllIcons.Actions.ShowHiddens);
+      super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_TEXT, AllIcons.Actions.ShowHiddens);
     }
 
     @Override

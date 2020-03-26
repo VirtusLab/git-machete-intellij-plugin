@@ -21,7 +21,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBranch {
-  public static final String branchesPath = "refs/heads/";
+  public static final String BRANCHES_PATH = "refs/heads/";
 
   public GitCoreLocalBranch(GitCoreRepository repo, String branchName) {
     super(repo, branchName);
@@ -29,7 +29,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   @Override
   public String getBranchesPath() {
-    return branchesPath;
+    return BRANCHES_PATH;
   }
 
   @Override
@@ -67,7 +67,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       return Optional.empty();
     } else {
       return Optional
-          .of(new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.branchesPath.length())));
+          .of(new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.BRANCHES_PATH.length())));
     }
   }
 
@@ -82,10 +82,12 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       throw new GitCoreException(e);
     }
 
+    String reflogReaderErrorMessage = "Error while getting reflog reader";
+
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
         .map(b -> Try.of(() -> {
           ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(b.getFullName());
-          assert reflogReader != null : "Error while getting reflog reader";
+          assert reflogReader != null : reflogReaderErrorMessage;
           return reflogReader.getReverseEntries();
         }))
         .map(Try::get) // throwable
@@ -99,7 +101,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
         .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
             .map(branch -> Try.of(() -> {
               ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
-              assert reflogReader != null : "Error while getting reflog reader";
+              assert reflogReader != null : reflogReaderErrorMessage;
               return reflogReader.getReverseEntries();
             }))
             .map(Try::get) // throwable

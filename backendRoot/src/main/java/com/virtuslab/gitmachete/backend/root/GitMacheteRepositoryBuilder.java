@@ -261,7 +261,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   @AllArgsConstructor(staticName = "of")
-  static private class GitMacheteBranchData {
+  private static class GitMacheteBranchData {
     final IGitMacheteCommit pointedCommit;
     final List<IGitMacheteCommit> commits;
     final SyncToOriginStatus syncToOriginStatus;

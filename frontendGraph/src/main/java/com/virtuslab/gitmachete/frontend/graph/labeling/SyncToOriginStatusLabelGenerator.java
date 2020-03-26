@@ -10,13 +10,13 @@ import java.util.Map;
 public final class SyncToOriginStatusLabelGenerator {
   private SyncToOriginStatusLabelGenerator() {}
 
-  private static final Map<Integer, String> labels = Map.of(
+  private static final Map<Integer, String> LABELS = Map.of(
       Untracked.getId(), "untracked",
       Ahead.getId(), "ahead of origin",
       Behind.getId(), "behind origin",
       Diverged.getId(), "diverged from origin");
 
   public static String getLabel(int statusId) {
-    return labels.getOrDefault(statusId, "sync to origin unknown");
+    return LABELS.getOrDefault(statusId, "sync to origin unknown");
   }
 }
