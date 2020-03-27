@@ -1,0 +1,3 @@
+<module name="ImportControl">
+    <property name="file" value="${rootCheckstyleConfigDir}/import_control_prohibit_java_collections.xml"/>
+</module>

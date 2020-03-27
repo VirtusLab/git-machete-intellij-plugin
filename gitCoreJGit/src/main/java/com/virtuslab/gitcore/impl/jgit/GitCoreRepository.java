@@ -72,13 +72,11 @@ public class GitCoreRepository implements IGitCoreRepository {
     String gitFile = Files.readString(gitFilePath);
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
 
-    String submoduleErrorMessage = "Path \"{0}\" does not contain any submodule";
-
     if (matcher.find()) {
       String firstGroup = matcher.group(1);
       if (firstGroup == null) {
         throw new GitCoreNoSuchRepositoryException(
-            MessageFormat.format(submoduleErrorMessage, repositoryPath));
+            MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
       }
 
       Path parentDirectory = gitFilePath.getParent();
@@ -88,7 +86,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        MessageFormat.format(submoduleErrorMessage, repositoryPath));
+        MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
   }
 
   @Override

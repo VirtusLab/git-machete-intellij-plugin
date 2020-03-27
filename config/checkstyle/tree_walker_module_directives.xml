@@ -1,0 +1,59 @@
+<!-- to enable @SuppressWarnings -->
+<module name="SuppressWarningsHolder"/>
+
+<module name="ArrayTypeStyle"/>
+<module name="AvoidStarImport"/>
+<module name="ConstantName">
+    <property name="format" value="^.*[Ii]nstance.*|.*[Ii]njector.*|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
+</module>
+<module name="CovariantEquals"/>
+<module name="EmptyBlock"/>
+<module name="EmptyStatement"/>
+<module name="EqualsHashCode"/>
+<module name="EmptyBlock">
+    <property name="option" value="TEXT"/>
+    <property name="tokens"
+              value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+</module>
+<module name="FallThrough"/>
+<module name="HiddenField">
+    <property name="ignoreConstructorParameter" value="true"/>
+</module>
+<module name="IllegalThrows"/>
+<module name="IllegalType"/>
+<module name="InnerAssignment"/>
+<module name="LeftCurly">
+    <property name="tokens"
+              value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
+                    INTERFACE_DEF, LAMBDA, LITERAL_CASE, LITERAL_CATCH, LITERAL_DEFAULT,
+                    LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
+                    OBJBLOCK, STATIC_INIT"/>
+</module>
+<module name="MissingSwitchDefault"/>
+<module name="MultipleStringLiterals">
+    <property name="allowedDuplicates" value="3"/>
+</module>
+<module name="MultipleVariableDeclarations"/>
+<module name="ModifierOrder"/>
+<module name="NeedBraces">
+    <property name="tokens"
+              value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+</module>
+<module name="NoWhitespaceAfter"/>
+<module name="NoWhitespaceBefore"/>
+<module name="OneStatementPerLine"/>
+<module name="PackageDeclaration"/>
+<module name="ParameterAssignment"/>
+<module name="RedundantModifier"/>
+<module name="RightCurly">
+    <property name="id" value="RightCurlySame"/>
+    <property name="tokens"
+              value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE,
+                    LITERAL_DO"/>
+</module>
+<module name="StringLiteralEquality"/>
+<module name="SuperClone"/>
+<module name="UnnecessaryParentheses"/>
+<module name="UnusedImports"/>
+<module name="UpperEll"/>

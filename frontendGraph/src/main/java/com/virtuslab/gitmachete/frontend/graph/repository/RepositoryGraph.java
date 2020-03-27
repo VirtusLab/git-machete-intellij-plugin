@@ -22,6 +22,7 @@ import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 
 public class RepositoryGraph implements LinearGraph {
   @Getter
+  @SuppressWarnings("ConstantName")
   private static final RepositoryGraph nullRepositoryGraph = new RepositoryGraphBuilder()
       .repository(NullRepository.getInstance()).build();
 

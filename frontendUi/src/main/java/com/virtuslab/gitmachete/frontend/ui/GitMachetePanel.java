@@ -9,12 +9,18 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
 
 public class GitMachetePanel {
   private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";
+  private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
+  private static final String REFRESH_STATUS_TEXT = "Refresh Status";
+  private static final String REFRESH_STATUS_DESCRIPTION = "Refresh status";
+  private static final String REFRESH_STATUS_SHORT_NAME = "Refresh";
+  private static final String REBASE_CURRENT_ONTO_PARENT_SHORT_NAME = "Rebase Current Branch Onto Parent";
 
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
@@ -27,13 +33,13 @@ public class GitMachetePanel {
   public ActionToolbar createGitMacheteToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    DefaultActionGroup refresh = new DefaultActionGroup("Refresh", /* popup */ false);
+    DefaultActionGroup refresh = new DefaultActionGroup(REFRESH_STATUS_SHORT_NAME, /* popup */ false);
     refresh.add(new RefreshGitMacheteStatusAction());
 
     DefaultActionGroup toggleListCommits = new DefaultActionGroup(TOGGLE_LIST_COMMIT_TEXT, /* popup */ false);
     toggleListCommits.add(new ToggleListCommitsAction());
 
-    DefaultActionGroup rebaseCurrentBranchOntoParent = new DefaultActionGroup("Rebase Current Branch Onto Parent",
+    DefaultActionGroup rebaseCurrentBranchOntoParent = new DefaultActionGroup(REBASE_CURRENT_ONTO_PARENT_SHORT_NAME,
         /* popup */ false);
     rebaseCurrentBranchOntoParent.add(new RebaseCurrentBranchOntoParentAction());
 
@@ -47,7 +53,7 @@ public class GitMachetePanel {
 
   private class RefreshGitMacheteStatusAction extends AnAction {
     RefreshGitMacheteStatusAction() {
-      super("Refresh Status", "Refresh status", AllIcons.Actions.Refresh);
+      super(REFRESH_STATUS_TEXT, REFRESH_STATUS_DESCRIPTION, AllIcons.Actions.Refresh);
     }
 
     @Override
@@ -58,7 +64,7 @@ public class GitMachetePanel {
 
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
     ToggleListCommitsAction() {
-      super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_TEXT, AllIcons.Actions.ShowHiddens);
+      super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_DESCRIPTION, AllIcons.Actions.ShowHiddens);
     }
 
     @Override

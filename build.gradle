@@ -1,7 +1,8 @@
 plugins {
+  id 'org.gradle.checkstyle'
+
   id 'org.gradle.java-library'
 
-  id 'checkstyle'
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'io.freefair.lombok' version '4.1.6' apply false
   id 'org.checkerframework' version '0.4.13' apply false
@@ -67,6 +68,21 @@ subprojects {
     // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
     ignoreFailures = false
     checkstyleTest.enabled = false
+
+    // This enabled as to "importing" subconfig files to main file (DTD ENTITY feature)
+    System.setProperty('checkstyle.enableExternalDtdLoad', 'true')
+
+    configProperties = [rootCheckstyleConfigDir: "${rootProject.projectDir}/config/checkstyle"]
+
+    def checkstyleRelativeConfigPath = 'config/checkstyle/checkstyle.xml'
+
+    def subprojectConfigFile = new File(projectDir, checkstyleRelativeConfigPath)
+    // Check if module-specific config file exist. If exist then apply
+    if(subprojectConfigFile.isFile()) {
+      configFile = subprojectConfigFile;
+    } else {
+      configFile = new File(rootProject.projectDir, checkstyleRelativeConfigPath)
+    }
   }
 
   apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
@@ -103,7 +119,6 @@ subprojects {
     powerMockVersion = '2.0.5'
     slf4jVersion = '1.7.25'
     vavrVersion = '0.10.2'
-    checkstyleVersion = '8.30'
 
     // For frontend modules other than `frontendUi`, we only use the Intellij plugin to provide dependencies,
     // but don't want the associated tasks to be available.
@@ -117,10 +132,6 @@ subprojects {
       runIde.enabled = false
       publishPlugin.enabled = false
       verifyPlugin.enabled = false
-    }
-
-    dependencies {
-      implementation group: 'com.puppycrawl.tools', name: 'checkstyle', version: checkstyleVersion
     }
 
     guice = { ->

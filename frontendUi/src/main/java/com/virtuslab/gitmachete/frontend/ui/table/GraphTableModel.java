@@ -17,7 +17,6 @@ public class GraphTableModel extends AbstractTableModel {
   static final int BRANCH_OR_COMMIT_COLUMN = 0;
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
-  private static final String ILLEGAL_ARGUMENT_ERROR_MESSAGE = "columnIndex is {0} > {1}";
 
   @Getter
   @Setter
@@ -41,7 +40,7 @@ public class GraphTableModel extends AbstractTableModel {
         return new BranchOrCommitCell(element, repositoryGraph.getPrintElements(rowIndex));
       default :
         throw new IllegalArgumentException(
-            MessageFormat.format(ILLEGAL_ARGUMENT_ERROR_MESSAGE, columnIndex, getColumnCount() - 1));
+            MessageFormat.format("columnIndex is {0} > {1}", columnIndex, getColumnCount() - 1));
     }
   }
 
@@ -52,7 +51,7 @@ public class GraphTableModel extends AbstractTableModel {
         return BranchOrCommitCell.class;
       default :
         throw new IllegalArgumentException(
-            MessageFormat.format(ILLEGAL_ARGUMENT_ERROR_MESSAGE, column, getColumnCount() - 1));
+            MessageFormat.format("columnIndex is {0} > {1}", column, getColumnCount() - 1));
     }
   }
 

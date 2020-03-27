@@ -12,6 +12,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 public class RepositoryGraphFactory {
 
   @Getter
+  @SuppressWarnings("ConstantName")
   public static final RepositoryGraph nullRepositoryGraph = RepositoryGraph.getNullRepositoryGraph();
 
   private RepositoryGraph repositoryGraphWithCommits;
