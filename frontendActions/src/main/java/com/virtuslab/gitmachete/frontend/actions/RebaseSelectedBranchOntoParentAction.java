@@ -87,9 +87,6 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
 
   private Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
       IGitMacheteBranch gitMacheteCurrentBranch) {
-    if (gitMacheteCurrentBranch == null) {
-      return Optional.empty();
-    }
 
     return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
         .onFailure(e -> LOG.error("Unable to derive rebase parameters", e))

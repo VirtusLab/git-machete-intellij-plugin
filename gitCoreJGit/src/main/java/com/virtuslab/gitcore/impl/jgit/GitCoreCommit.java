@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
-import com.virtuslab.gitcore.api.IGitCoreCommitHash;
+import com.virtuslab.gitcore.api.BaseGitCoreCommitHash;
 
 @Getter
 public class GitCoreCommit extends BaseGitCoreCommit {
@@ -15,12 +15,9 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
   private final Date commitTime;
-  private final IGitCoreCommitHash hash;
+  private final BaseGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
-    if (commit == null) {
-      throw new NullPointerException("JGit commit passed to Commit constructor cannot be null");
-    }
     this.jgitCommit = commit;
     this.message = jgitCommit.getFullMessage();
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());

@@ -1,10 +1,14 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-import com.virtuslab.gitcore.api.IGitCoreCommitHash;
+import com.virtuslab.gitcore.api.BaseGitCoreCommitHash;
 
-@Data
-public class GitCoreCommitHash implements IGitCoreCommitHash {
+@Getter
+@RequiredArgsConstructor
+@ToString
+public class GitCoreCommitHash extends BaseGitCoreCommitHash {
   private final String hashString;
 }

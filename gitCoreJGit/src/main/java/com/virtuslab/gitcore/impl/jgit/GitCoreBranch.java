@@ -11,8 +11,9 @@ import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -23,14 +24,17 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+import com.virtuslab.gitcore.api.BaseGitCoreBranch;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 
-@Data
-public abstract class GitCoreBranch implements IGitCoreBranch {
+@Getter
+@RequiredArgsConstructor
+@ToString
+public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final GitCoreRepository repo;
   protected final String branchName;
 
@@ -39,7 +43,6 @@ public abstract class GitCoreBranch implements IGitCoreBranch {
     return branchName;
   }
 
-  @EqualsAndHashCode.Include
   public String getFullName() {
     return getBranchesPath() + branchName;
   }

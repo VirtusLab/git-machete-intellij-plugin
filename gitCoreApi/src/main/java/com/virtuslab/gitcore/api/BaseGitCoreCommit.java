@@ -4,6 +4,10 @@ import java.util.Date;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * The only criterion for equality of any instances of any class derived from this one is the equality of
+ * {@code getHash}
+ */
 public abstract class BaseGitCoreCommit {
   public abstract String getMessage();
 
@@ -13,7 +17,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract Date getCommitTime();
 
-  public abstract IGitCoreCommitHash getHash();
+  public abstract BaseGitCoreCommitHash getHash();
 
   @Override
   public final boolean equals(@Nullable Object other) {
@@ -22,12 +26,12 @@ public abstract class BaseGitCoreCommit {
     } else if (!(other instanceof BaseGitCoreCommit)) {
       return false;
     } else {
-      return getHash().getHashString().equals(((BaseGitCoreCommit) other).getHash().getHashString());
+      return getHash().equals(((BaseGitCoreCommit) other).getHash());
     }
   }
 
   @Override
   public int hashCode() {
-    return getHash().getHashString().hashCode();
+    return getHash().hashCode();
   }
 }

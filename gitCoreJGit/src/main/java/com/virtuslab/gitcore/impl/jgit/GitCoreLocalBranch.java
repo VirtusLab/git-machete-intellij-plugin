@@ -89,7 +89,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
           assert reflogReader != null : "Error while getting reflog reader";
           return reflogReader.getReverseEntries();
         }))
-        .map(Try::get) // throwable
+        .map(Try::get)
         .map(List::ofAll)
         .collect(List.collector()))
         .getOrElseThrow(e -> new GitCoreException(e));
