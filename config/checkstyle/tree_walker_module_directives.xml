@@ -54,6 +54,9 @@
 </module>
 <module name="StringLiteralEquality"/>
 <module name="SuperClone"/>
+<module name="TodoComment">
+    <property name="format" value="(\*|//|#)\s*(fixme|todo|FIXME|TODO)(?! \(#[0-9]+\): )" />
+</module>
 <module name="UnnecessaryParentheses"/>
 <module name="UnusedImports"/>
 <module name="UpperEll"/>

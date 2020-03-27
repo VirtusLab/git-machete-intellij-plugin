@@ -9,10 +9,10 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public class GitMachetePanel {
   private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";

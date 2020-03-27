@@ -11,7 +11,7 @@
 
 <!-- List of directives: https://checkstyle.sourceforge.io/version/4.4/availablechecks.html -->
 
-<!-- DTD ENTITTY-ies are used to allow decouple config file to smaller parts that can be reimported in submodule-specific configuration file -->
+<!-- DTD ENTITY-ies are used to allow decouple config file to smaller parts that can be reimported in submodule-specific configuration file -->
 
 <module name="Checker">
     &checkerModuleDirectives;

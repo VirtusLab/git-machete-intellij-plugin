@@ -31,7 +31,7 @@ jobs:
           command: ./gradlew javadoc
       - run:
           name: Run static code analyzer
-          command: ./gradlew checkstyleMain
+          command: ./gradlew checkstyleMain --warn
 
       - run:
           name: Compile tests
