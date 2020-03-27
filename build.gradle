@@ -27,6 +27,11 @@ task resolveDependencies {
   }
 }
 
+// This is only needed as workaround for resolveDependencies task. Otherwise it fail when resolve dependency for checkstyle
+repositories {
+  mavenCentral()
+}
+
 subprojects {
   def PLUGIN_VERSION = '0.0.40-SNAPSHOT'
 
