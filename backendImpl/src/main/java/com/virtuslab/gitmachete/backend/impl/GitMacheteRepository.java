@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.backend.impl;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
-import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import lombok.Getter;
@@ -36,8 +34,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private final Map<String, IGitMacheteBranch> branchNameToBranch;
 
-  private final Map<String, Optional<IGitMacheteBranch>> branchNameToUpstream = new TreeMap<>();
-
   @Override
   public Optional<String> getRepositoryName() {
     return Optional.ofNullable(repositoryName);
@@ -54,16 +50,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> deriveExistingUpstreamBranch(IGitMacheteBranch branch) {
-    Predicate<IGitMacheteBranch> isUpstreamForBranch = gitMacheteBranch -> gitMacheteBranch.getDownstreamBranches()
-        .contains(branch);
-    return branchNameToUpstream.computeIfAbsent(branch.getName(),
-        branchName -> findBranchRecursively(rootBranches, isUpstreamForBranch));
-  }
-
-  @Override
   public IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) throws GitMacheteException {
-    IGitMacheteBranch newBaseBranch = deriveUpstreamBranch(branch);
+    var newBaseBranch = branch.getUpstreamBranch();
+    if (!newBaseBranch.isPresent()) {
+      throw new GitMacheteException(
+          MessageFormat.format("Branch \"{0}\" doesn't have an upstream", branch.getName()));
+    }
 
     var forkPoint = branch.deriveForkPoint();
     if (!forkPoint.isPresent()) {
@@ -71,44 +63,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           MessageFormat.format("Cannot find fork point for branch \"{0}\"", branch.getName()));
     }
 
-    return new GitRebaseParameters(/* currentBranch */ branch, newBaseBranch.getPointedCommit(), forkPoint.get());
+    return new GitRebaseParameters(/* currentBranch */ branch, newBaseBranch.get().getPointedCommit(), forkPoint.get());
   }
 
   @Override
   public IGitMergeParameters deriveParametersForMergeIntoParent(IGitMacheteBranch branch) throws GitMacheteException {
-    IGitMacheteBranch branchToMergeInto = deriveUpstreamBranch(branch);
-    return new GitMergeParameters(/* currentBranch */ branch, branchToMergeInto);
-  }
-
-  private IGitMacheteBranch deriveUpstreamBranch(IGitMacheteBranch branch) throws GitMacheteException {
-    if (rootBranches.contains(branch)) {
+    var branchToMergeInto = branch.getUpstreamBranch();
+    if (!branchToMergeInto.isPresent()) {
       throw new GitMacheteException(
-          MessageFormat.format("Cannot get merge parameters for root branch \"{0}\"", branch.getName()));
+          MessageFormat.format("Branch \"{0}\" doesn't have an upstream", branch.getName()));
     }
 
-    Optional<IGitMacheteBranch> newBaseBranch = deriveExistingUpstreamBranch(branch);
-    if (!newBaseBranch.isPresent()) {
-      throw new GitMacheteException(
-          MessageFormat.format("git-machete does not manage branch: \"{0}\"", branch.getName()));
-    }
-    return newBaseBranch.get();
-  }
-
-  /** @return the first branch in pre-order traversal that satisfies the {@code predicate} */
-  private static Optional<IGitMacheteBranch> findBranchRecursively(
-      List<IGitMacheteBranch> branches,
-      Predicate<IGitMacheteBranch> predicate) {
-    for (var branch : branches) {
-      if (predicate.test(branch)) {
-        return Optional.of(branch);
-      }
-
-      var result = findBranchRecursively(branch.getDownstreamBranches(), predicate);
-      if (result.isPresent()) {
-        return result;
-      }
-    }
-
-    return Optional.empty();
+    return new GitMergeParameters(/* currentBranch */ branch, branchToMergeInto.get());
   }
 }

@@ -33,7 +33,6 @@ import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -84,7 +83,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
       branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
           .getOrElseThrow(e -> {
-            var errorLine = ((BranchLayoutException) e).getErrorLine();
+            Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
             return new MacheteFileParseException(errorLine.isPresent()
                 ? MessageFormat.format("Error occurred while parsing machete file {0} in line {1}",
                     pathToBranchLayoutFile.toString(), errorLine.get())
@@ -97,9 +96,10 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(/* parentEntryCoreLocalBranch */ null,
         branchLayout.getRootBranches());
 
-    List<IGitMacheteBranch> macheteRootBranches = branchLayout.getRootBranches()
-        .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
-        .peek(branch -> branchByName.put(branch.getName(), branch));
+    List<IGitMacheteBranch> macheteRootBranches = List.narrow(
+        branchLayout.getRootBranches()
+            .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
+            .peek(branch -> branchByName.put(branch.getName(), branch)));
 
     List<IGitMacheteSubmoduleEntry> macheteSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
         .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e))
@@ -110,7 +110,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         branchByName);
   }
 
-  private List<IGitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
+  private List<GitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
     return List.ofAll(directDownstreamEntries)
         .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
         .peek(branch -> branchByName.put(branch.getName(), branch))
@@ -121,19 +121,21 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 
-  private IGitMacheteBranch createMacheteBranch(IBranchLayoutEntry branchEntry,
-      List<IGitMacheteBranch> downstreamBranches) {
+  private GitMacheteBranch createMacheteBranch(IBranchLayoutEntry branchEntry,
+      List<GitMacheteBranch> downstreamBranches) {
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
 
     GitMacheteBranchData gitMacheteBranchData = branchNameToGitMacheteBranchData.get(branchEntry.getName());
     assert gitMacheteBranchData != null;
 
-    var branch = new GitMacheteBranch(branchEntry.getName(), customAnnotation, downstreamBranches,
+    var branch = new GitMacheteBranch(branchEntry.getName(),
+        downstreamBranches,
         gitMacheteBranchData.pointedCommit,
         gitMacheteBranchData.commits,
         gitMacheteBranchData.syncToOriginStatus,
         gitMacheteBranchData.syncToParentStatus,
-        gitMacheteBranchData.coreBranch);
+        gitMacheteBranchData.coreBranch,
+        customAnnotation);
 
     if (gitMacheteBranchData.coreBranch.equals(currentCoreBranch)) {
       currentBranch = branch;
@@ -163,7 +165,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
 
           // translate IGitCoreCommit list to IGitMacheteCommit list
-          List<IGitMacheteCommit> commits = !forkPoint.isPresent()
+          List<GitMacheteCommit> commits = !forkPoint.isPresent()
               ? List.empty()
               : coreLocalBranch.deriveCommitsUntil(forkPoint.get())
                   .map(GitMacheteCommit::new)
@@ -262,8 +264,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   @AllArgsConstructor(staticName = "of")
   private static class GitMacheteBranchData {
-    final IGitMacheteCommit pointedCommit;
-    final List<IGitMacheteCommit> commits;
+    final GitMacheteCommit pointedCommit;
+    final List<GitMacheteCommit> commits;
     final SyncToOriginStatus syncToOriginStatus;
     final SyncToParentStatus syncToParentStatus;
     final IGitCoreLocalBranch coreBranch;

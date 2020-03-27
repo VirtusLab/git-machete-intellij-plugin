@@ -11,6 +11,8 @@ public interface IGitMacheteBranch {
 
   IGitMacheteCommit getPointedCommit();
 
+  Optional<IGitMacheteBranch> getUpstreamBranch();
+
   List<IGitMacheteBranch> getDownstreamBranches();
 
   Optional<String> getCustomAnnotation();

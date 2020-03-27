@@ -120,7 +120,7 @@ public class GitMacheteStatusTest {
       sb.append("  ");
       sb.append("| ".repeat(level - 1));
 
-      var upstreamBranch = gitMacheteRepository.deriveExistingUpstreamBranch(branch);
+      var upstreamBranch = branch.getUpstreamBranch();
       assert upstreamBranch.isPresent();
 
       var parentStatus = branch.getSyncToParentStatus();

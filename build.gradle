@@ -35,7 +35,7 @@ allprojects {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.40-SNAPSHOT'
+  def PLUGIN_VERSION = '0.0.41-SNAPSHOT'
 
   group 'com.virtuslab'
   version PLUGIN_VERSION

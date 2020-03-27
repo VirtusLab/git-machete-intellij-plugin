@@ -26,7 +26,7 @@ public class BranchLayoutFileSaver {
     if (backupOldFile) {
       Path parentDir = path.getParent();
       assert parentDir != null : "Can't get parent dir of branch relation file";
-      var pathToBackupFile = parentDir.resolve(path.getFileName() + "~");
+      Path pathToBackupFile = parentDir.resolve(path.getFileName() + "~");
       Files.copy(path, pathToBackupFile, StandardCopyOption.REPLACE_EXISTING);
     }
 

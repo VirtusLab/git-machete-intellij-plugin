@@ -103,7 +103,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
               assert reflogReader != null : "Error while getting reflog reader";
               return reflogReader.getReverseEntries();
             }))
-            .map(Try::get) // throwable
+            .map(Try::get)
             .map(List::ofAll)
             .collect(List.collector()))
         .getOrElseThrow(e -> new GitCoreException(e));
@@ -113,7 +113,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     List<ReflogEntry> filteredReflogEntries = reflogEntryLists
         .flatMap(entries -> {
-          var firstEntryNewId = entries.size() > 0 ? entries.get(entries.size() - 1).getNewId() : ObjectId.zeroId();
+          ObjectId firstEntryNewId = entries.size() > 0
+              ? entries.get(entries.size() - 1).getNewId()
+              : ObjectId.zeroId();
 
           Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(firstEntryNewId)
               || e.getNewId().equals(e.getOldId())
@@ -123,7 +125,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
           return entries.reject(isEntryExcluded);
         });
 
-    for (var currentBranchCommit : walk) {
+    for (RevCommit currentBranchCommit : walk) {
       // Checked if the old ID is not zero to exclude the first entry in reflog (just after
       // creating from other branch)
       boolean currentBranchCommitInReflogs = filteredReflogEntries

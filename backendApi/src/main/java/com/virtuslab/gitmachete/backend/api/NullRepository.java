@@ -40,11 +40,6 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> deriveExistingUpstreamBranch(IGitMacheteBranch branch) {
-    return Optional.empty();
-  }
-
-  @Override
   public IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) {
     throw new NotImplementedError();
   }

@@ -24,14 +24,14 @@ jobs:
           command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
-          # TODO (#136): check if max-workers=2 prevents OOMs on CI
-          command: ./gradlew --stacktrace --max-workers=2 compileJava
+          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
+          command: ./gradlew --max-workers=2 compileJava
       - run:
           name: Check Javadoc correctness
           command: ./gradlew javadoc
       - run:
           name: Run static code analyzer
-          command: ./gradlew checkstyleMain --warn
+          command: ./gradlew --warn checkstyleMain
 
       - run:
           name: Compile tests
@@ -55,5 +55,5 @@ jobs:
               echo Skipping, not a master build
             fi
       - store_artifacts:
-          path: ~/git-machete-intellij-plugin/frontendUi/build/distributions/
+          path: frontendUi/build/distributions/
           destination: .

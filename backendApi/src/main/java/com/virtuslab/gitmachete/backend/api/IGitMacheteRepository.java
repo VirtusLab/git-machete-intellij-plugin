@@ -15,8 +15,6 @@ public interface IGitMacheteRepository {
 
   List<IGitMacheteSubmoduleEntry> getSubmodules();
 
-  Optional<IGitMacheteBranch> deriveExistingUpstreamBranch(IGitMacheteBranch branch);
-
   IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) throws GitMacheteException;
 
   IGitMergeParameters deriveParametersForMergeIntoParent(IGitMacheteBranch upstreamBranch) throws GitMacheteException;
