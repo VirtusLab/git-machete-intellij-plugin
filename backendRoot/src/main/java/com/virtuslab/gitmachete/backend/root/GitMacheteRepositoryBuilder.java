@@ -45,14 +45,13 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteSubmoduleEntry;
 @Accessors(chain = true, fluent = true)
 @Getter(AccessLevel.PACKAGE)
 public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder {
-  private IGitCoreRepository gitCoreRepository;
-  @Nullable
+  @MonotonicNonNull
   private IGitMacheteBranch currentBranch = null;
   @Nullable
   private IGitCoreBranch currentCoreBranch;
   private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
 
-  private final GitCoreRepositoryFactory gitCoreRepositoryFactory;
+  private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
   private final Path pathToRepoRoot;
   @Setter
@@ -66,14 +65,14 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
   @Inject
   public GitMacheteRepositoryBuilder(
-      GitCoreRepositoryFactory gitCoreRepositoryFactory,
+      IGitCoreRepositoryFactory gitCoreRepositoryFactory,
       @Assisted Path pathToRepoRoot) {
     this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
     this.pathToRepoRoot = pathToRepoRoot;
   }
 
   public GitMacheteRepository build() throws GitMacheteException {
-    gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
+    var gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
 
     currentCoreBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
@@ -93,7 +92,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           });
     }
 
-    verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(/* parentEntryCoreLocalBranch */ null,
+    verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(gitCoreRepository, /* parentEntryCoreLocalBranch */ null,
         branchLayout.getRootBranches());
 
     List<IGitMacheteBranch> macheteRootBranches = List.narrow(
@@ -150,11 +149,12 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
    * simplify further process of a machete repository construction.
    */
   private void verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(
+      IGitCoreRepository gitCoreRepository,
       @Nullable IGitCoreLocalBranch parentEntryCoreLocalBranch,
       List<IBranchLayoutEntry> entries)
       throws GitMacheteException {
     for (var entry : entries) {
-      Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(entry.getName());
+      Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(gitCoreRepository, entry.getName());
       if (!coreBranchOptional.isPresent()) {
         throw new GitMacheteException(MessageFormat
             .format("Branch \"{0}\" defined in machete file does not exist in repository", entry.getName()));
@@ -173,7 +173,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
           var pointedCommit = new GitMacheteCommit(coreLocalBranch.getPointedCommit());
           var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
-          var syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentEntryCoreLocalBranch);
+          var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch,
+              parentEntryCoreLocalBranch);
 
           var gitMacheteBranchData = GitMacheteBranchData.of(pointedCommit, commits, syncToOriginStatus,
               syncToParentStatus, coreLocalBranch);
@@ -184,7 +185,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           throw new GitMacheteException(e);
         }
 
-        verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(coreLocalBranch, entry.getSubbranches());
+        verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(gitCoreRepository, coreLocalBranch,
+            entry.getSubbranches());
       }
     }
   }
@@ -211,7 +213,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
   }
 
-  private SyncToParentStatus deriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
+  private SyncToParentStatus deriveSyncToParentStatus(IGitCoreRepository gitCoreRepository,
+      IGitCoreLocalBranch coreLocalBranch,
       @Nullable IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
     try {
       if (parentCoreLocalBranch == null) {
@@ -258,7 +261,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   /**
    * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
    */
-  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(String branchName) {
+  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(IGitCoreRepository gitCoreRepository, String branchName) {
     return Try.of(() -> Optional.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(() -> Optional.empty());
   }
 

@@ -8,7 +8,7 @@ function extract_version_from_git_revision() {
 
   # `git show ... | grep -Po ...` is necessary (instead of `git grep -Po ...`)
   # since the old version of git (2.7.x) installed on the build image doesn't support `-o` flag of `git grep`.
-  git show "$revision":build.gradle | extract_version_from_build_gradle_stdin
+  { git show "$revision":version.gradle 2>/dev/null || git show "$revision":build.gradle; } | extract_version_from_build_gradle_stdin
 }
 
 function parse_version_from_git_revision() {

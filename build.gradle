@@ -37,9 +37,8 @@ allprojects {
 }
 
 subprojects {
-  def PLUGIN_VERSION = '0.0.42-SNAPSHOT'
-
   group 'com.virtuslab'
+  apply from: '../version.gradle'
   version PLUGIN_VERSION
 
   apply plugin: 'org.gradle.java-library'
@@ -52,8 +51,7 @@ subprojects {
             'org.checkerframework.checker.optional.OptionalChecker'
     ]
     extraJavacArgs = [
-            '-AassumeAssertionsAreEnabled',
-            '-AsuppressWarnings=initialization'
+            '-AassumeAssertionsAreEnabled'
     ]
   }
 

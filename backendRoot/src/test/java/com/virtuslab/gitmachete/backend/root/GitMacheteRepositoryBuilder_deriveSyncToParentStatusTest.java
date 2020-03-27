@@ -28,9 +28,12 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   private static final GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = PowerMockito
       .mock(GitMacheteRepositoryBuilder.class);
 
+  private static final TestGitCoreRepositoryFactory repositoryFactory = new TestGitCoreRepositoryFactory();
+  private static final TestGitCoreRepository repository = repositoryFactory.getInstance();
+
   @BeforeClass
   public static void init() {
-    Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepository", new TestGitCoreRepository());
+    Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepositoryFactory", repositoryFactory);
   }
 
   @Test
@@ -147,6 +150,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
       IGitCoreBranch parentCoreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
         "deriveSyncToParentStatus",
+        repository,
         coreLocalBranch,
         parentCoreLocalBranch);
   }
@@ -270,5 +274,23 @@ class TestGitCoreRepository implements IGitCoreRepository {
   @Override
   public List<IGitCoreSubmoduleEntry> getSubmodules() {
     return List.empty();
+  }
+}
+
+class TestGitCoreRepositoryFactory implements IGitCoreRepositoryFactory {
+
+  private final TestGitCoreRepository instance;
+
+  public TestGitCoreRepositoryFactory() {
+    instance = new TestGitCoreRepository();
+  }
+
+  public TestGitCoreRepository getInstance() {
+    return instance;
+  }
+
+  @Override
+  public IGitCoreRepository create(Path pathToRoot) {
+    return getInstance();
   }
 }

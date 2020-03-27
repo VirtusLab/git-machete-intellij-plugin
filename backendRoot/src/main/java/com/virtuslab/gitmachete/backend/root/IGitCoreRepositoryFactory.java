@@ -4,6 +4,6 @@ import java.nio.file.Path;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
-public interface GitCoreRepositoryFactory {
+public interface IGitCoreRepositoryFactory {
   IGitCoreRepository create(Path pathToRoot);
 }

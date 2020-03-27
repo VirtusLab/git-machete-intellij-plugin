@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,12 +22,15 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
-import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
 
+@SuppressWarnings("dereference.of.nullable")
 public class GitMacheteStatusTest {
-  IGitMacheteRepository gitMacheteRepository;
-  private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule
-      .getInjector().getInstance(GitMacheteRepositoryBuilderFactory.class);
+  @Nullable
+  IGitMacheteRepository gitMacheteRepository = null;
+
+  private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule
+      .getInjector().getInstance(IGitMacheteRepositoryBuilderFactory.class);
 
   public static final Path tmpTestDir = Paths.get("/tmp/machete-tests");
   public static final Path scriptsDir = tmpTestDir.resolve("scripts");

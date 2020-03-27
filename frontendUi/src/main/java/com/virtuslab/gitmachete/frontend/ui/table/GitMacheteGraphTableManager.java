@@ -21,7 +21,7 @@ import lombok.Setter;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
-import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 
@@ -33,7 +33,7 @@ public class GitMacheteGraphTableManager {
   private boolean isListingCommits;
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
-  private final GitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
+  private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
   private final AtomicReference<IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
 
@@ -44,7 +44,7 @@ public class GitMacheteGraphTableManager {
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
     this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef);
     this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
-        .getInstance(GitMacheteRepositoryBuilderFactory.class);
+        .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     subscribeToGitRepositoryChanges();
   }

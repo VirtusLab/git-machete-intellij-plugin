@@ -14,9 +14,9 @@ public class BackendFactoryModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new FactoryModuleBuilder().implement(IGitMacheteRepositoryBuilder.class, GitMacheteRepositoryBuilder.class)
-        .build(GitMacheteRepositoryBuilderFactory.class));
+        .build(IGitMacheteRepositoryBuilderFactory.class));
     install(new FactoryModuleBuilder().implement(IGitCoreRepository.class, GitCoreRepository.class)
-        .build(GitCoreRepositoryFactory.class));
+        .build(IGitCoreRepositoryFactory.class));
   }
 
   public static Injector getInjector() {

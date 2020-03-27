@@ -13,7 +13,7 @@ intellij_versions=(192.5728.98)
 # 2020.1 is only available as EAP so far anyway, let's wait until it's officially released.
 
 verifier_version=1.231
-plugin_version=$(extract_version_from_build_gradle_stdin < build.gradle)
+plugin_version=$(extract_version_from_build_gradle_stdin < version.gradle)
 plugin_zip=$(echo frontendUi/build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip)
 
 [[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"

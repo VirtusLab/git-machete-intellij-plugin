@@ -21,12 +21,12 @@ if [ $# -eq 3 ]; then
   fi
 
   if [[ $head_version != $target_version ]]; then
-    echo "Rewriting the commits: setting version in build.gradle to $target_version..."
+    echo "Rewriting the commits: setting version in version.gradle to $target_version..."
     self_path="$(cd "$(dirname "$0")" &>/dev/null; pwd -P)"/"$(basename "$0")"
     git filter-branch -f --tree-filter "$self_path $target_version" "$fork_point".."$current_branch"
   fi
 elif [ $# -eq 1 ]; then
   target_version=$1
 
-  sed -i "/^\s*def PLUGIN_VERSION = '.*-SNAPSHOT'\$/  s/'.*'/'$target_version-SNAPSHOT'/" build.gradle
+  sed -i "/^\s*def PLUGIN_VERSION = '.*-SNAPSHOT'\$/  s/'.*'/'$target_version-SNAPSHOT'/" version.gradle
 fi
