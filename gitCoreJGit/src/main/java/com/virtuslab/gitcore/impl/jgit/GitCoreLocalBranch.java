@@ -1,5 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -78,16 +79,14 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     RevCommit commit = derivePointedRevCommit();
     try {
       walk.markStart(commit);
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new GitCoreException(e);
     }
-
-    String reflogReaderErrorMessage = "Error while getting reflog reader";
 
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
         .map(b -> Try.of(() -> {
           ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(b.getFullName());
-          assert reflogReader != null : reflogReaderErrorMessage;
+          assert reflogReader != null : "Error while getting reflog reader";
           return reflogReader.getReverseEntries();
         }))
         .map(Try::get) // throwable
@@ -101,7 +100,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
         .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
             .map(branch -> Try.of(() -> {
               ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
-              assert reflogReader != null : reflogReaderErrorMessage;
+              assert reflogReader != null : "Error while getting reflog reader";
               return reflogReader.getReverseEntries();
             }))
             .map(Try::get) // throwable

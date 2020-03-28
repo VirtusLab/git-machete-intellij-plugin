@@ -1,6 +1,5 @@
 plugins {
   id 'org.gradle.checkstyle'
-
   id 'org.gradle.java-library'
 
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
@@ -27,9 +26,12 @@ task resolveDependencies {
   }
 }
 
-// This is only needed as workaround for resolveDependencies task. Otherwise it fail when resolve dependency for checkstyle
-repositories {
-  mavenCentral()
+allprojects {
+// This is only needed as workaround for resolveDependencies task. Otherwise it fails when resolve dependency for checkstyle
+  repositories {
+    jcenter()
+    mavenCentral()
+  }
 }
 
 subprojects {
@@ -37,11 +39,6 @@ subprojects {
 
   group 'com.virtuslab'
   version PLUGIN_VERSION
-
-  repositories {
-    jcenter()
-    mavenCentral()
-  }
 
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
@@ -70,6 +67,8 @@ subprojects {
 
   apply plugin: 'checkstyle'
   checkstyle {
+    toolVersion '8.30'
+
     // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
     ignoreFailures = false
     checkstyleTest.enabled = false

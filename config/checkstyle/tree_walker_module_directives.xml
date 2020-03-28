@@ -7,18 +7,22 @@
     <property name="format" value="^.*[Ii]nstance.*|.*[Ii]njector.*|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
 </module>
 <module name="CovariantEquals"/>
-<module name="EmptyBlock"/>
-<module name="EmptyStatement"/>
-<module name="EqualsHashCode"/>
+<module name="DefaultComesLast" />
 <module name="EmptyBlock">
     <property name="option" value="TEXT"/>
     <property name="tokens"
               value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
 </module>
+<module name="EmptyStatement"/>
+<module name="EqualsHashCode"/>
+<!-- <module name="ExplicitInitialization"/> -->
 <module name="FallThrough"/>
+<module name="FinalClass" />
 <module name="HiddenField">
     <property name="ignoreConstructorParameter" value="true"/>
 </module>
+<module name="HideUtilityClassConstructor" />
+<module name="IllegalCatch"/>
 <module name="IllegalThrows"/>
 <module name="IllegalType"/>
 <module name="InnerAssignment"/>
@@ -35,11 +39,14 @@
     <property name="allowedDuplicates" value="3"/>
 </module>
 <module name="MultipleVariableDeclarations"/>
+<module name="ModifiedControlVariable"/>
 <module name="ModifierOrder"/>
+<module name="MutableException"/>
 <module name="NeedBraces">
     <property name="tokens"
               value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
 </module>
+<module name="NestedTryDepth"/>
 <module name="NoWhitespaceAfter"/>
 <module name="NoWhitespaceBefore"/>
 <module name="OneStatementPerLine"/>
@@ -54,9 +61,6 @@
 </module>
 <module name="StringLiteralEquality"/>
 <module name="SuperClone"/>
-<module name="TodoComment">
-    <property name="format" value="(\*|//|#)\s*(fixme|todo|FIXME|TODO)(?! \(#[0-9]+\): )" />
-</module>
 <module name="UnnecessaryParentheses"/>
 <module name="UnusedImports"/>
 <module name="UpperEll"/>
