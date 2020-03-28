@@ -15,7 +15,6 @@
 </module>
 <module name="EmptyStatement"/>
 <module name="EqualsHashCode"/>
-<!-- <module name="ExplicitInitialization"/> -->
 <module name="FallThrough"/>
 <module name="FinalClass" />
 <module name="HiddenField">
