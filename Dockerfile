@@ -8,8 +8,8 @@ RUN set -x && \
     mkdir -p /usr/share/man/man1 && \
     apt-get update && \
     `# installing JDK and not just JRE to provide javadoc executable` \
-    apt-get install --no-install-recommends -y git openjdk-11-jdk-headless openssh-client python3 python3-pip && \
-    pip3 install git-machete==2.13.5 && \
+    apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xxd && \
+    pip3 install git-machete==2.13.6 && \
     apt-get autoremove -y python3-pip && \
     rm -rf /var/lib/apt/lists/*
 

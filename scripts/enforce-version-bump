@@ -2,7 +2,8 @@
 
 set -e -o pipefail -u -x
 
-source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
 
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123

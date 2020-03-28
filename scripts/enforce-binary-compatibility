@@ -2,7 +2,8 @@
 
 set -e -o pipefail -u
 
-source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
 
 # Note: this should be kept in sync with frontendUi/build.gradle.
 # We're not including any 193.* (aka 2019.3) release here since that's the version we're currently building against anyway

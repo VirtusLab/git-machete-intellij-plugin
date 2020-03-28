@@ -12,6 +12,7 @@ jobs:
           command: |
             set -x
             ./scripts/enforce-issue-number-for-todos
+            ./scripts/enforce-newline-at-eof
             ./scripts/enforce-version-bump
             ./scripts/prohibit-trailing-whitespace
             ./scripts/specify-snapshot-revision
@@ -49,7 +50,6 @@ jobs:
           name: Verify binary compatibility with supported IntelliJ versions
           command: |
             if [[ $CIRCLE_BRANCH == master ]]; then
-              apt-get update && apt-get install -y curl
               ./scripts/enforce-binary-compatibility
             else
               echo Skipping, not a master build
