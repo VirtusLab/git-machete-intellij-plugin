@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -34,6 +35,19 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
+  /**
+   * Expects DataKeys:
+   * <ul>
+   *  <li>{@link CommonDataKeys#PROJECT}</li>
+   *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+   *  <li>exactly one of:
+   *    <ul>
+   *      <li>{@link DataKeys#KEY_SELECTED_BRANCH}</li>
+   *      <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+   *    </ul>
+   *  </li>
+   * </ul>
+   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();

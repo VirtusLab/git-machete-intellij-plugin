@@ -11,6 +11,7 @@ jobs:
           name: Prepare build
           command: |
             set -x
+            ./scripts/enforce-data-keys-javadoc-for-actions
             ./scripts/enforce-issue-number-for-todos
             ./scripts/enforce-newline-at-eof
             ./scripts/enforce-version-bump

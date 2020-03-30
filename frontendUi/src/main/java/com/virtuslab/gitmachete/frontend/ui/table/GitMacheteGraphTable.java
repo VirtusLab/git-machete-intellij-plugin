@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -98,18 +99,22 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     return (GraphTableModel) super.getModel();
   }
 
+  private <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
+    return Case($(key.getName()), value);
+  }
+
   @Nullable
   @Override
   @SuppressWarnings("return.type.incompatible")
   public Object getData(String dataId) {
     return Match(dataId).of(
-        Case($(CommonDataKeys.PROJECT.getName()), project),
+        typeSafeCase(CommonDataKeys.PROJECT, project),
         // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
         // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
-        Case($(CommonDataKeys.EDITOR.getName()), FileEditorManager.getInstance(project).getSelectedTextEditor()),
-        Case($(DataKeys.KEY_GIT_MACHETE_REPOSITORY_STRING), gitMacheteRepositoryRef.get()),
-        Case($(DataKeys.KEY_SELECTED_BRANCH_NAME_STRING), selectedBranchName),
-        Case($(CommonDataKeys.PROJECT.getName()), project),
+        typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
+        typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
+        typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), () -> null));
   }
 

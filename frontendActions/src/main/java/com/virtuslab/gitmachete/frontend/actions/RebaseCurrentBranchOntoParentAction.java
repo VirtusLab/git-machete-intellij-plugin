@@ -32,6 +32,13 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
+  /**
+   * Expects DataKeys:
+   * <ul>
+   *  <li>{@link CommonDataKeys#PROJECT}</li>
+   *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+   * </ul>
+   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
@@ -49,11 +56,13 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     MapDataContext dataContext = new MapDataContext(
         Map.of(
             CommonDataKeys.PROJECT, originalDataContext.getData(CommonDataKeys.PROJECT),
-            KEY_GIT_MACHETE_REPOSITORY, originalDataContext.getData(KEY_GIT_MACHETE_REPOSITORY),
+            KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository,
             KEY_SELECTED_BRANCH, branchToRebase.get()));
 
     AnActionEvent actionEvent = new AnActionEvent(anActionEvent.getInputEvent(), dataContext, anActionEvent.getPlace(),
         anActionEvent.getPresentation(), anActionEvent.getActionManager(), anActionEvent.getModifiers());
+    // Effectively delegating the action to RebaseSelectedBranchOntoParentAction (see the action id -> action class
+    // binding in plugin.xml).
     ActionManager.getInstance().getAction(ACTION_REBASE).actionPerformed(actionEvent);
   }
 }

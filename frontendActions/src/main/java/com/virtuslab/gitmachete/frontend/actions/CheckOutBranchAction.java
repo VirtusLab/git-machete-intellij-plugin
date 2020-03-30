@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -25,6 +26,13 @@ public class CheckOutBranchAction extends AnAction {
     super.update(anActionEvent);
   }
 
+  /**
+   * Expects DataKeys:
+   * <ul>
+   *  <li>{@link CommonDataKeys#PROJECT}</li>
+   *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+   * </ul>
+   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
