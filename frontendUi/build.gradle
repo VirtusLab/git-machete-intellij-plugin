@@ -26,6 +26,5 @@ patchPluginXml {
 }
 
 runIde {
-  jbrVersion '11_0_3b304'
   jvmArgs '-Djdk.gtk.version=2'
 }
