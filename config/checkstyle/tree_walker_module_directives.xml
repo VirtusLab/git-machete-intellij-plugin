@@ -4,7 +4,7 @@
 <module name="ArrayTypeStyle"/>
 <module name="AvoidStarImport"/>
 <module name="ConstantName">
-    <property name="format" value="^.*[Ii]nstance.*|.*[Ii]njector.*|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
+    <property name="format" value="^((.*[Ii]nstance.*)|(.*[Ii]njector.*)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
 </module>
 <module name="CovariantEquals"/>
 <module name="DefaultComesLast" />

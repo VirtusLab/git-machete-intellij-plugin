@@ -27,7 +27,7 @@ task resolveDependencies {
 }
 
 allprojects {
-// This is only needed as workaround for resolveDependencies task. Otherwise it fails when resolve dependency for checkstyle
+// Keeping is only needed as workaround for resolveDependencies task. Otherwise it fails when resolving dependencies for checkstyle
   repositories {
     jcenter()
     mavenCentral()
@@ -73,7 +73,7 @@ subprojects {
     ignoreFailures = false
     checkstyleTest.enabled = false
 
-    // This enabled as to "importing" subconfig files to main file (DTD ENTITY feature)
+    // This enables "importing" subconfig files to main file (DTD ENTITY feature)
     System.setProperty('checkstyle.enableExternalDtdLoad', 'true')
 
     configProperties = [rootCheckstyleConfigDir: "${rootProject.projectDir}/config/checkstyle"]
@@ -81,7 +81,7 @@ subprojects {
     def checkstyleRelativeConfigPath = 'config/checkstyle/checkstyle.xml'
 
     def subprojectConfigFile = new File(projectDir, checkstyleRelativeConfigPath)
-    // Check if module-specific config file exist. If exist then apply
+    // Check if module-specific config file exists. If exists then apply
     if(subprojectConfigFile.isFile()) {
       configFile = subprojectConfigFile;
     } else {
