@@ -27,7 +27,9 @@ task resolveDependencies {
 }
 
 allprojects {
-// Keeping is only needed as workaround for resolveDependencies task. Otherwise it fails when resolving dependencies for checkstyle
+  // Keeping `repositories`, specifically `mavenCentral()` in `allprojects` rather than in `subprojects`
+  // is only needed as workaround for `resolveDependencies` task.
+  // Otherwise it fails when resolving dependencies for checkstyle.
   repositories {
     jcenter()
     mavenCentral()
