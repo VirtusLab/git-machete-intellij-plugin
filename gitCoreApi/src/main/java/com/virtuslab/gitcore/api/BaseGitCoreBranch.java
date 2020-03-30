@@ -23,7 +23,7 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return getFullName().hashCode() * 37 + Try.of(() -> getPointedCommit().hashCode()).getOrElse(0);
   }
 }

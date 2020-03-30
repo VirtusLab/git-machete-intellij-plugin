@@ -31,7 +31,7 @@ public abstract class BaseGitCoreCommit {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return getHash().hashCode();
   }
 }

@@ -21,7 +21,7 @@ public abstract class BaseGitCoreCommitHash {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return getHashString().hashCode();
   }
 }
