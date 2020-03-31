@@ -19,6 +19,13 @@ import com.intellij.testFramework.MapDataContext;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
+/**
+ * Expects DataKeys:
+ * <ul>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ * </ul>
+ */
 public class RebaseCurrentBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseCurrentBranchOntoParentAction.class);
 
@@ -32,13 +39,6 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
-  /**
-   * Expects DataKeys:
-   * <ul>
-   *  <li>{@link CommonDataKeys#PROJECT}</li>
-   *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
-   * </ul>
-   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);

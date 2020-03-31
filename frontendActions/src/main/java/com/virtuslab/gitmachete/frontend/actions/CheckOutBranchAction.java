@@ -16,6 +16,13 @@ import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
 
+/**
+ * Expects DataKeys:
+ * <ul>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ * </ul>
+ */
 public class CheckOutBranchAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(CheckOutBranchAction.class);
 
@@ -26,13 +33,6 @@ public class CheckOutBranchAction extends AnAction {
     super.update(anActionEvent);
   }
 
-  /**
-   * Expects DataKeys:
-   * <ul>
-   *  <li>{@link CommonDataKeys#PROJECT}</li>
-   *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
-   * </ul>
-   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);

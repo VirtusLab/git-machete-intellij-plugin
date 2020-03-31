@@ -26,6 +26,19 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
+/**
+ * Expects DataKeys:
+ * <ul>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>exactly one of:
+ *    <ul>
+ *      <li>{@link DataKeys#KEY_SELECTED_BRANCH}</li>
+ *      <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ *    </ul>
+ *  </li>
+ * </ul>
+ */
 public class RebaseSelectedBranchOntoParentAction extends AnAction {
   private static final Logger LOG = Logger.getInstance(RebaseSelectedBranchOntoParentAction.class);
 
@@ -35,19 +48,6 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     // TODO (#79): prohibit rebase during rebase/merge/revert etc.
   }
 
-  /**
-   * Expects DataKeys:
-   * <ul>
-   *  <li>{@link CommonDataKeys#PROJECT}</li>
-   *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
-   *  <li>exactly one of:
-   *    <ul>
-   *      <li>{@link DataKeys#KEY_SELECTED_BRANCH}</li>
-   *      <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
-   *    </ul>
-   *  </li>
-   * </ul>
-   */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
