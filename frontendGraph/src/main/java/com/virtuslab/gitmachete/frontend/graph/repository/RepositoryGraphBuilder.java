@@ -6,9 +6,10 @@ import java.util.Optional;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
@@ -31,8 +32,8 @@ public class RepositoryGraphBuilder {
   @Setter
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = BaseGitMacheteBranch::getCommits;
-  public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = b -> io.vavr.collection.List.empty();
+  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = BaseGitMacheteNonRootBranch::getCommits;
+  public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> io.vavr.collection.List.empty();
 
   public RepositoryGraph build() {
     return new RepositoryGraph(deriveGraphElements());
@@ -40,13 +41,12 @@ public class RepositoryGraphBuilder {
 
   private List<IGraphElement> deriveGraphElements() {
     List<IGraphElement> graphElements = new ArrayList<>();
-    List<BaseGitMacheteBranch> rootBranches = repository.getRootBranches().asJava();
-    for (BaseGitMacheteBranch branch : rootBranches) {
+    List<BaseGitMacheteRootBranch> rootBranches = repository.getRootBranches().asJava();
+    for (BaseGitMacheteRootBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
-      SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
-      addCommitsWithBranch(graphElements, branch, /* upstreamBranchIndex */ -1, syncToParentStatus);
-      List<BaseGitMacheteBranch> downstreamBranches = branch.getDownstreamBranches().asJava();
-      addDownstreamCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
+      addRootBranch(graphElements, branch);
+      List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches().asJava();
+      recursivelyAddCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
     }
     return graphElements;
   }
@@ -59,30 +59,38 @@ public class RepositoryGraphBuilder {
    * @param branchIndex
    *          the index of branch which downstream branches (with their commits) are to be added
    */
-  private void addDownstreamCommitsAndBranches(
+  private void recursivelyAddCommitsAndBranches(
       List<IGraphElement> graphElements,
-      List<BaseGitMacheteBranch> downstreamBranches,
+      List<BaseGitMacheteNonRootBranch> downstreamBranches,
       int branchIndex) {
     int upElementIndex = branchIndex;
-    for (BaseGitMacheteBranch branch : downstreamBranches) {
+    for (BaseGitMacheteNonRootBranch branch : downstreamBranches) {
       SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
       addSplittingGraphElement(graphElements, upElementIndex, syncToParentStatus);
 
       int splittingElementIndex = graphElements.size() - 1;
-      addCommitsWithBranch(graphElements, branch, /* upElementIndex */ splittingElementIndex, syncToParentStatus);
+      addCommitsAndNonRootBranch(graphElements, branch, /* upElementIndex */ splittingElementIndex, syncToParentStatus);
 
       upElementIndex = graphElements.size() - 2;
       int upstreamBranchIndex = graphElements.size() - 1;
-      List<BaseGitMacheteBranch> branches = branch.getDownstreamBranches().asJava();
-      addDownstreamCommitsAndBranches(graphElements, /* downstream */ branches, upstreamBranchIndex);
+      List<BaseGitMacheteNonRootBranch> branches = branch.getDownstreamBranches().asJava();
+      recursivelyAddCommitsAndBranches(graphElements, /* downstream */ branches, upstreamBranchIndex);
     }
 
     addPhantomGraphElementIfNeeded(graphElements, branchIndex, upElementIndex);
   }
 
-  private void addCommitsWithBranch(
+  private void addRootBranch(
       List<IGraphElement> graphElements,
-      BaseGitMacheteBranch branch,
+      BaseGitMacheteRootBranch branch) {
+    BranchElement element = createBranchElementFor(branch, /* upElementIndex */ -1, GraphEdgeColor.GREEN,
+        branch.getSyncToOriginStatus());
+    graphElements.add(element);
+  }
+
+  private void addCommitsAndNonRootBranch(
+      List<IGraphElement> graphElements,
+      BaseGitMacheteNonRootBranch branch,
       int upstreamBranchIndex,
       SyncToParentStatus syncToParentStatus) {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse().asJava();
@@ -103,7 +111,7 @@ public class RepositoryGraphBuilder {
 
     int lastElementIndex = graphElements.size() - 1;
     /*
-     * If a branch has no commits (due to commits getting strategy or because it's a root branch) its {@code
+     * If a branch has no commits (possibly due to commits getting strategy being {@code EMPTY_GET_COMMITS}) its {@code
      * upElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code upElementIndex} is an index of most
      * recently added element (its last commit).
      */
@@ -162,7 +170,7 @@ public class RepositoryGraphBuilder {
       GraphEdgeColor graphEdgeColor,
       SyncToOriginStatus syncToOriginStatus) {
 
-    Optional<@Nullable BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
+    Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 

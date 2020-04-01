@@ -5,7 +5,7 @@ import java.util.Optional;
 import io.vavr.collection.List;
 
 public interface IGitMacheteRepository {
-  List<BaseGitMacheteBranch> getRootBranches();
+  List<BaseGitMacheteRootBranch> getRootBranches();
 
   Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged();
 
@@ -15,8 +15,9 @@ public interface IGitMacheteRepository {
 
   List<IGitMacheteSubmoduleEntry> getSubmodules();
 
-  IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteBranch branch) throws GitMacheteException;
+  IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
+      throws GitMacheteException;
 
-  IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteBranch upstreamBranch)
+  IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch)
       throws GitMacheteException;
 }

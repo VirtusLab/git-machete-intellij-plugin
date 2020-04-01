@@ -9,23 +9,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * The only criterion for equality of any instances of any class derived from this one is the reference equality
  */
 public abstract class BaseGitMacheteBranch {
-  public abstract String getName();
+  public abstract boolean isRootBranch();
 
-  public abstract List<IGitMacheteCommit> getCommits();
+  public abstract BaseGitMacheteRootBranch asRootBranch();
+
+  public abstract BaseGitMacheteNonRootBranch asNonRootBranch();
+
+  public abstract String getName();
 
   public abstract IGitMacheteCommit getPointedCommit();
 
-  public abstract Optional<BaseGitMacheteBranch> getUpstreamBranch();
-
-  public abstract List<BaseGitMacheteBranch> getDownstreamBranches();
+  public abstract List<BaseGitMacheteNonRootBranch> getDownstreamBranches();
 
   public abstract Optional<String> getCustomAnnotation();
 
-  public abstract SyncToParentStatus getSyncToParentStatus();
-
   public abstract SyncToOriginStatus getSyncToOriginStatus();
-
-  public abstract Optional<IGitMacheteCommit> deriveForkPoint() throws GitMacheteException;
 
   @Override
   public final boolean equals(@Nullable Object other) {
@@ -34,6 +32,6 @@ public abstract class BaseGitMacheteBranch {
 
   @Override
   public final int hashCode() {
-    return (getName().hashCode() * 37) + getPointedCommit().getHash().hashCode();
+    return getName().hashCode() * 37 + getPointedCommit().hashCode();
   }
 }

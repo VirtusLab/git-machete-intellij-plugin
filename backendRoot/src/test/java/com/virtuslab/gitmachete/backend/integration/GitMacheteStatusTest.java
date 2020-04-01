@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -61,7 +63,7 @@ public class GitMacheteStatusTest {
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
-    System.out.println("MY OUTPUT:");
+    System.out.println("OUR OUTPUT:");
     System.out.println(myResult);
 
     Assert.assertEquals(gitMacheteCliStatus, myResult);
@@ -92,53 +94,57 @@ public class GitMacheteStatusTest {
 
   private String repositoryStatus() {
     var sb = new StringBuilder();
-    int lastRootBranch = gitMacheteRepository.getRootBranches().size() - 1;
     var branches = gitMacheteRepository.getRootBranches();
-    for (int currentRootBranch = 0; currentRootBranch <= lastRootBranch; currentRootBranch++) {
+    int lastRootBranchIndex = branches.size() - 1;
+    for (int currentRootBranch = 0; currentRootBranch <= lastRootBranchIndex; currentRootBranch++) {
       var b = branches.get(currentRootBranch);
-      printBranch(b, 0, sb);
-      if (currentRootBranch < lastRootBranch)
+      printRootBranch(b, sb);
+      if (currentRootBranch < lastRootBranchIndex)
         sb.append(System.lineSeparator());
     }
 
     return sb.toString();
   }
 
-  private void printBranch(BaseGitMacheteBranch branch, int level, StringBuilder sb) {
+  private void printRootBranch(BaseGitMacheteRootBranch branch, StringBuilder sb) {
+    sb.append("  ");
+    printCommonParts(branch, /* level */ 0, sb);
+  }
+
+  private void printNonRootBranch(BaseGitMacheteNonRootBranch branch, int level, StringBuilder sb) {
     sb.append("  ");
 
-    if (level > 0) {
-      sb.append("| ".repeat(level));
+    sb.append("| ".repeat(level));
 
-      sb.append(System.lineSeparator());
+    sb.append(System.lineSeparator());
 
-      var commits = branch.getCommits().reverse();
+    var commits = branch.getCommits().reverse();
 
-      for (var c : commits) {
-        sb.append("  ");
-        sb.append("| ".repeat(level));
-        sb.append(c.getMessage().split("\n", 2)[0]);
-        sb.append(System.lineSeparator());
-      }
-
+    for (var c : commits) {
       sb.append("  ");
-      sb.append("| ".repeat(level - 1));
-
-      var upstreamBranch = branch.getUpstreamBranch();
-      assert upstreamBranch.isPresent();
-
-      var parentStatus = branch.getSyncToParentStatus();
-      if (parentStatus == SyncToParentStatus.InSync)
-        sb.append("o");
-      else if (parentStatus == SyncToParentStatus.OutOfSync)
-        sb.append("x");
-      else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
-        sb.append("?");
-      else if (parentStatus == SyncToParentStatus.Merged)
-        sb.append("m");
-      sb.append("-");
+      sb.append("| ".repeat(level));
+      sb.append(c.getMessage().split("\n", 2)[0]);
+      sb.append(System.lineSeparator());
     }
 
+    sb.append("  ");
+    sb.append("| ".repeat(level - 1));
+
+    var parentStatus = branch.getSyncToParentStatus();
+    if (parentStatus == SyncToParentStatus.InSync)
+      sb.append("o");
+    else if (parentStatus == SyncToParentStatus.OutOfSync)
+      sb.append("x");
+    else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
+      sb.append("?");
+    else if (parentStatus == SyncToParentStatus.Merged)
+      sb.append("m");
+    sb.append("-");
+
+    printCommonParts(branch, level, sb);
+  }
+
+  private void printCommonParts(BaseGitMacheteBranch branch, int level, StringBuilder sb) {
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
@@ -166,7 +172,7 @@ public class GitMacheteStatusTest {
     sb.append(System.lineSeparator());
 
     for (var b : branch.getDownstreamBranches()) {
-      printBranch(b, level + 1, sb);
+      printNonRootBranch(b, /* level */ level + 1, sb);
     }
   }
 

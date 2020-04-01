@@ -24,7 +24,8 @@ function parse_version_from_git_revision() {
   local revision=$1
   local var_prefix=$2
 
-  local version=$(extract_version_from_git_revision "$revision")
+  local version
+  version=$(extract_version_from_git_revision "$revision")
   declare -g "$var_prefix"_version="$version"
   IFS=. read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch <<< "$version"
 }

@@ -20,7 +20,7 @@ if [ $# -eq 3 ]; then
     target_version="$((base_major + 1)).0.0"
   fi
 
-  if [[ $head_version != $target_version ]]; then
+  if [[ $head_version != "$target_version" ]]; then
     echo "Rewriting the commits: setting version in version.gradle to $target_version..."
     self_path="$(cd "$(dirname "$0")" &>/dev/null; pwd -P)"/"$(basename "$0")"
     git filter-branch -f --tree-filter "$self_path $target_version" "$fork_point".."$current_branch"

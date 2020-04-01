@@ -32,15 +32,17 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteSubmoduleEntry;
 
 @Accessors(chain = true, fluent = true)
@@ -96,9 +98,9 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(gitCoreRepository, /* parentEntryCoreLocalBranch */ null,
         branchLayout.getRootBranches());
 
-    List<BaseGitMacheteBranch> macheteRootBranches = List.narrow(
+    List<BaseGitMacheteRootBranch> macheteRootBranches = List.narrow(
         branchLayout.getRootBranches()
-            .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches()))));
+            .map(entry -> createMacheteRootBranch(entry, deriveDownstreamBranches(entry.getSubbranches()))));
 
     var rootBranchByName = macheteRootBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
     branchByName.putAll(rootBranchByName);
@@ -112,9 +114,9 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         branchByName);
   }
 
-  private List<GitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
-    List<GitMacheteBranch> gitMacheteBranches = List.ofAll(directDownstreamEntries)
-        .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
+  private List<GitMacheteNonRootBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
+    List<GitMacheteNonRootBranch> gitMacheteBranches = List.ofAll(directDownstreamEntries)
+        .map(entry -> createMacheteNonRootBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
         .collect(List.collector());
 
     var subbranchByName = gitMacheteBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
@@ -127,14 +129,35 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 
-  private GitMacheteBranch createMacheteBranch(IBranchLayoutEntry branchEntry,
-      List<GitMacheteBranch> downstreamBranches) {
+  private GitMacheteRootBranch createMacheteRootBranch(IBranchLayoutEntry branchEntry,
+      List<GitMacheteNonRootBranch> downstreamBranches) {
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
 
     GitMacheteBranchData gitMacheteBranchData = branchNameToGitMacheteBranchData.get(branchEntry.getName());
     assert gitMacheteBranchData != null;
 
-    var branch = new GitMacheteBranch(branchEntry.getName(),
+    var branch = new GitMacheteRootBranch(branchEntry.getName(),
+        downstreamBranches,
+        gitMacheteBranchData.pointedCommit,
+        gitMacheteBranchData.syncToOriginStatus,
+        gitMacheteBranchData.coreBranch,
+        customAnnotation);
+
+    if (gitMacheteBranchData.coreBranch.equals(currentCoreBranch)) {
+      currentBranch = branch;
+    }
+
+    return branch;
+  }
+
+  private GitMacheteNonRootBranch createMacheteNonRootBranch(IBranchLayoutEntry branchEntry,
+      List<GitMacheteNonRootBranch> downstreamBranches) {
+    String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
+
+    GitMacheteBranchData gitMacheteBranchData = branchNameToGitMacheteBranchData.get(branchEntry.getName());
+    assert gitMacheteBranchData != null;
+
+    var branch = new GitMacheteNonRootBranch(branchEntry.getName(),
         downstreamBranches,
         gitMacheteBranchData.pointedCommit,
         gitMacheteBranchData.commits,

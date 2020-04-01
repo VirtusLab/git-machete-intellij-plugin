@@ -11,6 +11,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -18,12 +19,12 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
 @Getter
 @ToString
-public class GitMacheteBranch extends BaseGitMacheteBranch {
+public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   private final String name;
   @ToString.Exclude
   @MonotonicNonNull
-  private GitMacheteBranch upstreamBranch = null;
-  private final List<GitMacheteBranch> downstreamBranches;
+  private BaseGitMacheteBranch upstreamBranch = null;
+  private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final GitMacheteCommit pointedCommit;
   private final List<GitMacheteCommit> commits;
   private final SyncToOriginStatus syncToOriginStatus;
@@ -33,10 +34,10 @@ public class GitMacheteBranch extends BaseGitMacheteBranch {
   private final String customAnnotation;
 
   @SuppressWarnings("argument.type.incompatible")
-  public GitMacheteBranch(final String name, final List<GitMacheteBranch> downstreamBranches,
-      final GitMacheteCommit pointedCommit, final List<GitMacheteCommit> commits,
-      final SyncToOriginStatus syncToOriginStatus, final SyncToParentStatus syncToParentStatus,
-      final IGitCoreLocalBranch coreLocalBranch, @Nullable final String customAnnotation) {
+  public GitMacheteNonRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
+      GitMacheteCommit pointedCommit, List<GitMacheteCommit> commits,
+      SyncToOriginStatus syncToOriginStatus, SyncToParentStatus syncToParentStatus,
+      IGitCoreLocalBranch coreLocalBranch, @Nullable String customAnnotation) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.pointedCommit = pointedCommit;
@@ -50,23 +51,24 @@ public class GitMacheteBranch extends BaseGitMacheteBranch {
     // pointing at the children).
     // This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
     // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepository).
-    for (GitMacheteBranch branch : downstreamBranches) {
+    for (GitMacheteNonRootBranch branch : downstreamBranches) {
       branch.setUpstreamBranch(this);
     }
   }
 
   @Override
-  public Optional<BaseGitMacheteBranch> getUpstreamBranch() {
-    return Optional.ofNullable(upstreamBranch);
+  public BaseGitMacheteBranch getUpstreamBranch() {
+    assert upstreamBranch != null : "upstreamBranch hasn't been set yet";
+    return upstreamBranch;
   }
 
-  private void setUpstreamBranch(GitMacheteBranch givenUpstreamBranch) {
+  void setUpstreamBranch(BaseGitMacheteBranch givenUpstreamBranch) {
     assert upstreamBranch == null : "upstreamBranch has already been set";
     upstreamBranch = givenUpstreamBranch;
   }
 
   @Override
-  public List<BaseGitMacheteBranch> getDownstreamBranches() {
+  public List<BaseGitMacheteNonRootBranch> getDownstreamBranches() {
     return List.narrow(downstreamBranches);
   }
 

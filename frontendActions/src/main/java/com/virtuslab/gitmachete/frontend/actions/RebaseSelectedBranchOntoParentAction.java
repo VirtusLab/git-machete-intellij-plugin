@@ -23,6 +23,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
@@ -73,8 +74,10 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
       branchToRebase = branchToRebaseOptional.get();
     }
 
+    // TODO (#154): prohibit rebasing a root branch.
+    // The line below is completely unsafe (will throw if `branchToRebase` is a root).
     Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(gitMacheteRepository,
-        branchToRebase);
+        branchToRebase.asNonRootBranch());
 
     if (!gitRebaseParameters.isPresent()) {
       LOG.error("Unable to get rebase parameters");
@@ -100,7 +103,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
   }
 
   private Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
-      BaseGitMacheteBranch gitMacheteCurrentBranch) {
+      BaseGitMacheteNonRootBranch gitMacheteCurrentBranch) {
 
     return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
         .onFailure(e -> LOG.error("Unable to derive rebase parameters", e))
