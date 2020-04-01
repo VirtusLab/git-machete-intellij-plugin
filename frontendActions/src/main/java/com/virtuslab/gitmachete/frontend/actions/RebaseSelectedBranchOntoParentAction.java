@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -21,7 +22,9 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 /**
  * Expects DataKeys:
  * <ul>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
 public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
@@ -34,13 +37,13 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
     if (selectedMacheteBranchOption.isPresent()) {
       prohibitRootBranchRebase(anActionEvent);
       if (presentation.isEnabledAndVisible()) {
-        updateIfVisibleDescription(selectedMacheteBranchOption.get(), presentation);
+        updateDescriptionIfVisible(selectedMacheteBranchOption.get().asNonRootBranch(), presentation);
       }
     }
   }
 
   @Override
-  public void actionPerformedAfterChecks(AnActionEvent anActionEvent) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
     assert project != null;
 
@@ -68,26 +71,21 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
     }.queue();
   }
 
-  private void updateIfVisibleDescription(BaseGitMacheteBranch branch, Presentation presentation) {
+  private void updateDescriptionIfVisible(BaseGitMacheteNonRootBranch branch, Presentation presentation) {
     if (presentation.isVisible()) {
-      assert branch.getUpstreamBranch().isPresent();
-      @SuppressWarnings("method.invocation.invalid")
-      BaseGitMacheteBranch upstream = branch.getUpstreamBranch().get();
+      BaseGitMacheteBranch upstream = branch.getUpstreamBranch();
       String description = String.format("Rebase \"%s\" onto \"%s\"", branch.getName(), upstream.getName());
       presentation.setDescription(description);
     }
   }
 
   private void prohibitRootBranchRebase(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
     Optional<BaseGitMacheteBranch> branchToRebase = getSelectedMacheteBranch(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    if (presentation.isVisible() && branchToRebase.isPresent()) {
-      if (gitMacheteRepository.getRootBranches().contains(branchToRebase.get())) {
+    if (presentation.isVisible() && branchToRebase.isPresent() && branchToRebase.get().isRootBranch()) {
         presentation.setEnabled(false);
         presentation.setVisible(false);
-      }
     }
   }
 

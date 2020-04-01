@@ -3,10 +3,9 @@ package com.virtuslab.gitmachete.frontend.actions;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -21,7 +20,8 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
 /**
  * Expects DataKeys:
- * none
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
  */
 public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
   private static final String ACTION_TEXT = "Rebase Current Branch Onto Parent";
@@ -33,13 +33,20 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
   @Override
   public void update(AnActionEvent anActionEvent) {
-    anActionEvent.getPresentation().setDescription(ACTION_DESCRIPTION);
     super.update(anActionEvent);
-    prohibitRebaseOfNonManagedOrRootBranch(anActionEvent);
+    prohibitRebaseOfNonManagedRevisionOrRootBranch(anActionEvent);
+    updateDescriptionIfPresentationVisible(anActionEvent);
   }
 
+  /**
+   * Assumption to following code:
+   * - the result of {@link com.virtuslab.gitmachete.backend.api.IGitMacheteRepository#getCurrentBranchIfManaged}
+   * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
+   * - the result of {@link BaseRebaseBranchOntoParentAction#deriveGitRebaseOntoParentParameters}
+   * may not be be present (due to exceptions thrown by {@link IGitMacheteRepository#deriveParametersForRebaseOntoParent})
+   */
   @Override
-  public void actionPerformedAfterChecks(@Nonnull AnActionEvent anActionEvent) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     Optional<BaseGitMacheteBranch> branchToRebase = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
     assert branchToRebase.isPresent();
 
@@ -48,14 +55,14 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
     IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
     Optional<IGitRebaseParameters> gitRebaseParameters = deriveGitRebaseOntoParentParameters(macheteRepository,
-        branchToRebase.get());
+        branchToRebase.get().asNonRootBranch());
     assert gitRebaseParameters.isPresent();
 
     GitRepository repository = getIdeaRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Rebasing") {
       @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
+      public void run(ProgressIndicator indicator) {
         GitRebaseParams params = getIdeaRebaseParamsOf(anActionEvent, gitRebaseParameters.get());
         GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
       }
@@ -65,7 +72,21 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
     }.queue();
   }
 
-  private void prohibitRebaseOfNonManagedOrRootBranch(AnActionEvent anActionEvent) {
+  private void updateDescriptionIfPresentationVisible(AnActionEvent anActionEvent) {
+    Presentation presentation = anActionEvent.getPresentation();
+    if (presentation.isEnabledAndVisible()) {
+      var branchToRebaseOptional = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
+      assert branchToRebaseOptional.isPresent();
+      var upstreamBranch = branchToRebaseOptional.get().asNonRootBranch().getUpstreamBranch();
+
+      var description = String.format("Rebase \"%s\" onto \"%s\"",
+          branchToRebaseOptional.get().getName(), upstreamBranch.getName());
+
+      presentation.setDescription(description);
+    }
+  }
+
+  private void prohibitRebaseOfNonManagedRevisionOrRootBranch(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
 
     Presentation presentation = anActionEvent.getPresentation();
@@ -73,10 +94,10 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
     if (presentation.isEnabledAndVisible()) {
       if (!currentBranchOption.isPresent()) {
-        presentation.setDescription("Current branch is not managed by Git Machete");
+        presentation.setDescription("Current revision is not a branch managed by Git Machete");
         presentation.setEnabled(false);
 
-      } else if (gitMacheteRepository.getRootBranches().contains(currentBranchOption.get())) {
+      } else if (currentBranchOption.get().isRootBranch()) {
         String description = String.format("Can't rebase git machete root branch \"%s\"",
             currentBranchOption.get().getName());
         presentation.setDescription(description);

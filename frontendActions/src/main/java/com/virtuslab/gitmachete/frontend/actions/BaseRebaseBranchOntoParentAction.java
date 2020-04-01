@@ -11,13 +11,14 @@ import javax.swing.Icon;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.repo.GitRepository;
-import io.vavr.API;
 import io.vavr.control.Try;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -28,6 +29,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
@@ -43,15 +45,12 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
     anActionEvent.getPresentation().setEnabled(true);
-    prohibitRebaseDuringProhibitingState(anActionEvent);
+    anActionEvent.getPresentation().setVisible(true);
+    prohibitRebaseIfRepoInForbiddenState(anActionEvent);
   }
 
   @Override
-  public final void actionPerformed(AnActionEvent anActionEvent) {
-    actionPerformedAfterChecks(anActionEvent);
-  }
-
-  public abstract void actionPerformedAfterChecks(AnActionEvent anActionEvent);
+  public abstract void actionPerformed(AnActionEvent anActionEvent);
 
   IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
@@ -72,11 +71,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
   }
 
   Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
-      BaseGitMacheteBranch branchToRebase) {
-    if (branchToRebase == null) {
-      return Optional.empty();
-    }
-
+      BaseGitMacheteNonRootBranch branchToRebase) {
     return Try.of(() -> Optional.of(repository.deriveParametersForRebaseOntoParent(branchToRebase)))
         .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
         .getOrElse(() -> Optional.empty());
@@ -95,7 +90,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
     return iterator.next();
   }
 
-  private void prohibitRebaseDuringProhibitingState(AnActionEvent anActionEvent) {
+  private void prohibitRebaseIfRepoInForbiddenState(AnActionEvent anActionEvent) {
     Repository.State state = getIdeaRepository(anActionEvent).getState();
     var presentation = anActionEvent.getPresentation();
     if (state != Repository.State.NORMAL && presentation.isEnabledAndVisible()) {
@@ -107,14 +102,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
 
   private String getProhibitedStateMessage(Repository.State state) {
 
-    var stateName = API.Match(state).of(
-        Case($(Repository.State.GRAFTING), "cherry-pick"),
-        Case($(Repository.State.DETACHED), "detached head"),
-        Case($(Repository.State.MERGING), "merge"),
-        Case($(Repository.State.REBASING), "rebase"),
-        Case($(Repository.State.REVERTING), "revert"),
+    var stateName = io.vavr.API.Match(state).of(
+        Case($(Repository.State.GRAFTING), "during an ongoing cherry-pick"),
+        Case($(Repository.State.DETACHED), "in the detached head state"),
+        Case($(Repository.State.MERGING), "during an ongoing merge"),
+        Case($(Repository.State.REBASING), "during an ongoing rebase"),
+        Case($(Repository.State.REVERTING), "during an ongoing revert"),
         Case($(), state.toString()));
 
-    return String.format("Can't rebase during %s", stateName);
+    return String.format("Can't rebase %s", stateName);
   }
 }

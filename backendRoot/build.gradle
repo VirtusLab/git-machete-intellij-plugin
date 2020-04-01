@@ -6,7 +6,6 @@ dependencies {
   vavr()
   junit()
   powerMock()
-  slf4j()
 
   implementation project(':gitCoreJGit')
   implementation project(':branchLayoutImpl')
