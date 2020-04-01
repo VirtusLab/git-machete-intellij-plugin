@@ -10,8 +10,8 @@ import io.vavr.collection.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @RequiredArgsConstructor
 @Getter
@@ -34,7 +34,7 @@ public class BranchLayoutFileSaver {
   }
 
   @SuppressWarnings("prefer.ifpresent")
-  private List<String> printBranchesOntoStringList(List<IBranchLayoutEntry> branches, int level) {
+  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, int level) {
     List<String> stringList = List.empty();
     for (var branch : branches) {
       var sb = new StringBuilder();

@@ -6,16 +6,16 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import lombok.Data;
 
+import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @Data
 public class BranchLayout implements IBranchLayout {
-  private final List<IBranchLayoutEntry> rootBranches;
+  private final List<BaseBranchLayoutEntry> rootBranches;
 
   @Override
-  public Optional<IBranchLayoutEntry> findEntryByName(String branchName) {
+  public Optional<BaseBranchLayoutEntry> findEntryByName(String branchName) {
     return findEntryRecursively(getRootBranches(), e -> e.getName().equals(branchName));
   }
 
@@ -32,7 +32,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
-  private IBranchLayout slideOut(IBranchLayoutEntry entryToSlideOut) {
+  private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) {
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
     assert upstreamEntryOption.isPresent();
     var upstream = upstreamEntryOption.get();
@@ -52,7 +52,7 @@ public class BranchLayout implements IBranchLayout {
    * @return a {@link IBranchLayout} containing all elements of this where the {@code entry} is replaced with
    *         {@code newEntry}
    */
-  private IBranchLayout replace(IBranchLayoutEntry entry, IBranchLayoutEntry newEntry) {
+  private IBranchLayout replace(BaseBranchLayoutEntry entry, BaseBranchLayoutEntry newEntry) {
     if (rootBranches.contains(entry)) {
       return new BranchLayout(rootBranches.replace(entry, newEntry));
     } else {
@@ -68,20 +68,21 @@ public class BranchLayout implements IBranchLayout {
   }
 
   /** @return a copy of the {@code entry} but with specified {@code subbranches} list */
-  private IBranchLayoutEntry updateSubbranchesForEntry(IBranchLayoutEntry entry, List<IBranchLayoutEntry> subbranches) {
+  private BaseBranchLayoutEntry updateSubbranchesForEntry(BaseBranchLayoutEntry entry,
+      List<BaseBranchLayoutEntry> subbranches) {
     var name = entry.getName();
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
     return new BranchLayoutEntry(name, customAnnotation, subbranches);
   }
 
-  private Optional<IBranchLayoutEntry> findUpstreamEntryForEntry(IBranchLayoutEntry entry) {
+  private Optional<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
     return findEntryRecursively(rootBranches, e -> e.getSubbranches().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */
-  private static Optional<IBranchLayoutEntry> findEntryRecursively(
-      List<IBranchLayoutEntry> branches,
-      Predicate<IBranchLayoutEntry> predicate) {
+  private static Optional<BaseBranchLayoutEntry> findEntryRecursively(
+      List<BaseBranchLayoutEntry> branches,
+      Predicate<BaseBranchLayoutEntry> predicate) {
     for (var branch : branches) {
       if (predicate.test(branch)) {
         return Optional.of(branch);

@@ -5,9 +5,9 @@ import java.util.Optional;
 import io.vavr.collection.List;
 
 public interface IBranchLayout {
-  List<IBranchLayoutEntry> getRootBranches();
+  List<BaseBranchLayoutEntry> getRootBranches();
 
-  Optional<IBranchLayoutEntry> findEntryByName(String branchName);
+  Optional<BaseBranchLayoutEntry> findEntryByName(String branchName);
 
   IBranchLayout slideOut(String branchName) throws BranchLayoutException;
 }

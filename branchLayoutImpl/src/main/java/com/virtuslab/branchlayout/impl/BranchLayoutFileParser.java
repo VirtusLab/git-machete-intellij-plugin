@@ -10,8 +10,8 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @RequiredArgsConstructor
 @Getter
@@ -21,7 +21,7 @@ public class BranchLayoutFileParser {
   private int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
-    List<IBranchLayoutEntry> roots = List.empty();
+    List<BaseBranchLayoutEntry> roots = List.empty();
     List<String> lines = getFileLines().reject(String::isBlank);
 
     deriveIndentCharacter(lines);
@@ -57,7 +57,7 @@ public class BranchLayoutFileParser {
    *
    * @return list of entries with recursively built lists of subentries
    */
-  private List<IBranchLayoutEntry> buildEntriesStructure(List<String> lines,
+  private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex, int upstreamLineIndex) {
     return lineIndexToUpstreamLineIndex
         .zipWithIndex()
@@ -70,7 +70,7 @@ public class BranchLayoutFileParser {
    * Parses line to {@link com.virtuslab.branchlayout.impl.BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
    * entry with specified {@code subbranches}.
    */
-  private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> subbranches) {
+  private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subbranches) {
     String trimmedLine = line.trim();
     String branchName = trimmedLine;
     String customAnnotation = null;

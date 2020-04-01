@@ -19,9 +19,9 @@ import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -107,7 +107,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         branchByName);
   }
 
-  private List<GitMacheteNonRootBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
+  private List<GitMacheteNonRootBranch> deriveDownstreamBranches(List<BaseBranchLayoutEntry> directDownstreamEntries) {
     List<GitMacheteNonRootBranch> gitMacheteBranches = List.ofAll(directDownstreamEntries)
         .map(entry -> createMacheteNonRootBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
         .collect(List.collector());
@@ -122,7 +122,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return new GitMacheteSubmoduleEntry(m.getPath(), m.getName());
   }
 
-  private GitMacheteRootBranch createMacheteRootBranch(IBranchLayoutEntry branchEntry,
+  private GitMacheteRootBranch createMacheteRootBranch(BaseBranchLayoutEntry branchEntry,
       List<GitMacheteNonRootBranch> downstreamBranches) {
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
 
@@ -143,7 +143,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return branch;
   }
 
-  private GitMacheteNonRootBranch createMacheteNonRootBranch(IBranchLayoutEntry branchEntry,
+  private GitMacheteNonRootBranch createMacheteNonRootBranch(BaseBranchLayoutEntry branchEntry,
       List<GitMacheteNonRootBranch> downstreamBranches) {
     String customAnnotation = branchEntry.getCustomAnnotation().orElse(null);
 
@@ -174,7 +174,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private void verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(
       IGitCoreRepository gitCoreRepository,
       @Nullable IGitCoreLocalBranch parentEntryCoreLocalBranch,
-      List<IBranchLayoutEntry> entries)
+      List<BaseBranchLayoutEntry> entries)
       throws GitMacheteException {
     for (var entry : entries) {
       Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(gitCoreRepository, entry.getName());
