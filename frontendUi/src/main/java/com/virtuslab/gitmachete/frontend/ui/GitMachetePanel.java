@@ -21,8 +21,6 @@ public class GitMachetePanel {
   private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
   private static final String REFRESH_STATUS_TEXT = "Refresh Status";
   private static final String REFRESH_STATUS_DESCRIPTION = "Refresh status";
-  private static final String REFRESH_STATUS_SHORT_NAME = "Refresh";
-  private static final String REBASE_CURRENT_ONTO_PARENT_SHORT_NAME = "Rebase Current Branch Onto Parent";
 
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;

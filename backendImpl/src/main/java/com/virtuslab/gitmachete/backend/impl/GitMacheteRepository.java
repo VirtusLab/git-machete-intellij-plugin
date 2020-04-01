@@ -26,8 +26,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Getter
   private final List<BaseGitMacheteRootBranch> rootBranches;
   @Getter
-  private final List<IGitMacheteSubmoduleEntry> submodules;
-  @Getter
   private final IBranchLayout branchLayout;
 
   @Nullable

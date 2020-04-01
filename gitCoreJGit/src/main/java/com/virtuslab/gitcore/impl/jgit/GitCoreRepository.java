@@ -53,6 +53,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
     if (Files.isDirectory(gitPath)) {
       this.gitFolderPath = gitPath;
+      // .git file can be also in worktrees not only in submodules
     } else if (Files.isRegularFile(gitPath)) {
       this.gitFolderPath = getGitFolderPathFromGitFile(gitPath, repositoryPath);
     } else {
@@ -126,6 +127,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     return Try.of(() -> getJgitGit().branchList().call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
+        .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(ref -> new GitCoreLocalBranch(/* repo */ this,
             ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
@@ -136,25 +138,10 @@ public class GitCoreRepository implements IGitCoreRepository {
     return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
+        .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
             ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
-  }
-
-  @Override
-  public List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException {
-    SubmoduleWalk sWalk = Try.of(() -> SubmoduleWalk.forIndex(this.jgitRepo))
-        .getOrElseThrow(e -> new GitCoreException("Error while initializing submodule walk", e));
-
-    return Try.of(() -> {
-
-      List<IGitCoreSubmoduleEntry> submodules = List.empty();
-      while (sWalk.next()) {
-        submodules = submodules.append(new GitCoreSubmoduleEntry(sWalk.getDirectory().toPath(), sWalk.getModuleName()));
-      }
-      return submodules;
-
-    }).getOrElseThrow(e -> new GitCoreException("Error while fetching next submodule", e));
   }
 
   private boolean isBranchMissing(String path) throws GitCoreException {

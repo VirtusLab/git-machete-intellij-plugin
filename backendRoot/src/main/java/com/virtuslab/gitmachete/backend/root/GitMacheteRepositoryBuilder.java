@@ -104,12 +104,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     var rootBranchByName = macheteRootBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
     branchByName.putAll(rootBranchByName);
 
-    List<IGitMacheteSubmoduleEntry> macheteSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
-        .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e))
-        .map(this::convertToGitMacheteSubmoduleEntry)
-        .collect(List.collector());
-
-    return new GitMacheteRepository(repositoryName, macheteRootBranches, macheteSubmodules, branchLayout, currentBranch,
+    return new GitMacheteRepository(repositoryName, macheteRootBranches, branchLayout, currentBranch,
         branchByName);
   }
 

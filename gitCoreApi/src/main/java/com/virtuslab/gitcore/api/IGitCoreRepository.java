@@ -20,8 +20,6 @@ public interface IGitCoreRepository {
 
   Path getGitFolderPath();
 
-  List<IGitCoreSubmoduleEntry> getSubmodules() throws GitCoreException;
-
   boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException;
 }

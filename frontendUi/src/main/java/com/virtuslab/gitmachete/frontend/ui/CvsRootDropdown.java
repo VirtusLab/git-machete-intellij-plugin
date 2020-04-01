@@ -10,7 +10,7 @@ import io.vavr.collection.List;
 public class CvsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Repository> {
   private final List<Repository> repositories;
   private Repository selectedRepository;
-  private final java.util.List<Consumer<Repository>> subscribents = new LinkedList<>();
+  private List<Consumer<Repository>> subscribents = List.empty();
 
   @SuppressWarnings("method.invocation.invalid")
   public CvsRootDropdown(List<Repository> repositories) {
@@ -43,6 +43,6 @@ public class CvsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Re
   }
 
   public void subscribe(Consumer<Repository> subscriber) {
-    subscribents.add(subscriber);
+    subscribents = subscribents.push(subscriber);
   }
 }

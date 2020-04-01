@@ -8,6 +8,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Try;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.ReflogReader;
@@ -112,14 +113,15 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
         .appendAll(reflogEntryListsOfRemoteBranches);
 
+
     List<ReflogEntry> filteredReflogEntries = reflogEntryLists
         .flatMap(entries -> {
           ObjectId firstEntryNewId = entries.size() > 0
               ? entries.get(entries.size() - 1).getNewId()
               : ObjectId.zeroId();
 
-          Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(firstEntryNewId)
-              || e.getNewId().equals(e.getOldId())
+          Predicate<ReflogEntry> isEntryExcluded = e -> //e.getNewId().equals(firstEntryNewId)
+              /*||*/ e.getNewId().equals(e.getOldId())
               || e.getComment().startsWith("branch: Reset to ")
               || e.getComment().startsWith("reset: moving to ");
 
