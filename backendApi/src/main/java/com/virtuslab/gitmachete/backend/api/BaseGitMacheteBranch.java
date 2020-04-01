@@ -34,9 +34,6 @@ public abstract class BaseGitMacheteBranch {
 
   @Override
   public final int hashCode() {
-    return getName().hashCode()
-        + getPointedCommit().getHash().hashCode()
-        + getSyncToOriginStatus().hashCode()
-        + getSyncToParentStatus().hashCode();
+    return (getName().hashCode() * 37) + getPointedCommit().getHash().hashCode();
   }
 }
