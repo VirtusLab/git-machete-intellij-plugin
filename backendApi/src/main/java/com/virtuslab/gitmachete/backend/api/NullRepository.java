@@ -15,17 +15,17 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public List<IGitMacheteBranch> getRootBranches() {
+  public List<BaseGitMacheteBranch> getRootBranches() {
     return List.empty();
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
+  public Optional<BaseGitMacheteBranch> getBranchByName(String branchName) {
     return Optional.empty();
   }
 
@@ -40,12 +40,12 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) {
+  public IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteBranch branch) {
     throw new NotImplementedError();
   }
 
   @Override
-  public IGitMergeParameters deriveParametersForMergeIntoParent(IGitMacheteBranch upstreamBranch) {
+  public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteBranch upstreamBranch) {
     throw new NotImplementedError();
   }
 }

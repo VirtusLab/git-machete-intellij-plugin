@@ -1,0 +1,9 @@
+<!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
+        unexpectedly differ in theirs behaviour.
+        To avoid possible bugs a peek usage is forbidden. -->
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\.peek\("/>
+    <property name="message" value="Usage of the prohibited peek method" />
+</module>

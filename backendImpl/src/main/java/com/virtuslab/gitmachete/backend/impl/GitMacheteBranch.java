@@ -4,24 +4,23 @@ import java.util.Optional;
 
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
 @Getter
-@EqualsAndHashCode
 @ToString
-public class GitMacheteBranch implements IGitMacheteBranch {
+public class GitMacheteBranch extends BaseGitMacheteBranch {
   private final String name;
+  @ToString.Exclude
   @MonotonicNonNull
   private GitMacheteBranch upstreamBranch = null;
   private final List<GitMacheteBranch> downstreamBranches;
@@ -57,7 +56,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getUpstreamBranch() {
+  public Optional<BaseGitMacheteBranch> getUpstreamBranch() {
     return Optional.ofNullable(upstreamBranch);
   }
 
@@ -67,7 +66,7 @@ public class GitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
-  public List<IGitMacheteBranch> getDownstreamBranches() {
+  public List<BaseGitMacheteBranch> getDownstreamBranches() {
     return List.narrow(downstreamBranches);
   }
 

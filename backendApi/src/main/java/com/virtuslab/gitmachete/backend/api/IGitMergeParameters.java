@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 public interface IGitMergeParameters {
-  IGitMacheteBranch getCurrentBranch();
+  BaseGitMacheteBranch getCurrentBranch();
 
-  IGitMacheteBranch getBranchToMergeInto();
+  BaseGitMacheteBranch getBranchToMergeInto();
 }

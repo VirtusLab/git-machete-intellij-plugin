@@ -22,7 +22,7 @@ import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
@@ -58,12 +58,12 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
-    IGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
+    BaseGitMacheteBranch branchToRebase = anActionEvent.getData(KEY_SELECTED_BRANCH);
     if (branchToRebase == null) {
       String selectedBranchName = anActionEvent.getData(KEY_SELECTED_BRANCH_NAME);
       assert selectedBranchName != null : "Can't get selected branch";
 
-      Optional<IGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
+      Optional<BaseGitMacheteBranch> branchToRebaseOptional = gitMacheteRepository
           .getBranchByName(selectedBranchName);
       if (!branchToRebaseOptional.isPresent()) {
         LOG.error("Can't get branch to rebase");
@@ -100,7 +100,7 @@ public class RebaseSelectedBranchOntoParentAction extends AnAction {
   }
 
   private Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
-      IGitMacheteBranch gitMacheteCurrentBranch) {
+      BaseGitMacheteBranch gitMacheteCurrentBranch) {
 
     return Try.of(() -> Optional.ofNullable(repository.deriveParametersForRebaseOntoParent(gitMacheteCurrentBranch)))
         .onFailure(e -> LOG.error("Unable to derive rebase parameters", e))

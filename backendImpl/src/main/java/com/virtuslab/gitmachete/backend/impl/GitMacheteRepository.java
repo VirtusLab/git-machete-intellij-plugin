@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
@@ -23,16 +23,16 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final String repositoryName;
 
   @Getter
-  private final List<IGitMacheteBranch> rootBranches;
+  private final List<BaseGitMacheteBranch> rootBranches;
   @Getter
   private final List<IGitMacheteSubmoduleEntry> submodules;
   @Getter
   private final IBranchLayout branchLayout;
 
   @Nullable
-  private final IGitMacheteBranch currentBranch;
+  private final BaseGitMacheteBranch currentBranch;
 
-  private final Map<String, IGitMacheteBranch> branchNameToBranch;
+  private final Map<String, BaseGitMacheteBranch> branchNameToBranch;
 
   @Override
   public Optional<String> getRepositoryName() {
@@ -40,17 +40,18 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
     return Optional.ofNullable(currentBranch);
   }
 
   @Override
-  public Optional<IGitMacheteBranch> getBranchByName(String branchName) {
+  public Optional<BaseGitMacheteBranch> getBranchByName(String branchName) {
     return Optional.ofNullable(branchNameToBranch.get(branchName));
   }
 
   @Override
-  public IGitRebaseParameters deriveParametersForRebaseOntoParent(IGitMacheteBranch branch) throws GitMacheteException {
+  public IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteBranch branch)
+      throws GitMacheteException {
     var newBaseBranch = branch.getUpstreamBranch();
     if (!newBaseBranch.isPresent()) {
       throw new GitMacheteException(
@@ -67,7 +68,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitMergeParameters deriveParametersForMergeIntoParent(IGitMacheteBranch branch) throws GitMacheteException {
+  public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteBranch branch)
+      throws GitMacheteException {
     var branchToMergeInto = branch.getUpstreamBranch();
     if (!branchToMergeInto.isPresent()) {
       throw new GitMacheteException(

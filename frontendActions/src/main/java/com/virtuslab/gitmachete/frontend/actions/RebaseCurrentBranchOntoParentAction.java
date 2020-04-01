@@ -16,7 +16,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.testFramework.MapDataContext;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
 /**
@@ -44,7 +44,7 @@ public class RebaseCurrentBranchOntoParentAction extends AnAction {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
-    Optional<IGitMacheteBranch> branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
+    Optional<BaseGitMacheteBranch> branchToRebase = gitMacheteRepository.getCurrentBranchIfManaged();
 
     if (!branchToRebase.isPresent()) {
       LOG.error("There is no current branch managed by Git-Machete");

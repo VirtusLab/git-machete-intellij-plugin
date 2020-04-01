@@ -170,7 +170,7 @@ subprojects {
       // In other contexts that require an SLF4J implementation (production runs of the plugin + possible but not yet present tests of frontend),
       // such implementation is already provided in the classpath by IntelliJ.
       dependencies {
-        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+        implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
     }
 

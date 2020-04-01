@@ -7,18 +7,18 @@ import com.intellij.ui.SimpleTextAttributes;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public final class BranchElement extends BaseGraphElement {
-  private final IGitMacheteBranch branch;
+  private final BaseGitMacheteBranch branch;
   private final SyncToOriginStatus syncToOriginStatus;
 
   public BranchElement(
-      IGitMacheteBranch branch,
+      BaseGitMacheteBranch branch,
       int upElementIndex,
       GraphEdgeColor graphEdgeColor,
       SyncToOriginStatus syncToOriginStatus,

@@ -29,7 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToOriginStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
@@ -114,7 +114,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       append(cell.getText(), attributes);
 
       if (element instanceof BranchElement) {
-        IGitMacheteBranch branch = ((BranchElement) element).getBranch();
+        BaseGitMacheteBranch branch = ((BranchElement) element).getBranch();
         Optional<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isPresent()) {
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);

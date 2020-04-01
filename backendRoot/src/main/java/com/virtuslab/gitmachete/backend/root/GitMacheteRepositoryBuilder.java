@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -30,9 +31,9 @@ import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -46,10 +47,10 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteSubmoduleEntry;
 @Getter(AccessLevel.PACKAGE)
 public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder {
   @MonotonicNonNull
-  private IGitMacheteBranch currentBranch = null;
+  private BaseGitMacheteBranch currentBranch = null;
   @Nullable
   private IGitCoreBranch currentCoreBranch;
-  private final Map<String, IGitMacheteBranch> branchByName = new HashMap<>();
+  private final Map<String, BaseGitMacheteBranch> branchByName = new HashMap<>();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
@@ -95,10 +96,12 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     verifyBranchLayoutEntriesAndPrepareGitMacheteBranchData(gitCoreRepository, /* parentEntryCoreLocalBranch */ null,
         branchLayout.getRootBranches());
 
-    List<IGitMacheteBranch> macheteRootBranches = List.narrow(
+    List<BaseGitMacheteBranch> macheteRootBranches = List.narrow(
         branchLayout.getRootBranches()
-            .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
-            .peek(branch -> branchByName.put(branch.getName(), branch)));
+            .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches()))));
+
+    var rootBranchByName = macheteRootBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
+    branchByName.putAll(rootBranchByName);
 
     List<IGitMacheteSubmoduleEntry> macheteSubmodules = Try.of(() -> gitCoreRepository.getSubmodules())
         .getOrElseThrow(e -> new GitMacheteJGitException("Error while getting submodules", e))
@@ -110,10 +113,14 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   private List<GitMacheteBranch> deriveDownstreamBranches(List<IBranchLayoutEntry> directDownstreamEntries) {
-    return List.ofAll(directDownstreamEntries)
+    List<GitMacheteBranch> gitMacheteBranches = List.ofAll(directDownstreamEntries)
         .map(entry -> createMacheteBranch(entry, deriveDownstreamBranches(entry.getSubbranches())))
-        .peek(branch -> branchByName.put(branch.getName(), branch))
         .collect(List.collector());
+
+    var subbranchByName = gitMacheteBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
+    branchByName.putAll(subbranchByName);
+
+    return gitMacheteBranches;
   }
 
   private IGitMacheteSubmoduleEntry convertToGitMacheteSubmoduleEntry(IGitCoreSubmoduleEntry m) {

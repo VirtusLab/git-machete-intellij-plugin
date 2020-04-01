@@ -17,7 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -104,7 +104,7 @@ public class GitMacheteStatusTest {
     return sb.toString();
   }
 
-  private void printBranch(IGitMacheteBranch branch, int level, StringBuilder sb) {
+  private void printBranch(BaseGitMacheteBranch branch, int level, StringBuilder sb) {
     sb.append("  ");
 
     if (level > 0) {
