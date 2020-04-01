@@ -2,11 +2,10 @@ package com.virtuslab.gitmachete.frontend.graph.elements;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.SmartList;
 import lombok.Data;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 

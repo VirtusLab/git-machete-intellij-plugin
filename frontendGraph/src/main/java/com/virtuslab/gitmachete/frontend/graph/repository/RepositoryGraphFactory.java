@@ -3,10 +3,9 @@ package com.virtuslab.gitmachete.frontend.graph.repository;
 import static com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphBuilder.DEFAULT_GET_COMMITS;
 import static com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphBuilder.EMPTY_GET_COMMITS;
 
-import javax.annotation.Nullable;
-
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 

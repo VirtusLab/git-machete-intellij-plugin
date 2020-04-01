@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
-
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.vavr.collection.Iterator;
@@ -90,7 +88,6 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
-    @Nullable
     Ref ref;
     try {
       ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);

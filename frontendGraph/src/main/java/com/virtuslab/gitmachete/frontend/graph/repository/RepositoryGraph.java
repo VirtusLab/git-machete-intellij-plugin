@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.intellij.util.SmartList;
 import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
@@ -16,6 +14,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;

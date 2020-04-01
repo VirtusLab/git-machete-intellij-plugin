@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
 
 import com.intellij.ide.DataManager;
@@ -31,6 +30,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.DataKeys;
