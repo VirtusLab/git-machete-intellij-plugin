@@ -1,12 +1,11 @@
 package com.virtuslab.gitmachete.frontend.ui.table;
 
-import java.text.MessageFormat;
-
 import javax.swing.table.AbstractTableModel;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
@@ -23,11 +22,13 @@ public class GraphTableModel extends AbstractTableModel {
   private RepositoryGraph repositoryGraph;
 
   @Override
+  @NonNegative
   public int getRowCount() {
     return repositoryGraph.nodesCount();
   }
 
   @Override
+  @NonNegative
   public final int getColumnCount() {
     return COLUMN_COUNT;
   }
@@ -40,7 +41,7 @@ public class GraphTableModel extends AbstractTableModel {
         return new BranchOrCommitCell(element, repositoryGraph.getPrintElements(rowIndex));
       default :
         throw new IllegalArgumentException(
-            MessageFormat.format("columnIndex is {0} > {1}", columnIndex, getColumnCount() - 1));
+            String.format("columnIndex is %d > %d", columnIndex, getColumnCount() - 1));
     }
   }
 
@@ -51,11 +52,12 @@ public class GraphTableModel extends AbstractTableModel {
         return BranchOrCommitCell.class;
       default :
         throw new IllegalArgumentException(
-            MessageFormat.format("columnIndex is {0} > {1}", column, getColumnCount() - 1));
+            String.format("columnIndex is %d > %d", column, getColumnCount() - 1));
     }
   }
 
   @Override
+  @SuppressWarnings({"array.access.unsafe.high", "array.access.unsafe.low"})
   public String getColumnName(int column) {
     return COLUMN_NAMES[column];
   }

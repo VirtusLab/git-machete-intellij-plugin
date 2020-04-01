@@ -1,6 +1,5 @@
 package com.virtuslab.branchlayout.impl;
 
-import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -24,7 +23,7 @@ public class BranchLayout implements IBranchLayout {
   public IBranchLayout slideOut(String branchName) throws BranchLayoutException {
     var entryOption = findEntryByName(branchName);
     if (!entryOption.isPresent()) {
-      throw new BranchLayoutException(MessageFormat.format("Branch entry \"{0}\" does not exist", branchName));
+      throw new BranchLayoutException(String.format("Branch entry \"%s\" does not exist", branchName));
     }
     if (rootBranches.contains(entryOption.get())) {
       throw new BranchLayoutException("Cannot slide out root branch entry");

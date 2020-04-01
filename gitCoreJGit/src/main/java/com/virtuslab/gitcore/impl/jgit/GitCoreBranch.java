@@ -1,7 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -66,13 +65,13 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
       ObjectId o = jgitRepo.resolve(getFullName());
       if (o == null) {
         throw new GitCoreNoSuchBranchException(
-            MessageFormat.format("{1} branch \"{0}\" does not exist in this repository", branchName,
+            String.format("%s branch \"%s\" does not exist in this repository", branchName,
                 getBranchTypeString(/* capitalized */ true)));
       }
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
-      throw new GitCoreNoSuchCommitException(MessageFormat.format(
-          "Commit pointed by {1} branch \"{0}\" does not exist in this repository", branchName, getBranchTypeString()));
+      throw new GitCoreNoSuchCommitException(String.format(
+          "Commit pointed by %s branch \"%s\" does not exist in this repository", branchName, getBranchTypeString()));
     } catch (RevisionSyntaxException | IOException e) {
       throw new GitCoreException(e);
     }

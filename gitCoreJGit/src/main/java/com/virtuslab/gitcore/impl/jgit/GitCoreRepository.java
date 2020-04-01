@@ -3,7 +3,6 @@ package com.virtuslab.gitcore.impl.jgit;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -60,7 +59,7 @@ public class GitCoreRepository implements IGitCoreRepository {
       this.gitFolderPath = getGitFolderPathFromGitFile(gitPath, repositoryPath);
     } else {
       throw new GitCoreNoSuchRepositoryException(
-          MessageFormat.format("Repository in path \"{0}\" does not exists", repositoryPath));
+          String.format("Repository in path \"%s\" does not exists", repositoryPath));
     }
 
     jgitRepo = new FileRepository(this.gitFolderPath.toString());
@@ -76,7 +75,7 @@ public class GitCoreRepository implements IGitCoreRepository {
       String firstGroup = matcher.group(1);
       if (firstGroup == null) {
         throw new GitCoreNoSuchRepositoryException(
-            MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
+            String.format("Path \"%s\" does not contain any submodule", repositoryPath));
       }
 
       Path parentDirectory = gitFilePath.getParent();
@@ -86,7 +85,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        MessageFormat.format("Path \"{0}\" does not contain any submodule", repositoryPath));
+        String.format("Path \"%s\" does not contain any submodule", repositoryPath));
   }
 
   @Override
@@ -111,7 +110,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchBranchException(
-          MessageFormat.format("Local branch \"{0}\" does not exist in this repository", branchName));
+          String.format("Local branch \"%s\" does not exist in this repository", branchName));
     }
     return new GitCoreLocalBranch(/* repo */ this, branchName);
   }
@@ -120,7 +119,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   public GitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchBranchException(
-          MessageFormat.format("Remote branch \"{0}\" does not exist in this repository", branchName));
+          String.format("Remote branch \"%s\" does not exist in this repository", branchName));
     }
     return new GitCoreRemoteBranch(/* repo */ this, branchName);
   }

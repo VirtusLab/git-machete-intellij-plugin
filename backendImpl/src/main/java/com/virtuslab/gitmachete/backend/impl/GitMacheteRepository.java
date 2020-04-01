@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
 
@@ -59,7 +58,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     var forkPoint = branch.deriveForkPoint();
     if (!forkPoint.isPresent()) {
       throw new GitMacheteException(
-          MessageFormat.format("Cannot find fork point for branch \"{0}\"", branch.getName()));
+          String.format("Cannot find fork point for branch \"%s\"", branch.getName()));
     }
 
     return new GitRebaseParameters(/* currentBranch */ branch, newBaseBranch.getPointedCommit(), forkPoint.get());

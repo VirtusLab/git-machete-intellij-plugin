@@ -44,11 +44,21 @@ subprojects {
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
 
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
+      options.compilerArgs << "-Werror"
+    }
+  }
+
   apply plugin: 'org.checkerframework'
   checkerFramework {
     checkers = [
+            'org.checkerframework.checker.formatter.FormatterChecker',
+            'org.checkerframework.checker.index.IndexChecker',
             'org.checkerframework.checker.nullness.NullnessChecker',
-            'org.checkerframework.checker.optional.OptionalChecker'
+            'org.checkerframework.checker.optional.OptionalChecker',
+            'org.checkerframework.checker.regex.RegexChecker',
     ]
     extraJavacArgs = [
             '-AassumeAssertionsAreEnabled'

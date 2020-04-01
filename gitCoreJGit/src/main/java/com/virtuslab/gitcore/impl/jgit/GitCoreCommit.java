@@ -27,6 +27,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   }
 
   @Override
+  @SuppressWarnings("argument.type.incompatible") // for IndexChecker only
   public String toString() {
     return jgitCommit.getId().getName().substring(0, 7) + ": " + jgitCommit.getShortMessage();
   }

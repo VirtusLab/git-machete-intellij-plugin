@@ -2,7 +2,6 @@ package com.virtuslab.branchlayout.impl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -39,6 +38,7 @@ public class BranchLayoutFileParser {
    * Searches for first line preceded some indent character and based on that sets {@code indentCharacter} and
    * {@code levelWidth} fields.
    */
+  @SuppressWarnings("argument.type.incompatible") // for IndexChecker only
   private void deriveIndentCharacter(List<String> lines) {
     var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
     if (firstLineWithBlankPrefixOption.isDefined()) {
@@ -88,8 +88,8 @@ public class BranchLayoutFileParser {
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(List<String> lines) throws BranchLayoutException {
     if (lines.size() > 0 && getIndentLevelWidth(lines.head()) > 0) {
-      throw new BranchLayoutException(0, MessageFormat.format(
-          "The initial line of branch layout file ({0}) cannot be indented", path.toAbsolutePath().toString()));
+      throw new BranchLayoutException(0, String.format(
+          "The initial line of branch layout file (%s) cannot be indented", path.toAbsolutePath().toString()));
     }
 
     Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(lines.size(),
@@ -103,8 +103,8 @@ public class BranchLayoutFileParser {
       int level = getIndentLevel(lineIndentLevelWidth, lineNumber);
 
       if (level - previousLevel > 1) {
-        throw new BranchLayoutException(lineNumber, MessageFormat.format(
-            "One of branches in branch layout file ({0}) has incorrect level in relation to its parent branch",
+        throw new BranchLayoutException(lineNumber, String.format(
+            "One of branches in branch layout file (%s) has incorrect level in relation to its parent branch",
             path.toAbsolutePath().toString()));
       }
       Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level,
@@ -121,8 +121,8 @@ public class BranchLayoutFileParser {
 
   private List<String> getFileLines() throws BranchLayoutException {
     return Try.of(() -> List.ofAll(Files.readAllLines(path)))
-        .getOrElseThrow(e -> new BranchLayoutException(MessageFormat.format(
-            "Error while loading branch layout file ({0})", path.toAbsolutePath().toString()), e));
+        .getOrElseThrow(e -> new BranchLayoutException(String.format(
+            "Error while loading branch layout file (%s)", path.toAbsolutePath().toString()), e));
   }
 
   private int getIndentLevelWidth(String line) {
@@ -135,8 +135,8 @@ public class BranchLayoutFileParser {
     }
 
     if (indent % levelWidth != 0) {
-      throw new BranchLayoutException(lineNumber, MessageFormat.format(
-          "Levels of indentation are not matching in branch layout file ({0})", path.toAbsolutePath().toString()));
+      throw new BranchLayoutException(lineNumber, String.format(
+          "Levels of indentation are not matching in branch layout file (%s)", path.toAbsolutePath().toString()));
     }
 
     return indent / levelWidth;

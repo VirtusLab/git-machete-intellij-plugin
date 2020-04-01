@@ -15,6 +15,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
 import lombok.Getter;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
@@ -47,6 +48,7 @@ public class RepositoryGraph implements LinearGraph {
   }
 
   @Override
+  @NonNegative
   public int nodesCount() {
     return elements.size();
   }

@@ -1,7 +1,5 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.text.MessageFormat;
-
 import lombok.Data;
 
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
@@ -13,6 +11,6 @@ public class GitCoreBranchTrackingStatus implements IGitCoreBranchTrackingStatus
 
   @Override
   public String toString() {
-    return MessageFormat.format("Ahead: {0}; Behind: {1}", ahead, behind);
+    return String.format("Ahead: %d; Behind: %d", ahead, behind);
   }
 }

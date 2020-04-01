@@ -87,9 +87,9 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           .getOrElseThrow(e -> {
             Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
             return new MacheteFileParseException(errorLine.isPresent()
-                ? MessageFormat.format("Error occurred while parsing machete file {0} in line {1}",
+                ? String.format("Error occurred while parsing machete file %s in line %d",
                     pathToBranchLayoutFile.toString(), errorLine.get())
-                : MessageFormat.format("Error occurred while parsing machete file {0}",
+                : String.format("Error occurred while parsing machete file %s",
                     pathToBranchLayoutFile.toString()),
                 e);
           });
@@ -187,7 +187,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(gitCoreRepository, entry.getName());
       if (!coreBranchOptional.isPresent()) {
         throw new GitMacheteException(MessageFormat
-            .format("Branch \"{0}\" defined in machete file does not exist in repository", entry.getName()));
+            .format("Branch \"%s\" defined in machete file does not exist in repository", entry.getName()));
       } else {
         IGitCoreLocalBranch coreLocalBranch = coreBranchOptional.get();
 
