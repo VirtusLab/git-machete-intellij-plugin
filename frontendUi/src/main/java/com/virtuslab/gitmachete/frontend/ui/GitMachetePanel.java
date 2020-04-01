@@ -9,6 +9,8 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import git4idea.GitUtil;
+import io.vavr.collection.List;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
@@ -24,29 +26,25 @@ public class GitMachetePanel {
 
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
+  private final CvsRootDropdown cvsRootDropdown;
 
   public GitMachetePanel(Project project) {
-    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project);
+    cvsRootDropdown = new CvsRootDropdown(List.ofAll(GitUtil.getRepositories(project)));
+    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, cvsRootDropdown);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }
 
   public ActionToolbar createGitMacheteToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    DefaultActionGroup refresh = new DefaultActionGroup(REFRESH_STATUS_SHORT_NAME, /* popup */ false);
-    refresh.add(new RefreshGitMacheteStatusAction());
+    gitMacheteActions.add(new RefreshGitMacheteStatusAction());
+    gitMacheteActions.add(new ToggleListCommitsAction());
+    gitMacheteActions.add(new RebaseCurrentBranchOntoParentAction());
 
-    DefaultActionGroup toggleListCommits = new DefaultActionGroup(TOGGLE_LIST_COMMIT_TEXT, /* popup */ false);
-    toggleListCommits.add(new ToggleListCommitsAction());
-
-    DefaultActionGroup rebaseCurrentBranchOntoParent = new DefaultActionGroup(REBASE_CURRENT_ONTO_PARENT_SHORT_NAME,
-        /* popup */ false);
-    rebaseCurrentBranchOntoParent.add(new RebaseCurrentBranchOntoParentAction());
-
-    gitMacheteActions.addAll(refresh, toggleListCommits, rebaseCurrentBranchOntoParent);
+    gitMacheteActions.add(cvsRootDropdown);
 
     ActionToolbar toolbar = ActionManager.getInstance()
-        .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
+        .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ true);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }

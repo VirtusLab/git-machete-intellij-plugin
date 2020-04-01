@@ -31,7 +31,7 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
         .getGitMacheteGraphTable();
     JScrollPane scrollTable = ScrollPaneFactory.createScrollPane(gitMacheteGraphTable);
 
-    SimpleToolWindowPanel toolbarAndTable = new SimpleToolWindowPanel(/* vertical */ false, /* borderless */ true);
+    SimpleToolWindowPanel toolbarAndTable = new SimpleToolWindowPanel(/* vertical */ true, /* borderless */ true);
     toolbarAndTable.setToolbar(gitMacheteToolbar.getComponent());
     toolbarAndTable.setContent(scrollTable);
 
