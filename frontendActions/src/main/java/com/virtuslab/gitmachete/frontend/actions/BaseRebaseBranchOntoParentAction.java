@@ -12,10 +12,10 @@ import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
@@ -84,7 +84,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
           }.queue();
 
         }).onFailure(e -> {
-          // todo
+          var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+          VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
         });
   }
 
