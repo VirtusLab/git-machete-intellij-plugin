@@ -55,6 +55,7 @@ subprojects {
     excludeTests = true
     checkers = [
       'org.checkerframework.checker.formatter.FormatterChecker',
+      'org.checkerframework.checker.guieffect.GuiEffectChecker',
       'org.checkerframework.checker.index.IndexChecker',
       'org.checkerframework.checker.nullness.NullnessChecker',
       'org.checkerframework.checker.optional.OptionalChecker',
@@ -62,6 +63,7 @@ subprojects {
     ]
     extraJavacArgs = [
       '-AassumeAssertionsAreEnabled',
+      "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=type.anno.before.modifier',
     ]
   }
@@ -71,7 +73,7 @@ subprojects {
     java {
       importOrder 'java', 'javax', '', 'com.virtuslab'
       // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
-      eclipse().configFile "${rootProject.projectDir}/formatting-rules.xml"
+      eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
       removeUnusedImports()
     }
   }

@@ -10,6 +10,7 @@ import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.NotNullFunction;
 import git4idea.GitVcs;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
@@ -22,6 +23,7 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   }
 
   @Override
+  @UIEffect
   public JComponent initContent() {
     GitMachetePanel gitMachetePanel = new GitMachetePanel(project);
 

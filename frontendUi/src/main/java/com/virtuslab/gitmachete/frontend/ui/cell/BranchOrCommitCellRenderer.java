@@ -28,6 +28,8 @@ import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.guieffect.qual.UI;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -39,6 +41,7 @@ import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToOriginStatusLabelG
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
+@UI
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
 
   private final MyComponent myComponent;
@@ -69,6 +72,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     GraphImage graphImage = new GraphImage(UIUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
 
     @Override
+    @UIEffect
     public void paintComponent(Graphics g) {
       super.paintComponent(g);
 
@@ -88,8 +92,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       }
     }
 
-    // For setBorder(null)
-    @SuppressWarnings("nullness:argument.type.incompatible")
+    @UIEffect
+    @SuppressWarnings("nullness:argument.type.incompatible") // For setBorder(null)
     void customize(BranchOrCommitCell cell, boolean isSelected, boolean hasFocus, int row, int column) {
       clear();
       setPaintFocusBorder(false);
@@ -136,6 +140,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
      * TODO (#98): The padding is calculated for all commits in the same branch (and the branch itself). The time
      * consumed could be reduced by using some lazy value, caching, or indent storing.
      */
+    @UIEffect
     private int calculateTextPadding(IGraphElement element) {
       int width = graphImage.getWidth();
       if (element instanceof CommitElement) {
@@ -148,6 +153,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       return width + LabelPainter.RIGHT_PADDING.get();
     }
 
+    @UIEffect
     private GraphImage getGraphImage(Collection<? extends PrintElement> printElements) {
       double maxIndex = getMaxGraphElementIndex(printElements);
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
@@ -175,6 +181,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @Override
+    @UIEffect
     public FontMetrics getFontMetrics(Font font) {
       return graphTable.getFontMetrics(font);
     }

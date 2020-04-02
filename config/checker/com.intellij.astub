@@ -1,0 +1,45 @@
+import org.checkerframework.checker.guieffect.qual.*;
+
+@UIPackage package com.intellij.icons;
+
+@UIPackage package com.intellij.ide;
+
+package com.intellij.openapi.fileEditor;
+
+class FileEditorManager {
+  @UIEffect FileEditor[] openFile(VirtualFile file, boolean focusEditor);
+  @UIEffect FileEditor[] openFile(VirtualFile file, boolean focusEditor, boolean searchForOpen);
+  @UIEffect void closeFile(VirtualFile file);
+  @UIEffect Editor openTextEditor(OpenFileDescriptor descriptor, boolean focusEditor);
+  @UIEffect void navigateToTextEditor(OpenFileDescriptor descriptor, boolean focusEditor);
+  @UIEffect Editor getSelectedTextEditor();
+  @UIEffect List<FileEditor> openEditor(OpenFileDescriptor descriptor, boolean focusEditor);
+}
+
+
+@UIPackage package com.intellij.openapi.ui;
+
+@UIPackage package com.intellij.openapi.vcs.changes.ui;
+
+@UIPackage package com.intellij.ui;
+
+class GuiUtils {
+  @SafeEffect void invokeLaterIfNeeded(Runnable runnable, ModalityState modalityState);
+  @SafeEffect void invokeLaterIfNeeded(Runnable runnable, ModalityState modalityState, Condition expired);
+}
+
+
+@UIPackage package com.intellij.ui.paint;
+
+@UIPackage package com.intellij.ui.table;
+
+@UIPackage package com.intellij.util.ui;
+
+class UIUtil {
+  @SafeEffect Color getInactiveTextColor();
+}
+
+
+@UIPackage package com.intellij.vcs.log.paint;
+
+@UIPackage package com.intellij.vcs.log.ui.render;

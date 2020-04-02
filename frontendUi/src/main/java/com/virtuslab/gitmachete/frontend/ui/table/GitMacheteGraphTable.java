@@ -23,6 +23,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
@@ -30,6 +31,8 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
+import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -44,6 +47,7 @@ import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
+  private final GraphTableModel graphTableModel;
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
   private final VcsRootDropdown vcsRootDropdown;
@@ -51,6 +55,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @Nullable
   private String selectedBranchName;
 
+  @UIEffect
   @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:argument.type.incompatible"})
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
@@ -59,6 +64,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
       VcsRootDropdown vcsRootDropdown) {
     super(graphTableModel);
 
+    this.graphTableModel = graphTableModel;
     this.project = project;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
     this.vcsRootDropdown = vcsRootDropdown;
@@ -69,16 +75,16 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         return GitMacheteGraphTable.this.getRowHeight();
       }
     };
-    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(GitMacheteGraphTable.this,
-        graphCellPainter);
-
     getEmptyText().setText(GIT_MACHETE_TEXT);
 
     initColumns();
 
+    @SuppressWarnings("guieffect:assignment.type.incompatible")
+    @AlwaysSafe
+    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(this, graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
-    setCellSelectionEnabled(false);
 
+    setCellSelectionEnabled(false);
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
     setIntercellSpacing(JBUI.emptySize());
@@ -91,6 +97,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
   }
 
+  @UIEffect
   private void initColumns() {
     createDefaultColumnsFromModel();
 
@@ -100,11 +107,20 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   @Override
   public GraphTableModel getModel() {
-    return (GraphTableModel) super.getModel();
+    return graphTableModel;
   }
 
   private <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
     return Case($(key.getName()), value);
+  }
+
+  // TODO (#158): ensure FileEditorManager#getSelectedTextEditor() is only even called
+  // from the Swing's Event Dispatch Thread
+  @SuppressWarnings("call.invalid.ui")
+  private Editor getSelectedTextEditor() {
+    // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
+    // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
+    return FileEditorManager.getInstance(project).getSelectedTextEditor();
   }
 
   @Override
@@ -112,9 +128,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   public Object getData(String dataId) {
     var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
-        // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
-        // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
-        typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
+        typeSafeCase(CommonDataKeys.EDITOR, getSelectedTextEditor()),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
@@ -127,10 +141,12 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
     private final GitMacheteGraphTable graphTable;
 
+    @UIEffect
     public GitMacheteGraphTableMouseAdapter(GitMacheteGraphTable graphTable) {
       this.graphTable = graphTable;
     }
 
+    @UIEffect
     public void mouseClicked(MouseEvent e) {
       Point point = e.getPoint();
       int row = rowAtPoint(point);

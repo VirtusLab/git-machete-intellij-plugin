@@ -17,6 +17,7 @@ import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -94,6 +95,7 @@ public class GitMacheteGraphTableManager {
     if (project != null && !project.isDisposed()) {
       new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
         @Override
+        @UIEffect
         public void run(ProgressIndicator indicator) {
           updateRepository();
           refreshUI();
