@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
-import java.util.LinkedList;
 import java.util.function.Consumer;
 
 import com.intellij.diff.tools.util.base.TextDiffViewerUtil;
@@ -15,7 +14,7 @@ public class CvsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Re
   @SuppressWarnings("method.invocation.invalid")
   public CvsRootDropdown(List<Repository> repositories) {
     this.repositories = repositories;
-    assert !repositories.isEmpty() : "List of repositories is empty";
+    assert !repositories.isEmpty() : "List of repositories is empty!";
     selectedRepository = repositories.get(0);
 
     setPopupTitle("Repositories");

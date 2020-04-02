@@ -25,7 +25,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.submodule.SubmoduleWalk;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -34,7 +33,6 @@ import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
-import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 
 @Getter
 public class GitCoreRepository implements IGitCoreRepository {

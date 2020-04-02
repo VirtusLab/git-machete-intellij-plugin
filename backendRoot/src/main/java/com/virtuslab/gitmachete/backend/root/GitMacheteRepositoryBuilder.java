@@ -33,7 +33,6 @@ import com.virtuslab.gitcore.api.IGitCoreSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteSubmoduleEntry;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
@@ -186,7 +185,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         IGitCoreLocalBranch coreLocalBranch = coreBranchOptional.get();
 
         try {
-          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint(
+              parentEntryCoreLocalBranch != null ? parentEntryCoreLocalBranch.getPointedCommit() : null);
 
           // translate IGitCoreCommit list to IGitMacheteCommit list
           List<GitMacheteCommit> commits = !forkPoint.isPresent()
@@ -259,7 +259,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
-          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch
+              .deriveForkPoint(parentCoreLocalBranch.getPointedCommit());
           if (!forkPoint.isPresent() || !forkPoint.get().equals(parentPointedCommit)) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
