@@ -66,8 +66,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch branch)
-      throws GitMacheteException {
+  public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch branch) {
     return new GitMergeParameters(/* currentBranch */ branch, /* branchToMergeInto */ branch.getUpstreamBranch());
   }
 }

@@ -18,6 +18,5 @@ public interface IGitMacheteRepository {
   IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
       throws GitMacheteException;
 
-  IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch)
-      throws GitMacheteException;
+  IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch);
 }
