@@ -4,7 +4,6 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd" [
         <!ENTITY checkerModuleDirectives SYSTEM "checker_module_directives.xml">
         <!ENTITY prohibitJavaCollections SYSTEM "prohibit_java_collections.xml">
-        <!ENTITY prohibitNullableAndNotnull SYSTEM "prohibit_nullable_and_notnull.xml">
         <!ENTITY treeWalkerModuleDirectives SYSTEM "tree_walker_module_directives.xml">
         ]>
 
@@ -18,7 +17,6 @@
     &checkerModuleDirectives;
 
     <module name="TreeWalker">
-        &prohibitNullableAndNotnull;
         &treeWalkerModuleDirectives;
     </module>
 </module>
