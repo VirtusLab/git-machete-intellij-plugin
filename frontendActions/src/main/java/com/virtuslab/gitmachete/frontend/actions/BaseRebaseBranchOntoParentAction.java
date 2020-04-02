@@ -35,7 +35,6 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(BaseRebaseBranchOntoParentAction.class);
 
   public BaseRebaseBranchOntoParentAction(String text, String actionDescription, Icon icon) {
     super(text, actionDescription, icon);
