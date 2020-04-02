@@ -12,15 +12,17 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
 /**
  * Expects DataKeys:
+ * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
+ * </ul>
  */
 public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
   private static final String ACTION_TEXT = "Rebase Current Branch Onto Parent";
   private static final String ACTION_DESCRIPTION = "Rebase current branch onto parent";
 
   /**
-   * This action "construction" happens here (not like RebaseSelectedBranchOntoParentAction within plugin.xml)
+   * This action "construction" happens here (not within plugin.xml, as in the case of {@link RebaseSelectedBranchOntoParentAction})
    * because declaration of such a GUI elements (the button in this case) is apparently less obvious than a context menu option.
    */
   public RebaseCurrentBranchOntoParentAction() {
@@ -31,39 +33,6 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    prohibitRebaseOfNonManagedRevisionOrRootBranch(anActionEvent);
-    updateDescriptionIfApplicable(anActionEvent);
-  }
-
-  /**
-   * Assumption to following code:
-   * - the result of {@link com.virtuslab.gitmachete.backend.api.IGitMacheteRepository#getCurrentBranchIfManaged}
-   * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
-   */
-  @Override
-  public void actionPerformed(AnActionEvent anActionEvent) {
-    Optional<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
-    assert currentBranch.isPresent();
-
-    var branchToRebase = currentBranch.get().asNonRootBranch();
-    doRebase(anActionEvent, branchToRebase);
-  }
-
-  private void updateDescriptionIfApplicable(AnActionEvent anActionEvent) {
-    Presentation presentation = anActionEvent.getPresentation();
-    if (presentation.isEnabledAndVisible()) {
-      var branchToRebaseOptional = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
-      assert branchToRebaseOptional.isPresent();
-      var upstreamBranch = branchToRebaseOptional.get().asNonRootBranch().getUpstreamBranch();
-
-      var description = String.format("Rebase \"%s\" onto \"%s\"",
-          branchToRebaseOptional.get().getName(), upstreamBranch.getName());
-
-      presentation.setDescription(description);
-    }
-  }
-
-  private void prohibitRebaseOfNonManagedRevisionOrRootBranch(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
 
     Presentation presentation = anActionEvent.getPresentation();
@@ -79,7 +48,26 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
             currentBranchOption.get().getName());
         presentation.setDescription(description);
         presentation.setEnabled(false);
+
+      } else {
+        var upstreamBranch = currentBranchOption.get().asNonRootBranch().getUpstreamBranch();
+        var description = String.format("Rebase \"%s\" onto \"%s\"", currentBranchOption.get().getName(),
+            upstreamBranch.getName());
+        presentation.setDescription(description);
       }
     }
+  }
+
+  /**
+   * Assumption to the following code is that the result of {@link com.virtuslab.gitmachete.backend.api.IGitMacheteRepository#getCurrentBranchIfManaged}
+   * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
+   */
+  @Override
+  public void actionPerformed(AnActionEvent anActionEvent) {
+    Optional<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
+    assert currentBranch.isPresent();
+
+    var branchToRebase = currentBranch.get().asNonRootBranch();
+    doRebase(anActionEvent, branchToRebase);
   }
 }

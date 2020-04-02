@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
@@ -34,7 +36,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
+public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
 
   public BaseRebaseBranchOntoParentAction(String text, String actionDescription, Icon icon) {
     super(text, actionDescription, icon);
@@ -47,13 +49,36 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
     super.update(anActionEvent);
     anActionEvent.getPresentation().setEnabled(true);
     anActionEvent.getPresentation().setVisible(true);
-    prohibitRebaseIfRepoInForbiddenState(anActionEvent);
+    Repository.State state = getIdeaRepository(anActionEvent).getState();
+    var presentation = anActionEvent.getPresentation();
+    if (state != Repository.State.NORMAL) {
+
+      var stateName = Match(state).of(
+          Case($(Repository.State.GRAFTING), "during an ongoing cherry-pick"),
+          Case($(Repository.State.DETACHED), "in the detached head state"),
+          Case($(Repository.State.MERGING), "during an ongoing merge"),
+          Case($(Repository.State.REBASING), "during an ongoing rebase"),
+          Case($(Repository.State.REVERTING), "during an ongoing revert"),
+          Case($(), state.toString()));
+
+      var message = String.format("Can't rebase %s", stateName);
+      presentation.setEnabled(false);
+      presentation.setDescription(message);
+    }
   }
 
+  /**
+   * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
+   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
+   * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
+   * This gives us certainty that all checks from actions' update implementations will be performed
+   * and all data available via data keys in those {@code update} implementations will still do be available
+   * in {@link BaseRebaseBranchOntoParentAction#actionPerformed} implementations.
+   */
   @Override
   public abstract void actionPerformed(AnActionEvent anActionEvent);
 
-  IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
+  protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
@@ -79,8 +104,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
             }
 
             // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
-            // changes
-            // to commits (eg. commits may get squashed so the graph structure changes).
+            // changes to commits (eg. commits may get squashed so the graph structure changes).
           }.queue();
 
         }).onFailure(e -> {
@@ -89,7 +113,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
         });
   }
 
-  GitRebaseParams getIdeaRebaseParamsOf(AnActionEvent anActionEvent, IGitRebaseParameters gitRebaseParameters) {
+  private GitRebaseParams getIdeaRebaseParamsOf(AnActionEvent anActionEvent, IGitRebaseParameters gitRebaseParameters) {
     GitRepository repository = getIdeaRepository(anActionEvent);
     GitVersion gitVersion = repository.getVcs().getVersion();
     String currentBranch = gitRebaseParameters.getCurrentBranch().getName();
@@ -100,7 +124,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
         /* interactive */ true, /* preserveMerges */ false);
   }
 
-  GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+  private GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
     assert project != null;
     // TODO (#64): handle multiple repositories
@@ -111,28 +135,5 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
     // tab is visible, a git repository exists.
     assert iterator.hasNext();
     return iterator.next();
-  }
-
-  private void prohibitRebaseIfRepoInForbiddenState(AnActionEvent anActionEvent) {
-    Repository.State state = getIdeaRepository(anActionEvent).getState();
-    var presentation = anActionEvent.getPresentation();
-    if (state != Repository.State.NORMAL && presentation.isEnabledAndVisible()) {
-      var message = getProhibitedStateMessage(state);
-      presentation.setEnabled(false);
-      presentation.setDescription(message);
-    }
-  }
-
-  private String getProhibitedStateMessage(Repository.State state) {
-
-    var stateName = io.vavr.API.Match(state).of(
-        Case($(Repository.State.GRAFTING), "during an ongoing cherry-pick"),
-        Case($(Repository.State.DETACHED), "in the detached head state"),
-        Case($(Repository.State.MERGING), "during an ongoing merge"),
-        Case($(Repository.State.REBASING), "during an ongoing rebase"),
-        Case($(Repository.State.REVERTING), "during an ongoing revert"),
-        Case($(), state.toString()));
-
-    return String.format("Can't rebase %s", stateName);
   }
 }
