@@ -2,17 +2,15 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.util.Optional;
 
+import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import io.vavr.collection.List;
-import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -25,26 +23,31 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @MonotonicNonNull
   private BaseGitMacheteBranch upstreamBranch = null;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
-  private final GitMacheteCommit pointedCommit;
-  private final List<GitMacheteCommit> commits;
+  private final IGitMacheteCommit forkPoint;
+  private final IGitMacheteCommit pointedCommit;
+  private final List<IGitMacheteCommit> commits;
   private final SyncToOriginStatus syncToOriginStatus;
   private final SyncToParentStatus syncToParentStatus;
-  private final IGitCoreLocalBranch coreLocalBranch;
   @Nullable
   private final String customAnnotation;
 
   @SuppressWarnings("nullness:argument.type.incompatible")
-  public GitMacheteNonRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
-      GitMacheteCommit pointedCommit, List<GitMacheteCommit> commits,
-      SyncToOriginStatus syncToOriginStatus, SyncToParentStatus syncToParentStatus,
-      IGitCoreLocalBranch coreLocalBranch, @Nullable String customAnnotation) {
+  public GitMacheteNonRootBranch(String name,
+      List<GitMacheteNonRootBranch> downstreamBranches,
+      IGitMacheteCommit forkPoint,
+      IGitMacheteCommit pointedCommit,
+      List<IGitMacheteCommit> commits,
+      SyncToOriginStatus syncToOriginStatus,
+      SyncToParentStatus syncToParentStatus,
+      IGitCoreLocalBranch coreLocalBranch,
+      @Nullable String customAnnotation) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;
+    this.forkPoint = forkPoint;
     this.pointedCommit = pointedCommit;
     this.commits = commits;
     this.syncToOriginStatus = syncToOriginStatus;
     this.syncToParentStatus = syncToParentStatus;
-    this.coreLocalBranch = coreLocalBranch;
     this.customAnnotation = customAnnotation;
 
     // This is a hack necessary to create an immutable cyclic structure (children pointing at the parent & parent
@@ -80,13 +83,5 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @Override
   public Optional<String> getCustomAnnotation() {
     return Optional.ofNullable(customAnnotation);
-  }
-
-  @Override
-  public Optional<IGitMacheteCommit> deriveForkPoint() throws GitMacheteException {
-    return Try
-        .of(() -> coreLocalBranch.deriveForkPoint())
-        .getOrElseThrow(e -> new GitMacheteException(e))
-        .map(GitMacheteCommit::new);
   }
 }

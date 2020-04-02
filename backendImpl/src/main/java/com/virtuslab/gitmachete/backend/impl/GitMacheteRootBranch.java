@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 
 @Getter
@@ -17,22 +17,20 @@ import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 public class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
-  private final GitMacheteCommit pointedCommit;
+  private final IGitMacheteCommit pointedCommit;
   private final SyncToOriginStatus syncToOriginStatus;
-  private final IGitCoreLocalBranch coreLocalBranch;
   @Nullable
   private final String customAnnotation;
 
   @SuppressWarnings("nullness:argument.type.incompatible")
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
-      GitMacheteCommit pointedCommit,
+      IGitMacheteCommit pointedCommit,
       SyncToOriginStatus syncToOriginStatus,
-      IGitCoreLocalBranch coreLocalBranch, @Nullable String customAnnotation) {
+      @Nullable String customAnnotation) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.pointedCommit = pointedCommit;
     this.syncToOriginStatus = syncToOriginStatus;
-    this.coreLocalBranch = coreLocalBranch;
     this.customAnnotation = customAnnotation;
 
     // This is a hack necessary to create an immutable cyclic structure (children pointing at the parent & parent

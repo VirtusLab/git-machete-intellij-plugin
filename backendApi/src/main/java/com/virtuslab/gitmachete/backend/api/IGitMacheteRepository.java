@@ -13,8 +13,7 @@ public interface IGitMacheteRepository {
 
   Optional<String> getRepositoryName();
 
-  IGitRebaseParameters deriveParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
-      throws GitMacheteException;
+  IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch);
 
   IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch);
 }
