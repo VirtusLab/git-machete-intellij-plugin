@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.backend.root;
 
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -186,7 +185,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     for (var entry : entries) {
       Optional<IGitCoreLocalBranch> coreBranchOptional = getCoreBranchFromName(gitCoreRepository, entry.getName());
       if (!coreBranchOptional.isPresent()) {
-        throw new GitMacheteException(MessageFormat
+        throw new GitMacheteException(String
             .format("Branch \"%s\" defined in machete file does not exist in repository", entry.getName()));
       } else {
         IGitCoreLocalBranch coreLocalBranch = coreBranchOptional.get();

@@ -4,7 +4,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 
 import java.util.Iterator;
-import java.util.Optional;
+import java.util.List;
 
 import javax.swing.Icon;
 
@@ -13,15 +13,17 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
+import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
@@ -59,6 +61,34 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
     return gitMacheteRepository;
   }
 
+  protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
+    Project project = anActionEvent.getProject();
+    assert project != null;
+
+    IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
+
+    Try.of(() -> macheteRepository.deriveParametersForRebaseOntoParent(branchToRebase))
+        .onSuccess(gitRebaseParameters -> {
+
+          GitRepository repository = getIdeaRepository(anActionEvent);
+
+          new Task.Backgroundable(project, "Rebasing") {
+            @Override
+            public void run(ProgressIndicator indicator) {
+              GitRebaseParams params = getIdeaRebaseParamsOf(anActionEvent, gitRebaseParameters);
+              GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
+            }
+
+            // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
+            // changes
+            // to commits (eg. commits may get squashed so the graph structure changes).
+          }.queue();
+
+        }).onFailure(e -> {
+          // todo
+        });
+  }
+
   GitRebaseParams getIdeaRebaseParamsOf(AnActionEvent anActionEvent, IGitRebaseParameters gitRebaseParameters) {
     GitRepository repository = getIdeaRepository(anActionEvent);
     GitVersion gitVersion = repository.getVcs().getVersion();
@@ -68,13 +98,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends AnAction {
 
     return new GitRebaseParams(gitVersion, currentBranch, newBase, /* upstream */ forkPoint,
         /* interactive */ true, /* preserveMerges */ false);
-  }
-
-  Optional<IGitRebaseParameters> deriveGitRebaseOntoParentParameters(IGitMacheteRepository repository,
-      BaseGitMacheteNonRootBranch branchToRebase) {
-    return Try.of(() -> Optional.of(repository.deriveParametersForRebaseOntoParent(branchToRebase)))
-        .onFailure(e -> LOG.error("Unable to compute rebase parameters", e))
-        .getOrElse(() -> Optional.empty());
   }
 
   GitRepository getIdeaRepository(AnActionEvent anActionEvent) {

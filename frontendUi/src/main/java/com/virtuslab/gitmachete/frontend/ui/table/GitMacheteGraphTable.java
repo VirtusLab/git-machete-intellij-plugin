@@ -103,9 +103,9 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     return Case($(key.getName()), value);
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("return.type.incompatible")
+  @Nullable
   public Object getData(String dataId) {
     return Match(dataId).of(
         typeSafeCase(CommonDataKeys.PROJECT, project),
