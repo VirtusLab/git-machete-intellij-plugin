@@ -22,14 +22,14 @@
 </module>
 <module name="HideUtilityClassConstructor" />
 <module name="IllegalCatch"/>
-<module name="IllegalThrows"/>
-<module name="IllegalType"/>
-<module name="InnerAssignment"/>
 <module name="IllegalImport" >
     <property name="illegalClasses" value="java.text.MessageFormat" />
     <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable" />
     <property name="illegalClasses" value="org.jetbrains.annotations.Nullable, org.jetbrains.annotations.NotNull" />
 </module>
+<module name="IllegalThrows"/>
+<module name="IllegalType"/>
+<module name="InnerAssignment"/>
 <module name="LeftCurly">
     <property name="tokens"
               value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,

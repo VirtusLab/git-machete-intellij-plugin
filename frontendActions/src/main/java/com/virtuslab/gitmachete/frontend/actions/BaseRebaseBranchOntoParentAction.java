@@ -78,28 +78,25 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
   @Override
   public abstract void actionPerformed(AnActionEvent anActionEvent);
 
-  protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
-    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
-
-    return gitMacheteRepository;
-  }
-
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
     Project project = anActionEvent.getProject();
     assert project != null;
 
     IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
 
+    GitRepository gitRepository = getIdeaRepository(anActionEvent);
+
+    doRebase(project, macheteRepository, gitRepository, branchToRebase);
+  }
+
+  private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository repository,
+      BaseGitMacheteNonRootBranch branchToRebase) {
     Try.of(() -> macheteRepository.deriveParametersForRebaseOntoParent(branchToRebase))
         .onSuccess(gitRebaseParameters -> {
-
-          GitRepository repository = getIdeaRepository(anActionEvent);
-
           new Task.Backgroundable(project, "Rebasing") {
             @Override
             public void run(ProgressIndicator indicator) {
-              GitRebaseParams params = getIdeaRebaseParamsOf(anActionEvent, gitRebaseParameters);
+              GitRebaseParams params = getIdeaRebaseParamsOf(repository, gitRebaseParameters);
               GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
             }
 
@@ -113,8 +110,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
         });
   }
 
-  private GitRebaseParams getIdeaRebaseParamsOf(AnActionEvent anActionEvent, IGitRebaseParameters gitRebaseParameters) {
-    GitRepository repository = getIdeaRepository(anActionEvent);
+  private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {
     GitVersion gitVersion = repository.getVcs().getVersion();
     String currentBranch = gitRebaseParameters.getCurrentBranch().getName();
     String newBase = gitRebaseParameters.getNewBaseCommit().getHash();
@@ -124,7 +120,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
         /* interactive */ true, /* preserveMerges */ false);
   }
 
-  private GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+  protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
+    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
+    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+
+    return gitMacheteRepository;
+  }
+
+  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
     assert project != null;
     // TODO (#64): handle multiple repositories

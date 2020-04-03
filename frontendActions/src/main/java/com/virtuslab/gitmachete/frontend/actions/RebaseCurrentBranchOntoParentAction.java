@@ -23,7 +23,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
   /**
    * This action "construction" happens here (not within plugin.xml, as in the case of {@link RebaseSelectedBranchOntoParentAction})
-   * because declaration of such a GUI elements (the button in this case) is apparently less obvious than a context menu option.
+   * because declaration of such GUI elements (the button in this case) is apparently less obvious than a context menu option.
    */
   public RebaseCurrentBranchOntoParentAction() {
     super(ACTION_TEXT, ACTION_DESCRIPTION, AllIcons.Actions.Menu_cut);
