@@ -40,7 +40,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     // given
     BaseGitCoreCommit pointedCommit = getCommit(null);
     IGitCoreLocalBranch parent = null;
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit, null);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -53,9 +53,9 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   public void branchAndParentPointingSameCommitAndBranchJustCreated_inSync() throws Exception {
     // given
     BaseGitCoreCommit pointedCommit = getCommit(null);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit, null);
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit);
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit, /* forkPoint */ null,
-        /* hasJustBeenCreated */ true, parent.getPointedCommit());
+        /* hasJustBeenCreated */ true);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -68,8 +68,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   public void branchAndParentPointingSameCommitAndBranchNotJustCreated_merged() throws Exception {
     // given
     BaseGitCoreCommit pointedCommit = getCommit(null);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit, parent.getPointedCommit());
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
 
@@ -82,9 +82,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     // given
     BaseGitCoreCommit parentPointedCommit = getCommit(null);
     BaseGitCoreCommit branchPointedCommit = getCommit(parentPointedCommit);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit,
-        parentPointedCommit);
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -100,8 +99,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     BaseGitCoreCommit forkPointCommit = getCommit(null);
     BaseGitCoreCommit parentPointedCommit = getCommit(forkPointCommit);
     BaseGitCoreCommit branchPointedCommit = getCommit(parentPointedCommit);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, parentPointedCommit);
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -115,8 +114,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     // given
     BaseGitCoreCommit branchPointedCommit = getCommit(null);
     BaseGitCoreCommit parentPointedCommit = getCommit(branchPointedCommit);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, parentPointedCommit);
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -131,8 +130,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     BaseGitCoreCommit someCommit = getCommit(null);
     BaseGitCoreCommit parentPointedCommit = getCommit(someCommit);
     BaseGitCoreCommit branchPointedCommit = getCommit(someCommit);
-    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, parentPointedCommit);
+    IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
@@ -155,23 +154,22 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
         parentCoreLocalBranch);
   }
 
-  IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit, BaseGitCoreCommit parentBranchCommit)
+  IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit)
       throws GitCoreException {
-    return getGitCoreLocalBranch(pointedCommit, null, false, parentBranchCommit);
+    return getGitCoreLocalBranch(pointedCommit, null, false);
+  }
+
+  IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit, BaseGitCoreCommit forkPoint)
+      throws GitCoreException {
+    return getGitCoreLocalBranch(pointedCommit, forkPoint, false);
   }
 
   IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit, BaseGitCoreCommit forkPoint,
-      BaseGitCoreCommit parentBranchCommit)
-      throws GitCoreException {
-    return getGitCoreLocalBranch(pointedCommit, forkPoint, false, parentBranchCommit);
-  }
-
-  IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit, BaseGitCoreCommit forkPoint,
-      boolean hasJustBeenCreated, BaseGitCoreCommit parentBranchCommit)
+      boolean hasJustBeenCreated)
       throws GitCoreException {
     IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
-    PowerMockito.doReturn(Optional.ofNullable(forkPoint)).when(mock).deriveForkPoint(parentBranchCommit);
+    PowerMockito.doReturn(Optional.ofNullable(forkPoint)).when(mock).deriveForkPoint();
     PowerMockito.doReturn(hasJustBeenCreated).when(mock).hasJustBeenCreated();
     return mock;
   }

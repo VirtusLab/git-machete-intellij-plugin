@@ -85,8 +85,7 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @Override
   public Optional<IGitMacheteCommit> deriveForkPoint() throws GitMacheteException {
     return Try
-        .of(() -> coreLocalBranch
-            .deriveForkPoint(upstreamBranch != null ? upstreamBranch.getCoreLocalBranch().getPointedCommit() : null))
+        .of(coreLocalBranch::deriveForkPoint)
         .getOrElseThrow(e -> new GitMacheteException(e))
         .map(GitMacheteCommit::new);
   }

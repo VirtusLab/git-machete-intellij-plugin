@@ -185,8 +185,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         IGitCoreLocalBranch coreLocalBranch = coreBranchOptional.get();
 
         try {
-          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint(
-              parentEntryCoreLocalBranch != null ? parentEntryCoreLocalBranch.getPointedCommit() : null);
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
 
           // translate IGitCoreCommit list to IGitMacheteCommit list
           List<GitMacheteCommit> commits = !forkPoint.isPresent()
@@ -260,7 +259,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
         if (isParentAncestorOfChild) {
           Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch
-              .deriveForkPoint(parentCoreLocalBranch.getPointedCommit());
+              .deriveForkPoint();
           if (!forkPoint.isPresent() || !forkPoint.get().equals(parentPointedCommit)) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {

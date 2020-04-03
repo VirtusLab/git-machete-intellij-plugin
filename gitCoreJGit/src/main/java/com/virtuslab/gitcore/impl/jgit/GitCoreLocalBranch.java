@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
@@ -75,7 +74,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<BaseGitCoreCommit> deriveForkPoint(@Nullable BaseGitCoreCommit upstreamBranchCommit)
+  public Optional<BaseGitCoreCommit> deriveForkPoint()
       throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
@@ -140,22 +139,14 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
           return entries.reject(isEntryExcluded);
         });
 
-    BaseGitCoreCommit assumedForkPoint = null;
-
     for (RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries
           .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (currentBranchCommitInReflogs) {
-        assumedForkPoint = new GitCoreCommit(currentBranchCommit);
-        break;
+        return Optional.of(new GitCoreCommit(currentBranchCommit));
       }
     }
 
-    if (upstreamBranchCommit != null && (assumedForkPoint == null || (!repo.isAncestor(upstreamBranchCommit,
-        assumedForkPoint) && repo.isAncestor(upstreamBranchCommit, getPointedCommit())))) {
-      assumedForkPoint = upstreamBranchCommit;
-    }
-
-    return Optional.ofNullable(assumedForkPoint);
+    return Optional.empty();
   }
 }
