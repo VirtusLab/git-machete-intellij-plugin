@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
+import java.awt.BorderLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
@@ -25,14 +27,16 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   @Override
   public JComponent initContent() {
     GitMachetePanel gitMachetePanel = new GitMachetePanel(project);
-    ActionToolbar gitMacheteToolbar = gitMachetePanel.createGitMacheteToolbar();
+    ActionToolbar gitMacheteVerticalToolbar = gitMachetePanel.createGitMacheteVerticalToolbar();
+    ActionToolbar gitMacheteHorizontalToolbar = gitMachetePanel.createGitMacheteHorizontalToolbar();
 
     GitMacheteGraphTable gitMacheteGraphTable = gitMachetePanel.getGitMacheteGraphTableManager()
         .getGitMacheteGraphTable();
     JScrollPane scrollTable = ScrollPaneFactory.createScrollPane(gitMacheteGraphTable);
 
-    SimpleToolWindowPanel toolbarAndTable = new SimpleToolWindowPanel(/* vertical */ true, /* borderless */ true);
-    toolbarAndTable.setToolbar(gitMacheteToolbar.getComponent());
+    SimpleToolWindowPanel toolbarAndTable = new SimpleToolWindowPanel(/* vertical */ false, /* borderless */ true);
+    toolbarAndTable.setToolbar(gitMacheteVerticalToolbar.getComponent());
+    toolbarAndTable.add(gitMacheteHorizontalToolbar.getComponent(), BorderLayout.NORTH);
     toolbarAndTable.setContent(scrollTable);
 
     return toolbarAndTable;

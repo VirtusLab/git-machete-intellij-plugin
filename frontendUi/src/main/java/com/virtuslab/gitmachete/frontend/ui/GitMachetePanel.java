@@ -32,12 +32,21 @@ public class GitMachetePanel {
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }
 
-  public ActionToolbar createGitMacheteToolbar() {
+  public ActionToolbar createGitMacheteVerticalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     gitMacheteActions.add(new RefreshGitMacheteStatusAction());
     gitMacheteActions.add(new ToggleListCommitsAction());
     gitMacheteActions.add(new RebaseCurrentBranchOntoParentAction());
+
+    ActionToolbar toolbar = ActionManager.getInstance()
+        .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
+    toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
+    return toolbar;
+  }
+
+  public ActionToolbar createGitMacheteHorizontalToolbar() {
+    DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     gitMacheteActions.add(cvsRootDropdown);
 
