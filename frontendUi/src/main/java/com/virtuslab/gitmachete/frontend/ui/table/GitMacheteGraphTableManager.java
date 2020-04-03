@@ -53,6 +53,10 @@ public class GitMacheteGraphTableManager {
     this.pathToRepoRoot = Paths.get(cvsRootDropdown.getValue().getRoot().getPath());
     subscribeToCvsRootChanges(cvsRootDropdown);
     subscribeToGitRepositoryChanges();
+
+    // Workaround for errors while plugin is starting and actions cat't get gitMacheteRepository that is not already set
+    pathToRepoRoot = Paths.get(cvsRootDropdown.getValue().getRoot().getPath());
+    updateRepository();
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
