@@ -36,6 +36,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.ui.CvsRootDropdown;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 
@@ -45,6 +46,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
+  private final CvsRootDropdown cvsRootDropdown;
 
   @Nullable
   private String selectedBranchName;
@@ -53,11 +55,13 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
       Project project,
-      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef) {
+      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef,
+      CvsRootDropdown cvsRootDropdown) {
     super(graphTableModel);
 
     this.project = project;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
+    this.cvsRootDropdown = cvsRootDropdown;
 
     GraphCellPainter graphCellPainter = new SimpleGraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
       @Override
@@ -114,7 +118,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
-
+        typeSafeCase(DataKeys.KEY_SELECTED_CVS_REPOSITORY, cvsRootDropdown.getValue()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), () -> null));

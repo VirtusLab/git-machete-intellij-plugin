@@ -87,8 +87,8 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     }
 
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
-        .map(b -> Try.of(() -> {
-          ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(b.getFullName());
+        .map(branch -> Try.of(() -> {
+          ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
           assert reflogReader != null : "Error while getting reflog reader";
           return reflogReader.getReverseEntries();
         }))
@@ -126,10 +126,16 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
             entryToExcludeNewId = ObjectId.zeroId();
           }
 
+          // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
+          // for cases like branch rename just after branch creation
           Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(entryToExcludeNewId)
               || e.getNewId().equals(e.getOldId())
-              || e.getComment().startsWith("branch: Reset to ")
-              || e.getComment().startsWith("reset: moving to ");
+              || e.getComment().startsWith("branch: Created from")
+              || e.getComment().equals("branch: Reset to " + getBranchName())
+              || e.getComment().equals("branch: Reset to HEAD")
+              || e.getComment().startsWith("reset: moving to ")
+              || e.getComment().equals("rebase finished: " + getFullName() + " onto "
+                  + Try.of(() -> getPointedCommit().getHash().getHashString()).getOrElse(""));
 
           return entries.reject(isEntryExcluded);
         });

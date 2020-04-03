@@ -41,6 +41,10 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   @Override
   public void disposeContent() {}
 
+  // The visibility predicate `GitMacheteContentProvider.GitMacheteVisibilityPredicate` performs
+  // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` which is true when the specified
+  // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
+  // tab is visible, a git repository exists.
   public static class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
     @Override
     public Boolean fun(Project project) {

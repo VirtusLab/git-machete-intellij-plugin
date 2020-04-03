@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -10,7 +9,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import git4idea.GitUtil;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
@@ -21,6 +19,7 @@ import git4idea.repo.GitRepository;
  * <ul>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_CVS_REPOSITORY}</li>
  * </ul>
  */
 public class CheckOutBranchAction extends AnAction {
@@ -43,7 +42,8 @@ public class CheckOutBranchAction extends AnAction {
 
     Project project = anActionEvent.getProject();
     assert project != null;
-    GitRepository repository = getRepository(project);
+    GitRepository repository = (GitRepository) anActionEvent.getData(DataKeys.KEY_SELECTED_CVS_REPOSITORY);
+    assert repository != null : "Can't get selected GitRepository";
 
     new Task.Backgroundable(project, "Checking out") {
       @Override
@@ -54,12 +54,5 @@ public class CheckOutBranchAction extends AnAction {
       }
       // TODO (#95): on success, refresh only indication of the current branch
     }.queue();
-  }
-
-  protected GitRepository getRepository(Project project) {
-    // TODO (#64): handle multiple repositories
-    Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
-    assert iterator.hasNext();
-    return iterator.next();
   }
 }

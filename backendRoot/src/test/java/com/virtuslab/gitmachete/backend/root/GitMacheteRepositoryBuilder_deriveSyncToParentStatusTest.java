@@ -83,7 +83,8 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     BaseGitCoreCommit parentPointedCommit = getCommit(null);
     BaseGitCoreCommit branchPointedCommit = getCommit(parentPointedCommit);
     IGitCoreLocalBranch parent = getGitCoreLocalBranch(parentPointedCommit, null);
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit, parentPointedCommit);
+    IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit,
+        parentPointedCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);

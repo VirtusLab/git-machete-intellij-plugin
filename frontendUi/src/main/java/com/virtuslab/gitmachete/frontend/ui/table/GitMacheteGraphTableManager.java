@@ -40,12 +40,13 @@ public class GitMacheteGraphTableManager {
   private final RepositoryGraphFactory repositoryGraphFactory;
   private Path pathToRepoRoot;
 
-  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges`
+  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges` and
+                                                 // `subscribeToCvsRootChanges`
   public GitMacheteGraphTableManager(Project project, CvsRootDropdown cvsRootDropdown) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef);
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, cvsRootDropdown);
     this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
         .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
@@ -71,7 +72,7 @@ public class GitMacheteGraphTableManager {
   }
 
   /**
-   * Function that is invoked by {@link CvsRootDropdown#setValue()} when user change repository in dropdown menu
+   * Function that is invoked by {@link CvsRootDropdown#setValue()} when user changes repository in dropdown menu
    */
   public void cvsRootChangeSubscriber(Repository newRepository) {
     pathToRepoRoot = Paths.get(newRepository.getRoot().getPath());
