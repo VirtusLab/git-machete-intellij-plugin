@@ -40,8 +40,8 @@ public class GitMacheteGraphTableManager {
   private final RepositoryGraphFactory repositoryGraphFactory;
   private Path pathToRepoRoot;
 
-  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges` and
-                                                 // `subscribeToCvsRootChanges`
+  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges`, `subscribeToCvsRootChanges`
+                                                 // and `updateRepository`
   public GitMacheteGraphTableManager(Project project, CvsRootDropdown cvsRootDropdown) {
     this.project = project;
     this.isListingCommits = false;

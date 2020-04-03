@@ -258,8 +258,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
-          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch
-              .deriveForkPoint();
+          Optional<BaseGitCoreCommit> forkPoint = coreLocalBranch.deriveForkPoint();
           if (!forkPoint.isPresent() || !forkPoint.get().equals(parentPointedCommit)) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
