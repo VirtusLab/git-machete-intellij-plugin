@@ -12,6 +12,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -22,17 +23,19 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    Optional<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
     var presentation = anActionEvent.getPresentation();
-    if (presentation.isVisible() && selectedBranch.isPresent()) {
-      if (selectedBranch.get().isRootBranch()) {
-        presentation.setEnabled(false);
-        presentation.setVisible(false);
-      } else {
-        var nonRootBranch = selectedBranch.get().asNonRootBranch();
-        BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
-        String description = String.format("Rebase \"%s\" onto \"%s\"", nonRootBranch.getName(), upstream.getName());
-        presentation.setDescription(description);
+    if (presentation.isVisible()) {
+      Optional<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
+      if (selectedBranch.isPresent()) {
+        if (selectedBranch.get().isRootBranch()) {
+          presentation.setEnabled(false);
+          presentation.setVisible(false);
+        } else {
+          var nonRootBranch = selectedBranch.get().asNonRootBranch();
+          BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+          String description = String.format("Rebase \"%s\" onto \"%s\"", nonRootBranch.getName(), upstream.getName());
+          presentation.setDescription(description);
+        }
       }
     }
   }

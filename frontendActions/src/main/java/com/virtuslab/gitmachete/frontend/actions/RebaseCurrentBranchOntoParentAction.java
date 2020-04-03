@@ -14,6 +14,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
@@ -33,12 +34,12 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
-
     Presentation presentation = anActionEvent.getPresentation();
-    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
-
     if (presentation.isEnabledAndVisible()) {
+      IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+
+      var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
+
       if (!currentBranchOption.isPresent()) {
         presentation.setDescription("Current revision is not a branch managed by Git Machete");
         presentation.setEnabled(false);

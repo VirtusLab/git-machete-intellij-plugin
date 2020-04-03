@@ -33,6 +33,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
@@ -47,10 +48,18 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
   @Override
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    anActionEvent.getPresentation().setEnabled(true);
-    anActionEvent.getPresentation().setVisible(true);
-    Repository.State state = getIdeaRepository(anActionEvent).getState();
+
     var presentation = anActionEvent.getPresentation();
+    var isReady = anActionEvent.getData(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY);
+    if (!(isReady != null && isReady)) {
+      presentation.setEnabled(false);
+      presentation.setVisible(false);
+      return;
+    }
+
+    presentation.setEnabled(true);
+    presentation.setVisible(true);
+    Repository.State state = getIdeaRepository(anActionEvent).getState();
     if (state != Repository.State.NORMAL) {
 
       var stateName = Match(state).of(

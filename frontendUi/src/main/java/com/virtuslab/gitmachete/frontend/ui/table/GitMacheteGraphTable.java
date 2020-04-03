@@ -108,10 +108,10 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @Nullable
   public Object getData(String dataId) {
     return Match(dataId).of(
-        typeSafeCase(CommonDataKeys.PROJECT, project),
         // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
         // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
         typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
+        typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepositoryRef.get() != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
