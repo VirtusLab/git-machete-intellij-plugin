@@ -29,7 +29,7 @@ public class RepositoryGraph implements LinearGraph {
   private final List<IGraphElement> elements;
   private final PrintElementGeneratorImpl printElementGenerator;
 
-  @SuppressWarnings({"argument.type.incompatible", "assignment.type.incompatible"})
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
   public RepositoryGraph(List<IGraphElement> elements) {
     this.elements = elements;
 

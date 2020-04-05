@@ -57,7 +57,7 @@ public class GraphTableModel extends AbstractTableModel {
   }
 
   @Override
-  @SuppressWarnings({"array.access.unsafe.high", "array.access.unsafe.low"})
+  @SuppressWarnings({"index:array.access.unsafe.high", "index:array.access.unsafe.low"})
   public String getColumnName(int column) {
     return COLUMN_NAMES[column];
   }

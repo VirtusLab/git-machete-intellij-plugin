@@ -21,7 +21,6 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
-@SuppressWarnings({"return.type.incompatible", "argument.type.incompatible"})
 public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
 
   private static final GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = PowerMockito
@@ -175,7 +174,6 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   }
 }
 
-@SuppressWarnings({"override.return.invalid", "return.type.incompatible"})
 class TestGitCoreCommit extends BaseGitCoreCommit {
   private static int counter;
 
@@ -223,7 +221,6 @@ class TestGitCoreCommit extends BaseGitCoreCommit {
   }
 }
 
-@SuppressWarnings({"override.return.invalid", "return.type.incompatible"})
 class TestGitCoreRepository implements IGitCoreRepository {
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant) {

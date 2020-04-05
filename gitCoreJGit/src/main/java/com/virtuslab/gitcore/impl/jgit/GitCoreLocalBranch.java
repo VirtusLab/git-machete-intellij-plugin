@@ -61,7 +61,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  @SuppressWarnings({"assignment.type.incompatible", "argument.type.incompatible"}) // for IndexChecker only
+  @SuppressWarnings({"index:assignment.type.incompatible", "index:argument.type.incompatible"})
   public Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
     var bc = new BranchConfig(repo.getJgitRepo().getConfig(), getName());
     String remoteName = bc.getRemoteTrackingBranch();

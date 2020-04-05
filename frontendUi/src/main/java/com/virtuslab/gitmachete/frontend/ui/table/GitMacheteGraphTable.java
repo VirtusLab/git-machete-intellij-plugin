@@ -51,7 +51,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @Nullable
   private String selectedBranchName;
 
-  @SuppressWarnings({"method.invocation.invalid", "argument.type.incompatible"})
+  @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:argument.type.incompatible"})
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
       Project project,
@@ -108,7 +108,6 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   }
 
   @Override
-  @SuppressWarnings("return.type.incompatible")
   @Nullable
   public Object getData(String dataId) {
     var gitMacheteRepository = gitMacheteRepositoryRef.get();
@@ -121,7 +120,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootDropdown.getValue()),
         typeSafeCase(CommonDataKeys.PROJECT, project),
-        Case($(), () -> null));
+        Case($(), (Object) null));
   }
 
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {

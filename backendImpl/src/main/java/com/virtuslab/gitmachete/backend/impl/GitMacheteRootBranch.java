@@ -23,7 +23,7 @@ public class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   @Nullable
   private final String customAnnotation;
 
-  @SuppressWarnings("argument.type.incompatible")
+  @SuppressWarnings("nullness:argument.type.incompatible")
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       GitMacheteCommit pointedCommit,
       SyncToOriginStatus syncToOriginStatus,

@@ -33,7 +33,7 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @Nullable
   private final String customAnnotation;
 
-  @SuppressWarnings("argument.type.incompatible")
+  @SuppressWarnings("nullness:argument.type.incompatible")
   public GitMacheteNonRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       GitMacheteCommit pointedCommit, List<GitMacheteCommit> commits,
       SyncToOriginStatus syncToOriginStatus, SyncToParentStatus syncToParentStatus,

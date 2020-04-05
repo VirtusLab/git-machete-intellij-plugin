@@ -53,6 +53,7 @@ subprojects {
 
   apply plugin: 'org.checkerframework'
   checkerFramework {
+    excludeTests = true
     checkers = [
             'org.checkerframework.checker.formatter.FormatterChecker',
             'org.checkerframework.checker.index.IndexChecker',

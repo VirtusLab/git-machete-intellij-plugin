@@ -38,7 +38,7 @@ public class BranchLayoutFileParser {
    * Searches for first line preceded some indent character and based on that sets {@code indentCharacter} and
    * {@code levelWidth} fields.
    */
-  @SuppressWarnings("argument.type.incompatible") // for IndexChecker only
+  @SuppressWarnings("index:argument.type.incompatible")
   private void deriveIndentCharacter(List<String> lines) {
     var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
     if (firstLineWithBlankPrefixOption.isDefined()) {

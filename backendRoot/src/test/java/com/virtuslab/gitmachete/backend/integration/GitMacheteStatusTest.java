@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,9 +25,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
 
-@SuppressWarnings("dereference.of.nullable")
 public class GitMacheteStatusTest {
-  @Nullable
   IGitMacheteRepository gitMacheteRepository = null;
 
   private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule

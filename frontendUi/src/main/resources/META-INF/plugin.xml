@@ -25,12 +25,12 @@
         <action id="GitMachete.CheckOutBranchAction"
                 class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction"
                 text="_Check Out Branch"
-                description="Check out this branch" />
+                description="Check out this branch"/>
 
         <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
                 class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction"
                 text="_Rebase Branch Onto Parent"
-                description="Rebase selected branch onto parent" />
+                description="Rebase selected branch onto parent"/>
 
         <group id="GitMachete.ContextMenu">
             <reference id="GitMachete.CheckOutBranchAction"/>

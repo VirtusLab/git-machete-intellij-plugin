@@ -7,7 +7,7 @@
     <property name="format" value="^(.*[Ii]nstance|.*[Ii]njector|[A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
 </module>
 <module name="CovariantEquals"/>
-<module name="DefaultComesLast" />
+<module name="DefaultComesLast"/>
 <module name="EmptyBlock">
     <property name="option" value="TEXT"/>
     <property name="tokens"
@@ -16,16 +16,16 @@
 <module name="EmptyStatement"/>
 <module name="EqualsHashCode"/>
 <module name="FallThrough"/>
-<module name="FinalClass" />
+<module name="FinalClass"/>
 <module name="HiddenField">
     <property name="ignoreConstructorParameter" value="true"/>
 </module>
-<module name="HideUtilityClassConstructor" />
+<module name="HideUtilityClassConstructor"/>
 <module name="IllegalCatch"/>
-<module name="IllegalImport" >
-    <property name="illegalClasses" value="java.text.MessageFormat" />
-    <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable" />
-    <property name="illegalClasses" value="org.jetbrains.annotations.Nullable, org.jetbrains.annotations.NotNull" />
+<module name="IllegalImport">
+    <property name="illegalClasses" value="java.text.MessageFormat"/>
+    <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable"/>
+    <property name="illegalClasses" value="org.jetbrains.annotations.Nullable, org.jetbrains.annotations.NotNull"/>
 </module>
 <module name="IllegalThrows"/>
 <module name="IllegalType"/>
@@ -64,7 +64,7 @@
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bpeek\b"/>
-    <property name="message" value="Usage of the prohibited peek method" />
+    <property name="message" value="Usage of the prohibited peek method"/>
 </module>
 <module name="RightCurly">
     <property name="id" value="RightCurlySame"/>

@@ -12,7 +12,7 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
  * branch which is not indented because of lack the of next (sibling) branch. The indent for it is handled with
  * {@link PhantomElement}.
  */
-@SuppressWarnings("method.invocation.invalid")
+@SuppressWarnings("nullness:method.invocation.invalid")
 public class SplittingElement extends BaseGraphElement {
   public SplittingElement(int upElementIndex, int downElementIndex, GraphEdgeColor graphEdgeColor) {
     super(upElementIndex, graphEdgeColor);
