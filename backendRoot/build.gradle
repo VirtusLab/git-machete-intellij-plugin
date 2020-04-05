@@ -1,12 +1,10 @@
-apply plugin: 'io.freefair.lombok'
-generateLombokConfig.enabled=false
-
 dependencies {
   guice()
-  vavr()
   junit()
+  lombok()
   powerMock()
   slf4j()
+  vavr()
 
   implementation project(':gitCoreJGit')
   implementation project(':branchLayoutImpl')

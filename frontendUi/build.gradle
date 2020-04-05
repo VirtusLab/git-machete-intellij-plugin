@@ -1,8 +1,6 @@
-apply plugin: 'io.freefair.lombok'
-generateLombokConfig.enabled=false
-
 dependencies {
   guice()
+  lombok()
   vavr()
 
   implementation project(':backendRoot')

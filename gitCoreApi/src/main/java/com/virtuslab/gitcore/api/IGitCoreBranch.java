@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import io.vavr.collection.List;
 
+/** All implementations should extend {@link com.virtuslab.gitcore.api.BaseGitCoreBranch} */
 public interface IGitCoreBranch {
   String getName();
 
