@@ -18,6 +18,7 @@ import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
@@ -34,7 +35,7 @@ public class GitMacheteGraphTableManager {
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
-  private final AtomicReference<IGitMacheteRepository> repositoryRef = new AtomicReference<>();
+  private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
 
   @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges`

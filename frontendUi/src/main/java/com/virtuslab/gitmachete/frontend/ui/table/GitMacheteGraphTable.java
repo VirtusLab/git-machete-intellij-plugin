@@ -44,7 +44,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   private final Project project;
-  private final AtomicReference<IGitMacheteRepository> gitMacheteRepositoryRef;
+  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
 
   @Nullable
   private String selectedBranchName;
@@ -53,7 +53,7 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
       Project project,
-      AtomicReference<IGitMacheteRepository> gitMacheteRepositoryRef) {
+      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef) {
     super(graphTableModel);
 
     this.project = project;
@@ -112,11 +112,6 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
         // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
         typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
-
-        // The following two keys are in a "special relationship".
-        // Given `GitMacheteGraphTable::gitMacheteRepositoryRef` is a `@MonotonicNonNull`
-        // when it gets initialized (git machete repository is ready)
-        // then there is a guarantee that a subsequent `gitMacheteRepositoryRef.get()` calls return a non-null value
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
 

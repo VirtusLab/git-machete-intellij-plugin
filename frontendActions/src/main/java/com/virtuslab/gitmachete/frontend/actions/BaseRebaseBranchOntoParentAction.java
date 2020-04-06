@@ -127,8 +127,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
   }
 
   /**
-   * Held within {@code assert gitMacheteRepository != null} can be perform safely because this method
-   * is (and must be) always called after checking the git machete repository readiness.
+   * This method relies on key `KEY_GIT_MACHETE_REPOSITORY` corresponding to a non-null value
+   * and hence must always be called after checking the git machete repository readiness.
    * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
    */
   protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
