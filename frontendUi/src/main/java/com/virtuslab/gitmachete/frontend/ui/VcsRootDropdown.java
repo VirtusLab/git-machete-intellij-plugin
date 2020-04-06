@@ -19,8 +19,6 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
     this.repositories = repositories;
     assert !repositories.isEmpty() : "List of repositories is empty!";
     selectedRepository = repositories.get(0);
-
-    setPopupTitle("Repositories");
   }
 
   @Override
