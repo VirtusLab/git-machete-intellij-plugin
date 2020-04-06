@@ -1,25 +1,202 @@
+
 import org.checkerframework.checker.guieffect.qual.*;
 
-@UIPackage package com.intellij.icons;
-
+@UIPackage package com.intellij.application.options;
+@UIPackage package com.intellij.build;
+@UIPackage package com.intellij.codeHighlighting;
+@UIPackage package com.intellij.codeInsight.daemon;
+@UIPackage package com.intellij.codeInsight.generation;
+@UIPackage package com.intellij.codeInsight.hint;
+@UIPackage package com.intellij.codeInsight.hints;
+@UIPackage package com.intellij.codeInsight.hints.settings;
+@UIPackage package com.intellij.codeInsight.lookup;
+@UIPackage package com.intellij.codeInsight.preview;
+@UIPackage package com.intellij.codeInspection;
+@UIPackage package com.intellij.codeInspection.ex;
+@UIPackage package com.intellij.codeInspection.reference;
+@UIPackage package com.intellij.codeInspection.ui;
+@UIPackage package com.intellij.diagnostic.logging;
+@UIPackage package com.intellij.diff;
+@UIPackage package com.intellij.diff.merge;
+@UIPackage package com.intellij.diff.requests;
+@UIPackage package com.intellij.diff.util;
+@UIPackage package com.intellij.dvcs.push;
+@UIPackage package com.intellij.execution;
+@UIPackage package com.intellij.execution.configurations;
+@UIPackage package com.intellij.execution.dashboard;
+@UIPackage package com.intellij.execution.executors;
+@UIPackage package com.intellij.execution.runners;
+@UIPackage package com.intellij.execution.services;
+@UIPackage package com.intellij.execution.testframework;
+@UIPackage package com.intellij.execution.ui;
+@UIPackage package com.intellij.execution.ui.layout;
+@UIPackage package com.intellij.execution.util;
+@UIPackage package com.intellij.facet;
+@UIPackage package com.intellij.facet.frameworks.ui;
+@UIPackage package com.intellij.facet.ui;
+@UIPackage package com.intellij.framework;
 @UIPackage package com.intellij.ide;
+@UIPackage package com.intellij.ide.actions;
+@UIPackage package com.intellij.ide.actions.exclusion;
+@UIPackage package com.intellij.ide.actions.searcheverywhere;
+@UIPackage package com.intellij.ide.browsers;
+@UIPackage package com.intellij.ide.browsers.chrome;
+@UIPackage package com.intellij.ide.browsers.firefox;
+@UIPackage package com.intellij.ide.diff;
+@UIPackage package com.intellij.ide.dnd;
+@UIPackage package com.intellij.ide.errorTreeView;
+@UIPackage package com.intellij.ide.fileTemplates;
+@UIPackage package com.intellij.ide.hierarchy;
+@UIPackage package com.intellij.ide.highlighter;
+@UIPackage package com.intellij.ide.presentation;
+@UIPackage package com.intellij.ide.projectView;
+@UIPackage package com.intellij.ide.scratch;
+@UIPackage package com.intellij.ide.structureView;
+@UIPackage package com.intellij.ide.ui;
+@UIPackage package com.intellij.ide.ui.search;
+@UIPackage package com.intellij.ide.util;
+@UIPackage package com.intellij.ide.util.frameworkSupport;
+@UIPackage package com.intellij.ide.util.gotoByName;
+@UIPackage package com.intellij.ide.util.projectWizard;
+@UIPackage package com.intellij.ide.util.treeView;
+@UIPackage package com.intellij.ide.util.treeView.smartTree;
+@UIPackage package com.intellij.ide.wizard;
+@UIPackage package com.intellij.navigation;
+@UIPackage package com.intellij.notification;
+@UIPackage package com.intellij.openapi;
+@UIPackage package com.intellij.openapi.actionSystem.ex;
+@UIPackage package com.intellij.openapi.diff;
+@UIPackage package com.intellij.openapi.editor;
+@UIPackage package com.intellij.openapi.editor.colors;
+@UIPackage package com.intellij.openapi.externalSystem;
+@UIPackage package com.intellij.openapi.fileChooser;
+@UIPackage package com.intellij.openapi.fileEditor;
+@UIPackage package com.intellij.openapi.fileTypes;
+@UIPackage package com.intellij.openapi.keymap;
+@UIPackage package com.intellij.openapi.module;
+@UIPackage package com.intellij.openapi.options;
+@UIPackage package com.intellij.openapi.options.colors;
+@UIPackage package com.intellij.openapi.paths;
 
-package com.intellij.openapi.fileEditor;
+package com.intellij.openapi.project;
 
-class FileEditorManager {
-  @UIEffect FileEditor[] openFile(VirtualFile file, boolean focusEditor);
-  @UIEffect FileEditor[] openFile(VirtualFile file, boolean focusEditor, boolean searchForOpen);
-  @UIEffect void closeFile(VirtualFile file);
-  @UIEffect Editor openTextEditor(OpenFileDescriptor descriptor, boolean focusEditor);
-  @UIEffect void navigateToTextEditor(OpenFileDescriptor descriptor, boolean focusEditor);
-  @UIEffect Editor getSelectedTextEditor();
-  @UIEffect List<FileEditor> openEditor(OpenFileDescriptor descriptor, boolean focusEditor);
-}
+@UI class DumbAwareToggleAction {}
+@UI class DumbService {}
+@UI class DumbUnawareHider {}
+@UI class ProjectUtil {}
 
 
+@UIPackage package com.intellij.openapi.projectRoots;
+@UIPackage package com.intellij.openapi.projectRoots.impl;
+@UIPackage package com.intellij.openapi.projectRoots.ui;
+@UIPackage package com.intellij.openapi.rd;
+@UIPackage package com.intellij.openapi.roots.ui;
+@UIPackage package com.intellij.openapi.roots.ui.configuration.libraryEditor;
+@UIPackage package com.intellij.openapi.roots.ui.util;
 @UIPackage package com.intellij.openapi.ui;
+@UIPackage package com.intellij.openapi.ui.cellvalidators;
+@UIPackage package com.intellij.openapi.ui.dialogs;
+@UIPackage package com.intellij.openapi.ui.messages;
+@UIPackage package com.intellij.openapi.ui.panel;
+@UIPackage package com.intellij.openapi.ui.popup;
+@UIPackage package com.intellij.openapi.ui.popup.util;
+
+
+package com.intellij.openapi.vcs;
+
+@UI class CheckinProjectPanel {}
+
+
+package com.intellij.openapi.vcs.changes;
+
+@UI class Change {}
+@UI class ChangelistBuilder {}
+@UI class CommitSession {}
+@UI class EmptyChangelistBuilder {}
+@UI class LocallyDeletedChange {}
+
+
+package com.intellij.openapi.vcs.changes.committed;
+
+@UI class ChangeListFilteringStrategy {}
+@UI class CommittedChangeListDecorator {}
+
 
 @UIPackage package com.intellij.openapi.vcs.changes.ui;
+
+
+package com.intellij.openapi.vcs.history;
+
+@UI class VcsDependentHistoryComponents {}
+@UI class VcsHistoryProvider {}
+
+
+@UIPackage package com.intellij.openapi.vcs.ui;
+@UIPackage package com.intellij.openapi.vcs.ui.cloneDialog;
+@UIPackage package com.intellij.openapi.vcs.versionBrowser;
+
+@UIPackage package com.intellij.openapi.wm;
+
+
+package com.intellij.platform;
+
+@UI class ProjectTemplate {}
+
+
+package com.intellij.pom;
+
+@UI class PomIconProvider {}
+
+
+package com.intellij.projectImport;
+
+@UI class ProjectOpenProcessor {}
+
+
+package com.intellij.psi.codeStyle.arrangement.std;
+
+@UI class ArrangementUiComponent {}
+
+
+package com.intellij.psi.codeStyle.modifier;
+
+@UI class CodeStyleStatusBarUIContributor {}
+
+
+package com.intellij.psi.injection;
+
+@UI class Injectable {}
+
+
+package com.intellij.psi.meta;
+
+@UI class PsiPresentableMetaData {}
+
+
+package com.intellij.psi.search;
+
+@UI class DelegatingGlobalSearchScope {}
+@UI class SearchScope {}
+@UI class TodoAttributes {}
+
+
+package com.intellij.psi.search.scope.packageSet;
+
+@UI class FilteredNamedScope {}
+@UI class NamedScope {}
+@UI class NamedScopeManager {}
+@UI class NamedScopesHolder {}
+
+
+@UIPackage package com.intellij.refactoring.util;
+@UIPackage package com.intellij.remoteServer;
+@UIPackage package com.intellij.remoteServer.configuration.deployment;
+@UIPackage package com.intellij.remoteServer.runtime.clientLibrary;
+@UIPackage package com.intellij.remoteServer.runtime.deployment;
+@UIPackage package com.intellij.tasks;
+@UIPackage package com.intellij.tasks.config;
+@UIPackage package com.intellij.testIntegration;
+
 
 @UIPackage package com.intellij.ui;
 
@@ -29,9 +206,84 @@ class GuiUtils {
 }
 
 
+@UIPackage package com.intellij.ui.border;
+@UIPackage package com.intellij.ui.breadcrumbs;
+@UIPackage package com.intellij.ui.components;
+@UIPackage package com.intellij.ui.components.breadcrumbs;
+@UIPackage package com.intellij.ui.components.editors;
+@UIPackage package com.intellij.ui.components.fields;
+@UIPackage package com.intellij.ui.components.fields.valueEditors;
+@UIPackage package com.intellij.ui.components.labels;
+@UIPackage package com.intellij.ui.components.panels;
+@UIPackage package com.intellij.ui.content;
+@UIPackage package com.intellij.ui.docking;
+@UIPackage package com.intellij.ui.dualView;
+@UIPackage package com.intellij.ui.list;
+@UIPackage package com.intellij.ui.mac;
+@UIPackage package com.intellij.ui.messager;
+@UIPackage package com.intellij.ui.navigation;
 @UIPackage package com.intellij.ui.paint;
-
+@UIPackage package com.intellij.ui.popup;
+@UIPackage package com.intellij.ui.popup.util;
+@UIPackage package com.intellij.ui.roots;
+@UIPackage package com.intellij.ui.speedSearch;
+@UIPackage package com.intellij.ui.switcher;
 @UIPackage package com.intellij.ui.table;
+@UIPackage package com.intellij.ui.tabs;
+@UIPackage package com.intellij.ui.tabs.impl;
+@UIPackage package com.intellij.ui.tabs.impl.singleRow;
+@UIPackage package com.intellij.ui.tree;
+@UIPackage package com.intellij.ui.treeStructure;
+@UIPackage package com.intellij.ui.treeStructure.actions;
+@UIPackage package com.intellij.ui.treeStructure.filtered;
+@UIPackage package com.intellij.ui.treeStructure.treetable;
+
+
+@UIPackage package com.intellij.usages;
+@UIPackage package com.intellij.usages.impl;
+@UIPackage package com.intellij.usages.impl.rules;
+@UIPackage package com.intellij.usageView;
+
+
+package com.intellij.util;
+
+@UI class Alarm {}
+@UI class ContentsUtil {}
+@UI class EditSourceOnDoubleClickHandler {}
+@UI class EditSourceOnEnterKeyHandler {}
+@UI class PlatformIcons {}
+@UI class PsiIconUtil {}
+
+
+package com.intellij.util.config;
+
+@UI class DumbAwareToggleBooleanProperty {}
+@UI class DumbAwareToggleInvertedBooleanProperty {}
+@UI class ToggleBooleanProperty {}
+@UI class ToggleInvertedBooleanProperty {}
+
+
+package com.intellij.util.download;
+
+@UI class DownloadableFileService {}
+@UI class FileDownloader {}
+
+
+package com.intellij.util.net;
+
+@UI class AuthenticationDialog {}
+@UI class AuthenticationPanel {}
+@UI class HttpConfigurable {}
+@UI class HttpProxySettingsUi {}
+@UI class IOExceptionDialog {}
+
+
+package com.intellij.util.net.ssl;
+
+@UI class CertificateConfigurable {}
+@UI class CertificateInfoPanel {}
+@UI class CertificateWarningDialog {}
+
 
 @UIPackage package com.intellij.util.ui;
 
@@ -40,6 +292,14 @@ class UIUtil {
 }
 
 
+@UIPackage package com.intellij.util.ui.tree;
+@UIPackage package com.intellij.util.ui.update;
 @UIPackage package com.intellij.vcs.log.paint;
-
 @UIPackage package com.intellij.vcs.log.ui.render;
+@UIPackage package com.intellij.vcsUtil;
+@UIPackage package com.intellij.xdebugger;
+@UIPackage package com.intellij.xdebugger.breakpoints;
+@UIPackage package com.intellij.xdebugger.breakpoints.ui;
+@UIPackage package com.intellij.xdebugger.frame;
+@UIPackage package com.intellij.xdebugger.stepping;
+@UIPackage package com.intellij.xml.breadcrumbs;

@@ -15,6 +15,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import git4idea.GitUtil;
 import io.vavr.collection.List;
 import lombok.Getter;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
@@ -37,6 +38,7 @@ public class GitMachetePanel {
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }
 
+  @UIEffect
   public void addToolbarsToWindowPanel(SimpleToolWindowPanel windowPanel) {
     windowPanel.setToolbar(createGitMacheteVerticalToolbar().getComponent());
     if (vcsRootDropdown.getRootCount() > 1) {

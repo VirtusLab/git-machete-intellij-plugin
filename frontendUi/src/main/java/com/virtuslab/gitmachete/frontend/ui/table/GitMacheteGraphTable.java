@@ -116,7 +116,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
 
   // TODO (#158): ensure FileEditorManager#getSelectedTextEditor() is only even called
   // from the Swing's Event Dispatch Thread
-  @SuppressWarnings("call.invalid.ui")
+  @SuppressWarnings("guieffect:call.invalid.ui")
+  @Nullable
   private Editor getSelectedTextEditor() {
     // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
     // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
