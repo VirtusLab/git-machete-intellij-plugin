@@ -107,12 +107,19 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   @SuppressWarnings("return.type.incompatible")
   @Nullable
   public Object getData(String dataId) {
+    var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
         // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
         // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
         typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
-        typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepositoryRef.get() != null),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
+
+        // The following two keys are in a "special relationship".
+        // Given `GitMacheteGraphTable::gitMacheteRepositoryRef` is a `@MonotonicNonNull`
+        // when it gets initialized (git machete repository is ready)
+        // then there is a guarantee that a subsequent `gitMacheteRepositoryRef.get()` calls return a non-null value
+        typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
+
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), () -> null));

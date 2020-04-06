@@ -51,7 +51,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
 
     var presentation = anActionEvent.getPresentation();
     var isReady = anActionEvent.getData(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY);
-    if (!(isReady != null && isReady)) {
+    if (isReady == null || !isReady) {
       presentation.setEnabled(false);
       presentation.setVisible(false);
       return;
@@ -101,19 +101,16 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
   private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository repository,
       BaseGitMacheteNonRootBranch branchToRebase) {
     Try.of(() -> macheteRepository.deriveParametersForRebaseOntoParent(branchToRebase))
-        .onSuccess(gitRebaseParameters -> {
-          new Task.Backgroundable(project, "Rebasing") {
-            @Override
-            public void run(ProgressIndicator indicator) {
-              GitRebaseParams params = getIdeaRebaseParamsOf(repository, gitRebaseParameters);
-              GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
-            }
+        .onSuccess(gitRebaseParameters -> new Task.Backgroundable(project, "Rebasing") {
+          @Override
+          public void run(ProgressIndicator indicator) {
+            GitRebaseParams params = getIdeaRebaseParamsOf(repository, gitRebaseParameters);
+            GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
+          }
 
-            // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
-            // changes to commits (eg. commits may get squashed so the graph structure changes).
-          }.queue();
-
-        }).onFailure(e -> {
+          // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
+          // changes to commits (eg. commits may get squashed so the graph structure changes).
+        }.queue()).onFailure(e -> {
           var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
           VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
         });
@@ -129,6 +126,11 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
         /* interactive */ true, /* preserveMerges */ false);
   }
 
+  /**
+   * Held within {@code assert gitMacheteRepository != null} can be perform safely because this method
+   * is (and must be) always called after checking the git machete repository readiness.
+   * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
+   */
   protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
