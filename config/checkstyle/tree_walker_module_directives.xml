@@ -23,6 +23,8 @@
 <module name="HideUtilityClassConstructor"/>
 <module name="IllegalCatch"/>
 <module name="IllegalImport">
+    <!-- Use java.util.Optional instead. Vavr Option isn't statically verified by Checker Framework. -->
+    <property name="illegalClasses" value="io.vavr.control.Option"/>
     <!-- Use String.format instead. MessageFormat isn't statically verified by Checker Framework. -->
     <property name="illegalClasses" value="java.text.MessageFormat"/>
     <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->

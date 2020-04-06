@@ -14,7 +14,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 
 @Getter
 @ToString
-public class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
+public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final IGitMacheteCommit pointedCommit;
@@ -22,7 +22,6 @@ public class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   @Nullable
   private final String customAnnotation;
 
-  @SuppressWarnings("nullness:argument.type.incompatible")
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
       SyncToOriginStatus syncToOriginStatus,
@@ -32,6 +31,8 @@ public class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
     this.pointedCommit = pointedCommit;
     this.syncToOriginStatus = syncToOriginStatus;
     this.customAnnotation = customAnnotation;
+
+    // Note: since the class is final, `this` is already @Initialized at this point.
 
     // This is a hack necessary to create an immutable cyclic structure (children pointing at the parent & parent
     // pointing at the children).

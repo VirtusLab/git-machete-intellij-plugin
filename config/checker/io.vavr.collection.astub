@@ -1,0 +1,24 @@
+
+import org.checkerframework.checker.index.qual.*;
+import org.checkerframework.common.value.qual.*;
+import org.checkerframework.dataflow.qual.*;
+
+package io.vavr.collection;
+
+interface Array<T> {
+  @Pure T get(@IndexFor("this") int index);
+}
+
+interface List<T> {
+  @Pure T get(@IndexFor("this") int index);
+
+  @LengthOf("this") @Pure int length();
+
+  @Pure @EnsuresMinLenIf(expression="this", result=false, targetValue=1) boolean isEmpty();
+}
+
+interface Traversable<T> {
+  @LengthOf("this") @Pure int length();
+
+  @LengthOf("this") @Pure int size();
+}

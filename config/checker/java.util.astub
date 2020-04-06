@@ -1,9 +1,18 @@
+
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
+
+package java.util;
+
+class Optional<T> {
+  @Pure T get();
+}
+
 
 package java.util.concurrent.atomic;
 
 class AtomicReference<V> {
-    AtomicReference(@Nullable V initialValue);
-    @Nullable V get();
-    void set(@Nullable V value);
+  AtomicReference(@Nullable V initialValue);
+  @Nullable V get();
+  void set(@Nullable V value);
 }

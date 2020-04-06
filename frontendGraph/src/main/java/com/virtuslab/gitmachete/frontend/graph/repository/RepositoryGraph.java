@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import com.intellij.util.SmartList;
 import com.intellij.vcs.log.graph.PrintElement;
@@ -12,6 +11,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import com.intellij.vcs.log.graph.impl.print.PrintElementGeneratorImpl;
+import io.vavr.collection.List;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -42,6 +42,7 @@ public class RepositoryGraph implements LinearGraph {
     return printElementGenerator.getPrintElements(rowIndex);
   }
 
+  @SuppressWarnings("index:argument.type.incompatible")
   public IGraphElement getGraphElement(int rowIndex) {
     return elements.get(rowIndex);
   }
@@ -73,12 +74,13 @@ public class RepositoryGraph implements LinearGraph {
   }
 
   @Override
-  public List<GraphEdge> getAdjacentEdges(int nodeIndex, EdgeFilter filter) {
+  public java.util.List<GraphEdge> getAdjacentEdges(int nodeIndex, EdgeFilter filter) {
     if (filter == EdgeFilter.SPECIAL) {
       return Collections.emptyList();
     }
 
-    List<GraphEdge> adjacentEdges = new SmartList<>();
+    java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
+    @SuppressWarnings("index:argument.type.incompatible")
     IGraphElement currentElement = elements.get(nodeIndex);
 
     if (filter.downNormal && nodeIndex < elements.size() - 1) {

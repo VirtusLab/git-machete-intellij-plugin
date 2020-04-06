@@ -93,7 +93,6 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @UIEffect
-    @SuppressWarnings("nullness:argument.type.incompatible") // For setBorder(null)
     void customize(BranchOrCommitCell cell, boolean isSelected, boolean hasFocus, int row, int column) {
       clear();
       setPaintFocusBorder(false);

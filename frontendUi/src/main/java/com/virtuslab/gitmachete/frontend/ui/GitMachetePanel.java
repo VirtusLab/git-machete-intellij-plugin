@@ -13,9 +13,11 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import git4idea.GitUtil;
+import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
@@ -33,7 +35,10 @@ public class GitMachetePanel {
   public GitMachetePanel(Project project) {
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
     // opened project, so Git Machete plugin shouldn't even be loaded
-    vcsRootDropdown = new VcsRootDropdown(List.ofAll(GitUtil.getRepositories(project)));
+    @SuppressWarnings("assignment.type.incompatible")
+    @MinLen(1)
+    List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
+    vcsRootDropdown = new VcsRootDropdown(repositories);
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootDropdown);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }

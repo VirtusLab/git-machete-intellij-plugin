@@ -61,16 +61,41 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  @SuppressWarnings({"index:assignment.type.incompatible", "index:argument.type.incompatible"})
   public Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
     var bc = new BranchConfig(repo.getJgitRepo().getConfig(), getName());
     String remoteName = bc.getRemoteTrackingBranch();
     if (remoteName == null) {
       return Optional.empty();
     } else {
-      return Optional
-          .of(new GitCoreRemoteBranch(repo, remoteName.substring(GitCoreRemoteBranch.BRANCHES_PATH.length())));
+      @SuppressWarnings("index:argument.type.incompatible")
+      String branchName = remoteName.substring(GitCoreRemoteBranch.BRANCHES_PATH.length());
+      return Optional.of(new GitCoreRemoteBranch(repo, branchName));
     }
+  }
+
+  private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
+    ObjectId entryToExcludeNewId;
+    if (entries.size() > 0) {
+      ReflogEntry firstEntry = entries.get(entries.size() - 1);
+      entryToExcludeNewId = firstEntry.getComment().startsWith("branch: Created from")
+          ? firstEntry.getNewId()
+          : ObjectId.zeroId();
+    } else {
+      entryToExcludeNewId = ObjectId.zeroId();
+    }
+
+    // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
+    // for cases like branch rename just after branch creation
+    Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(entryToExcludeNewId)
+        || e.getNewId().equals(e.getOldId())
+        || e.getComment().startsWith("branch: Created from")
+        || e.getComment().equals("branch: Reset to " + getBranchName())
+        || e.getComment().equals("branch: Reset to HEAD")
+        || e.getComment().startsWith("reset: moving to ")
+        || e.getComment().equals("rebase finished: " + getFullName() + " onto "
+            + Try.of(() -> getPointedCommit().getHash().getHashString()).getOrElse(""));
+
+    return entries.reject(isEntryExcluded);
   }
 
   @Override
@@ -112,31 +137,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
         .appendAll(reflogEntryListsOfRemoteBranches);
 
-    List<ReflogEntry> filteredReflogEntries = reflogEntryLists
-        .flatMap(entries -> {
-          ObjectId entryToExcludeNewId;
-          if (entries.size() > 0) {
-            ReflogEntry firstEntry = entries.get(entries.size() - 1);
-            entryToExcludeNewId = firstEntry.getComment().startsWith("branch: Created from")
-                ? firstEntry.getNewId()
-                : ObjectId.zeroId();
-          } else {
-            entryToExcludeNewId = ObjectId.zeroId();
-          }
-
-          // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
-          // for cases like branch rename just after branch creation
-          Predicate<ReflogEntry> isEntryExcluded = e -> e.getNewId().equals(entryToExcludeNewId)
-              || e.getNewId().equals(e.getOldId())
-              || e.getComment().startsWith("branch: Created from")
-              || e.getComment().equals("branch: Reset to " + getBranchName())
-              || e.getComment().equals("branch: Reset to HEAD")
-              || e.getComment().startsWith("reset: moving to ")
-              || e.getComment().equals("rebase finished: " + getFullName() + " onto "
-                  + Try.of(() -> getPointedCommit().getHash().getHashString()).getOrElse(""));
-
-          return entries.reject(isEntryExcluded);
-        });
+    List<ReflogEntry> filteredReflogEntries = reflogEntryLists.flatMap(this::rejectExcludedEntries);
 
     for (RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries

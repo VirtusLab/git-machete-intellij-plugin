@@ -35,13 +35,14 @@ public class BranchLayoutFileParser {
   }
 
   /**
-   * Searches for first line preceded some indent character and based on that sets {@code indentCharacter} and
+   * Searches for first line starting with an indent character and based on that sets {@code indentCharacter} and
    * {@code levelWidth} fields.
    */
-  @SuppressWarnings("index:argument.type.incompatible")
   private void deriveIndentCharacter(List<String> lines) {
-    var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
-    if (firstLineWithBlankPrefixOption.isDefined()) {
+    var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"))
+        .toJavaOptional();
+    // Redundant non-emptiness check to satisfy IndexChecker
+    if (firstLineWithBlankPrefixOption.isPresent() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
       indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
       levelWidth = getIndentLevelWidth(firstLineWithBlankPrefixOption.get());
     }
@@ -53,10 +54,11 @@ public class BranchLayoutFileParser {
    * @param lineIndexToUpstreamLineIndex
    *          as it says ({@code lines} metadata containing structure, see {@link #parseToArrayRepresentation})
    * @param upstreamLineIndex
-   *          index of line which subentry structures are to be built
+   *          index of line whose subentries are to be built
    *
    * @return list of entries with recursively built lists of subentries
    */
+  @SuppressWarnings("index:argument.type.incompatible")
   private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex, int upstreamLineIndex) {
     return lineIndexToUpstreamLineIndex
@@ -68,7 +70,7 @@ public class BranchLayoutFileParser {
 
   /**
    * Parses line to {@link com.virtuslab.branchlayout.impl.BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
-   * entry with specified {@code subbranches}.
+   * entry with the specified {@code subbranches}.
    */
   private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subbranches) {
     String trimmedLine = line.trim();
@@ -107,8 +109,10 @@ public class BranchLayoutFileParser {
             "One of branches in branch layout file (%s) has incorrect level in relation to its parent branch",
             path.toAbsolutePath().toString()));
       }
+
+      @SuppressWarnings("index:argument.type.incompatible")
       Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level,
-          level == 0 ? -1 : levelToPresentUpstream.get(level - 1));
+          level <= 0 ? -1 : levelToPresentUpstream.get(level - 1));
       lineIndexToIndentLevelAndUpstreamLineIndex = lineIndexToIndentLevelAndUpstreamLineIndex.update(lineNumber,
           levelAndUpstreamLineIndex);
       levelToPresentUpstream = levelToPresentUpstream.update(level, lineNumber);

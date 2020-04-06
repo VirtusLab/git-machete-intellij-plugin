@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui;
 import com.intellij.diff.tools.util.base.TextDiffViewerUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
+import org.checkerframework.common.value.qual.MinLen;
 
 public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<GitRepository> {
   private final List<GitRepository> repositories;
@@ -12,10 +13,8 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
   /**
    * @param repositories non-empty list of {@link git4idea.repo.GitRepository} that represents VCS repositories
    */
-  @SuppressWarnings("method.invocation.invalid")
-  public VcsRootDropdown(List<GitRepository> repositories) {
+  public VcsRootDropdown(@MinLen(1) List<GitRepository> repositories) {
     this.repositories = repositories;
-    assert !repositories.isEmpty() : "List of repositories is empty!";
     selectedRepository = repositories.get(0);
   }
 

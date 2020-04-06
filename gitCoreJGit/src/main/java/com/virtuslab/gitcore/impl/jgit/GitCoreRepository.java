@@ -3,7 +3,6 @@ package com.virtuslab.gitcore.impl.jgit;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +11,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -149,10 +147,9 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchMissing(String path) throws GitCoreException {
-    return Try.of(() -> Option.of(jgitRepo.resolve(path)))
+    return Try.of(() -> Optional.ofNullable(jgitRepo.resolve(path)))
         .getOrElseThrow(e -> new GitCoreException(e))
-        .map(Objects::isNull)
-        .get();
+        .isEmpty();
   }
 
   @Override

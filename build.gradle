@@ -63,6 +63,7 @@ subprojects {
     ]
     extraJavacArgs = [
       '-AassumeAssertionsAreEnabled',
+      '-AinvariantArrays',
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=type.anno.before.modifier',
     ]
