@@ -127,33 +127,55 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    Optional<BaseGitCoreCommit> coreForkPoint = Try.of(() -> coreLocalBranch.deriveForkPoint())
-        .getOrElseThrow(e -> new GitMacheteException(e));
+    Optional<BaseGitCoreCommit> coreForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
+        parentEntryCoreLocalBranch);
 
     BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    if (!coreForkPoint.isPresent()) {
-      throw new GitMacheteException(String
-          .format("Cannot derive the fork point of non root branch \"%s\"", entry.getName()));
-    }
-
     // translate IGitCoreCommit list to IGitMacheteCommit list
-    List<IGitMacheteCommit> commits = Try.of(() -> coreLocalBranch.deriveCommitsUntil(coreForkPoint.get()))
-        .getOrElseThrow(e -> new GitMacheteException(e))
-        .map(GitMacheteCommit::new)
-        .collect(List.collector());
+    List<IGitMacheteCommit> commits = coreForkPoint.isPresent()
+        ? Try.of(() -> coreLocalBranch.deriveCommitsUntil(coreForkPoint.get()))
+            .getOrElseThrow(e -> new GitMacheteException(e))
+            .map(GitMacheteCommit::new)
+            .collect(List.collector())
+        : List.empty();
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var forkPoint = new GitMacheteCommit(coreForkPoint.get());
+    var forkPoint = coreForkPoint.isPresent() ? new GitMacheteCommit(coreForkPoint.get()) : null;
     var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
     var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
-        coreForkPoint.get());
+        coreForkPoint.orElse(null));
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
 
-    return new GitMacheteNonRootBranch(entry.getName(), subbranches, pointedCommit, forkPoint, commits,
-        syncToOriginStatus, syncToParentStatus, customAnnotation);
+    return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
+        commits, syncToOriginStatus, syncToParentStatus, customAnnotation);
+  }
+
+  private Optional<BaseGitCoreCommit> deduceForkPoint(IGitCoreRepository gitCoreRepository,
+      IGitCoreLocalBranch coreLocalBranch,
+      IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
+    var forkPointOptional = Try.of(() -> coreLocalBranch.deriveForkPoint())
+        .getOrElseThrow(e -> new GitMacheteException(e));
+    if (!forkPointOptional.isPresent()) {
+      return forkPointOptional;
+    }
+
+    return Try.of(() -> {
+      var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
+      var pointedCommit = coreLocalBranch.getPointedCommit();
+      var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, forkPointOptional.get());
+      var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
+
+      // If parent(A) is NOT ancestor of fork-point(A), and parent(A) is ancestor of A, then assume
+      // fork-point(A)=parent(A)
+      if (!isParentAncestorOfForkPoint && isParentAncestorOfChild) {
+        return Optional.of(parentPointedCommit);
+      } else {
+        return forkPointOptional;
+      }
+    }).getOrElseThrow(e -> new GitMacheteException(e));
   }
 
   private List<GitMacheteNonRootBranch> deriveDownstreamBranches(IGitCoreRepository gitCoreRepository,
@@ -198,7 +220,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private SyncToParentStatus deriveSyncToParentStatus(IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch,
-      BaseGitCoreCommit forkPoint)
+      @Nullable BaseGitCoreCommit forkPoint)
       throws GitMacheteException {
     try {
       if (parentCoreLocalBranch == null) {
@@ -219,7 +241,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
-          if (!forkPoint.equals(parentPointedCommit)) {
+          if (forkPoint != null && !forkPoint.equals(parentPointedCommit)) {
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             return SyncToParentStatus.InSync;

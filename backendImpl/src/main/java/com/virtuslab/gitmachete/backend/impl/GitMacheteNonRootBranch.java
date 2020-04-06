@@ -22,6 +22,7 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @MonotonicNonNull
   private BaseGitMacheteBranch upstreamBranch = null;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
+  @Nullable
   private final IGitMacheteCommit forkPoint;
   private final IGitMacheteCommit pointedCommit;
   private final List<IGitMacheteCommit> commits;
@@ -33,7 +34,7 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @SuppressWarnings("nullness:argument.type.incompatible")
   public GitMacheteNonRootBranch(String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
-      IGitMacheteCommit forkPoint,
+      @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
       List<IGitMacheteCommit> commits,
       SyncToOriginStatus syncToOriginStatus,
@@ -81,5 +82,10 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @Override
   public Optional<String> getCustomAnnotation() {
     return Optional.ofNullable(customAnnotation);
+  }
+
+  @Override
+  public Optional<IGitMacheteCommit> getForkPoint() {
+    return Optional.ofNullable(forkPoint);
   }
 }

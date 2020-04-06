@@ -16,6 +16,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
@@ -108,7 +109,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
 
           // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
           // changes to commits (eg. commits may get squashed so the graph structure changes).
-        }.queue());
+        }.queue()).onFailure(e -> {
+          var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+          VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
+        });
   }
 
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {

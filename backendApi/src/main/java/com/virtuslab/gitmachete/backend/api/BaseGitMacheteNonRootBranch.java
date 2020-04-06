@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
+import java.util.Optional;
+
 import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 
@@ -26,5 +28,5 @@ public abstract class BaseGitMacheteNonRootBranch extends BaseGitMacheteBranch {
 
   public abstract SyncToParentStatus getSyncToParentStatus();
 
-  public abstract IGitMacheteCommit getForkPoint();
+  public abstract Optional<IGitMacheteCommit> getForkPoint();
 }
