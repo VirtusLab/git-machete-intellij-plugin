@@ -30,6 +30,8 @@ public class GitMachetePanel {
   private final VcsRootDropdown vcsRootDropdown;
 
   public GitMachetePanel(Project project) {
+    // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
+    // opened project, so Git Machete plugin shouldn't even be loaded
     vcsRootDropdown = new VcsRootDropdown(List.ofAll(GitUtil.getRepositories(project)));
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootDropdown);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();

@@ -11,6 +11,9 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
   private GitRepository selectedRepository;
   private List<Consumer<GitRepository>> subscribents = List.empty();
 
+  /**
+   * @param repositories non-empty list of {@link git4idea.repo.GitRepository} that represents VCS repositories
+   */
   @SuppressWarnings("method.invocation.invalid")
   public VcsRootDropdown(List<GitRepository> repositories) {
     this.repositories = repositories;

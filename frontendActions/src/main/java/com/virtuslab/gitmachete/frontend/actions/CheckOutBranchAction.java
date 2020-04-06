@@ -42,8 +42,7 @@ public class CheckOutBranchAction extends AnAction {
 
     Project project = anActionEvent.getProject();
     assert project != null;
-    GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
-    assert repository != null : "Can't get selected GitRepository";
+    GitRepository repository = getIdeaRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Checking out") {
       @Override
@@ -54,5 +53,11 @@ public class CheckOutBranchAction extends AnAction {
       }
       // TODO (#95): on success, refresh only indication of the current branch
     }.queue();
+  }
+
+  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+    GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
+    assert repository != null : "Can't get selected GitRepository";
+    return repository;
   }
 }

@@ -118,8 +118,8 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
         typeSafeCase(CommonDataKeys.EDITOR, FileEditorManager.getInstance(project).getSelectedTextEditor()),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootDropdown.getValue()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
+        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootDropdown.getValue()),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), () -> null));
   }
