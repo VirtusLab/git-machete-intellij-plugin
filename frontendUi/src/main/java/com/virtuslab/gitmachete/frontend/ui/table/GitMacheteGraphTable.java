@@ -44,7 +44,7 @@ import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
-public class GitMacheteGraphTable extends JBTable implements DataProvider {
+public final class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final String GIT_MACHETE_TEXT = "Git Machete Status";
 
   private final GraphTableModel graphTableModel;
@@ -56,7 +56,6 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
   private String selectedBranchName;
 
   @UIEffect
-  @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:argument.type.incompatible"})
   public GitMacheteGraphTable(
       GraphTableModel graphTableModel,
       Project project,
@@ -68,6 +67,10 @@ public class GitMacheteGraphTable extends JBTable implements DataProvider {
     this.project = project;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
     this.vcsRootDropdown = vcsRootDropdown;
+
+    // InitalizationChecker allows us to invoke the below methods because the class is final
+    // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
+    // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 
     GraphCellPainter graphCellPainter = new SimpleGraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
       @Override

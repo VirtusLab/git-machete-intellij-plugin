@@ -16,14 +16,15 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 public final class BranchElement extends BaseGraphElement {
   private final BaseGitMacheteBranch branch;
   private final SyncToOriginStatus syncToOriginStatus;
+  private final SimpleTextAttributes attributes;
 
   public BranchElement(
       BaseGitMacheteBranch branch,
-      int upElementIndex,
       GraphEdgeColor graphEdgeColor,
+      int upElementIndex,
       SyncToOriginStatus syncToOriginStatus,
       boolean isCurrentBranch) {
-    super(upElementIndex, graphEdgeColor);
+    super(graphEdgeColor, upElementIndex);
     this.branch = branch;
     this.syncToOriginStatus = syncToOriginStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
@@ -36,9 +37,6 @@ public final class BranchElement extends BaseGraphElement {
 
   private static final SimpleTextAttributes NORMAL_ATTRIBUTES = new SimpleTextAttributes(
       SimpleTextAttributes.STYLE_PLAIN, BRANCH_TEXT_COLOR);
-
-  @Getter
-  private final SimpleTextAttributes attributes;
 
   @Override
   public String getValue() {

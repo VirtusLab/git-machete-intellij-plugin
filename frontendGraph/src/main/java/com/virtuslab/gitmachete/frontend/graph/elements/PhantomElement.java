@@ -17,7 +17,7 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
  */
 public class PhantomElement extends BaseGraphElement {
   public PhantomElement(int upElementIndex) {
-    super(upElementIndex, /* graphEdgeColor */ null);
+    super(/* graphEdgeColor */ null, upElementIndex);
   }
 
   @Override

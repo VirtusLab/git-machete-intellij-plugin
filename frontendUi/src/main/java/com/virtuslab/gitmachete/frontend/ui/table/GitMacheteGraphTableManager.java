@@ -27,7 +27,7 @@ import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
 
-public class GitMacheteGraphTableManager {
+public final class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
   private final Project project;
   @Getter
@@ -40,8 +40,6 @@ public class GitMacheteGraphTableManager {
   private final RepositoryGraphFactory repositoryGraphFactory;
   private Path pathToRepoRoot;
 
-  // for `subscribeToGitRepositoryChanges` and `subscribeToVcsRootChanges`
-  @SuppressWarnings("nullness:method.invocation.invalid")
   public GitMacheteGraphTableManager(Project project, VcsRootDropdown vcsRootDropdown) {
     this.project = project;
     this.isListingCommits = false;
@@ -51,16 +49,18 @@ public class GitMacheteGraphTableManager {
         .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.pathToRepoRoot = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+
+    // InitalizationChecker allows us to invoke instance methods below because the class is final
+    // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
+    // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
     subscribeToVcsRootChanges(vcsRootDropdown);
     subscribeToGitRepositoryChanges();
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
   public void refreshUI() {
-    /*
-     * isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode. No UI should be shown
-     * when IDEA is running in this mode.
-     */
+    // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
+    // No UI should be shown when IDEA is running in this mode.
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       return;
     }

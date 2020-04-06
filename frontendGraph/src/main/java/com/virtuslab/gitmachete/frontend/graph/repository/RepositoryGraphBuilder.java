@@ -104,7 +104,7 @@ public class RepositoryGraphBuilder {
       int lastElementIndex = graphElements.size() - 1;
       int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
       int downElementIndex = graphElements.size() + 1;
-      CommitElement c = new CommitElement(commit, upElementIndex, downElementIndex, branchElementIndex, graphEdgeColor);
+      CommitElement c = new CommitElement(commit, graphEdgeColor, upElementIndex, downElementIndex, branchElementIndex);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }
@@ -135,8 +135,9 @@ public class RepositoryGraphBuilder {
       SyncToParentStatus syncToParentStatus) {
     int downElementIndex = graphElements.size() + 1;
     int splittingElementIndex = graphElements.size();
-    SplittingElement splittingElement = new SplittingElement(upElementIndex, downElementIndex,
-        SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus));
+    SplittingElement splittingElement = new SplittingElement(
+        SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus),
+        upElementIndex, downElementIndex);
     graphElements.add(splittingElement);
     graphElements.get(upElementIndex).getDownElementIndexes().add(splittingElementIndex);
   }
@@ -174,6 +175,6 @@ public class RepositoryGraphBuilder {
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
-    return new BranchElement(branch, upstreamBranchIndex, graphEdgeColor, syncToOriginStatus, isCurrentBranch);
+    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToOriginStatus, isCurrentBranch);
   }
 }

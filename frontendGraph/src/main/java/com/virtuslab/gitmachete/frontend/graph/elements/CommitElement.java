@@ -16,14 +16,13 @@ public final class CommitElement extends BaseGraphElement {
 
   public CommitElement(
       IGitMacheteCommit commit,
+      GraphEdgeColor containingBranchGraphEdgeColor,
       int upElementIndex,
       int downElementIndex,
-      int branchElementIndex,
-      GraphEdgeColor containingBranchGraphEdgeColor) {
-    super(upElementIndex, containingBranchGraphEdgeColor);
+      int branchElementIndex) {
+    super(containingBranchGraphEdgeColor, upElementIndex, downElementIndex);
     this.commit = commit;
     this.branchElementIndex = branchElementIndex;
-    getDownElementIndexes().add(downElementIndex);
   }
 
   @Override
