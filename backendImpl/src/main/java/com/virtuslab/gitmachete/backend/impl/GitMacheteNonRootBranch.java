@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.util.Optional;
 
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import io.vavr.collection.List;
 import lombok.Getter;
 import lombok.ToString;
@@ -39,7 +38,6 @@ public class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       List<IGitMacheteCommit> commits,
       SyncToOriginStatus syncToOriginStatus,
       SyncToParentStatus syncToParentStatus,
-      IGitCoreLocalBranch coreLocalBranch,
       @Nullable String customAnnotation) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;

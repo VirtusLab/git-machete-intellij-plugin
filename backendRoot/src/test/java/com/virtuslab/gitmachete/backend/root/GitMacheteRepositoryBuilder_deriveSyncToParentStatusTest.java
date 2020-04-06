@@ -29,23 +29,11 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   private static final TestGitCoreRepositoryFactory repositoryFactory = new TestGitCoreRepositoryFactory();
   private static final TestGitCoreRepository repository = repositoryFactory.getInstance();
 
+  private static final BaseGitCoreCommit MISSING_FORKPOINT = getCommit(null);
+
   @BeforeClass
   public static void init() {
     Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepositoryFactory", repositoryFactory);
-  }
-
-  @Test
-  public void branchIsARoot_inSync() throws Exception {
-    // given
-    BaseGitCoreCommit pointedCommit = getCommit(null);
-    IGitCoreLocalBranch parent = null;
-    IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
-
-    // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
-
-    // then
-    Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
   }
 
   @Test
@@ -57,7 +45,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
         /* hasJustBeenCreated */ true);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -70,7 +58,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     IGitCoreLocalBranch parent = getGitCoreLocalBranch(pointedCommit);
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(pointedCommit);
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
@@ -85,7 +73,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, /* forkPoint */ parentPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, parentPointedCommit);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -102,7 +90,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit, forkPointCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, forkPointCommit);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
@@ -117,7 +105,7 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
@@ -133,24 +121,26 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
     IGitCoreLocalBranch branch = getGitCoreLocalBranch(branchPointedCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
   }
 
-  TestGitCoreCommit getCommit(BaseGitCoreCommit parentCommit) {
+  static TestGitCoreCommit getCommit(BaseGitCoreCommit parentCommit) {
     assert parentCommit == null || parentCommit instanceof TestGitCoreCommit;
     return new TestGitCoreCommit((TestGitCoreCommit) parentCommit);
   }
 
   SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
-      IGitCoreBranch parentCoreLocalBranch) throws Exception {
+      IGitCoreBranch parentCoreLocalBranch,
+      BaseGitCoreCommit forkPoint) throws Exception {
     return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
         "deriveSyncToParentStatus",
         repository,
         coreLocalBranch,
-        parentCoreLocalBranch);
+        parentCoreLocalBranch,
+        forkPoint);
   }
 
   IGitCoreLocalBranch getGitCoreLocalBranch(BaseGitCoreCommit pointedCommit)
