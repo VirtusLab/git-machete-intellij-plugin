@@ -19,7 +19,7 @@ import git4idea.repo.GitRepository;
  * <ul>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
- *  <li>{@link DataKeys#KEY_SELECTED_CVS_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  * </ul>
  */
 public class CheckOutBranchAction extends AnAction {
@@ -42,7 +42,7 @@ public class CheckOutBranchAction extends AnAction {
 
     Project project = anActionEvent.getProject();
     assert project != null;
-    GitRepository repository = (GitRepository) anActionEvent.getData(DataKeys.KEY_SELECTED_CVS_REPOSITORY);
+    GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
     assert repository != null : "Can't get selected GitRepository";
 
     new Task.Backgroundable(project, "Checking out") {

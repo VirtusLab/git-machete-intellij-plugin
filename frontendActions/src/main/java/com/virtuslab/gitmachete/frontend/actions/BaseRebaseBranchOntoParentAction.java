@@ -4,7 +4,6 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -18,12 +17,12 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -35,6 +34,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
@@ -59,7 +59,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
 
     presentation.setEnabled(true);
     presentation.setVisible(true);
-    Repository.State state = getIdeaRepository(anActionEvent).getState();
+
+    GitRepository gitRepository = getIdeaRepository(anActionEvent);
+    assert gitRepository != null : "Can't get GitRepository";
+    Repository.State state = gitRepository.getState();
     if (state != Repository.State.NORMAL) {
 
       var stateName = Match(state).of(
@@ -94,6 +97,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
 
     GitRepository gitRepository = getIdeaRepository(anActionEvent);
+    assert gitRepository != null : "Can't get GitRepository";
 
     doRebase(project, macheteRepository, gitRepository, branchToRebase);
   }
@@ -138,16 +142,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     return gitMacheteRepository;
   }
 
-  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
-    Project project = anActionEvent.getProject();
-    assert project != null;
-    // TODO (#64): handle multiple repositories
-    Iterator<GitRepository> iterator = GitUtil.getRepositories(project).iterator();
-    // The visibility predicate {@link GitMacheteContentProvider.GitMacheteVisibilityPredicate} performs
-    // {@link com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)} which is true when the specified
-    // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
-    // tab is visible, a git repository exists.
-    assert iterator.hasNext();
-    return iterator.next();
+  protected @Nullable GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+    return anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
   }
 }

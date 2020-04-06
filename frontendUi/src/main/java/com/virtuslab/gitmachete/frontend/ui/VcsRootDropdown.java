@@ -3,16 +3,16 @@ package com.virtuslab.gitmachete.frontend.ui;
 import java.util.function.Consumer;
 
 import com.intellij.diff.tools.util.base.TextDiffViewerUtil;
-import com.intellij.dvcs.repo.Repository;
+import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 
-public class CvsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Repository> {
-  private final List<Repository> repositories;
-  private Repository selectedRepository;
-  private List<Consumer<Repository>> subscribents = List.empty();
+public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<GitRepository> {
+  private final List<GitRepository> repositories;
+  private GitRepository selectedRepository;
+  private List<Consumer<GitRepository>> subscribents = List.empty();
 
   @SuppressWarnings("method.invocation.invalid")
-  public CvsRootDropdown(List<Repository> repositories) {
+  public VcsRootDropdown(List<GitRepository> repositories) {
     this.repositories = repositories;
     assert !repositories.isEmpty() : "List of repositories is empty!";
     selectedRepository = repositories.get(0);
@@ -21,27 +21,31 @@ public class CvsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Re
   }
 
   @Override
-  protected java.util.List<Repository> getAvailableOptions() {
+  protected java.util.List<GitRepository> getAvailableOptions() {
     return repositories.asJava();
   }
 
   @Override
-  public Repository getValue() {
+  public GitRepository getValue() {
     return selectedRepository;
   }
 
   @Override
-  protected void setValue(Repository option) {
+  protected void setValue(GitRepository option) {
     selectedRepository = option;
     subscribents.forEach(s -> s.accept(selectedRepository));
   }
 
   @Override
-  protected String getText(Repository option) {
+  protected String getText(GitRepository option) {
     return option.getRoot().getName();
   }
 
-  public void subscribe(Consumer<Repository> subscriber) {
+  public void subscribe(Consumer<GitRepository> subscriber) {
     subscribents = subscribents.push(subscriber);
+  }
+
+  public int getRootCount() {
+    return repositories.length();
   }
 }

@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
@@ -25,7 +24,7 @@ import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
 import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.CvsRootDropdown;
+import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
 
 public class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
@@ -40,23 +39,19 @@ public class GitMacheteGraphTableManager {
   private final RepositoryGraphFactory repositoryGraphFactory;
   private Path pathToRepoRoot;
 
-  @SuppressWarnings("method.invocation.invalid") // for `subscribeToGitRepositoryChanges`, `subscribeToCvsRootChanges`
-                                                 // and `updateRepository`
-  public GitMacheteGraphTableManager(Project project, CvsRootDropdown cvsRootDropdown) {
+  // for `subscribeToGitRepositoryChanges`, `subscribeToVcsRootChanges`
+  @SuppressWarnings("method.invocation.invalid")
+  public GitMacheteGraphTableManager(Project project, VcsRootDropdown vcsRootDropdown) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, cvsRootDropdown);
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, vcsRootDropdown);
     this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
         .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    this.pathToRepoRoot = Paths.get(cvsRootDropdown.getValue().getRoot().getPath());
-    subscribeToCvsRootChanges(cvsRootDropdown);
+    this.pathToRepoRoot = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+    subscribeToVcsRootChanges(vcsRootDropdown);
     subscribeToGitRepositoryChanges();
-
-    // Workaround for errors while plugin is starting and actions cat't get gitMacheteRepository that is not already set
-    pathToRepoRoot = Paths.get(cvsRootDropdown.getValue().getRoot().getPath());
-    updateRepository();
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
@@ -76,15 +71,15 @@ public class GitMacheteGraphTableManager {
   }
 
   /**
-   * Function that is invoked by {@link CvsRootDropdown#setValue()} when user changes repository in dropdown menu
+   * Function that is invoked by {@link VcsRootDropdown#setValue()} when user changes repository in dropdown menu
    */
-  public void cvsRootChangeSubscriber(Repository newRepository) {
+  public void VcsRootChangeSubscriber(GitRepository newRepository) {
     pathToRepoRoot = Paths.get(newRepository.getRoot().getPath());
     updateAndRefreshInBackground();
   }
 
-  private void subscribeToCvsRootChanges(CvsRootDropdown cvsRootDropdown) {
-    cvsRootDropdown.subscribe(this::cvsRootChangeSubscriber);
+  private void subscribeToVcsRootChanges(VcsRootDropdown vcsRootDropdown) {
+    vcsRootDropdown.subscribe(this::VcsRootChangeSubscriber);
   }
 
   /**

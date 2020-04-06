@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
+import java.awt.BorderLayout;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -9,6 +11,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import git4idea.GitUtil;
 import io.vavr.collection.List;
 import lombok.Getter;
@@ -24,15 +27,22 @@ public class GitMachetePanel {
 
   @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
-  private final CvsRootDropdown cvsRootDropdown;
+  private final VcsRootDropdown vcsRootDropdown;
 
   public GitMachetePanel(Project project) {
-    cvsRootDropdown = new CvsRootDropdown(List.ofAll(GitUtil.getRepositories(project)));
-    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, cvsRootDropdown);
+    vcsRootDropdown = new VcsRootDropdown(List.ofAll(GitUtil.getRepositories(project)));
+    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootDropdown);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
   }
 
-  public ActionToolbar createGitMacheteVerticalToolbar() {
+  public void addToolbarsToWindowPanel(SimpleToolWindowPanel windowPanel) {
+    windowPanel.setToolbar(createGitMacheteVerticalToolbar().getComponent());
+    if (vcsRootDropdown.getRootCount() > 1) {
+      windowPanel.add(createGitMacheteHorizontalToolbar().getComponent(), BorderLayout.NORTH);
+    }
+  }
+
+  private ActionToolbar createGitMacheteVerticalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     gitMacheteActions.add(new RefreshGitMacheteStatusAction());
@@ -45,10 +55,10 @@ public class GitMachetePanel {
     return toolbar;
   }
 
-  public ActionToolbar createGitMacheteHorizontalToolbar() {
+  private ActionToolbar createGitMacheteHorizontalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    gitMacheteActions.add(cvsRootDropdown);
+    gitMacheteActions.add(vcsRootDropdown);
 
     ActionToolbar toolbar = ActionManager.getInstance()
         .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ true);
