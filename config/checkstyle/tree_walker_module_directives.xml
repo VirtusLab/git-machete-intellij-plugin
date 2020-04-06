@@ -23,7 +23,9 @@
 <module name="HideUtilityClassConstructor"/>
 <module name="IllegalCatch"/>
 <module name="IllegalImport">
+    <!-- Use String.format instead. MessageFormat isn't statically verified by Checker Framework. -->
     <property name="illegalClasses" value="java.text.MessageFormat"/>
+    <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->
     <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable"/>
     <property name="illegalClasses" value="org.jetbrains.annotations.Nullable, org.jetbrains.annotations.NotNull"/>
 </module>

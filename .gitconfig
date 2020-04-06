@@ -3,6 +3,9 @@
 [diff]
 	renameLimit = 999
 	renames = copies
+[merge "version.gradle"]
+	name = version.gradle merge driver
+	driver = cp %B %A
 [status]
 	relativePaths = false
 	showUntrackedFiles = all
