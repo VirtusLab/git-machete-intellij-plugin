@@ -22,7 +22,6 @@ import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -33,8 +32,8 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
@@ -59,10 +58,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
 
     presentation.setEnabled(true);
     presentation.setVisible(true);
-
-    GitRepository gitRepository = getIdeaRepository(anActionEvent);
-    assert gitRepository != null : "Can't get GitRepository";
-    Repository.State state = gitRepository.getState();
+    Repository.State state = getIdeaRepository(anActionEvent).getState();
     if (state != Repository.State.NORMAL) {
 
       var stateName = Match(state).of(
@@ -97,7 +93,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
 
     GitRepository gitRepository = getIdeaRepository(anActionEvent);
-    assert gitRepository != null : "Can't get GitRepository";
 
     doRebase(project, macheteRepository, gitRepository, branchToRebase);
   }
@@ -142,7 +137,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     return gitMacheteRepository;
   }
 
-  protected @Nullable GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
-    return anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
+  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+    GitRepository gitRepository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
+    assert gitRepository != null : "Can't get GitRepository";
+    return gitRepository;
   }
 }

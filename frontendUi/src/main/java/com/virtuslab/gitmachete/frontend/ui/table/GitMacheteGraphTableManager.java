@@ -71,15 +71,13 @@ public class GitMacheteGraphTableManager {
   }
 
   /**
-   * Function that is invoked by {@link VcsRootDropdown#setValue()} when user changes repository in dropdown menu
+   * Lambda inside ths function is invoked by {@link VcsRootDropdown#setValue()} when user changes repository in dropdown menu
    */
-  public void VcsRootChangeSubscriber(GitRepository newRepository) {
-    pathToRepoRoot = Paths.get(newRepository.getRoot().getPath());
-    updateAndRefreshInBackground();
-  }
-
   private void subscribeToVcsRootChanges(VcsRootDropdown vcsRootDropdown) {
-    vcsRootDropdown.subscribe(this::VcsRootChangeSubscriber);
+    vcsRootDropdown.subscribe(newRepository -> {
+      pathToRepoRoot = Paths.get(newRepository.getRoot().getPath());
+      updateAndRefreshInBackground();
+    });
   }
 
   /**
