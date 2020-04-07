@@ -45,8 +45,6 @@ import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
-  private static final String GIT_MACHETE_TEXT = "Git Machete Status";
-
   private final GraphTableModel graphTableModel;
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
@@ -78,7 +76,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         return GitMacheteGraphTable.this.getRowHeight();
       }
     };
-    getEmptyText().setText(GIT_MACHETE_TEXT);
 
     initColumns();
 
@@ -98,6 +95,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     ScrollingUtil.installActions(this, false);
 
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
+  }
+
+  @UIEffect
+  public void setTextForEmptyGraph(String text) {
+    getEmptyText().setText(text);
   }
 
   @UIEffect

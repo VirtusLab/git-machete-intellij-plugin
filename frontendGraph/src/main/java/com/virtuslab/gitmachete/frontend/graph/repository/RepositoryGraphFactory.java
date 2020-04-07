@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph
 
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
@@ -22,11 +21,7 @@ public class RepositoryGraphFactory {
   @MonotonicNonNull
   private IGitMacheteRepository repository = null;
 
-  public RepositoryGraph getRepositoryGraph(@Nullable IGitMacheteRepository givenRepository, boolean isListingCommits) {
-    if (givenRepository == null) {
-      return nullRepositoryGraph;
-    }
-
+  public RepositoryGraph getRepositoryGraph(IGitMacheteRepository givenRepository, boolean isListingCommits) {
     if (givenRepository != this.repository) {
       this.repository = givenRepository;
 

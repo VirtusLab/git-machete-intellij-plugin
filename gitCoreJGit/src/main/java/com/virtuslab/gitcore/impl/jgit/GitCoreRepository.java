@@ -47,20 +47,26 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Inject
   public GitCoreRepository(@Assisted Path repositoryPath) throws IOException, GitCoreNoSuchRepositoryException {
     this.repositoryPath = repositoryPath;
-    Path gitPath = repositoryPath.resolve(".git");
 
-    if (Files.isDirectory(gitPath)) {
-      this.gitFolderPath = gitPath;
-      // .git file can be also in worktrees not only in submodules
-    } else if (Files.isRegularFile(gitPath)) {
-      this.gitFolderPath = getGitFolderPathFromGitFile(gitPath, repositoryPath);
-    } else {
-      throw new GitCoreNoSuchRepositoryException(
-          String.format("Repository in path \"%s\" does not exists", repositoryPath));
-    }
+    this.gitFolderPath = getGitFolderPathByRepoRootPath(repositoryPath);
 
     jgitRepo = new FileRepository(this.gitFolderPath.toString());
     jgitGit = new Git(jgitRepo);
+  }
+
+  public static Path getGitFolderPathByRepoRootPath(Path pathToRepoRoot)
+      throws IOException, GitCoreNoSuchRepositoryException {
+    Path gitPath = pathToRepoRoot.resolve(".git");
+
+    // .git file can be also in worktrees not only in submodules
+    if (Files.isRegularFile(gitPath)) {
+      gitPath = getGitFolderPathFromGitFile(gitPath, pathToRepoRoot);
+    } else if (!Files.isDirectory(gitPath)) {
+      throw new GitCoreNoSuchRepositoryException(
+          String.format("Git repository in path \"%s\" does not exists", pathToRepoRoot));
+    }
+
+    return gitPath;
   }
 
   private static Path getGitFolderPathFromGitFile(Path gitFilePath, Path repositoryPath)

@@ -92,6 +92,7 @@ public class GitMachetePanel {
     }
 
     @Override
+    @SuppressWarnings("call.invalid.ui")
     public void setSelected(AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
       gitMacheteGraphTableManager.refreshUI();
