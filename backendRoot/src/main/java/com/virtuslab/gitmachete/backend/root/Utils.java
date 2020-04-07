@@ -8,6 +8,8 @@ import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
 
 public class Utils {
+  private Utils() {}
+
   public static Path getGitDirectoryPathByRepoRootPath(Path repoRootPath) throws GitMacheteJGitException {
     try {
       return GitCoreRepository.getGitFolderPathByRepoRootPath(repoRootPath);
