@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui;
 
-import java.util.function.Consumer;
-
 import com.intellij.diff.tools.util.base.TextDiffViewerUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -9,7 +7,7 @@ import io.vavr.collection.List;
 public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<GitRepository> {
   private final List<GitRepository> repositories;
   private GitRepository selectedRepository;
-  private List<Consumer<GitRepository>> subscribents = List.empty();
+  private List<Runnable> subscribents = List.empty();
 
   /**
    * @param repositories non-empty list of {@link git4idea.repo.GitRepository} that represents VCS repositories
@@ -34,7 +32,7 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
   @Override
   protected void setValue(GitRepository option) {
     selectedRepository = option;
-    subscribents.forEach(s -> s.accept(selectedRepository));
+    subscribents.forEach(s -> s.run());
   }
 
   @Override
@@ -42,7 +40,7 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
     return option.getRoot().getName();
   }
 
-  public void subscribe(Consumer<GitRepository> subscriber) {
+  public void subscribe(Runnable subscriber) {
     subscribents = subscribents.push(subscriber);
   }
 

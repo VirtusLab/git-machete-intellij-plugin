@@ -7,8 +7,8 @@ import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteJGitException;
 
-public final class GuiUtils {
-  private GuiUtils() {}
+public final class GitUtils {
+  private GitUtils() {}
 
   public static Path getGitDirectoryPathByRepoRootPath(Path repoRootPath) throws GitMacheteJGitException {
     try {

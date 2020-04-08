@@ -64,6 +64,13 @@ import org.checkerframework.checker.guieffect.qual.*;
 @UIPackage package com.intellij.navigation;
 @UIPackage package com.intellij.notification;
 @UIPackage package com.intellij.openapi;
+
+package com.intellij.openapi.actionSystem;
+
+class ToggleAction {
+    @UIEffect void setSelected(AnActionEvent e, boolean state);
+}
+
 @UIPackage package com.intellij.openapi.actionSystem.ex;
 @UIPackage package com.intellij.openapi.diff;
 @UIPackage package com.intellij.openapi.editor;
@@ -78,11 +85,6 @@ import org.checkerframework.checker.guieffect.qual.*;
 @UIPackage package com.intellij.openapi.options.colors;
 @UIPackage package com.intellij.openapi.paths;
 
-package com.intellij.openapi.actionSystem;
-
-class ToggleAction {
-    @UIEffect void setSelected(AnActionEvent e, boolean state);
-}
 
 
 package com.intellij.openapi.project;
