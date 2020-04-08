@@ -15,7 +15,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import git4idea.GitUtil;
 import io.vavr.collection.List;
 import lombok.Getter;
-import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
