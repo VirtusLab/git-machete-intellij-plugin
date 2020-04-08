@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
@@ -37,6 +38,8 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final GitCoreRepository repo;
   protected final String branchName;
 
+  private final AtomicReference<GitCoreCommit> pointedCommitRef = new AtomicReference<>();
+
   @Override
   public String getName() {
     return branchName;
@@ -54,7 +57,10 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   @Override
   public GitCoreCommit getPointedCommit() throws GitCoreException {
-    return new GitCoreCommit(derivePointedRevCommit());
+    if (pointedCommitRef.get() == null) {
+      pointedCommitRef.set(new GitCoreCommit(derivePointedRevCommit()));
+    }
+    return pointedCommitRef.get();
   }
 
   protected RevCommit derivePointedRevCommit() throws GitCoreException {

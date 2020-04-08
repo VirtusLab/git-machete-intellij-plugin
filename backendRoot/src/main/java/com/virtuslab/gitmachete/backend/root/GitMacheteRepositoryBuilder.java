@@ -262,11 +262,4 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
       throw new GitMacheteException(e);
     }
   }
-
-  /**
-   * @return Option of {@link IGitCoreLocalBranch} or if branch with given name doesn't exist returns empty Option
-   */
-  private Optional<IGitCoreLocalBranch> getCoreBranchFromName(IGitCoreRepository gitCoreRepository, String branchName) {
-    return Try.of(() -> Optional.of(gitCoreRepository.getLocalBranch(branchName))).getOrElse(() -> Optional.empty());
-  }
 }
