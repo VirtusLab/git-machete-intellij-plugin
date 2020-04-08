@@ -9,10 +9,12 @@ import java.util.Optional;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -114,12 +116,14 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
-    var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    AncestorityCache ancestorityCache = new AncestorityCache(gitCoreRepository);
+    var subbranches = deriveDownstreamBranches(gitCoreRepository, ancestorityCache, coreLocalBranch, entry);
 
     return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToOriginStatus, customAnnotation);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
+      AncestorityCache ancestorityCache,
       IGitCoreLocalBranch parentEntryCoreLocalBranch,
       BaseBranchLayoutEntry entry)
       throws GitMacheteException {
@@ -127,7 +131,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    Optional<BaseGitCoreCommit> coreForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
+    Optional<BaseGitCoreCommit> coreForkPoint = deduceForkPoint(ancestorityCache, coreLocalBranch,
         parentEntryCoreLocalBranch);
 
     BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
@@ -144,16 +148,16 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var forkPoint = coreForkPoint.isPresent() ? new GitMacheteCommit(coreForkPoint.get()) : null;
     var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
-    var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
+    var syncToParentStatus = deriveSyncToParentStatus(ancestorityCache, coreLocalBranch, parentEntryCoreLocalBranch,
         coreForkPoint.orElse(null));
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
-    var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var subbranches = deriveDownstreamBranches(gitCoreRepository, ancestorityCache, coreLocalBranch, entry);
 
     return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
         commits, syncToOriginStatus, syncToParentStatus, customAnnotation);
   }
 
-  private Optional<BaseGitCoreCommit> deduceForkPoint(IGitCoreRepository gitCoreRepository,
+  private Optional<BaseGitCoreCommit> deduceForkPoint(AncestorityCache ancestorityCache,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
     var forkPointOptional = Try.of(() -> coreLocalBranch.deriveForkPoint())
@@ -165,8 +169,8 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return Try.of(() -> {
       var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       var pointedCommit = coreLocalBranch.getPointedCommit();
-      var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, forkPointOptional.get());
-      var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
+      var isParentAncestorOfForkPoint = ancestorityCache.isAncestor(parentPointedCommit, forkPointOptional.get());
+      var isParentAncestorOfChild = ancestorityCache.isAncestor(parentPointedCommit, pointedCommit);
 
       // If parent(A) is NOT ancestor of fork-point(A), and parent(A) is ancestor of A, then assume
       // fork-point(A)=parent(A)
@@ -179,12 +183,14 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   }
 
   private List<GitMacheteNonRootBranch> deriveDownstreamBranches(IGitCoreRepository gitCoreRepository,
+      AncestorityCache ancestorityCache,
       IGitCoreLocalBranch parentCoreLocalBranch,
       BaseBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
     java.util.List<GitMacheteNonRootBranch> mutableGitMacheteBranchesList = new LinkedList<>();
 
     for (BaseBranchLayoutEntry entry : directUpstreamEntry.getSubbranches()) {
-      var gitMacheteNonRootBranch = createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry);
+      var gitMacheteNonRootBranch = createGitMacheteNonRootBranch(gitCoreRepository, ancestorityCache,
+          parentCoreLocalBranch, entry);
       mutableGitMacheteBranchesList.add(gitMacheteNonRootBranch);
     }
 
@@ -217,7 +223,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     }
   }
 
-  private SyncToParentStatus deriveSyncToParentStatus(IGitCoreRepository gitCoreRepository,
+  private SyncToParentStatus deriveSyncToParentStatus(AncestorityCache ancestorityCache,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch,
       @Nullable BaseGitCoreCommit forkPoint)
@@ -237,7 +243,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
           return SyncToParentStatus.Merged;
         }
       } else {
-        var isParentAncestorOfChild = gitCoreRepository.isAncestor(
+        var isParentAncestorOfChild = ancestorityCache.isAncestor(
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
@@ -247,7 +253,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
             return SyncToParentStatus.InSync;
           }
         } else {
-          var isChildAncestorOfParent = gitCoreRepository.isAncestor(
+          var isChildAncestorOfParent = ancestorityCache.isAncestor(
               /* presumedAncestor */ pointedCommit, /* presumedDescendant */ parentPointedCommit);
 
           if (isChildAncestorOfParent) {
@@ -260,6 +266,26 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
 
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
+    }
+  }
+
+  @RequiredArgsConstructor
+  private static class AncestorityCache {
+    private final IGitCoreRepository repository;
+    Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, Boolean> cache = new HashMap<>();
+
+    boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
+        throws GitMacheteException {
+      Tuple2<BaseGitCoreCommit, BaseGitCoreCommit> key = Tuple.of(presumedAncestor, presumedDescendant);
+      Boolean isAncestorResult = cache.get(key);
+      if (isAncestorResult != null) {
+        return isAncestorResult;
+      } else {
+        isAncestorResult = Try.of(() -> repository.isAncestor(presumedAncestor, presumedDescendant))
+            .getOrElseThrow(e -> new GitMacheteException(e));
+        cache.put(key, isAncestorResult);
+        return isAncestorResult;
+      }
     }
   }
 }

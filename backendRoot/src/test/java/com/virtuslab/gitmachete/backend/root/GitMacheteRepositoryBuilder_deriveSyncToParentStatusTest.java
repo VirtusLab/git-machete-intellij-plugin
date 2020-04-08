@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.root;
 
 import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepository;
 import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepositoryFactory;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.getAncestorityCacheInstance;
 import static com.virtuslab.gitmachete.backend.root.TestUtils.getCommit;
 import static com.virtuslab.gitmachete.backend.root.TestUtils.getGitCoreLocalBranch;
 
@@ -34,9 +35,10 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
       IGitCoreBranch parentCoreLocalBranch,
       BaseGitCoreCommit forkPoint) throws Exception {
+    Object ancestorityCheckerInstance = getAncestorityCacheInstance(repository);
     return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
         "deriveSyncToParentStatus",
-        repository,
+        ancestorityCheckerInstance,
         coreLocalBranch,
         parentCoreLocalBranch,
         forkPoint);

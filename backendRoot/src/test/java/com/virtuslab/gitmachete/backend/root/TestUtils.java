@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import io.vavr.collection.List;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.BaseGitCoreCommitHash;
@@ -16,6 +17,15 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
 public class TestUtils {
+
+  public static Object getAncestorityCacheInstance(IGitCoreRepository repository)
+      throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+      java.lang.reflect.InvocationTargetException, NoSuchMethodException {
+    Class<Object> ancestorityCacheClass = Whitebox.getInnerClassType(GitMacheteRepositoryBuilder.class,
+        "AncestorityCache");
+    return ancestorityCacheClass.getConstructor(IGitCoreRepository.class)
+        .newInstance(repository);
+  }
 
   static TestGitCoreCommit getCommit(BaseGitCoreCommit parentCommit) {
     assert parentCommit == null || parentCommit instanceof TestGitCoreCommit;
