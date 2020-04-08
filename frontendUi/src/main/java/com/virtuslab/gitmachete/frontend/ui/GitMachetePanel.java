@@ -82,15 +82,12 @@ public class GitMachetePanel {
     }
   }
 
-  @UI
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
-    @UIEffect
     ToggleListCommitsAction() {
       super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_DESCRIPTION, AllIcons.Actions.ShowHiddens);
     }
 
     @Override
-    @UIEffect
     public boolean isSelected(AnActionEvent e) {
       return gitMacheteGraphTableManager.isListingCommits();
     }

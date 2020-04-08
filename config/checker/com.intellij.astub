@@ -80,7 +80,9 @@ import org.checkerframework.checker.guieffect.qual.*;
 
 package com.intellij.openapi.actionSystem;
 
-@UI class ToggleAction {}
+class ToggleAction {
+    @UIEffect void setSelected(AnActionEvent e, boolean state);
+}
 
 
 package com.intellij.openapi.project;
