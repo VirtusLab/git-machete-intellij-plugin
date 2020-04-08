@@ -73,7 +73,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         .orElse(null);
 
     if (branchLayout == null) {
-      Path pathToBranchLayoutFile = gitCoreRepository.getGitFolderPath().resolve("machete");
+      Path pathToBranchLayoutFile = gitCoreRepository.getGitDirectoryPath().resolve("machete");
       branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
           .getOrElseThrow(e -> {
             Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();

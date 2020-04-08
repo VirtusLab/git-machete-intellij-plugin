@@ -253,7 +253,7 @@ class TestGitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Path getGitFolderPath() {
+  public Path getGitDirectoryPath() {
     return null;
   }
 }

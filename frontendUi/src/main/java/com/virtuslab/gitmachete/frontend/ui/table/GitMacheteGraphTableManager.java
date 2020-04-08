@@ -11,7 +11,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
@@ -23,8 +22,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
+import com.virtuslab.gitmachete.backend.root.GuiUtils;
 import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
-import com.virtuslab.gitmachete.backend.root.Utils;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
@@ -35,13 +34,14 @@ public final class GitMacheteGraphTableManager {
   @Getter
   @Setter
   private boolean isListingCommits;
-  private boolean isMacheteFilePresent;
+  private boolean doesMacheteFilePresent;
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
-  private Path pathToRepoRoot;
+  private Path repoRootPath;
+  private Path macheteFilePath;
 
   public GitMacheteGraphTableManager(Project project, VcsRootDropdown vcsRootDropdown) {
     this.project = project;
@@ -51,7 +51,9 @@ public final class GitMacheteGraphTableManager {
     this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
         .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    this.pathToRepoRoot = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+    this.repoRootPath = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+    // For checker only
+    this.macheteFilePath = Path.of("");
 
     // InitalizationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
@@ -68,25 +70,30 @@ public final class GitMacheteGraphTableManager {
       return;
     }
 
+    // TODO (#176): When machete file is not present or it's empty propose using automatically detected (by discover
+    // functionality) branch layout
+
     IGitMacheteRepository gitMacheteRepository = repositoryRef.get();
     RepositoryGraph repositoryGraph;
     if (gitMacheteRepository == null) {
       repositoryGraph = RepositoryGraph.getNullRepositoryGraph();
     } else {
       repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
-      if (gitMacheteRepository.getRootBranches().length() < 1) {
+      if (gitMacheteRepository.getRootBranches().isEmpty()) {
         gitMacheteGraphTable.setTextForEmptyGraph(
-            "Your machete file is empty. Pleas use \"git machete discover\" CLI command to automatically fill in machete file.");
+            "Your machete file is empty. Please use \"git machete discover\" CLI command to automatically fill in the machete file.");
       }
     }
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
 
-    if (!isMacheteFilePresent) {
+    if (!doesMacheteFilePresent) {
       gitMacheteGraphTable.setTextForEmptyGraph(
-          "There is no machete file in the .git folder of this repository. Pleas use \"git machete discover\" CLI command to automatically create machete file.");
+          String.format(
+              "There is no machete file (%s) for this repository. Pleas use \"git machete discover\" CLI command to automatically create machete file.",
+              macheteFilePath.toString()));
     }
 
-    GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
+    com.intellij.ui.GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
   }
 
   /**
@@ -94,7 +101,7 @@ public final class GitMacheteGraphTableManager {
    */
   private void subscribeToVcsRootChanges(VcsRootDropdown vcsRootDropdown) {
     vcsRootDropdown.subscribe(newRepository -> {
-      pathToRepoRoot = Paths.get(newRepository.getRoot().getPath());
+      repoRootPath = Paths.get(newRepository.getRoot().getPath());
       updateAndRefreshInBackground();
     });
   }
@@ -104,9 +111,9 @@ public final class GitMacheteGraphTableManager {
    * {@link GitMacheteGraphTableManager#refreshUI()}.
    */
   public void updateRepository() {
-    isMacheteFilePresent = isMacheteFileExist();
-    if (isMacheteFilePresent) {
-      var repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(pathToRepoRoot).build())
+    doesMacheteFilePresent = doesMacheteFilePresent();
+    if (doesMacheteFilePresent) {
+      var repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(repoRootPath).build())
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
       repositoryRef.set(repository);
     } else {
@@ -133,10 +140,19 @@ public final class GitMacheteGraphTableManager {
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
-  private boolean isMacheteFileExist() {
-    Path macheteFilePath = Try.of(() -> Utils.getGitDirectoryPathByRepoRootPath(pathToRepoRoot).resolve("machete"))
+  private boolean doesMacheteFilePresent() {
+    // Extracted to separate method to emphasize that we update class field here
+    updateMacheteFilePath();
+    return Files.isRegularFile(macheteFilePath);
+  }
+
+  private Path getMacheteFilePath() {
+    return Try.of(() -> GuiUtils.getGitDirectoryPathByRepoRootPath(repoRootPath).resolve("machete"))
         .onFailure(e -> LOG.error("Unable to get machete file path", e))
         .get();
-    return Files.isRegularFile(macheteFilePath);
+  }
+
+  private void updateMacheteFilePath() {
+    macheteFilePath = getMacheteFilePath();
   }
 }

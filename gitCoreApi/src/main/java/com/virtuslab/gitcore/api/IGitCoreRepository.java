@@ -18,7 +18,7 @@ public interface IGitCoreRepository {
 
   Path getRepositoryPath();
 
-  Path getGitFolderPath();
+  Path getGitDirectoryPath();
 
   boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException;

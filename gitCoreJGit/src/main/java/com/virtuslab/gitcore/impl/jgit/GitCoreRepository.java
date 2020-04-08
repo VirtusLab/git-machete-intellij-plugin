@@ -39,7 +39,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   private final Repository jgitRepo;
   private final Git jgitGit;
   private final Path repositoryPath;
-  private final Path gitFolderPath;
+  private final Path gitDirectoryPath;
 
   @Getter(AccessLevel.NONE)
   private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
@@ -48,19 +48,19 @@ public class GitCoreRepository implements IGitCoreRepository {
   public GitCoreRepository(@Assisted Path repositoryPath) throws IOException, GitCoreNoSuchRepositoryException {
     this.repositoryPath = repositoryPath;
 
-    this.gitFolderPath = getGitFolderPathByRepoRootPath(repositoryPath);
+    this.gitDirectoryPath = getGitDirectoryPathByRepoRootPath(repositoryPath);
 
-    jgitRepo = new FileRepository(this.gitFolderPath.toString());
+    jgitRepo = new FileRepository(this.gitDirectoryPath.toString());
     jgitGit = new Git(jgitRepo);
   }
 
-  public static Path getGitFolderPathByRepoRootPath(Path pathToRepoRoot)
+  public static Path getGitDirectoryPathByRepoRootPath(Path pathToRepoRoot)
       throws IOException, GitCoreNoSuchRepositoryException {
     Path gitPath = pathToRepoRoot.resolve(".git");
 
-    // .git file can be also in worktrees not only in submodules
+    // In submodules and worktrees, .git is a file rather than a directory
     if (Files.isRegularFile(gitPath)) {
-      gitPath = getGitFolderPathFromGitFile(gitPath, pathToRepoRoot);
+      gitPath = getGitDirectoryPathFromGitFile(gitPath, pathToRepoRoot);
     } else if (!Files.isDirectory(gitPath)) {
       throw new GitCoreNoSuchRepositoryException(
           String.format("Git repository in path \"%s\" does not exists", pathToRepoRoot));
@@ -69,7 +69,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     return gitPath;
   }
 
-  private static Path getGitFolderPathFromGitFile(Path gitFilePath, Path repositoryPath)
+  private static Path getGitDirectoryPathFromGitFile(Path gitFilePath, Path repositoryPath)
       throws IOException, GitCoreNoSuchRepositoryException {
     String gitFile = Files.readString(gitFilePath);
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
