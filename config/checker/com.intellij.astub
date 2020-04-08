@@ -1,4 +1,4 @@
-
+import org.checkerframework.checker.initialization.qual.*;
 import org.checkerframework.checker.guieffect.qual.*;
 
 @UIPackage package com.intellij.application.options;
@@ -313,3 +313,19 @@ class UIUtil {
 @UIPackage package com.intellij.xdebugger.frame;
 @UIPackage package com.intellij.xdebugger.stepping;
 @UIPackage package com.intellij.xml.breadcrumbs;
+
+
+package javax.swing;
+
+class JTable {
+    void setLayout(@UnknownInitialization JTable this, LayoutManager mgr);
+    void setFocusTraversalKeys(@UnknownInitialization JTable this, int id, Set<? extends AWTKeyStroke> keystrokes);
+    TableColumnModel createDefaultColumnModel(@UnknownInitialization JTable this);
+    void setColumnModel(@UnknownInitialization JTable this, TableColumnModel columnModel);
+    ListSelectionModel createDefaultSelectionModel(@UnknownInitialization JTable this);
+    void setSelectionModel(@UnknownInitialization JTable this, ListSelectionModel selectionModel);
+    TableModel createDefaultDataModel(@UnknownInitialization JTable this);
+    void setModel(@UnknownInitialization JTable this, TableModel dataModel);
+    void initializeLocalVars(@UnknownInitialization JTable this);
+    void updateUI(@UnknownInitialization JTable this);
+}

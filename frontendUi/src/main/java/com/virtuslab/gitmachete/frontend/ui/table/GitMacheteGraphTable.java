@@ -109,6 +109,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
   @Override
   @UIEffect
+  @SuppressWarnings("override.receiver.invalid")
   public void updateUI() {
     super.updateUI();
     if (doesTextForEmptyGraphRequireUpdate) {

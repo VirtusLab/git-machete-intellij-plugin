@@ -59,7 +59,7 @@ public final class GitMacheteGraphTableManager {
     subscribeToGitRepositoryChanges();
   }
 
-  public void computeParametersAndRefreshGraphTable() {
+  public void refreshGraphTable() {
     Path repoRootPath = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
     Path macheteFilePath = getMacheteFilePath(repoRootPath);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
@@ -68,7 +68,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
-  public void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
+  private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
     // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
     // No UI should be shown when IDEA is running in this mode.
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
@@ -132,7 +132,7 @@ public final class GitMacheteGraphTableManager {
 
   /**
    * Updates repository which is the base of graph table model. The change will be seen after
-   * {@link GitMacheteGraphTableManager#computeParametersAndRefreshGraphTable()}.
+   * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
   public void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
