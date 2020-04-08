@@ -15,6 +15,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import git4idea.GitUtil;
 import io.vavr.collection.List;
 import lombok.Getter;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
@@ -81,18 +82,21 @@ public class GitMachetePanel {
     }
   }
 
+  @UI
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
+    @UIEffect
     ToggleListCommitsAction() {
       super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_DESCRIPTION, AllIcons.Actions.ShowHiddens);
     }
 
     @Override
+    @UIEffect
     public boolean isSelected(AnActionEvent e) {
       return gitMacheteGraphTableManager.isListingCommits();
     }
 
     @Override
-    @SuppressWarnings("call.invalid.ui")
+    @UIEffect
     public void setSelected(AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
       gitMacheteGraphTableManager.refreshUI();

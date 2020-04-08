@@ -78,6 +78,11 @@ import org.checkerframework.checker.guieffect.qual.*;
 @UIPackage package com.intellij.openapi.options.colors;
 @UIPackage package com.intellij.openapi.paths;
 
+package com.intellij.openapi.actionSystem;
+
+@UI class ToggleAction {}
+
+
 package com.intellij.openapi.project;
 
 @UI class DumbAwareToggleAction {}

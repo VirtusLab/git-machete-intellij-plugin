@@ -61,7 +61,6 @@ public final class GitMacheteGraphTableManager {
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
-  @UIEffect
   public void refreshUI() {
     // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
     // No UI should be shown when IDEA is running in this mode.

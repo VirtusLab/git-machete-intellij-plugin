@@ -49,6 +49,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
   private final VcsRootDropdown vcsRootDropdown;
+  private String textForEmptyGraph = "";
+  // wasTextForEmptyGraphChanged var is mainly to prevent invocation of getEmptyText() in updateUI() method in early
+  // stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null. This is
+  // also introduced for performance optimization (to not update empty text when unnecessary)
+  private boolean wasTextForEmptyGraphChanged = false;
 
   @Nullable
   private String selectedBranchName;
@@ -97,9 +102,19 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
   }
 
-  @UIEffect
   public void setTextForEmptyGraph(String text) {
-    getEmptyText().setText(text);
+    textForEmptyGraph = text;
+    wasTextForEmptyGraphChanged = true;
+  }
+
+  @Override
+  @UIEffect
+  public void updateUI() {
+    super.updateUI();
+    if (wasTextForEmptyGraphChanged) {
+      getEmptyText().setText(textForEmptyGraph);
+      wasTextForEmptyGraphChanged = false;
+    }
   }
 
   @UIEffect
