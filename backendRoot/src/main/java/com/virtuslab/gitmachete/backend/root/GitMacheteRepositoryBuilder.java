@@ -1,14 +1,13 @@
 package com.virtuslab.gitmachete.backend.root;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Optional;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +30,6 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -48,7 +46,8 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 public class GitMacheteRepositoryBuilder {
   @Nullable
   private IGitCoreBranch currentCoreBranch;
-  private final Map<String, BaseGitMacheteBranch> branchByName = new HashMap<>();
+
+  private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
@@ -86,21 +85,18 @@ public class GitMacheteRepositoryBuilder {
           });
     }
 
-    java.util.List<BaseGitMacheteRootBranch> mutableGitMacheteRootBranchesList = new LinkedList<>();
-    for (BaseBranchLayoutEntry entry : branchLayout.getRootBranches()) {
-      var gitMacheteRootBranch = createGitMacheteRootBranch(gitCoreRepository, entry);
-      mutableGitMacheteRootBranchesList.add(gitMacheteRootBranch);
-    }
+    var rootBranchTries = branchLayout.getRootBranches()
+        .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
+    var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException.class::cast);
 
-    var rootBranches = List.ofAll(mutableGitMacheteRootBranchesList);
-    var rootBranchByName = rootBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
-    branchByName.putAll(rootBranchByName);
+    var rootBranchByName = rootBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
+    branchByName = branchByName.merge(rootBranchByName);
 
     BaseGitMacheteBranch currentBranch = currentCoreBranch != null
-        ? branchByName.get(currentCoreBranch.getName())
+        ? branchByName.getOrElse(currentCoreBranch.getName(), null)
         : null;
 
-    return new GitMacheteRepository(rootBranches, branchLayout, currentBranch, branchByName);
+    return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
@@ -189,23 +185,20 @@ public class GitMacheteRepositoryBuilder {
     }).getOrElseThrow(e -> new GitMacheteException(e));
   }
 
-  private List<GitMacheteNonRootBranch> deriveDownstreamBranches(IGitCoreRepository gitCoreRepository,
+  private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
+      IGitCoreRepository gitCoreRepository,
       AncestorityCache ancestorityCache,
       IGitCoreLocalBranch parentCoreLocalBranch,
       BaseBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
-    java.util.List<GitMacheteNonRootBranch> mutableGitMacheteBranchesList = new LinkedList<>();
 
-    for (BaseBranchLayoutEntry entry : directUpstreamEntry.getSubbranches()) {
-      var gitMacheteNonRootBranch = createGitMacheteNonRootBranch(gitCoreRepository, ancestorityCache,
-          parentCoreLocalBranch, entry);
-      mutableGitMacheteBranchesList.add(gitMacheteNonRootBranch);
-    }
+    var downstreamBranchTries = directUpstreamEntry.getSubbranches().map(entry -> Try.of(
+        () -> createGitMacheteNonRootBranch(gitCoreRepository, ancestorityCache, parentCoreLocalBranch, entry)));
+    var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException.class::cast);
 
-    var downstreamBranches = List.ofAll(mutableGitMacheteBranchesList);
-    var subbranchByName = downstreamBranches.toMap(branch -> Tuple.of(branch.getName(), branch)).toJavaMap();
-    branchByName.putAll(subbranchByName);
+    var downstreamBranchByName = downstreamBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
+    branchByName = branchByName.merge(downstreamBranchByName);
 
-    return downstreamBranches;
+    return List.ofAll(downstreamBranches);
   }
 
   private SyncToOriginStatus deriveSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
@@ -279,7 +272,7 @@ public class GitMacheteRepositoryBuilder {
   @RequiredArgsConstructor
   private static class AncestorityCache {
     private final IGitCoreRepository repository;
-    Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, Boolean> cache = new HashMap<>();
+    java.util.Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, Boolean> cache = new java.util.HashMap<>();
 
     boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
         throws GitMacheteException {

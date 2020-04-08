@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import java.util.Map;
 import java.util.Optional;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -37,7 +37,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public Optional<BaseGitMacheteBranch> getBranchByName(String branchName) {
-    return Optional.ofNullable(branchByName.get(branchName));
+    return branchByName.get(branchName).toJavaOptional();
   }
 
   @Override
