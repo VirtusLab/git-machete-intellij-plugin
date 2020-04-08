@@ -22,14 +22,10 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
-import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
+import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
 
 public class GitMacheteStatusTest {
   IGitMacheteRepository gitMacheteRepository = null;
-
-  private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory = BackendFactoryModule
-      .getInjector().getInstance(IGitMacheteRepositoryBuilderFactory.class);
 
   public static final Path tmpTestDir = Paths.get("/tmp/machete-tests");
   public static final Path scriptsDir = tmpTestDir.resolve("scripts");
@@ -38,6 +34,8 @@ public class GitMacheteStatusTest {
   public static final String repositoryPreparingCommand = String.format("/bin/bash %s %s",
       repositoryBuildingScript.toAbsolutePath().toString(), tmpTestDir.toAbsolutePath().toString());
 
+  GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = new GitMacheteRepositoryBuilder(repositoryDir);
+
   @Before
   public void init() throws Exception {
     // Prepare repo
@@ -45,7 +43,7 @@ public class GitMacheteStatusTest {
     copyScriptFromResources("repo1.sh");
     prepareRepoFromScript();
 
-    gitMacheteRepository = gitMacheteRepositoryBuilderFactory.create(repositoryDir).build();
+    gitMacheteRepository = gitMacheteRepositoryBuilder.build();
   }
 
   @After

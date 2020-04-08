@@ -22,9 +22,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.root.BackendFactoryModule;
+import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
 import com.virtuslab.gitmachete.backend.root.GitUtils;
-import com.virtuslab.gitmachete.backend.root.IGitMacheteRepositoryBuilderFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
@@ -37,7 +36,6 @@ public final class GitMacheteGraphTableManager {
   private boolean isListingCommits;
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
-  private final IGitMacheteRepositoryBuilderFactory gitMacheteRepositoryBuilderFactory;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
   private final VcsRootDropdown vcsRootDropdown;
@@ -47,8 +45,6 @@ public final class GitMacheteGraphTableManager {
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
     this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, vcsRootDropdown);
-    this.gitMacheteRepositoryBuilderFactory = BackendFactoryModule.getInjector()
-        .getInstance(IGitMacheteRepositoryBuilderFactory.class);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.vcsRootDropdown = vcsRootDropdown;
 
@@ -137,7 +133,7 @@ public final class GitMacheteGraphTableManager {
    */
   public void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      var repository = Try.of(() -> gitMacheteRepositoryBuilderFactory.create(repoRootPath).build())
+      var repository = Try.of(() -> (new GitMacheteRepositoryBuilder(repoRootPath)).build())
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
       repositoryRef.set(repository);
     } else {

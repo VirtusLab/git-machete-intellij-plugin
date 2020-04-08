@@ -130,7 +130,6 @@ subprojects {
 
 
   ext {
-    guiceVersion = '4.2.3'
     intellijVersion = '2019.3'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
@@ -151,13 +150,6 @@ subprojects {
       runIde.enabled = false
       publishPlugin.enabled = false
       verifyPlugin.enabled = false
-    }
-
-    guice = { ->
-      dependencies {
-        implementation group: 'com.google.inject', name: 'guice', version: guiceVersion
-        implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: guiceVersion
-      }
     }
 
     jgit = { ->

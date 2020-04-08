@@ -1,10 +1,6 @@
 package com.virtuslab.gitmachete.backend.root;
 
-import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepository;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepositoryFactory;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.getAncestorityCacheInstance;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.getCommit;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.getGitCoreLocalBranch;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.*;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

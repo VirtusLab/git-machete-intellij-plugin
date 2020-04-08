@@ -30,11 +30,6 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<String> getRepositoryName() {
-    return Optional.empty();
-  }
-
-  @Override
   public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch) {
     throw new NotImplementedError();
   }

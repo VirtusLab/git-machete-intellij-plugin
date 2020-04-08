@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
@@ -25,6 +23,8 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
+import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
+import com.virtuslab.gitcore.api.GitCoreCannotReadGitFileException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRepositoryException;
@@ -42,23 +42,23 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Getter(AccessLevel.NONE)
   private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
 
-  @Inject
-  public GitCoreRepository(@Assisted Path repositoryPath) throws IOException, GitCoreNoSuchRepositoryException {
+  public GitCoreRepository(Path repositoryPath) throws GitCoreException {
     this.repositoryPath = repositoryPath;
 
     this.gitDirectoryPath = getGitDirectoryPathByRepoRootPath(repositoryPath);
 
-    jgitRepo = new FileRepository(this.gitDirectoryPath.toString());
+    jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
+        e -> new GitCoreCannotAccessGitDirectoryException(
+            String.format("Cannot access .git directory under %s", gitDirectoryPath), e));
     jgitGit = new Git(jgitRepo);
   }
 
-  public static Path getGitDirectoryPathByRepoRootPath(Path pathToRepoRoot)
-      throws IOException, GitCoreNoSuchRepositoryException {
+  public static Path getGitDirectoryPathByRepoRootPath(Path pathToRepoRoot) throws GitCoreException {
     Path gitPath = pathToRepoRoot.resolve(".git");
 
     // In submodules and worktrees, .git is a file rather than a directory
     if (Files.isRegularFile(gitPath)) {
-      gitPath = getGitDirectoryPathFromGitFile(gitPath, pathToRepoRoot);
+      gitPath = getGitDirectoryPathFromGitFile(gitPath);
     } else if (!Files.isDirectory(gitPath)) {
       throw new GitCoreNoSuchRepositoryException(
           String.format("Git repository in path \"%s\" does not exists", pathToRepoRoot));
@@ -67,16 +67,17 @@ public class GitCoreRepository implements IGitCoreRepository {
     return gitPath;
   }
 
-  private static Path getGitDirectoryPathFromGitFile(Path gitFilePath, Path repositoryPath)
-      throws IOException, GitCoreNoSuchRepositoryException {
-    String gitFile = Files.readString(gitFilePath);
+  private static Path getGitDirectoryPathFromGitFile(Path gitFilePath) throws GitCoreException {
+    String gitFile = Try.of(() -> Files.readString(gitFilePath)).getOrElseThrow(
+        e -> new GitCoreCannotReadGitFileException(String.format("Cannot access .git file under %s", gitFilePath), e));
+
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
 
     if (matcher.find()) {
       String firstGroup = matcher.group(1);
       if (firstGroup == null) {
         throw new GitCoreNoSuchRepositoryException(
-            String.format("Path \"%s\" does not contain any submodule", repositoryPath));
+            String.format("File %s does not contain a valid reference to .git directory", gitFilePath));
       }
 
       Path parentDirectory = gitFilePath.getParent();
@@ -86,7 +87,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        String.format("Path \"%s\" does not contain any submodule", repositoryPath));
+        String.format("File %s does not contain a valid reference to .git directory", gitFilePath));
   }
 
   @Override

@@ -19,8 +19,6 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
 @RequiredArgsConstructor
 public class GitMacheteRepository implements IGitMacheteRepository {
-  @Nullable
-  private final String repositoryName;
 
   @Getter
   private final List<BaseGitMacheteRootBranch> rootBranches;
@@ -31,11 +29,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final BaseGitMacheteBranch currentBranch;
 
   private final Map<String, BaseGitMacheteBranch> branchByName;
-
-  @Override
-  public Optional<String> getRepositoryName() {
-    return Optional.ofNullable(repositoryName);
-  }
 
   @Override
   public Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged() {

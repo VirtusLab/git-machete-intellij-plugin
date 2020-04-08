@@ -15,6 +15,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 
 public class TestUtils {
 

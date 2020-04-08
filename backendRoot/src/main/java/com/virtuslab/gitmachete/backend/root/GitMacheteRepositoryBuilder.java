@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -30,10 +28,13 @@ import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
+import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -44,7 +45,7 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 
 @Accessors(chain = true, fluent = true)
 @Getter(AccessLevel.PACKAGE)
-public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder {
+public class GitMacheteRepositoryBuilder {
   @Nullable
   private IGitCoreBranch currentCoreBranch;
   private final Map<String, BaseGitMacheteBranch> branchByName = new HashMap<>();
@@ -52,23 +53,20 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
   private final Path pathToRepoRoot;
-  @Setter
-  @Nullable
-  private String repositoryName = null;
+
   @Setter
   @MonotonicNonNull
   private IBranchLayout branchLayout = null;
 
-  @Inject
-  public GitMacheteRepositoryBuilder(
-      IGitCoreRepositoryFactory gitCoreRepositoryFactory,
-      @Assisted Path pathToRepoRoot) {
-    this.gitCoreRepositoryFactory = gitCoreRepositoryFactory;
+  public GitMacheteRepositoryBuilder(Path pathToRepoRoot) {
+    gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
     this.pathToRepoRoot = pathToRepoRoot;
   }
 
-  public GitMacheteRepository build() throws GitMacheteException {
-    IGitCoreRepository gitCoreRepository = gitCoreRepositoryFactory.create(pathToRepoRoot);
+  public IGitMacheteRepository build() throws GitMacheteException {
+    IGitCoreRepository gitCoreRepository = Try.of(() -> gitCoreRepositoryFactory.create(pathToRepoRoot))
+        .getOrElseThrow(
+            e -> new GitMacheteException(String.format("Can't create GitCoreRepository under %s", pathToRepoRoot), e));
 
     currentCoreBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
@@ -102,7 +100,7 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         ? branchByName.get(currentCoreBranch.getName())
         : null;
 
-    return new GitMacheteRepository(repositoryName, rootBranches, branchLayout, currentBranch, branchByName);
+    return new GitMacheteRepository(rootBranches, branchLayout, currentBranch, branchByName);
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
