@@ -59,7 +59,7 @@ public final class GitMacheteGraphTableManager {
     subscribeToGitRepositoryChanges();
   }
 
-  public void refreshGraphTable() {
+  public void computeParametersAndRefreshGraphTable() {
     Path repoRootPath = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
     Path macheteFilePath = getMacheteFilePath(repoRootPath);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
@@ -132,7 +132,7 @@ public final class GitMacheteGraphTableManager {
 
   /**
    * Updates repository which is the base of graph table model. The change will be seen after
-   * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
+   * {@link GitMacheteGraphTableManager#computeParametersAndRefreshGraphTable()}.
    */
   public void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {

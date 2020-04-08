@@ -95,7 +95,7 @@ public class GitMachetePanel {
     @UIEffect
     public void setSelected(AnActionEvent e, boolean state) {
       gitMacheteGraphTableManager.setListingCommits(state);
-      gitMacheteGraphTableManager.refreshGraphTable();
+      gitMacheteGraphTableManager.computeParametersAndRefreshGraphTable();
     }
   }
 }
