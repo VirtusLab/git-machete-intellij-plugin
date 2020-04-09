@@ -1,3 +1,8 @@
+
+plugins {
+  id 'org.gradle.scala'
+}
+
 dependencies {
   lombok()
   vavr()
@@ -6,6 +11,11 @@ dependencies {
   implementation project(':backendApi')
   implementation project(':frontendActions')
   implementation project(':frontendGraph')
+
+  //testImplementation files('lib/junit-driver-assembly-0.1.jar') //
+  testImplementation fileTree(dir: 'lib', include: '*.jar')
+  compileOnly 'org.scala-lang:scala-library:2.13.1'
+  testCompileOnly 'org.scala-lang:scala-library:2.13.1'
 }
 
 apply plugin: 'org.jetbrains.intellij'
