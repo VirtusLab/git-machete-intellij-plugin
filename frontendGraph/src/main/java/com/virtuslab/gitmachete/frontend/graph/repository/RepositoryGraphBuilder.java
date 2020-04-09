@@ -33,7 +33,7 @@ public class RepositoryGraphBuilder {
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
   public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = BaseGitMacheteNonRootBranch::getCommits;
-  public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> io.vavr.collection.List.empty();
+  public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public RepositoryGraph build() {
     return new RepositoryGraph(deriveGraphElements());

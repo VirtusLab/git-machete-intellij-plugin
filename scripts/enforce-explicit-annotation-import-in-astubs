@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+exit_code=0
+
+for file in $(git ls-files '*.astub'); do
+  output=$(comm -23   `: print the lines present in the first output but missing from the second` \
+    <(grep -Po '(?<=@)[a-zA-Z0-9.]*' "$file" | sort -u   `: all annotations used across the file`) \
+    <(grep -Po '(?<=import ).*(?=;)' "$file" | rev | cut -d. -f1 | rev | sort -u    `: all symbols imported in the file`))
+
+  if [[ $output ]]; then
+    echo "$file: $(echo -n "$output" | tr '\n' ',' | sed 's/,/, /g') must be imported explicitly"
+    exit_code=1
+  fi
+done
+
+exit $exit_code
