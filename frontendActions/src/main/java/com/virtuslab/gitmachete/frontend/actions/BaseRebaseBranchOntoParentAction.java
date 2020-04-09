@@ -110,6 +110,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
           // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
           // changes to commits (eg. commits may get squashed so the graph structure changes).
         }.queue()).onFailure(e -> {
+          // TODO (#172): redirect the user to the manual fork-point
           var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
           VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
         });

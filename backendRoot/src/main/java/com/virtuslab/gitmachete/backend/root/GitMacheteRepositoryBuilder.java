@@ -131,25 +131,25 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    Optional<BaseGitCoreCommit> coreForkPoint = deduceForkPoint(ancestorityCache, coreLocalBranch,
+    Optional<BaseGitCoreCommit> deducedForkPoint = deduceForkPoint(ancestorityCache, coreLocalBranch,
         parentEntryCoreLocalBranch);
 
     BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     // translate IGitCoreCommit list to IGitMacheteCommit list
-    List<IGitMacheteCommit> commits = coreForkPoint.isPresent()
-        ? Try.of(() -> coreLocalBranch.deriveCommitsUntil(coreForkPoint.get()))
+    List<IGitMacheteCommit> commits = deducedForkPoint.isPresent()
+        ? Try.of(() -> coreLocalBranch.deriveCommitsUntil(deducedForkPoint.get()))
             .getOrElseThrow(e -> new GitMacheteException(e))
             .map(GitMacheteCommit::new)
             .collect(List.collector())
         : List.empty();
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var forkPoint = coreForkPoint.isPresent() ? new GitMacheteCommit(coreForkPoint.get()) : null;
+    var forkPoint = deducedForkPoint.isPresent() ? new GitMacheteCommit(deducedForkPoint.get()) : null;
     var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
     var syncToParentStatus = deriveSyncToParentStatus(ancestorityCache, coreLocalBranch, parentEntryCoreLocalBranch,
-        coreForkPoint.orElse(null));
+        deducedForkPoint.orElse(null));
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
     var subbranches = deriveDownstreamBranches(gitCoreRepository, ancestorityCache, coreLocalBranch, entry);
 

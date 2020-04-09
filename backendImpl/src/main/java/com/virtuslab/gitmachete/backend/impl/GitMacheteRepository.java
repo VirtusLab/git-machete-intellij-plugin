@@ -12,7 +12,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -49,10 +49,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
-      throws GitMacheteException {
+      throws GitMacheteMissingForkPointException {
     var forkPoint = branch.getForkPoint();
     if (!forkPoint.isPresent()) {
-      throw new GitMacheteException(String.format("Cannot get fork point for branch \"%s\"", branch.getName()));
+      throw new GitMacheteMissingForkPointException(
+          String.format("Cannot get fork point for branch \"%s\"", branch.getName()));
     }
 
     var newBaseBranch = branch.getUpstreamBranch();

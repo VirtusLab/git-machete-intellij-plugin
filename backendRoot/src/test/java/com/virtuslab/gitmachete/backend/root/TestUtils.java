@@ -141,7 +141,7 @@ public class TestUtils {
     }
 
     @Override
-    public Path getGitFolderPath() {
+    public Path getGitDirectoryPath() {
       return null;
     }
   }
