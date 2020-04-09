@@ -1,0 +1,9 @@
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+package java.util.concurrent.atomic;
+
+class AtomicReference<V> {
+    AtomicReference(@Nullable V initialValue);
+    @Nullable V get();
+    void set(@Nullable V value);
+}

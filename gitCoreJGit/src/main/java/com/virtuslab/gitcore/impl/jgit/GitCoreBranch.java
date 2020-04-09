@@ -38,7 +38,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final GitCoreRepository repo;
   protected final String branchName;
 
-  private final AtomicReference<GitCoreCommit> pointedCommitRef = new AtomicReference<>();
+  private final AtomicReference<GitCoreCommit> pointedCommitRef = new AtomicReference<>(null);
 
   @Override
   public String getName() {
@@ -57,10 +57,13 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   @Override
   public GitCoreCommit getPointedCommit() throws GitCoreException {
-    if (pointedCommitRef.get() == null) {
-      pointedCommitRef.set(new GitCoreCommit(derivePointedRevCommit()));
+    GitCoreCommit gitCoreCommit = pointedCommitRef.get();
+    if (gitCoreCommit == null) {
+      GitCoreCommit value = new GitCoreCommit(derivePointedRevCommit());
+      pointedCommitRef.set(value);
+      return value;
     }
-    return pointedCommitRef.get();
+    return gitCoreCommit;
   }
 
   protected RevCommit derivePointedRevCommit() throws GitCoreException {
