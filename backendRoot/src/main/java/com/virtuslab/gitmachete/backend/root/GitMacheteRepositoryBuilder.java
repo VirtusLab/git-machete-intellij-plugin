@@ -169,16 +169,19 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
     return Try.of(() -> {
       var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       var pointedCommit = coreLocalBranch.getPointedCommit();
-      var isParentAncestorOfForkPoint = ancestorityCache.isAncestor(parentPointedCommit, forkPointOptional.get());
-      var isParentAncestorOfChild = ancestorityCache.isAncestor(parentPointedCommit, pointedCommit);
 
       // If parent(A) is NOT ancestor of fork-point(A), and parent(A) is ancestor of A, then assume
       // fork-point(A)=parent(A)
-      if (!isParentAncestorOfForkPoint && isParentAncestorOfChild) {
-        return Optional.of(parentPointedCommit);
-      } else {
-        return forkPointOptional;
+      var isParentAncestorOfForkPoint = ancestorityCache.isAncestor(parentPointedCommit, forkPointOptional.get());
+      if (!isParentAncestorOfForkPoint) {
+        var isParentAncestorOfChild = ancestorityCache.isAncestor(parentPointedCommit, pointedCommit);
+        if (isParentAncestorOfChild) {
+          return Optional.of(parentPointedCommit);
+        }
       }
+
+      return forkPointOptional;
+
     }).getOrElseThrow(e -> new GitMacheteException(e));
   }
 
