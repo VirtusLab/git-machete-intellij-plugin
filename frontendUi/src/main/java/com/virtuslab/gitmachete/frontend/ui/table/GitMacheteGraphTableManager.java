@@ -52,7 +52,7 @@ public final class GitMacheteGraphTableManager {
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.vcsRootDropdown = vcsRootDropdown;
 
-    // InitalizationChecker allows us to invoke instance methods below because the class is final
+    // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
     subscribeToVcsRootChanges();
@@ -86,7 +86,8 @@ public final class GitMacheteGraphTableManager {
       repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
       if (gitMacheteRepository.getRootBranches().isEmpty()) {
         gitMacheteGraphTable.setTextForEmptyGraph(
-            "Your machete file is empty. Please use \"git machete discover\" CLI command to automatically fill in the machete file.");
+            "Your machete file is empty.",
+            "Please use \"git machete discover\" CLI command to automatically fill in the machete file.");
       }
     }
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
@@ -94,8 +95,8 @@ public final class GitMacheteGraphTableManager {
     if (!isMacheteFilePresent) {
       gitMacheteGraphTable.setTextForEmptyGraph(
           String.format(
-              "There is no machete file (%s) for this repository. Please use \"git machete discover\" CLI command to automatically create machete file.",
-              macheteFilePath.toString()));
+              "There is no machete file (%s) for this repository.", macheteFilePath.toString()),
+          "Please use \"git machete discover\" CLI command to automatically create machete file.");
     }
 
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);

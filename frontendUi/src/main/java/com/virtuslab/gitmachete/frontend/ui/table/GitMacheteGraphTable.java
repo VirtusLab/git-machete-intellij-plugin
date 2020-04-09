@@ -29,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.StatusText;
 import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
@@ -49,7 +50,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
   private final VcsRootDropdown vcsRootDropdown;
-  private String textForEmptyGraph = "";
+  private String upperTextForEmptyGraph = "";
+  private String lowerTextForEmptyGraph = "";
   // wasTextForEmptyGraphChanged var is mainly to prevent invocation of getEmptyText() in updateUI() method in early
   // stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null. This is
   // also introduced for performance optimization (to not update empty text when unnecessary)
@@ -102,8 +104,9 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
   }
 
-  public void setTextForEmptyGraph(String text) {
-    textForEmptyGraph = text;
+  public void setTextForEmptyGraph(String upperText, String lowerText) {
+    upperTextForEmptyGraph = upperText;
+    lowerTextForEmptyGraph = lowerText;
     doesTextForEmptyGraphRequireUpdate = true;
   }
 
@@ -113,7 +116,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   public void updateUI() {
     super.updateUI();
     if (doesTextForEmptyGraphRequireUpdate) {
-      getEmptyText().setText(textForEmptyGraph);
+      getEmptyText().setText(upperTextForEmptyGraph).appendSecondaryText(lowerTextForEmptyGraph,
+          StatusText.DEFAULT_ATTRIBUTES, null);
       doesTextForEmptyGraphRequireUpdate = false;
     }
   }
