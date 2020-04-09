@@ -160,22 +160,28 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
   private Optional<BaseGitCoreCommit> deduceForkPoint(AncestorityCache ancestorityCache,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-    var forkPointOptional = Try.of(() -> coreLocalBranch.deriveForkPoint())
-        .getOrElseThrow(e -> new GitMacheteException(e));
-    if (!forkPointOptional.isPresent()) {
-      return forkPointOptional;
-    }
 
     return Try.of(() -> {
+
+      var forkPointOptional = coreLocalBranch.deriveForkPoint();
       var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       var pointedCommit = coreLocalBranch.getPointedCommit();
 
-      // If parent(A) is NOT ancestor of fork-point(A), and parent(A) is ancestor of A, then assume
-      // fork-point(A)=parent(A)
-      var isParentAncestorOfForkPoint = ancestorityCache.isAncestor(parentPointedCommit, forkPointOptional.get());
-      if (!isParentAncestorOfForkPoint) {
-        var isParentAncestorOfChild = ancestorityCache.isAncestor(parentPointedCommit, pointedCommit);
-        if (isParentAncestorOfChild) {
+      var isParentAncestorOfChild = ancestorityCache.isAncestor(parentPointedCommit, pointedCommit);
+
+      if (isParentAncestorOfChild) {
+        if (forkPointOptional.isPresent()) {
+          var isParentAncestorOfForkPoint = ancestorityCache.isAncestor(parentPointedCommit, forkPointOptional.get());
+
+          if (!isParentAncestorOfForkPoint) {
+            // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
+            // then assume fork-point(A)=parent(A)
+            return Optional.of(parentPointedCommit);
+          }
+
+        } else {
+          // If parent(A) is ancestor of A, and fork-point(A) is missing,
+          // then assume fork-point(A)=parent(A)
           return Optional.of(parentPointedCommit);
         }
       }
@@ -281,14 +287,12 @@ public class GitMacheteRepositoryBuilder implements IGitMacheteRepositoryBuilder
         throws GitMacheteException {
       Tuple2<BaseGitCoreCommit, BaseGitCoreCommit> key = Tuple.of(presumedAncestor, presumedDescendant);
       Boolean isAncestorResult = cache.get(key);
-      if (isAncestorResult != null) {
-        return isAncestorResult;
-      } else {
+      if (isAncestorResult == null) {
         isAncestorResult = Try.of(() -> repository.isAncestor(presumedAncestor, presumedDescendant))
             .getOrElseThrow(e -> new GitMacheteException(e));
         cache.put(key, isAncestorResult);
-        return isAncestorResult;
       }
+      return isAncestorResult;
     }
   }
 }
