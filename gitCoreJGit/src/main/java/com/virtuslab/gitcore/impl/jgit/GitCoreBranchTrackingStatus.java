@@ -8,9 +8,10 @@ import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 public class GitCoreBranchTrackingStatus implements IGitCoreBranchTrackingStatus {
   private final int ahead;
   private final int behind;
+  private final String remoteName;
 
   @Override
   public String toString() {
-    return String.format("Ahead: %d; Behind: %d", ahead, behind);
+    return String.format("Remote: %s; Ahead: %d; Behind: %d", remoteName, ahead, behind);
   }
 }

@@ -8,6 +8,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Try;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.ReflogReader;
@@ -57,7 +58,10 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       return Optional.empty();
     }
 
-    return Optional.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount()));
+    String remoteName = repo.getJgitRepo().getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, getName(),
+        ConfigConstants.CONFIG_KEY_REMOTE);
+
+    return Optional.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount(), remoteName));
   }
 
   @Override

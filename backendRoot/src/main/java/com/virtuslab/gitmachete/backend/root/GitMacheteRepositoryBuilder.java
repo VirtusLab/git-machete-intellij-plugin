@@ -1,5 +1,11 @@
 package com.virtuslab.gitmachete.backend.root;
 
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Status.Ahead;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Status.Behind;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Status.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Status.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Status.Untracked;
+
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -34,12 +40,13 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatusImpl;
 
 @Accessors(chain = true, fluent = true)
 @Getter(AccessLevel.PACKAGE)
@@ -108,12 +115,12 @@ public class GitMacheteRepositoryBuilder {
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
+    var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
     AncestorityCache ancestorityCache = new AncestorityCache(gitCoreRepository);
     var subbranches = deriveDownstreamBranches(gitCoreRepository, ancestorityCache, coreLocalBranch, entry);
 
-    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToOriginStatus, customAnnotation);
+    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToRemoteStatus, customAnnotation);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
@@ -141,14 +148,14 @@ public class GitMacheteRepositoryBuilder {
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var forkPoint = deducedForkPoint.isPresent() ? new GitMacheteCommit(deducedForkPoint.get()) : null;
-    var syncToOriginStatus = deriveSyncToOriginStatus(coreLocalBranch);
+    var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var syncToParentStatus = deriveSyncToParentStatus(ancestorityCache, coreLocalBranch, parentEntryCoreLocalBranch,
         deducedForkPoint.orElse(null));
     var customAnnotation = entry.getCustomAnnotation().orElse(null);
     var subbranches = deriveDownstreamBranches(gitCoreRepository, ancestorityCache, coreLocalBranch, entry);
 
     return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
-        commits, syncToOriginStatus, syncToParentStatus, customAnnotation);
+        commits, syncToRemoteStatus, syncToParentStatus, customAnnotation);
   }
 
   private Optional<BaseGitCoreCommit> deduceForkPoint(AncestorityCache ancestorityCache,
@@ -201,21 +208,23 @@ public class GitMacheteRepositoryBuilder {
     return List.ofAll(downstreamBranches);
   }
 
-  private SyncToOriginStatus deriveSyncToOriginStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
+  private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     try {
       Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (!ts.isPresent()) {
-        return SyncToOriginStatus.Untracked;
+        return SyncToRemoteStatusImpl.of(Untracked, "");
       }
 
-      if (ts.get().getAhead() > 0 && ts.get().getBehind() > 0) {
-        return SyncToOriginStatus.Diverged;
-      } else if (ts.get().getAhead() > 0) {
-        return SyncToOriginStatus.Ahead;
-      } else if (ts.get().getBehind() > 0) {
-        return SyncToOriginStatus.Behind;
+      IGitCoreBranchTrackingStatus trackingStatus = ts.get();
+
+      if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
+        return SyncToRemoteStatusImpl.of(Diverged, trackingStatus.getRemoteName());
+      } else if (trackingStatus.getAhead() > 0) {
+        return SyncToRemoteStatusImpl.of(Ahead, trackingStatus.getRemoteName());
+      } else if (trackingStatus.getBehind() > 0) {
+        return SyncToRemoteStatusImpl.of(Behind, trackingStatus.getRemoteName());
       } else {
-        return SyncToOriginStatus.InSync;
+        return SyncToRemoteStatusImpl.of(InSync, trackingStatus.getRemoteName());
       }
 
     } catch (GitCoreException e) {

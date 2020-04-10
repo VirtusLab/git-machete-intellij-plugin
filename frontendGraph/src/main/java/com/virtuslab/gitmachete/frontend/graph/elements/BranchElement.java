@@ -8,25 +8,25 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public final class BranchElement extends BaseGraphElement {
   private final BaseGitMacheteBranch branch;
-  private final SyncToOriginStatus syncToOriginStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
 
   public BranchElement(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
       int upElementIndex,
-      SyncToOriginStatus syncToOriginStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       boolean isCurrentBranch) {
     super(graphEdgeColor, upElementIndex);
     this.branch = branch;
-    this.syncToOriginStatus = syncToOriginStatus;
+    this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
   }
 

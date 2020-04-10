@@ -11,8 +11,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @Getter
 @ToString
@@ -26,7 +26,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   private final IGitMacheteCommit forkPoint;
   private final IGitMacheteCommit pointedCommit;
   private final List<IGitMacheteCommit> commits;
-  private final SyncToOriginStatus syncToOriginStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   private final SyncToParentStatus syncToParentStatus;
   @Nullable
   private final String customAnnotation;
@@ -36,7 +36,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
       List<IGitMacheteCommit> commits,
-      SyncToOriginStatus syncToOriginStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
       @Nullable String customAnnotation) {
     this.name = name;
@@ -44,7 +44,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
     this.forkPoint = forkPoint;
     this.pointedCommit = pointedCommit;
     this.commits = commits;
-    this.syncToOriginStatus = syncToOriginStatus;
+    this.syncToRemoteStatus = syncToRemoteStatus;
     this.syncToParentStatus = syncToParentStatus;
     this.customAnnotation = customAnnotation;
 

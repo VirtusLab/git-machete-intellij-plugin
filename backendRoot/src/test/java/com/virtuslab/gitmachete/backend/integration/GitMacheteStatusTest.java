@@ -20,8 +20,8 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
 
 public class GitMacheteStatusTest {
@@ -151,16 +151,16 @@ public class GitMacheteStatusTest {
       sb.append("  ");
       sb.append(customAnnotation.get());
     }
-    var originSync = branch.getSyncToOriginStatus();
-    if (originSync != SyncToOriginStatus.InSync) {
+    var originSync = branch.getSyncToRemoteStatus();
+    if (originSync.getStatus() != SyncToRemoteStatus.Status.InSync) {
       sb.append(" (");
-      if (originSync == SyncToOriginStatus.Ahead)
+      if (originSync.getStatus() == SyncToRemoteStatus.Status.Ahead)
         sb.append("ahead of origin");
-      if (originSync == SyncToOriginStatus.Behind)
+      if (originSync.getStatus() == SyncToRemoteStatus.Status.Behind)
         sb.append("behind origin");
-      if (originSync == SyncToOriginStatus.Untracked)
+      if (originSync.getStatus() == SyncToRemoteStatus.Status.Untracked)
         sb.append("untracked");
-      if (originSync == SyncToOriginStatus.Diverged)
+      if (originSync.getStatus() == SyncToRemoteStatus.Status.Diverged)
         sb.append("diverged from origin");
       sb.append(")");
     }

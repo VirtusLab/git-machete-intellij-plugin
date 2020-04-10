@@ -4,4 +4,6 @@ public interface IGitCoreBranchTrackingStatus {
   int getAhead();
 
   int getBehind();
+
+  String getRemoteName();
 }

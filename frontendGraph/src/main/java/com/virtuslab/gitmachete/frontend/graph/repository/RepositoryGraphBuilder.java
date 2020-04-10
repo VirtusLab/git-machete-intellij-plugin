@@ -13,8 +13,8 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
@@ -85,7 +85,7 @@ public class RepositoryGraphBuilder {
       java.util.List<IGraphElement> graphElements,
       BaseGitMacheteRootBranch branch) {
     BranchElement element = createBranchElementFor(branch, /* upElementIndex */ -1, GraphEdgeColor.GREEN,
-        branch.getSyncToOriginStatus());
+        branch.getSyncToRemoteStatus());
     graphElements.add(element);
   }
 
@@ -97,7 +97,7 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
-    SyncToOriginStatus syncToOriginStatus = branch.getSyncToOriginStatus();
+    SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
     boolean isFirstNodeInBranch = true;
@@ -118,7 +118,7 @@ public class RepositoryGraphBuilder {
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
-    BranchElement element = createBranchElementFor(branch, upElementIndex, graphEdgeColor, syncToOriginStatus);
+    BranchElement element = createBranchElementFor(branch, upElementIndex, graphEdgeColor, syncToRemoteStatus);
     graphElements.add(element);
   }
 
@@ -171,12 +171,12 @@ public class RepositoryGraphBuilder {
       BaseGitMacheteBranch branch,
       int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      SyncToOriginStatus syncToOriginStatus) {
+      SyncToRemoteStatus syncToRemoteStatus) {
 
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
 
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
-    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToOriginStatus, isCurrentBranch);
+    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToRemoteStatus, isCurrentBranch);
   }
 }

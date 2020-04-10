@@ -10,7 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.SyncToOriginStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @Getter
 @ToString
@@ -18,18 +18,18 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final IGitMacheteCommit pointedCommit;
-  private final SyncToOriginStatus syncToOriginStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   @Nullable
   private final String customAnnotation;
 
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      SyncToOriginStatus syncToOriginStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.pointedCommit = pointedCommit;
-    this.syncToOriginStatus = syncToOriginStatus;
+    this.syncToRemoteStatus = syncToRemoteStatus;
     this.customAnnotation = customAnnotation;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
