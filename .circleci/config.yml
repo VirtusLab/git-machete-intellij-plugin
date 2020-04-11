@@ -15,6 +15,7 @@ jobs:
             ./scripts/enforce-explicit-annotation-import-in-astubs
             ./scripts/enforce-issue-number-for-todos
             ./scripts/enforce-newline-at-eof
+            ./scripts/enforce-proper-interface-names
             ./scripts/enforce-version-bump
             ./scripts/prohibit-trailing-whitespace
             ./scripts/specify-snapshot-revision

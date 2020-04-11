@@ -32,7 +32,7 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
@@ -123,16 +123,15 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
-        SyncToRemoteStatus syncToRemoteStatus;
+        ISyncToRemoteStatus syncToRemoteStatus;
 
         syncToRemoteStatus = ((BranchElement) element).getSyncToRemoteStatus();
-        if (syncToRemoteStatus.getStatus() != SyncToRemoteStatus.Status.InSync) {
+        if (syncToRemoteStatus.getRelation() != ISyncToRemoteStatus.Relation.InSync) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
-              SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getStatus()));
-          append(
-              "  (" + SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getStatus(),
-                  syncToRemoteStatus.getRemoteName()) + ")",
-              textAttributes);
+              SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
+          String remoteStatusLabel = SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getRelation(),
+              syncToRemoteStatus.getRemoteName());
+          append("  (" + remoteStatusLabel + ")", textAttributes);
         }
       }
     }

@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.backend.api;
 
-public interface SyncToRemoteStatus {
-  enum Status {
+public interface ISyncToRemoteStatus {
+  enum Relation {
     Untracked, Ahead, Behind, Diverged, InSync
   }
 
-  Status getStatus();
+  Relation getRelation();
   String getRemoteName();
 }

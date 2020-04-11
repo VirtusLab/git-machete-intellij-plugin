@@ -23,7 +23,7 @@ public abstract class BaseGitMacheteBranch {
 
   public abstract Optional<String> getCustomAnnotation();
 
-  public abstract SyncToRemoteStatus getSyncToRemoteStatus();
+  public abstract ISyncToRemoteStatus getSyncToRemoteStatus();
 
   @Override
   public final boolean equals(@Nullable Object other) {

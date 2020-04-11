@@ -1,5 +1,14 @@
 package com.virtuslab.gitmachete.backend.integration;
 
+import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Ahead;
+import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Behind;
+import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.InSync;
+import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Untracked;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +20,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -21,7 +28,6 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
 
 public class GitMacheteStatusTest {
@@ -36,32 +42,51 @@ public class GitMacheteStatusTest {
 
   GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = new GitMacheteRepositoryBuilder(repositoryDir);
 
-  @Before
-  public void init() throws Exception {
+  public void init(String scriptName) throws Exception {
     // Prepare repo
     createDirStructure();
-    copyScriptFromResources("repo1.sh");
+    copyScriptFromResources(scriptName);
     prepareRepoFromScript();
 
     gitMacheteRepository = gitMacheteRepositoryBuilder.build();
   }
 
-  @After
   public void cleanup() throws IOException {
     Files.walk(tmpTestDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
   }
 
   @Test
   public void statusTest() throws Exception {
-    String myResult = repositoryStatus();
+    init("repo1.sh");
+
+    String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
     System.out.println("OUR OUTPUT:");
-    System.out.println(myResult);
+    System.out.println(ourResult);
 
-    Assert.assertEquals(gitMacheteCliStatus, myResult);
+    cleanup();
+
+    Assert.assertEquals(gitMacheteCliStatus, ourResult);
+  }
+
+  @Test
+  public void statusTestWithMultiRemotes() throws Exception {
+    init("repo2.sh");
+
+    String ourResult = repositoryStatus();
+    String gitMacheteCliStatus = gitMacheteCliStatus();
+
+    System.out.println("CLI OUTPUT:");
+    System.out.println(gitMacheteCliStatus);
+    System.out.println("OUR OUTPUT:");
+    System.out.println(ourResult);
+
+    cleanup();
+
+    Assert.assertEquals(gitMacheteCliStatus, ourResult);
   }
 
   private void createDirStructure() throws IOException {
@@ -151,17 +176,14 @@ public class GitMacheteStatusTest {
       sb.append("  ");
       sb.append(customAnnotation.get());
     }
-    var originSync = branch.getSyncToRemoteStatus();
-    if (originSync.getStatus() != SyncToRemoteStatus.Status.InSync) {
+    var syncToRemote = branch.getSyncToRemoteStatus();
+    if (syncToRemote.getRelation() != InSync) {
       sb.append(" (");
-      if (originSync.getStatus() == SyncToRemoteStatus.Status.Ahead)
-        sb.append("ahead of origin");
-      if (originSync.getStatus() == SyncToRemoteStatus.Status.Behind)
-        sb.append("behind origin");
-      if (originSync.getStatus() == SyncToRemoteStatus.Status.Untracked)
-        sb.append("untracked");
-      if (originSync.getStatus() == SyncToRemoteStatus.Status.Diverged)
-        sb.append("diverged from origin");
+      sb.append(Match(syncToRemote.getRelation()).of(
+          Case($(Ahead), "ahead of " + syncToRemote.getRemoteName()),
+          Case($(Behind), "behind " + syncToRemote.getRemoteName()),
+          Case($(Untracked), "untracked"),
+          Case($(Diverged), "diverged from " + syncToRemote.getRemoteName())));
       sb.append(")");
     }
     sb.append(System.lineSeparator());

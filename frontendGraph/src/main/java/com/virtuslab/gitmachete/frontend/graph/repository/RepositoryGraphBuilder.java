@@ -12,9 +12,9 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
@@ -97,7 +97,7 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
-    SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
+    ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
     boolean isFirstNodeInBranch = true;
@@ -171,7 +171,7 @@ public class RepositoryGraphBuilder {
       BaseGitMacheteBranch branch,
       int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      SyncToRemoteStatus syncToRemoteStatus) {
+      ISyncToRemoteStatus syncToRemoteStatus) {
 
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
 
