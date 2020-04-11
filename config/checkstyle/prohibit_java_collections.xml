@@ -1,7 +1,3 @@
-<module name="IllegalImport">
-    <!-- Use immutable Vavr counterparts instead. -->
-    <property name="illegalClasses" value="java.util.Deque, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.Vector"/>
-</module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>

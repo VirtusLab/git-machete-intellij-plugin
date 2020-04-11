@@ -35,7 +35,7 @@ public class GitMachetePanel {
   public GitMachetePanel(Project project) {
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
     // opened project, so Git Machete plugin shouldn't even be loaded
-    @SuppressWarnings("assignment.type.incompatible")
+    @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
     vcsRootDropdown = new VcsRootDropdown(repositories);

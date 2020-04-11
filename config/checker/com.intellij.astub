@@ -3,6 +3,7 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.guieffect.qual.UIPackage;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 @UIPackage package com.intellij.application.options;
 @UIPackage package com.intellij.build;
@@ -72,7 +73,7 @@ import org.checkerframework.checker.guieffect.qual.UIPackage;
 package com.intellij.openapi.actionSystem;
 
 class ToggleAction {
-    @UIEffect void setSelected(AnActionEvent e, boolean state);
+  @UIEffect void setSelected(AnActionEvent e, boolean state);
 }
 
 
@@ -241,7 +242,14 @@ class GuiUtils {
 @UIPackage package com.intellij.ui.roots;
 @UIPackage package com.intellij.ui.speedSearch;
 @UIPackage package com.intellij.ui.switcher;
+
 @UIPackage package com.intellij.ui.table;
+
+class JBTable {
+  void updateUI(@UnknownInitialization JBTable this);
+}
+
+
 @UIPackage package com.intellij.ui.tabs;
 @UIPackage package com.intellij.ui.tabs.impl;
 @UIPackage package com.intellij.ui.tabs.impl.singleRow;

@@ -22,16 +22,14 @@ public class RepositoryGraphFactory {
   private IGitMacheteRepository repository = null;
 
   public RepositoryGraph getRepositoryGraph(IGitMacheteRepository givenRepository, boolean isListingCommits) {
-    if (givenRepository != this.repository) {
-      this.repository = givenRepository;
+    if (givenRepository != this.repository || repositoryGraphWithCommits == null
+        || repositoryGraphWithoutCommits == null) {
 
+      this.repository = givenRepository;
       RepositoryGraphBuilder repositoryGraphBuilder = new RepositoryGraphBuilder().repository(givenRepository);
       repositoryGraphWithCommits = repositoryGraphBuilder.branchGetCommitsStrategy(DEFAULT_GET_COMMITS).build();
       repositoryGraphWithoutCommits = repositoryGraphBuilder.branchGetCommitsStrategy(EMPTY_GET_COMMITS).build();
     }
-
-    assert repositoryGraphWithCommits != null : "repositoryGraphWithCommits is null";
-    assert repositoryGraphWithoutCommits != null : "repositoryGraphWithCommits is null";
     return isListingCommits ? repositoryGraphWithCommits : repositoryGraphWithoutCommits;
   }
 }

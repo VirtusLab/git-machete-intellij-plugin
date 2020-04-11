@@ -34,6 +34,7 @@ import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -112,12 +113,15 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
   @Override
   @UIEffect
-  @SuppressWarnings("override.receiver.invalid")
-  public void updateUI() {
+  public void updateUI(@UnknownInitialization GitMacheteGraphTable this) {
     super.updateUI();
     if (doesTextForEmptyGraphRequireUpdate) {
-      getEmptyText().setText(upperTextForEmptyGraph).appendSecondaryText(lowerTextForEmptyGraph,
-          StatusText.DEFAULT_ATTRIBUTES, null);
+      // We can safely ignore the warning related to `this` being possibly not fully initialized,
+      // since `doesTextForEmptyGraphRequireUpdate` can only be set to true in `setTextForEmptyGraph()`,
+      // which in turn can only be called on an @Initialized instance.
+      @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:method.invocation.invalid"})
+      var __ = getEmptyText().setText(upperTextForEmptyGraph).appendSecondaryText(lowerTextForEmptyGraph,
+          StatusText.DEFAULT_ATTRIBUTES, /* listener */ null);
       doesTextForEmptyGraphRequireUpdate = false;
     }
   }
