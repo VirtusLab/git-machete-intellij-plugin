@@ -23,7 +23,7 @@ public class BranchLayout implements IBranchLayout {
   public IBranchLayout slideOut(String branchName) throws BranchLayoutException {
     var entryOption = findEntryByName(branchName);
     if (!entryOption.isPresent()) {
-      throw new BranchLayoutException(String.format("Branch entry \"%s\" does not exist", branchName));
+      throw new BranchLayoutException("Branch entry '${branchName}' does not exist");
     }
     if (rootBranches.contains(entryOption.get())) {
       throw new BranchLayoutException("Cannot slide out root branch entry");

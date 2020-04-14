@@ -37,8 +37,7 @@ public class GitMacheteStatusTest {
   public static final Path scriptsDir = tmpTestDir.resolve("scripts");
   public static final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
   public static final Path repositoryDir = tmpTestDir.resolve("machete-sandbox");
-  public static final String repositoryPreparingCommand = String.format("/bin/bash %s %s",
-      repositoryBuildingScript.toAbsolutePath().toString(), tmpTestDir.toAbsolutePath().toString());
+  public static final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
 
   GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = new GitMacheteRepositoryBuilder(repositoryDir);
 
@@ -90,8 +89,7 @@ public class GitMacheteStatusTest {
   }
 
   private void createDirStructure() throws IOException {
-    Files.createDirectory(tmpTestDir);
-    Files.createDirectory(scriptsDir);
+    Files.createDirectories(scriptsDir);
   }
 
   private void copyScriptsFromResources(String scriptName) throws URISyntaxException, IOException {
@@ -103,6 +101,7 @@ public class GitMacheteStatusTest {
     // Given
     resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
+    Files.deleteIfExists(repositoryBuildingScript);
     Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript);
   }
 

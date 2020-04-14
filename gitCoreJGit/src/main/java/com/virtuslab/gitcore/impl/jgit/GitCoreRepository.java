@@ -48,8 +48,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     this.gitDirectoryPath = getGitDirectoryPathByRepoRootPath(repositoryPath);
 
     jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
-        e -> new GitCoreCannotAccessGitDirectoryException(
-            String.format("Cannot access .git directory under %s", gitDirectoryPath), e));
+        e -> new GitCoreCannotAccessGitDirectoryException("Cannot access .git directory under ${gitDirectoryPath}", e));
     jgitGit = new Git(jgitRepo);
   }
 
@@ -60,8 +59,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     if (Files.isRegularFile(gitPath)) {
       gitPath = getGitDirectoryPathFromGitFile(gitPath);
     } else if (!Files.isDirectory(gitPath)) {
-      throw new GitCoreNoSuchRepositoryException(
-          String.format("Git repository in path \"%s\" does not exists", pathToRepoRoot));
+      throw new GitCoreNoSuchRepositoryException("Git repository in path ${pathToRepoRoot} does not exist");
     }
 
     return gitPath;
@@ -69,7 +67,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   private static Path getGitDirectoryPathFromGitFile(Path gitFilePath) throws GitCoreException {
     String gitFile = Try.of(() -> Files.readString(gitFilePath)).getOrElseThrow(
-        e -> new GitCoreCannotReadGitFileException(String.format("Cannot access .git file under %s", gitFilePath), e));
+        e -> new GitCoreCannotReadGitFileException("Cannot access .git file under ${gitFilePath}", e));
 
     Matcher matcher = GIT_DIR_PATTERN.matcher(gitFile);
 
@@ -77,7 +75,7 @@ public class GitCoreRepository implements IGitCoreRepository {
       String firstGroup = matcher.group(1);
       if (firstGroup == null) {
         throw new GitCoreNoSuchRepositoryException(
-            String.format("File %s does not contain a valid reference to .git directory", gitFilePath));
+            "File ${gitFilePath} does not contain a valid reference to .git directory");
       }
 
       Path parentDirectory = gitFilePath.getParent();
@@ -87,7 +85,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
 
     throw new GitCoreNoSuchRepositoryException(
-        String.format("File %s does not contain a valid reference to .git directory", gitFilePath));
+        "File ${gitFilePath} does not contain a valid reference to .git directory");
   }
 
   @Override
@@ -110,8 +108,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
-      throw new GitCoreNoSuchBranchException(
-          String.format("Local branch \"%s\" does not exist in this repository", branchName));
+      throw new GitCoreNoSuchBranchException("Local branch '${branchName}' does not exist in this repository");
     }
     return new GitCoreLocalBranch(/* repo */ this, branchName);
   }
@@ -119,8 +116,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public GitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + branchName)) {
-      throw new GitCoreNoSuchBranchException(
-          String.format("Remote branch \"%s\" does not exist in this repository", branchName));
+      throw new GitCoreNoSuchBranchException("Remote branch '${branchName}' does not exist in this repository");
     }
     return new GitCoreRemoteBranch(/* repo */ this, branchName);
   }

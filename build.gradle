@@ -54,7 +54,6 @@ subprojects {
   checkerFramework {
     excludeTests = true
     checkers = [
-      'org.checkerframework.checker.formatter.FormatterChecker',
       'org.checkerframework.checker.guieffect.GuiEffectChecker',
       'org.checkerframework.checker.index.IndexChecker',
       'org.checkerframework.checker.nullness.NullnessChecker',
@@ -79,6 +78,12 @@ subprojects {
       eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
       removeUnusedImports()
     }
+  }
+
+  dependencies {
+    def betterStrings = [ group: 'com.antkorwin', name: 'better-strings', version: '0.2' ]
+    annotationProcessor(betterStrings)
+    testAnnotationProcessor(betterStrings)
   }
 
   apply plugin: 'checkstyle'

@@ -45,16 +45,12 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
         presentation.setEnabled(false);
 
       } else if (currentBranchOption.get().isRootBranch()) {
-        String description = String.format("Can't rebase git machete root branch \"%s\"",
-            currentBranchOption.get().getName());
-        presentation.setDescription(description);
+        presentation.setDescription("Can't rebase git machete root branch '${currentBranchOption.get().getName()}'");
         presentation.setEnabled(false);
 
       } else {
         var upstreamBranch = currentBranchOption.get().asNonRootBranch().getUpstreamBranch();
-        var description = String.format("Rebase \"%s\" onto \"%s\"", currentBranchOption.get().getName(),
-            upstreamBranch.getName());
-        presentation.setDescription(description);
+        presentation.setDescription("Rebase '${currentBranchOption.get().getName()}' onto ${upstreamBranch.getName()}");
       }
     }
   }

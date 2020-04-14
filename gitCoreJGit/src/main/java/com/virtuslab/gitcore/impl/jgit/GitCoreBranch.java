@@ -74,13 +74,12 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
       ObjectId o = jgitRepo.resolve(getFullName());
       if (o == null) {
         throw new GitCoreNoSuchBranchException(
-            String.format("%s branch \"%s\" does not exist in this repository", branchName,
-                getBranchTypeString(/* capitalized */ true)));
+            "${getBranchTypeString(/* capitalized */ true)} branch '${branchName}' does not exist in this repository");
       }
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
-      throw new GitCoreNoSuchCommitException(String.format(
-          "Commit pointed by %s branch \"%s\" does not exist in this repository", branchName, getBranchTypeString()));
+      throw new GitCoreNoSuchCommitException(
+          "Commit pointed by ${getBranchTypeString()} branch '${branchName}' does not exist in this repository");
     } catch (RevisionSyntaxException | IOException e) {
       throw new GitCoreException(e);
     }

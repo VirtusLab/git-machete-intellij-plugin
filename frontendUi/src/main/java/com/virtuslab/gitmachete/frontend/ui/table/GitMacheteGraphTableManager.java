@@ -83,16 +83,15 @@ public final class GitMacheteGraphTableManager {
       if (gitMacheteRepository.getRootBranches().isEmpty()) {
         gitMacheteGraphTable.setTextForEmptyGraph(
             "Your machete file is empty.",
-            "Please use \"git machete discover\" CLI command to automatically fill in the machete file.");
+            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
       }
     }
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
 
     if (!isMacheteFilePresent) {
       gitMacheteGraphTable.setTextForEmptyGraph(
-          String.format(
-              "There is no machete file (%s) for this repository.", macheteFilePath.toString()),
-          "Please use \"git machete discover\" CLI command to automatically create machete file.");
+          "There is no machete file (${macheteFilePath}) for this repository.",
+          "Please use 'git machete discover' CLI command to automatically create machete file.");
     }
 
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);

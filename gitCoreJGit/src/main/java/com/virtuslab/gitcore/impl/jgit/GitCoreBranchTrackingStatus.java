@@ -12,6 +12,6 @@ public class GitCoreBranchTrackingStatus implements IGitCoreBranchTrackingStatus
 
   @Override
   public String toString() {
-    return String.format("Remote: %s; Ahead: %d; Behind: %d", remoteName, ahead, behind);
+    return "Remote: ${remoteName}; Ahead: ${ahead}; Behind: ${behind}";
   }
 }

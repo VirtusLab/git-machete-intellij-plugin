@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 
 @AllArgsConstructor
 public class GraphTableModel extends AbstractTableModel {
-  static final int BRANCH_OR_COMMIT_COLUMN = 0;
+  private static final int BRANCH_OR_COMMIT_COLUMN = 0;
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
@@ -40,8 +40,7 @@ public class GraphTableModel extends AbstractTableModel {
         IGraphElement element = repositoryGraph.getGraphElement(rowIndex);
         return new BranchOrCommitCell(element, repositoryGraph.getPrintElements(rowIndex));
       default :
-        throw new IllegalArgumentException(
-            String.format("columnIndex is %d > %d", columnIndex, getColumnCount() - 1));
+        throw new IllegalArgumentException("columnIndex is ${columnIndex} > ${getColumnCount() - 1}");
     }
   }
 
@@ -51,8 +50,7 @@ public class GraphTableModel extends AbstractTableModel {
       case BRANCH_OR_COMMIT_COLUMN :
         return BranchOrCommitCell.class;
       default :
-        throw new IllegalArgumentException(
-            String.format("columnIndex is %d > %d", column, getColumnCount() - 1));
+        throw new IllegalArgumentException("columnIndex is ${column} > ${getColumnCount() - 1}");
     }
   }
 

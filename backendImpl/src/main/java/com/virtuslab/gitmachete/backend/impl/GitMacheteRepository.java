@@ -45,8 +45,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       throws GitMacheteMissingForkPointException {
     var forkPoint = branch.getForkPoint();
     if (!forkPoint.isPresent()) {
-      throw new GitMacheteMissingForkPointException(
-          String.format("Cannot get fork point for branch \"%s\"", branch.getName()));
+      throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${branch.getName()}'");
     }
 
     var newBaseBranch = branch.getUpstreamBranch();

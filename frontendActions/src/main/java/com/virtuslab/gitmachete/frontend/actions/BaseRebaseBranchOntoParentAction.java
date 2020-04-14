@@ -69,9 +69,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
           Case($(Repository.State.REVERTING), "during an ongoing revert"),
           Case($(), state.toString()));
 
-      var message = String.format("Can't rebase %s", stateName);
       presentation.setEnabled(false);
-      presentation.setDescription(message);
+      presentation.setDescription("Can't rebase ${stateName}");
     }
   }
 

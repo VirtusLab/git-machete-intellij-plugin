@@ -33,8 +33,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
         } else {
           var nonRootBranch = selectedBranch.get().asNonRootBranch();
           BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
-          String description = String.format("Rebase \"%s\" onto \"%s\"", nonRootBranch.getName(), upstream.getName());
-          presentation.setDescription(description);
+          presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
         }
       }
     }

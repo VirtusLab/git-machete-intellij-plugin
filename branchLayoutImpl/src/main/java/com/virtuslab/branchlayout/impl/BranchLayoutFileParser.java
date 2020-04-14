@@ -90,8 +90,8 @@ public class BranchLayoutFileParser {
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(List<String> lines) throws BranchLayoutException {
     if (lines.size() > 0 && getIndentLevelWidth(lines.head()) > 0) {
-      throw new BranchLayoutException(0, String.format(
-          "The initial line of branch layout file (%s) cannot be indented", path.toAbsolutePath().toString()));
+      throw new BranchLayoutException(/* errorLine */ 1,
+          "The initial line of branch layout file (${path.toAbsolutePath()}) may not be indented");
     }
 
     Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(lines.size(),
@@ -105,9 +105,8 @@ public class BranchLayoutFileParser {
       int level = getIndentLevel(lineIndentLevelWidth, lineNumber);
 
       if (level - previousLevel > 1) {
-        throw new BranchLayoutException(lineNumber, String.format(
-            "One of branches in branch layout file (%s) has incorrect level in relation to its parent branch",
-            path.toAbsolutePath().toString()));
+        throw new BranchLayoutException(lineNumber + 1,
+            "One of branches in branch layout file (${path.toAbsolutePath()}) has incorrect level in relation to its parent branch");
       }
 
       @SuppressWarnings("index:argument.type.incompatible")
@@ -125,8 +124,8 @@ public class BranchLayoutFileParser {
 
   private List<String> getFileLines() throws BranchLayoutException {
     return Try.of(() -> List.ofAll(Files.readAllLines(path)))
-        .getOrElseThrow(e -> new BranchLayoutException(String.format(
-            "Error while loading branch layout file (%s)", path.toAbsolutePath().toString()), e));
+        .getOrElseThrow(
+            e -> new BranchLayoutException("Error while loading branch layout file (${path.toAbsolutePath()})", e));
   }
 
   private int getIndentLevelWidth(String line) {
@@ -139,8 +138,8 @@ public class BranchLayoutFileParser {
     }
 
     if (indent % levelWidth != 0) {
-      throw new BranchLayoutException(lineNumber, String.format(
-          "Levels of indentation are not matching in branch layout file (%s)", path.toAbsolutePath().toString()));
+      throw new BranchLayoutException(lineNumber + 1,
+          "Levels of indentation are not matching in branch layout file (${path.toAbsolutePath()})");
     }
 
     return indent / levelWidth;

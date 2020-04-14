@@ -72,7 +72,7 @@ public class GitMacheteRepositoryBuilder {
   public IGitMacheteRepository build() throws GitMacheteException {
     IGitCoreRepository gitCoreRepository = Try.of(() -> gitCoreRepositoryFactory.create(pathToRepoRoot))
         .getOrElseThrow(
-            e -> new GitMacheteException(String.format("Can't create GitCoreRepository under %s", pathToRepoRoot), e));
+            e -> new GitMacheteException("Can't create GitCoreRepository under ${pathToRepoRoot}", e));
 
     currentCoreBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
@@ -84,10 +84,8 @@ public class GitMacheteRepositoryBuilder {
           .getOrElseThrow(e -> {
             Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
             return new MacheteFileParseException(errorLine.isPresent()
-                ? String.format("Error occurred while parsing machete file %s in line %d",
-                    pathToBranchLayoutFile.toString(), errorLine.get())
-                : String.format("Error occurred while parsing machete file %s",
-                    pathToBranchLayoutFile.toString()),
+                ? "Error occurred while parsing machete file ${pathToBranchLayoutFile} in line ${errorLine.get()}"
+                : "Error occurred while parsing machete file ${pathToBranchLayoutFile}",
                 e);
           });
     }
