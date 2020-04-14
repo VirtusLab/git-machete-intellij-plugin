@@ -1,12 +1,10 @@
 package com.virtuslab.gitmachete.frontend.graph.elements;
 
-import java.util.List;
-
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.SmartList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
@@ -22,22 +20,24 @@ public abstract class BaseGraphElement implements IGraphElement {
 
   private final int upElementIndex;
 
-  /**
-   * Final (reference initialized once), but in some cases {@code downElementIndexes} are not known during instance
-   * construction and they have to be added later.
-   */
-  private final List<Integer> downElementIndexes;
+  /** The index of the first node in the next sibling branch or its commit. */
+  @MonotonicNonNull
+  private Integer downElementIndex = null;
 
-  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor, int upElementIndex) {
+  private final int indentLevel;
+
+  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor, int upElementIndex, int downElementIndex,
+      int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
     this.upElementIndex = upElementIndex;
-    this.downElementIndexes = new SmartList<Integer>();
+    this.downElementIndex = downElementIndex;
+    this.indentLevel = indentLevel;
   }
 
-  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor, int upElementIndex, int downElementIndex) {
+  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor, int upElementIndex, int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
     this.upElementIndex = upElementIndex;
-    this.downElementIndexes = new SmartList<Integer>(downElementIndex);
+    this.indentLevel = indentLevel;
   }
 
   @Override
@@ -51,8 +51,23 @@ public abstract class BaseGraphElement implements IGraphElement {
   }
 
   @Override
+  public int getIndentLevel() {
+    return indentLevel;
+  }
+
+  @Override
   public boolean hasBulletPoint() {
     return false;
+  }
+
+  @Override
+  public boolean hasSubelement() {
+    return false;
+  }
+
+  public void setDownElementIndex(int i) {
+    assert downElementIndex == null : "downElementIndex has already been set";
+    downElementIndex = i;
   }
 
   @Override

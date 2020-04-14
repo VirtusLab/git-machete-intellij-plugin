@@ -29,7 +29,6 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
 import com.intellij.vcs.log.paint.GraphCellPainter;
-import com.intellij.vcs.log.paint.SimpleGraphCellPainter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -39,6 +38,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.print.SimpleGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
@@ -72,7 +72,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
     this.vcsRootDropdown = vcsRootDropdown;
 
-    // InitalizationChecker allows us to invoke the below methods because the class is final
+    // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 

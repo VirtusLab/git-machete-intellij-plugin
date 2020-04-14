@@ -19,8 +19,9 @@ public final class CommitElement extends BaseGraphElement {
       GraphEdgeColor containingBranchGraphEdgeColor,
       int upElementIndex,
       int downElementIndex,
-      int branchElementIndex) {
-    super(containingBranchGraphEdgeColor, upElementIndex, downElementIndex);
+      int branchElementIndex,
+      int indentLevel) {
+    super(containingBranchGraphEdgeColor, upElementIndex, downElementIndex, indentLevel);
     this.commit = commit;
     this.branchElementIndex = branchElementIndex;
   }

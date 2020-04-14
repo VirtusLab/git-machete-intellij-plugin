@@ -3,6 +3,9 @@ package com.virtuslab.gitmachete.frontend.graph.repository;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import com.intellij.util.SmartList;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -20,8 +23,6 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGrap
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.elements.PhantomElement;
-import com.virtuslab.gitmachete.frontend.graph.elements.SplittingElement;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {
@@ -36,19 +37,25 @@ public class RepositoryGraphBuilder {
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public RepositoryGraph build() {
-    return new RepositoryGraph(deriveGraphElements());
+    Tuple2<List<IGraphElement>, List<List<Integer>>> graphData = deriveGraphElementsAndPositionsOfVisibleEdges();
+    return new RepositoryGraph(graphData._1(), graphData._2());
   }
 
-  private List<IGraphElement> deriveGraphElements() {
-    java.util.List<IGraphElement> graphElements = new ArrayList<>();
+  private Tuple2<List<IGraphElement>, List<List<Integer>>> deriveGraphElementsAndPositionsOfVisibleEdges() {
     List<BaseGitMacheteRootBranch> rootBranches = repository.getRootBranches();
+
+    java.util.List<IGraphElement> graphElements = new ArrayList<>();
+    java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
+
     for (BaseGitMacheteRootBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
       addRootBranch(graphElements, branch);
       List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphElements, downstreamBranches, currentBranchIndex);
+      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
+          0);
     }
-    return List.ofAll(graphElements);
+    return Tuple.of(List.ofAll(graphElements),
+        positionsOfVisibleEdges.stream().map(List::ofAll).collect(List.collector()));
   }
 
   /**
@@ -56,36 +63,52 @@ public class RepositoryGraphBuilder {
    *          the collection to store downstream commits and branches
    * @param downstreamBranches
    *          branches to add with their commits
-   * @param branchIndex
+   * @param upstreamBranchIndex
    *          the index of branch which downstream branches (with their commits) are to be added
    */
   private void recursivelyAddCommitsAndBranches(
       java.util.List<IGraphElement> graphElements,
+      java.util.List<java.util.List<Integer>> positionsOfVisibleEdges,
       List<BaseGitMacheteNonRootBranch> downstreamBranches,
-      int branchIndex) {
-    int upElementIndex = branchIndex;
+      int upstreamBranchIndex,
+      int indentLevel) {
+    boolean isFirstBranch = true;
+    var lastDownstreamBranch = downstreamBranches.size() > 0
+        ? downstreamBranches.get(downstreamBranches.size() - 1)
+        : null;
+
+    int previousBranchIndex = upstreamBranchIndex;
     for (BaseGitMacheteNonRootBranch branch : downstreamBranches) {
+      if (!isFirstBranch) {
+        graphElements.get(previousBranchIndex).setDownElementIndex(graphElements.size());
+      }
       SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
-      addSplittingGraphElement(graphElements, upElementIndex, syncToParentStatus);
 
-      int splittingElementIndex = graphElements.size() - 1;
-      buildCommitsAndNonRootBranch(graphElements, branch, /* upElementIndex */ splittingElementIndex,
-          syncToParentStatus);
+      int upElementIndex = graphElements.size() - 1;
+      buildCommitsAndNonRootBranch(graphElements, branch, upElementIndex, syncToParentStatus, indentLevel);
 
-      upElementIndex = graphElements.size() - 2;
-      int upstreamBranchIndex = graphElements.size() - 1;
+      int upBranchIndex = graphElements.size() - 1;
       List<BaseGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphElements, /* downstream */ branches, upstreamBranchIndex);
-    }
+      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, /* downstream */ branches,
+          upBranchIndex, indentLevel + 1);
 
-    addPhantomGraphElementIfNeeded(graphElements, branchIndex, upElementIndex);
+      while (positionsOfVisibleEdges.size() < graphElements.size()) {
+        positionsOfVisibleEdges.add(new SmartList<>());
+      }
+      if (!branch.equals(lastDownstreamBranch)) {
+        for (int i = upBranchIndex + 1; i < graphElements.size(); ++i) {
+          positionsOfVisibleEdges.get(i).add(indentLevel);
+        }
+      }
+
+      previousBranchIndex = upBranchIndex;
+      isFirstBranch = false;
+    }
   }
 
-  private void addRootBranch(
-      java.util.List<IGraphElement> graphElements,
-      BaseGitMacheteRootBranch branch) {
-    BranchElement element = createBranchElementFor(branch, /* upElementIndex */ -1, GraphEdgeColor.GREEN,
-        branch.getSyncToRemoteStatus());
+  private void addRootBranch(java.util.List<IGraphElement> graphElements, BaseGitMacheteRootBranch branch) {
+    BranchElement element = createBranchElementFor(branch, /* upElementIndex */ -1,
+        GraphEdgeColor.GREEN, /* indentLevel */ 0);
     graphElements.add(element);
   }
 
@@ -93,11 +116,11 @@ public class RepositoryGraphBuilder {
       java.util.List<IGraphElement> graphElements,
       BaseGitMacheteNonRootBranch branch,
       int upstreamBranchIndex,
-      SyncToParentStatus syncToParentStatus) {
+      SyncToParentStatus syncToParentStatus,
+      int indentLevel) {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
-    ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
     int branchElementIndex = graphElements.size() + commits.size();
 
     boolean isFirstNodeInBranch = true;
@@ -105,7 +128,8 @@ public class RepositoryGraphBuilder {
       int lastElementIndex = graphElements.size() - 1;
       int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
       int downElementIndex = graphElements.size() + 1;
-      CommitElement c = new CommitElement(commit, graphEdgeColor, upElementIndex, downElementIndex, branchElementIndex);
+      CommitElement c = new CommitElement(commit, graphEdgeColor, upElementIndex, downElementIndex, branchElementIndex,
+          indentLevel);
       graphElements.add(c);
       isFirstNodeInBranch = false;
     }
@@ -118,49 +142,8 @@ public class RepositoryGraphBuilder {
      */
     int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
-    BranchElement element = createBranchElementFor(branch, upElementIndex, graphEdgeColor, syncToRemoteStatus);
+    BranchElement element = createBranchElementFor(branch, upElementIndex, graphEdgeColor, indentLevel);
     graphElements.add(element);
-  }
-
-  /**
-   * @param graphElements
-   *          the collection to store downstream commits and branches
-   * @param upElementIndex
-   *          up element index for the splitting element
-   * @param syncToParentStatus
-   *          sync to parent status of the branch that will be added just after the splitting element
-   */
-  private void addSplittingGraphElement(
-      java.util.List<IGraphElement> graphElements,
-      int upElementIndex,
-      SyncToParentStatus syncToParentStatus) {
-    int downElementIndex = graphElements.size() + 1;
-    int splittingElementIndex = graphElements.size();
-    SplittingElement splittingElement = new SplittingElement(
-        SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus),
-        upElementIndex, downElementIndex);
-    graphElements.add(splittingElement);
-    graphElements.get(upElementIndex).getDownElementIndexes().add(splittingElementIndex);
-  }
-
-  /**
-   * From the method name "Needed" means that element at {@code branchIndex} has any down elements (its
-   * {@code downElementIndexes} is not empty).
-   *
-   * @param graphElements
-   *          the collection to store downstream commits and branches
-   * @param branchIndex
-   *          index of branch after which phantom element might be needed
-   * @param upElementIndex
-   *          up element index for the phantom element
-   */
-  private void addPhantomGraphElementIfNeeded(java.util.List<IGraphElement> graphElements, int branchIndex,
-      int upElementIndex) {
-    if (!graphElements.get(branchIndex).getDownElementIndexes().isEmpty()) {
-      graphElements.add(new PhantomElement(upElementIndex));
-      int phantomElementIndex = graphElements.size() - 1;
-      graphElements.get(upElementIndex).getDownElementIndexes().add(phantomElementIndex);
-    }
   }
 
   /**
@@ -171,12 +154,13 @@ public class RepositoryGraphBuilder {
       BaseGitMacheteBranch branch,
       int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      ISyncToRemoteStatus syncToRemoteStatus) {
+      int indentLevel) {
+    ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
 
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
-
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
-    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToRemoteStatus, isCurrentBranch);
+    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToRemoteStatus, isCurrentBranch,
+        indentLevel, /* hasSubelement */ !branch.getDownstreamBranches().isEmpty());
   }
 }

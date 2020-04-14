@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.elements;
 
-import java.util.List;
-
 import com.intellij.ui.SimpleTextAttributes;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
@@ -14,9 +12,11 @@ public interface IGraphElement {
   int getUpElementIndex();
 
   /**
-   * @return Indexes of elements below (in table) that are connected directly in graph to this one.
+   * @return Index of element below (in table) that is connected directly in graph to this one and that is not its subbranch.
    */
-  List<Integer> getDownElementIndexes();
+  Integer getDownElementIndex();
+
+  void setDownElementIndex(int i);
 
   /** @return The text (commit message/branch name) to be displayed in the table. */
   String getValue();
@@ -26,7 +26,12 @@ public interface IGraphElement {
 
   GraphEdgeColor getGraphEdgeColor();
 
+  int getIndentLevel();
+
   boolean hasBulletPoint();
+
+  /** The subelement is an indented element (branch or commit). */
+  boolean hasSubelement();
 
   boolean isBranch();
 }
