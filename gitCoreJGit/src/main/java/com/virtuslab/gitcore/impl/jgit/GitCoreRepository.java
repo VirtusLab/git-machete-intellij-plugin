@@ -7,11 +7,13 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.vavr.collection.Iterator;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -19,8 +21,9 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
@@ -143,30 +146,60 @@ public class GitCoreRepository implements IGitCoreRepository {
         .collect(List.collector());
   }
 
-  private boolean isBranchMissing(String path) throws GitCoreException {
-    return Try.of(() -> Optional.ofNullable(jgitRepo.resolve(path)))
+  private boolean isBranchMissing(String branchName) throws GitCoreException {
+    return Try.of(() -> Optional.ofNullable(jgitRepo.resolve(branchName)))
         .getOrElseThrow(e -> new GitCoreException(e))
         .isEmpty();
+  }
+
+  private ObjectId toExistingObjectId(BaseGitCoreCommit c) throws GitCoreException {
+    try {
+      ObjectId result = jgitRepo.resolve(c.getHash().getHashString());
+      assert result != null : "Invalid commit ${c}";
+      return result;
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+  }
+
+  @Nullable
+  private RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
+    RevWalk walk = new RevWalk(jgitRepo);
+    walk.setRevFilter(RevFilter.MERGE_BASE);
+    try {
+      walk.markStart(walk.parseCommit(toExistingObjectId(c1)));
+      walk.markStart(walk.parseCommit(toExistingObjectId(c2)));
+      return walk.next();
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+  }
+
+  private final java.util.Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
+
+  @Nullable
+  private GitCoreCommitHash deriveMergeBaseIfNeeded(BaseGitCoreCommit a, BaseGitCoreCommit b) throws GitCoreException {
+    var abKey = Tuple.of(a, b);
+    var baKey = Tuple.of(b, a);
+    if (mergeBaseCache.containsKey(abKey)) {
+      return mergeBaseCache.get(abKey);
+    } else if (mergeBaseCache.containsKey(baKey)) {
+      return mergeBaseCache.get(baKey);
+    } else {
+      var mergeBase = deriveMergeBase(a, b);
+      GitCoreCommitHash mergeBaseHash = mergeBase != null ? GitCoreCommitHash.of(mergeBase) : null;
+      mergeBaseCache.put(abKey, mergeBaseHash);
+      return mergeBaseHash;
+    }
   }
 
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException {
-    RevWalk walk = new RevWalk(jgitRepo);
-    walk.sort(RevSort.TOPO);
-    try {
-      ObjectId descendantObjectId = jgitRepo.resolve(presumedDescendant.getHash().getHashString());
-      assert descendantObjectId != null : "Cannot find descendant";
-
-      ObjectId ancestorObjectId = jgitRepo.resolve(presumedAncestor.getHash().getHashString());
-      assert ancestorObjectId != null : "Cannot find ancestor";
-
-      walk.markStart(walk.parseCommit(descendantObjectId));
-
-      return Iterator.ofAll(walk).find(revCommit -> revCommit.getId().equals(ancestorObjectId)).isDefined();
-
-    } catch (IOException e) {
-      throw new GitCoreException(e);
+    var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
+    if (mergeBaseHash == null) {
+      return false;
     }
+    return mergeBaseHash.equals(presumedAncestor.getHash());
   }
 }

@@ -31,10 +31,9 @@ public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
   SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
       IGitCoreBranch parentCoreLocalBranch,
       BaseGitCoreCommit forkPoint) throws Exception {
-    Object ancestorityCheckerInstance = getAncestorityCacheInstance(repository);
     return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
         "deriveSyncToParentStatus",
-        ancestorityCheckerInstance,
+        repository,
         coreLocalBranch,
         parentCoreLocalBranch,
         forkPoint);

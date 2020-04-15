@@ -16,7 +16,6 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
-import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 
 public class GitMacheteRepositoryBuilder_deduceForkPointTest {
@@ -35,12 +34,8 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
   private Optional<BaseGitCoreCommit> invokeDeduceForkPoint(
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws Exception {
-    Class<Object> ancestorityCacheClass = Whitebox.getInnerClassType(GitMacheteRepositoryBuilder.class,
-        "AncestorityCache");
-    Object ancestorityCheckerInstance = ancestorityCacheClass.getConstructor(IGitCoreRepository.class)
-        .newInstance(repository);
     return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryBuilder.class),
-        "deduceForkPoint", ancestorityCheckerInstance, coreLocalBranch, parentCoreLocalBranch);
+        "deduceForkPoint", repository, coreLocalBranch, parentCoreLocalBranch);
   }
 
   @Test(expected = GitMacheteException.class)
