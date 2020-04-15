@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
@@ -96,13 +97,12 @@ public class GitMacheteStatusTest {
     // Common
     URL resourceUrl = getClass().getResource("/common.sh");
     assert resourceUrl != null : "Can't get resource";
-    Files.copy(Paths.get(resourceUrl.toURI()), scriptsDir.resolve("common.sh"));
+    Files.copy(Paths.get(resourceUrl.toURI()), scriptsDir.resolve("common.sh"), StandardCopyOption.REPLACE_EXISTING);
 
     // Given
     resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
-    Files.deleteIfExists(repositoryBuildingScript);
-    Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript);
+    Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript, StandardCopyOption.REPLACE_EXISTING);
   }
 
   private void prepareRepoFromScript() throws IOException, InterruptedException {

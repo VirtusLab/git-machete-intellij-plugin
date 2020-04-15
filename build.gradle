@@ -40,6 +40,20 @@ subprojects {
   apply from: '../version.gradle'
   version PLUGIN_VERSION
 
+
+  ext {
+    betterStringsVerson = '0.2'
+    checkstyleToolVersion = '8.30'
+    intellijVersion = '2019.3'
+    jgitVersion = '5.5.1.201910021850-r'
+    junitVersion = '4.13'
+    lombokVersion = '1.18.12'
+    powerMockVersion = '2.0.6'
+    slf4jVersion = '1.7.30'
+    vavrVersion = '0.10.2'
+  }
+
+
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
 
@@ -49,6 +63,7 @@ subprojects {
       options.compilerArgs << "-Werror"
     }
   }
+
 
   apply plugin: 'org.checkerframework'
   checkerFramework {
@@ -70,6 +85,7 @@ subprojects {
     ]
   }
 
+
   apply plugin: 'com.diffplug.gradle.spotless'
   spotless {
     java {
@@ -80,16 +96,20 @@ subprojects {
     }
   }
 
+
   // String interpolation support, see https://github.com/antkorwin/better-strings
+  // This needs to be enabled in each subproject by default because there's going to be no warning
+  // if this annotation processor isn't run in any module (the strings would be just interpreted verbatim, without interpolation applied).
   dependencies {
-    def betterStrings = [ group: 'com.antkorwin', name: 'better-strings', version: '0.2' ]
+    def betterStrings = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
     annotationProcessor(betterStrings)
     testAnnotationProcessor(betterStrings)
   }
 
+
   apply plugin: 'checkstyle'
   checkstyle {
-    toolVersion '8.30'
+    toolVersion checkstyleToolVersion
 
     // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
     ignoreFailures = false
@@ -138,14 +158,6 @@ subprojects {
 
 
   ext {
-    intellijVersion = '2019.3'
-    jgitVersion = '5.5.1.201910021850-r'
-    junitVersion = '4.13'
-    lombokVersion = '1.18.12'
-    powerMockVersion = '2.0.6'
-    slf4jVersion = '1.7.30'
-    vavrVersion = '0.10.2'
-
     // For frontend modules other than `frontendUi`, we only use the Intellij plugin to provide dependencies,
     // but don't want the associated tasks to be available.
     disableIntellijTasks = { ->
@@ -169,7 +181,7 @@ subprojects {
           // (http://www.slf4j.org/manual.html#compatibility).
           // We rely on that guarantee in frontendUi module: JGit that frontendUi depends on (via backendRoot and gitCoreJGit)
           // effectively uses whatever slf4j-api version is provided by IntelliJ.
-          // SLF4j does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
+          // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
           // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation, we need to exclude the former.
           exclude(group: 'org.slf4j', module: 'slf4j-api')
         }
