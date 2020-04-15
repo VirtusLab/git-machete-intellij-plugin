@@ -80,6 +80,7 @@ subprojects {
     }
   }
 
+  // String interpolation support, see https://github.com/antkorwin/better-strings
   dependencies {
     def betterStrings = [ group: 'com.antkorwin', name: 'better-strings', version: '0.2' ]
     annotationProcessor(betterStrings)

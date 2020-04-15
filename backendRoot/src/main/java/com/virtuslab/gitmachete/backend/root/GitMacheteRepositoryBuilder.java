@@ -83,10 +83,8 @@ public class GitMacheteRepositoryBuilder {
       branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
           .getOrElseThrow(e -> {
             Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-            return new MacheteFileParseException(errorLine.isPresent()
-                ? "Error occurred while parsing machete file ${pathToBranchLayoutFile} in line ${errorLine.get()}"
-                : "Error occurred while parsing machete file ${pathToBranchLayoutFile}",
-                e);
+            return new MacheteFileParseException("Error occurred while parsing machete file ${pathToBranchLayoutFile}" +
+                (errorLine.isPresent() ? " in line ${errorLine.get()}" : ""), e);
           });
     }
 
