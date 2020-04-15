@@ -25,6 +25,8 @@ task resolveDependencies {
   }
 }
 
+gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+
 allprojects {
   // Keeping `repositories`, specifically `mavenCentral()` in `allprojects` rather than in `subprojects`
   // is only needed as workaround for `resolveDependencies` task.

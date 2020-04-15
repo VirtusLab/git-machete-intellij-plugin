@@ -11,7 +11,7 @@ source "$self_dir"/utils.sh
 intellij_versions=(192.5728.98 193.6911.18)
 
 verifier_version=1.233
-plugin_version=$(extract_version_from_build_gradle_stdin < version.gradle)
+plugin_version=$(extract_version_from_gradle_file_stdin < version.gradle)
 plugin_zip=$(echo frontendUi/build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip)
 
 [[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"

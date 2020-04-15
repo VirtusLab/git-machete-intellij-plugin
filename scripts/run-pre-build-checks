@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+# `$-` yields the list of the options of the current shell; we'll only interested in whether `x` is present
+x_option=${-//[^x]/}
+
+./scripts/enforce-data-keys-javadoc-for-actions
+./scripts/enforce-explicit-annotation-import-in-astubs
+./scripts/enforce-issue-number-for-todos
+./scripts/enforce-newline-at-eof
+bash ${x_option:+-x} ./scripts/enforce-version-bump # pass -x option if this script is run with -x option itself
+./scripts/prohibit-tab-character
+./scripts/prohibit-trailing-whitespace

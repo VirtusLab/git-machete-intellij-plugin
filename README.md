@@ -22,6 +22,7 @@ git config --local include.path ../.gitconfig
 ln -s ../../scripts/git-hooks/machete-pre-rebase .git/hooks/machete-pre-rebase
 ln -s ../../scripts/git-hooks/machete-status-branch .git/hooks/machete-status-branch
 ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
+ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 
 ### Run/Debug

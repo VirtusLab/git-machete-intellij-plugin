@@ -10,14 +10,8 @@ jobs:
       - run:
           name: Prepare build
           command: |
-            set -x
-            ./scripts/enforce-data-keys-javadoc-for-actions
-            ./scripts/enforce-explicit-annotation-import-in-astubs
-            ./scripts/enforce-issue-number-for-todos
-            ./scripts/enforce-newline-at-eof
-            ./scripts/enforce-version-bump
-            ./scripts/prohibit-trailing-whitespace
-            ./scripts/specify-snapshot-revision
+            bash -x ./scripts/run-pre-build-checks
+            bash ./scripts/specify-snapshot-revision
 
       - run:
           name: Start gradle daemon
