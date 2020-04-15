@@ -1,4 +1,5 @@
 
+import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -15,4 +16,11 @@ class AtomicReference<V> {
   AtomicReference(@Nullable V initialValue);
   @Nullable V get();
   void set(@Nullable V value);
+}
+
+
+package java.util.stream;
+
+interface IntStream {
+  @NonNegative long count();
 }

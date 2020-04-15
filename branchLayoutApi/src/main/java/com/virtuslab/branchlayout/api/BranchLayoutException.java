@@ -2,13 +2,15 @@ package com.virtuslab.branchlayout.api;
 
 import java.util.Optional;
 
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BranchLayoutException extends Exception {
   @Nullable
+  @Positive
   private final Integer errorLine;
 
-  public BranchLayoutException(@Nullable Integer errorLine, String message) {
+  public BranchLayoutException(@Nullable @Positive Integer errorLine, String message) {
     super(message);
     this.errorLine = errorLine;
   }
@@ -17,7 +19,7 @@ public class BranchLayoutException extends Exception {
     this(null, message);
   }
 
-  public BranchLayoutException(@Nullable Integer errorLine, String message, Throwable e) {
+  public BranchLayoutException(@Nullable @Positive Integer errorLine, String message, Throwable e) {
     super(message, e);
     this.errorLine = errorLine;
   }
@@ -26,7 +28,7 @@ public class BranchLayoutException extends Exception {
     this(null, message, e);
   }
 
-  public Optional<Integer> getErrorLine() {
+  public Optional<@Positive Integer> getErrorLine() {
     return Optional.ofNullable(errorLine);
   }
 }

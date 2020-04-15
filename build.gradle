@@ -25,7 +25,10 @@ task resolveDependencies {
   }
 }
 
-gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+if (System.getenv("CI") == "true") {
+  gradle.startParameter.logLevel = LogLevel.INFO
+  gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+}
 
 allprojects {
   // Keeping `repositories`, specifically `mavenCentral()` in `allprojects` rather than in `subprojects`

@@ -9,6 +9,8 @@ import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -18,6 +20,7 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 public class BranchLayoutFileParser {
   private final Path path;
   private Character indentCharacter = ' ';
+  @NonNegative
   private int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
@@ -60,7 +63,8 @@ public class BranchLayoutFileParser {
    */
   @SuppressWarnings("index:argument.type.incompatible")
   private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
-      Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex, int upstreamLineIndex) {
+      Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
+      @GTENegativeOne int upstreamLineIndex) {
     return lineIndexToUpstreamLineIndex
         .zipWithIndex()
         .filter(t -> t._1()._2() == upstreamLineIndex)
@@ -128,11 +132,13 @@ public class BranchLayoutFileParser {
             e -> new BranchLayoutException("Error while loading branch layout file (${path.toAbsolutePath()})", e));
   }
 
+  @NonNegative
   private int getIndentLevelWidth(String line) {
     return (int) line.chars().takeWhile(c -> c == indentCharacter).count();
   }
 
-  private int getIndentLevel(int indent, int lineNumber) throws BranchLayoutException {
+  @NonNegative
+  private int getIndentLevel(@NonNegative int indent, @NonNegative int lineNumber) throws BranchLayoutException {
     if (indent == 0) {
       return 0;
     }

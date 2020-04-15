@@ -1,7 +1,10 @@
 
 function die() {
+  red='\033[91m'
+  endc='\033[0m'
+
   if [[ $# -ge 1 ]]; then
-    echo -e "$@"
+    echo -e "\n${red}>>> $@ <<<${endc}\n"
   fi
   exit 1
 }

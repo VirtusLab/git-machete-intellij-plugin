@@ -9,6 +9,7 @@ import java.util.Optional;
 import io.vavr.collection.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -18,6 +19,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 public class BranchLayoutFileSaver {
   private final Path path;
   private Character indentCharacter = ' ';
+  @NonNegative
   private int levelWidth = 0;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws IOException {
@@ -34,7 +36,7 @@ public class BranchLayoutFileSaver {
   }
 
   @SuppressWarnings("optional:prefer.ifpresent")
-  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, int level) {
+  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, @NonNegative int level) {
     List<String> stringList = List.empty();
     for (var branch : branches) {
       var sb = new StringBuilder();
