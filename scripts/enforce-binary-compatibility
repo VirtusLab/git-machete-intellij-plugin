@@ -8,7 +8,7 @@ source "$self_dir"/utils.sh
 # Note: this should be kept in sync with frontendUi/build.gradle.
 # We're not including any 193.* (aka 2019.3) release here since that's the version we're currently building against anyway
 # (see build.gradle -> subprojects.ext.intellijVersion).
-intellij_versions=(201.6668.121)
+intellij_versions=(192.5728.98 193.6911.18)
 
 verifier_version=1.233
 plugin_version=$(extract_version_from_build_gradle_stdin < version.gradle)
@@ -19,7 +19,7 @@ plugin_zip=$(echo frontendUi/build/distributions/git-machete-intellij-plugin-${p
 set -x
 
 # See https://github.com/JetBrains/intellij-plugin-verifier
-verifier_dir="./.cache/intellij-verifier"
+verifier_dir="$HOME/.cache/intellij-verifier"
 mkdir -p $verifier_dir
 
 verifier_jar_path=$verifier_dir/verifier-all.jar
@@ -30,14 +30,17 @@ fi
 for iv in ${intellij_versions[*]}; do
   year=20${iv:0:2}
   release=${iv:2:1}
-  idea_dir=idea-IC-${iv}
+  idea_dir=$verifier_dir/idea-IC-${iv}
   if ! [[ -d $idea_dir ]]; then
     # Released packages apparently aren't available under version.build file name, only under year.release name
     # EAP packages apparently aren't available under year.release file name, only under version.build name
-    {
-      curl -fsL https://download.jetbrains.com/idea/ideaIC-${year}.${release}.tar.gz \
-      || curl -fsL https://download.jetbrains.com/idea/ideaIC-${iv}.tar.gz
-    } | tar xzf -
+    curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${year}.${release}.tar.gz \
+    || curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${iv}.tar.gz
+
+    # This hack is necessary in case when downloaded tar.gz has different name than dir inside this tar.gz
+    # like in case 193.6911.18
+    mkdir -p $idea_dir
+    tar xzf $idea_dir.tar.gz -C $idea_dir --strip-components 1
   fi
 
   java -jar "$verifier_jar_path" check-plugin -vrd "frontendUi/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}"
