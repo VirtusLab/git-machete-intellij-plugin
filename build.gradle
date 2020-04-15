@@ -44,6 +44,8 @@ subprojects {
   ext {
     betterStringsVerson = '0.2'
     checkstyleToolVersion = '8.30'
+    // Both `untilBuild` in frontendUi/build.gradle and `intellij_versions` in scripts/enforce-binary-compatibility
+    // must also be updated when we update field bellow
     intellijVersion = '2020.1'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
