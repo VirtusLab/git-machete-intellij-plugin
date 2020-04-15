@@ -1,48 +1,21 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail -u -x
+set -e -o pipefail -u
 
-newb() {
-  git checkout -b $1
-}
-
-cmt() {
-  b=$(git symbolic-ref --short HEAD)
-  f=${b/\//-}-${1}-${2:-""}.txt
-  touch $f
-  git add $f
-  git commit -m "$*"
-}
-
-newrepo() {
-  path=$1
-  dir=$2
-  mkdir $path/$dir
-  cd $path/$dir
-  if [[ $# -ge 3 ]]
-  then
-    opt=$3
-  else
-    opt=""
-  fi
-  git init $opt
-}
+source ./common.sh
 
 push() {
   b=$(git symbolic-ref --short HEAD)
-  git push -u $1 $b
+  git push -u origin $b
 }
 
 
-newrepo $1 machete-sandbox-remote1 --bare
-newrepo $1 machete-sandbox-remote2 --bare
+newrepo $1 machete-sandbox-remote --bare
 newrepo $1 machete-sandbox
 
-git config --local user.email "circleci@example.com"
-git config --local user.name "CircleCI"
+gituserdata
 
-git remote add origin $1/machete-sandbox-remote1
-git remote add remote-repo $1/machete-sandbox-remote2
+git remote add origin $1/machete-sandbox-remote
 
 newb root
   cmt Root
@@ -50,18 +23,18 @@ newb develop
   cmt Develop commit
 newb allow-ownership-link
   cmt Allow ownership links
-  push origin
+  push
 newb build-chain
   cmt Build arbitrarily long chains
 git checkout allow-ownership-link
   cmt 1st round of fixes
 git checkout develop
   cmt Other develop commit
-  push origin
+  push
 newb call-ws
   cmt Call web service
   cmt 1st round of fixes
-  push origin
+  push
 newb drop-constraint # not added to definition file
   cmt Drop unneeded SQL constraints
 git checkout call-ws
@@ -70,10 +43,10 @@ git checkout call-ws
 git checkout root
 newb master
   cmt Master commit
-  push remote-repo
+  push
 newb hotfix/add-trigger
   cmt HOTFIX Add the trigger
-  push remote-repo
+  push
   git commit --amend -m 'HOTFIX Add the trigger (amended)'
 
 cat >.git/machete <<EOF

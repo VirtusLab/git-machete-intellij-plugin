@@ -9,6 +9,7 @@ import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.impl.jgit.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 
 public class GitMacheteRepositoryBuilder_deriveSyncToRemoteStatusTest {
@@ -82,21 +83,6 @@ public class GitMacheteRepositoryBuilder_deriveSyncToRemoteStatusTest {
   }
 
   private Optional<IGitCoreBranchTrackingStatus> getTrackingStatusOptional(int ahead, int behind, String remoteName) {
-    return Optional.of(new IGitCoreBranchTrackingStatus() {
-      @Override
-      public int getAhead() {
-        return ahead;
-      }
-
-      @Override
-      public int getBehind() {
-        return behind;
-      }
-
-      @Override
-      public String getRemoteName() {
-        return remoteName;
-      }
-    });
+    return Optional.of(GitCoreBranchTrackingStatus.of(ahead, behind, remoteName));
   }
 }

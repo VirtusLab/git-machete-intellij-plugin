@@ -70,6 +70,11 @@
     <property name="format" value="\bpeek\b"/>
     <property name="message" value="Usage of the prohibited peek method"/>
 </module>
+<module name="RegexpSinglelineJava">
+    <property name="format" value="\binterface\s+[^I]"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="message" value="Interface names must start with 'I'" />
+</module>
 <module name="RightCurly">
     <property name="id" value="RightCurlySame"/>
     <property name="tokens"

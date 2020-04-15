@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
-source "$self_dir"/utils.sh
-
-if git --no-pager grep -PIin '\binterface\s+[^I]' ':(exclude)config/*'; then
-  die "\nInterface names must starts with \"I\""
-fi

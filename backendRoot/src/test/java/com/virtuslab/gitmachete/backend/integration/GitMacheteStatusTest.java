@@ -45,7 +45,7 @@ public class GitMacheteStatusTest {
   public void init(String scriptName) throws Exception {
     // Prepare repo
     createDirStructure();
-    copyScriptFromResources(scriptName);
+    copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
 
     gitMacheteRepository = gitMacheteRepositoryBuilder.build();
@@ -57,7 +57,7 @@ public class GitMacheteStatusTest {
 
   @Test
   public void statusTest() throws Exception {
-    init("repo1.sh");
+    init("setup-single-repo.sh");
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -74,7 +74,7 @@ public class GitMacheteStatusTest {
 
   @Test
   public void statusTestWithMultiRemotes() throws Exception {
-    init("repo2.sh");
+    init("setup-multiple-repos.sh");
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -94,14 +94,22 @@ public class GitMacheteStatusTest {
     Files.createDirectory(scriptsDir);
   }
 
-  private void copyScriptFromResources(String scriptName) throws URISyntaxException, IOException {
-    URL resourceUrl = getClass().getResource("/" + scriptName);
+  private void copyScriptsFromResources(String scriptName) throws URISyntaxException, IOException {
+    // Common
+    URL resourceUrl = getClass().getResource("/common.sh");
+    assert resourceUrl != null : "Can't get resource";
+    Files.copy(Paths.get(resourceUrl.toURI()), scriptsDir.resolve("common.sh"));
+
+    // Given
+    resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
     Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript);
   }
 
   private void prepareRepoFromScript() throws IOException, InterruptedException {
-    Runtime.getRuntime().exec(repositoryPreparingCommand).waitFor(1, TimeUnit.SECONDS);
+    Runtime.getRuntime()
+        .exec(repositoryPreparingCommand, /* array of environment vars */ new String[]{}, scriptsDir.toFile())
+        .waitFor(1, TimeUnit.SECONDS);
   }
 
   private String gitMacheteCliStatus() throws IOException {
