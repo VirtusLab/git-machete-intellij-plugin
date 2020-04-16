@@ -23,8 +23,6 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
@@ -143,22 +141,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     return Case($(key.getName()), value);
   }
 
-  // TODO (#158): ensure FileEditorManager#getSelectedTextEditor() is only even called
-  // from the Swing's Event Dispatch Thread
-  @SuppressWarnings("guieffect:call.invalid.ui")
-  @Nullable
-  private Editor getSelectedTextEditor() {
-    // We must use `getSelectedTextEditor()` instead of `getSelectedEditor()` because we must return an instance of
-    // `com.intellij.openapi.editor.Editor` and not `com.intellij.openapi.editor.FileEditor`
-    return FileEditorManager.getInstance(project).getSelectedTextEditor();
-  }
-
   @Override
   @Nullable
   public Object getData(String dataId) {
     var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
-        typeSafeCase(CommonDataKeys.EDITOR, getSelectedTextEditor()),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
