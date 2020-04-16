@@ -30,13 +30,28 @@ public final class CommitElement extends BaseGraphElement {
   }
 
   @Override
+  public SimpleTextAttributes getAttributes() {
+    return new SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC | SimpleTextAttributes.STYLE_SMALLER,
+        UIUtil.getInactiveTextColor());
+  }
+
+  @Override
   public String getValue() {
     return commit.getMessage();
   }
 
   @Override
-  public SimpleTextAttributes getAttributes() {
-    return new SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC | SimpleTextAttributes.STYLE_SMALLER,
-        UIUtil.getInactiveTextColor());
+  public boolean hasBulletPoint() {
+    return false;
+  }
+
+  @Override
+  public boolean hasSubelement() {
+    return false;
+  }
+
+  @Override
+  public boolean isBranch() {
+    return false;
   }
 }

@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.elements;
 
-import com.intellij.ui.SimpleTextAttributes;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -51,39 +50,14 @@ public abstract class BaseGraphElement implements IGraphElement {
   }
 
   @Override
-  public String getValue() {
-    return EMPTY_VALUE;
-  }
-
-  @Override
-  public SimpleTextAttributes getAttributes() {
-    return SimpleTextAttributes.REGULAR_ATTRIBUTES;
-  }
-
-  @Override
   @NonNegative
   public int getIndentLevel() {
     return indentLevel;
   }
 
   @Override
-  public boolean hasBulletPoint() {
-    return false;
-  }
-
-  @Override
-  public boolean hasSubelement() {
-    return false;
-  }
-
-  @Override
   public void setDownElementIndex(@Positive int i) {
     assert downElementIndex == null : "downElementIndex has already been set";
     downElementIndex = i;
-  }
-
-  @Override
-  public boolean isBranch() {
-    return false;
   }
 }

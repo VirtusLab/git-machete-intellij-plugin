@@ -117,7 +117,7 @@ public class RepositoryGraph {
         upNodeIndex--;
       }
 
-      return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex, null, GraphEdgeType.USUAL), pos);
+      return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex, /* targetId */ null, GraphEdgeType.USUAL), pos);
     }).collect(List.collector());
   }
 }

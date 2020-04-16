@@ -10,13 +10,19 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 public interface IGraphElement {
 
   /**
-   * @return The index of element above (in table) that is connected directly in graph to this one.
+   * @return The index of element above (in table) that is connected directly
+   * and at the same indent level in graph to this one.
    */
   @GTENegativeOne
   int getUpElementIndex();
 
   /**
-   * @return Index of element below (in table) that is connected directly in graph to this one and that is not its subbranch.
+   * @return Index of element below (in table) that is connected directly
+   * and at the same indent level in graph to this one (hence it is not its subbranch).
+   * <ul>
+   *     <li>for a commit element, it's either another commit element or the containing branch (never null),</li>
+   *     <li>for a branch element, it's either next sibling branch element or null (if none left)</li>
+   * </ul>
    */
   @Positive
   Integer getDownElementIndex();

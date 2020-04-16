@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 import com.intellij.util.SmartList;
@@ -46,13 +47,15 @@ public class RepositoryGraphBuilder {
     List<BaseGitMacheteRootBranch> rootBranches = repository.getRootBranches();
 
     java.util.List<IGraphElement> graphElements = new ArrayList<>();
-    java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
+    java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>(
+        Collections.nCopies(rootBranches.size(), new SmartList<>()));
 
     for (BaseGitMacheteRootBranch branch : rootBranches) {
       int currentBranchIndex = graphElements.size();
       addRootBranch(graphElements, branch);
       List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex, 0);
+      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
+          /* indentLevel */ 0);
     }
     return Tuple.of(List.ofAll(graphElements),
         positionsOfVisibleEdges.stream().map(List::ofAll).collect(List.collector()));
@@ -162,7 +165,8 @@ public class RepositoryGraphBuilder {
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
+    boolean hasSubelement = !branch.getDownstreamBranches().isEmpty();
     return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToRemoteStatus, isCurrentBranch,
-        indentLevel, /* hasSubelement */ !branch.getDownstreamBranches().isEmpty());
+        indentLevel, hasSubelement);
   }
 }

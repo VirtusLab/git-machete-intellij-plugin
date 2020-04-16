@@ -61,13 +61,13 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
     int nodeAndItsDownEdgePos = position;
     if (graphElement.isBranch() && !((BranchElement) graphElement).getBranch().isRootBranch()) {
-      builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex, null, GraphEdgeType.USUAL), position);
+      builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex, /* targetId */ null, GraphEdgeType.USUAL), position);
       nodeAndItsDownEdgePos++;
     }
 
     builder.consumeNode(graphNode, nodeAndItsDownEdgePos);
     if (graphElement.hasSubelement()) {
-      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1,  null, GraphEdgeType.USUAL),
+      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, /* targetId */ null, GraphEdgeType.USUAL),
           nodeAndItsDownEdgePos);
     }
   }
