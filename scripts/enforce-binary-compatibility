@@ -6,7 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 # Note: this should be kept in sync with frontendUi/build.gradle.
-# We're not including any 193.* (aka 2019.3) release here since that's the version we're currently building against anyway
+# We're not including any 201.* (aka 2020.1) release here since that's the version we're currently building against anyway
 # (see build.gradle -> subprojects.ext.intellijVersion).
 intellij_versions=(192.5728.98 193.6911.18)
 
@@ -38,7 +38,7 @@ for iv in ${intellij_versions[*]}; do
     || curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${iv}.tar.gz
 
     # This hack is necessary in case when downloaded tar.gz has different name than dir inside this tar.gz
-    # like in case 193.6911.18
+    # like in case of 193.6911.18
     mkdir -p $idea_dir
     tar xzf $idea_dir.tar.gz -C $idea_dir --strip-components 1
   fi

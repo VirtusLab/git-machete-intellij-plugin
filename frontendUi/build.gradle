@@ -19,7 +19,7 @@ intellij {
 patchPluginXml {
   // Note: update scripts/enforce-binary-compatibility when updating the compatibility data
   sinceBuild '192.*' // aka 2019.2
-  untilBuild '202.*' // (exclusive)
+  untilBuild '202.*' // aka 2020.2 (exclusive)
 }
 
 runIde {
