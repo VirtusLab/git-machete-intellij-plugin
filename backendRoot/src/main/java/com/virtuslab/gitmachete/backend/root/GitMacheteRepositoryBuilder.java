@@ -88,7 +88,7 @@ public class GitMacheteRepositoryBuilder {
 
     var rootBranchTries = branchLayout.getRootBranches()
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
-    var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException.class::cast);
+    var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 
     var rootBranchByName = rootBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
     branchByName = branchByName.merge(rootBranchByName);
@@ -192,7 +192,7 @@ public class GitMacheteRepositoryBuilder {
 
     var downstreamBranchTries = directUpstreamEntry.getSubbranches().map(entry -> Try.of(
         () -> createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry)));
-    var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException.class::cast);
+    var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 
     var downstreamBranchByName = downstreamBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
     branchByName = branchByName.merge(downstreamBranchByName);
