@@ -13,6 +13,7 @@ import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
@@ -30,6 +31,7 @@ public class CheckOutBranchAction extends AnAction {
   public CheckOutBranchAction() {}
 
   @Override
+  @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
   }

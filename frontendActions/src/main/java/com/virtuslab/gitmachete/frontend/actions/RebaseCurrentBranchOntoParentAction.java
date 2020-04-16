@@ -6,6 +6,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -32,6 +33,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
   }
 
   @Override
+  @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 

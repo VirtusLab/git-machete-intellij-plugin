@@ -192,13 +192,16 @@ subprojects {
     // but don't want the associated tasks to be available.
     disableIntellijTasks = { ->
       buildPlugin.enabled = false
+      buildSearchableOptions.enabled = false
+      downloadRobotServerPlugin.enabled = false
+      jarSearchableOptions.enabled = false
       patchPluginXml.enabled = false
       prepareSandbox.enabled = false
       prepareTestingSandbox.enabled = false
-      buildSearchableOptions.enabled = false
-      jarSearchableOptions.enabled = false
-      runIde.enabled = false
+      prepareUiTestingSandbox.enabled = false
       publishPlugin.enabled = false
+      runIde.enabled = false
+      runIdeForUiTests.enabled = false
       verifyPlugin.enabled = false
     }
 

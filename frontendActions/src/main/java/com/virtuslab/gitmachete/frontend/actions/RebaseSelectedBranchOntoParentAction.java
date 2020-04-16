@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -21,6 +22,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
 
   @Override
+  @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 

@@ -22,6 +22,7 @@ import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -46,6 +47,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
   public BaseRebaseBranchOntoParentAction() {}
 
   @Override
+  @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
@@ -90,6 +92,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
    * in {@link BaseRebaseBranchOntoParentAction#actionPerformed} implementations.
    */
   @Override
+  @UIEffect
   public abstract void actionPerformed(AnActionEvent anActionEvent);
 
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {

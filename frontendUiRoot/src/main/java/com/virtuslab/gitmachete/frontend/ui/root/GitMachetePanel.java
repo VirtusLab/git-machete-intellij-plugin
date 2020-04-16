@@ -12,70 +12,84 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.ScrollPaneFactory;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
+import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
-public class GitMachetePanel {
-  private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";
-  private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
+public final class GitMachetePanel extends SimpleToolWindowPanel {
+  public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
   private static final String REFRESH_STATUS_TEXT = "Refresh Status";
   private static final String REFRESH_STATUS_DESCRIPTION = "Refresh status";
+  private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";
+  private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
 
-  @Getter
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
   private final VcsRootDropdown vcsRootDropdown;
 
+  @UIEffect
   public GitMachetePanel(Project project) {
+    super(/* vertical */ false, /* borderless */ true);
+
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
-    // opened project, so Git Machete plugin shouldn't even be loaded
+    // opened project, so Git Machete plugin shouldn't even be loaded in the first place
     @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
     vcsRootDropdown = new VcsRootDropdown(repositories);
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootDropdown);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
+
+    // This class is final, so the instance is `@Initialized` at this point.
+
+    addToolbarsToWindowPanel();
+    GitMacheteGraphTable gitMacheteGraphTable = gitMacheteGraphTableManager.getGitMacheteGraphTable();
+    setContent(ScrollPaneFactory.createScrollPane(gitMacheteGraphTable));
   }
 
   @UIEffect
-  public void addToolbarsToWindowPanel(SimpleToolWindowPanel windowPanel) {
-    windowPanel.setToolbar(createGitMacheteVerticalToolbar().getComponent());
+  private void addToolbarsToWindowPanel() {
+    setToolbar(createGitMacheteVerticalToolbar().getComponent());
     if (vcsRootDropdown.getRootCount() > 1) {
-      windowPanel.add(createGitMacheteHorizontalToolbar().getComponent(), BorderLayout.NORTH);
+      add(createGitMacheteHorizontalToolbar().getComponent(), BorderLayout.NORTH);
     }
   }
 
+  @UIEffect
   private ActionToolbar createGitMacheteVerticalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    gitMacheteActions.add(new RefreshGitMacheteStatusAction());
-    gitMacheteActions.add(new ToggleListCommitsAction());
-    gitMacheteActions.add(new RebaseCurrentBranchOntoParentAction());
+    gitMacheteActions.addAll(
+        new RefreshGitMacheteStatusAction(),
+        new ToggleListCommitsAction(),
+        new RebaseCurrentBranchOntoParentAction());
 
     ActionToolbar toolbar = ActionManager.getInstance()
-        .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
+        .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }
 
+  @UIEffect
   private ActionToolbar createGitMacheteHorizontalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
     gitMacheteActions.add(vcsRootDropdown);
 
     ActionToolbar toolbar = ActionManager.getInstance()
-        .createActionToolbar(GitMacheteContentProvider.GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ true);
+        .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ true);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }
 
   private class RefreshGitMacheteStatusAction extends AnAction {
+    @UIEffect
     RefreshGitMacheteStatusAction() {
       super(REFRESH_STATUS_TEXT, REFRESH_STATUS_DESCRIPTION, AllIcons.Actions.Refresh);
     }
@@ -87,6 +101,7 @@ public class GitMachetePanel {
   }
 
   private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
+    @UIEffect
     ToggleListCommitsAction() {
       super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_DESCRIPTION, AllIcons.Actions.ShowHiddens);
     }

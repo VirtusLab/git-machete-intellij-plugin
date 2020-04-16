@@ -73,7 +73,7 @@ public final class GitMacheteGraphTableManager {
       return;
     }
 
-    // TODO (#176): When machete file is not present or it's empty propose using automatically detected (by discover
+    // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
     // functionality) branch layout
 
     IGitMacheteRepository gitMacheteRepository = repositoryRef.get();

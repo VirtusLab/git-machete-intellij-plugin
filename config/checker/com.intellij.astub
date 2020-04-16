@@ -72,12 +72,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @UIPackage package com.intellij.openapi;
 
 
-package com.intellij.openapi.actionSystem;
+@UIPackage package com.intellij.openapi.actionSystem;
 
-class ToggleAction {
-  @UIEffect void setSelected(AnActionEvent e, boolean state);
+class AnAction {
+  @SafeEffect AnAction();
+  // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default given we're in a `@UIPackage`)
+  // since they are indeed invoked on the dispatch thread.
 }
 
+class AnActionEvent {
+  @SafeEffect <T> T getData(DataKey<T> key);
+  @SafeEffect Project getProject();
+}
+
+class DataKey<T> {
+  @SafeEffect String getName();
+}
 
 @UIPackage package com.intellij.openapi.actionSystem.ex;
 @UIPackage package com.intellij.openapi.diff;
