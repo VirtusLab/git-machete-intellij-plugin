@@ -24,6 +24,8 @@ ln -s ../../scripts/git-hooks/machete-status-branch .git/hooks/machete-status-br
 ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
+---
+Consider increasing maximum heap size for IDE (the default value is 2048MB). Go to `Help | Change Memory Settings` for this.
 
 ### Run/Debug
 
