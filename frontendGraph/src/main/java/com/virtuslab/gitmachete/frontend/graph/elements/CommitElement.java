@@ -4,6 +4,8 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
@@ -12,15 +14,16 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 @Getter
 public final class CommitElement extends BaseGraphElement {
   private final IGitMacheteCommit commit;
+  @Positive
   private final int branchElementIndex;
 
   public CommitElement(
       IGitMacheteCommit commit,
       GraphEdgeColor containingBranchGraphEdgeColor,
-      int upElementIndex,
-      int downElementIndex,
-      int branchElementIndex,
-      int indentLevel) {
+      @NonNegative int upElementIndex,
+      @Positive int downElementIndex,
+      @Positive int branchElementIndex,
+      @NonNegative int indentLevel) {
     super(containingBranchGraphEdgeColor, upElementIndex, downElementIndex, indentLevel);
     this.commit = commit;
     this.branchElementIndex = branchElementIndex;

@@ -40,12 +40,12 @@ public class RepositoryGraph {
     printElementGenerator = new PrintElementGeneratorImpl(/* graph */ this, graphElementManager);
   }
 
-  public Collection<? extends PrintElement> getPrintElements(int rowIndex) {
+  public Collection<? extends PrintElement> getPrintElements(@NonNegative int rowIndex) {
     return printElementGenerator.getPrintElements(rowIndex);
   }
 
   @SuppressWarnings("index:argument.type.incompatible")
-  public IGraphElement getGraphElement(int rowIndex) {
+  public IGraphElement getGraphElement(@NonNegative int rowIndex) {
     return elements.get(rowIndex);
   }
 
@@ -54,7 +54,7 @@ public class RepositoryGraph {
     return elements.size();
   }
 
-  public GraphNode getGraphNode(int nodeIndex) {
+  public GraphNode getGraphNode(@NonNegative int nodeIndex) {
     return new GraphNode(nodeIndex);
   }
 
@@ -69,7 +69,7 @@ public class RepositoryGraph {
    *
    *  @return list of adjacent edges in a given node index
    */
-  public java.util.List<GraphEdge> getAdjacentEdges(int nodeIndex, EdgeFilter filter) {
+  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int nodeIndex, EdgeFilter filter) {
     if (filter == EdgeFilter.SPECIAL) {
       return Collections.emptyList();
     }
@@ -102,8 +102,8 @@ public class RepositoryGraph {
    * @return list of visible edges in a given node index
    */
   @SuppressWarnings("index:argument.type.incompatible")
-  public List<Tuple2<GraphEdge, Integer>> getVisibleEdgesWithPositions(int nodeIndex) {
-    assert nodeIndex >= 0 && nodeIndex < nodesCount() : "Bad nodeIndex: " + nodeIndex;
+  public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int nodeIndex) {
+    assert nodeIndex < nodesCount() : "Bad nodeIndex: " + nodeIndex;
     return positionsOfVisibleEdges.get(nodeIndex).map(pos -> {
 
       int downNodeIndex = nodeIndex + 1;

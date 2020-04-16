@@ -9,6 +9,8 @@ import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -17,7 +19,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
@@ -51,8 +52,7 @@ public class RepositoryGraphBuilder {
       int currentBranchIndex = graphElements.size();
       addRootBranch(graphElements, branch);
       List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
-          0);
+      recursivelyAddCommitsAndBranches(graphElements, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex, 0);
     }
     return Tuple.of(List.ofAll(graphElements),
         positionsOfVisibleEdges.stream().map(List::ofAll).collect(List.collector()));
@@ -70,8 +70,8 @@ public class RepositoryGraphBuilder {
       java.util.List<IGraphElement> graphElements,
       java.util.List<java.util.List<Integer>> positionsOfVisibleEdges,
       List<BaseGitMacheteNonRootBranch> downstreamBranches,
-      int upstreamBranchIndex,
-      int indentLevel) {
+      @GTENegativeOne int upstreamBranchIndex,
+      @NonNegative int indentLevel) {
     boolean isFirstBranch = true;
     var lastDownstreamBranch = downstreamBranches.size() > 0
         ? downstreamBranches.get(downstreamBranches.size() - 1)
@@ -82,10 +82,10 @@ public class RepositoryGraphBuilder {
       if (!isFirstBranch) {
         graphElements.get(previousBranchIndex).setDownElementIndex(graphElements.size());
       }
-      SyncToParentStatus syncToParentStatus = branch.getSyncToParentStatus();
 
       int upElementIndex = graphElements.size() - 1;
-      buildCommitsAndNonRootBranch(graphElements, branch, upElementIndex, syncToParentStatus, indentLevel);
+      assert upElementIndex >= 0;
+      buildCommitsAndNonRootBranch(graphElements, branch, upElementIndex, indentLevel);
 
       int upBranchIndex = graphElements.size() - 1;
       List<BaseGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
@@ -115,17 +115,19 @@ public class RepositoryGraphBuilder {
   private void buildCommitsAndNonRootBranch(
       java.util.List<IGraphElement> graphElements,
       BaseGitMacheteNonRootBranch branch,
-      int upstreamBranchIndex,
-      SyncToParentStatus syncToParentStatus,
-      int indentLevel) {
+      @NonNegative int upstreamBranchIndex,
+      @NonNegative int indentLevel) {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
+    var syncToParentStatus = branch.getSyncToParentStatus();
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
     int branchElementIndex = graphElements.size() + commits.size();
+    assert branchElementIndex > 0;
 
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
       int lastElementIndex = graphElements.size() - 1;
+      assert lastElementIndex >= 0;
       int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
       int downElementIndex = graphElements.size() + 1;
       CommitElement c = new CommitElement(commit, graphEdgeColor, upElementIndex, downElementIndex, branchElementIndex,
@@ -152,9 +154,9 @@ public class RepositoryGraphBuilder {
    */
   private BranchElement createBranchElementFor(
       BaseGitMacheteBranch branch,
-      int upstreamBranchIndex,
+      @GTENegativeOne int upstreamBranchIndex,
       GraphEdgeColor graphEdgeColor,
-      int indentLevel) {
+      @NonNegative int indentLevel) {
     ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
 
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();

@@ -28,6 +28,7 @@ public class ColorGetterByLayoutIndex {
       }
     }
 
+    assert nodeIndex >= 0;
     IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
 
     return graphElement.getGraphEdgeColor().getId();

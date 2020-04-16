@@ -34,7 +34,7 @@ public class GraphTableModel extends AbstractTableModel {
   }
 
   @Override
-  public final Object getValueAt(int rowIndex, int columnIndex) {
+  public final Object getValueAt(@NonNegative int rowIndex, @NonNegative int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN :
         IGraphElement element = repositoryGraph.getGraphElement(rowIndex);

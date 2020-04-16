@@ -13,6 +13,7 @@ import com.intellij.vcs.log.graph.impl.print.elements.EdgePrintElementImpl;
 import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
 import com.intellij.vcs.log.graph.impl.print.elements.SimplePrintElementImpl;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
@@ -30,12 +31,13 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
   @Override
   public Collection<PrintElementWithGraphElement> getPrintElements(int rowIndex) {
+    assert rowIndex >= 0;
     PrintElementBuilder builder = new PrintElementBuilder(rowIndex);
     collectElements(rowIndex, builder);
     return builder.build();
   }
 
-  private void collectElements(int rowIndex, PrintElementBuilder builder) {
+  private void collectElements(@NonNegative int rowIndex, PrintElementBuilder builder) {
     GraphNode graphNode = repositoryGraph.getGraphNode(rowIndex);
     IGraphElement graphElement = repositoryGraph.getGraphElement(rowIndex);
     int position = graphElement.getIndentLevel();
@@ -65,7 +67,8 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
     builder.consumeNode(graphNode, nodeAndItsDownEdgePos);
     if (graphElement.hasSubelement()) {
-      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, null, GraphEdgeType.USUAL), nodeAndItsDownEdgePos);
+      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1,  null, GraphEdgeType.USUAL),
+          nodeAndItsDownEdgePos);
     }
   }
 
@@ -73,25 +76,26 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
   private final class PrintElementBuilder {
     private final ArrayList<PrintElementWithGraphElement> result = new ArrayList<>();
     private final ArrayList<PrintElementWithGraphElement> nodes = new ArrayList<>();
+    @NonNegative
     private final int rowIndex;
 
-    public void consumeNode(GraphNode node, int position) {
+    public void consumeNode(GraphNode node, @NonNegative int position) {
       nodes.add(new SimplePrintElementImpl(rowIndex, position, node, printElementManager));
     }
 
-    public void consumeDownEdge(GraphEdge edge, int position) {
+    public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
       result.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.DOWN, edge, /* hasArrow */ false,
               printElementManager));
     }
 
-    public void consumeUpEdge(GraphEdge edge, int position) {
+    public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
       result.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.UP, edge, /* hasArrow */ false,
               printElementManager));
     }
 
-    public void consumeRightEdge(GraphEdge edge, int position) {
+    public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
       result.add(new RightEdgePrintElement(rowIndex, position, edge, printElementManager));
     }
 

@@ -6,6 +6,8 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
@@ -22,10 +24,10 @@ public final class BranchElement extends BaseGraphElement {
   public BranchElement(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
-      int upElementIndex,
+      @GTENegativeOne int upElementIndex,
       ISyncToRemoteStatus syncToRemoteStatus,
       boolean isCurrentBranch,
-      int indentLevel,
+      @NonNegative int indentLevel,
       boolean hasSubelement) {
     super(graphEdgeColor, upElementIndex, indentLevel);
     this.branch = branch;
