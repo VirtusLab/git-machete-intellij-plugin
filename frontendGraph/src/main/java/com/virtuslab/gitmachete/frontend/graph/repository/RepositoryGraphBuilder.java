@@ -83,12 +83,12 @@ public class RepositoryGraphBuilder {
     int previousBranchIndex = upstreamBranchIndex;
     for (BaseGitMacheteNonRootBranch branch : downstreamBranches) {
       if (!isFirstBranch) {
-        graphElements.get(previousBranchIndex).setDownElementIndex(graphElements.size());
+        graphElements.get(previousBranchIndex).setNextSiblingElementIndex(graphElements.size());
       }
 
-      int upElementIndex = graphElements.size() - 1;
-      assert upElementIndex >= 0;
-      buildCommitsAndNonRootBranch(graphElements, branch, upElementIndex, indentLevel);
+      int prevSiblingElementIndex = graphElements.size() - 1;
+      assert prevSiblingElementIndex >= 0;
+      buildCommitsAndNonRootBranch(graphElements, branch, prevSiblingElementIndex, indentLevel);
 
       int upBranchIndex = graphElements.size() - 1;
       List<BaseGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
@@ -110,7 +110,7 @@ public class RepositoryGraphBuilder {
   }
 
   private void addRootBranch(java.util.List<IGraphElement> graphElements, BaseGitMacheteRootBranch branch) {
-    BranchElement element = createBranchElementFor(branch, /* upElementIndex */ -1,
+    BranchElement element = createBranchElementFor(branch, /* prevSiblingElementIndex */ -1,
         GraphEdgeColor.GREEN, /* indentLevel */ 0);
     graphElements.add(element);
   }
@@ -131,9 +131,10 @@ public class RepositoryGraphBuilder {
     for (IGitMacheteCommit commit : commits) {
       int lastElementIndex = graphElements.size() - 1;
       assert lastElementIndex >= 0;
-      int upElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
-      int downElementIndex = graphElements.size() + 1;
-      CommitElement c = new CommitElement(commit, graphEdgeColor, upElementIndex, downElementIndex, branchElementIndex,
+      int prevSiblingElementIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastElementIndex;
+      int nextSiblingElementIndex = graphElements.size() + 1;
+      CommitElement c = new CommitElement(commit, graphEdgeColor, prevSiblingElementIndex, nextSiblingElementIndex,
+          branchElementIndex,
           indentLevel);
       graphElements.add(c);
       isFirstNodeInBranch = false;
@@ -142,22 +143,22 @@ public class RepositoryGraphBuilder {
     int lastElementIndex = graphElements.size() - 1;
     /*
      * If a branch has no commits (possibly due to commits getting strategy being {@code EMPTY_GET_COMMITS}) its {@code
-     * upElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code upElementIndex} is an index of most
-     * recently added element (its last commit).
+     * prevSiblingElementIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code prevSiblingElementIndex}
+     * is an index of most recently added element (its last commit).
      */
-    int upElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
+    int prevSiblingElementIndex = commits.isEmpty() ? upstreamBranchIndex : lastElementIndex;
 
-    BranchElement element = createBranchElementFor(branch, upElementIndex, graphEdgeColor, indentLevel);
+    BranchElement element = createBranchElementFor(branch, prevSiblingElementIndex, graphEdgeColor, indentLevel);
     graphElements.add(element);
   }
 
   /**
-   * @return {@link BranchElement} for given {@code branch} and {@code upstreamBranchIndex} and provide additional
+   * @return {@link BranchElement} for given properties and provide additional
    *         attributes if the branch is the current one.
    */
   private BranchElement createBranchElementFor(
       BaseGitMacheteBranch branch,
-      @GTENegativeOne int upstreamBranchIndex,
+      @GTENegativeOne int prevSiblingElementIndex,
       GraphEdgeColor graphEdgeColor,
       @NonNegative int indentLevel) {
     ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
@@ -165,8 +166,8 @@ public class RepositoryGraphBuilder {
     Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
-    boolean hasSubelement = !branch.getDownstreamBranches().isEmpty();
-    return new BranchElement(branch, graphEdgeColor, upstreamBranchIndex, syncToRemoteStatus, isCurrentBranch,
-        indentLevel, hasSubelement);
+    boolean hasChildElement = !branch.getDownstreamBranches().isEmpty();
+    return new BranchElement(branch, graphEdgeColor, prevSiblingElementIndex, syncToRemoteStatus, isCurrentBranch,
+        indentLevel, hasChildElement);
   }
 }

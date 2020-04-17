@@ -79,16 +79,16 @@ public class RepositoryGraph {
     IGraphElement currentElement = elements.get(nodeIndex);
 
     if (filter.upNormal && nodeIndex > 0) {
-      int upIndex = currentElement.getUpElementIndex();
+      int upIndex = currentElement.getPrevSiblingElementIndex();
       if (upIndex >= 0) {
         adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, upIndex, GraphEdgeType.USUAL));
       }
     }
 
     if (filter.downNormal && nodeIndex < elements.size() - 1) {
-      Integer downElementIndex = currentElement.getDownElementIndex();
-      if (downElementIndex != null) {
-        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, downElementIndex, GraphEdgeType.USUAL));
+      Integer nextSiblingElementIndex = currentElement.getNextSiblingElementIndex();
+      if (nextSiblingElementIndex != null) {
+        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, nextSiblingElementIndex, GraphEdgeType.USUAL));
       }
     }
 

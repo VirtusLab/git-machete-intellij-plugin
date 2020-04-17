@@ -19,21 +19,21 @@ public final class BranchElement extends BaseGraphElement {
   private final BaseGitMacheteBranch branch;
   private final ISyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
-  private final boolean hasSubelement;
+  private final boolean hasChildElement;
 
   public BranchElement(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int upElementIndex,
+      @GTENegativeOne int prevSiblingElementIndex,
       ISyncToRemoteStatus syncToRemoteStatus,
       boolean isCurrentBranch,
       @NonNegative int indentLevel,
-      boolean hasSubelement) {
-    super(graphEdgeColor, upElementIndex, indentLevel);
+      boolean hasChildElement) {
+    super(graphEdgeColor, prevSiblingElementIndex, indentLevel);
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
-    this.hasSubelement = hasSubelement;
+    this.hasChildElement = hasChildElement;
   }
 
   private static final JBColor BRANCH_TEXT_COLOR = new JBColor(Color.BLACK, Color.WHITE);
@@ -55,8 +55,8 @@ public final class BranchElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean hasSubelement() {
-    return hasSubelement;
+  public boolean hasChildElement() {
+    return hasChildElement;
   }
 
   @Override

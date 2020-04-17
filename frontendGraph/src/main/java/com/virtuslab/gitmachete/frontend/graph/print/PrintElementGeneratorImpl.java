@@ -66,7 +66,7 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     }
 
     builder.consumeNode(graphNode, nodeAndItsDownEdgePos);
-    if (graphElement.hasSubelement()) {
+    if (graphElement.hasChildElement()) {
       builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, /* targetId */ null, GraphEdgeType.USUAL),
           nodeAndItsDownEdgePos);
     }

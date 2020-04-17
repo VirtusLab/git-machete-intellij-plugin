@@ -21,31 +21,30 @@ public abstract class BaseGraphElement implements IGraphElement {
   private final GraphEdgeColor graphEdgeColor;
 
   @GTENegativeOne
-  private final int upElementIndex;
+  private final int prevSiblingElementIndex;
 
-  /** The index of the first node in the next sibling branch or its commit. */
   @Positive
   @MonotonicNonNull
-  private Integer downElementIndex = null;
+  private Integer nextSiblingElementIndex = null;
 
   @NonNegative
   private final int indentLevel;
 
   protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int upElementIndex,
-      @Positive int downElementIndex,
+      @GTENegativeOne int prevSiblingElementIndex,
+      @Positive int nextSiblingElementIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.upElementIndex = upElementIndex;
-    this.downElementIndex = downElementIndex;
+    this.prevSiblingElementIndex = prevSiblingElementIndex;
+    this.nextSiblingElementIndex = nextSiblingElementIndex;
     this.indentLevel = indentLevel;
   }
 
   protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int upElementIndex,
+      @GTENegativeOne int prevSiblingElementIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.upElementIndex = upElementIndex;
+    this.prevSiblingElementIndex = prevSiblingElementIndex;
     this.indentLevel = indentLevel;
   }
 
@@ -56,8 +55,8 @@ public abstract class BaseGraphElement implements IGraphElement {
   }
 
   @Override
-  public void setDownElementIndex(@Positive int i) {
-    assert downElementIndex == null : "downElementIndex has already been set";
-    downElementIndex = i;
+  public void setNextSiblingElementIndex(@Positive int i) {
+    assert nextSiblingElementIndex == null : "nextSiblingElementIndex has already been set";
+    nextSiblingElementIndex = i;
   }
 }

@@ -10,24 +10,24 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 public interface IGraphElement {
 
   /**
-   * @return The index of element above (in table) that is connected directly
-   * and at the same indent level in graph to this one.
+   * @return The index of previous sibling element (above in table) that is connected directly
+   * and thus at the same indent level in graph to this one.
    */
   @GTENegativeOne
-  int getUpElementIndex();
+  int getPrevSiblingElementIndex();
 
   /**
-   * @return Index of element below (in table) that is connected directly
-   * and at the same indent level in graph to this one (hence it is not its subbranch).
+   * @return Index of next sibling element (below in table) that is connected directly
+   * and thus at the same indent level in graph to this one (hence it is not its child element).
    * <ul>
    *     <li>for a commit element, it's either another commit element or the containing branch (never null),</li>
    *     <li>for a branch element, it's either next sibling branch element or null (if none left)</li>
    * </ul>
    */
   @Positive
-  Integer getDownElementIndex();
+  Integer getNextSiblingElementIndex();
 
-  void setDownElementIndex(@Positive int i);
+  void setNextSiblingElementIndex(@Positive int i);
 
   /** @return The text (commit message/branch name) to be displayed in the table. */
   String getValue();
@@ -42,8 +42,8 @@ public interface IGraphElement {
 
   boolean hasBulletPoint();
 
-  /** The subelement is an indented element (branch or commit). */
-  boolean hasSubelement();
+  /** The childElement is an indented element (branch or commit). */
+  boolean hasChildElement();
 
   boolean isBranch();
 }

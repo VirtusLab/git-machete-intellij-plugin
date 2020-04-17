@@ -20,11 +20,11 @@ public final class CommitElement extends BaseGraphElement {
   public CommitElement(
       IGitMacheteCommit commit,
       GraphEdgeColor containingBranchGraphEdgeColor,
-      @NonNegative int upElementIndex,
-      @Positive int downElementIndex,
+      @NonNegative int prevSiblingElementIndex,
+      @Positive int nextSiblingElementIndex,
       @Positive int branchElementIndex,
       @NonNegative int indentLevel) {
-    super(containingBranchGraphEdgeColor, upElementIndex, downElementIndex, indentLevel);
+    super(containingBranchGraphEdgeColor, prevSiblingElementIndex, nextSiblingElementIndex, indentLevel);
     this.commit = commit;
     this.branchElementIndex = branchElementIndex;
   }
@@ -46,7 +46,7 @@ public final class CommitElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean hasSubelement() {
+  public boolean hasChildElement() {
     return false;
   }
 
