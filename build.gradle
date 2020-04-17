@@ -3,7 +3,8 @@ plugins {
   id 'org.gradle.java-library'
 
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
-  id 'org.checkerframework' version '0.4.14' apply false
+  id 'io.freefair.lombok' version '5.0.0' apply false
+  id 'org.checkerframework' version '0.4.15' apply false
   id 'org.jetbrains.intellij' version '0.4.18' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
@@ -25,7 +26,7 @@ task resolveDependencies {
   }
 }
 
-if (System.getenv("CI") == "true") {
+if (System.getenv('CI') == 'true') {
   gradle.startParameter.logLevel = LogLevel.INFO
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
 }
@@ -54,6 +55,8 @@ subprojects {
     intellijVersion = '2020.1'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
+    // Only applies when Lombok is used as a regular dependency.
+    // Lombok Gradle plugin pulls in its own (apparently non-configurable) Lombok version.
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
     slf4jVersion = '1.7.30'
@@ -67,7 +70,7 @@ subprojects {
   gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
       // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
-      options.compilerArgs << "-Werror"
+      options.compilerArgs << '-Werror'
     }
   }
 
@@ -75,6 +78,8 @@ subprojects {
   apply plugin: 'org.checkerframework'
   checkerFramework {
     excludeTests = true
+    // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
+    suppressLombokWarnings = false
     checkers = [
       'org.checkerframework.checker.guieffect.GuiEffectChecker',
       'org.checkerframework.checker.index.IndexChecker',
@@ -88,8 +93,30 @@ subprojects {
       '-ArequirePrefixInWarningSuppressions',
       '-AshowSuppressWarningKeys',
       "-Astubs=$rootDir/config/checker/",
-      '-AsuppressWarnings=all:type.anno.before.modifier',
+      '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
     ]
+  }
+
+
+  // Lombok support
+  // Here comes the tricky part: there's a tradeoff...
+  if (System.getenv('LOMBOK_PROVIDED_BY') == 'gradle-plugin') {
+    // Plus: Checker errors caused by Lombok-generated code are correctly reported
+    // Minus: compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
+    //        which may differ a lot from the original source
+    apply plugin: 'io.freefair.lombok'
+    generateLombokConfig.enabled = false
+  } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
+    // Plus: compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
+    // Minus: Checker errors caused by Lombok-generated code are always suppressed,
+    //        see https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 for an example;
+    //        the exact mechanics is likely different than in the issue since code generation happens on the fly (via AST transformations),
+    //        but the general problem remains the same
+    dependencies {
+      def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
+      compileOnly lombokArtifact
+      annotationProcessor lombokArtifact
+    }
   }
 
 
@@ -108,9 +135,9 @@ subprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any module (the strings would be just interpreted verbatim, without interpolation applied).
   dependencies {
-    def betterStrings = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
-    annotationProcessor(betterStrings)
-    testAnnotationProcessor(betterStrings)
+    def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
+    annotationProcessor(betterStringsArtifact)
+    testAnnotationProcessor(betterStringsArtifact)
   }
 
 
@@ -198,13 +225,6 @@ subprojects {
     junit = { ->
       dependencies {
         testImplementation group: 'junit', name: 'junit', version: junitVersion
-      }
-    }
-
-    lombok = { ->
-      dependencies {
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
       }
     }
 

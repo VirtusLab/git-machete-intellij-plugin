@@ -1,5 +1,4 @@
-.gradle/
-*.class
-/.idea/
 build/
-lombok.config
+*.class
+/.gradle/
+/.idea/

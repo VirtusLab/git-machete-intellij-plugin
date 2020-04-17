@@ -4,7 +4,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
@@ -25,8 +25,8 @@ public interface IGraphNode {
    *     <li>for a branch node, it's either next sibling branch node or null (if none left)</li>
    * </ul>
    */
+  @Nullable
   @Positive
-  @MonotonicNonNull
   Integer getNextSiblingNodeIndex();
 
   void setNextSiblingNodeIndex(@Positive int i);

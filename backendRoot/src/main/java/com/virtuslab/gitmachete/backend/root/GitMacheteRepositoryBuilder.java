@@ -14,10 +14,6 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -46,8 +42,6 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
 
-@Accessors(chain = true, fluent = true)
-@Getter(AccessLevel.PACKAGE)
 public class GitMacheteRepositoryBuilder {
   @Nullable
   private IGitCoreBranch currentCoreBranch;
@@ -58,13 +52,17 @@ public class GitMacheteRepositoryBuilder {
 
   private final Path pathToRepoRoot;
 
-  @Setter
   @MonotonicNonNull
   private IBranchLayout branchLayout = null;
 
   public GitMacheteRepositoryBuilder(Path pathToRepoRoot) {
     gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
     this.pathToRepoRoot = pathToRepoRoot;
+  }
+
+  public GitMacheteRepositoryBuilder branchLayout(IBranchLayout givenBranchLayout) {
+    this.branchLayout = givenBranchLayout;
+    return this;
   }
 
   public IGitMacheteRepository build() throws GitMacheteException {

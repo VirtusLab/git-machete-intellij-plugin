@@ -196,6 +196,10 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException {
+
+    if (presumedAncestor.equals(presumedDescendant)) {
+      return true;
+    }
     var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
     if (mergeBaseHash == null) {
       return false;

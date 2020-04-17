@@ -1,6 +1,5 @@
 dependencies {
   jgit()
-  lombok()
   vavr()
 
   api project(':gitCoreApi')

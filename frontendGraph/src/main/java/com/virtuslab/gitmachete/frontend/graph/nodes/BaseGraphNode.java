@@ -51,6 +51,13 @@ public abstract class BaseGraphNode implements IGraphNode {
   }
 
   @Override
+  @Nullable
+  @Positive
+  public Integer getNextSiblingNodeIndex() {
+    return this.nextSiblingNodeIndex;
+  }
+
+  @Override
   public void setNextSiblingNodeIndex(@Positive int i) {
     assert nextSiblingNodeIndex == null : "nextSiblingNodeIndex has already been set";
     nextSiblingNodeIndex = i;

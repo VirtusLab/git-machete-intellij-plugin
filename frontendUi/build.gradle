@@ -1,5 +1,4 @@
 dependencies {
-  lombok()
   vavr()
 
   implementation project(':backendRoot')

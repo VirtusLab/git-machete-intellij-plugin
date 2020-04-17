@@ -1,6 +1,7 @@
 
 import org.checkerframework.checker.index.qual.IndexFor;
 import org.checkerframework.checker.index.qual.LengthOf;
+import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.common.value.qual.EnsuresMinLenIf;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -16,6 +17,10 @@ interface List<T> {
   @LengthOf("this") @Pure int length();
 
   @Pure @EnsuresMinLenIf(expression="this", result=false, targetValue=1) boolean isEmpty();
+}
+
+interface Map<K, V> {
+  @PolyNull V getOrElse(K key, @PolyNull V defaultValue);
 }
 
 interface Traversable<T> {

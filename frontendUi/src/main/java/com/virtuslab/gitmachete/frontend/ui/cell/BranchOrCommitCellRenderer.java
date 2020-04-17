@@ -25,7 +25,6 @@ import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -61,7 +60,6 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     return myComponent;
   }
 
-  @RequiredArgsConstructor
   private static class MyComponent extends SimpleColoredRenderer {
     private final GitMacheteGraphTable graphTable;
     private final GraphCellPainter painter;
@@ -69,6 +67,12 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     // Note: using deprecated `UIUtil.createImage` instead of `ImageUtil.createImage` to maintain compatibility with
     // IntelliJ platform 2019.2
     GraphImage graphImage = new GraphImage(UIUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
+
+    @UIEffect
+    MyComponent(GitMacheteGraphTable graphTable, GraphCellPainter painter) {
+      this.graphTable = graphTable;
+      this.painter = painter;
+    }
 
     @Override
     @UIEffect

@@ -1,6 +1,5 @@
 dependencies {
   junit()
-  lombok()
   powerMock()
   slf4j()
   vavr()
