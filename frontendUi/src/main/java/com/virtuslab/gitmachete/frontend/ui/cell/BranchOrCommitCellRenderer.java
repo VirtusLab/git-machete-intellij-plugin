@@ -32,9 +32,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
-import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
+import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
+import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
@@ -97,27 +97,27 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      IGraphElement element = cell.getElement();
+      IGraphNode node = cell.getGraphNode();
 
-      int maxGraphElementPositionInRow = getMaxGraphElementPositionInRow(element);
+      int maxGraphNodePositionInRow = getMaxGraphNodePositionInRow(node);
 
-      if (element.hasBulletPoint()) {
-        graphImage = getGraphImage(cell.getPrintElements(), maxGraphElementPositionInRow);
+      if (node.hasBulletPoint()) {
+        graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
       } else {
         graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof NodePrintElement))
-            .collect(Collectors.toList()), maxGraphElementPositionInRow);
+            .collect(Collectors.toList()), maxGraphNodePositionInRow);
       }
 
       append(""); // appendTextPadding won't work without this
 
-      int textPadding = calculateTextPadding(maxGraphElementPositionInRow);
+      int textPadding = calculateTextPadding(maxGraphNodePositionInRow);
       appendTextPadding(textPadding);
 
-      SimpleTextAttributes attributes = element.getAttributes();
+      SimpleTextAttributes attributes = node.getAttributes();
       append(cell.getText(), attributes);
 
-      if (element instanceof BranchElement) {
-        BaseGitMacheteBranch branch = ((BranchElement) element).getBranch();
+      if (node instanceof BranchNode) {
+        BaseGitMacheteBranch branch = ((BranchNode) node).getBranch();
         Optional<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isPresent()) {
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
@@ -125,7 +125,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
         ISyncToRemoteStatus syncToRemoteStatus;
 
-        syncToRemoteStatus = ((BranchElement) element).getSyncToRemoteStatus();
+        syncToRemoteStatus = ((BranchNode) node).getSyncToRemoteStatus();
         if (syncToRemoteStatus.getRelation() != ISyncToRemoteStatus.Relation.InSync) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
               SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
@@ -142,17 +142,17 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       return width + LabelPainter.RIGHT_PADDING.get();
     }
 
-    private int getMaxGraphElementPositionInRow(IGraphElement element) {
-      // if element is a child (non root) branch the text must be shifted for sake of the right edge
-      // if element is a commit the text must be shifted for sake of its the shifted branch
-      boolean isRootBranch = element.isBranch() && ((BranchElement) element).getBranch().isRootBranch();
-      return element.getIndentLevel() + (!isRootBranch ? 1 : 0);
+    private int getMaxGraphNodePositionInRow(IGraphNode node) {
+      // if node is a child (non root) branch the text must be shifted for sake of the right edge
+      // if node is a commit the text must be shifted for sake of its the shifted branch
+      boolean isRootBranch = node.isBranch() && ((BranchNode) node).getBranch().isRootBranch();
+      return node.getIndentLevel() + (!isRootBranch ? 1 : 0);
     }
 
     @UIEffect
     private GraphImage getGraphImage(Collection<? extends PrintElement> printElements,
-        int maxGraphElementPositionInRow) {
-      double maxIndex = maxGraphElementPositionInRow;
+        int maxGraphNodePositionInRow) {
+      double maxIndex = maxGraphNodePositionInRow;
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           (int) (PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxIndex + 2)), graphTable.getRowHeight(),
           BufferedImage.TYPE_INT_ARGB, PaintUtil.RoundingMode.CEIL);

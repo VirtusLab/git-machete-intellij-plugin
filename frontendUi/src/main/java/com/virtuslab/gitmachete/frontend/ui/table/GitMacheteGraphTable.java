@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
@@ -175,12 +175,12 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       }
 
       BranchOrCommitCell cell = (BranchOrCommitCell) getModel().getValueAt(row, col);
-      IGraphElement element = cell.getElement();
-      if (!element.isBranch()) {
+      IGraphNode graphNode = cell.getGraphNode();
+      if (!graphNode.isBranch()) {
         return;
       }
 
-      selectedBranchName = element.getValue();
+      selectedBranchName = graphNode.getValue();
 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuGroup = (ActionGroup) ActionManager.getInstance()

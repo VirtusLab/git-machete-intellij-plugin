@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.elements;
+package com.virtuslab.gitmachete.frontend.graph.nodes;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
@@ -12,21 +12,21 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-public final class CommitElement extends BaseGraphElement {
+public final class CommitNode extends BaseGraphNode {
   private final IGitMacheteCommit commit;
   @Positive
-  private final int branchElementIndex;
+  private final int branchNodeIndex;
 
-  public CommitElement(
+  public CommitNode(
       IGitMacheteCommit commit,
       GraphEdgeColor containingBranchGraphEdgeColor,
-      @NonNegative int prevSiblingElementIndex,
-      @Positive int nextSiblingElementIndex,
-      @Positive int branchElementIndex,
+      @NonNegative int prevSiblingNodeIndex,
+      @Positive int nextSiblingNodeIndex,
+      @Positive int branchNodeIndex,
       @NonNegative int indentLevel) {
-    super(containingBranchGraphEdgeColor, prevSiblingElementIndex, nextSiblingElementIndex, indentLevel);
+    super(containingBranchGraphEdgeColor, prevSiblingNodeIndex, nextSiblingNodeIndex, indentLevel);
     this.commit = commit;
-    this.branchElementIndex = branchElementIndex;
+    this.branchNodeIndex = branchNodeIndex;
   }
 
   @Override
@@ -46,7 +46,7 @@ public final class CommitElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean hasChildElement() {
+  public boolean hasChildNode() {
     return false;
   }
 

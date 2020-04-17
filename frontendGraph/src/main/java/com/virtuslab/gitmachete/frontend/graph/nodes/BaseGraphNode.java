@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.elements;
+package com.virtuslab.gitmachete.frontend.graph.nodes;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,37 +14,37 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 @Getter
 @EqualsAndHashCode
 @ToString
-public abstract class BaseGraphElement implements IGraphElement {
+public abstract class BaseGraphNode implements IGraphNode {
   private static final String EMPTY_VALUE = "";
 
   @Nullable
   private final GraphEdgeColor graphEdgeColor;
 
   @GTENegativeOne
-  private final int prevSiblingElementIndex;
+  private final int prevSiblingNodeIndex;
 
   @Positive
   @MonotonicNonNull
-  private Integer nextSiblingElementIndex = null;
+  private Integer nextSiblingNodeIndex = null;
 
   @NonNegative
   private final int indentLevel;
 
-  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingElementIndex,
-      @Positive int nextSiblingElementIndex,
+  protected BaseGraphNode(@Nullable GraphEdgeColor graphEdgeColor,
+      @GTENegativeOne int prevSiblingNodeIndex,
+      @Positive int nextSiblingNodeIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.prevSiblingElementIndex = prevSiblingElementIndex;
-    this.nextSiblingElementIndex = nextSiblingElementIndex;
+    this.prevSiblingNodeIndex = prevSiblingNodeIndex;
+    this.nextSiblingNodeIndex = nextSiblingNodeIndex;
     this.indentLevel = indentLevel;
   }
 
-  protected BaseGraphElement(@Nullable GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingElementIndex,
+  protected BaseGraphNode(@Nullable GraphEdgeColor graphEdgeColor,
+      @GTENegativeOne int prevSiblingNodeIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.prevSiblingElementIndex = prevSiblingElementIndex;
+    this.prevSiblingNodeIndex = prevSiblingNodeIndex;
     this.indentLevel = indentLevel;
   }
 
@@ -55,8 +55,8 @@ public abstract class BaseGraphElement implements IGraphElement {
   }
 
   @Override
-  public void setNextSiblingElementIndex(@Positive int i) {
-    assert nextSiblingElementIndex == null : "nextSiblingElementIndex has already been set";
-    nextSiblingElementIndex = i;
+  public void setNextSiblingNodeIndex(@Positive int i) {
+    assert nextSiblingNodeIndex == null : "nextSiblingNodeIndex has already been set";
+    nextSiblingNodeIndex = i;
   }
 }

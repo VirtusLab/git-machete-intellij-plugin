@@ -5,19 +5,19 @@ import java.util.Collection;
 import com.intellij.vcs.log.graph.PrintElement;
 import lombok.Data;
 
-import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 
 @Data
 public final class BranchOrCommitCell {
-  private final IGraphElement element;
+  private final IGraphNode graphNode;
   private final String text;
   private final Collection<? extends PrintElement> printElements;
 
   public BranchOrCommitCell(
-      IGraphElement graphElement,
+      IGraphNode graphNode,
       Collection<? extends PrintElement> printElements) {
-    this.text = graphElement.getValue();
+    this.text = graphNode.getValue();
     this.printElements = printElements;
-    this.element = graphElement;
+    this.graphNode = graphNode;
   }
 }

@@ -8,7 +8,6 @@ import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
-import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -17,7 +16,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
-import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.PrintElementGeneratorImpl;
 
 public class RepositoryGraph {
@@ -26,14 +25,14 @@ public class RepositoryGraph {
   private static final RepositoryGraph nullRepositoryGraph = new RepositoryGraphBuilder()
       .repository(NullRepository.getInstance()).build();
 
-  private final List<IGraphElement> elements;
+  private final List<IGraphNode> nodes;
   private final List<List<Integer>> positionsOfVisibleEdges;
 
   private final PrintElementGeneratorImpl printElementGenerator;
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
-  public RepositoryGraph(List<IGraphElement> elements, List<List<Integer>> positionsOfVisibleEdges) {
-    this.elements = elements;
+  public RepositoryGraph(List<IGraphNode> nodes, List<List<Integer>> positionsOfVisibleEdges) {
+    this.nodes = nodes;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
 
     GraphElementManager graphElementManager = new GraphElementManager(/* repositoryGraph */ this);
@@ -45,17 +44,13 @@ public class RepositoryGraph {
   }
 
   @SuppressWarnings("index:argument.type.incompatible")
-  public IGraphElement getGraphElement(@NonNegative int rowIndex) {
-    return elements.get(rowIndex);
+  public IGraphNode getGraphNode(@NonNegative int rowIndex) {
+    return nodes.get(rowIndex);
   }
 
   @NonNegative
   public int nodesCount() {
-    return elements.size();
-  }
-
-  public GraphNode getGraphNode(@NonNegative int nodeIndex) {
-    return new GraphNode(nodeIndex);
+    return nodes.size();
   }
 
   public int getNodeId(int nodeIndex) {
@@ -64,7 +59,7 @@ public class RepositoryGraph {
   }
 
   /**
-   * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit element)
+   * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit node)
    * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
    *
    *  @return list of adjacent edges in a given node index
@@ -76,19 +71,19 @@ public class RepositoryGraph {
 
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
     @SuppressWarnings("index:argument.type.incompatible")
-    IGraphElement currentElement = elements.get(nodeIndex);
+    IGraphNode currentNode = nodes.get(nodeIndex);
 
     if (filter.upNormal && nodeIndex > 0) {
-      int upIndex = currentElement.getPrevSiblingElementIndex();
+      int upIndex = currentNode.getPrevSiblingNodeIndex();
       if (upIndex >= 0) {
         adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, upIndex, GraphEdgeType.USUAL));
       }
     }
 
-    if (filter.downNormal && nodeIndex < elements.size() - 1) {
-      Integer nextSiblingElementIndex = currentElement.getNextSiblingElementIndex();
-      if (nextSiblingElementIndex != null) {
-        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, nextSiblingElementIndex, GraphEdgeType.USUAL));
+    if (filter.downNormal && nodeIndex < nodes.size() - 1) {
+      Integer nextSiblingNodeIndex = currentNode.getNextSiblingNodeIndex();
+      if (nextSiblingNodeIndex != null) {
+        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, nextSiblingNodeIndex, GraphEdgeType.USUAL));
       }
     }
 
@@ -97,7 +92,7 @@ public class RepositoryGraph {
 
   /**
    * Visible edges are the edges that are visible in a row but are NOT directly connected
-   * to the node (branch/commit element) of this row. See {@link RepositoryGraph#getAdjacentEdges} for more details.
+   * to the node (branch/commit node) of this row. See {@link RepositoryGraph#getAdjacentEdges} for more details.
    *
    * @return list of visible edges in a given node index
    */

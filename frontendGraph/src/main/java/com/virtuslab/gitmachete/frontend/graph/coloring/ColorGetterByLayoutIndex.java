@@ -7,7 +7,7 @@ import com.intellij.vcs.log.graph.utils.LinearGraphUtils;
 import com.intellij.vcs.log.graph.utils.NormalEdge;
 import lombok.AllArgsConstructor;
 
-import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
 @AllArgsConstructor
@@ -29,8 +29,8 @@ public class ColorGetterByLayoutIndex {
     }
 
     assert nodeIndex >= 0;
-    IGraphElement graphElement = repositoryGraph.getGraphElement(nodeIndex);
+    IGraphNode graphNode = repositoryGraph.getGraphNode(nodeIndex);
 
-    return graphElement.getGraphEdgeColor().getId();
+    return graphNode.getGraphEdgeColor().getId();
   }
 }

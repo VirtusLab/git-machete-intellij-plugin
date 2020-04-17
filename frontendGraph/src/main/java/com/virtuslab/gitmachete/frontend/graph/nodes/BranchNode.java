@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.elements;
+package com.virtuslab.gitmachete.frontend.graph.nodes;
 
 import java.awt.Color;
 
@@ -15,25 +15,25 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-public final class BranchElement extends BaseGraphElement {
+public final class BranchNode extends BaseGraphNode {
   private final BaseGitMacheteBranch branch;
   private final ISyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
-  private final boolean hasChildElement;
+  private final boolean hasChildNode;
 
-  public BranchElement(
+  public BranchNode(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingElementIndex,
+      @GTENegativeOne int prevSiblingNodeIndex,
       ISyncToRemoteStatus syncToRemoteStatus,
       boolean isCurrentBranch,
       @NonNegative int indentLevel,
-      boolean hasChildElement) {
-    super(graphEdgeColor, prevSiblingElementIndex, indentLevel);
+      boolean hasChildNode) {
+    super(graphEdgeColor, prevSiblingNodeIndex, indentLevel);
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
-    this.hasChildElement = hasChildElement;
+    this.hasChildNode = hasChildNode;
   }
 
   private static final JBColor BRANCH_TEXT_COLOR = new JBColor(Color.BLACK, Color.WHITE);
@@ -55,8 +55,8 @@ public final class BranchElement extends BaseGraphElement {
   }
 
   @Override
-  public boolean hasChildElement() {
-    return hasChildElement;
+  public boolean hasChildNode() {
+    return hasChildNode;
   }
 
   @Override
