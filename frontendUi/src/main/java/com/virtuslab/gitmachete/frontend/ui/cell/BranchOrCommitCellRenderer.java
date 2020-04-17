@@ -18,10 +18,8 @@ import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.paint.PaintUtil;
 import com.intellij.util.ui.UIUtil;
-import com.intellij.vcs.log.graph.EdgePrintElement;
 import com.intellij.vcs.log.graph.NodePrintElement;
 import com.intellij.vcs.log.graph.PrintElement;
-import com.intellij.vcs.log.paint.GraphCellPainter;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
@@ -35,10 +33,9 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.BranchElement;
-import com.virtuslab.gitmachete.frontend.graph.elements.CommitElement;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
-import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 @UI
@@ -102,17 +99,20 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       IGraphElement element = cell.getElement();
 
+      int maxGraphElementPositionInRow = getMaxGraphElementPositionInRow(element);
+
       if (element.hasBulletPoint()) {
-        graphImage = getGraphImage(cell.getPrintElements());
+        graphImage = getGraphImage(cell.getPrintElements(), maxGraphElementPositionInRow);
       } else {
         graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof NodePrintElement))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList()), maxGraphElementPositionInRow);
       }
 
       append(""); // appendTextPadding won't work without this
 
-      int width = calculateTextPadding(element);
-      appendTextPadding(width);
+      int textPadding = calculateTextPadding(maxGraphElementPositionInRow);
+      appendTextPadding(textPadding);
+
       SimpleTextAttributes attributes = element.getAttributes();
       append(cell.getText(), attributes);
 
@@ -136,26 +136,23 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       }
     }
 
-    /*
-     * TODO (#98): The padding is calculated for all commits in the same branch (and the branch itself). The time
-     * consumed could be reduced by using some lazy value, caching, or indent storing.
-     */
     @UIEffect
-    private int calculateTextPadding(IGraphElement element) {
-      int width = graphImage.getWidth();
-      if (element instanceof CommitElement) {
-        RepositoryGraph repositoryGraph = graphTable.getModel().getRepositoryGraph();
-        Collection<? extends PrintElement> printElements = repositoryGraph
-            .getPrintElements(((CommitElement) element).getBranchElementIndex());
-        double maxIndex = getMaxGraphElementIndex(printElements);
-        width = (int) (maxIndex * PaintParameters.getNodeWidth(graphTable.getRowHeight()));
-      }
+    private int calculateTextPadding(int maxPosition) {
+      int width = (maxPosition + 1) * PaintParameters.getNodeWidth(graphTable.getRowHeight());
       return width + LabelPainter.RIGHT_PADDING.get();
     }
 
+    private int getMaxGraphElementPositionInRow(IGraphElement element) {
+      // if element is a child (non root) branch the text must be shifted for sake of the right edge
+      // if element is a commit the text must be shifted for sake of its the shifted branch
+      boolean isRootBranch = element.isBranch() && ((BranchElement) element).getBranch().isRootBranch();
+      return element.getIndentLevel() + (!isRootBranch ? 1 : 0);
+    }
+
     @UIEffect
-    private GraphImage getGraphImage(Collection<? extends PrintElement> printElements) {
-      double maxIndex = getMaxGraphElementIndex(printElements);
+    private GraphImage getGraphImage(Collection<? extends PrintElement> printElements,
+        int maxGraphElementPositionInRow) {
+      double maxIndex = maxGraphElementPositionInRow;
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           (int) (PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxIndex + 2)), graphTable.getRowHeight(),
           BufferedImage.TYPE_INT_ARGB, PaintUtil.RoundingMode.CEIL);
@@ -164,20 +161,6 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       int width = (int) (maxIndex * PaintParameters.getNodeWidth(graphTable.getRowHeight()));
       return new GraphImage(image, width);
-    }
-
-    private double getMaxGraphElementIndex(Collection<? extends PrintElement> printElements) {
-      double maxIndex = 0;
-      for (PrintElement printElement : printElements) {
-        maxIndex = Math.max(maxIndex, printElement.getPositionInCurrentRow());
-        if (printElement instanceof EdgePrintElement) {
-          maxIndex = Math.max(maxIndex,
-              (printElement.getPositionInCurrentRow() + ((EdgePrintElement) printElement).getPositionInOtherRow())
-                  / 2.0);
-        }
-      }
-      maxIndex++;
-      return maxIndex;
     }
 
     @Override

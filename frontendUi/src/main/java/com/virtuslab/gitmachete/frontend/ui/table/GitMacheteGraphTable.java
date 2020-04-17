@@ -28,7 +28,6 @@ import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
-import com.intellij.vcs.log.paint.GraphCellPainter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -38,7 +37,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.elements.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.print.SimpleGraphCellPainter;
+import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
@@ -76,7 +75,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 
-    GraphCellPainter graphCellPainter = new SimpleGraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
+    GraphCellPainter graphCellPainter = new GraphCellPainter(
+        GraphEdgeColorToJBColorMapper::getColor) {
       @Override
       protected int getRowHeight() {
         return GitMacheteGraphTable.this.getRowHeight();
