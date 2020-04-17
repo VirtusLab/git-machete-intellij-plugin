@@ -62,15 +62,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     if (state != Repository.State.NORMAL) {
 
       var stateName = Match(state).of(
-          Case($(Repository.State.GRAFTING), "during an ongoing cherry-pick"),
-          Case($(Repository.State.DETACHED), "in the detached head state"),
-          Case($(Repository.State.MERGING), "during an ongoing merge"),
-          Case($(Repository.State.REBASING), "during an ongoing rebase"),
-          Case($(Repository.State.REVERTING), "during an ongoing revert"),
+          Case($(Repository.State.GRAFTING), "ongoing cherry-pick or revert"),
+          Case($(Repository.State.DETACHED), "detached head state"),
+          Case($(Repository.State.MERGING), "ongoing merge"),
+          Case($(Repository.State.REBASING), "ongoing rebase"),
           Case($(), state.toString()));
 
       presentation.setEnabled(false);
-      presentation.setDescription("Can't rebase ${stateName}");
+      presentation.setDescription("Can't rebase: ${stateName}");
     }
   }
 
