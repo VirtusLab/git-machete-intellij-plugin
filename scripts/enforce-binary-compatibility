@@ -41,6 +41,7 @@ for iv in ${intellij_versions[*]}; do
     # like in case of 193.6911.18
     mkdir -p $idea_dir
     tar xzf $idea_dir.tar.gz -C $idea_dir --strip-components 1
+    rm -f $idea_dir.tar.gz
   fi
 
   java -jar "$verifier_jar_path" check-plugin -vrd "frontendUi/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}"

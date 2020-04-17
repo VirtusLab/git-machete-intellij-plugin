@@ -2,4 +2,3 @@
 .git/
 .gradle
 .idea/
-**/*.java
