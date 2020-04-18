@@ -1,15 +1,12 @@
-package com.virtuslab.gitmachete.frontend.ui;
+package com.virtuslab.gitmachete.frontend.ui.root;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.util.NotNullFunction;
-import git4idea.GitVcs;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
@@ -41,14 +38,4 @@ public class GitMacheteContentProvider implements ChangesViewContentProvider {
   @Override
   public void disposeContent() {}
 
-  // The visibility predicate `GitMacheteContentProvider.GitMacheteVisibilityPredicate` performs
-  // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` which is true when the specified
-  // VCS is used by at least one module in the project. Therefore it is guaranteed that while the Git Machete plugin
-  // tab is visible, a git repository exists.
-  public static class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
-    @Override
-    public Boolean fun(Project project) {
-      return ProjectLevelVcsManager.getInstance(project).checkVcsIsActive(GitVcs.NAME);
-    }
-  }
 }

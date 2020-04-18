@@ -26,7 +26,7 @@ import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
 import com.virtuslab.gitmachete.backend.root.GitUtils;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
+import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
 
 public final class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
@@ -38,15 +38,17 @@ public final class GitMacheteGraphTableManager {
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>();
   private final RepositoryGraphFactory repositoryGraphFactory;
-  private final VcsRootDropdown vcsRootDropdown;
+  private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
 
-  public GitMacheteGraphTableManager(Project project, VcsRootDropdown vcsRootDropdown) {
+  public GitMacheteGraphTableManager(Project project,
+      ISelectionChangeObservable<GitRepository> selectionChangeObservable) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
-    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, vcsRootDropdown);
+    this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef,
+        selectionChangeObservable);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    this.vcsRootDropdown = vcsRootDropdown;
+    this.selectionChangeObservable = selectionChangeObservable;
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
@@ -56,7 +58,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   public void refreshGraphTable() {
-    Path repoRootPath = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+    Path repoRootPath = Paths.get(selectionChangeObservable.getValue().getRoot().getPath());
     Path macheteFilePath = getMacheteFilePath(repoRootPath);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
@@ -97,11 +99,9 @@ public final class GitMacheteGraphTableManager {
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
   }
 
-  /**
-   * Lambda inside ths function is invoked by {@link VcsRootDropdown#setValue()} when user changes repository in dropdown menu
-   */
   private void subscribeToVcsRootChanges() {
-    vcsRootDropdown.subscribe(this::updateAndRefreshInBackground);
+    // The lambda is invoked when user changes repository in dropdown menu
+    selectionChangeObservable.addObserver(this::updateAndRefreshInBackground);
   }
 
   private Path getMacheteFilePath(Path repoRootPath) {
@@ -116,7 +116,7 @@ public final class GitMacheteGraphTableManager {
         @Override
         @UIEffect
         public void run(ProgressIndicator indicator) {
-          Path repoRootPath = Paths.get(vcsRootDropdown.getValue().getRoot().getPath());
+          Path repoRootPath = Paths.get(selectionChangeObservable.getValue().getRoot().getPath());
           Path macheteFilePath = getMacheteFilePath(repoRootPath);
           boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
           updateRepository(repoRootPath, isMacheteFilePresent);

@@ -46,7 +46,7 @@ jobs:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./scripts/enforce-binary-compatibility
       - store_artifacts:
-          path: frontendUi/build/distributions/
+          path: frontendUiRoot/build/distributions/
           destination: .
 
       - run:

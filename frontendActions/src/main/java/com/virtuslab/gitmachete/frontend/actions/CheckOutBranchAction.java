@@ -14,6 +14,8 @@ import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
 
+import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+
 /**
  * Expects DataKeys:
  * <ul>
@@ -34,7 +36,8 @@ public class CheckOutBranchAction extends AnAction {
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
+    String selectedBranchName = anActionEvent
+        .getData(com.virtuslab.gitmachete.frontend.keys.DataKeys.KEY_SELECTED_BRANCH_NAME);
     if (selectedBranchName == null) {
       LOG.error("Branch to check out was not given");
       return;

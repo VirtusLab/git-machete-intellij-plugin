@@ -16,12 +16,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <changesViewContent tabName="Git Machete"
-                            className="com.virtuslab.gitmachete.frontend.ui.GitMacheteContentProvider"
-                            predicateClassName="com.virtuslab.gitmachete.frontend.ui.GitMacheteContentProvider$GitMacheteVisibilityPredicate"/>
+                            className="com.virtuslab.gitmachete.frontend.ui.root.GitMacheteContentProvider"
+                            predicateClassName="com.virtuslab.gitmachete.frontend.ui.root.GitMacheteVisibilityPredicate"/>
     </extensions>
 
     <actions>
-        <!-- This actions are used in right-click context menu on branches -->
+        <!-- These actions are used in right-click context menu on branches. -->
         <action id="GitMachete.CheckOutBranchAction"
                 class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction"
                 text="_Check Out Branch"
@@ -36,5 +36,7 @@
             <reference id="GitMachete.CheckOutBranchAction"/>
             <reference id="GitMachete.RebaseSelectedBranchOntoParentAction"/>
         </group>
+
+        <!-- Note that certain other actions aren't listed here since they're instead instantiated directly from Java code. -->
     </actions>
 </idea-plugin>

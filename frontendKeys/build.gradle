@@ -1,8 +1,5 @@
 dependencies {
-  vavr()
-
   implementation project(':backendApi')
-  implementation project(':frontendKeys')
 }
 
 apply plugin: 'org.jetbrains.intellij'

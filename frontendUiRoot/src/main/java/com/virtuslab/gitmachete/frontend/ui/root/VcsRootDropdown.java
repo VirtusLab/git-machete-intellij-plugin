@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui;
+package com.virtuslab.gitmachete.frontend.ui.root;
 
 import com.intellij.diff.tools.util.base.TextDiffViewerUtil;
 import git4idea.repo.GitRepository;
@@ -6,10 +6,15 @@ import io.vavr.collection.List;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.common.value.qual.MinLen;
 
-public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<GitRepository> {
+import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
+import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObserver;
+
+public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<GitRepository>
+    implements
+      ISelectionChangeObservable<GitRepository> {
   private final List<GitRepository> repositories;
   private GitRepository selectedRepository;
-  private List<Runnable> subscribers = List.empty();
+  private List<ISelectionChangeObserver> observers = List.empty();
 
   /**
    * @param repositories non-empty list of {@link git4idea.repo.GitRepository} that represents VCS repositories
@@ -32,7 +37,7 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
   @Override
   protected void setValue(GitRepository option) {
     selectedRepository = option;
-    subscribers.forEach(s -> s.run());
+    observers.forEach(o -> o.onSelectionChanged());
   }
 
   @Override
@@ -40,8 +45,8 @@ public class VcsRootDropdown extends TextDiffViewerUtil.ComboBoxSettingAction<Gi
     return option.getRoot().getName();
   }
 
-  public void subscribe(Runnable subscriber) {
-    subscribers = subscribers.push(subscriber);
+  public void addObserver(ISelectionChangeObserver observer) {
+    observers = observers.push(observer);
   }
 
   @NonNegative

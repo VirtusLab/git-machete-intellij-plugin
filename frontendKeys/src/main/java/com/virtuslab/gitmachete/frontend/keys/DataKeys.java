@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.keys;
 
 import com.intellij.openapi.actionSystem.DataKey;
 import git4idea.repo.GitRepository;

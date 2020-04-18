@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.table;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.actions.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -28,31 +28,32 @@ import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
+import git4idea.repo.GitRepository;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
-import com.virtuslab.gitmachete.frontend.ui.VcsRootDropdown;
+import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
+import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
   private final GraphTableModel graphTableModel;
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
-  private final VcsRootDropdown vcsRootDropdown;
+  private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
   private String upperTextForEmptyGraph = "";
   private String lowerTextForEmptyGraph = "";
-  // wasTextForEmptyGraphChanged var is mainly to prevent invocation of getEmptyText() in updateUI() method in early
-  // stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null. This is
-  // also introduced for performance optimization (to not update empty text when unnecessary)
+  // doesTextForEmptyGraphRequireUpdate var is mainly to prevent invocation of getEmptyText() in updateUI() method in
+  // early stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null.
+  // This is also introduced for performance optimization (to not update empty text when unnecessary).
   private boolean doesTextForEmptyGraphRequireUpdate = false;
 
   @Nullable
@@ -63,13 +64,13 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       GraphTableModel graphTableModel,
       Project project,
       AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef,
-      VcsRootDropdown vcsRootDropdown) {
+      ISelectionChangeObservable<GitRepository> selectionChangeObservable) {
     super(graphTableModel);
 
     this.graphTableModel = graphTableModel;
     this.project = project;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
-    this.vcsRootDropdown = vcsRootDropdown;
+    this.selectionChangeObservable = selectionChangeObservable;
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
@@ -148,7 +149,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootDropdown.getValue()),
+        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, selectionChangeObservable.getValue()),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
