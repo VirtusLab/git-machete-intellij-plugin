@@ -1,11 +1,11 @@
 package com.virtuslab.gitcore.api;
 
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public interface IGitCoreLocalBranch extends IGitCoreBranch {
-  Optional<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException;
+  Option<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException;
 
-  Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch();
+  Option<IGitCoreRemoteBranch> getRemoteTrackingBranch();
 
-  Optional<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException;
+  Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException;
 }

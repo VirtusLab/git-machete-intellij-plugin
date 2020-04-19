@@ -1,11 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import java.util.Optional;
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -43,7 +42,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
       var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
 
-      if (!currentBranchOption.isPresent()) {
+      if (currentBranchOption.isEmpty()) {
         presentation.setDescription("Current revision is not a branch managed by Git Machete");
         presentation.setEnabled(false);
 
@@ -64,8 +63,8 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Optional<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
-    assert currentBranch.isPresent();
+    Option<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
+    assert currentBranch.isDefined();
 
     var branchToRebase = currentBranch.get().asNonRootBranch();
     doRebase(anActionEvent, branchToRebase);

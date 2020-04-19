@@ -7,13 +7,14 @@ import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.
 import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Untracked;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -23,7 +24,6 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -43,9 +43,6 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
 
 public class GitMacheteRepositoryBuilder {
-  @Nullable
-  private IGitCoreBranch currentCoreBranch;
-
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
@@ -70,17 +67,13 @@ public class GitMacheteRepositoryBuilder {
         .getOrElseThrow(
             e -> new GitMacheteException("Can't create GitCoreRepository under ${pathToRepoRoot}", e));
 
-    currentCoreBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
-        .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
-        .orElse(null);
-
     if (branchLayout == null) {
       Path pathToBranchLayoutFile = gitCoreRepository.getGitDirectoryPath().resolve("machete");
       branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
           .getOrElseThrow(e -> {
-            Optional<Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
+            Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
             return new MacheteFileParseException("Error occurred while parsing machete file ${pathToBranchLayoutFile}" +
-                (errorLine.isPresent() ? " in line ${errorLine.get()}" : ""), e);
+                (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
           });
     }
 
@@ -91,9 +84,10 @@ public class GitMacheteRepositoryBuilder {
     var rootBranchByName = rootBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
     branchByName = branchByName.merge(rootBranchByName);
 
-    BaseGitMacheteBranch currentBranch = currentCoreBranch != null
-        ? branchByName.getOrElse(currentCoreBranch.getName(), null)
-        : null;
+    BaseGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
+        .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
+        .flatMap(cb -> branchByName.get(cb.getName()))
+        .getOrNull();
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
@@ -108,7 +102,7 @@ public class GitMacheteRepositoryBuilder {
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
-    var customAnnotation = entry.getCustomAnnotation().orElse(null);
+    var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
 
     return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToRemoteStatus, customAnnotation);
@@ -122,14 +116,14 @@ public class GitMacheteRepositoryBuilder {
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    Optional<BaseGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
+    Option<BaseGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
         parentEntryCoreLocalBranch);
 
     BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     // translate IGitCoreCommit list to IGitMacheteCommit list
-    List<IGitMacheteCommit> commits = deducedForkPoint.isPresent()
+    List<IGitMacheteCommit> commits = deducedForkPoint.isDefined()
         ? Try.of(() -> coreLocalBranch.deriveCommitsUntil(deducedForkPoint.get()))
             .getOrElseThrow(e -> new GitMacheteException(e))
             .map(GitMacheteCommit::new)
@@ -137,48 +131,48 @@ public class GitMacheteRepositoryBuilder {
         : List.empty();
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var forkPoint = deducedForkPoint.isPresent() ? new GitMacheteCommit(deducedForkPoint.get()) : null;
+    var forkPoint = deducedForkPoint.isDefined() ? new GitMacheteCommit(deducedForkPoint.get()) : null;
     var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
-        deducedForkPoint.orElse(null));
-    var customAnnotation = entry.getCustomAnnotation().orElse(null);
+        deducedForkPoint.getOrNull());
+    var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
 
     return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
         commits, syncToRemoteStatus, syncToParentStatus, customAnnotation);
   }
 
-  private Optional<BaseGitCoreCommit> deduceForkPoint(
+  private Option<BaseGitCoreCommit> deduceForkPoint(
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
 
     return Try.of(() -> {
 
-      var forkPointOptional = coreLocalBranch.deriveForkPoint();
+      var forkPointOption = coreLocalBranch.deriveForkPoint();
       var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       var pointedCommit = coreLocalBranch.getPointedCommit();
 
       var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
 
       if (isParentAncestorOfChild) {
-        if (forkPointOptional.isPresent()) {
-          var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, forkPointOptional.get());
+        if (forkPointOption.isDefined()) {
+          var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, forkPointOption.get());
 
           if (!isParentAncestorOfForkPoint) {
             // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
             // then assume fork-point(A)=parent(A)
-            return Optional.of(parentPointedCommit);
+            return Option.of(parentPointedCommit);
           }
 
         } else {
           // If parent(A) is ancestor of A, and fork-point(A) is missing,
           // then assume fork-point(A)=parent(A)
-          return Optional.of(parentPointedCommit);
+          return Option.of(parentPointedCommit);
         }
       }
 
-      return forkPointOptional;
+      return forkPointOption;
 
     }).getOrElseThrow(e -> new GitMacheteException(e));
   }
@@ -200,8 +194,8 @@ public class GitMacheteRepositoryBuilder {
 
   private ISyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     try {
-      Optional<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
-      if (!ts.isPresent()) {
+      Option<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
+      if (ts.isEmpty()) {
         return SyncToRemoteStatus.of(Untracked, "");
       }
 

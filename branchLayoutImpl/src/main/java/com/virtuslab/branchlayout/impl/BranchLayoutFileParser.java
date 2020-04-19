@@ -42,12 +42,11 @@ public class BranchLayoutFileParser {
    * {@code levelWidth} fields.
    */
   private void deriveIndentCharacter(List<String> lines) {
-    var firstLineWithBlankPrefixOptional = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"))
-        .toJavaOptional();
+    var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
     // Redundant non-emptiness check to satisfy IndexChecker
-    if (firstLineWithBlankPrefixOptional.isPresent() && !firstLineWithBlankPrefixOptional.get().isEmpty()) {
-      indentCharacter = firstLineWithBlankPrefixOptional.get().charAt(0);
-      levelWidth = getIndentLevelWidth(firstLineWithBlankPrefixOptional.get());
+    if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
+      indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
+      levelWidth = getIndentLevelWidth(firstLineWithBlankPrefixOption.get());
     }
   }
 

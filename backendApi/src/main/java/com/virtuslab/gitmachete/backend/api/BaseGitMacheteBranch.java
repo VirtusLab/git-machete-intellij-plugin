@@ -1,8 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import java.util.Optional;
-
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -21,7 +20,7 @@ public abstract class BaseGitMacheteBranch {
 
   public abstract List<BaseGitMacheteNonRootBranch> getDownstreamBranches();
 
-  public abstract Optional<String> getCustomAnnotation();
+  public abstract Option<String> getCustomAnnotation();
 
   public abstract ISyncToRemoteStatus getSyncToRemoteStatus();
 

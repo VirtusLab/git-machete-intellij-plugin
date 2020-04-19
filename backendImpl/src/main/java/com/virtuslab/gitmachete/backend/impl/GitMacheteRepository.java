@@ -1,9 +1,8 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import java.util.Optional;
-
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -31,20 +30,20 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final Map<String, BaseGitMacheteBranch> branchByName;
 
   @Override
-  public Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
-    return Optional.ofNullable(currentBranch);
+  public Option<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
+    return Option.of(currentBranch);
   }
 
   @Override
-  public Optional<BaseGitMacheteBranch> getBranchByName(String branchName) {
-    return branchByName.get(branchName).toJavaOptional();
+  public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
+    return branchByName.get(branchName);
   }
 
   @Override
   public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
       throws GitMacheteMissingForkPointException {
     var forkPoint = branch.getForkPoint();
-    if (!forkPoint.isPresent()) {
+    if (forkPoint.isEmpty()) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${branch.getName()}'");
     }
 

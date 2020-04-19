@@ -3,13 +3,13 @@ package com.virtuslab.gitcore.impl.jgit;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -92,7 +92,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Optional<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
+  public Option<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
     Ref ref;
     try {
       ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
@@ -103,9 +103,9 @@ public class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
     if (ref.isSymbolic()) {
-      return Optional.of(new GitCoreLocalBranch(this, Repository.shortenRefName(ref.getTarget().getName())));
+      return Option.of(new GitCoreLocalBranch(this, Repository.shortenRefName(ref.getTarget().getName())));
     }
-    return Optional.empty();
+    return Option.none();
   }
 
   @Override
@@ -147,7 +147,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchMissing(String branchName) throws GitCoreException {
-    return Try.of(() -> Optional.ofNullable(jgitRepo.resolve(branchName)))
+    return Try.of(() -> Option.of(jgitRepo.resolve(branchName)))
         .getOrElseThrow(e -> new GitCoreException(e))
         .isEmpty();
   }

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Optional;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -35,14 +35,13 @@ public class BranchLayoutFileSaver {
     Files.write(path, lines);
   }
 
-  @SuppressWarnings("optional:prefer.ifpresent")
   private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, @NonNegative int level) {
     List<String> stringList = List.empty();
     for (var branch : branches) {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentCharacter).repeat(level * levelWidth)).append(branch.getName());
-      Optional<String> customAnnotation = branch.getCustomAnnotation();
-      if (customAnnotation.isPresent()) {
+      Option<String> customAnnotation = branch.getCustomAnnotation();
+      if (customAnnotation.isDefined()) {
         sb.append(" ").append(customAnnotation.get());
       }
 

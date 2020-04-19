@@ -5,8 +5,7 @@ import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreReposit
 import static com.virtuslab.gitmachete.backend.root.TestUtils.getCommit;
 import static com.virtuslab.gitmachete.backend.root.TestUtils.getGitCoreLocalBranch;
 
-import java.util.Optional;
-
+import io.vavr.control.Option;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,7 +30,7 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepositoryFactory", repositoryFactory);
   }
 
-  private Optional<BaseGitCoreCommit> invokeDeduceForkPoint(
+  private Option<BaseGitCoreCommit> invokeDeduceForkPoint(
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryBuilder.class),
@@ -47,7 +46,7 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(pointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then exception is thrown
   }
@@ -57,12 +56,12 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     // given
     BaseGitCoreCommit pointedCommit = getCommit(null);
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(pointedCommit);
-    PowerMockito.doReturn(Optional.empty()).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.none()).when(coreLocalBranch).deriveForkPoint();
     BaseGitCoreCommit parentPointedCommit = getCommit(null);
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
     Assert.assertTrue(deducedForkPoint.isEmpty());
@@ -75,13 +74,13 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
     BaseGitCoreCommit pointedCommit = getCommit(parentPointedCommit);
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(pointedCommit);
-    PowerMockito.doReturn(Optional.empty()).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.none()).when(coreLocalBranch).deriveForkPoint();
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
-    Assert.assertTrue(deducedForkPoint.isPresent());
+    Assert.assertTrue(deducedForkPoint.isDefined());
     Assert.assertEquals(parentPointedCommit, deducedForkPoint.get());
   }
 
@@ -93,14 +92,14 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     BaseGitCoreCommit childPointedCommit = getCommit(parentPointedCommit);
 
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(childPointedCommit);
-    PowerMockito.doReturn(Optional.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
-    Assert.assertTrue(deducedForkPoint.isPresent());
+    Assert.assertTrue(deducedForkPoint.isDefined());
     Assert.assertEquals(parentPointedCommit, deducedForkPoint.get());
   }
 
@@ -112,14 +111,14 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     BaseGitCoreCommit childPointedCommit = getCommit(null);
 
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(childPointedCommit);
-    PowerMockito.doReturn(Optional.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
-    Assert.assertTrue(deducedForkPoint.isPresent());
+    Assert.assertTrue(deducedForkPoint.isDefined());
     Assert.assertEquals(derivedForkPoint, deducedForkPoint.get());
   }
 
@@ -131,14 +130,14 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     BaseGitCoreCommit childPointedCommit = getCommit(null);
 
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(childPointedCommit);
-    PowerMockito.doReturn(Optional.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
-    Assert.assertTrue(deducedForkPoint.isPresent());
+    Assert.assertTrue(deducedForkPoint.isDefined());
     Assert.assertEquals(derivedForkPoint, deducedForkPoint.get());
   }
 
@@ -150,14 +149,14 @@ public class GitMacheteRepositoryBuilder_deduceForkPointTest {
     BaseGitCoreCommit childPointedCommit = getCommit(parentPointedCommit);
 
     IGitCoreLocalBranch coreLocalBranch = getGitCoreLocalBranch(childPointedCommit);
-    PowerMockito.doReturn(Optional.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
+    PowerMockito.doReturn(Option.of(derivedForkPoint)).when(coreLocalBranch).deriveForkPoint();
     IGitCoreLocalBranch parentCoreLocalBranch = getGitCoreLocalBranch(parentPointedCommit);
 
     // when
-    Optional<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
+    Option<BaseGitCoreCommit> deducedForkPoint = invokeDeduceForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
     // then
-    Assert.assertTrue(deducedForkPoint.isPresent());
+    Assert.assertTrue(deducedForkPoint.isDefined());
     Assert.assertEquals(derivedForkPoint, deducedForkPoint.get());
   }
 }

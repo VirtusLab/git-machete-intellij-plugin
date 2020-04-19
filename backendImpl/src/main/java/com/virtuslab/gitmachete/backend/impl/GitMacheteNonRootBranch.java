@@ -1,8 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import java.util.Optional;
-
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -81,12 +80,12 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   }
 
   @Override
-  public Optional<String> getCustomAnnotation() {
-    return Optional.ofNullable(customAnnotation);
+  public Option<String> getCustomAnnotation() {
+    return Option.of(customAnnotation);
   }
 
   @Override
-  public Optional<IGitMacheteCommit> getForkPoint() {
-    return Optional.ofNullable(forkPoint);
+  public Option<IGitMacheteCommit> getForkPoint() {
+    return Option.of(forkPoint);
   }
 }

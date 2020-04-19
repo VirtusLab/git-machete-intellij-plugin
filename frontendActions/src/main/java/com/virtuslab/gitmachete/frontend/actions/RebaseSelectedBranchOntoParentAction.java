@@ -1,9 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import java.util.Optional;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -28,8 +27,8 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
 
     var presentation = anActionEvent.getPresentation();
     if (presentation.isVisible()) {
-      Optional<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
-      if (selectedBranch.isPresent()) {
+      Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
+      if (selectedBranch.isDefined()) {
         if (selectedBranch.get().isRootBranch()) {
           presentation.setEnabled(false);
           presentation.setVisible(false);
@@ -48,14 +47,14 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Optional<BaseGitMacheteBranch> selectedGitMacheteBranch = getSelectedMacheteBranch(anActionEvent);
-    assert selectedGitMacheteBranch.isPresent();
+    Option<BaseGitMacheteBranch> selectedGitMacheteBranch = getSelectedMacheteBranch(anActionEvent);
+    assert selectedGitMacheteBranch.isDefined();
 
     var branchToRebase = selectedGitMacheteBranch.get().asNonRootBranch();
     doRebase(anActionEvent, branchToRebase);
   }
 
-  private Optional<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
+  private Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
     assert selectedBranchName != null : "Can't get selected branch";

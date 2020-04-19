@@ -1,8 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import java.util.Optional;
-
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -49,7 +48,7 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   }
 
   @Override
-  public Optional<String> getCustomAnnotation() {
-    return Optional.ofNullable(customAnnotation);
+  public Option<String> getCustomAnnotation() {
+    return Option.of(customAnnotation);
   }
 }

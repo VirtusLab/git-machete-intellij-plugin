@@ -1,9 +1,8 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import java.util.Optional;
-
 import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 
 public final class NullRepository implements IGitMacheteRepository {
   private static final NullRepository instance = new NullRepository();
@@ -20,13 +19,13 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Optional<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
-    return Optional.empty();
+  public Option<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
+    return Option.none();
   }
 
   @Override
-  public Optional<BaseGitMacheteBranch> getBranchByName(String branchName) {
-    return Optional.empty();
+  public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
+    return Option.none();
   }
 
   @Override

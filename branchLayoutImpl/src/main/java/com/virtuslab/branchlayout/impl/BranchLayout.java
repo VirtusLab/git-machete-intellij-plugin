@@ -1,9 +1,9 @@
 package com.virtuslab.branchlayout.impl;
 
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.Data;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -15,14 +15,14 @@ public class BranchLayout implements IBranchLayout {
   private final List<BaseBranchLayoutEntry> rootBranches;
 
   @Override
-  public Optional<BaseBranchLayoutEntry> findEntryByName(String branchName) {
+  public Option<BaseBranchLayoutEntry> findEntryByName(String branchName) {
     return findEntryRecursively(getRootBranches(), e -> e.getName().equals(branchName));
   }
 
   @Override
   public IBranchLayout slideOut(String branchName) throws BranchLayoutException {
     var entryOption = findEntryByName(branchName);
-    if (!entryOption.isPresent()) {
+    if (entryOption.isEmpty()) {
       throw new BranchLayoutException("Branch entry '${branchName}' does not exist");
     }
     if (rootBranches.contains(entryOption.get())) {
@@ -34,7 +34,7 @@ public class BranchLayout implements IBranchLayout {
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
   private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) {
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
-    assert upstreamEntryOption.isPresent();
+    assert upstreamEntryOption.isDefined();
     var upstream = upstreamEntryOption.get();
 
     var indexInUpstream = upstream.getSubbranches().indexOf(entryToSlideOut);
@@ -57,7 +57,7 @@ public class BranchLayout implements IBranchLayout {
       return new BranchLayout(rootBranches.replace(entry, newEntry));
     } else {
       var entryUpstreamOption = findUpstreamEntryForEntry(entry);
-      assert entryUpstreamOption.isPresent();
+      assert entryUpstreamOption.isDefined();
       var upstreamEntry = entryUpstreamOption.get();
 
       var updatedSubbranches = upstreamEntry.getSubbranches().replace(entry, newEntry);
@@ -71,29 +71,29 @@ public class BranchLayout implements IBranchLayout {
   private BaseBranchLayoutEntry updateSubbranchesForEntry(BaseBranchLayoutEntry entry,
       List<BaseBranchLayoutEntry> subbranches) {
     var name = entry.getName();
-    var customAnnotation = entry.getCustomAnnotation().orElse(null);
+    var customAnnotation = entry.getCustomAnnotation().getOrNull();
     return new BranchLayoutEntry(name, customAnnotation, subbranches);
   }
 
-  private Optional<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
+  private Option<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
     return findEntryRecursively(rootBranches, e -> e.getSubbranches().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */
-  private static Optional<BaseBranchLayoutEntry> findEntryRecursively(
+  private static Option<BaseBranchLayoutEntry> findEntryRecursively(
       List<BaseBranchLayoutEntry> branches,
       Predicate<BaseBranchLayoutEntry> predicate) {
     for (var branch : branches) {
       if (predicate.test(branch)) {
-        return Optional.of(branch);
+        return Option.of(branch);
       }
 
       var result = findEntryRecursively(branch.getSubbranches(), predicate);
-      if (result.isPresent()) {
+      if (result.isDefined()) {
         return result;
       }
     }
 
-    return Optional.empty();
+    return Option.none();
   }
 }

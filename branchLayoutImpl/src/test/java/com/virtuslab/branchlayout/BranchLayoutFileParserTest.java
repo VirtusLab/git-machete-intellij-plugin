@@ -36,9 +36,9 @@ public class BranchLayoutFileParserTest {
     BranchLayout branchLayout = parser.parse();
 
     // then
-    Assert.assertTrue(branchLayout.findEntryByName("A").isPresent());
-    Assert.assertTrue(branchLayout.findEntryByName("B").isPresent());
-    Assert.assertTrue(branchLayout.findEntryByName("C").isPresent());
+    Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
+    Assert.assertTrue(branchLayout.findEntryByName("B").isDefined());
+    Assert.assertTrue(branchLayout.findEntryByName("C").isDefined());
   }
 
   @Test
@@ -51,8 +51,8 @@ public class BranchLayoutFileParserTest {
     BranchLayout branchLayout = parser.parse();
 
     // then
-    Assert.assertTrue(branchLayout.findEntryByName("A").isPresent());
-    Assert.assertTrue(branchLayout.findEntryByName("B").isPresent());
+    Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
+    Assert.assertTrue(branchLayout.findEntryByName("B").isDefined());
   }
 
   @Test

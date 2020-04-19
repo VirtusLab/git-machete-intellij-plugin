@@ -2,12 +2,12 @@ package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Optional;
 
 import com.intellij.util.SmartList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
@@ -166,8 +166,8 @@ public class RepositoryGraphBuilder {
       @NonNegative int indentLevel) {
     ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
 
-    Optional<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
-    boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
+    Option<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
+    boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
 
     boolean hasChildNode = !branch.getDownstreamBranches().isEmpty();
     return new BranchNode(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingNodeIndex, indentLevel,

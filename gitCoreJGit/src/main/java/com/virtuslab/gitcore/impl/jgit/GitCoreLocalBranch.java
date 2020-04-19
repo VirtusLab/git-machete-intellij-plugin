@@ -1,10 +1,10 @@
 package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
@@ -50,30 +50,30 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
+  public Option<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
     BranchTrackingStatus ts = Try.of(() -> BranchTrackingStatus.of(repo.getJgitRepo(), getName()))
         .getOrElseThrow(e -> new GitCoreException(e));
 
     if (ts == null) {
-      return Optional.empty();
+      return Option.none();
     }
 
     String remoteName = repo.getJgitRepo().getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, getName(),
         ConfigConstants.CONFIG_KEY_REMOTE);
 
-    return Optional.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount(), remoteName));
+    return Option.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount(), remoteName));
   }
 
   @Override
-  public Optional<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
+  public Option<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
     var bc = new BranchConfig(repo.getJgitRepo().getConfig(), getName());
     String remoteName = bc.getRemoteTrackingBranch();
     if (remoteName == null) {
-      return Optional.empty();
+      return Option.none();
     } else {
       @SuppressWarnings("index:argument.type.incompatible")
       String branchName = remoteName.substring(GitCoreRemoteBranch.BRANCHES_PATH.length());
-      return Optional.of(new GitCoreRemoteBranch(repo, branchName));
+      return Option.of(new GitCoreRemoteBranch(repo, branchName));
     }
   }
 
@@ -103,7 +103,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Optional<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
+  public Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = derivePointedRevCommit();
@@ -124,7 +124,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
         .collect(List.collector()))
         .getOrElseThrow(e -> new GitCoreException(e));
 
-    Optional<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
+    Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
     List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
         .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
@@ -147,10 +147,10 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       boolean currentBranchCommitInReflogs = filteredReflogEntries
           .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (currentBranchCommitInReflogs) {
-        return Optional.of(new GitCoreCommit(currentBranchCommit));
+        return Option.of(new GitCoreCommit(currentBranchCommit));
       }
     }
 
-    return Optional.empty();
+    return Option.none();
   }
 }

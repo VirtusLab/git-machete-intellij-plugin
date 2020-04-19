@@ -8,7 +8,6 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.JTable;
@@ -23,6 +22,7 @@ import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
+import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -124,8 +124,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       if (node instanceof BranchNode) {
         BaseGitMacheteBranch branch = ((BranchNode) node).getBranch();
-        Optional<String> customAnnotation = branch.getCustomAnnotation();
-        if (customAnnotation.isPresent()) {
+        Option<String> customAnnotation = branch.getCustomAnnotation();
+        if (customAnnotation.isDefined()) {
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 

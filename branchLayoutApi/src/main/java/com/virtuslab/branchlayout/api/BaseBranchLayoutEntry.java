@@ -1,8 +1,7 @@
 package com.virtuslab.branchlayout.api;
 
-import java.util.Optional;
-
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -13,7 +12,7 @@ public abstract class BaseBranchLayoutEntry {
 
   public abstract List<BaseBranchLayoutEntry> getSubbranches();
 
-  public abstract Optional<String> getCustomAnnotation();
+  public abstract Option<String> getCustomAnnotation();
 
   @Override
   public final boolean equals(@Nullable Object other) {

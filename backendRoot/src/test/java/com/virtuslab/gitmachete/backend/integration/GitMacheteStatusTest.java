@@ -177,11 +177,11 @@ public class GitMacheteStatusTest {
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
-    if (currBranch.isPresent() && currBranch.get().equals(branch))
+    if (currBranch.isDefined() && currBranch.get().equals(branch))
       sb.append(" *");
 
     var customAnnotation = branch.getCustomAnnotation();
-    if (customAnnotation.isPresent()) {
+    if (customAnnotation.isDefined()) {
       sb.append("  ");
       sb.append(customAnnotation.get());
     }

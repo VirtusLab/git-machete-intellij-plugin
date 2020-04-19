@@ -2,9 +2,9 @@ package com.virtuslab.gitmachete.backend.root;
 
 import java.nio.file.Path;
 import java.util.Date;
-import java.util.Optional;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import org.powermock.api.mockito.PowerMockito;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
@@ -38,7 +38,7 @@ public class TestUtils {
       throws GitCoreException {
     IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
-    PowerMockito.doReturn(Optional.ofNullable(forkPoint)).when(mock).deriveForkPoint();
+    PowerMockito.doReturn(Option.of(forkPoint)).when(mock).deriveForkPoint();
     PowerMockito.doReturn(hasJustBeenCreated).when(mock).hasJustBeenCreated();
     return mock;
   }
@@ -102,8 +102,8 @@ public class TestUtils {
     }
 
     @Override
-    public Optional<IGitCoreLocalBranch> getCurrentBranch() {
-      return Optional.empty();
+    public Option<IGitCoreLocalBranch> getCurrentBranch() {
+      return Option.none();
     }
 
     @Override
