@@ -88,7 +88,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     return toolbar;
   }
 
-  private class RefreshGitMacheteStatusAction extends AnAction {
+  private class RefreshGitMacheteStatusAction extends AnAction implements DumbAware {
     @UIEffect
     RefreshGitMacheteStatusAction() {
       super(REFRESH_STATUS_TEXT, REFRESH_STATUS_DESCRIPTION, AllIcons.Actions.Refresh);

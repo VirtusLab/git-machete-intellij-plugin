@@ -43,7 +43,7 @@ public final class GitMacheteGraphTableManager {
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>(null);
   private final RepositoryGraphFactory repositoryGraphFactory;
-  private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
+  private final VcsRootDropdown vcsRootDropdown;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
 
   public GitMacheteGraphTableManager(Project project,
@@ -54,7 +54,7 @@ public final class GitMacheteGraphTableManager {
     this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef,
         selectionChangeObservable);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    this.selectionChangeObservable = selectionChangeObservable;
+    this.vcsRootDropdown = selectionChangeObservable;
     this.gitMacheteRepositoryFactory = getGitMacheteRepositoryFactoryInstance();
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
@@ -74,7 +74,7 @@ public final class GitMacheteGraphTableManager {
 
   private void subscribeToVcsRootChanges() {
     // The method reference is invoked when user changes repository in dropdown menu
-    selectionChangeObservable.addObserver(this::updateAndRefreshInBackground);
+    vcsRootDropdown.addObserver(this::updateAndRefreshInBackground);
   }
 
   private void subscribeToGitRepositoryChanges() {
@@ -84,7 +84,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   public void refreshGraphTable() {
-    GitRepository gitRepository = selectionChangeObservable.getValue();
+    GitRepository gitRepository = vcsRootDropdown.getValue();
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
@@ -145,7 +145,7 @@ public final class GitMacheteGraphTableManager {
         @Override
         @UIEffect
         public void run(ProgressIndicator indicator) {
-          GitRepository gitRepository = selectionChangeObservable.getValue();
+          GitRepository gitRepository = vcsRootDropdown.getValue();
           Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
           Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
           Path macheteFilePath = getMacheteFilePath(gitRepository);
