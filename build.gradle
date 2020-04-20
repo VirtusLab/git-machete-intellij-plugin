@@ -11,7 +11,7 @@ plugins {
 
 task resolveDependencies {
   doLast {
-    project.rootProject.allprojects.each { subProject ->
+    project.rootProject.subprojects.each { subProject ->
       subProject.buildscript.configurations.each { configuration ->
         if (configuration.canBeResolved) {
           configuration.resolve()
@@ -31,21 +31,15 @@ if (System.getenv('CI') == 'true') {
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
 }
 
-allprojects {
-  // Keeping `repositories`, specifically `mavenCentral()` in `allprojects` rather than in `subprojects`
-  // is only needed as workaround for `resolveDependencies` task.
-  // Otherwise it fails when resolving dependencies for checkstyle.
-  repositories {
-    jcenter()
-    mavenCentral()
-  }
-}
-
 subprojects {
   group 'com.virtuslab'
   apply from: '../version.gradle'
   version PLUGIN_VERSION
 
+  repositories {
+    jcenter()
+    mavenCentral()
+  }
 
   ext {
     betterStringsVerson = '0.2'
@@ -101,13 +95,13 @@ subprojects {
   // Lombok support
   // Here comes the tricky part: there's a tradeoff...
   if (System.getenv('LOMBOK_PROVIDED_BY') == 'gradle-plugin') {
-    // Plus: Checker errors caused by Lombok-generated code are correctly reported
-    // Minus: compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
+    // Plus:  Checker errors caused by Lombok-generated code are correctly reported
+    // Minus: some compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
     //        which may differ a lot from the original source
     apply plugin: 'io.freefair.lombok'
     generateLombokConfig.enabled = false
   } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
-    // Plus: compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
+    // Plus:  all compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
     // Minus: Checker errors caused by Lombok-generated code are always suppressed,
     //        see https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 for an example;
     //        the exact mechanics is likely different than in the issue since code generation happens on the fly (via AST transformations),
@@ -118,6 +112,8 @@ subprojects {
       annotationProcessor lombokArtifact
     }
   }
+  // Hopefully that'll be no longer needed if/when the changes requested
+  // on https://github.com/rzwitserloot/lombok/issues/2433 are incorporated into Lombok.
 
 
   apply plugin: 'com.diffplug.gradle.spotless'
@@ -141,7 +137,7 @@ subprojects {
   }
 
 
-  apply plugin: 'checkstyle'
+  apply plugin: 'org.gradle.checkstyle'
   checkstyle {
     toolVersion checkstyleToolVersion
 

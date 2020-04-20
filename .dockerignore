@@ -1,4 +1,4 @@
 **/build/
 .git/
-.gradle
+.gradle/
 .idea/
