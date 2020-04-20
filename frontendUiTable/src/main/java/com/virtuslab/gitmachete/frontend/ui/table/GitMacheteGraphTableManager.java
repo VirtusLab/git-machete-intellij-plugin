@@ -23,13 +23,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
-import com.virtuslab.gitmachete.backend.root.GitUtils;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
 
 public final class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
+
   private final Project project;
   @Getter
   @Setter
@@ -57,9 +57,20 @@ public final class GitMacheteGraphTableManager {
     subscribeToGitRepositoryChanges();
   }
 
+  private void subscribeToVcsRootChanges() {
+    // The method reference is invoked when user changes repository in dropdown menu
+    selectionChangeObservable.addObserver(this::updateAndRefreshInBackground);
+  }
+
+  private void subscribeToGitRepositoryChanges() {
+    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
+    GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
+    project.getMessageBus().connect().subscribe(topic, listener);
+  }
+
   public void refreshGraphTable() {
-    Path repoRootPath = Paths.get(selectionChangeObservable.getValue().getRoot().getPath());
-    Path macheteFilePath = getMacheteFilePath(repoRootPath);
+    GitRepository gitRepository = selectionChangeObservable.getValue();
+    Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
     refreshGraphTable(macheteFilePath, isMacheteFilePresent);
@@ -99,26 +110,25 @@ public final class GitMacheteGraphTableManager {
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
   }
 
-  private void subscribeToVcsRootChanges() {
-    // The method reference is invoked when user changes repository in dropdown menu
-    selectionChangeObservable.addObserver(this::updateAndRefreshInBackground);
-  }
-
-  private Path getMacheteFilePath(Path repoRootPath) {
-    return Try.of(() -> GitUtils.getGitDirectoryPathByRepoRootPath(repoRootPath).resolve("machete"))
-        .onFailure(e -> LOG.error("Unable to get machete file path", e))
-        .get();
+  private Path getMacheteFilePath(GitRepository gitRepository) {
+    // Using the deprecated `GitRepository#getGitDir` and not `GitRepository#getRepositoryFiles`
+    // since the latter apparently doesn't allow to extract git dir
+    // (just the paths of specific predefined files within the git dir).
+    Path gitDirPath = Paths.get(gitRepository.getGitDir().getPath());
+    return gitDirPath.resolve("machete");
   }
 
   public void updateAndRefreshInBackground() {
     if (project != null && !project.isDisposed()) {
-      new Task.Backgroundable(project, "Updating Git Machete Repository And Refreshing") {
+      new Task.Backgroundable(project, "Updating Git Machete repository and refreshing") {
         @Override
         @UIEffect
         public void run(ProgressIndicator indicator) {
-          Path repoRootPath = Paths.get(selectionChangeObservable.getValue().getRoot().getPath());
-          Path macheteFilePath = getMacheteFilePath(repoRootPath);
+          GitRepository gitRepository = selectionChangeObservable.getValue();
+          Path macheteFilePath = getMacheteFilePath(gitRepository);
           boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+          Path repoRootPath = Paths.get(gitRepository.getRoot().getPath());
+
           updateRepository(repoRootPath, isMacheteFilePresent);
           refreshGraphTable(macheteFilePath, isMacheteFilePresent);
         }
@@ -130,19 +140,14 @@ public final class GitMacheteGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  public void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
+  private void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      var repository = Try.of(() -> (new GitMacheteRepositoryBuilder(repoRootPath)).build())
+      var builder = new GitMacheteRepositoryBuilder(repoRootPath);
+      var repository = Try.of(() -> builder.build())
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
       repositoryRef.set(repository);
     } else {
       repositoryRef.set(null);
     }
-  }
-
-  private void subscribeToGitRepositoryChanges() {
-    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener = repository -> updateAndRefreshInBackground();
-    project.getMessageBus().connect().subscribe(topic, listener);
   }
 }

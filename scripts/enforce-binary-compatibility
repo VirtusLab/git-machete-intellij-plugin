@@ -25,6 +25,8 @@ if ! [[ -f $verifier_jar_path ]]; then
   curl -fsL -o $verifier_jar_path https://dl.bintray.com/jetbrains/intellij-plugin-service/org/jetbrains/intellij/plugins/verifier-cli/${verifier_version}/verifier-cli-${verifier_version}-all.jar
 fi
 
+exit_code=0
+
 for iv in ${intellij_versions[*]}; do
   year=20${iv:0:2}
   release=${iv:2:1}
@@ -45,11 +47,13 @@ for iv in ${intellij_versions[*]}; do
   output=$(java -jar "$verifier_jar_path" check-plugin -vrd "frontendUiRoot/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}")
   if echo "$output" | grep -qxE 'Plugin (.*) against .*: .* compatibility problems?'
   then
-    echo "We have one or more compatibility problem(s) with version $iv"
-    echo "$output"
-    exit 1
+    echo "We have one or more compatibility problem(s) with version $iv:"
+    echo -e "$output\n\n"
+    exit_code=1
   else
     echo "Plugin is compatible with version $iv":
-    echo "$output"
+    echo -e "$output\n\n"
   fi
 done
+
+exit $exit_code

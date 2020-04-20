@@ -43,7 +43,6 @@ public class GitMacheteStatusTest {
   GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = new GitMacheteRepositoryBuilder(repositoryDir);
 
   public void init(String scriptName) throws Exception {
-    // Prepare repo
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
@@ -57,7 +56,7 @@ public class GitMacheteStatusTest {
 
   @Test
   public void statusTest() throws Exception {
-    init("setup-single-repo.sh");
+    init("setup-with-single-remote.sh");
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -74,7 +73,7 @@ public class GitMacheteStatusTest {
 
   @Test
   public void statusTestWithMultiRemotes() throws Exception {
-    init("setup-multiple-repos.sh");
+    init("setup-with-multiple-remotes.sh");
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
