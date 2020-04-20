@@ -1,5 +1,6 @@
 
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -12,10 +13,14 @@ class Optional<T> {
 
 package java.util.concurrent.atomic;
 
+@NonNull // We don't want any instance of AtomicReference to be nullable, that's typically an indicator of bad design.
 class AtomicReference<V> {
-  AtomicReference(@Nullable V initialValue);
+  // Note that the below annotation on `get` effectively makes the AtomicReference's type param `V` as if it was always `@Nullable`...
+  // which is very defensive, seemingly even too much so;
+  // but the problem is that otherwise the type of an instance created with the paramless c'tor `AtomicReference()`
+  // (which sets the underlying value to `null`) would be inferred by Checker to `AtomicReference<@NonNull V>` and not `AtomicReference<@Nullable V>`...
+  // and this in turn would make Checker unsoundly assume that `get`'s result is guaranteed to be non-null.
   @Nullable V get();
-  void set(@Nullable V value);
 }
 
 

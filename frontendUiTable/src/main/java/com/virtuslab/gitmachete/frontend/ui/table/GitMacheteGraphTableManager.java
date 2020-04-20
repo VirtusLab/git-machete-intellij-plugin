@@ -36,7 +36,7 @@ public final class GitMacheteGraphTableManager {
   private boolean isListingCommits;
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
-  private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>();
+  private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>(null);
   private final RepositoryGraphFactory repositoryGraphFactory;
   private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
 

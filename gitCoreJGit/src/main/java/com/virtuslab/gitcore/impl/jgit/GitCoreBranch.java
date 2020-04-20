@@ -10,6 +10,7 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -33,7 +34,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final GitCoreRepository repo;
   protected final String branchName;
 
-  private final AtomicReference<GitCoreCommit> pointedCommitRef = new AtomicReference<>(null);
+  private final AtomicReference<@Nullable GitCoreCommit> pointedCommitRef = new AtomicReference<>(null);
 
   @Override
   public String getName() {
