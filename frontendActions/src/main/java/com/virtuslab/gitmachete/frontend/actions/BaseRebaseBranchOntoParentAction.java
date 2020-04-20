@@ -50,8 +50,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    var isReady = anActionEvent
-        .getData(com.virtuslab.gitmachete.frontend.keys.DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY);
+    var isReady = anActionEvent.getData(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY);
     if (isReady == null || !isReady) {
       presentation.setEnabled(false);
       presentation.setVisible(false);
@@ -139,8 +138,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
    * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
    */
   protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent
-        .getData(com.virtuslab.gitmachete.frontend.keys.DataKeys.KEY_GIT_MACHETE_REPOSITORY);
+    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
     return gitMacheteRepository;
