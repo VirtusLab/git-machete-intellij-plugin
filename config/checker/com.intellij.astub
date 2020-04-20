@@ -26,6 +26,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @UIPackage package com.intellij.diff.merge;
 @UIPackage package com.intellij.diff.requests;
 @UIPackage package com.intellij.diff.util;
+
+package com.intellij.diff.tools.util.base;
+
+class TextDiffViewerUtil {
+    class ComboBoxSettingAction<T> {
+        @UIEffect void update(AnActionEvent e);
+    }
+}
+
 @UIPackage package com.intellij.dvcs.push;
 @UIPackage package com.intellij.execution;
 @UIPackage package com.intellij.execution.configurations;
@@ -231,6 +240,11 @@ class GuiUtils {
   @SafeEffect void invokeLaterIfNeeded(Runnable runnable, ModalityState modalityState, Condition expired);
 }
 
+class CollectionComboBoxModel<T> {
+    @SafeEffect T getSelected();
+    @SafeEffect List<T> getItems();
+
+}
 
 @UIPackage package com.intellij.ui.border;
 @UIPackage package com.intellij.ui.breadcrumbs;

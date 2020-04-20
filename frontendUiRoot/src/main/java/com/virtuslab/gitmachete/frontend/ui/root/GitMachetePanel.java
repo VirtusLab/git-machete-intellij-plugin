@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.root;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -13,13 +14,14 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.util.SmartList;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
+import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
@@ -31,7 +33,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
 
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
-  private final VcsRootDropdown vcsRootDropdown;
+  private final VcsRootComboBox vcsRootComboBox;
 
   @UIEffect
   public GitMachetePanel(Project project) {
@@ -41,24 +43,17 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     // opened project, so Git Machete plugin shouldn't even be loaded in the first place
     @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
-    List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-    vcsRootDropdown = new VcsRootDropdown(repositories);
-    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootDropdown);
+    List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));
+    vcsRootComboBox = new VcsRootComboBox(repositories);
+    gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootComboBox);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
 
     // This class is final, so the instance is `@Initialized` at this point.
 
-    addToolbarsToWindowPanel();
+    setToolbar(createGitMacheteVerticalToolbar().getComponent());
+    add(VcsRootComboBox.shrinkWrap(vcsRootComboBox), BorderLayout.NORTH);
     GitMacheteGraphTable gitMacheteGraphTable = gitMacheteGraphTableManager.getGitMacheteGraphTable();
     setContent(ScrollPaneFactory.createScrollPane(gitMacheteGraphTable));
-  }
-
-  @UIEffect
-  private void addToolbarsToWindowPanel() {
-    setToolbar(createGitMacheteVerticalToolbar().getComponent());
-    if (vcsRootDropdown.getRootCount() > 1) {
-      add(createGitMacheteHorizontalToolbar().getComponent(), BorderLayout.NORTH);
-    }
   }
 
   @UIEffect
@@ -72,18 +67,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
     ActionToolbar toolbar = ActionManager.getInstance()
         .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
-    toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
-    return toolbar;
-  }
-
-  @UIEffect
-  private ActionToolbar createGitMacheteHorizontalToolbar() {
-    DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
-
-    gitMacheteActions.add(vcsRootDropdown);
-
-    ActionToolbar toolbar = ActionManager.getInstance()
-        .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ true);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }

@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.table;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,6 +15,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.GuiUtils;
+import com.intellij.util.SmartList;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
@@ -24,13 +26,14 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.common.value.qual.MinLen;
 import org.reflections.Reflections;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
+import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 
 public final class GitMacheteGraphTableManager {
   private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
@@ -43,18 +46,17 @@ public final class GitMacheteGraphTableManager {
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>(null);
   private final RepositoryGraphFactory repositoryGraphFactory;
-  private final VcsRootDropdown vcsRootDropdown;
+  private final VcsRootComboBox vcsRootComboBox;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
 
-  public GitMacheteGraphTableManager(Project project,
-      ISelectionChangeObservable<GitRepository> selectionChangeObservable) {
+  public GitMacheteGraphTableManager(Project project, VcsRootComboBox vcsRootComboBox) {
     this.project = project;
     this.isListingCommits = false;
     GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
     this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef,
-        selectionChangeObservable);
+        vcsRootComboBox);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
-    this.vcsRootDropdown = selectionChangeObservable;
+    this.vcsRootComboBox = vcsRootComboBox;
     this.gitMacheteRepositoryFactory = getGitMacheteRepositoryFactoryInstance();
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
@@ -74,7 +76,7 @@ public final class GitMacheteGraphTableManager {
 
   private void subscribeToVcsRootChanges() {
     // The method reference is invoked when user changes repository in dropdown menu
-    vcsRootDropdown.addObserver(this::updateAndRefreshInBackground);
+    vcsRootComboBox.addObserver(this::updateAndRefreshInBackground);
   }
 
   private void subscribeToGitRepositoryChanges() {
@@ -84,7 +86,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   public void refreshGraphTable() {
-    GitRepository gitRepository = vcsRootDropdown.getValue();
+    GitRepository gitRepository = vcsRootComboBox.getValue();
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
@@ -145,7 +147,16 @@ public final class GitMacheteGraphTableManager {
         @Override
         @UIEffect
         public void run(ProgressIndicator indicator) {
-          GitRepository gitRepository = vcsRootDropdown.getValue();
+
+          // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
+          // in
+          // opened project, so Git Machete plugin shouldn't even be loaded in the first place
+          @SuppressWarnings("value:assignment.type.incompatible")
+          @MinLen(1)
+          List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));
+          vcsRootComboBox.updateRepositories(repositories);
+
+          GitRepository gitRepository = vcsRootComboBox.getValue();
           Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
           Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
           Path macheteFilePath = getMacheteFilePath(gitRepository);

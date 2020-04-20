@@ -1,8 +1,13 @@
 
+import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 package javax.swing;
+
+class JComboBox<E> {
+    @SafeEffect ComboBoxModel<E> getModel();
+}
 
 class JComponent {
   void setBorder(@Nullable Border border);
