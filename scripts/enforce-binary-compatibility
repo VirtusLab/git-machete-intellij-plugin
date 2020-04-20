@@ -45,8 +45,7 @@ for iv in ${intellij_versions[*]}; do
   fi
 
   OUT=$(java -jar "$verifier_jar_path" check-plugin -vrd "frontendUi/build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}")
-  PROBLEMS=$(echo "$OUT" | grep -c -E "^Plugin (.*) against .*: .* compatibility problems?$" || true)
-  if [[ $PROBLEMS -gt 0 ]]
+  if echo "$OUT" | grep -qxE 'Plugin (.*) against .*: .* compatibility problems?'; then
   then
     echo "We have one or more compatibility problem(s) with version $iv"
     echo "$OUT"

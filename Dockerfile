@@ -21,5 +21,5 @@ WORKDIR /stripped_repo
 RUN --mount=type=bind,rw,source=.,target=. \
   ./gradlew resolveDependencies
 
-# Script for enforcing compatifility is being run to download IntelliJ dependencies
+# Script for enforcing compatibility is being run to download IntelliJ dependencies
 RUN --mount=type=bind,rw,source=.,target=. ./gradlew buildPlugin && scripts/enforce-binary-compatibility
