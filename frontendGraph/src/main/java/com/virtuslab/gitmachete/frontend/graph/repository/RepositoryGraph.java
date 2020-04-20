@@ -43,7 +43,7 @@ public class RepositoryGraph {
     return printElementGenerator.getPrintElements(rowIndex);
   }
 
-  @SuppressWarnings("index:argument.type.incompatible")
+  @SuppressWarnings("upperbound:argument.type.incompatible")
   public IGraphNode getGraphNode(@NonNegative int rowIndex) {
     return nodes.get(rowIndex);
   }
@@ -70,7 +70,7 @@ public class RepositoryGraph {
     }
 
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
-    @SuppressWarnings("index:argument.type.incompatible")
+    @SuppressWarnings("upperbound:argument.type.incompatible")
     IGraphNode currentNode = nodes.get(nodeIndex);
 
     if (filter.upNormal && nodeIndex > 0) {

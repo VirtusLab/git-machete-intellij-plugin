@@ -100,7 +100,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   private void subscribeToVcsRootChanges() {
-    // The lambda is invoked when user changes repository in dropdown menu
+    // The method reference is invoked when user changes repository in dropdown menu
     selectionChangeObservable.addObserver(this::updateAndRefreshInBackground);
   }
 
