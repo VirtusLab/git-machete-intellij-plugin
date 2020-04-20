@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.nodes;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
@@ -12,7 +11,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Getter
-@EqualsAndHashCode
 @ToString
 public abstract class BaseGraphNode implements IGraphNode {
   private static final String EMPTY_VALUE = "";
@@ -58,5 +56,18 @@ public abstract class BaseGraphNode implements IGraphNode {
   public void setNextSiblingNodeIndex(@Positive int i) {
     assert nextSiblingNodeIndex == null : "nextSiblingNodeIndex has already been set";
     nextSiblingNodeIndex = i;
+  }
+
+  @Override
+  public final boolean equals(@Nullable Object other) {
+    return this == other;
+  }
+
+  @Override
+  public final int hashCode() {
+    return (((((graphEdgeColor != null ? graphEdgeColor.hashCode() : 0) * 23
+        + (nextSiblingNodeIndex != null ? nextSiblingNodeIndex : 0)) * 23
+        + prevSiblingNodeIndex) * 23)
+        + indentLevel);
   }
 }

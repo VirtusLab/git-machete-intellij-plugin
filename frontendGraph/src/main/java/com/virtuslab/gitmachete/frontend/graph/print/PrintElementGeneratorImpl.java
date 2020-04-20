@@ -2,7 +2,9 @@ package com.virtuslab.gitmachete.frontend.graph.print;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import com.intellij.util.SmartList;
 import com.intellij.vcs.log.graph.EdgePrintElement.Type;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
@@ -74,8 +76,8 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
   @RequiredArgsConstructor
   private final class PrintElementBuilder {
-    private final ArrayList<PrintElementWithGraphElement> result = new ArrayList<>();
-    private final ArrayList<PrintElementWithGraphElement> nodes = new ArrayList<>();
+    private final List<PrintElementWithGraphElement> result = new ArrayList<>();
+    private final List<PrintElementWithGraphElement> nodes = new SmartList<>();
     @NonNegative
     private final int rowIndex;
 

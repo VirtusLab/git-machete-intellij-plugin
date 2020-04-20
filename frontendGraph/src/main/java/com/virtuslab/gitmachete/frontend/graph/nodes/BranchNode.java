@@ -4,16 +4,11 @@ import java.awt.Color;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.checkerframework.checker.index.qual.GTENegativeOne;
-import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
-
-@EqualsAndHashCode(callSuper = true)
 @Getter
 public final class BranchNode extends BaseGraphNode {
   private final BaseGitMacheteBranch branch;
@@ -22,13 +17,13 @@ public final class BranchNode extends BaseGraphNode {
   private final boolean hasChildNode;
 
   public BranchNode(
-      BaseGitMacheteBranch branch,
-      GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingNodeIndex,
-      ISyncToRemoteStatus syncToRemoteStatus,
-      boolean isCurrentBranch,
-      @NonNegative int indentLevel,
-      boolean hasChildNode) {
+          BaseGitMacheteBranch branch,
+          GraphEdgeColor graphEdgeColor,
+          ISyncToRemoteStatus syncToRemoteStatus,
+          int prevSiblingNodeIndex,
+          int indentLevel,
+          boolean isCurrentBranch,
+          boolean hasChildNode) {
     super(graphEdgeColor, prevSiblingNodeIndex, indentLevel);
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;

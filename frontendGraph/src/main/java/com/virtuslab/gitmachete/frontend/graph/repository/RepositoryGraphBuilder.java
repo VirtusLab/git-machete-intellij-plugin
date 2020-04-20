@@ -167,7 +167,7 @@ public class RepositoryGraphBuilder {
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
     boolean hasChildNode = !branch.getDownstreamBranches().isEmpty();
-    return new BranchNode(branch, graphEdgeColor, prevSiblingNodeIndex, syncToRemoteStatus, isCurrentBranch,
-        indentLevel, hasChildNode);
+    return new BranchNode(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingNodeIndex, indentLevel, isCurrentBranch,
+            hasChildNode);
   }
 }
