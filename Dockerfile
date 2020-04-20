@@ -18,8 +18,8 @@ WORKDIR /stripped_repo
 # Create gradle cache
 # `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs
 # We need this to allow `./gradlew` to write in `.gradle` directory
-# script for enforcing compatifility is runned for download IntelliJ dependencies
 RUN --mount=type=bind,rw,source=.,target=. \
   ./gradlew resolveDependencies
 
+# Script for enforcing compatifility is being run to download IntelliJ dependencies
 RUN --mount=type=bind,rw,source=.,target=. ./gradlew buildPlugin && scripts/enforce-binary-compatibility

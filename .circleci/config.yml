@@ -50,12 +50,7 @@ jobs:
           command: ./gradlew buildPlugin
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
-          command: |
-            if [[ $CIRCLE_BRANCH == master ]]; then
-              ./scripts/enforce-binary-compatibility
-            else
-              echo Skipping, not a master build
-            fi
+          command: ./scripts/enforce-binary-compatibility
       - store_artifacts:
           path: frontendUi/build/distributions/
           destination: .

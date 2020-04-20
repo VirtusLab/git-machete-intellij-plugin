@@ -60,16 +60,23 @@ public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
     presentation.setVisible(true);
     Repository.State state = getIdeaRepository(anActionEvent).getState();
     if (state != Repository.State.NORMAL) {
+      // `REVERTING`` state is available since 193.2495
+      var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();
 
       var stateName = Match(state).of(
-          Case($(Repository.State.GRAFTING), "ongoing cherry-pick or revert"),
-          Case($(Repository.State.DETACHED), "detached head state"),
-          Case($(Repository.State.MERGING), "ongoing merge"),
-          Case($(Repository.State.REBASING), "ongoing rebase"),
-          Case($(), state.toString()));
+          // In versions earlier than 193.2495 if repository is in reverting state,
+          // com.intellij.dvcs.repo.Repository.getState returns `GRAFTING` state like when cherry-pick is in progress so
+          // we return custom message in this case
+          Case($(Repository.State.GRAFTING),
+              revertingState != null ? "during an ongoing cherry-pick" : "during an ongoing cherry-pick or revert"),
+          Case($(Repository.State.DETACHED), "in the detached head state"),
+          Case($(Repository.State.MERGING), "during an ongoing merge"),
+          Case($(Repository.State.REBASING), "during an ongoing rebase"),
+          Case($(revertingState), "during an ongoing revert"),
+          Case($(), ": " + state.toString().toLowerCase()));
 
       presentation.setEnabled(false);
-      presentation.setDescription("Can't rebase: ${stateName}");
+      presentation.setDescription("Can't rebase ${stateName}");
     }
   }
 
