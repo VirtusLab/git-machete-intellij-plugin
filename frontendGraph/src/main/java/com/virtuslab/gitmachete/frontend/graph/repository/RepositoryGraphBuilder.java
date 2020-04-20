@@ -87,6 +87,7 @@ public class RepositoryGraphBuilder {
       }
 
       int prevSiblingNodeIndex = graphNodes.size() - 1;
+      // We are building some non root branches here so some root branch node has been added already.
       assert prevSiblingNodeIndex >= 0;
       buildCommitsAndNonRootBranch(graphNodes, branch, prevSiblingNodeIndex, indentLevel);
 
@@ -125,11 +126,13 @@ public class RepositoryGraphBuilder {
     var syncToParentStatus = branch.getSyncToParentStatus();
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
     int branchNodeIndex = graphNodes.size() + commits.size();
+    // We are building some non root branch here so some root branch node has been added already.
     assert branchNodeIndex > 0;
 
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
       int lastNodeIndex = graphNodes.size() - 1;
+      // We are building some non root branch here so some root branch node has been added already.
       assert lastNodeIndex >= 0;
       int prevSiblingNodeIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastNodeIndex;
       int nextSiblingNodeIndex = graphNodes.size() + 1;
@@ -167,7 +170,7 @@ public class RepositoryGraphBuilder {
     boolean isCurrentBranch = currentBranch.isPresent() && currentBranch.get().equals(branch);
 
     boolean hasChildNode = !branch.getDownstreamBranches().isEmpty();
-    return new BranchNode(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingNodeIndex, indentLevel, isCurrentBranch,
-            hasChildNode);
+    return new BranchNode(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingNodeIndex, indentLevel,
+        isCurrentBranch, hasChildNode);
   }
 }

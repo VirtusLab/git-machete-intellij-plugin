@@ -28,6 +28,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
@@ -137,29 +139,38 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @UIEffect
-    private int calculateTextPadding(int maxPosition) {
+    @Positive
+    private int calculateTextPadding(@NonNegative int maxPosition) {
       int width = (maxPosition + 1) * PaintParameters.getNodeWidth(graphTable.getRowHeight());
-      return width + LabelPainter.RIGHT_PADDING.get();
+      int padding = width + LabelPainter.RIGHT_PADDING.get();
+      // Our assumption here comes from the fact that we expect positive row height of graph table
+      // and positive right padding from `LabelPainter.RIGHT_PADDING`.
+      assert padding > 0;
+      return padding;
     }
 
+    @NonNegative
     private int getMaxGraphNodePositionInRow(IGraphNode node) {
-      // if node is a child (non root) branch the text must be shifted for sake of the right edge
-      // if node is a commit the text must be shifted for sake of its the shifted branch
+      // If node is a child (non root) branch, then the text must be shifted right to make place
+      // for the corresponding the right edge to the left.
+      // If node is a commit, then the text must be shifted right to keep it horizontally aligned
+      // with the corresponding branch node.
       boolean isRootBranch = node.isBranch() && ((BranchNode) node).getBranch().isRootBranch();
-      return node.getIndentLevel() + (!isRootBranch ? 1 : 0);
+      return node.getIndentLevel() + (isRootBranch ? 0 : 1);
     }
 
     @UIEffect
     private GraphImage getGraphImage(Collection<? extends PrintElement> printElements,
-        int maxGraphNodePositionInRow) {
-      double maxIndex = maxGraphNodePositionInRow;
+        @NonNegative int maxGraphNodePositionInRow) {
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
-          (int) (PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxIndex + 2)), graphTable.getRowHeight(),
-          BufferedImage.TYPE_INT_ARGB, PaintUtil.RoundingMode.CEIL);
+          /* width */ PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxGraphNodePositionInRow + 2),
+          /* height */ graphTable.getRowHeight(),
+          BufferedImage.TYPE_INT_ARGB,
+          PaintUtil.RoundingMode.CEIL);
       Graphics2D g2 = image.createGraphics();
       painter.draw(g2, printElements);
 
-      int width = (int) (maxIndex * PaintParameters.getNodeWidth(graphTable.getRowHeight()));
+      int width = maxGraphNodePositionInRow * PaintParameters.getNodeWidth(graphTable.getRowHeight());
       return new GraphImage(image, width);
     }
 

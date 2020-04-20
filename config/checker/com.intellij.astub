@@ -3,7 +3,9 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.guieffect.qual.UIPackage;
+import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @UIPackage package com.intellij.application.options;
 @UIPackage package com.intellij.build;
@@ -315,6 +317,14 @@ class UIUtil {
 
 @UIPackage package com.intellij.util.ui.tree;
 @UIPackage package com.intellij.util.ui.update;
+
+package com.intellij.vcs.log.graph.api.elements;
+
+class GraphEdge {
+    GraphEdge createNormalEdge(@NonNegative int nodeIndex1, @NonNegative int nodeIndex2, GraphEdgeType type);
+    GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, @Nullable Integer targetId, GraphEdgeType type);
+}
+
 @UIPackage package com.intellij.vcs.log.paint;
 @UIPackage package com.intellij.vcs.log.ui.render;
 @UIPackage package com.intellij.vcsUtil;

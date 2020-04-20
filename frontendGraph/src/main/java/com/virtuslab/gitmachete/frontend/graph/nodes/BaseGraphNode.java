@@ -13,7 +13,6 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 @Getter
 @ToString
 public abstract class BaseGraphNode implements IGraphNode {
-  private static final String EMPTY_VALUE = "";
 
   @Nullable
   private final GraphEdgeColor graphEdgeColor;
@@ -65,9 +64,9 @@ public abstract class BaseGraphNode implements IGraphNode {
 
   @Override
   public final int hashCode() {
-    return (((((graphEdgeColor != null ? graphEdgeColor.hashCode() : 0) * 23
+    return ((((graphEdgeColor != null ? graphEdgeColor.hashCode() : 0) * 23
         + (nextSiblingNodeIndex != null ? nextSiblingNodeIndex : 0)) * 23
         + prevSiblingNodeIndex) * 23)
-        + indentLevel);
+        + indentLevel;
   }
 }

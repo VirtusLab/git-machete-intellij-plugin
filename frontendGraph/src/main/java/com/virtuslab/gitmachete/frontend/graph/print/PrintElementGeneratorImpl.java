@@ -22,14 +22,10 @@ import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
 import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
+@RequiredArgsConstructor
 public final class PrintElementGeneratorImpl implements PrintElementGenerator {
   private final RepositoryGraph repositoryGraph;
   private final GraphElementManager printElementManager;
-
-  public PrintElementGeneratorImpl(RepositoryGraph repositoryGraph, GraphElementManager graphElementManager) {
-    this.repositoryGraph = repositoryGraph;
-    this.printElementManager = graphElementManager;
-  }
 
   @Override
   public Collection<PrintElementWithGraphElement> getPrintElements(int rowIndex) {
@@ -76,7 +72,7 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
   @RequiredArgsConstructor
   private final class PrintElementBuilder {
-    private final List<PrintElementWithGraphElement> result = new ArrayList<>();
+    private final List<PrintElementWithGraphElement> edges = new ArrayList<>();
     private final List<PrintElementWithGraphElement> nodes = new SmartList<>();
     @NonNegative
     private final int rowIndex;
@@ -86,22 +82,23 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
-      result.add(
+      edges.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.DOWN, edge, /* hasArrow */ false,
               printElementManager));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      result.add(
+      edges.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.UP, edge, /* hasArrow */ false,
               printElementManager));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      result.add(new RightEdgePrintElement(rowIndex, position, edge, printElementManager));
+      edges.add(new RightEdgePrintElement(rowIndex, position, edge, printElementManager));
     }
 
     public Collection<PrintElementWithGraphElement> build() {
+      List<PrintElementWithGraphElement> result = new ArrayList<>(edges);
       result.addAll(nodes);
       return result;
     }

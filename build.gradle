@@ -132,7 +132,7 @@ subprojects {
     def subprojectConfigFile = new File(projectDir, checkstyleRelativeConfigPath)
     // Check if module-specific config file exists. If exists then apply
     if(subprojectConfigFile.isFile()) {
-      configFile = subprojectConfigFile;
+      configFile = subprojectConfigFile
     } else {
       configFile = new File(rootDir, checkstyleRelativeConfigPath)
     }

@@ -4,9 +4,9 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 public interface IGraphNode {
 
