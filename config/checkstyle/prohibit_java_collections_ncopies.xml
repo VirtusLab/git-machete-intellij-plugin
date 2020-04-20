@@ -1,0 +1,6 @@
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\b((java\.util\.)?Collections\.)?nCopies\b"/>
+    <property name="message" value="Usage of the prohibited Java Collections.nCopies"/>
+</module>

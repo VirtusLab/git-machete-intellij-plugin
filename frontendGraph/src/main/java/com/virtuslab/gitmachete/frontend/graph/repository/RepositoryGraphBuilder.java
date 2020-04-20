@@ -47,11 +47,11 @@ public class RepositoryGraphBuilder {
     List<BaseGitMacheteRootBranch> rootBranches = repository.getRootBranches();
 
     java.util.List<IGraphNode> graphNodes = new ArrayList<>();
-    java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>(
-        Collections.nCopies(rootBranches.size(), new SmartList<>()));
+    java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
 
     for (BaseGitMacheteRootBranch branch : rootBranches) {
       int currentBranchIndex = graphNodes.size();
+      positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
       addRootBranch(graphNodes, branch);
       List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
       recursivelyAddCommitsAndBranches(graphNodes, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
