@@ -106,9 +106,11 @@ public class GitMacheteStatusTest {
   }
 
   private void prepareRepoFromScript() throws IOException, InterruptedException {
-    Runtime.getRuntime()
-        .exec(repositoryPreparingCommand, /* array of environment vars */ new String[]{}, scriptsDir.toFile())
-        .waitFor(1, TimeUnit.SECONDS);
+    var process = Runtime.getRuntime()
+        .exec(repositoryPreparingCommand, /* array of environment vars */ new String[]{}, scriptsDir.toFile());
+    var completed = process.waitFor(1, TimeUnit.SECONDS);
+    Assert.assertTrue(completed);
+    Assert.assertEquals(0, process.exitValue());
   }
 
   private String gitMacheteCliStatus() throws IOException {

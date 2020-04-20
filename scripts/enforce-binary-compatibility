@@ -16,8 +16,6 @@ plugin_zip=$(echo frontendUi/build/distributions/git-machete-intellij-plugin-${p
 
 [[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"
 
-set -x
-
 # See https://github.com/JetBrains/intellij-plugin-verifier
 verifier_dir="$HOME/.cache/intellij-verifier"
 mkdir -p $verifier_dir
