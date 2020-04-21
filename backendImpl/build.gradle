@@ -1,4 +1,5 @@
 dependencies {
+  slf4jApi()
   vavr()
 
   implementation project(':gitCoreApi')

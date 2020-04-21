@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -13,6 +14,7 @@ import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 
 @Getter
 @ToString
+@Slf4j(topic = "backend")
 public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
@@ -25,6 +27,9 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
       IGitMacheteCommit pointedCommit,
       ISyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation) {
+    log.debug(
+        "Creating GitMacheteRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}"
+            + "pointedCommit = ${pointedCommit.getHash()}, syncToRemoteStatus = ${syncToRemoteStatus}}, customAnnotation = ${customAnnotation}");
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.pointedCommit = pointedCommit;
@@ -38,6 +43,7 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
     // This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
     // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepository).
     for (GitMacheteNonRootBranch branch : downstreamBranches) {
+      log.debug("Set this (${name}) branch as upstream for ${branch.getName()}");
       branch.setUpstreamBranch(this);
     }
   }
