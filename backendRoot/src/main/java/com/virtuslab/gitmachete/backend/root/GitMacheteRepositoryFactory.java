@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -41,7 +42,7 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
 
-public class GitMacheteRepositoryFactory {
+public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
@@ -50,10 +51,14 @@ public class GitMacheteRepositoryFactory {
     gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
   }
 
+  @Override
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
     return create(mainDirectoryPath, gitDirectoryPath, /* givenBranchLayout */ null);
   }
 
+  // TODO (#202): possible this should be included in IGitMacheteRepositoryFactory as well...
+  // this might require some changes in Gradle subprojects structure (likely moving IGitMacheteRepositoryFactory to a
+  // "backendRootApi" or something like that)
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath,
       @Nullable IBranchLayout givenBranchLayout) throws GitMacheteException {
     // To make sure there are no leftovers from the previous invocations.

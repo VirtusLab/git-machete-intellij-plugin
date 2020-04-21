@@ -6,21 +6,8 @@ dependencies {
 }
 
 apply plugin: 'org.jetbrains.intellij'
-
+disableIntellijTasks()
 intellij {
-  pluginName 'git-machete-intellij-plugin'
   version intellijVersion
   plugins 'git4idea'
-}
-
-patchPluginXml {
-  // Note: update scripts/enforce-binary-compatibility when updating the compatibility data
-  // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*` (strict version typed)
-  // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  sinceBuild '192' // aka 2019.2 (inclusive)
-  untilBuild '201.*' // aka 2020.1 (inclusive)
-}
-
-runIde {
-  jvmArgs '-Djdk.gtk.version=2'
 }

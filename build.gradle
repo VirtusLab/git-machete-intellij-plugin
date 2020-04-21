@@ -31,9 +31,9 @@ if (System.getenv('CI') == 'true') {
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
 }
 
-subprojects {
+allprojects {
   group 'com.virtuslab'
-  apply from: '../version.gradle'
+  apply from: "$rootDir/version.gradle"
   version PLUGIN_VERSION
 
   repositories {
@@ -44,8 +44,8 @@ subprojects {
   ext {
     betterStringsVerson = '0.2'
     checkstyleToolVersion = '8.30'
-    // Both `untilBuild` in frontendUi/build.gradle and `intellij_versions` in scripts/enforce-binary-compatibility
-    // must also be updated when we update field bellow
+    // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/enforce-binary-compatibility
+    // must also be updated when we update the version below.
     intellijVersion = '2020.1'
     jgitVersion = '5.5.1.201910021850-r'
     junitVersion = '4.13'
@@ -53,11 +53,13 @@ subprojects {
     // Lombok Gradle plugin pulls in its own (apparently non-configurable) Lombok version.
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
+    reflectionsVersion = '0.9.12'
     slf4jVersion = '1.7.30'
     vavrVersion = '0.10.2'
   }
+}
 
-
+subprojects {
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
 
@@ -129,7 +131,7 @@ subprojects {
 
   // String interpolation support, see https://github.com/antkorwin/better-strings
   // This needs to be enabled in each subproject by default because there's going to be no warning
-  // if this annotation processor isn't run in any module (the strings would be just interpreted verbatim, without interpolation applied).
+  // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   dependencies {
     def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
     annotationProcessor(betterStringsArtifact)
@@ -153,8 +155,8 @@ subprojects {
     def checkstyleRelativeConfigPath = 'config/checkstyle/checkstyle.xml'
 
     def subprojectConfigFile = new File(projectDir, checkstyleRelativeConfigPath)
-    // Check if module-specific config file exists. If exists then apply
-    if(subprojectConfigFile.isFile()) {
+    // Check if subproject-specific config file exists. If exists then apply
+    if (subprojectConfigFile.isFile()) {
       configFile = subprojectConfigFile
     } else {
       configFile = new File(rootDir, checkstyleRelativeConfigPath)
@@ -188,8 +190,8 @@ subprojects {
 
 
   ext {
-    // For frontend modules other than `frontendUiRoot`, we only use the Intellij plugin to provide dependencies,
-    // but don't want the associated tasks to be available.
+    // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
+    // but don't want the associated tasks to be available; they should only be available in the root project.
     disableIntellijTasks = { ->
       buildPlugin.enabled = false
       buildSearchableOptions.enabled = false
@@ -212,7 +214,7 @@ subprojects {
           // that's incompatible with the slf4j-api version that IntelliJ depends in (currently 1.7.25).
           // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
           // (http://www.slf4j.org/manual.html#compatibility).
-          // We rely on that guarantee in frontendUiTable module: JGit that frontendUiTable depends on (via backendRoot and gitCoreJGit)
+          // We rely on that guarantee: JGit that our plugin depends on (via backendRoot and gitCoreJGit)
           // effectively uses whatever slf4j-api version is provided by IntelliJ.
           // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
           // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation, we need to exclude the former.
@@ -231,6 +233,12 @@ subprojects {
       dependencies {
         testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
         testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+      }
+    }
+
+    reflections = { ->
+      dependencies {
+        implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
       }
     }
 
@@ -253,4 +261,33 @@ subprojects {
       }
     }
   }
+}
+
+
+// Root project config
+
+// This is necessary to make sure that `buildPlugin` task puts jars of all subprojects into the final zip.
+subprojects.each {subproject ->
+  dependencies {
+    implementation(subproject)
+  }
+}
+
+apply plugin: 'org.jetbrains.intellij'
+
+intellij {
+  pluginName 'git-machete-intellij-plugin'
+  version intellijVersion
+}
+
+patchPluginXml {
+  // Note: update scripts/enforce-binary-compatibility when updating the compatibility data
+  // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*` (strict version typed)
+  // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
+  sinceBuild '192' // aka 2019.2 (inclusive)
+  untilBuild '201.*' // aka 2020.1 (inclusive)
+}
+
+runIde {
+  jvmArgs '-Djdk.gtk.version=2'
 }

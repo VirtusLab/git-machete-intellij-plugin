@@ -1,8 +1,8 @@
 dependencies {
+  reflections()
   vavr()
 
   implementation project(':backendApi')
-  implementation project(':backendRoot')
   implementation project(':frontendGraph')
   implementation project(':frontendKeys')
 }

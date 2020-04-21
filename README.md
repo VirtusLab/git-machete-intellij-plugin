@@ -34,7 +34,7 @@ To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gra
 ### Generate plugin zip
 
 To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel | Tasks | intellij | buildPlugin` or `./gradlew buildPlugin`).
-The resulting file will be available under `frontendUiRoot/build/distributions/`.
+The resulting file will be available under `build/distributions/`.
 
 ### Install snapshot build of the plugin
 
