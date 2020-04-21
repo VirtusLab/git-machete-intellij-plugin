@@ -1,3 +1,7 @@
+
+# The repo setup scripts sometimes spuriously crash on CI, let's investigate that.
+set -x
+
 newb() {
   git checkout -b $1
 }

@@ -8,28 +8,25 @@ source "$self_dir"/utils.sh
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
-  # A hackish way to derive base commit of a PR on Github: first, fetch the ref pointing to PR head commit merged to the base,
-  # available on GH under refs/pull/<pr-number>/merge...
-  if git fetch --quiet origin refs/pull/$pr_num/merge:refs/remotes/origin/pull-$pr_num/merge; then
-    #  ... and then extract the first parent of that hash (the second parent is just our current HEAD commit).
-    base_revision="origin/pull-${pr_num}/merge^1"
-  else
-    # Fetching refs/pull/<pr-number>/merge sometimes spuriously fails, possibly due to eventual consistency on GitHub.
-    # Let's fall back to master in such cases.
-    base_revision=origin/master
-  fi
+  base_branch=$(hub pr show --format=%B "$pr_num")
+  git fetch --quiet origin "$base_branch"
+  base_revision="origin/$base_branch"
 
 elif [[ ${CIRCLE_BRANCH-} == master ]]; then
+  # Master build on CI, no version check needed.
+  # Note: we don't run builds other than for PRs and for master branch (e.g. pre-PR branch builds).
   exit 0
 
 elif git machete show up &>/dev/null; then
+  # A local run.
   base_revision=$(git machete show up 2>/dev/null)
 
 elif command -v hub &>/dev/null; then
-  # Fall back to master if no PR is open for the current branch.
+  # A local run. Fall back to master if no PR is open for the current branch.
   base_revision=$(hub pr show --format=%B 2>/dev/null || echo master)
 
 else
+  # A local run.
   base_revision=origin/master
 fi
 

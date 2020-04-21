@@ -10,6 +10,7 @@ jobs:
       - run:
           name: Prepare build
           command: |
+            hub --version
             bash -x ./scripts/run-pre-build-checks
             bash ./scripts/specify-snapshot-revision
 
