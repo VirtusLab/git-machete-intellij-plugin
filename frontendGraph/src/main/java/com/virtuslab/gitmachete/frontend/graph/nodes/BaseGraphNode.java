@@ -14,7 +14,6 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 @ToString
 public abstract class BaseGraphNode implements IGraphNode {
 
-  @Nullable
   private final GraphEdgeColor graphEdgeColor;
 
   @GTENegativeOne
@@ -27,7 +26,7 @@ public abstract class BaseGraphNode implements IGraphNode {
   @NonNegative
   private final int indentLevel;
 
-  protected BaseGraphNode(@Nullable GraphEdgeColor graphEdgeColor,
+  protected BaseGraphNode(GraphEdgeColor graphEdgeColor,
       @GTENegativeOne int prevSiblingNodeIndex,
       @Positive int nextSiblingNodeIndex,
       @NonNegative int indentLevel) {
@@ -37,7 +36,7 @@ public abstract class BaseGraphNode implements IGraphNode {
     this.indentLevel = indentLevel;
   }
 
-  protected BaseGraphNode(@Nullable GraphEdgeColor graphEdgeColor,
+  protected BaseGraphNode(GraphEdgeColor graphEdgeColor,
       @GTENegativeOne int prevSiblingNodeIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
@@ -64,9 +63,6 @@ public abstract class BaseGraphNode implements IGraphNode {
 
   @Override
   public final int hashCode() {
-    return ((((graphEdgeColor != null ? graphEdgeColor.hashCode() : 0) * 23
-        + (nextSiblingNodeIndex != null ? nextSiblingNodeIndex : 0)) * 23
-        + prevSiblingNodeIndex) * 23)
-        + indentLevel;
+    return super.hashCode();
   }
 }

@@ -96,29 +96,30 @@ public class RepositoryGraph {
    *
    * @return list of visible edges in a given node index
    */
-  @SuppressWarnings("index:argument.type.incompatible")
   public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int nodeIndex) {
-    assert nodeIndex < nodesCount() : "Bad nodeIndex: " + nodeIndex;
+    assert nodeIndex < positionsOfVisibleEdges.size() : "Bad nodeIndex: " + nodeIndex;
+
     return positionsOfVisibleEdges.get(nodeIndex).map(pos -> {
 
       int upNodeIndex = nodeIndex - 1;
       int downNodeIndex = nodeIndex + 1;
 
+      while (downNodeIndex < positionsOfVisibleEdges.size()
+          && positionsOfVisibleEdges.get(downNodeIndex).contains(pos)) {
+        downNodeIndex++;
+      }
+
+      while (upNodeIndex >= 0 && positionsOfVisibleEdges.get(upNodeIndex).contains(pos)) {
+        upNodeIndex--;
+      }
+
       // We can assume the following since we know that the first node (a root branch)
       // AND the last node (some branch, possible indented child) has no visible edges in their rows.
       // (The first condition is obvious. The second can be easily proved by contradiction.
       // Suppose that the last node, at index n has a visible edge. Any visible edge has some (branch) node
-      // that it leads to, hence there must exists some node at index k > n being a target to the visible edge.
+      // that it leads to, hence there must exist some node at index k > n being a target to the visible edge.
       // But n is the index of the last node. Contradiction. )
-      assert upNodeIndex >= 0 && downNodeIndex < nodesCount();
-
-      while (positionsOfVisibleEdges.get(downNodeIndex).contains(pos)) {
-        downNodeIndex++;
-      }
-
-      while (positionsOfVisibleEdges.get(upNodeIndex).contains(pos)) {
-        upNodeIndex--;
-      }
+      assert upNodeIndex >= 0 && downNodeIndex < positionsOfVisibleEdges.size();
 
       return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex, /* targetId */ null, GraphEdgeType.USUAL), pos);
     }).collect(List.collector());

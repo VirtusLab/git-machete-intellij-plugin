@@ -61,9 +61,15 @@
 <module name="PackageDeclaration"/>
 <module name="ParameterAssignment"/>
 <module name="RedundantModifier"/>
-<!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
-        unexpectedly differ in their behaviour.
-        To avoid possible bugs, invocation of any method called "peek" is forbidden. -->
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bnCopies\b"/>
+    <property name="message" value="Usage of the prohibited Java Collections.nCopies"/>
+</module>
+        <!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
+                unexpectedly differ in their behaviour.
+                To avoid possible bugs, invocation of any method called "peek" is forbidden. -->
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>

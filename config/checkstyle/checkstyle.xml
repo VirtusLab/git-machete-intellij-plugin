@@ -4,7 +4,6 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd" [
         <!ENTITY checkerModuleDirectives SYSTEM "checker_module_directives.xml">
         <!ENTITY prohibitJavaCollections SYSTEM "prohibit_java_collections.xml">
-        <!ENTITY prohibitJavaCollectionsNCopies SYSTEM "prohibit_java_collections_ncopies.xml">
         <!ENTITY treeWalkerModuleDirectives SYSTEM "tree_walker_module_directives.xml">
         ]>
 
@@ -19,6 +18,5 @@
 
     <module name="TreeWalker">
         &treeWalkerModuleDirectives;
-        &prohibitJavaCollectionsNCopies;
     </module>
 </module>

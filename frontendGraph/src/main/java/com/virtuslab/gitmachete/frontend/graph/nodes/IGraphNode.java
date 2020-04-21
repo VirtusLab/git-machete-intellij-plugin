@@ -12,14 +12,14 @@ public interface IGraphNode {
 
   /**
    * @return the index of previous sibling node (above in table) that is connected directly
-   * and thus at the same indent level in graph to this one.
+   * and thus at the same indent level in graph as this one.
    */
   @GTENegativeOne
   int getPrevSiblingNodeIndex();
 
   /**
    * @return the index of next sibling node (below in table) that is connected directly
-   * and thus at the same indent level in graph to this one (hence it is not its child node).
+   * and thus at the same indent level in graph as this one (hence it is not its child node).
    * <ul>
    *     <li>for a commit node, it's either another commit node or the containing branch (never null),</li>
    *     <li>for a branch node, it's either next sibling branch node or null (if none left)</li>

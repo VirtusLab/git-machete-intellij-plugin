@@ -143,8 +143,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     private int calculateTextPadding(@NonNegative int maxPosition) {
       int width = (maxPosition + 1) * PaintParameters.getNodeWidth(graphTable.getRowHeight());
       int padding = width + LabelPainter.RIGHT_PADDING.get();
-      // Our assumption here comes from the fact that we expect positive row height of graph table
-      // and positive right padding from `LabelPainter.RIGHT_PADDING`.
+      // Our assumption here comes from the fact that we expect positive row height of graph table,
+      // hence non-negative width AND positive right padding from `LabelPainter.RIGHT_PADDING`.
       assert padding > 0;
       return padding;
     }

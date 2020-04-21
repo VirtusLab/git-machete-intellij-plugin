@@ -25,7 +25,7 @@ import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 @RequiredArgsConstructor
 public final class PrintElementGeneratorImpl implements PrintElementGenerator {
   private final RepositoryGraph repositoryGraph;
-  private final GraphElementManager printElementManager;
+  private final GraphElementManager graphElementManager;
 
   @Override
   public Collection<PrintElementWithGraphElement> getPrintElements(int rowIndex) {
@@ -36,9 +36,8 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
   }
 
   private void collectElements(@NonNegative int rowIndex, PrintElementBuilder builder) {
-    GraphNode graphNode = new GraphNode(rowIndex);
-    IGraphNode graphElement = repositoryGraph.getGraphNode(rowIndex);
-    int position = graphElement.getIndentLevel();
+    IGraphNode graphNode = repositoryGraph.getGraphNode(rowIndex);
+    int position = graphNode.getIndentLevel();
 
     repositoryGraph.getVisibleEdgesWithPositions(rowIndex).forEach(edgeAndPos -> {
       builder.consumeUpEdge(edgeAndPos._1(), edgeAndPos._2());
@@ -58,13 +57,13 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     }
 
     int nodeAndItsDownEdgePos = position;
-    if (graphElement.isBranch() && !((BranchNode) graphElement).getBranch().isRootBranch()) {
+    if (graphNode.isBranch() && !((BranchNode) graphNode).getBranch().isRootBranch()) {
       builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex, /* targetId */ null, GraphEdgeType.USUAL), position);
       nodeAndItsDownEdgePos++;
     }
 
-    builder.consumeNode(graphNode, nodeAndItsDownEdgePos);
-    if (graphElement.hasChildNode()) {
+    builder.consumeNode(new GraphNode(rowIndex), nodeAndItsDownEdgePos);
+    if (graphNode.hasChildNode()) {
       builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, /* targetId */ null, GraphEdgeType.USUAL),
           nodeAndItsDownEdgePos);
     }
@@ -78,23 +77,23 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     private final int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new SimplePrintElementImpl(rowIndex, position, node, printElementManager));
+      nodes.add(new SimplePrintElementImpl(rowIndex, position, node, graphElementManager));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.DOWN, edge, /* hasArrow */ false,
-              printElementManager));
+              graphElementManager));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(
           new EdgePrintElementImpl(rowIndex, position, position, Type.UP, edge, /* hasArrow */ false,
-              printElementManager));
+              graphElementManager));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new RightEdgePrintElement(rowIndex, position, edge, printElementManager));
+      edges.add(new RightEdgePrintElement(rowIndex, position, edge, graphElementManager));
     }
 
     public Collection<PrintElementWithGraphElement> build() {
