@@ -1,6 +1,7 @@
 dependencies {
   jgit()
   vavr()
+  slf4jApi()
 
   api project(':gitCoreApi')
 }

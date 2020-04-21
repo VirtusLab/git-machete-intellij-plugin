@@ -3,6 +3,9 @@ dependencies {
   vavr()
 
   implementation project(':backendApi')
+  implementation(project(':backendRoot')) {
+    exclude(group: 'org.slf4j', module: 'slf4j-api')
+  }
   implementation project(':branchLayoutApi')
   implementation project(':frontendGraph')
   implementation project(':frontendKeys')

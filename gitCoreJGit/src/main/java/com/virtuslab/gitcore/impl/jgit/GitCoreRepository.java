@@ -2,15 +2,14 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.regex.Pattern;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -32,16 +31,16 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
 @Getter
+@Slf4j(topic = "gitCore")
 public class GitCoreRepository implements IGitCoreRepository {
   private final Repository jgitRepo;
   private final Git jgitGit;
   private final Path mainDirectoryPath;
   private final Path gitDirectoryPath;
 
-  @Getter(AccessLevel.NONE)
-  private static final Pattern GIT_DIR_PATTERN = Pattern.compile("^gitdir:\\s*(.*)");
-
   public GitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
+    log.debug(
+        "Creating GitCoreRepository(/* mainDirectoryPath */ ${mainDirectoryPath}, /* gitDirectoryPath */ ${gitDirectoryPath})");
     this.mainDirectoryPath = mainDirectoryPath;
     this.gitDirectoryPath = gitDirectoryPath;
 
@@ -85,10 +84,13 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException {
+    log.debug("Enter getLocalBranches for repository ${mainDirectoryPath} (${gitDirectoryPath})");
+    log.debug("List of local branches branches:");
     return Try.of(() -> getJgitGit().branchList().call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
+        .peek(branch -> log.debug("* ${branch.getName()}"))
         .map(ref -> new GitCoreLocalBranch(/* repo */ this,
             ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
@@ -96,10 +98,13 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException {
+    log.debug("Enter getRemoteBranches for repository ${mainDirectoryPath} (${gitDirectoryPath})");
+    log.debug("List of remote branches branches:");
     return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
+        .peek(branch -> log.debug("* ${branch.getName()}"))
         .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
             ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
@@ -123,12 +128,16 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Nullable
   private RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
+    log.debug("Enter deriveMergeBase for repository ${mainDirectoryPath} (${gitDirectoryPath})");
     RevWalk walk = new RevWalk(jgitRepo);
     walk.setRevFilter(RevFilter.MERGE_BASE);
     try {
       walk.markStart(walk.parseCommit(toExistingObjectId(c1)));
       walk.markStart(walk.parseCommit(toExistingObjectId(c2)));
-      return walk.next();
+      RevCommit mergeBase = walk.next();
+      log.debug(
+          "Detected merge base for ${c1.getHash().getHashString()} and ${c2.getHash().getHashString()} is ${mergeBase}");
+      return mergeBase;
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
@@ -138,11 +147,14 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Nullable
   private GitCoreCommitHash deriveMergeBaseIfNeeded(BaseGitCoreCommit a, BaseGitCoreCommit b) throws GitCoreException {
+    log.debug("Enter deriveMergeBaseIfNeeded for ${a} and ${b}");
     var abKey = Tuple.of(a, b);
     var baKey = Tuple.of(b, a);
     if (mergeBaseCache.containsKey(abKey)) {
+      log.debug("Merge base for ${a.getHash().getHashString()} and ${b.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(abKey);
     } else if (mergeBaseCache.containsKey(baKey)) {
+      log.debug("Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
       var mergeBase = deriveMergeBase(a, b);
@@ -155,14 +167,22 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException {
+    log.debug(
+        "Enter isAncestor for presumedAncestor = ${presumedAncestor.getHash().getHashString()} and presumedDescendant = ${presumedDescendant.getHash().getHashString()}");
 
     if (presumedAncestor.equals(presumedDescendant)) {
+      log.debug("presumedAncestor is equal to presumedDescendant");
       return true;
     }
     var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
     if (mergeBaseHash == null) {
+      log.debug(
+          "merge base of presumedAncestor and presumedDescendant not found => presumedAncestor is not ancestor of presumedDescendant");
       return false;
     }
-    return mergeBaseHash.equals(presumedAncestor.getHash());
+    boolean isAncestor = mergeBaseHash.equals(presumedAncestor.getHash());
+    log.debug(
+        "merge base of presumedAncestor and presumedDescendant is equal to presumedAncestor => presumedAncestor is ancestor of presumedDescendant");
+    return isAncestor;
   }
 }

@@ -10,6 +10,7 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -30,6 +31,7 @@ import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 @Getter
 @RequiredArgsConstructor
 @ToString
+@Slf4j(topic = "gitCore")
 public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final GitCoreRepository repo;
   protected final String branchName;
@@ -85,6 +87,8 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   @Override
   public List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
+    log.debug("Enter the deriveCommitsUntil for branch ${getFullName()}");
+
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = derivePointedRevCommit();
@@ -94,8 +98,11 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
       return walk;
     }).getOrElseThrow(e -> new GitCoreException(e));
 
+    log.debug("Start revwalk");
+
     return Iterator.ofAll(revWalk)
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
+        .peek(revCommit -> log.debug(revCommit.getId().getName()))
         .map(GitCoreCommit::new)
         .collect(List.collector());
   }

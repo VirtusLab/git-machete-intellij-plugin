@@ -255,6 +255,12 @@ subprojects {
       }
     }
 
+    slf4jApi = { ->
+     dependencies {
+        implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+      }
+    }
+
     vavr = { ->
       dependencies {
         implementation group: 'io.vavr', name: 'vavr', version: vavrVersion
