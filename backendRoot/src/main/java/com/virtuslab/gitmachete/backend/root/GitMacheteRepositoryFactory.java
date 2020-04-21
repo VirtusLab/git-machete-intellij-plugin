@@ -15,7 +15,6 @@ import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -47,38 +46,28 @@ public class GitMacheteRepositoryFactory {
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  @MonotonicNonNull
-  private IBranchLayout branchLayout = null;
-
   public GitMacheteRepositoryFactory() {
     gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
   }
 
-  // TODO (#202): possibly change into a param of `create()`
-  public GitMacheteRepositoryFactory branchLayout(IBranchLayout givenBranchLayout) {
-    this.branchLayout = givenBranchLayout;
-    return this;
+  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+    return create(mainDirectoryPath, gitDirectoryPath, /* givenBranchLayout */ null);
   }
 
-  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath,
+      @Nullable IBranchLayout givenBranchLayout) throws GitMacheteException {
+    // To make sure there are no leftovers from the previous invocations.
+    branchByName = HashMap.empty();
+
     IGitCoreRepository gitCoreRepository = Try
         .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
         .getOrElseThrow(
             e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
                 "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
 
-    if (branchLayout == null) {
-      Path branchLayoutFilePath = gitCoreRepository.getGitDirectoryPath().resolve("machete");
-      branchLayout = Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
-          .getOrElseThrow(e -> {
-            Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-            return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
-                (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
-          });
-    }
-
-    // To make sure there are no leftovers from the previous invocations.
-    branchByName = HashMap.empty();
+    var branchLayout = givenBranchLayout != null
+        ? givenBranchLayout
+        : createBranchLayout(gitCoreRepository.getGitDirectoryPath().resolve("machete"));
 
     var rootBranchTries = branchLayout.getRootBranches()
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
@@ -93,6 +82,15 @@ public class GitMacheteRepositoryFactory {
         .getOrNull();
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
+  }
+
+  private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
+    return Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
+        .getOrElseThrow(e -> {
+          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
+          return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
+              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
+        });
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
