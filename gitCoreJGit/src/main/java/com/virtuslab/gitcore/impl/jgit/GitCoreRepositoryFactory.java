@@ -7,7 +7,7 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 
 public class GitCoreRepositoryFactory implements IGitCoreRepositoryFactory {
-  public IGitCoreRepository create(Path pathToRoot) throws GitCoreException {
-    return new GitCoreRepository(pathToRoot);
+  public IGitCoreRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
+    return new GitCoreRepository(mainDirectoryPath, gitDirectoryPath);
   }
 }

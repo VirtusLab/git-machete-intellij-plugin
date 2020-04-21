@@ -24,7 +24,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
+import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
@@ -41,6 +41,7 @@ public final class GitMacheteGraphTableManager {
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>(null);
   private final RepositoryGraphFactory repositoryGraphFactory;
   private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
+  private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
 
   public GitMacheteGraphTableManager(Project project,
       ISelectionChangeObservable<GitRepository> selectionChangeObservable) {
@@ -112,11 +113,18 @@ public final class GitMacheteGraphTableManager {
     GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
   }
 
-  private Path getMacheteFilePath(GitRepository gitRepository) {
+  private Path getMainDirectoryPath(GitRepository gitRepository) {
+    return Paths.get(gitRepository.getRoot().getPath());
+  }
+
+  private Path getGitDirectoryPath(GitRepository gitRepository) {
     VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
     assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
-    Path gitDirPath = Paths.get(vfGitDir.getPath());
-    return gitDirPath.resolve("machete");
+    return Paths.get(vfGitDir.getPath());
+  }
+
+  private Path getMacheteFilePath(GitRepository gitRepository) {
+    return getGitDirectoryPath(gitRepository).resolve("machete");
   }
 
   public void updateAndRefreshInBackground() {
@@ -126,11 +134,12 @@ public final class GitMacheteGraphTableManager {
         @UIEffect
         public void run(ProgressIndicator indicator) {
           GitRepository gitRepository = selectionChangeObservable.getValue();
+          Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
+          Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
           Path macheteFilePath = getMacheteFilePath(gitRepository);
           boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-          Path repoRootPath = Paths.get(gitRepository.getRoot().getPath());
 
-          updateRepository(repoRootPath, isMacheteFilePresent);
+          updateRepository(mainDirectoryPath, gitDirectoryPath, isMacheteFilePresent);
           refreshGraphTable(macheteFilePath, isMacheteFilePresent);
         }
       }.queue();
@@ -141,10 +150,9 @@ public final class GitMacheteGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  private void updateRepository(Path repoRootPath, boolean isMacheteFilePresent) {
+  private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      var builder = new GitMacheteRepositoryBuilder(repoRootPath);
-      var repository = Try.of(() -> builder.build())
+      var repository = Try.of(() -> gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
       repositoryRef.set(repository);
     } else {

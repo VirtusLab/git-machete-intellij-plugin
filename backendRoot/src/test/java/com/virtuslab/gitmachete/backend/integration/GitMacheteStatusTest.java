@@ -29,7 +29,7 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryBuilder;
+import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryFactory;
 
 public class GitMacheteStatusTest {
   IGitMacheteRepository gitMacheteRepository = null;
@@ -37,17 +37,18 @@ public class GitMacheteStatusTest {
   public static final Path tmpTestDir = Paths.get("/tmp/machete-tests");
   public static final Path scriptsDir = tmpTestDir.resolve("scripts");
   public static final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
-  public static final Path repositoryDir = tmpTestDir.resolve("machete-sandbox");
+  public static final Path repositoryMainDir = tmpTestDir.resolve("machete-sandbox");
+  public static final Path repositoryGitDir = repositoryMainDir.resolve(".git");
   public static final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
 
-  GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = new GitMacheteRepositoryBuilder(repositoryDir);
+  GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
 
   public void init(String scriptName) throws Exception {
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
 
-    gitMacheteRepository = gitMacheteRepositoryBuilder.build();
+    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir);
   }
 
   public void cleanup() throws IOException {
@@ -115,7 +116,7 @@ public class GitMacheteStatusTest {
   private String gitMacheteCliStatus() throws IOException {
     var gitMacheteProcessBuilder = new ProcessBuilder();
     gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
-    gitMacheteProcessBuilder.directory(repositoryDir.toFile());
+    gitMacheteProcessBuilder.directory(repositoryMainDir.toFile());
     var gitMacheteProcess = gitMacheteProcessBuilder.start();
     return convertStreamToString(gitMacheteProcess.getInputStream());
   }

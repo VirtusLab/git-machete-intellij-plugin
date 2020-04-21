@@ -11,12 +11,12 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.impl.jgit.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 
-public class GitMacheteRepositoryBuilder_deriveSyncToRemoteStatusTest {
+public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
 
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
 
   private ISyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
-    return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryBuilder.class),
+    return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryFactory.class),
         "deriveSyncToRemoteStatus",
         coreLocalBranch);
   }

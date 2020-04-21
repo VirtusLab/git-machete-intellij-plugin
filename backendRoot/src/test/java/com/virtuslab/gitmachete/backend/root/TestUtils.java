@@ -127,7 +127,7 @@ public class TestUtils {
     }
 
     @Override
-    public Path getRepositoryPath() {
+    public Path getMainDirectoryPath() {
       return null;
     }
 
@@ -150,7 +150,7 @@ public class TestUtils {
     }
 
     @Override
-    public IGitCoreRepository create(Path pathToRoot) {
+    public IGitCoreRepository create(Path mainDirectoryPath, Path gitDirectoryPath) {
       return getInstance();
     }
   }

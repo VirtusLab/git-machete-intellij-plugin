@@ -17,24 +17,24 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 
-public class GitMacheteRepositoryBuilder_deduceForkPointTest {
+public class GitMacheteRepositoryFactory_deduceForkPointTest {
 
-  private static final GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = PowerMockito
-      .mock(GitMacheteRepositoryBuilder.class);
+  private static final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = PowerMockito
+      .mock(GitMacheteRepositoryFactory.class);
 
-  private static final TestGitCoreRepositoryFactory repositoryFactory = new TestGitCoreRepositoryFactory();
-  private static final TestGitCoreRepository repository = repositoryFactory.getInstance();
+  private static final TestGitCoreRepositoryFactory gitCoreRepositoryFactory = new TestGitCoreRepositoryFactory();
+  private static final TestGitCoreRepository gitCoreRepository = gitCoreRepositoryFactory.getInstance();
 
   @BeforeClass
   public static void init() {
-    Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepositoryFactory", repositoryFactory);
+    Whitebox.setInternalState(gitMacheteRepositoryFactory, "gitCoreRepositoryFactory", gitCoreRepositoryFactory);
   }
 
   private Option<BaseGitCoreCommit> invokeDeduceForkPoint(
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws Exception {
-    return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryBuilder.class),
-        "deduceForkPoint", repository, coreLocalBranch, parentCoreLocalBranch);
+    return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryFactory.class),
+        "deduceForkPoint", gitCoreRepository, coreLocalBranch, parentCoreLocalBranch);
   }
 
   @Test(expected = GitMacheteException.class)

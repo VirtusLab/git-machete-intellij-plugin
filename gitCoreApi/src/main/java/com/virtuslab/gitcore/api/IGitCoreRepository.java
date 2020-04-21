@@ -16,7 +16,7 @@ public interface IGitCoreRepository {
 
   List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException;
 
-  Path getRepositoryPath();
+  Path getMainDirectoryPath();
 
   Path getGitDirectoryPath();
 

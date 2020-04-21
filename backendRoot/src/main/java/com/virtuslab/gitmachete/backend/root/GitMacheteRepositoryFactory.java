@@ -42,40 +42,43 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
 
-public class GitMacheteRepositoryBuilder {
+public class GitMacheteRepositoryFactory {
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  private final Path pathToRepoRoot;
-
   @MonotonicNonNull
   private IBranchLayout branchLayout = null;
 
-  public GitMacheteRepositoryBuilder(Path pathToRepoRoot) {
+  public GitMacheteRepositoryFactory() {
     gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
-    this.pathToRepoRoot = pathToRepoRoot;
   }
 
-  public GitMacheteRepositoryBuilder branchLayout(IBranchLayout givenBranchLayout) {
+  // TODO (#202): possibly change into a param of `create()`
+  public GitMacheteRepositoryFactory branchLayout(IBranchLayout givenBranchLayout) {
     this.branchLayout = givenBranchLayout;
     return this;
   }
 
-  public IGitMacheteRepository build() throws GitMacheteException {
-    IGitCoreRepository gitCoreRepository = Try.of(() -> gitCoreRepositoryFactory.create(pathToRepoRoot))
+  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+    IGitCoreRepository gitCoreRepository = Try
+        .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
         .getOrElseThrow(
-            e -> new GitMacheteException("Can't create GitCoreRepository under ${pathToRepoRoot}", e));
+            e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
+                "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
 
     if (branchLayout == null) {
-      Path pathToBranchLayoutFile = gitCoreRepository.getGitDirectoryPath().resolve("machete");
-      branchLayout = Try.of(() -> new BranchLayoutFileParser(pathToBranchLayoutFile).parse())
+      Path branchLayoutFilePath = gitCoreRepository.getGitDirectoryPath().resolve("machete");
+      branchLayout = Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
           .getOrElseThrow(e -> {
             Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-            return new MacheteFileParseException("Error occurred while parsing machete file ${pathToBranchLayoutFile}" +
+            return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
                 (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
           });
     }
+
+    // To make sure there are no leftovers from the previous invocations.
+    branchByName = HashMap.empty();
 
     var rootBranchTries = branchLayout.getRootBranches()
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));

@@ -13,27 +13,27 @@ import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
-public class GitMacheteRepositoryBuilder_deriveSyncToParentStatusTest {
+public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
 
-  private static final GitMacheteRepositoryBuilder gitMacheteRepositoryBuilder = PowerMockito
-      .mock(GitMacheteRepositoryBuilder.class);
+  private static final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = PowerMockito
+      .mock(GitMacheteRepositoryFactory.class);
 
-  private static final TestGitCoreRepositoryFactory repositoryFactory = new TestGitCoreRepositoryFactory();
-  private static final TestGitCoreRepository repository = repositoryFactory.getInstance();
+  private static final TestGitCoreRepositoryFactory gitCoreRepositoryFactory = new TestGitCoreRepositoryFactory();
+  private static final TestGitCoreRepository gitCoreRepository = gitCoreRepositoryFactory.getInstance();
 
   private static final BaseGitCoreCommit MISSING_FORKPOINT = getCommit(null);
 
   @BeforeClass
   public static void init() {
-    Whitebox.setInternalState(gitMacheteRepositoryBuilder, "gitCoreRepositoryFactory", repositoryFactory);
+    Whitebox.setInternalState(gitMacheteRepositoryFactory, "gitCoreRepositoryFactory", gitCoreRepositoryFactory);
   }
 
   SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
       IGitCoreBranch parentCoreLocalBranch,
       BaseGitCoreCommit forkPoint) throws Exception {
-    return Whitebox.invokeMethod(gitMacheteRepositoryBuilder,
+    return Whitebox.invokeMethod(gitMacheteRepositoryFactory,
         "deriveSyncToParentStatus",
-        repository,
+        gitCoreRepository,
         coreLocalBranch,
         parentCoreLocalBranch,
         forkPoint);
