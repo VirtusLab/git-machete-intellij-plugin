@@ -11,8 +11,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
+import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Try;
@@ -111,10 +113,9 @@ public final class GitMacheteGraphTableManager {
   }
 
   private Path getMacheteFilePath(GitRepository gitRepository) {
-    // Using the deprecated `GitRepository#getGitDir` and not `GitRepository#getRepositoryFiles`
-    // since the latter apparently doesn't allow to extract git dir
-    // (just the paths of specific predefined files within the git dir).
-    Path gitDirPath = Paths.get(gitRepository.getGitDir().getPath());
+    VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
+    assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
+    Path gitDirPath = Paths.get(vfGitDir.getPath());
     return gitDirPath.resolve("machete");
   }
 
