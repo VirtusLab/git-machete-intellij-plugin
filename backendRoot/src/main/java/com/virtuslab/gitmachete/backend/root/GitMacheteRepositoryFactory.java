@@ -14,6 +14,8 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -38,6 +40,7 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
 
+@Slf4j(topic = "backendRoot")
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
@@ -53,6 +56,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   @Override
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
+    log.debug("Enter GitMacheteRepositoryFactory#create(mainDirectoryPath = {}, "
+            + "gitDirectoryPath = {})", mainDirectoryPath, gitDirectoryPath);
     // To make sure there are no leftovers from the previous invocations.
     branchByName = HashMap.empty();
 
@@ -73,6 +78,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
         .flatMap(cb -> branchByName.get(cb.getName()))
         .getOrNull();
+
+    log.debug("Current branch: {}", currentBranch != null ? currentBranch.getName() : null);
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
@@ -131,14 +138,26 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-
+    log.debug("Enter deduceForkPoint");
     return Try.of(() -> {
 
       var forkPointOption = coreLocalBranch.deriveForkPoint();
       var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       var pointedCommit = coreLocalBranch.getPointedCommit();
 
+      log.debug(
+          "forkPointOption = {}, parentPointedCommit = {}, pointedCommit = {}",
+          forkPointOption.isDefined() ? forkPointOption.get().getHash().getHashString() : "empty",
+          parentPointedCommit.getHash().getHashString(),
+          pointedCommit.getHash().getHashString());
+
       var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
+
+      log.debug(
+          "Parent ({}) is{} ancestor of child ({})",
+          parentPointedCommit.getHash().getHashString(),
+          isParentAncestorOfChild ? "" : " NOT",
+          pointedCommit.getHash().getHashString());
 
       if (isParentAncestorOfChild) {
         if (forkPointOption.isDefined()) {
@@ -147,15 +166,30 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           if (!isParentAncestorOfForkPoint) {
             // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
             // then assume fork-point(A)=parent(A)
+            log.debug(
+                "Parent commit ({}) is ancestor of pointed commit ({}) but parent commit is NOT ancestor of pointed commit fork point ({}), "
+                    + "so we assume that pointed commit fork point = parent commit",
+                parentPointedCommit.getHash().getHashString(),
+                pointedCommit.getHash().getHashString(),
+                forkPointOption.get().getHash().getHashString());
             return Option.of(parentPointedCommit);
           }
 
         } else {
           // If parent(A) is ancestor of A, and fork-point(A) is missing,
           // then assume fork-point(A)=parent(A)
+          log.debug(
+              "Parent commit ({}) is ancestor of pointed commit ({}) but fork point of pointed commit is missing, "
+                  + "so we assume that pointed commit fork point = parent commit",
+              parentPointedCommit.getHash().getHashString(),
+              pointedCommit.getHash().getHashString());
           return Option.of(parentPointedCommit);
         }
       }
+
+      log.debug(
+          "Deduced fork point is: {}",
+          forkPointOption.isDefined() ? forkPointOption.get().getHash().getHashString() : "empty");
 
       return forkPointOption;
 
@@ -178,23 +212,32 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   }
 
   private ISyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
+    log.debug(
+        "Enter GitMacheteRepositoryFactory#deriveSyncToRemoteStatus(coreLocalBranch = {})", coreLocalBranch.getName());
     try {
       Option<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (ts.isEmpty()) {
+        log.debug("Branch is untracked");
         return SyncToRemoteStatus.of(Untracked, "");
       }
 
       IGitCoreBranchTrackingStatus trackingStatus = ts.get();
 
+      SyncToRemoteStatus syncToRemoteStatus;
+
       if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
-        return SyncToRemoteStatus.of(Diverged, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(Diverged, trackingStatus.getRemoteName());
       } else if (trackingStatus.getAhead() > 0) {
-        return SyncToRemoteStatus.of(Ahead, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(Ahead, trackingStatus.getRemoteName());
       } else if (trackingStatus.getBehind() > 0) {
-        return SyncToRemoteStatus.of(Behind, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(Behind, trackingStatus.getRemoteName());
       } else {
-        return SyncToRemoteStatus.of(InSync, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(InSync, trackingStatus.getRemoteName());
       }
+
+      log.debug(syncToRemoteStatus.toString());
+
+      return syncToRemoteStatus;
 
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
@@ -207,18 +250,32 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreLocalBranch parentCoreLocalBranch,
       @Nullable BaseGitCoreCommit forkPoint)
       throws GitMacheteException {
+    log.debug("Enter GitMacheteRepositoryFactory#deriveSyncToParentStatus(gitCoreRepository = {}, "
+        + "coreLocalBranch = {}, parentCoreLocalBranch = {}, "
+        + "forkPoint = {})", gitCoreRepository, coreLocalBranch.getName(), parentCoreLocalBranch.getName(),
+        forkPoint != null ? forkPoint.getHash().getHashString() : null);
     try {
       if (parentCoreLocalBranch == null) {
+        log.debug("Parent branch is absent so we assume that this branch is in sync");
         return SyncToParentStatus.InSync;
       }
 
       BaseGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       BaseGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
 
+      log.debug(
+          "parentPointedCommit = {}; pointedCommit = {}",
+          parentPointedCommit.getHash().getHashString(),
+          pointedCommit.getHash().getHashString());
+
       if (pointedCommit.equals(parentPointedCommit)) {
         if (coreLocalBranch.hasJustBeenCreated()) {
+          log.debug("This branch has been detected as just created, so we assume it's in sync");
           return SyncToParentStatus.InSync;
         } else {
+          log.debug(
+              "Parent commit is equal to this branch pointed commit and this branch hasn't been detected as just created, "
+                  + "so we assume it's merged");
           return SyncToParentStatus.Merged;
         }
       } else {
@@ -227,8 +284,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
         if (isParentAncestorOfChild) {
           if (forkPoint != null && !forkPoint.equals(parentPointedCommit)) {
+            log.debug(
+                "Parent commit is ancestor of this branch pointed commit but fork point is not equal to parent commit, "
+                    + "so we assume that this branch is \"InSyncButForkPointOff\"");
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
+            log.debug(
+                "Parent commit is ancestor of this branch pointed commit and fork point is absent or equal to parent commit, "
+                    + "so we assume that this branch is in sync");
             return SyncToParentStatus.InSync;
           }
         } else {
@@ -236,8 +299,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
               /* presumedAncestor */ pointedCommit, /* presumedDescendant */ parentPointedCommit);
 
           if (isChildAncestorOfParent) {
+            log.debug(
+                "Parent commit is not ancestor of this branch pointed commit but this branch pointed commit is ancestor of parent branch commit, "
+                    + "so we assume that this branch is merged");
             return SyncToParentStatus.Merged;
           } else {
+            log.debug(
+                "Parent commit is not ancestor of this branch pointed commit neither this branch pointed commit is ancestor of parent branch commit, "
+                    + "so we assume that this branch is out of sync");
             return SyncToParentStatus.OutOfSync;
           }
         }

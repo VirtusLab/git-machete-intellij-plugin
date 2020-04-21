@@ -2,6 +2,7 @@ dependencies {
   junit()
   powerMock()
   slf4j()
+  slf4jApi()
   vavr()
 
   implementation project(':gitCoreJGit')
