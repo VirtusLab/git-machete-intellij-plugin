@@ -43,6 +43,9 @@ Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, s
 
 ### Rebuild the CI base image
 
+To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
+
 ```
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin-ci .
+docker push gitmachete/intellij-plugin-ci
 ```

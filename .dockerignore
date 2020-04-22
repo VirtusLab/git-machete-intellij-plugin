@@ -1,4 +1,18 @@
+# Ignoring everything with the exception of Gradle files to make sure that
+# the Docker build context doesn't change if the changes in codebase can't affect the final image.
 **/build/
+.circleci/
+**/config/
+_config.yml
+Dockerfile
+.dockerignore
 .git/
+.gitattributes
+.gitconfig
+.gitignore
 .gradle/
 .idea/
+**/lombok.config
+*.md
+scripts/
+**/src/

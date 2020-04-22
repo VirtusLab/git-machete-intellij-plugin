@@ -22,6 +22,7 @@ mkdir -p $verifier_dir
 
 verifier_jar_path=$verifier_dir/verifier-all.jar
 if ! [[ -f $verifier_jar_path ]]; then
+  echo "Downloading IntelliJ Plugin Verifier v${verifier_version}..."
   curl -fsL -o $verifier_jar_path https://dl.bintray.com/jetbrains/intellij-plugin-service/org/jetbrains/intellij/plugins/verifier-cli/${verifier_version}/verifier-cli-${verifier_version}-all.jar
 fi
 
@@ -32,6 +33,7 @@ for iv in ${intellij_versions[*]}; do
   release=${iv:2:1}
   idea_dir=$verifier_dir/idea-IC-${iv}
   if ! [[ -d $idea_dir ]]; then
+    echo "Downloading IntelliJ IDEA Community v${iv}..."
     # Released packages apparently aren't available under version.build file name, only under year.release name
     # EAP packages apparently aren't available under year.release file name, only under version.build name
     curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${year}.${release}.tar.gz \
