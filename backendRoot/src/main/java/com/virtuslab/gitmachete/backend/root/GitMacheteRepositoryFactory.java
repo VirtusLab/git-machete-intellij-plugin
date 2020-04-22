@@ -57,7 +57,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
     log.debug("Enter GitMacheteRepositoryFactory#create(mainDirectoryPath = {}, "
-            + "gitDirectoryPath = {})", mainDirectoryPath, gitDirectoryPath);
+        + "gitDirectoryPath = {})", mainDirectoryPath, gitDirectoryPath);
     // To make sure there are no leftovers from the previous invocations.
     branchByName = HashMap.empty();
 

@@ -130,11 +130,6 @@ public class TestUtils {
     public Path getMainDirectoryPath() {
       return null;
     }
-
-    @Override
-    public Path getGitDirectoryPath() {
-      return null;
-    }
   }
 
   static class TestGitCoreRepositoryFactory implements IGitCoreRepositoryFactory {
