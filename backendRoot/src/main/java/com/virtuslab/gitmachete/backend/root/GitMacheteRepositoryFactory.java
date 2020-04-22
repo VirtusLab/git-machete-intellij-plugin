@@ -79,7 +79,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .flatMap(cb -> branchByName.get(cb.getName()))
         .getOrNull();
 
-    log.debug("Current branch: {}", currentBranch != null ? currentBranch.getName() : null);
+    log.debug("Current branch: {}", currentBranch != null ? currentBranch.getName() : "null");
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
@@ -253,7 +253,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     log.debug("Enter GitMacheteRepositoryFactory#deriveSyncToParentStatus(gitCoreRepository = {}, "
         + "coreLocalBranch = {}, parentCoreLocalBranch = {}, "
         + "forkPoint = {})", gitCoreRepository, coreLocalBranch.getName(), parentCoreLocalBranch.getName(),
-        forkPoint != null ? forkPoint.getHash().getHashString() : null);
+        forkPoint != null ? forkPoint.getHash().getHashString() : "null");
     try {
       if (parentCoreLocalBranch == null) {
         log.debug("Parent branch is absent so we assume that this branch is in sync");
