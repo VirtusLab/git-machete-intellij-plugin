@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.graph.print;
 
+import static com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement.Type;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,13 +9,14 @@ import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.util.Collection;
 
-import com.intellij.vcs.log.graph.EdgePrintElement;
-import com.intellij.vcs.log.graph.NodePrintElement;
-import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.paint.ColorGenerator;
 import com.intellij.vcs.log.paint.PaintParameters;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
 
 @RequiredArgsConstructor
 public class GraphCellPainter {
@@ -79,51 +82,41 @@ public class GraphCellPainter {
   }
 
   @UIEffect
-  private Color getColor(PrintElement printElement) {
+  private Color getColor(IPrintElement printElement) {
     return myColorGenerator.getColor(printElement.getColorId());
   }
 
   @UIEffect
-  public void draw(Graphics2D g2, Collection<? extends PrintElement> printElements) {
+  public void draw(Graphics2D g2, Collection<? extends IPrintElement> printElements) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    for (PrintElement printElement : printElements) {
+    for (IPrintElement printElement : printElements) {
       drawElement(g2, printElement);
     }
   }
 
   @UIEffect
-  protected void drawElement(Graphics2D g2, PrintElement printElement) {
-    if (printElement instanceof EdgePrintElement) {
-      printVerticalEdge(g2, getColor(printElement), (EdgePrintElement) printElement);
+  protected void drawElement(Graphics2D g2, IPrintElement printElement) {
+    if (printElement instanceof IEdgePrintElement) {
+      printEdge(g2, getColor(printElement), (IEdgePrintElement) printElement);
     }
 
-    if (printElement instanceof RightEdgePrintElement) {
-      printRightEdge(g2, getColor(printElement), (RightEdgePrintElement) printElement);
-    }
-
-    if (printElement instanceof NodePrintElement) {
-      int posInRow = printElement.getPositionInCurrentRow();
+    if (printElement instanceof INodePrintElement) {
+      int posInRow = printElement.getPositionInRow();
       paintCircle(g2, posInRow, getColor(printElement));
     }
   }
 
   @UIEffect
-  private void printVerticalEdge(Graphics2D g2, Color color, EdgePrintElement edgePrintElement) {
-    int posInRow = edgePrintElement.getPositionInCurrentRow();
-    assert posInRow == edgePrintElement
-        .getPositionInOtherRow() : "Position in current row is not equal to position in other row";
+  private void printEdge(Graphics2D g2, Color color, IEdgePrintElement edgePrintElement) {
+    int posInRow = edgePrintElement.getPositionInRow();
 
-    if (edgePrintElement.getType() == EdgePrintElement.Type.DOWN) {
+    if (edgePrintElement.getType() == Type.DOWN) {
       paintDownLine(g2, color, posInRow);
-    } else if (edgePrintElement.getType() == EdgePrintElement.Type.UP) {
+    } else if (edgePrintElement.getType() == Type.UP) {
       paintUpLine(g2, color, posInRow);
+    } else if (edgePrintElement.getType() == Type.RIGHT) {
+      paintRightLine(g2, color, posInRow);
     }
-  }
-
-  @UIEffect
-  private void printRightEdge(Graphics2D g2, Color color, RightEdgePrintElement rightEdgePrintElement) {
-    int posInRow = rightEdgePrintElement.getPositionInCurrentRow();
-    paintRightLine(g2, color, posInRow);
   }
 }

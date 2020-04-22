@@ -3,15 +3,13 @@ package com.virtuslab.gitmachete.frontend.graph;
 import java.util.Comparator;
 
 import com.intellij.vcs.log.graph.api.elements.GraphElement;
-import com.intellij.vcs.log.graph.api.printer.PrintElementManager;
 import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex;
-import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
 import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.graph.coloring.ColorGetterByLayoutIndex;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
-public class GraphElementManager implements PrintElementManager {
+public class GraphElementManager {
   @Getter
   private final Comparator<GraphElement> graphElementComparator;
   private final ColorGetterByLayoutIndex colorGetterByLayoutIndex;
@@ -21,12 +19,6 @@ public class GraphElementManager implements PrintElementManager {
     graphElementComparator = new GraphElementComparatorByLayoutIndex(repositoryGraph::getNodeId).reversed();
   }
 
-  @Override
-  public boolean isSelected(PrintElementWithGraphElement printElement) {
-    return false;
-  }
-
-  @Override
   public int getColorId(GraphElement element) {
     return colorGetterByLayoutIndex.getColorId(element);
   }
