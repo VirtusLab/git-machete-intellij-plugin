@@ -54,8 +54,8 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
     reflectionsVersion = '0.9.12'
-    slf4jTestImplVersion = '1.7.25'
-    slf4jApiVersion = '1.7.25'
+    slf4jTestImplVersion = '1.7.30'
+    slf4jApiVersion = '1.7.30'
     vavrVersion = '0.10.2'
   }
 }
@@ -258,7 +258,7 @@ subprojects {
 
     slf4jApi = { ->
      dependencies {
-        implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4jApiVersion
+        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jApiVersion
       }
     }
 
