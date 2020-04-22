@@ -17,8 +17,6 @@ import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.paint.PaintUtil;
 import com.intellij.util.ui.UIUtil;
-import com.intellij.vcs.log.graph.NodePrintElement;
-import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
@@ -37,6 +35,8 @@ import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 @UI
@@ -110,7 +110,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (graphItem.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
       } else {
-        graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof NodePrintElement))
+        graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof INodePrintElement))
             .collect(Collectors.toList()), maxGraphNodePositionInRow);
       }
 
@@ -163,7 +163,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @UIEffect
-    private GraphImage getGraphImage(Collection<? extends PrintElement> printElements,
+    private GraphImage getGraphImage(Collection<? extends IPrintElement> printElements,
         @NonNegative int maxGraphNodePositionInRow) {
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           /* width */ PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxGraphNodePositionInRow + 2),

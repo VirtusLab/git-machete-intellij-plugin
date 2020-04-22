@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.intellij.util.SmartList;
-import com.intellij.vcs.log.graph.PrintElement;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
@@ -17,7 +16,8 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.print.PrintElementGeneratorImpl;
+import com.virtuslab.gitmachete.frontend.graph.print.PrintElementGenerator;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
 
 public class RepositoryGraph {
   @Getter
@@ -28,7 +28,7 @@ public class RepositoryGraph {
   private final List<IGraphItem> items;
   private final List<List<Integer>> positionsOfVisibleEdges;
 
-  private final PrintElementGeneratorImpl printElementGenerator;
+  private final PrintElementGenerator printElementGenerator;
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
@@ -36,10 +36,10 @@ public class RepositoryGraph {
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
 
     GraphElementManager graphElementManager = new GraphElementManager(/* repositoryGraph */ this);
-    printElementGenerator = new PrintElementGeneratorImpl(/* graph */ this, graphElementManager);
+    printElementGenerator = new PrintElementGenerator(/* graph */ this, graphElementManager);
   }
 
-  public Collection<? extends PrintElement> getPrintElements(@NonNegative int nodeIndex) {
+  public Collection<? extends IPrintElement> getPrintElements(@NonNegative int nodeIndex) {
     return printElementGenerator.getPrintElements(nodeIndex);
   }
 

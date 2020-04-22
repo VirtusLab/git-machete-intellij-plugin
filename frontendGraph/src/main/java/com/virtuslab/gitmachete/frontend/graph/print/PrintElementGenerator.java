@@ -1,28 +1,28 @@
 package com.virtuslab.gitmachete.frontend.graph.print;
 
+import static com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement.Type;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.intellij.util.SmartList;
-import com.intellij.vcs.log.graph.EdgePrintElement.Type;
 import com.intellij.vcs.log.graph.api.EdgeFilter;
 import com.intellij.vcs.log.graph.api.elements.GraphEdge;
 import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import com.intellij.vcs.log.graph.api.elements.GraphNode;
-import com.intellij.vcs.log.graph.api.printer.PrintElementGenerator;
-import com.intellij.vcs.log.graph.impl.print.elements.EdgePrintElementImpl;
-import com.intellij.vcs.log.graph.impl.print.elements.PrintElementWithGraphElement;
-import com.intellij.vcs.log.graph.impl.print.elements.SimplePrintElementImpl;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.EdgePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.NodePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.PrintElementWithGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
 @RequiredArgsConstructor
-public final class PrintElementGeneratorImpl implements PrintElementGenerator {
+public final class PrintElementGenerator implements IPrintElementGenerator {
   private final RepositoryGraph repositoryGraph;
   private final GraphElementManager graphElementManager;
 
@@ -76,23 +76,19 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     private final int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new SimplePrintElementImpl(rowIndex, position, node, graphElementManager));
+      nodes.add(new NodePrintElement(rowIndex, position, node, graphElementManager));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(
-          new EdgePrintElementImpl(rowIndex, position, position, Type.DOWN, edge, /* hasArrow */ false,
-              graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.DOWN, edge, graphElementManager));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(
-          new EdgePrintElementImpl(rowIndex, position, position, Type.UP, edge, /* hasArrow */ false,
-              graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.UP, edge, graphElementManager));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new RightEdgePrintElement(rowIndex, position, edge, graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.RIGHT, edge, graphElementManager));
     }
 
     public Collection<PrintElementWithGraphElement> build() {
