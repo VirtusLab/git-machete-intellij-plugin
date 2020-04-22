@@ -90,7 +90,10 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
-        .peek(branch -> log.debug("* ${branch.getName()}"))
+        .map(branch -> {
+          log.debug("* ${branch.getName()}");
+          return branch;
+        })
         .map(ref -> new GitCoreLocalBranch(/* repo */ this,
             ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());
@@ -104,7 +107,10 @@ public class GitCoreRepository implements IGitCoreRepository {
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
-        .peek(branch -> log.debug("* ${branch.getName()}"))
+        .map(branch -> {
+          log.debug("* ${branch.getName()}");
+          return branch;
+        })
         .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
             ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH, /* replacement */ "")))
         .collect(List.collector());

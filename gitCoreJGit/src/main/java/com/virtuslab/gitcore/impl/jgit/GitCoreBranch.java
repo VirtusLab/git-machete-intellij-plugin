@@ -102,7 +102,10 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
     return Iterator.ofAll(revWalk)
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
-        .peek(revCommit -> log.debug(revCommit.getId().getName()))
+        .map(revCommit -> {
+          log.debug(revCommit.getId().getName());
+          return revCommit;
+        })
         .map(GitCoreCommit::new)
         .collect(List.collector());
   }
