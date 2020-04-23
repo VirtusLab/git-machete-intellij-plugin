@@ -4,6 +4,8 @@ import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Data;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -12,6 +14,8 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 
 @Data
 public class BranchLayout implements IBranchLayout {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("branchLayout");
+
   private final List<BaseBranchLayoutEntry> rootBranches;
 
   @Override
@@ -32,16 +36,28 @@ public class BranchLayout implements IBranchLayout {
   }
 
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
-  private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) {
+  private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) throws BranchLayoutException {
+    LOG.debug(() -> "Enter slideOut for entry ${entryToSlideOut.getName()}");
+
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
-    assert upstreamEntryOption.isDefined();
+    if (upstreamEntryOption.isEmpty()) {
+      throw new BranchLayoutException("Can't find upstream for entry ${entryToSlideOut.getName()}");
+    }
     var upstream = upstreamEntryOption.get();
+    LOG.debug(() -> "Upstream for ${entryToSlideOut.getName()} is ${upstream.getName()}");
 
-    var indexInUpstream = upstream.getSubbranches().indexOf(entryToSlideOut);
+    int indexInUpstream = upstream.getSubentries().indexOf(entryToSlideOut);
+    LOG.debug(() -> "Entry ${entryToSlideOut.getName()} has index ${indexInUpstream} in its upstream");
 
-    var updatedSubbranches = upstream.getSubbranches()
+    LOG.debug("Removing this entry from upstream and setting this entry's parent as new parent " +
+        "for this branch's downstreams");
+
+    var updatedSubbranches = upstream.getSubentries()
         .removeAt(indexInUpstream)
-        .insertAll(indexInUpstream, entryToSlideOut.getSubbranches());
+        .insertAll(indexInUpstream, entryToSlideOut.getSubentries());
+
+    LOG.debug("Following subentries has been updated:");
+    entryToSlideOut.getSubentries().forEach(downstream -> LOG.debug(() -> "* ${downstream} (${downstream.getName()})"));
 
     var updatedUpstream = updateSubbranchesForEntry(upstream, updatedSubbranches);
 
@@ -52,16 +68,26 @@ public class BranchLayout implements IBranchLayout {
    * @return a {@link IBranchLayout} containing all elements of this where the {@code entry} is replaced with
    *         {@code newEntry}
    */
-  private IBranchLayout replace(BaseBranchLayoutEntry entry, BaseBranchLayoutEntry newEntry) {
-    if (rootBranches.contains(entry)) {
-      return new BranchLayout(rootBranches.replace(entry, newEntry));
+  private IBranchLayout replace(BaseBranchLayoutEntry oldEntry, BaseBranchLayoutEntry newEntry) {
+    LOG.debug(() -> "Enter replace(oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
+        "newEntry = ${newEntry} (${newEntry.getName()})");
+    if (rootBranches.contains(oldEntry)) {
+      LOG.debug("Old entry is one of the root entries. Replacing.");
+      return new BranchLayout(rootBranches.replace(oldEntry, newEntry));
     } else {
-      var entryUpstreamOption = findUpstreamEntryForEntry(entry);
+      LOG.debug("Old entry is one of subentries. Finding upstream.");
+
+      var entryUpstreamOption = findUpstreamEntryForEntry(oldEntry);
       assert entryUpstreamOption.isDefined();
       var upstreamEntry = entryUpstreamOption.get();
 
-      var updatedSubbranches = upstreamEntry.getSubbranches().replace(entry, newEntry);
-      var updatedUpstreamEntry = updateSubbranchesForEntry(upstreamEntry, updatedSubbranches);
+      LOG.debug(() -> "Upstream for old entry is ${upstreamEntry} (${upstreamEntry.getName()})");
+
+      LOG.debug("Updating subentries");
+      var updatedSubentries = upstreamEntry.getSubentries().replace(oldEntry, newEntry);
+      LOG.debug("Updated subentries:");
+      updatedSubentries.forEach(entry -> LOG.debug(() -> "* ${entry} (${entry.getName()})"));
+      var updatedUpstreamEntry = updateSubbranchesForEntry(upstreamEntry, updatedSubentries);
 
       return replace(upstreamEntry, updatedUpstreamEntry);
     }
@@ -76,24 +102,30 @@ public class BranchLayout implements IBranchLayout {
   }
 
   private Option<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
-    return findEntryRecursively(rootBranches, e -> e.getSubbranches().contains(entry));
+    return findEntryRecursively(rootBranches, e -> e.getSubentries().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */
   private static Option<BaseBranchLayoutEntry> findEntryRecursively(
-      List<BaseBranchLayoutEntry> branches,
+      List<BaseBranchLayoutEntry> entries,
       Predicate<BaseBranchLayoutEntry> predicate) {
-    for (var branch : branches) {
-      if (predicate.test(branch)) {
-        return Option.of(branch);
+    LOG.debug(() -> "Enter findEntryRecursively(entries = ${entries}, predicate = ${predicate})");
+
+    for (var entry : entries) {
+      LOG.debug(() -> "Testing entry ${entry} (${entry.getName()})");
+      if (predicate.test(entry)) {
+        LOG.debug(() -> "Entry ${entry} (${entry.getName()}) satisfies predicate. Returning.");
+        return Option.of(entry);
       }
 
-      var result = findEntryRecursively(branch.getSubbranches(), predicate);
+      LOG.debug("Entry not found on this level. Searching in sublevel.");
+      var result = findEntryRecursively(entry.getSubentries(), predicate);
       if (result.isDefined()) {
         return result;
       }
     }
 
+    LOG.debug("Entry satisfies the predicate not found on this level neither its sublevels");
     return Option.none();
   }
 }

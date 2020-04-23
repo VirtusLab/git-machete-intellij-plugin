@@ -7,6 +7,8 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
@@ -19,20 +21,37 @@ import com.virtuslab.branchlayout.api.IBranchLayoutParser;
 @RequiredArgsConstructor
 @Getter
 public class BranchLayoutFileParser implements IBranchLayoutParser {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("branchLayout");
+
   private final Path path;
   private Character indentCharacter = ' ';
   @NonNegative
   private int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
+    LOG.debug("Enter BranchLayout#parse");
+    LOG.debug(() -> "Branch layout file path: ${path}");
+
     List<BaseBranchLayoutEntry> roots = List.empty();
-    List<String> lines = getFileLines().reject(String::isBlank);
+    List<String> lines = getFileLines();
+    List<String> linesWithoutBlank = lines.reject(String::isBlank);
+
+    LOG.debug(() -> "${lines.length()} line(s) fund");
 
     deriveIndentCharacter(lines);
 
-    if (!lines.isEmpty()) {
+    LOG.debug(() -> "Indent character is ${indentCharacter.equals('\\t') ? \"TAB\" : indentCharacter.equals(' ') " +
+        "? \"SPACE\" : \"\\\"\" + indentCharacter + \"\\\"\"}");
+    LOG.debug(() -> "Indent level width is ${levelWidth}");
+
+    if (!linesWithoutBlank.isEmpty()) {
       Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(lines);
-      roots = buildEntriesStructure(lines, lineIndexToIndentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
+      LOG.debug(() -> "lineIndexToIndentLevelAndUpstreamLineIndex = ${lineIndexToIndentLevelAndUpstreamLineIndex}");
+
+      roots = buildEntriesStructure(linesWithoutBlank,
+          lineIndexToIndentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
+    } else {
+      LOG.debug("Branch layout file is empty");
     }
 
     return new BranchLayout(roots);
@@ -43,7 +62,8 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
    * {@code levelWidth} fields.
    */
   private void deriveIndentCharacter(List<String> lines) {
-    var firstLineWithBlankPrefixOption = lines.find(line -> line.startsWith(" ") || line.startsWith("\t"));
+    var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
+        .find(line -> line.startsWith(" ") || line.startsWith("\t"));
     // Redundant non-emptiness check to satisfy IndexChecker
     if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
       indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
@@ -65,27 +85,40 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
   private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
       @GTENegativeOne int upstreamLineIndex) {
+    LOG.debug(() -> "Enter BranchLayoutFileParser#buildEntriesStructure(lines = ${lines}, " +
+        "lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, upstreamLineIndex = ${upstreamLineIndex})");
     return lineIndexToUpstreamLineIndex
         .zipWithIndex()
         .filter(t -> t._1()._2() == upstreamLineIndex)
-        .map(t -> createEntry(lines.get(t._2()), buildEntriesStructure(lines, lineIndexToUpstreamLineIndex, t._2())))
+        .map(t -> createEntry(lines.get(t._2()),
+            buildEntriesStructure(lines, lineIndexToUpstreamLineIndex, t._2())))
         .collect(List.collector());
   }
 
   /**
    * Parses line to {@link com.virtuslab.branchlayout.impl.BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
-   * entry with the specified {@code subbranches}.
+   * entry with the specified {@code subentries}.
    */
-  private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subbranches) {
+  private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subentries) {
+    LOG.debug(() -> "Enter BranchLayoutFileParser#createEntry(line = \"${line}\", subentries = ${subentries})");
+
     String trimmedLine = line.trim();
-    String branchName = trimmedLine;
-    String customAnnotation = null;
+    String branchName;
+    String customAnnotation;
     int indexOfSpace = trimmedLine.indexOf(' ');
     if (indexOfSpace > -1) {
       branchName = trimmedLine.substring(0, indexOfSpace);
       customAnnotation = trimmedLine.substring(indexOfSpace + 1).trim();
+    } else {
+      branchName = trimmedLine;
+      customAnnotation = null;
     }
-    return new BranchLayoutEntry(branchName, customAnnotation, subbranches);
+
+    LOG.debug(() -> "Creating BranchLayoutEntry(branchName = \"${branchName}\", " +
+        "customAnnotation = ${customAnnotation != null ? \"\\\"\" + customAnnotation + \"\\\"\" : null}, " +
+        "subentries.length() = ${subentries.length()})");
+
+    return new BranchLayoutEntry(branchName, customAnnotation, subentries);
   }
 
   /**
@@ -93,34 +126,51 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
    *         provided {@code lines} indices. It may be understood as a helper metadata needed to build entries structure
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(List<String> lines) throws BranchLayoutException {
-    if (lines.size() > 0 && getIndentLevelWidth(lines.head()) > 0) {
-      throw new BranchLayoutException(/* errorLine */ 1,
-          "The initial line of branch layout file (${path.toAbsolutePath()}) may not be indented");
+    LOG.debug("Enter BranchLayoutFileParser#parseToArrayRepresentation");
+
+    List<String> linesWithoutBlank = lines.reject(String::isBlank);
+
+    if (linesWithoutBlank.size() > 0 && getIndentLevelWidth(linesWithoutBlank.head()) > 0) {
+      throw new BranchLayoutException(
+          "The initial line of branch layout file (${path.toAbsolutePath()}) cannot be indented");
     }
 
-    Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(lines.size(),
+    Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(linesWithoutBlank.size(),
         new Tuple2<>(-1, -1));
-    Array<Integer> levelToPresentUpstream = Array.fill(lines.size(), -1);
+    Array<Integer> levelToPresentUpstream = Array.fill(linesWithoutBlank.size(), -1);
 
     int previousLevel = 0;
-    for (int lineNumber = 0; lineNumber < lines.length(); ++lineNumber) {
-      String line = lines.get(lineNumber);
+    int lineIndex = 0;
+    for (int realLineNumber = 0; realLineNumber < lines.length(); ++realLineNumber) {
+      String line = lines.get(realLineNumber);
+      if (line.isBlank()) {
+        // Can't use lambda because `realLineNumber` is not effectively final
+        LOG.debug("Line no ${realLineNumber} is blank. Skipping");
+        continue;
+      }
+
       int lineIndentLevelWidth = getIndentLevelWidth(line);
-      int level = getIndentLevel(lineIndentLevelWidth, lineNumber);
+      int level = getIndentLevel(lineIndentLevelWidth, realLineNumber);
 
       if (level - previousLevel > 1) {
-        throw new BranchLayoutException(lineNumber + 1,
+        throw new BranchLayoutException(realLineNumber + 1,
             "One of branches in branch layout file (${path.toAbsolutePath()}) has incorrect level in relation to its parent branch");
       }
 
       @SuppressWarnings("index:argument.type.incompatible")
-      Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level,
-          level <= 0 ? -1 : levelToPresentUpstream.get(level - 1));
-      lineIndexToIndentLevelAndUpstreamLineIndex = lineIndexToIndentLevelAndUpstreamLineIndex.update(lineNumber,
+      Integer upstreamLineIndex = level <= 0 ? -1 : levelToPresentUpstream.get(level - 1);
+      Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level, upstreamLineIndex);
+
+      // Can't use lambda because `realLineNumber` and `lineIndex` are not effectively final
+      LOG.debug("For line ${realLineNumber}: lineIndex = ${lineIndex}, level = ${level}, " +
+          "upstreamLineIndex = ${upstreamLineIndex}");
+
+      lineIndexToIndentLevelAndUpstreamLineIndex = lineIndexToIndentLevelAndUpstreamLineIndex.update(lineIndex,
           levelAndUpstreamLineIndex);
-      levelToPresentUpstream = levelToPresentUpstream.update(level, lineNumber);
+      levelToPresentUpstream = levelToPresentUpstream.update(level, lineIndex);
 
       previousLevel = level;
+      lineIndex++;
     }
 
     return lineIndexToIndentLevelAndUpstreamLineIndex;

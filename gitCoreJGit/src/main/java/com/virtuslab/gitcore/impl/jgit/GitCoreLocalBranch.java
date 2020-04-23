@@ -181,7 +181,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     List<ReflogEntry> filteredReflogEntries = reflogEntryLists.flatMap(this::rejectExcludedEntries);
 
-    LOG.debug("Start walking through revlogs");
+    LOG.debug("Start walking through logs");
 
     for (RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries

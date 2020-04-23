@@ -6,6 +6,8 @@ import java.nio.file.StandardCopyOption;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -17,11 +19,15 @@ import com.virtuslab.branchlayout.api.IBranchLayoutSaver;
 
 @RequiredArgsConstructor
 public class BranchLayoutFileSaver implements IBranchLayoutSaver {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("branchLayout");
+
   private final Path path;
   private final Character indentCharacter = ' ';
   private final int levelWidth = 2;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
+    LOG.debug(
+        () -> "Enter BranchLayoutFileSaver#save(branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile})");
     var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);
 
     if (backupOldFile) {
@@ -32,6 +38,10 @@ public class BranchLayoutFileSaver implements IBranchLayoutSaver {
           .getOrElseThrow(
               e -> new BranchLayoutException("Unable to backup branch layout file from ${path} to ${backupPath}", e));
     }
+
+    LOG.debug(() -> "Saving branch layout to ${path} with indent character ASCII code = ${(int)indentCharacter} " +
+        "and level width = ${levelWidth}:");
+    lines.forEach(LOG::debug);
 
     Try.of(() -> Files.write(path, lines))
         .getOrElseThrow(e -> new BranchLayoutException("Unable to save new branch layout file to ${path}", e));
@@ -48,7 +58,7 @@ public class BranchLayoutFileSaver implements IBranchLayoutSaver {
       }
 
       stringList = stringList.append(sb.toString())
-          .appendAll(printBranchesOntoStringList(branch.getSubbranches(), level + 1));
+          .appendAll(printBranchesOntoStringList(branch.getSubentries(), level + 1));
     }
     return stringList;
   }

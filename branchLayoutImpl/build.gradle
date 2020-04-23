@@ -1,5 +1,6 @@
 junit()
 powerMock()
+slf4jLambdaApi()
 vavr()
 
 dependencies {

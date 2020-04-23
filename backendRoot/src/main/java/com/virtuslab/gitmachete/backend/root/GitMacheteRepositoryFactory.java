@@ -196,7 +196,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreLocalBranch parentCoreLocalBranch,
       BaseBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
 
-    var downstreamBranchTries = directUpstreamEntry.getSubbranches().map(entry -> Try.of(
+    var downstreamBranchTries = directUpstreamEntry.getSubentries().map(entry -> Try.of(
         () -> createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry)));
     var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 

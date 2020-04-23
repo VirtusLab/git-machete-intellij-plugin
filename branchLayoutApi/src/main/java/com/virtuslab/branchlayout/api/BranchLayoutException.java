@@ -30,4 +30,9 @@ public class BranchLayoutException extends Exception {
   public Option<@Positive Integer> getErrorLine() {
     return Option.of(errorLine);
   }
+
+  @Override
+  public String toString() {
+    return super.toString() + (errorLine != null ? ". Problematic line number: " + errorLine : "");
+  }
 }

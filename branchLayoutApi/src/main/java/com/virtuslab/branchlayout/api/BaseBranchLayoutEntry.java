@@ -10,7 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public abstract class BaseBranchLayoutEntry {
   public abstract String getName();
 
-  public abstract List<BaseBranchLayoutEntry> getSubbranches();
+  public abstract List<BaseBranchLayoutEntry> getSubentries();
 
   public abstract Option<String> getCustomAnnotation();
 

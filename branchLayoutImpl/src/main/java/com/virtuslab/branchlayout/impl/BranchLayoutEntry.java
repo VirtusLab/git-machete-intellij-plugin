@@ -17,7 +17,7 @@ public class BranchLayoutEntry extends BaseBranchLayoutEntry {
   @Nullable
   private final String customAnnotation;
   @Getter
-  private final List<BaseBranchLayoutEntry> subbranches;
+  private final List<BaseBranchLayoutEntry> subentries;
 
   @Override
   public Option<String> getCustomAnnotation() {
