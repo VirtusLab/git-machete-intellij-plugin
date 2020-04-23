@@ -3,8 +3,6 @@ vavr()
 
 dependencies {
   implementation project(':backendApi')
-  implementation(project(':backendRoot'))
-  implementation project(':branchLayoutApi')
   implementation project(':frontendGraph')
   implementation project(':frontendKeys')
 }
