@@ -9,6 +9,7 @@ import static io.vavr.API.Match;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.SwingUtilities;
@@ -29,11 +30,13 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
+import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
@@ -55,6 +58,14 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   // early stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null.
   // This is also introduced for performance optimization (to not update empty text when unnecessary).
   private boolean doesTextForEmptyGraphRequireUpdate = false;
+
+  @Setter
+  @Nullable
+  private IBranchLayout branchLayout;
+
+  @Setter
+  @Nullable
+  private Path macheteFilePath;
 
   @Nullable
   private String selectedBranchName;
@@ -146,6 +157,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   public Object getData(String dataId) {
     var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
+        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_FILE_PATH, macheteFilePath),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
@@ -153,7 +166,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
-
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
 
     private final GitMacheteGraphTable graphTable;

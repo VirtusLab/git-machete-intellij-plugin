@@ -18,9 +18,9 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 @Getter
 public class BranchLayoutFileSaver {
   private final Path path;
-  private Character indentCharacter = ' ';
+  private final Character indentCharacter = ' ';
   @NonNegative
-  private int levelWidth = 0;
+  private final int levelWidth = 2;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws IOException {
     var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);

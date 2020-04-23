@@ -14,7 +14,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitRebaseParams;
@@ -38,7 +37,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public abstract class BaseRebaseBranchOntoParentAction extends DumbAwareAction {
+public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction {
 
   public BaseRebaseBranchOntoParentAction(String text, String actionDescription, Icon icon) {
     super(text, actionDescription, icon);

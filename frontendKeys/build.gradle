@@ -1,5 +1,6 @@
 dependencies {
   implementation project(':backendApi')
+  implementation project(':branchLayoutApi')
 }
 
 apply plugin: 'org.jetbrains.intellij'

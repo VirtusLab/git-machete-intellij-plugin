@@ -21,6 +21,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
+import com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction;
+import com.virtuslab.gitmachete.frontend.keys.ActionIDs;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
@@ -33,7 +35,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
 
   private final GitMacheteGraphTableManager gitMacheteGraphTableManager;
-  private final VcsRootComboBox vcsRootComboBox;
 
   @UIEffect
   public GitMachetePanel(Project project) {
@@ -44,7 +45,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
     List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));
-    vcsRootComboBox = new VcsRootComboBox(repositories);
+    VcsRootComboBox vcsRootComboBox = new VcsRootComboBox(repositories);
     gitMacheteGraphTableManager = new GitMacheteGraphTableManager(project, vcsRootComboBox);
     gitMacheteGraphTableManager.updateAndRefreshInBackground();
 
@@ -60,10 +61,14 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   private ActionToolbar createGitMacheteVerticalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
+    RefreshGitMacheteStatusAction refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
+    ActionManager.getInstance().registerAction(ActionIDs.ACTION_REFRESH, refreshGitMacheteStatusAction);
+
     gitMacheteActions.addAll(
-        new RefreshGitMacheteStatusAction(),
+        refreshGitMacheteStatusAction,
         new ToggleListCommitsAction(),
-        new RebaseCurrentBranchOntoParentAction());
+        new RebaseCurrentBranchOntoParentAction(),
+        new SlideOutCurrentBranchAction());
 
     ActionToolbar toolbar = ActionManager.getInstance()
         .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);

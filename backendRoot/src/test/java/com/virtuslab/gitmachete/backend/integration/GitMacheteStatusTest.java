@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
@@ -47,8 +49,9 @@ public class GitMacheteStatusTest {
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
+    IBranchLayout branchLayout = new BranchLayoutFileParser(repositoryGitDir.resolve("machete")).parse();
 
-    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir);
+    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }
 
   public void cleanup() throws IOException {

@@ -14,13 +14,10 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
-import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
@@ -34,7 +31,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteNonRootBranch;
@@ -51,16 +47,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
   }
 
-  @Override
-  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
-    return create(mainDirectoryPath, gitDirectoryPath, /* givenBranchLayout */ null);
-  }
-
   // TODO (#202): possible this should be included in IGitMacheteRepositoryFactory as well...
   // this might require some changes in Gradle subprojects structure (likely moving IGitMacheteRepositoryFactory to a
   // "backendRootApi" or something like that)
-  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath,
-      @Nullable IBranchLayout givenBranchLayout) throws GitMacheteException {
+  @Override
+  public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
+      throws GitMacheteException {
     // To make sure there are no leftovers from the previous invocations.
     branchByName = HashMap.empty();
 
@@ -69,10 +61,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .getOrElseThrow(
             e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
                 "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
-
-    var branchLayout = givenBranchLayout != null
-        ? givenBranchLayout
-        : createBranchLayout(gitCoreRepository.getGitDirectoryPath().resolve("machete"));
 
     var rootBranchTries = branchLayout.getRootBranches()
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
@@ -87,15 +75,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .getOrNull();
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
-  }
-
-  private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
-    return Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
-        .getOrElseThrow(e -> {
-          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-          return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
-              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
-        });
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,

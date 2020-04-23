@@ -2,6 +2,7 @@ dependencies {
   vavr()
 
   implementation project(':frontendActions')
+  implementation project(':frontendKeys')
   implementation project(':frontendUiTable')
 }
 

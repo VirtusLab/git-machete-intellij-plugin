@@ -20,17 +20,23 @@ import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MinLen;
 import org.reflections.Reflections;
 
+import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
@@ -174,11 +180,33 @@ public final class GitMacheteGraphTableManager {
    */
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      var repository = Try.of(() -> gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
+      var repository = Try
+          .of(() -> {
+            IBranchLayout branchLayout = updateBranchLayout();
+            return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
+          })
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
       repositoryRef.set(repository);
     } else {
       repositoryRef.set(null);
     }
+  }
+
+  private IBranchLayout updateBranchLayout() throws MacheteFileParseException {
+    GitRepository gitRepository = vcsRootComboBox.getValue();
+    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
+    gitMacheteGraphTable.setBranchLayout(branchLayout);
+    gitMacheteGraphTable.setMacheteFilePath(macheteFilePath);
+    return branchLayout;
+  }
+
+  private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
+    return Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
+        .getOrElseThrow(e -> {
+          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
+          return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
+              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
+        });
   }
 }
