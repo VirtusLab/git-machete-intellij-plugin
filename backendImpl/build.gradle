@@ -1,7 +1,7 @@
-dependencies {
-  slf4jApi()
-  vavr()
+slf4jLambdaApi()
+vavr()
 
+dependencies {
   implementation project(':gitCoreApi')
   implementation project(':branchLayoutApi')
 

@@ -3,9 +3,10 @@ package com.virtuslab.gitmachete.backend.impl;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -18,8 +19,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
 @RequiredArgsConstructor
-@Slf4j(topic = "backend")
 public class GitMacheteRepository implements IGitMacheteRepository {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("backend");
 
   @Getter
   private final List<BaseGitMacheteRootBranch> rootBranches;
@@ -44,7 +45,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Override
   public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
       throws GitMacheteMissingForkPointException {
-    log.debug("Enter getParametersForRebaseOntoParent for ${branch.getName()}");
+    LOG.debug(() -> "Enter getParametersForRebaseOntoParent for ${branch.getName()}");
     var forkPoint = branch.getForkPoint();
     if (forkPoint.isEmpty()) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${branch.getName()}'");
@@ -52,17 +53,18 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     var newBaseBranch = branch.getUpstreamBranch();
 
-    log.debug(
-        "Inferred rebase parameters: currentBranch = ${branch.getName()}, newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, forkPointCommit = ${forkPoint.get().getHash()}");
+    LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${branch.getName()}, " +
+        "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
+        "forkPointCommit = ${forkPoint.get().getHash()}");
 
     return new GitRebaseParameters(/* currentBranch */ branch, newBaseBranch.getPointedCommit(), forkPoint.get());
   }
 
   @Override
   public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch branch) {
-    log.debug("Enter deriveParametersForMergeIntoParent for ${branch.getName()}");
-    log.debug(
-        "Inferred merge parameters: currentBranch = ${branch.getName()}, branchToMergeInto = ${branch.getUpstreamBranch().getName()}");
+    LOG.debug(() -> "Enter deriveParametersForMergeIntoParent for ${branch.getName()}");
+    LOG.debug(() -> "Inferred merge parameters: currentBranch = ${branch.getName()}, " +
+        "branchToMergeInto = ${branch.getUpstreamBranch().getName()}");
     return new GitMergeParameters(/* currentBranch */ branch, /* branchToMergeInto */ branch.getUpstreamBranch());
   }
 }

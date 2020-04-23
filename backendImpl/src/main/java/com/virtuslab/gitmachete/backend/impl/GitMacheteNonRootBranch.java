@@ -2,9 +2,10 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -16,8 +17,9 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
 @Getter
 @ToString
-@Slf4j(topic = "backend")
 public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("backend");
+
   private final String name;
   @ToString.Exclude
   @MonotonicNonNull
@@ -40,11 +42,11 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       ISyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
       @Nullable String customAnnotation) {
-    log.debug(
-        "Creating GitMacheteNonRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, "
+    LOG.debug(
+        () -> "Creating GitMacheteNonRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, "
             + "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, pointedCommit = ${pointedCommit.getHash()}, "
             + "commits.length() = ${commits.length()}, syncToRemoteStatus = ${syncToRemoteStatus}, "
-            + "syncToParentStatus = ${syncToParentStatus}, customAnnotation = ${customAnnotation}");
+            + "syncToParentStatus = ${syncToParentStatus}, customAnnotation = ${customAnnotation})");
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.forkPoint = forkPoint;
@@ -61,7 +63,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
     // This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
     // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepository).
     for (GitMacheteNonRootBranch branch : downstreamBranches) {
-      log.debug("Set this (${name}) branch as upstream for ${branch.getName()}");
+      LOG.debug(() -> "Set this (${name}) branch as upstream for ${branch.getName()}");
       branch.setUpstreamBranch(this);
     }
   }
