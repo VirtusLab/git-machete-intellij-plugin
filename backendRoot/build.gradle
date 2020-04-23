@@ -1,7 +1,7 @@
 junit()
 powerMock()
-slf4jTestImpl()
 slf4jLambdaApi()
+slf4jTestImpl()
 vavr()
 
 dependencies {

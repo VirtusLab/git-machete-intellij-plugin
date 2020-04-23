@@ -68,13 +68,14 @@
     <property name="message" value="Usage of the prohibited Java Collections.nCopies"/>
 </module>
 <!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
-    unexpectedly differ in their behaviour.
+    unexpectedly differ in their behaviour - peek from vavr calls given method/lambda
+    only for first element in collection/stream unlike peek from java that do this for every element.
     To avoid possible bugs, invocation of any method called "peek" is forbidden. -->
 <module name="Regexp">
-<property name="illegalPattern" value="true"/>
-<property name="ignoreComments" value="true"/>
-<property name="format" value="\bpeek\b"/>
-<property name="message" value="Usage of the prohibited peek method"/>
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bpeek\b"/>
+    <property name="message" value="Usage of the prohibited peek method"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>

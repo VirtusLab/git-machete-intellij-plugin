@@ -1,7 +1,7 @@
-dependencies {
-  junit()
-  powerMock()
-  vavr()
+junit()
+powerMock()
+vavr()
 
+dependencies {
   api project(':branchLayoutApi')
 }

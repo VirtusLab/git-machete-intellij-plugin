@@ -54,8 +54,8 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
     reflectionsVersion = '0.9.12'
-    slf4jVersion = '1.7.30'
     slf4jLambdaApiVersion = '0.1'
+    slf4jVersion = '1.7.30'
     vavrVersion = '0.10.2'
   }
 }
@@ -243,21 +243,9 @@ subprojects {
       }
     }
 
-    slf4jTestImpl = { ->
-      // We only need to provide an SLF4J implementation in the contexts which depend on JGit but don't depend on IntelliJ.
-      // In our case, that's solely the tests of backendRoot.
-      // In other contexts that require an SLF4J implementation (buildPlugin, runIde, possible but not yet present tests of frontend),
-      // an SLF4J implementation is pulled in by IntelliJ.
-      // Note that we don't need to agree the SLF4J implementation version here with JGit's slf4j-api version
-      // since the latter is excluded (see the comment to `jgit` for more nuances).
-      // The below dependency provides both slf4j-api and an implementation, both already in the same version (1.7.30 i.e. the current stable).
-      dependencies {
-        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
-      }
-    }
 
     slf4jApi = { ->
-     dependencies {
+      dependencies {
         compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
       }
     }
@@ -268,6 +256,19 @@ subprojects {
         compile(group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion)  {
           exclude(group: 'org.slf4j')
         }
+      }
+    }
+
+    slf4jTestImpl = { ->
+      // We only need to provide an SLF4J implementation in the contexts which depend on JGit but don't depend on IntelliJ.
+      // In our case, that's solely the tests of backendRoot.
+      // In other contexts that require an SLF4J implementation (buildPlugin, runIde, possible but not yet present tests of frontend),
+      // an SLF4J implementation is pulled in by IntelliJ.
+      // Note that we don't need to agree the SLF4J implementation version here with JGit's slf4j-api version
+      // since the latter is excluded (see the comment to `jgit` for more nuances).
+      // The below dependency provides both slf4j-api and an implementation, both already in the same version (1.7.30 i.e. the current stable).
+      dependencies {
+        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
     }
 
