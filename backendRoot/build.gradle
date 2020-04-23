@@ -1,10 +1,10 @@
-dependencies {
-  junit()
-  powerMock()
-  slf4jTestImpl()
-  slf4jApi()
-  vavr()
+junit()
+powerMock()
+slf4jTestImpl()
+slf4jLambdaApi()
+vavr()
 
+dependencies {
   implementation project(':gitCoreJGit')
   implementation project(':branchLayoutImpl')
   implementation project(':backendImpl')

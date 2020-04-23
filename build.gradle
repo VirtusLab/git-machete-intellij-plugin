@@ -54,8 +54,9 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
     reflectionsVersion = '0.9.12'
-    slf4jTestImplVersion = '1.7.30'
-    slf4jApiVersion = '1.7.30'
+    slf4jTestImplVersion = '1.7.28'
+    slf4jApiVersion = '1.7.29'
+    slf4jLambdaApiVersion = '0.1'
     vavrVersion = '0.10.2'
   }
 }
@@ -259,6 +260,15 @@ subprojects {
     slf4jApi = { ->
      dependencies {
         compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jApiVersion
+      }
+    }
+
+    slf4jLambdaApi = { ->
+      dependencies {
+        slf4jApi()
+        compile(group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion)  {
+          exclude(group: 'org.slf4j')
+        }
       }
     }
 
