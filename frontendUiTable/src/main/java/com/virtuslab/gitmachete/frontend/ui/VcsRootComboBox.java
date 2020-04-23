@@ -54,7 +54,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository>
       getModel().setSelectedItem(selected);
     }
 
-    updateUI();
+    this.setVisible(getModel().getItems().size() > 1);
   }
 
   @Override
@@ -67,13 +67,6 @@ public final class VcsRootComboBox extends JComboBox<GitRepository>
   public void setSelectedItem(Object anObject) {
     super.setSelectedItem(anObject);
     observers.forEach(o -> o.onSelectionChanged());
-  }
-
-  @Override
-  @UIEffect
-  public void updateUI() {
-    super.updateUI();
-    this.setVisible(getModel().getItems().size() > 1);
   }
 
   public void addObserver(ISelectionChangeObserver observer) {
