@@ -75,7 +75,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   private void subscribeToVcsRootChanges() {
-    // The method reference is invoked when user changes repository in dropdown menu
+    // The method reference is invoked when user changes repository in combo box menu
     vcsRootComboBox.addObserver(this::updateAndRefreshInBackground);
   }
 
@@ -149,8 +149,7 @@ public final class GitMacheteGraphTableManager {
         public void run(ProgressIndicator indicator) {
 
           // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
-          // in
-          // opened project, so Git Machete plugin shouldn't even be loaded in the first place
+          // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
           @SuppressWarnings("value:assignment.type.incompatible")
           @MinLen(1)
           List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));

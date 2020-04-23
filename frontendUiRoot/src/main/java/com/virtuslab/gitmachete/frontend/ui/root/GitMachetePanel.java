@@ -40,7 +40,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     super(/* vertical */ false, /* borderless */ true);
 
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
-    // opened project, so Git Machete plugin shouldn't even be loaded in the first place
+    // an opened project, so Git Machete plugin shouldn't even be loaded in the first place
     @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
     List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));
@@ -51,7 +51,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     // This class is final, so the instance is `@Initialized` at this point.
 
     setToolbar(createGitMacheteVerticalToolbar().getComponent());
-    add(VcsRootComboBox.shrinkWrap(vcsRootComboBox), BorderLayout.NORTH);
+    add(VcsRootComboBox.createShrinkingWrapper(vcsRootComboBox), BorderLayout.NORTH);
     GitMacheteGraphTable gitMacheteGraphTable = gitMacheteGraphTableManager.getGitMacheteGraphTable();
     setContent(ScrollPaneFactory.createScrollPane(gitMacheteGraphTable));
   }

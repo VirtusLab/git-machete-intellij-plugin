@@ -30,9 +30,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 package com.intellij.diff.tools.util.base;
 
 class TextDiffViewerUtil {
-    class ComboBoxSettingAction<T> {
-        @UIEffect void update(AnActionEvent e);
-    }
+  class ComboBoxSettingAction<T> {
+    @UIEffect void update(AnActionEvent e);
+  }
 }
 
 @UIPackage package com.intellij.dvcs.push;

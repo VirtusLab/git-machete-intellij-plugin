@@ -81,7 +81,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository>
   }
 
   @UIEffect
-  public static JComponent shrinkWrap(JComponent component) {
+  public static JComponent createShrinkingWrapper(JComponent component) {
     final JPanel wrapper = new JPanel(new BorderLayout());
     wrapper.add(component, BorderLayout.WEST);
     wrapper.add(Box.createHorizontalGlue(), BorderLayout.CENTER);
