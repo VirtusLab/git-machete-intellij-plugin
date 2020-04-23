@@ -54,8 +54,7 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.6'
     reflectionsVersion = '0.9.12'
-    slf4jTestImplVersion = '1.7.28'
-    slf4jApiVersion = '1.7.29'
+    slf4jVersion = '1.7.30'
     slf4jLambdaApiVersion = '0.1'
     vavrVersion = '0.10.2'
   }
@@ -220,7 +219,7 @@ subprojects {
           // effectively uses whatever slf4j-api version is provided by IntelliJ.
           // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
           // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation, we need to exclude the former.
-          exclude(group: 'org.slf4j', module: 'slf4j-api')
+          exclude(group: 'org.slf4j')
         }
       }
     }
@@ -253,13 +252,13 @@ subprojects {
       // since the latter is excluded (see the comment to `jgit` for more nuances).
       // The below dependency provides both slf4j-api and an implementation, both already in the same version (1.7.30 i.e. the current stable).
       dependencies {
-        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jTestImplVersion
+        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
     }
 
     slf4jApi = { ->
      dependencies {
-        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jApiVersion
+        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
       }
     }
 
