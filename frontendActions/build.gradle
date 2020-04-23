@@ -1,7 +1,7 @@
-dependencies {
-  reflections()
-  vavr()
+reflections()
+vavr()
 
+dependencies {
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')
   implementation project(':frontendKeys')

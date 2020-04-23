@@ -1,6 +1,6 @@
-dependencies {
-  vavr()
+vavr()
 
+dependencies {
   implementation project(':backendApi')
 }
 
