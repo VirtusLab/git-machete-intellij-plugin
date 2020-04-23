@@ -13,4 +13,4 @@ function ansi_esc {
 dim=$(ansi_esc '\033[2m')
 endc=$(ansi_esc '\033[0m')
 
-echo -ne "${dim}v$(extract_version_from_git_revision $branch || echo '???')${endc}"
+echo -ne "${dim}v$(extract_version_from_git_revision "$branch" | sed 's/[-+].*//' || echo '???')${endc}"

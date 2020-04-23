@@ -46,8 +46,13 @@ jobs:
           name: Build plugin artifact
           command: ./gradlew buildPlugin
       - run:
+          name: Verify plugin artifact contents
+          command: |
+            command -v zipinfo || { apt-get update && apt-get install -y unzip; }
+            ./scripts/verify-artifact-contents
+      - run:
           name: Verify binary compatibility with supported IntelliJ versions
-          command: ./scripts/enforce-binary-compatibility
+          command: ./scripts/verify-binary-compatibility
       - store_artifacts:
           path: build/distributions/
           destination: .

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+plugin_version=$(extract_version_from_current_wd)
+plugin_zip=build/distributions/git-machete-intellij-plugin-${plugin_version}.zip
+
+exit_code=0
+
+function fail() {
+  echo "$@"
+  exit_code=1
+}
+
+jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intellij-plugin/lib/).*\.jar' | sort)
+
+gradle_subprojects=$(cat settings.gradle | grep -Po "(?<=include ').*(?=')" | sort)
+for project in "git-machete-intellij-plugin" $gradle_subprojects; do
+  expected_jar="$project-$plugin_version.jar"
+  grep -qxF "$expected_jar" <<< "$jars_in_plugin_zip" || fail "$expected_jar is expected but missing from $plugin_zip"
+done
+
+expected_libraries="org\.eclipse\.jgit reflections slf4j-lambda-core vavr vavr-match"
+for lib in $expected_libraries; do
+  grep -qx "$lib-.*\.jar" <<< "$jars_in_plugin_zip" || fail "$lib jar is expected but missing from $plugin_zip"
+done
+
+# We don't want either slf4j-api or any SLF4J implementation jars in the final plugin artifact
+# since this would lead to a linker error (for api) or an SLF4J error (for impl) in the runtime.
+forbidden_library_prefixes="checker lombok slf4j-api slf4j-simple"
+for lib in $forbidden_library_prefixes; do
+  if matching_jars=$(grep "^$lib" <<< "$jars_in_plugin_zip"); then
+    for jar in $matching_jars; do
+      fail "$jar is forbidden but present in $plugin_zip"
+    done
+  fi
+done
+
+exit $exit_code

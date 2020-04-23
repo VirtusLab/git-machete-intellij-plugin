@@ -44,7 +44,7 @@ allprojects {
   ext {
     betterStringsVerson = '0.2'
     checkstyleToolVersion = '8.30'
-    // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/enforce-binary-compatibility
+    // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/verify-binary-compatibility
     // must also be updated when we update the version below.
     intellijVersion = '2020.1'
     jgitVersion = '5.5.1.201910021850-r'
@@ -314,7 +314,7 @@ intellij {
 }
 
 patchPluginXml {
-  // Note: update scripts/enforce-binary-compatibility when updating the compatibility data
+  // Note: update scripts/verify-binary-compatibility when updating the compatibility data
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*` (strict version typed)
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   sinceBuild '192' // aka 2019.2 (inclusive)
