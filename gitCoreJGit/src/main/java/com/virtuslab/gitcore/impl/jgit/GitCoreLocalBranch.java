@@ -6,7 +6,8 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.extern.slf4j.Slf4j;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -23,8 +24,9 @@ import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
-@Slf4j(topic = "gitCore")
 public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBranch {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("gitCore");
+
   public static final String BRANCHES_PATH = "refs/heads/";
 
   public GitCoreLocalBranch(GitCoreRepository repo, String branchName) {
@@ -53,21 +55,20 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   @Override
   public Option<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
-    log.debug("Enter deriveRemoteTrackingStatus for branch ${getFullName()}");
+    LOG.debug(() -> "Enter deriveRemoteTrackingStatus for branch ${getFullName()}");
     BranchTrackingStatus ts = Try.of(() -> BranchTrackingStatus.of(repo.getJgitRepo(), getName()))
         .getOrElseThrow(e -> new GitCoreException(e));
 
     if (ts == null) {
-      log.debug("No remote tracking information found");
+      LOG.debug("No remote tracking information found");
       return Option.none();
     }
 
     String remoteName = repo.getJgitRepo().getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, getName(),
         ConfigConstants.CONFIG_KEY_REMOTE);
-    log.debug("Remote repository for this branch is named ${remoteName}");
+    LOG.debug(() -> "Remote repository for this branch is named ${remoteName}");
 
-    log.debug("Ahead: ${ts.getAheadCount()}");
-    log.debug("Behind: ${ts.getBehindCount()}");
+    LOG.debug(() -> "Ahead: ${ts.getAheadCount()}; Behind: ${ts.getBehindCount()}");
 
     return Option.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount(), remoteName));
   }
@@ -86,14 +87,16 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
-    log.debug("Enter rejectExcludedEntries for branch ${getFullName()}");
+    LOG.debug(() -> "Enter rejectExcludedEntries for branch ${getFullName()}");
     ObjectId entryToExcludeNewId;
     if (entries.size() > 0) {
       ReflogEntry firstEntry = entries.get(entries.size() - 1);
       if (firstEntry.getComment().startsWith("branch: Created from")) {
         entryToExcludeNewId = firstEntry.getNewId();
-        log.debug(
-            "All entries with the same hash as first entry (${firstEntry.getNewId().toString()}) will be excluded because first entry comment starts with \"branch: Created from\"");
+        LOG.debug(
+            () -> "All entries with the same hash as first entry (${firstEntry.getNewId().toString()}) will be excluded "
+                +
+                "because first entry comment starts with \"branch: Created from\"");
       } else {
         entryToExcludeNewId = ObjectId.zeroId();
       }
@@ -108,19 +111,20 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
           + Try.of(() -> getPointedCommit().getHash().getHashString()).getOrElse("");
 
       if (e.getNewId().equals(entryToExcludeNewId)) {
-        log.debug("Exclude ${e.getNewId().getName()} because it has the same hash as first entry");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because it has the same hash as first entry");
       } else if (e.getNewId().equals(e.getOldId())) {
-        log.debug("Exclude ${e.getNewId().getName()} because its old and new IDs are the same");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because its old and new IDs are the same");
       } else if (e.getComment().startsWith("branch: Created from")) {
-        log.debug("Exclude ${e.getNewId().getName()} because its comment starts with \"branch: Created from\"");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because its comment starts with \"branch: Created from\"");
       } else if (e.getComment().equals("branch: Reset to " + getBranchName())) {
-        log.debug("Exclude ${e.getNewId().getName()} because its comment is \"branch: Reset to ${getBranchName()}\"");
+        LOG.debug(
+            () -> "Exclude ${e.getNewId().getName()} because its comment is \"branch: Reset to ${getBranchName()}\"");
       } else if (e.getComment().equals("branch: Reset to HEAD")) {
-        log.debug("Exclude ${e.getNewId().getName()} because its comment is \"branch: Reset to HEAD\"");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because its comment is \"branch: Reset to HEAD\"");
       } else if (e.getComment().startsWith("reset: moving to ")) {
-        log.debug("Exclude ${e.getNewId().getName()} because its comment starts with \"reset: moving to \"");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because its comment starts with \"reset: moving to \"");
       } else if (e.getComment().equals(rebaseMessage)) {
-        log.debug("Exclude ${e.getNewId().getName()} because its comment is \"${rebaseMessage}\"");
+        LOG.debug(() -> "Exclude ${e.getNewId().getName()} because its comment is \"${rebaseMessage}\"");
       } else {
         return false;
       }
@@ -133,7 +137,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   @Override
   public Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
-    log.debug("Enter deriveForkPoint for branch ${getFullName()}");
+    LOG.debug(() -> "Enter deriveForkPoint for branch ${getFullName()}");
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
     RevCommit commit = derivePointedRevCommit();
@@ -143,7 +147,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       throw new GitCoreException(e);
     }
 
-    log.debug("Getting local branches reflog lists");
+    LOG.debug("Getting local branches reflog lists");
 
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
         .map(branch -> Try.of(() -> {
@@ -156,7 +160,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
         .collect(List.collector()))
         .getOrElseThrow(e -> new GitCoreException(e));
 
-    log.debug("Getting remote branches reflog lists");
+    LOG.debug("Getting remote branches reflog lists");
 
     Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
@@ -177,18 +181,18 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     List<ReflogEntry> filteredReflogEntries = reflogEntryLists.flatMap(this::rejectExcludedEntries);
 
-    log.debug("Start walking through revlogs");
+    LOG.debug("Start walking through revlogs");
 
     for (RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries
           .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (currentBranchCommitInReflogs) {
-        log.debug("Commit ${currentBranchCommit.getId().getName()} found in reflogs. Returning as fork point");
+        LOG.debug(() -> "Commit ${currentBranchCommit.getId().getName()} found in reflogs. Returning as fork point");
         return Option.of(new GitCoreCommit(currentBranchCommit));
       }
     }
 
-    log.debug("Fork point not found");
+    LOG.debug("Fork point not found");
     return Option.none();
   }
 }

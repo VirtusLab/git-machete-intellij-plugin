@@ -7,10 +7,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -31,8 +32,9 @@ import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 @Getter
 @RequiredArgsConstructor
 @ToString
-@Slf4j(topic = "gitCore")
 public abstract class GitCoreBranch extends BaseGitCoreBranch {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("gitCore");
+
   protected final GitCoreRepository repo;
   protected final String branchName;
 
@@ -87,7 +89,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   @Override
   public List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
-    log.debug("Enter the deriveCommitsUntil for branch ${getFullName()}");
+    LOG.debug(() -> "Enter the deriveCommitsUntil for branch ${getFullName()}");
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
@@ -98,12 +100,12 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
       return walk;
     }).getOrElseThrow(e -> new GitCoreException(e));
 
-    log.debug("Start revwalk");
+    LOG.debug("Start revwalk");
 
     return Iterator.ofAll(revWalk)
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
         .map(revCommit -> {
-          log.debug(revCommit.getId().getName());
+          LOG.debug(() -> revCommit.getId().getName());
           return revCommit;
         })
         .map(GitCoreCommit::new)

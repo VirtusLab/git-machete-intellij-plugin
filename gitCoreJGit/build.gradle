@@ -1,6 +1,6 @@
 dependencies {
   jgit()
-  slf4jApi()
+  slf4jLambdaApi()
   vavr()
 
   api project(':gitCoreApi')
