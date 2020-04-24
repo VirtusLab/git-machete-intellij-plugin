@@ -33,7 +33,7 @@ import org.reflections.Reflections;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
+import com.virtuslab.gitmachete.backend.api.IBranchLayoutParserFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
@@ -54,6 +54,7 @@ public final class GitMacheteGraphTableManager {
   private final RepositoryGraphFactory repositoryGraphFactory;
   private final VcsRootComboBox vcsRootComboBox;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
+  private final IBranchLayoutParserFactory branchLayoutParserFactory;
 
   public GitMacheteGraphTableManager(Project project, VcsRootComboBox vcsRootComboBox) {
     this.project = project;
@@ -64,6 +65,7 @@ public final class GitMacheteGraphTableManager {
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.vcsRootComboBox = vcsRootComboBox;
     this.gitMacheteRepositoryFactory = getGitMacheteRepositoryFactoryInstance();
+    branchLayoutParserFactory = getBranchLayoutParserFactoryInstance();
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
@@ -201,8 +203,16 @@ public final class GitMacheteGraphTableManager {
     return branchLayout;
   }
 
+  @SneakyThrows
+  private static IBranchLayoutParserFactory getBranchLayoutParserFactoryInstance() {
+    Reflections reflections = new Reflections("com.virtuslab");
+    Set<Class<? extends IBranchLayoutParserFactory>> classes = reflections
+        .getSubTypesOf(IBranchLayoutParserFactory.class);
+    return classes.iterator().next().getDeclaredConstructor().newInstance();
+  }
+
   private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
-    return Try.of(() -> new BranchLayoutFileParser(branchLayoutFilePath).parse())
+    return Try.of(() -> branchLayoutParserFactory.create(branchLayoutFilePath).parse())
         .getOrElseThrow(e -> {
           Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
           return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +

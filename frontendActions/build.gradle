@@ -1,8 +1,9 @@
 dependencies {
+  reflections()
   vavr()
 
   implementation project(':backendApi')
-  implementation project(':branchLayoutImpl')
+  implementation project(':branchLayoutApi')
   implementation project(':frontendKeys')
 }
 

@@ -14,10 +14,11 @@ import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayoutParser;
 
 @RequiredArgsConstructor
 @Getter
-public class BranchLayoutFileParser {
+public class BranchLayoutFileParser implements IBranchLayoutParser {
   private final Path path;
   private Character indentCharacter = ' ';
   @NonNegative
