@@ -268,14 +268,7 @@ class CollectionComboBoxModel<T> {
 @UIPackage package com.intellij.ui.roots;
 @UIPackage package com.intellij.ui.speedSearch;
 @UIPackage package com.intellij.ui.switcher;
-
 @UIPackage package com.intellij.ui.table;
-
-class JBTable {
-  void updateUI(@UnknownInitialization JBTable this);
-}
-
-
 @UIPackage package com.intellij.ui.tabs;
 @UIPackage package com.intellij.ui.tabs.impl;
 @UIPackage package com.intellij.ui.tabs.impl.singleRow;

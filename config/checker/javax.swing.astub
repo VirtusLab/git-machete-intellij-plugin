@@ -24,5 +24,4 @@ class JTable {
   TableModel createDefaultDataModel(@UnknownInitialization JTable this);
   void setModel(@UnknownInitialization JTable this, TableModel dataModel);
   void initializeLocalVars(@UnknownInitialization JTable this);
-  void updateUI(@UnknownInitialization JTable this);
 }

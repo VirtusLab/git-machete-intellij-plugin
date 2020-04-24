@@ -8,13 +8,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.GuiUtils;
 import com.intellij.util.SmartList;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
@@ -91,6 +89,7 @@ public final class GitMacheteGraphTableManager {
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
+  @UIEffect
   public void refreshGraphTable() {
     GitRepository gitRepository = vcsRootComboBox.getValue();
     Path macheteFilePath = getMacheteFilePath(gitRepository);
@@ -100,6 +99,7 @@ public final class GitMacheteGraphTableManager {
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
+  @UIEffect
   private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
     // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
     // No UI should be shown when IDEA is running in this mode.
@@ -130,7 +130,7 @@ public final class GitMacheteGraphTableManager {
           "Please use 'git machete discover' CLI command to automatically create machete file.");
     }
 
-    GuiUtils.invokeLaterIfNeeded(gitMacheteGraphTable::updateUI, ModalityState.NON_MODAL);
+    gitMacheteGraphTable.repaint();
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {
