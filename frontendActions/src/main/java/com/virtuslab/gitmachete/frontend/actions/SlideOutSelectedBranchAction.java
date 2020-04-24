@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getSelectedMacheteBranch;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedMacheteBranch;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -40,6 +40,9 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
           var nonRootBranch = selectedBranch.get().asNonRootBranch();
           presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
         }
+      } else {
+        presentation.setEnabled(false);
+        presentation.setVisible(false);
       }
     }
   }

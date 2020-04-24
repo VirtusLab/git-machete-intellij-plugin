@@ -32,7 +32,6 @@ import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -51,12 +50,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
   private final ISelectionChangeObservable<GitRepository> selectionChangeObservable;
-  private String upperTextForEmptyGraph = "";
-  private String lowerTextForEmptyGraph = "";
-  // doesTextForEmptyGraphRequireUpdate var is mainly to prevent invocation of getEmptyText() in updateUI() method in
-  // early stage of GitMacheteGraphTable existence that cause IllegalStateException coz getEmptyText() returns null.
-  // This is also introduced for performance optimization (to not update empty text when unnecessary).
-  private boolean doesTextForEmptyGraphRequireUpdate = false;
 
   @Nullable
   private IBranchLayout branchLayout;
@@ -111,25 +104,10 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
   }
 
-  public void setTextForEmptyGraph(String upperText, String lowerText) {
-    upperTextForEmptyGraph = upperText;
-    lowerTextForEmptyGraph = lowerText;
-    doesTextForEmptyGraphRequireUpdate = true;
-  }
-
-  @Override
   @UIEffect
-  public void updateUI(@UnknownInitialization GitMacheteGraphTable this) {
-    super.updateUI();
-    if (doesTextForEmptyGraphRequireUpdate) {
-      // We can safely ignore the warning related to `this` being possibly not fully initialized,
-      // since `doesTextForEmptyGraphRequireUpdate` can only be set to true in `setTextForEmptyGraph()`,
-      // which in turn can only be called on an @Initialized instance.
-      @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:method.invocation.invalid"})
-      var __ = getEmptyText().setText(upperTextForEmptyGraph).appendSecondaryText(lowerTextForEmptyGraph,
-          StatusText.DEFAULT_ATTRIBUTES, /* listener */ null);
-      doesTextForEmptyGraphRequireUpdate = false;
-    }
+  public void setTextForEmptyGraph(String upperText, String lowerText) {
+    getEmptyText().setText(upperText).appendSecondaryText(lowerText, StatusText.DEFAULT_ATTRIBUTES,
+        /* listener */ null);
   }
 
   @UIEffect

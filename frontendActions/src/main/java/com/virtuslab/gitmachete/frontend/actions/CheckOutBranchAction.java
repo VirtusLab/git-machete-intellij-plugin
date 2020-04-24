@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getIdeaRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentIdeaRepository;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class CheckOutBranchAction extends AnAction {
 
     Project project = anActionEvent.getProject();
     assert project != null;
-    GitRepository repository = getIdeaRepository(anActionEvent);
+    GitRepository repository = getPresentIdeaRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Checking out") {
       @Override

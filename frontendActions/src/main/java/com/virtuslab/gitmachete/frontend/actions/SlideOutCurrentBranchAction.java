@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentMacheteRepository;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -37,7 +37,7 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
 
     Presentation presentation = anActionEvent.getPresentation();
     if (presentation.isEnabledAndVisible()) {
-      IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+      IGitMacheteRepository gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
 
       var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
 
@@ -57,12 +57,12 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
 
   /**
    * Assumption to the following code is that the result of {@link IGitMacheteRepository#getCurrentBranchIfManaged}
-   * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
+   * is present and it is not a root branch because otherwise the user wouldn't be able to perform action in the first place
    */
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var gitMacheteRepository = getMacheteRepository(anActionEvent);
+    var gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
     var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
     assert currentBranchOption.isDefined();
     var baseGitMacheteBranch = currentBranchOption.get();

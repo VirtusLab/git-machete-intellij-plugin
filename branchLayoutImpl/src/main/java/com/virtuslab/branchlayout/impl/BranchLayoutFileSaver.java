@@ -8,7 +8,6 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -22,22 +21,20 @@ public class BranchLayoutFileSaver implements IBranchLayoutSaver {
   private final Character indentCharacter = ' ';
   private final int levelWidth = 2;
 
-  @Setter
-  private boolean backupOldFile = true;
-
-  public void save(IBranchLayout branchLayout) throws BranchLayoutException {
+  public void save(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);
 
     if (backupOldFile) {
       Path parentDir = path.getParent();
-      assert parentDir != null : "Can't get parent directory of branch relation file";
-      Path backupFilePath = parentDir.resolve(path.getFileName() + "~");
-      Try.of(() -> Files.copy(path, backupFilePath, StandardCopyOption.REPLACE_EXISTING))
-          .getOrElseThrow(e -> new BranchLayoutException("Unable to backup machete file", e));
+      assert parentDir != null : "Can't get parent directory of branch layout file";
+      Path backupPath = parentDir.resolve(path.getFileName() + "~");
+      Try.of(() -> Files.copy(path, backupPath, StandardCopyOption.REPLACE_EXISTING))
+          .getOrElseThrow(
+              e -> new BranchLayoutException("Unable to backup branch layout file from ${path} to ${backupPath}", e));
     }
 
     Try.of(() -> Files.write(path, lines))
-        .getOrElseThrow(e -> new BranchLayoutException("Unable to save new machete file", e));
+        .getOrElseThrow(e -> new BranchLayoutException("Unable to save new branch layout file to ${path}", e));
   }
 
   private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, @NonNegative int level) {

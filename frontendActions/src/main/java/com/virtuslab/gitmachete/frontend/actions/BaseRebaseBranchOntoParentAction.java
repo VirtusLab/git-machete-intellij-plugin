@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getIdeaRepository;
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentIdeaRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentMacheteRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -53,7 +53,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    Repository.State state = getIdeaRepository(anActionEvent).getState();
+    Repository.State state = getPresentIdeaRepository(anActionEvent).getState();
     if (state != Repository.State.NORMAL) {
       // `REVERTING`` state is available since 193.2495
       var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();
@@ -91,9 +91,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     Project project = anActionEvent.getProject();
     assert project != null;
 
-    IGitMacheteRepository macheteRepository = getMacheteRepository(anActionEvent);
+    IGitMacheteRepository macheteRepository = getPresentMacheteRepository(anActionEvent);
 
-    GitRepository gitRepository = getIdeaRepository(anActionEvent);
+    GitRepository gitRepository = getPresentIdeaRepository(anActionEvent);
 
     doRebase(project, macheteRepository, gitRepository, branchToRebase);
   }

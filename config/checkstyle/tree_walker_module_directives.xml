@@ -82,9 +82,16 @@
     <property name="format" value="\bString\.format\b"/>
     <property name="message" value="Use string interpolation instead (com.antkorwin:better-strings)"/>
 </module>
-<module name="RegexpSinglelineJava">
-    <property name="format" value="\binterface\s+[^I]"/>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bupdateUI\b"/>
+    <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint()."/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\binterface\s+[^I]"/>
     <property name="message" value="Interface names must start with 'I'" />
 </module>
 <module name="RightCurly">

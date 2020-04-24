@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getSelectedMacheteBranch;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedMacheteBranch;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -38,12 +38,15 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
           BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
           presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
         }
+      } else {
+        presentation.setEnabled(false);
+        presentation.setVisible(false);
       }
     }
   }
 
   /**
-   * Assumption to the following code is that the result of {@link ActionsUtils#getSelectedMacheteBranch}
+   * Assumption to the following code is that the result of {@link ActionUtils#getSelectedMacheteBranch}
    * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
    */
   @Override

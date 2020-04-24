@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.swing.Icon;
 
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
@@ -17,9 +18,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.reflections.Reflections;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
 /**
@@ -43,7 +43,12 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
   public BaseSlideOutBranchAction() {}
 
   /**
-   * See {@link BaseRebaseBranchOntoParentAction#actionPerformed} for the specific documentation.
+   * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
+   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
+   * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
+   * This gives us certainty that all checks from actions' update implementations will be performed
+   * and all data available via data keys in those {@code update} implementations will still do be available
+   * in {@link BaseSlideOutBranchAction#actionPerformed} implementations.
    */
   @Override
   @UIEffect
@@ -64,18 +69,13 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       var newBranchLayout = branchLayout.slideOut(branchName);
       var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
       var branchLayoutFileSaver = branchLayoutSaverFactory.create(macheteFilePath);
-      branchLayoutFileSaver.setBackupOldFile(true);
 
-      try {
-        branchLayoutFileSaver.save(newBranchLayout);
-        ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
-        VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
-      } catch (BranchLayoutException e) {
-        LOG.error("Failed to save machete file", e);
-      }
-    } catch (BranchLayoutException | GitMacheteException e) {
+      branchLayoutFileSaver.save(newBranchLayout, /* backupOldLayout */ true);
+      ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
+      VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
+    } catch (BranchLayoutException e) {
       String message = e.getMessage();
-      VcsNotifier.getInstance(project).notifyError("Slide of <b>${branchName}</b> out failed",
+      VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
           message == null ? "" : message);
     }
   }

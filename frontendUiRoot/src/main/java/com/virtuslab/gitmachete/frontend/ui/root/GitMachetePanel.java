@@ -61,8 +61,13 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   private ActionToolbar createGitMacheteVerticalToolbar() {
     DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
 
-    RefreshGitMacheteStatusAction refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
-    ActionManager.getInstance().registerAction(ActionIDs.ACTION_REFRESH, refreshGitMacheteStatusAction);
+    // This check is needed as action register is shared between multiple running IDE instances
+    // and we would not like to re-register the action.
+    var refreshGitMacheteStatusAction = ActionManager.getInstance().getAction(ActionIDs.ACTION_REFRESH);
+    if (refreshGitMacheteStatusAction == null) {
+      refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
+      ActionManager.getInstance().registerAction(ActionIDs.ACTION_REFRESH, refreshGitMacheteStatusAction);
+    }
 
     gitMacheteActions.addAll(
         refreshGitMacheteStatusAction,

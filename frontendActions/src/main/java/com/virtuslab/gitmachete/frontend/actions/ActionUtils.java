@@ -8,11 +8,11 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
-public final class ActionsUtils {
+public final class ActionUtils {
 
-  private ActionsUtils() {}
+  private ActionUtils() {}
 
-  static GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
+  static GitRepository getPresentIdeaRepository(AnActionEvent anActionEvent) {
     GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
     assert repository != null : "Can't get selected GitRepository";
     return repository;
@@ -23,7 +23,7 @@ public final class ActionsUtils {
    * and hence must always be called after checking the git machete repository readiness.
    * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
    */
-  static IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
+  static IGitMacheteRepository getPresentMacheteRepository(AnActionEvent anActionEvent) {
     IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
     assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
 
@@ -31,7 +31,7 @@ public final class ActionsUtils {
   }
 
   static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+    IGitMacheteRepository gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
     assert selectedBranchName != null : "Can't get selected branch";
     return gitMacheteRepository.getBranchByName(selectedBranchName);

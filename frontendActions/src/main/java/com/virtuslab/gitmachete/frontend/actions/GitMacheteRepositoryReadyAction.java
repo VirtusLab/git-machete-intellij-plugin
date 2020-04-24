@@ -33,10 +33,9 @@ public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction {
     if (isReady == null || !isReady) {
       presentation.setEnabled(false);
       presentation.setVisible(false);
-      return;
+    } else {
+      presentation.setEnabled(true);
+      presentation.setVisible(true);
     }
-
-    presentation.setEnabled(true);
-    presentation.setVisible(true);
   }
 }

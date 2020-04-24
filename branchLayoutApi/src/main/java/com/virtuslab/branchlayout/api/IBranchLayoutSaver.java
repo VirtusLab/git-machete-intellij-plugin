@@ -1,7 +1,5 @@
 package com.virtuslab.branchlayout.api;
 
 public interface IBranchLayoutSaver {
-  void save(IBranchLayout branchLayout) throws BranchLayoutException;
-
-  void setBackupOldFile(boolean b);
+  void save(IBranchLayout branchLayout, boolean backupOldLayout) throws BranchLayoutException;
 }

@@ -33,7 +33,7 @@ import org.reflections.Reflections;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.IBranchLayoutParserFactory;
+import com.virtuslab.branchlayout.api.IBranchLayoutParserFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
@@ -64,8 +64,8 @@ public final class GitMacheteGraphTableManager {
         vcsRootComboBox);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.vcsRootComboBox = vcsRootComboBox;
-    this.gitMacheteRepositoryFactory = getGitMacheteRepositoryFactoryInstance();
-    branchLayoutParserFactory = getBranchLayoutParserFactoryInstance();
+    this.gitMacheteRepositoryFactory = getFactoryInstance(IGitMacheteRepositoryFactory.class);
+    this.branchLayoutParserFactory = getFactoryInstance(IBranchLayoutParserFactory.class);
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
@@ -73,12 +73,10 @@ public final class GitMacheteGraphTableManager {
     subscribeToVcsRootChanges();
     subscribeToGitRepositoryChanges();
   }
-
   @SneakyThrows
-  private static IGitMacheteRepositoryFactory getGitMacheteRepositoryFactoryInstance() {
+  private static <T> T getFactoryInstance(Class<T> clazz) {
     Reflections reflections = new Reflections("com.virtuslab");
-    Set<Class<? extends IGitMacheteRepositoryFactory>> classes = reflections
-        .getSubTypesOf(IGitMacheteRepositoryFactory.class);
+    Set<Class<? extends T>> classes = reflections.getSubTypesOf(clazz);
     return classes.iterator().next().getDeclaredConstructor().newInstance();
   }
 
@@ -201,14 +199,6 @@ public final class GitMacheteGraphTableManager {
     gitMacheteGraphTable.setBranchLayout(branchLayout);
     gitMacheteGraphTable.setMacheteFilePath(macheteFilePath);
     return branchLayout;
-  }
-
-  @SneakyThrows
-  private static IBranchLayoutParserFactory getBranchLayoutParserFactoryInstance() {
-    Reflections reflections = new Reflections("com.virtuslab");
-    Set<Class<? extends IBranchLayoutParserFactory>> classes = reflections
-        .getSubTypesOf(IBranchLayoutParserFactory.class);
-    return classes.iterator().next().getDeclaredConstructor().newInstance();
   }
 
   private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
