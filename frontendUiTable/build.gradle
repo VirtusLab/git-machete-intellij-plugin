@@ -2,10 +2,12 @@ reflections()
 vavr()
 
 dependencies {
-  implementation project(':backendApi')
-  implementation project(':frontendGraph')
-  implementation project(':frontendKeys')
   implementation project(':logging')
+  implementation project(':backendApi')
+  implementation project(':branchLayoutApi')
+  implementation project(':frontendActionIds')
+  implementation project(':frontendDataKeys')
+  implementation project(':frontendGraph')
 }
 
 apply plugin: 'org.jetbrains.intellij'

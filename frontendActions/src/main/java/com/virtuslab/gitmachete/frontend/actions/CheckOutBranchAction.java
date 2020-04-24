@@ -19,7 +19,7 @@ import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 

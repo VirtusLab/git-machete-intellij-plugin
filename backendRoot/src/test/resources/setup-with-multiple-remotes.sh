@@ -9,7 +9,6 @@ push() {
   git push -u $1 $b
 }
 
-
 newrepo $1 machete-sandbox-remote1 --bare
 newrepo $1 machete-sandbox-remote2 --bare
 newrepo $1 machete-sandbox

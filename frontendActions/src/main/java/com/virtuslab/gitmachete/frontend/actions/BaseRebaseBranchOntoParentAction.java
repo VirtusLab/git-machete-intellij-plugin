@@ -31,7 +31,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -86,7 +86,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
    * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
    * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
    * This gives us certainty that all checks from actions' update implementations will be performed
-   * and all data available via data keys in those {@code update} implementations will still do be available
+   * and all data available via data datakeys in those {@code update} implementations will still do be available
    * in {@link BaseRebaseBranchOntoParentAction#actionPerformed} implementations.
    */
   @Override

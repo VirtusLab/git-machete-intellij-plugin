@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.ACTION_REFRESH;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
 
 import java.util.Set;
 
@@ -22,7 +22,7 @@ import org.reflections.Reflections;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 

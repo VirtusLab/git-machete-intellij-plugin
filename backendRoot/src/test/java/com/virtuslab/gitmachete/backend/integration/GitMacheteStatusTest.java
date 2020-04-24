@@ -36,14 +36,16 @@ import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryFactory;
 public class GitMacheteStatusTest {
   IGitMacheteRepository gitMacheteRepository = null;
 
-  public static final Path tmpTestDir = Paths.get("/tmp/machete-tests");
-  public static final Path scriptsDir = tmpTestDir.resolve("scripts");
-  public static final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
-  public static final Path repositoryMainDir = tmpTestDir.resolve("machete-sandbox");
-  public static final Path repositoryGitDir = repositoryMainDir.resolve(".git");
-  public static final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
+  public Path tmpTestDir = Files.createTempDirectory("machete-tests-");
+  public final Path scriptsDir = tmpTestDir.resolve("scripts");
+  public final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
+  public final Path repositoryMainDir = tmpTestDir.resolve("machete-sandbox");
+  public final Path repositoryGitDir = repositoryMainDir.resolve(".git");
+  public final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
 
   GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
+
+  public GitMacheteStatusTest() throws IOException {}
 
   public void init(String scriptName) throws Exception {
     createDirStructure();
@@ -111,7 +113,7 @@ public class GitMacheteStatusTest {
   private void prepareRepoFromScript() throws IOException, InterruptedException {
     var process = Runtime.getRuntime()
         .exec(repositoryPreparingCommand, /* array of environment vars */ new String[]{}, scriptsDir.toFile());
-    var completed = process.waitFor(1, TimeUnit.SECONDS);
+    var completed = process.waitFor(5, TimeUnit.SECONDS);
     Assert.assertTrue(completed);
     Assert.assertEquals(0, process.exitValue());
   }

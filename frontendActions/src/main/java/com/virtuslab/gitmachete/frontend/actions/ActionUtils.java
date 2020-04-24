@@ -7,7 +7,7 @@ import io.vavr.control.Option;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 public final class ActionUtils {
 

@@ -1,10 +1,10 @@
 vavr()
 
 dependencies {
-  implementation project(':frontendActions')
-  implementation project(':frontendKeys')
-  implementation project(':frontendUiTable')
   implementation project(':logging')
+  implementation project(':frontendActionIds')
+  implementation project(':frontendActions')
+  implementation project(':frontendUiTable')
 }
 
 apply plugin: 'org.jetbrains.intellij'

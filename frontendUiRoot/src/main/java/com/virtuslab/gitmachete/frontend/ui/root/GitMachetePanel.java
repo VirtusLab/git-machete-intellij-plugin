@@ -20,9 +20,9 @@ import git4idea.repo.GitRepository;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
+import com.virtuslab.gitmachete.frontend.actionids.ActionIds;
 import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
 import com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction;
-import com.virtuslab.gitmachete.frontend.keys.ActionIDs;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
@@ -68,10 +68,10 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
     // This check is needed as action register is shared between multiple running IDE instances
     // and we would not like to re-register the action.
-    var refreshGitMacheteStatusAction = ActionManager.getInstance().getAction(ActionIDs.ACTION_REFRESH);
+    var refreshGitMacheteStatusAction = ActionManager.getInstance().getAction(ActionIds.ACTION_REFRESH);
     if (refreshGitMacheteStatusAction == null) {
       refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
-      ActionManager.getInstance().registerAction(ActionIDs.ACTION_REFRESH, refreshGitMacheteStatusAction);
+      ActionManager.getInstance().registerAction(ActionIds.ACTION_REFRESH, refreshGitMacheteStatusAction);
     }
 
     gitMacheteActions.addAll(

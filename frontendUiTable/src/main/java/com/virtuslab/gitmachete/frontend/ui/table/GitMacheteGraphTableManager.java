@@ -76,6 +76,7 @@ public final class GitMacheteGraphTableManager {
     subscribeToVcsRootChanges();
     subscribeToGitRepositoryChanges();
   }
+
   @SneakyThrows
   private static <T> T getFactoryInstance(Class<T> clazz) {
     Reflections reflections = new Reflections("com.virtuslab");
