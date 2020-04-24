@@ -1,22 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.ACTION_REFRESH;
-
-import java.io.IOException;
-
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
-import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.impl.BranchLayoutFileSaver;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
@@ -31,8 +20,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class SlideOutCurrentBranchAction extends GitMacheteRepositoryReadyAction {
-  private static final Logger LOG = Logger.getInstance(SlideOutCurrentBranchAction.class);
+public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
 
   private static final String ACTION_TEXT = "Slide Out Current Branch";
   private static final String ACTION_DESCRIPTION = "Slide out current branch";
@@ -73,29 +61,12 @@ public class SlideOutCurrentBranchAction extends GitMacheteRepositoryReadyAction
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Project project = anActionEvent.getProject();
-    assert project != null;
+    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
+    assert currentBranchOption.isDefined();
+    BaseGitMacheteBranch baseGitMacheteBranch = currentBranchOption.get();
+    assert !baseGitMacheteBranch.isRootBranch();
 
-    Option<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
-    assert currentBranch.isDefined();
-
-    var branchLayout = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT);
-    try {
-      var branchName = currentBranch.get().getName();
-      var newBranchLayout = branchLayout.slideOut(branchName);
-      var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
-      var branchLayoutFileSaver = new BranchLayoutFileSaver(macheteFilePath);
-
-      try {
-        branchLayoutFileSaver.save(newBranchLayout, /* backupOldFile */ true);
-        ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
-        VcsNotifier.getInstance(project).notifyInfo("Branch ${branchName} slid out");
-      } catch (IOException e) {
-        LOG.error("Failed to save machete file", e);
-      }
-    } catch (BranchLayoutException e) {
-      String message = e.getMessage();
-      VcsNotifier.getInstance(project).notifyError("Slide out failed", message == null ? "" : message);
-    }
+    doSlideOut(anActionEvent, baseGitMacheteBranch.asNonRootBranch());
   }
 }

@@ -32,9 +32,15 @@
                 text="_Rebase Branch Onto Parent"
                 description="Rebase selected branch onto parent"/>
 
+        <action id="GitMachete.SlideOutSelectedBranchAction"
+                class="com.virtuslab.gitmachete.frontend.actions.SlideOutSelectedBranchAction"
+                text="_Slide Out Branch"
+                description="Slide out branch"/>
+
         <group id="GitMachete.ContextMenu">
             <reference id="GitMachete.CheckOutBranchAction"/>
             <reference id="GitMachete.RebaseSelectedBranchOntoParentAction"/>
+            <reference id="GitMachete.SlideOutSelectedBranchAction"/>
         </group>
 
         <!-- Note that certain other actions aren't listed here since they're instead instantiated directly from Java code. -->
