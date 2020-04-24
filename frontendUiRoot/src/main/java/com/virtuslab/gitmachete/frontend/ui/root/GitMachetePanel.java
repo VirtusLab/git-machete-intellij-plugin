@@ -17,6 +17,8 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.SmartList;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
@@ -28,6 +30,8 @@ import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
 
 public final class GitMachetePanel extends SimpleToolWindowPanel {
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendUiRoot");
+
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
   private static final String REFRESH_STATUS_TEXT = "Refresh Status";
   private static final String REFRESH_STATUS_DESCRIPTION = "Refresh status";
@@ -39,6 +43,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   @UIEffect
   public GitMachetePanel(Project project) {
     super(/* vertical */ false, /* borderless */ true);
+    LOG.debug("Instantiation of GitMachetePanel");
 
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
     // an opened project, so Git Machete plugin shouldn't even be loaded in the first place
@@ -89,6 +94,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+      LOG.debug("Refresh action invoked");
       gitMacheteGraphTableManager.updateAndRefreshInBackground();
     }
   }
@@ -107,6 +113,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     @Override
     @UIEffect
     public void setSelected(AnActionEvent e, boolean state) {
+      LOG.debug(() -> "Commits visibility changing action triggered with state = ${state}");
       gitMacheteGraphTableManager.setListingCommits(state);
       gitMacheteGraphTableManager.refreshGraphTable();
     }
