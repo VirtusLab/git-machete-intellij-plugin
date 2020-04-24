@@ -182,7 +182,7 @@ public final class GitMacheteGraphTableManager {
     if (isMacheteFilePresent) {
       var repository = Try
           .of(() -> {
-            IBranchLayout branchLayout = updateBranchLayout();
+            IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
             return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
           })
           .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
@@ -192,7 +192,7 @@ public final class GitMacheteGraphTableManager {
     }
   }
 
-  private IBranchLayout updateBranchLayout() throws MacheteFileParseException {
+  private IBranchLayout updateBranchLayoutAndMacheteFilePath() throws MacheteFileParseException {
     GitRepository gitRepository = vcsRootComboBox.getValue();
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     IBranchLayout branchLayout = createBranchLayout(macheteFilePath);

@@ -7,7 +7,6 @@ import java.nio.file.StandardCopyOption;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -15,11 +14,9 @@ import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 
 @RequiredArgsConstructor
-@Getter
 public class BranchLayoutFileSaver {
   private final Path path;
   private final Character indentCharacter = ' ';
-  @NonNegative
   private final int levelWidth = 2;
 
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws IOException {

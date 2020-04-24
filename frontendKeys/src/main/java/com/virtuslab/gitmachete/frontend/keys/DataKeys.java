@@ -12,7 +12,7 @@ public final class DataKeys {
   private DataKeys() {}
 
   public static final DataKey<IBranchLayout> KEY_BRANCH_LAYOUT = DataKey.create("BRANCH_LAYOUT");
-  public static final DataKey<Path> KEY_GIT_MACHETE_FILE_PATH = DataKey.create("MACHETE_FILE_PATH");
+  public static final DataKey<Path> KEY_GIT_MACHETE_FILE_PATH = DataKey.create("GIT_MACHETE_FILE_PATH");
   public static final DataKey<Boolean> KEY_IS_GIT_MACHETE_REPOSITORY_READY = DataKey
       .create("IS_GIT_MACHETE_REPOSITORY_READY");
   public static final DataKey<IGitMacheteRepository> KEY_GIT_MACHETE_REPOSITORY = DataKey

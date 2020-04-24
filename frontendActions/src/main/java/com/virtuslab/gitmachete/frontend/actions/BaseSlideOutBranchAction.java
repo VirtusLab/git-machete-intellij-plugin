@@ -54,8 +54,9 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     var branchLayout = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT);
     assert branchLayout != null;
 
+    var branchName = branchToSlideOut.getName();
+
     try {
-      var branchName = branchToSlideOut.getName();
       var newBranchLayout = branchLayout.slideOut(branchName);
       var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
       var branchLayoutFileSaver = new BranchLayoutFileSaver(macheteFilePath);
@@ -63,13 +64,14 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       try {
         branchLayoutFileSaver.save(newBranchLayout, /* backupOldFile */ true);
         ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
-        VcsNotifier.getInstance(project).notifyInfo("Branch ${branchName} slid out");
-      } catch (IOException e) {
+        VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
+      } catch (BranchLayoutException e) {
         LOG.error("Failed to save machete file", e);
       }
     } catch (BranchLayoutException e) {
       String message = e.getMessage();
-      VcsNotifier.getInstance(project).notifyError("Slide out failed", message == null ? "" : message);
+      VcsNotifier.getInstance(project).notifyError("Slide of <b>${branchName}</b> out failed",
+          message == null ? "" : message);
     }
   }
 }

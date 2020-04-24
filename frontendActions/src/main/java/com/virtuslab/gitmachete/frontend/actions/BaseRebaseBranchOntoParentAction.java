@@ -53,15 +53,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    var isReady = anActionEvent.getData(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY);
-    if (isReady == null || !isReady) {
-      presentation.setEnabled(false);
-      presentation.setVisible(false);
-      return;
-    }
-
-    presentation.setEnabled(true);
-    presentation.setVisible(true);
     Repository.State state = getIdeaRepository(anActionEvent).getState();
     if (state != Repository.State.NORMAL) {
       // `REVERTING`` state is available since 193.2495
