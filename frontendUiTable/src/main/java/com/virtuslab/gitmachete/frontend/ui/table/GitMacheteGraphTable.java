@@ -30,7 +30,6 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
-import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -59,11 +58,9 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   // This is also introduced for performance optimization (to not update empty text when unnecessary).
   private boolean doesTextForEmptyGraphRequireUpdate = false;
 
-  @Setter
   @Nullable
   private IBranchLayout branchLayout;
 
-  @Setter
   @Nullable
   private Path macheteFilePath;
 
@@ -166,6 +163,15 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
+
+  public void setBranchLayout(IBranchLayout newBranchLayout) {
+    this.branchLayout = newBranchLayout;
+  }
+
+  public void setMacheteFilePath(Path newMacheteFilePath) {
+    this.macheteFilePath = newMacheteFilePath;
+  }
+
   protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
 
     private final GitMacheteGraphTable graphTable;
