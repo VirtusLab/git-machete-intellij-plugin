@@ -69,7 +69,7 @@
 </module>
 <!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
     unexpectedly differ in their behaviour - peek from vavr calls given method/lambda
-    only for first element in collection/stream unlike peek from java that do this for every element.
+    only for the first element in collection/stream - unlike `peek` from Java `Stream` that does this for every element.
     To avoid possible bugs, invocation of any method called "peek" is forbidden. -->
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>

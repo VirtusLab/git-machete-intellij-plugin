@@ -218,7 +218,8 @@ subprojects {
           // We rely on that guarantee: JGit that our plugin depends on (via backendRoot and gitCoreJGit)
           // effectively uses whatever slf4j-api version is provided by IntelliJ.
           // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
-          // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation, we need to exclude the former.
+          // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation
+          // (and also between JGit's slf4j-api and Intellij's slf4j-api), we need to exclude the former.
           exclude(group: 'org.slf4j')
         }
       }
@@ -253,6 +254,10 @@ subprojects {
     slf4jLambdaApi = { ->
       dependencies {
         slf4jApi()
+        // It's so useful for us because we are using invocation of methods that potentially consumes some time
+        // also in debug messages but this plugin allow us to using lambdas that generates log messages
+        // (mainly using string interpolation plugin) and values of this lambdas are calculated only when needed
+        // (when given log level is active)
         compile(group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion)  {
           exclude(group: 'org.slf4j')
         }
