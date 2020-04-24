@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.table;
 
-import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.keys.ActionIDs.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -36,10 +36,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
-import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;

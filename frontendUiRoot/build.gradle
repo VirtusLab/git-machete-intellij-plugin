@@ -2,8 +2,8 @@ slf4jLambdaApi()
 vavr()
 
 dependencies {
+  implementation project(':frontendActionIds')
   implementation project(':frontendActions')
-  implementation project(':frontendKeys')
   implementation project(':frontendUiTable')
 }
 

@@ -3,8 +3,10 @@ vavr()
 
 dependencies {
   implementation project(':backendApi')
+  implementation project(':branchLayoutApi')
+  implementation project(':frontendActionIds')
+  implementation project(':frontendDataKeys')
   implementation project(':frontendGraph')
-  implementation project(':frontendKeys')
 }
 
 apply plugin: 'org.jetbrains.intellij'

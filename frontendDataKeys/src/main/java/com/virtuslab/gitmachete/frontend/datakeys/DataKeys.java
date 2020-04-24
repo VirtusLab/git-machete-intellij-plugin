@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.keys;
+package com.virtuslab.gitmachete.frontend.datakeys;
 
 import java.nio.file.Path;
 

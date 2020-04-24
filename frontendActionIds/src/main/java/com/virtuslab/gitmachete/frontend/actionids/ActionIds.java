@@ -1,7 +1,7 @@
-package com.virtuslab.gitmachete.frontend.keys;
+package com.virtuslab.gitmachete.frontend.actionids;
 
-public final class ActionIDs {
-  private ActionIDs() {}
+public final class ActionIds {
+  private ActionIds() {}
 
   // These entries are defined in plugin.xml file
   public static final String ACTION_CHECK_OUT = "GitMachete.CheckOutBranchAction";
