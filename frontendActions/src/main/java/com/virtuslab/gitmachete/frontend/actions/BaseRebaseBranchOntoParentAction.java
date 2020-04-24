@@ -14,15 +14,20 @@ import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.ui.GuiUtils;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -40,6 +45,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction {
+  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
 
   public BaseRebaseBranchOntoParentAction(String text, String actionDescription, Icon icon) {
     super(text, actionDescription, icon);
@@ -89,7 +95,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
     Project project = anActionEvent.getProject();
-    assert project != null;
+    assert project != null : "Can't get project from anActionEvent variable";
 
     IGitMacheteRepository macheteRepository = getPresentMacheteRepository(anActionEvent);
 
@@ -98,22 +104,34 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     doRebase(project, macheteRepository, gitRepository, branchToRebase);
   }
 
-  private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository repository,
+  private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository gitRepository,
       BaseGitMacheteNonRootBranch branchToRebase) {
+    LOG.debug(() -> "Enter BaseRebaseBranchOntoParentAction#doRebase(project = ${project}, " +
+        "macheteRepository = ${macheteRepository}, gitRepository = ${gitRepository}, " +
+        "branchToRebase = ${branchToRebase} (${branchToRebase.getName()})");
     Try.of(() -> macheteRepository.getParametersForRebaseOntoParent(branchToRebase))
-        .onSuccess(gitRebaseParameters -> new Task.Backgroundable(project, "Rebasing") {
-          @Override
-          public void run(ProgressIndicator indicator) {
-            GitRebaseParams params = getIdeaRebaseParamsOf(repository, gitRebaseParameters);
-            GitRebaseUtils.rebase(project, List.of(repository), params, indicator);
-          }
+        .onSuccess(gitRebaseParameters -> {
+          LOG.debug(() -> "Queuing \"${branchToRebase.getName()}\" branch rebase background task");
+          new Task.Backgroundable(project, "Rebasing") {
+            @Override
+            public void run(ProgressIndicator indicator) {
+              GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
+              LOG.info(() -> "Rebasing \"${gitRebaseParameters.getCurrentBranch().getName()}\" branch " +
+                  "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
+                  "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
+              GitRebaseUtils.rebase(project, List.of(gitRepository), params, indicator);
+            }
 
-          // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
-          // changes to commits (eg. commits may get squashed so the graph structure changes).
-        }.queue()).onFailure(e -> {
+            // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
+            // changes to commits (eg. commits may get squashed so the graph structure changes).
+          }.queue();
+        }).onFailure(e -> {
           // TODO (#172): redirect the user to the manual fork-point
           var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+          LOG.error(message);
           VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
+          GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(message, "Something Went Wrong..."),
+              ModalityState.NON_MODAL);
         });
   }
 

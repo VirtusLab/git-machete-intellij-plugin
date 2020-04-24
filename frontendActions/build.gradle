@@ -1,4 +1,5 @@
 reflections()
+slf4jLambdaApi()
 vavr()
 
 dependencies {

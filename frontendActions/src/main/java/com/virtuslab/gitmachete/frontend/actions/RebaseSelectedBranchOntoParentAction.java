@@ -5,6 +5,8 @@ import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedM
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -20,6 +22,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
+  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
   @UIEffect
@@ -51,6 +54,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
+    LOG.debug("Performing RebaseSelectedBranchOntoParentAction");
     var selectedGitMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedGitMacheteBranchOption.isDefined();
     var baseGitMacheteBranch = selectedGitMacheteBranchOption.get();

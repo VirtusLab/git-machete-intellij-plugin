@@ -7,14 +7,18 @@ import java.util.List;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.GuiUtils;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
@@ -28,7 +32,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public class CheckOutBranchAction extends AnAction {
-  private static final Logger LOG = Logger.getInstance(CheckOutBranchAction.class);
+  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
 
   public CheckOutBranchAction() {}
 
@@ -43,6 +47,10 @@ public class CheckOutBranchAction extends AnAction {
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
     if (selectedBranchName == null) {
       LOG.error("Branch to check out was not given");
+      GuiUtils.invokeLaterIfNeeded(
+          () -> Messages.showErrorDialog("Internal error occurred during check out: Branch to check out was not given",
+              "Something Went Wrong..."),
+          ModalityState.NON_MODAL);
       return;
     }
 
@@ -50,9 +58,11 @@ public class CheckOutBranchAction extends AnAction {
     assert project != null;
     GitRepository repository = getPresentIdeaRepository(anActionEvent);
 
+    LOG.debug(() -> "Queuing \"${selectedBranchName}\" branch checkout background task");
     new Task.Backgroundable(project, "Checking out") {
       @Override
       public void run(ProgressIndicator indicator) {
+        LOG.info(() -> "Checking out branch \"${selectedBranchName}\"");
         new GitBranchWorker(project, Git.getInstance(),
             new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
                 .checkout(selectedBranchName, /* detach */ false, List.of(repository));

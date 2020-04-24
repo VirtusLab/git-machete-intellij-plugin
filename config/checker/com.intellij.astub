@@ -236,8 +236,8 @@ package com.intellij.psi.search.scope.packageSet;
 @UIPackage package com.intellij.ui;
 
 class GuiUtils {
-  @SafeEffect void invokeLaterIfNeeded(Runnable runnable, ModalityState modalityState);
-  @SafeEffect void invokeLaterIfNeeded(Runnable runnable, ModalityState modalityState, Condition expired);
+  @SafeEffect void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState);
+  @SafeEffect void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState, Condition expired);
 }
 
 class CollectionComboBoxModel<T> {
