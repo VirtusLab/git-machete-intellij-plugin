@@ -1,12 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getSelectedMacheteBranch;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
 /**
@@ -42,22 +43,17 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
   }
 
   /**
-   * Assumption to the following code is that the result of {@link RebaseSelectedBranchOntoParentAction#getSelectedMacheteBranch}
+   * Assumption to the following code is that the result of {@link ActionsUtils#getSelectedMacheteBranch}
    * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Option<BaseGitMacheteBranch> selectedGitMacheteBranch = getSelectedMacheteBranch(anActionEvent);
-    assert selectedGitMacheteBranch.isDefined();
+    var selectedGitMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
+    assert selectedGitMacheteBranchOption.isDefined();
+    var baseGitMacheteBranch = selectedGitMacheteBranchOption.get();
+    assert !baseGitMacheteBranch.isRootBranch();
 
-    var branchToRebase = selectedGitMacheteBranch.get().asNonRootBranch();
+    var branchToRebase = baseGitMacheteBranch.asNonRootBranch();
     doRebase(anActionEvent, branchToRebase);
-  }
-
-  private Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
-    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
-    assert selectedBranchName != null : "Can't get selected branch";
-    return gitMacheteRepository.getBranchByName(selectedBranchName);
   }
 }

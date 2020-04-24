@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getIdeaRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getMacheteRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -132,23 +134,5 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
     return new GitRebaseParams(gitVersion, currentBranch, newBase, /* upstream */ forkPoint,
         /* interactive */ true, /* preserveMerges */ false);
-  }
-
-  /**
-   * This method relies on key `KEY_GIT_MACHETE_REPOSITORY` corresponding to a non-null value
-   * and hence must always be called after checking the git machete repository readiness.
-   * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
-   */
-  protected IGitMacheteRepository getMacheteRepository(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
-    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
-
-    return gitMacheteRepository;
-  }
-
-  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
-    GitRepository gitRepository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
-    assert gitRepository != null : "Can't get GitRepository";
-    return gitRepository;
   }
 }

@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getIdeaRepository;
+
 import java.util.List;
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -57,11 +59,5 @@ public class CheckOutBranchAction extends AnAction {
       }
       // TODO (#95): on success, refresh only indication of the current branch
     }.queue();
-  }
-
-  protected GitRepository getIdeaRepository(AnActionEvent anActionEvent) {
-    GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
-    assert repository != null : "Can't get selected GitRepository";
-    return repository;
   }
 }

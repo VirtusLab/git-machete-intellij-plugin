@@ -1,12 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getMacheteRepository;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
@@ -61,10 +62,10 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
+    var gitMacheteRepository = getMacheteRepository(anActionEvent);
     var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
     assert currentBranchOption.isDefined();
-    BaseGitMacheteBranch baseGitMacheteBranch = currentBranchOption.get();
+    var baseGitMacheteBranch = currentBranchOption.get();
     assert !baseGitMacheteBranch.isRootBranch();
 
     doSlideOut(anActionEvent, baseGitMacheteBranch.asNonRootBranch());

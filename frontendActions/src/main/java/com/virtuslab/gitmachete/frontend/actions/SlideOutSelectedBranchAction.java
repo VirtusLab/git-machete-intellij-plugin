@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getSelectedMacheteBranch;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
@@ -51,16 +53,9 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   public void actionPerformed(AnActionEvent anActionEvent) {
     var selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedMacheteBranchOption.isDefined();
-    BaseGitMacheteBranch baseGitMacheteBranch = selectedMacheteBranchOption.get();
+    var baseGitMacheteBranch = selectedMacheteBranchOption.get();
     assert !baseGitMacheteBranch.isRootBranch();
 
     doSlideOut(anActionEvent, baseGitMacheteBranch.asNonRootBranch());
-  }
-
-  private Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getMacheteRepository(anActionEvent);
-    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
-    assert selectedBranchName != null : "Can't get selected branch";
-    return gitMacheteRepository.getBranchByName(selectedBranchName);
   }
 }

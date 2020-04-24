@@ -1,13 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import static com.virtuslab.gitmachete.frontend.actions.ActionsUtils.getMacheteRepository;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
@@ -63,10 +63,12 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Option<BaseGitMacheteBranch> currentBranch = getMacheteRepository(anActionEvent).getCurrentBranchIfManaged();
-    assert currentBranch.isDefined();
+    var gitMacheteRepository = getMacheteRepository(anActionEvent);
+    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
+    assert currentBranchOption.isDefined();
+    var baseGitMacheteBranch = currentBranchOption.get();
+    assert !baseGitMacheteBranch.isRootBranch();
 
-    var branchToRebase = currentBranch.get().asNonRootBranch();
-    doRebase(anActionEvent, branchToRebase);
+    doRebase(anActionEvent, baseGitMacheteBranch.asNonRootBranch());
   }
 }
