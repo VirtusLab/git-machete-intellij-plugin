@@ -33,9 +33,9 @@ import org.checkerframework.checker.index.qual.Positive;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
+import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
-import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
-import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
@@ -103,11 +103,11 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       getCellState().updateRenderer(this);
       setBorder(null);
 
-      IGraphNode node = cell.getGraphNode();
+      IGraphItem graphItem = cell.getGraphItem();
 
-      int maxGraphNodePositionInRow = getMaxGraphNodePositionInRow(node);
+      int maxGraphNodePositionInRow = getMaxGraphNodePositionInRow(graphItem);
 
-      if (node.hasBulletPoint()) {
+      if (graphItem.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
       } else {
         graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof NodePrintElement))
@@ -119,19 +119,18 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       int textPadding = calculateTextPadding(maxGraphNodePositionInRow);
       appendTextPadding(textPadding);
 
-      SimpleTextAttributes attributes = node.getAttributes();
+      SimpleTextAttributes attributes = graphItem.getAttributes();
       append(cell.getText(), attributes);
 
-      if (node instanceof BranchNode) {
-        BaseGitMacheteBranch branch = ((BranchNode) node).getBranch();
+      if (graphItem.isBranchItem()) {
+        BranchItem branchItem = graphItem.asBranchItem();
+        BaseGitMacheteBranch branch = branchItem.getBranch();
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
-        SyncToRemoteStatus syncToRemoteStatus;
-
-        syncToRemoteStatus = ((BranchNode) node).getSyncToRemoteStatus();
+        SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
         if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSync) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
               SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
@@ -154,13 +153,13 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @NonNegative
-    private int getMaxGraphNodePositionInRow(IGraphNode node) {
-      // If node is a child (non root) branch, then the text must be shifted right to make place
+    private int getMaxGraphNodePositionInRow(IGraphItem graphItem) {
+      // If item is a child (non root) branch, then the text must be shifted right to make place
       // for the corresponding the right edge to the left.
-      // If node is a commit, then the text must be shifted right to keep it horizontally aligned
-      // with the corresponding branch node.
-      boolean isRootBranch = node.isBranch() && ((BranchNode) node).getBranch().isRootBranch();
-      return node.getIndentLevel() + (isRootBranch ? 0 : 1);
+      // If item is a commit, then the text must be shifted right to keep it horizontally aligned
+      // with the corresponding branch item.
+      boolean isRootBranch = graphItem.isBranchItem() && graphItem.asBranchItem().getBranch().isRootBranch();
+      return graphItem.getIndentLevel() + (isRootBranch ? 0 : 1);
     }
 
     @UIEffect

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.nodes;
+package com.virtuslab.gitmachete.frontend.graph.items;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -12,55 +12,49 @@ import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Getter
 @ToString
-public abstract class BaseGraphNode implements IGraphNode {
+public abstract class BaseGraphItem implements IGraphItem {
 
   private final GraphEdgeColor graphEdgeColor;
 
   @GTENegativeOne
-  private final int prevSiblingNodeIndex;
+  private final int prevSiblingItemIndex;
 
   @Positive
   @MonotonicNonNull
-  private Integer nextSiblingNodeIndex = null;
+  private Integer nextSiblingItemIndex = null;
 
   @NonNegative
   private final int indentLevel;
 
-  protected BaseGraphNode(GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingNodeIndex,
-      @Positive int nextSiblingNodeIndex,
+  protected BaseGraphItem(GraphEdgeColor graphEdgeColor,
+      @GTENegativeOne int prevSiblingItemIndex,
+      @Positive int nextSiblingItemIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.prevSiblingNodeIndex = prevSiblingNodeIndex;
-    this.nextSiblingNodeIndex = nextSiblingNodeIndex;
+    this.prevSiblingItemIndex = prevSiblingItemIndex;
+    this.nextSiblingItemIndex = nextSiblingItemIndex;
     this.indentLevel = indentLevel;
   }
 
-  protected BaseGraphNode(GraphEdgeColor graphEdgeColor,
-      @GTENegativeOne int prevSiblingNodeIndex,
+  protected BaseGraphItem(GraphEdgeColor graphEdgeColor,
+      @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel) {
     this.graphEdgeColor = graphEdgeColor;
-    this.prevSiblingNodeIndex = prevSiblingNodeIndex;
+    this.prevSiblingItemIndex = prevSiblingItemIndex;
     this.indentLevel = indentLevel;
-  }
-
-  @Override
-  @NonNegative
-  public int getIndentLevel() {
-    return indentLevel;
   }
 
   @Override
   @Nullable
   @Positive
-  public Integer getNextSiblingNodeIndex() {
-    return this.nextSiblingNodeIndex;
+  public Integer getNextSiblingItemIndex() {
+    return this.nextSiblingItemIndex;
   }
 
   @Override
-  public void setNextSiblingNodeIndex(@Positive int i) {
-    assert nextSiblingNodeIndex == null : "nextSiblingNodeIndex has already been set";
-    nextSiblingNodeIndex = i;
+  public void setNextSiblingItemIndex(@Positive int i) {
+    assert nextSiblingItemIndex == null : "nextSiblingItemIndex has already been set";
+    nextSiblingItemIndex = i;
   }
 
   @Override

@@ -1,9 +1,10 @@
-package com.virtuslab.gitmachete.frontend.graph.nodes;
+package com.virtuslab.gitmachete.frontend.graph.items;
 
 import java.awt.Color;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -13,25 +14,25 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Getter
-public final class BranchNode extends BaseGraphNode {
+public final class BranchItem extends BaseGraphItem {
   private final BaseGitMacheteBranch branch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
-  private final boolean hasChildNode;
+  private final boolean hasChildItem;
 
-  public BranchNode(
+  public BranchItem(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
       SyncToRemoteStatus syncToRemoteStatus,
-      @GTENegativeOne int prevSiblingNodeIndex,
+      @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel,
       boolean isCurrentBranch,
-      boolean hasChildNode) {
-    super(graphEdgeColor, prevSiblingNodeIndex, indentLevel);
+      boolean hasChildItem) {
+    super(graphEdgeColor, prevSiblingItemIndex, indentLevel);
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
-    this.hasChildNode = hasChildNode;
+    this.hasChildItem = hasChildItem;
   }
 
   private static final JBColor BRANCH_TEXT_COLOR = new JBColor(Color.BLACK, Color.WHITE);
@@ -53,12 +54,22 @@ public final class BranchNode extends BaseGraphNode {
   }
 
   @Override
-  public boolean hasChildNode() {
-    return hasChildNode;
+  public boolean hasChildItem() {
+    return hasChildItem;
   }
 
   @Override
-  public boolean isBranch() {
+  public boolean isBranchItem() {
     return true;
+  }
+
+  @Override
+  public BranchItem asBranchItem() {
+    return this;
+  }
+
+  @Override
+  public CommitItem asCommitItem() {
+    throw new NotImplementedError();
   }
 }

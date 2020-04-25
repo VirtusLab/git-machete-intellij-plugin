@@ -18,8 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
-import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
-import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
+import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
 @RequiredArgsConstructor
@@ -36,8 +35,8 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
   }
 
   private void collectElements(@NonNegative int rowIndex, PrintElementBuilder builder) {
-    IGraphNode graphNode = repositoryGraph.getGraphNode(rowIndex);
-    int position = graphNode.getIndentLevel();
+    IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
+    int position = graphItem.getIndentLevel();
 
     repositoryGraph.getVisibleEdgesWithPositions(rowIndex).forEach(edgeAndPos -> {
       builder.consumeUpEdge(edgeAndPos._1(), edgeAndPos._2());
@@ -57,13 +56,13 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
     }
 
     int nodeAndItsDownEdgePos = position;
-    if (graphNode.isBranch() && !((BranchNode) graphNode).getBranch().isRootBranch()) {
-      builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex, /* targetId */ null, GraphEdgeType.USUAL), position);
+    if (graphItem.isBranchItem() && !graphItem.asBranchItem().getBranch().isRootBranch()) {
+      builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex), position);
       nodeAndItsDownEdgePos++;
     }
 
     builder.consumeNode(new GraphNode(rowIndex), nodeAndItsDownEdgePos);
-    if (graphNode.hasChildNode()) {
+    if (graphItem.hasChildItem()) {
       builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, /* targetId */ null, GraphEdgeType.USUAL),
           nodeAndItsDownEdgePos);
     }

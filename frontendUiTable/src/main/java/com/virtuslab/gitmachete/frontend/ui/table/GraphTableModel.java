@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
+import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 
@@ -37,8 +37,8 @@ public class GraphTableModel extends AbstractTableModel {
   public final Object getValueAt(@NonNegative int rowIndex, @NonNegative int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN :
-        IGraphNode node = repositoryGraph.getGraphNode(rowIndex);
-        return new BranchOrCommitCell(node, repositoryGraph.getPrintElements(rowIndex));
+        IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
+        return new BranchOrCommitCell(graphItem, repositoryGraph.getPrintElements(rowIndex));
       default :
         throw new IllegalArgumentException("columnIndex is ${columnIndex} > ${getColumnCount() - 1}");
     }
