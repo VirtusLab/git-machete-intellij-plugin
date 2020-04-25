@@ -1,6 +1,9 @@
 package com.virtuslab.gitmachete.backend.root;
 
-import static com.virtuslab.gitmachete.backend.root.TestUtils.*;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepository;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepositoryFactory;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.getCommit;
+import static com.virtuslab.gitmachete.backend.root.TestUtils.getGitCoreLocalBranch;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -12,6 +15,7 @@ import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
 public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
 

@@ -31,7 +31,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
@@ -129,10 +129,10 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
-        ISyncToRemoteStatus syncToRemoteStatus;
+        SyncToRemoteStatus syncToRemoteStatus;
 
         syncToRemoteStatus = ((BranchNode) node).getSyncToRemoteStatus();
-        if (syncToRemoteStatus.getRelation() != ISyncToRemoteStatus.Relation.InSync) {
+        if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSync) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
               SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
           String remoteStatusLabel = SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getRelation(),

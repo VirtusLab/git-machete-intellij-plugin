@@ -9,7 +9,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -21,13 +21,13 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final IGitMacheteCommit pointedCommit;
-  private final ISyncToRemoteStatus syncToRemoteStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   @Nullable
   private final String customAnnotation;
 
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      ISyncToRemoteStatus syncToRemoteStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation) {
     LOG.debug(
         () -> "Creating GitMacheteRootBranch(name = ${name}, " +

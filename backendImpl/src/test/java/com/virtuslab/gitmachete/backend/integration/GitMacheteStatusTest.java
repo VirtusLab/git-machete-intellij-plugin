@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Ahead;
-import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Diverged;
-import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.InSync;
-import static com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -24,14 +24,15 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.impl.BranchLayoutFileParser;
+import com.virtuslab.branchlayout.api.IBranchLayoutParserFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.root.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
 public class GitMacheteStatusTest {
   IGitMacheteRepository gitMacheteRepository = null;
@@ -44,6 +45,8 @@ public class GitMacheteStatusTest {
   public final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
 
   GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
+  IBranchLayoutParserFactory branchLayoutParserFactory = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutParserFactory.class);
 
   public GitMacheteStatusTest() throws IOException {}
 
@@ -51,7 +54,7 @@ public class GitMacheteStatusTest {
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
-    IBranchLayout branchLayout = new BranchLayoutFileParser(repositoryGitDir.resolve("machete")).parse();
+    IBranchLayout branchLayout = branchLayoutParserFactory.create(repositoryGitDir.resolve("machete")).parse();
 
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }

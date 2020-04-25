@@ -16,6 +16,7 @@ import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
 public class GitMacheteRepositoryFactory_deduceForkPointTest {
 

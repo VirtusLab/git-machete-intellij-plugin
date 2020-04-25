@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -25,13 +24,12 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MinLen;
-import org.reflections.Reflections;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutParserFactory;
@@ -67,21 +65,15 @@ public final class GitMacheteGraphTableManager {
         vcsRootComboBox);
     this.repositoryGraphFactory = new RepositoryGraphFactory();
     this.vcsRootComboBox = vcsRootComboBox;
-    this.gitMacheteRepositoryFactory = getFactoryInstance(IGitMacheteRepositoryFactory.class);
-    this.branchLayoutParserFactory = getFactoryInstance(IBranchLayoutParserFactory.class);
+    this.gitMacheteRepositoryFactory = RuntimeBinding
+        .instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
+    this.branchLayoutParserFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutParserFactory.class);
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
     subscribeToVcsRootChanges();
     subscribeToGitRepositoryChanges();
-  }
-
-  @SneakyThrows
-  private static <T> T getFactoryInstance(Class<T> clazz) {
-    Reflections reflections = new Reflections("com.virtuslab");
-    Set<Class<? extends T>> classes = reflections.getSubTypesOf(clazz);
-    return classes.iterator().next().getDeclaredConstructor().newInstance();
   }
 
   private void subscribeToVcsRootChanges() {

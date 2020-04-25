@@ -6,16 +6,16 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
-import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
-import com.virtuslab.gitcore.impl.jgit.GitCoreBranchTrackingStatus;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
 public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
 
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
 
-  private ISyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
+  private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryFactory.class),
         "deriveSyncToRemoteStatus",
         coreLocalBranch);
@@ -27,10 +27,10 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(Option.none()).when(coreLocalBranch).deriveRemoteTrackingStatus();
 
     // when
-    ISyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(ISyncToRemoteStatus.Relation.Untracked, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.Untracked, status.getRelation());
   }
 
   @Test
@@ -39,10 +39,10 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(getTrackingStatusOption(1, 1, "origin")).when(coreLocalBranch).deriveRemoteTrackingStatus();
 
     // when
-    ISyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(ISyncToRemoteStatus.Relation.Diverged, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.Diverged, status.getRelation());
   }
 
   @Test
@@ -51,10 +51,10 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(getTrackingStatusOption(1, 0, "origin")).when(coreLocalBranch).deriveRemoteTrackingStatus();
 
     // when
-    ISyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(ISyncToRemoteStatus.Relation.Ahead, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.Ahead, status.getRelation());
   }
 
   @Test
@@ -63,10 +63,10 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(getTrackingStatusOption(0, 1, "origin")).when(coreLocalBranch).deriveRemoteTrackingStatus();
 
     // when
-    ISyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(ISyncToRemoteStatus.Relation.Behind, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.Behind, status.getRelation());
   }
 
   @Test
@@ -75,13 +75,13 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(getTrackingStatusOption(0, 0, "origin")).when(coreLocalBranch).deriveRemoteTrackingStatus();
 
     // when
-    ISyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(ISyncToRemoteStatus.Relation.InSync, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.InSync, status.getRelation());
   }
 
-  private Option<IGitCoreBranchTrackingStatus> getTrackingStatusOption(int ahead, int behind, String remoteName) {
+  private Option<GitCoreBranchTrackingStatus> getTrackingStatusOption(int ahead, int behind, String remoteName) {
     return Option.of(GitCoreBranchTrackingStatus.of(ahead, behind, remoteName));
   }
 }

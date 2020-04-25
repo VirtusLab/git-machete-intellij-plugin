@@ -10,8 +10,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -29,7 +29,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   private final IGitMacheteCommit forkPoint;
   private final IGitMacheteCommit pointedCommit;
   private final List<IGitMacheteCommit> commits;
-  private final ISyncToRemoteStatus syncToRemoteStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   private final SyncToParentStatus syncToParentStatus;
   @Nullable
   private final String customAnnotation;
@@ -39,7 +39,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
       List<IGitMacheteCommit> commits,
-      ISyncToRemoteStatus syncToRemoteStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
       @Nullable String customAnnotation) {
     LOG.debug(
