@@ -2,8 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
 
-import java.util.Set;
-
 import javax.swing.Icon;
 
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -17,10 +15,9 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
-import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.reflections.Reflections;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -39,7 +36,8 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction {
   public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
 
-  private final IBranchLayoutSaverFactory branchLayoutSaverFactory = getBranchLayoutSaverFactoryInstance();
+  private final IBranchLayoutSaverFactory branchLayoutSaverFactory = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutSaverFactory.class);
 
   public BaseSlideOutBranchAction(String text, String actionDescription, Icon icon) {
     super(text, actionDescription, icon);
@@ -93,13 +91,5 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(errorMessage, "Something Went Wrong..."),
           ModalityState.NON_MODAL);
     }
-  }
-
-  @SneakyThrows
-  private static IBranchLayoutSaverFactory getBranchLayoutSaverFactoryInstance() {
-    Reflections reflections = new Reflections("com.virtuslab");
-    Set<Class<? extends IBranchLayoutSaverFactory>> classes = reflections
-        .getSubTypesOf(IBranchLayoutSaverFactory.class);
-    return classes.iterator().next().getDeclaredConstructor().newInstance();
   }
 }

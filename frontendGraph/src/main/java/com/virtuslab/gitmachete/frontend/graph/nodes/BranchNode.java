@@ -9,20 +9,20 @@ import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Getter
 public final class BranchNode extends BaseGraphNode {
   private final BaseGitMacheteBranch branch;
-  private final ISyncToRemoteStatus syncToRemoteStatus;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
   private final boolean hasChildNode;
 
   public BranchNode(
       BaseGitMacheteBranch branch,
       GraphEdgeColor graphEdgeColor,
-      ISyncToRemoteStatus syncToRemoteStatus,
+      SyncToRemoteStatus syncToRemoteStatus,
       @GTENegativeOne int prevSiblingNodeIndex,
       @NonNegative int indentLevel,
       boolean isCurrentBranch,

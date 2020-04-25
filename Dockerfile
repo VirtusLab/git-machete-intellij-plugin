@@ -29,5 +29,6 @@ WORKDIR /stripped_repo
 # `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs
 # We need this to allow `./gradlew` to write in `./.gradle` directory (even though this directory won't make it to the final image anyway).
 RUN --mount=type=bind,rw,source=.,target=. \
-  ./gradlew --info resolveDependencies \
-  && rm /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
+  `# no-daemon so that no data about the daemon active during the image build makes it to the final image under ~/.gradle/daemon/` \
+  ./gradlew --no-daemon --info resolveDependencies \
+  && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip

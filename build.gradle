@@ -69,6 +69,17 @@ subprojects {
       // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
       options.compilerArgs << '-Werror'
     }
+
+    tasks.withType(Javadoc) {
+      // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the `-Xwerror` option:
+      // this is needed to make sure that javadoc always fails on warnings
+      // (esp. important on CI since javadoc there for some reason seems to never raise any errors otherwise).
+
+      // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
+      // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
+      options.addStringOption('Xwerror', '-quiet')
+      options.addStringOption('Xdoclint:all', '-quiet')
+    }
   }
 
 
@@ -215,7 +226,7 @@ subprojects {
           // that's incompatible with the slf4j-api version that IntelliJ depends in (currently 1.7.25).
           // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
           // (http://www.slf4j.org/manual.html#compatibility).
-          // We rely on that guarantee: JGit that our plugin depends on (via backendRoot and gitCoreJGit)
+          // We rely on that guarantee: JGit that our plugin depends on (via backendImpl and gitCoreJGit)
           // effectively uses whatever slf4j-api version is provided by IntelliJ.
           // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
           // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation
@@ -266,7 +277,7 @@ subprojects {
 
     slf4jTestImpl = { ->
       // We only need to provide an SLF4J implementation in the contexts which depend on JGit but don't depend on IntelliJ.
-      // In our case, that's solely the tests of backendRoot.
+      // In our case, that's solely the tests of backendImpl.
       // In other contexts that require an SLF4J implementation (buildPlugin, runIde, possible but not yet present tests of frontend),
       // an SLF4J implementation is pulled in by IntelliJ.
       // Note that we don't need to agree the SLF4J implementation version here with JGit's slf4j-api version

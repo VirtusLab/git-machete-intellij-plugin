@@ -1,10 +1,10 @@
-reflections()
 slf4jLambdaApi()
 vavr()
 
 dependencies {
-  implementation project(':backendApi')
+  implementation project(':binding')
   implementation project(':branchLayoutApi')
+  implementation project(':backendApi')
   implementation project(':frontendActionIds')
   implementation project(':frontendDataKeys')
 }

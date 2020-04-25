@@ -62,7 +62,9 @@ public class RepositoryGraph {
    * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit node)
    * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
    *
-   *  @return list of adjacent edges in a given node index
+   * @param nodeIndex node index
+   * @param filter edge filter
+   * @return list of adjacent edges in a given node index
    */
   public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int nodeIndex, EdgeFilter filter) {
     if (filter == EdgeFilter.SPECIAL) {
@@ -94,6 +96,7 @@ public class RepositoryGraph {
    * Visible edges are the edges that are visible in a row but are NOT directly connected
    * to the node (branch/commit node) of this row. See {@link RepositoryGraph#getAdjacentEdges} for more details.
    *
+   * @param nodeIndex node index
    * @return list of visible edges in a given node index
    */
   public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int nodeIndex) {

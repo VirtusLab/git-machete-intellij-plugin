@@ -10,8 +10,6 @@ jobs:
       - run:
           name: Prepare build
           command: |
-            hub --version
-            git remote -v
             bash -x ./scripts/run-pre-build-checks
             bash ./scripts/specify-snapshot-revision
 
@@ -38,8 +36,11 @@ jobs:
       - run:
           name: Run tests
           command: ./gradlew test
+      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
-          path: backendRoot/build/test-results/
+          path: branchLayoutImpl/build/test-results/
+      - store_test_results:
+          path: backendImpl/build/test-results/
 
       - run:
           name: Build plugin artifact

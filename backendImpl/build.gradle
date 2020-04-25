@@ -1,9 +1,16 @@
+junit()
+powerMock()
 slf4jLambdaApi()
+slf4jTestImpl()
 vavr()
 
 dependencies {
+  implementation project(':binding')
   implementation project(':gitCoreApi')
-  implementation project(':branchLayoutApi')
 
   api project(':backendApi')
+  api project(':branchLayoutApi')
+
+  testRuntime project(':branchLayoutImpl')
+  testRuntime project(':gitCoreJGit')
 }

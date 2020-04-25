@@ -19,8 +19,8 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
+import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.IGitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
@@ -54,8 +54,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  public Option<IGitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
+  public Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
     LOG.debug(() -> "Enter deriveRemoteTrackingStatus for branch ${getFullName()}");
+
     BranchTrackingStatus ts = Try.of(() -> BranchTrackingStatus.of(repo.getJgitRepo(), getName()))
         .getOrElseThrow(e -> new GitCoreException(e));
 

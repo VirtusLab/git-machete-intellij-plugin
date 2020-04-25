@@ -18,8 +18,8 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.api.ISyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
@@ -164,7 +164,7 @@ public class RepositoryGraphBuilder {
       @GTENegativeOne int prevSiblingNodeIndex,
       GraphEdgeColor graphEdgeColor,
       @NonNegative int indentLevel) {
-    ISyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
+    SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
 
     Option<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
