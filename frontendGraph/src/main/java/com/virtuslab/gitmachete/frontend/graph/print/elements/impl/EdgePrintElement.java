@@ -1,18 +1,17 @@
 
 package com.virtuslab.gitmachete.frontend.graph.print.elements.impl;
 
-import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
 import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
 
 @Getter
-public class EdgePrintElement extends PrintElementWithGraphElement implements IEdgePrintElement {
+public final class EdgePrintElement extends PrintElementWithGraphElement implements IEdgePrintElement {
 
   private final Type type;
 

@@ -1,12 +1,8 @@
 package com.virtuslab.gitmachete.frontend.graph.repository;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import com.intellij.util.SmartList;
-import com.intellij.vcs.log.graph.api.EdgeFilter;
-import com.intellij.vcs.log.graph.api.elements.GraphEdge;
-import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -15,6 +11,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
+import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.print.PrintElementGenerator;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
@@ -63,29 +60,24 @@ public class RepositoryGraph {
    * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
    *
    * @param nodeIndex node index
-   * @param filter edge filter
    * @return list of adjacent edges in a given node index
    */
-  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int nodeIndex, EdgeFilter filter) {
-    if (filter == EdgeFilter.SPECIAL) {
-      return Collections.emptyList();
-    }
-
+  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int nodeIndex) {
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
     @SuppressWarnings("upperbound:argument.type.incompatible")
     IGraphItem currentItem = items.get(nodeIndex);
 
-    if (filter.upNormal && nodeIndex > 0) {
+    if (nodeIndex > 0) {
       int upIndex = currentItem.getPrevSiblingItemIndex();
       if (upIndex >= 0) {
-        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, upIndex, GraphEdgeType.USUAL));
+        adjacentEdges.add(GraphEdge.createEdge(nodeIndex, upIndex));
       }
     }
 
-    if (filter.downNormal && nodeIndex < items.size() - 1) {
+    if (nodeIndex < items.size() - 1) {
       Integer nextSiblingNodeIndex = currentItem.getNextSiblingItemIndex();
       if (nextSiblingNodeIndex != null) {
-        adjacentEdges.add(GraphEdge.createNormalEdge(nodeIndex, nextSiblingNodeIndex, GraphEdgeType.USUAL));
+        adjacentEdges.add(GraphEdge.createEdge(nodeIndex, nextSiblingNodeIndex));
       }
     }
 
@@ -125,7 +117,7 @@ public class RepositoryGraph {
       assert upNodeIndex >= 0
           && downNodeIndex < positionsOfVisibleEdges.size() : "upNodeIndex or downNodeIndex has wrong value";
 
-      return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex, /* targetId */ null, GraphEdgeType.USUAL), pos);
+      return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex), pos);
     }).collect(List.collector());
   }
 }

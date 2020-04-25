@@ -7,14 +7,12 @@ import java.util.Collection;
 import java.util.List;
 
 import com.intellij.util.SmartList;
-import com.intellij.vcs.log.graph.api.EdgeFilter;
-import com.intellij.vcs.log.graph.api.elements.GraphEdge;
-import com.intellij.vcs.log.graph.api.elements.GraphEdgeType;
-import com.intellij.vcs.log.graph.api.elements.GraphNode;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
+import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
+import com.virtuslab.gitmachete.frontend.graph.api.GraphNode;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.EdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.NodePrintElement;
@@ -27,8 +25,7 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
   private final GraphElementManager graphElementManager;
 
   @Override
-  public Collection<PrintElementWithGraphElement> getPrintElements(int rowIndex) {
-    assert rowIndex >= 0 : "Row index less than 0";
+  public Collection<PrintElementWithGraphElement> getPrintElements(@NonNegative int rowIndex) {
     PrintElementBuilder builder = new PrintElementBuilder(rowIndex);
     collectElements(rowIndex, builder);
     return builder.build();
@@ -43,14 +40,14 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
       builder.consumeDownEdge(edgeAndPos._1(), edgeAndPos._2());
     });
 
-    java.util.List<GraphEdge> adjacentEdges = repositoryGraph.getAdjacentEdges(rowIndex, EdgeFilter.ALL);
+    java.util.List<GraphEdge> adjacentEdges = repositoryGraph.getAdjacentEdges(rowIndex);
     for (GraphEdge edge : adjacentEdges) {
-      Integer downNodeIndex = edge.getDownNodeIndex();
-      Integer upNodeIndex = edge.getUpNodeIndex();
-      if (downNodeIndex != null && downNodeIndex == rowIndex) {
+      int downNodeIndex = edge.getDownNodeIndex();
+      int upNodeIndex = edge.getUpNodeIndex();
+      if (downNodeIndex == rowIndex) {
         builder.consumeUpEdge(edge, position);
       }
-      if (upNodeIndex != null && upNodeIndex == rowIndex) {
+      if (upNodeIndex == rowIndex) {
         builder.consumeDownEdge(edge, position);
       }
     }
@@ -63,8 +60,7 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
 
     builder.consumeNode(new GraphNode(rowIndex), nodeAndItsDownEdgePos);
     if (graphItem.hasChildItem()) {
-      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1, /* targetId */ null, GraphEdgeType.USUAL),
-          nodeAndItsDownEdgePos);
+      builder.consumeDownEdge(new GraphEdge(rowIndex, rowIndex + 1), nodeAndItsDownEdgePos);
     }
   }
 

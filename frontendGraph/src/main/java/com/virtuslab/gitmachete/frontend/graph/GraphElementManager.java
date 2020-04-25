@@ -6,6 +6,7 @@ import com.intellij.vcs.log.graph.api.elements.GraphElement;
 import com.intellij.vcs.log.graph.impl.print.GraphElementComparatorByLayoutIndex;
 import lombok.Getter;
 
+import com.virtuslab.gitmachete.frontend.graph.api.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.coloring.ColorGetterByLayoutIndex;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
@@ -19,7 +20,7 @@ public class GraphElementManager {
     graphElementComparator = new GraphElementComparatorByLayoutIndex(repositoryGraph::getNodeId).reversed();
   }
 
-  public int getColorId(GraphElement element) {
+  public int getColorId(IGraphElement element) {
     return colorGetterByLayoutIndex.getColorId(element);
   }
 }
