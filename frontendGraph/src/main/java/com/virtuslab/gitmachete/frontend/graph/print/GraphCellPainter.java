@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
 
 @RequiredArgsConstructor
@@ -97,13 +96,11 @@ public class GraphCellPainter {
 
   @UIEffect
   protected void drawElement(Graphics2D g2, IPrintElement printElement) {
-    if (printElement instanceof IEdgePrintElement) {
-      printEdge(g2, getColor(printElement), (IEdgePrintElement) printElement);
-    }
-
-    if (printElement instanceof INodePrintElement) {
+    if (printElement.isNode()) {
       int posInRow = printElement.getPositionInRow();
       paintCircle(g2, posInRow, getColor(printElement));
+    } else { // isEdge
+      printEdge(g2, getColor(printElement), printElement.asEdge());
     }
   }
 

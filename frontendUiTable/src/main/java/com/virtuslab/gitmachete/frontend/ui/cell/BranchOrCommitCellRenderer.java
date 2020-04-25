@@ -35,7 +35,6 @@ import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
-import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
@@ -110,7 +109,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (graphItem.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
       } else {
-        graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !(e instanceof INodePrintElement))
+        graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !e.isNode())
             .collect(Collectors.toList()), maxGraphNodePositionInRow);
       }
 

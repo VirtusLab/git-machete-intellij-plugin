@@ -37,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
@@ -77,7 +77,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 
-    GraphCellPainter graphCellPainter = new GraphCellPainter(GraphEdgeColorToJBColorMapper::getColor) {
+    GraphCellPainter graphCellPainter = new GraphCellPainter(GraphItemColorToJBColorMapper::getColor) {
       @Override
       protected int getRowHeight() {
         return GitMacheteGraphTable.this.getRowHeight();
