@@ -22,9 +22,9 @@ import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.nodes.BranchNode;
-import com.virtuslab.gitmachete.frontend.graph.nodes.CommitNode;
-import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
+import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
+import com.virtuslab.gitmachete.frontend.graph.items.CommitItem;
+import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 
 @Accessors(fluent = true)
 public class RepositoryGraphBuilder {
@@ -39,30 +39,30 @@ public class RepositoryGraphBuilder {
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public RepositoryGraph build() {
-    Tuple2<List<IGraphNode>, List<List<Integer>>> graphData = deriveGraphNodesAndPositionsOfVisibleEdges();
+    Tuple2<List<IGraphItem>, List<List<Integer>>> graphData = deriveGraphItemsAndPositionsOfVisibleEdges();
     return new RepositoryGraph(graphData._1(), graphData._2());
   }
 
-  private Tuple2<List<IGraphNode>, List<List<Integer>>> deriveGraphNodesAndPositionsOfVisibleEdges() {
+  private Tuple2<List<IGraphItem>, List<List<Integer>>> deriveGraphItemsAndPositionsOfVisibleEdges() {
     List<BaseGitMacheteRootBranch> rootBranches = repository.getRootBranches();
 
-    java.util.List<IGraphNode> graphNodes = new ArrayList<>();
+    java.util.List<IGraphItem> graphItems = new ArrayList<>();
     java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
 
     for (BaseGitMacheteRootBranch branch : rootBranches) {
-      int currentBranchIndex = graphNodes.size();
+      int currentBranchIndex = graphItems.size();
       positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
-      addRootBranch(graphNodes, branch);
+      addRootBranch(graphItems, branch);
       List<BaseGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphNodes, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
+      recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
           /* indentLevel */ 0);
     }
-    return Tuple.of(List.ofAll(graphNodes),
+    return Tuple.of(List.ofAll(graphItems),
         positionsOfVisibleEdges.stream().map(List::ofAll).collect(List.collector()));
   }
 
   /**
-   * @param graphNodes
+   * @param graphItems
    *          the collection to store downstream commits and branches
    * @param downstreamBranches
    *          branches to add with their commits
@@ -70,7 +70,7 @@ public class RepositoryGraphBuilder {
    *          the index of branch which downstream branches (with their commits) are to be added
    */
   private void recursivelyAddCommitsAndBranches(
-      java.util.List<IGraphNode> graphNodes,
+      java.util.List<IGraphItem> graphItems,
       java.util.List<java.util.List<Integer>> positionsOfVisibleEdges,
       List<BaseGitMacheteNonRootBranch> downstreamBranches,
       @GTENegativeOne int upstreamBranchIndex,
@@ -83,24 +83,24 @@ public class RepositoryGraphBuilder {
     int previousBranchIndex = upstreamBranchIndex;
     for (BaseGitMacheteNonRootBranch branch : downstreamBranches) {
       if (!isFirstBranch) {
-        graphNodes.get(previousBranchIndex).setNextSiblingNodeIndex(graphNodes.size());
+        graphItems.get(previousBranchIndex).setNextSiblingItemIndex(graphItems.size());
       }
 
-      int prevSiblingNodeIndex = graphNodes.size() - 1;
-      // We are building some non root branches here so some root branch node has been added already.
-      assert prevSiblingNodeIndex >= 0 : "There is no previous sibling node but should be";
-      buildCommitsAndNonRootBranch(graphNodes, branch, prevSiblingNodeIndex, indentLevel);
+      int prevSiblingItemIndex = graphItems.size() - 1;
+      // We are building some non root branches here so some root branch item has been added already.
+      assert prevSiblingItemIndex >= 0 : "There is no previous sibling node but should be";
+      buildCommitsAndNonRootBranch(graphItems, branch, prevSiblingItemIndex, indentLevel);
 
-      int upBranchIndex = graphNodes.size() - 1;
+      int upBranchIndex = graphItems.size() - 1;
       List<BaseGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
-      recursivelyAddCommitsAndBranches(graphNodes, positionsOfVisibleEdges, /* downstream */ branches,
+      recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, /* downstream */ branches,
           upBranchIndex, indentLevel + 1);
 
-      while (positionsOfVisibleEdges.size() < graphNodes.size()) {
+      while (positionsOfVisibleEdges.size() < graphItems.size()) {
         positionsOfVisibleEdges.add(new SmartList<>());
       }
       if (!branch.equals(lastDownstreamBranch)) {
-        for (int i = upBranchIndex + 1; i < graphNodes.size(); ++i) {
+        for (int i = upBranchIndex + 1; i < graphItems.size(); ++i) {
           positionsOfVisibleEdges.get(i).add(indentLevel);
         }
       }
@@ -110,14 +110,14 @@ public class RepositoryGraphBuilder {
     }
   }
 
-  private void addRootBranch(java.util.List<IGraphNode> graphNodes, BaseGitMacheteRootBranch branch) {
-    BranchNode branchNode = createBranchNodeFor(branch, /* prevSiblingNodeIndex */ -1,
+  private void addRootBranch(java.util.List<IGraphItem> graphItems, BaseGitMacheteRootBranch branch) {
+    BranchItem branchItem = createBranchItemFor(branch, /* prevSiblingItemIndex */ -1,
         GraphEdgeColor.GREEN, /* indentLevel */ 0);
-    graphNodes.add(branchNode);
+    graphItems.add(branchItem);
   }
 
   private void buildCommitsAndNonRootBranch(
-      java.util.List<IGraphNode> graphNodes,
+      java.util.List<IGraphItem> graphItems,
       BaseGitMacheteNonRootBranch branch,
       @NonNegative int upstreamBranchIndex,
       @NonNegative int indentLevel) {
@@ -125,52 +125,50 @@ public class RepositoryGraphBuilder {
 
     var syncToParentStatus = branch.getSyncToParentStatus();
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
-    int branchNodeIndex = graphNodes.size() + commits.size();
-    // We are building some non root branch here so some root branch node has been added already.
-    assert branchNodeIndex > 0 : "Branch node index is not greater than 0 but should be";
+    int branchItemIndex = graphItems.size() + commits.size();
+    // We are building some non root branch here so some root branch item has been added already.
+    assert branchItemIndex > 0 : "Branch node index is not greater than 0 but should be";
 
-    boolean isFirstNodeInBranch = true;
+    boolean isFirstItemInBranch = true;
     for (IGitMacheteCommit commit : commits) {
-      int lastNodeIndex = graphNodes.size() - 1;
-      // We are building some non root branch here so some root branch node has been added already.
-      assert lastNodeIndex >= 0 : "Last node index is less than 0 but shouldn't be";
-      int prevSiblingNodeIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastNodeIndex;
-      int nextSiblingNodeIndex = graphNodes.size() + 1;
-      CommitNode c = new CommitNode(commit, graphEdgeColor, prevSiblingNodeIndex, nextSiblingNodeIndex,
-          branchNodeIndex,
+      int lastItemIndex = graphItems.size() - 1;
+      // We are building some non root branch here so some root branch item has been added already.
+      assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
+      int prevSiblingItemIndex = isFirstItemInBranch ? upstreamBranchIndex : lastItemIndex;
+      int nextSiblingItemIndex = graphItems.size() + 1;
+      CommitItem c = new CommitItem(commit, graphEdgeColor, prevSiblingItemIndex, nextSiblingItemIndex,
+          branchItemIndex,
           indentLevel);
-      graphNodes.add(c);
-      isFirstNodeInBranch = false;
+      graphItems.add(c);
+      isFirstItemInBranch = false;
     }
 
-    int lastNodeIndex = graphNodes.size() - 1;
+    int lastItemIndex = graphItems.size() - 1;
     /*
      * If a branch has no commits (possibly due to commits getting strategy being {@code EMPTY_GET_COMMITS}) its {@code
-     * prevSiblingNodeIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code prevSiblingNodeIndex} is an index of
-     * most recently added node (its last commit).
+     * prevSiblingItemIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code prevSiblingItemIndex} is an index of
+     * most recently added item (its last commit).
      */
-    int prevSiblingNodeIndex = commits.isEmpty() ? upstreamBranchIndex : lastNodeIndex;
+    int prevSiblingItemIndex = commits.isEmpty() ? upstreamBranchIndex : lastItemIndex;
 
-    BranchNode branchNode = createBranchNodeFor(branch, prevSiblingNodeIndex, graphEdgeColor, indentLevel);
-    graphNodes.add(branchNode);
+    BranchItem branchItem = createBranchItemFor(branch, prevSiblingItemIndex, graphEdgeColor, indentLevel);
+    graphItems.add(branchItem);
   }
 
   /**
-   * @return {@link BranchNode} for given properties and provide additional
-   *         attributes if the branch is the current one.
+   * @return {@link BranchItem} for given properties and provide additional attributes if the branch is the current one
    */
-  private BranchNode createBranchNodeFor(
+  private BranchItem createBranchItemFor(
       BaseGitMacheteBranch branch,
-      @GTENegativeOne int prevSiblingNodeIndex,
+      @GTENegativeOne int prevSiblingItemIndex,
       GraphEdgeColor graphEdgeColor,
       @NonNegative int indentLevel) {
     SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
-
     Option<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
+    boolean hasChildItem = !branch.getDownstreamBranches().isEmpty();
 
-    boolean hasChildNode = !branch.getDownstreamBranches().isEmpty();
-    return new BranchNode(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingNodeIndex, indentLevel,
-        isCurrentBranch, hasChildNode);
+    return new BranchItem(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingItemIndex, indentLevel,
+        isCurrentBranch, hasChildItem);
   }
 }

@@ -1,7 +1,8 @@
-package com.virtuslab.gitmachete.frontend.graph.nodes;
+package com.virtuslab.gitmachete.frontend.graph.items;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
+import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
@@ -10,21 +11,21 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
 
 @Getter
-public final class CommitNode extends BaseGraphNode {
+public final class CommitItem extends BaseGraphItem {
   private final IGitMacheteCommit commit;
   @Positive
-  private final int branchNodeIndex;
+  private final int branchItemIndex;
 
-  public CommitNode(
+  public CommitItem(
       IGitMacheteCommit commit,
       GraphEdgeColor containingBranchGraphEdgeColor,
-      @NonNegative int prevSiblingNodeIndex,
-      @Positive int nextSiblingNodeIndex,
-      @Positive int branchNodeIndex,
+      @NonNegative int prevSiblingItemIndex,
+      @Positive int nextSiblingItemIndex,
+      @Positive int branchItemIndex,
       @NonNegative int indentLevel) {
-    super(containingBranchGraphEdgeColor, prevSiblingNodeIndex, nextSiblingNodeIndex, indentLevel);
+    super(containingBranchGraphEdgeColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
     this.commit = commit;
-    this.branchNodeIndex = branchNodeIndex;
+    this.branchItemIndex = branchItemIndex;
   }
 
   @Override
@@ -44,12 +45,22 @@ public final class CommitNode extends BaseGraphNode {
   }
 
   @Override
-  public boolean hasChildNode() {
+  public boolean hasChildItem() {
     return false;
   }
 
   @Override
-  public boolean isBranch() {
+  public boolean isBranchItem() {
     return false;
+  }
+
+  @Override
+  public BranchItem asBranchItem() {
+    throw new NotImplementedError();
+  }
+
+  @Override
+  public CommitItem asCommitItem() {
+    return this;
   }
 }

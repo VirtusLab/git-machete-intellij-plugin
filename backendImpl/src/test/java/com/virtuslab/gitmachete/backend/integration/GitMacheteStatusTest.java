@@ -21,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,6 +60,7 @@ public class GitMacheteStatusTest {
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }
 
+  @After
   public void cleanup() throws IOException {
     Files.walk(tmpTestDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
   }
@@ -75,8 +77,6 @@ public class GitMacheteStatusTest {
     System.out.println("OUR OUTPUT:");
     System.out.println(ourResult);
 
-    cleanup();
-
     Assert.assertEquals(gitMacheteCliStatus, ourResult);
   }
 
@@ -91,8 +91,6 @@ public class GitMacheteStatusTest {
     System.out.println(gitMacheteCliStatus);
     System.out.println("OUR OUTPUT:");
     System.out.println(ourResult);
-
-    cleanup();
 
     Assert.assertEquals(gitMacheteCliStatus, ourResult);
   }

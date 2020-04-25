@@ -38,7 +38,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColorToJBColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.nodes.IGraphNode;
+import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
@@ -171,8 +171,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       }
 
       BranchOrCommitCell cell = (BranchOrCommitCell) getModel().getValueAt(row, col);
-      IGraphNode graphNode = cell.getGraphNode();
-      if (!graphNode.isBranch()) {
+      IGraphItem graphNode = cell.getGraphItem();
+      if (!graphNode.isBranchItem()) {
         return;
       }
 
