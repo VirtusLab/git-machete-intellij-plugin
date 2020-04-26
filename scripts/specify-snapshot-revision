@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-set -e -o pipefail -u
-
-# Using the conventions as per https://semver.org/
-build_metadata=+git.$(git rev-parse --short HEAD)
-# Retain '-SNAPSHOT' pre-release indicator for non-master builds.
-[[ ${CIRCLE_BRANCH-} = master ]] && pre_release_indicator='' || pre_release_indicator=-SNAPSHOT
-sed -i "/^\s*PLUGIN_VERSION = '.*-SNAPSHOT'\$/  s/-SNAPSHOT/${pre_release_indicator}${build_metadata}/" version.gradle

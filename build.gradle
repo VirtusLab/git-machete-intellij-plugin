@@ -4,6 +4,7 @@ plugins {
 
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'io.freefair.lombok' version '5.0.0' apply false
+  id 'org.ajoberstar.grgit' version '4.0.2' apply false
   id 'org.checkerframework' version '0.4.15' apply false
   id 'org.jetbrains.intellij' version '0.4.18' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
@@ -31,10 +32,19 @@ if (System.getenv('CI') == 'true') {
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
 }
 
+import org.ajoberstar.grgit.Grgit
+
 allprojects {
+  apply plugin:'org.ajoberstar.grgit'
+  def git = Grgit.open(currentDir: project.rootDir)
+  def snapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
+  def shortCommitHash = "+git.${git.head().abbreviatedId}"
+  def dirty = git.status().clean ? '' : '-dirty'
+  git.close()
+
   group 'com.virtuslab'
   apply from: "$rootDir/version.gradle"
-  version PLUGIN_VERSION
+  version "${PLUGIN_VERSION}${snapshot}${shortCommitHash}${dirty}"
 
   repositories {
     jcenter()
@@ -42,7 +52,7 @@ allprojects {
   }
 
   ext {
-    betterStringsVerson = '0.2'
+    betterStringsVerson = '0.3'
     checkstyleToolVersion = '8.30'
     // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/verify-binary-compatibility
     // must also be updated when we update the version below.
@@ -300,7 +310,7 @@ subprojects {
 // Root project config
 
 // This is necessary to make sure that `buildPlugin` task puts jars of all subprojects into the final zip.
-subprojects.each {subproject ->
+subprojects.each { subproject ->
   dependencies {
     implementation(subproject)
   }

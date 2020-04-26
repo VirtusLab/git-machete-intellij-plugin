@@ -6,7 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 plugin_version=$(extract_version_from_current_wd)
-plugin_zip=build/distributions/git-machete-intellij-plugin-${plugin_version}.zip
+plugin_zip=$(ls -1t build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip | head -1)
 
 exit_code=0
 
@@ -19,8 +19,8 @@ jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intell
 
 gradle_projects=$(cat settings.gradle | grep -Po "(?<=').*(?=')" | sort)
 for project in $gradle_projects; do
-  expected_jar="$project-$plugin_version.jar"
-  grep -qxF "$expected_jar" <<< "$jars_in_plugin_zip" || fail "$expected_jar is expected but missing from $plugin_zip"
+  expected_jar="$project-$plugin_version"
+  grep -qEx "$expected_jar(-.*|\+.*|)\.jar" <<< "$jars_in_plugin_zip" || fail "$expected_jar*.jar is expected but missing from $plugin_zip"
 done
 
 expected_libraries=(org.eclipse.jgit reflections slf4j-lambda-core vavr vavr-match)

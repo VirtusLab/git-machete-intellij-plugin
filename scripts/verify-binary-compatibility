@@ -12,7 +12,7 @@ intellij_versions=(192.5728.98 193.6911.18)
 
 verifier_version=1.233
 plugin_version=$(extract_version_from_current_wd)
-plugin_zip=build/distributions/git-machete-intellij-plugin-${plugin_version}.zip
+plugin_zip=$(ls -1t build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip | head -1)
 
 [[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"
 
@@ -46,7 +46,7 @@ for iv in ${intellij_versions[*]}; do
     rm -f $idea_dir.tar.gz
   fi
 
-  output=$(java -jar "$verifier_jar_path" check-plugin -vrd "build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "${plugin_zip}" "${idea_dir}")
+  output=$(java -jar "$verifier_jar_path" check-plugin -vrd "build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "$plugin_zip" "$idea_dir")
   if echo "$output" | grep -qxE 'Plugin (.*) against .*: .* compatibility problems?'
   then
     echo "We have one or more compatibility problem(s) with version $iv:"

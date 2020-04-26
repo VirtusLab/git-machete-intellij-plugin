@@ -8,11 +8,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Prepare build
-          command: |
-            bash -x ./scripts/run-pre-build-checks
-            bash ./scripts/specify-snapshot-revision
-
+          name: Run pre-build checks
+          command: bash -x ./scripts/run-pre-build-checks
       - run:
           name: Start gradle daemon
           command: ./gradlew
