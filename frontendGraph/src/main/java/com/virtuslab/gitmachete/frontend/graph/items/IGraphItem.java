@@ -6,7 +6,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColor;
 
 public interface IGraphItem {
 
@@ -37,7 +37,7 @@ public interface IGraphItem {
   /** @return the attributes (eg. boldness) to be used by the displayed text */
   SimpleTextAttributes getAttributes();
 
-  GraphEdgeColor getGraphEdgeColor();
+  GraphItemColor getGraphItemColor();
 
   @NonNegative
   int getIndentLevel();

@@ -20,8 +20,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
-import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphEdgeColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToParentStatusToGraphItemColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
 import com.virtuslab.gitmachete.frontend.graph.items.CommitItem;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
@@ -112,7 +112,7 @@ public class RepositoryGraphBuilder {
 
   private void addRootBranch(java.util.List<IGraphItem> graphItems, BaseGitMacheteRootBranch branch) {
     BranchItem branchItem = createBranchItemFor(branch, /* prevSiblingItemIndex */ -1,
-        GraphEdgeColor.GREEN, /* indentLevel */ 0);
+        GraphItemColor.GREEN, /* indentLevel */ 0);
     graphItems.add(branchItem);
   }
 
@@ -124,7 +124,7 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     var syncToParentStatus = branch.getSyncToParentStatus();
-    GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
+    GraphItemColor graphItemColor = SyncToParentStatusToGraphItemColorMapper.getGraphItemColor(syncToParentStatus);
     int branchItemIndex = graphItems.size() + commits.size();
     // We are building some non root branch here so some root branch item has been added already.
     assert branchItemIndex > 0 : "Branch node index is not greater than 0 but should be";
@@ -136,7 +136,7 @@ public class RepositoryGraphBuilder {
       assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
       int prevSiblingItemIndex = isFirstItemInBranch ? upstreamBranchIndex : lastItemIndex;
       int nextSiblingItemIndex = graphItems.size() + 1;
-      CommitItem c = new CommitItem(commit, graphEdgeColor, prevSiblingItemIndex, nextSiblingItemIndex,
+      CommitItem c = new CommitItem(commit, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex,
           branchItemIndex,
           indentLevel);
       graphItems.add(c);
@@ -151,7 +151,7 @@ public class RepositoryGraphBuilder {
      */
     int prevSiblingItemIndex = commits.isEmpty() ? upstreamBranchIndex : lastItemIndex;
 
-    BranchItem branchItem = createBranchItemFor(branch, prevSiblingItemIndex, graphEdgeColor, indentLevel);
+    BranchItem branchItem = createBranchItemFor(branch, prevSiblingItemIndex, graphItemColor, indentLevel);
     graphItems.add(branchItem);
   }
 
@@ -161,14 +161,14 @@ public class RepositoryGraphBuilder {
   private BranchItem createBranchItemFor(
       BaseGitMacheteBranch branch,
       @GTENegativeOne int prevSiblingItemIndex,
-      GraphEdgeColor graphEdgeColor,
+      GraphItemColor graphItemColor,
       @NonNegative int indentLevel) {
     SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
     Option<BaseGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
     boolean hasChildItem = !branch.getDownstreamBranches().isEmpty();
 
-    return new BranchItem(branch, graphEdgeColor, syncToRemoteStatus, prevSiblingItemIndex, indentLevel,
+    return new BranchItem(branch, graphItemColor, syncToRemoteStatus, prevSiblingItemIndex, indentLevel,
         isCurrentBranch, hasChildItem);
   }
 }
