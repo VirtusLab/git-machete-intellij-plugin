@@ -50,11 +50,6 @@ public class RepositoryGraph {
     return items.size();
   }
 
-  public int getNodeId(int nodeIndex) {
-    assert nodeIndex >= 0 && nodeIndex < nodesCount() : "Bad nodeIndex: " + nodeIndex;
-    return nodeIndex;
-  }
-
   /**
    * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit node)
    * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
