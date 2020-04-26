@@ -8,7 +8,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColor;
 
 @Getter
 public final class CommitItem extends BaseGraphItem {
@@ -18,12 +18,12 @@ public final class CommitItem extends BaseGraphItem {
 
   public CommitItem(
       IGitMacheteCommit commit,
-      GraphEdgeColor containingBranchGraphEdgeColor,
+      GraphItemColor containingBranchGraphItemColor,
       @NonNegative int prevSiblingItemIndex,
       @Positive int nextSiblingItemIndex,
       @Positive int branchItemIndex,
       @NonNegative int indentLevel) {
-    super(containingBranchGraphEdgeColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
+    super(containingBranchGraphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
     this.commit = commit;
     this.branchItemIndex = branchItemIndex;
   }

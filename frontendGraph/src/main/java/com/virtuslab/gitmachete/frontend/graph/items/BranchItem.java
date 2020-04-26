@@ -11,7 +11,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphEdgeColor;
+import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColor;
 
 @Getter
 public final class BranchItem extends BaseGraphItem {
@@ -22,13 +22,13 @@ public final class BranchItem extends BaseGraphItem {
 
   public BranchItem(
       BaseGitMacheteBranch branch,
-      GraphEdgeColor graphEdgeColor,
+      GraphItemColor graphItemColor,
       SyncToRemoteStatus syncToRemoteStatus,
       @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel,
       boolean isCurrentBranch,
       boolean hasChildItem) {
-    super(graphEdgeColor, prevSiblingItemIndex, indentLevel);
+    super(graphItemColor, prevSiblingItemIndex, indentLevel);
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
