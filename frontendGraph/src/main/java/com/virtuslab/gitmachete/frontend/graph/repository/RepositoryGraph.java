@@ -10,7 +10,6 @@ import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.NullRepository;
-import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.print.PrintElementGenerator;
@@ -24,16 +23,13 @@ public class RepositoryGraph {
 
   private final List<IGraphItem> items;
   private final List<List<Integer>> positionsOfVisibleEdges;
-
   private final PrintElementGenerator printElementGenerator;
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
     this.items = items;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
-
-    GraphElementManager graphElementManager = new GraphElementManager(/* repositoryGraph */ this);
-    printElementGenerator = new PrintElementGenerator(/* graph */ this, graphElementManager);
+    this.printElementGenerator = new PrintElementGenerator(/* graph */ this);
   }
 
   public Collection<? extends IPrintElement> getPrintElements(@NonNegative int nodeIndex) {
