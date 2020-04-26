@@ -5,8 +5,8 @@ import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.PrintElementColorManager;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IEdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.api.INodePrintElement;
 
@@ -19,8 +19,8 @@ public final class EdgePrintElement extends PrintElementWithGraphElement impleme
       @NonNegative int positionInRow,
       Type type,
       GraphEdge graphEdge,
-      GraphElementManager graphElementManager) {
-    super(rowIndex, positionInRow, graphEdge, graphElementManager);
+      PrintElementColorManager printElementColorManager) {
+    super(rowIndex, positionInRow, graphEdge, printElementColorManager);
     this.type = type;
   }
 

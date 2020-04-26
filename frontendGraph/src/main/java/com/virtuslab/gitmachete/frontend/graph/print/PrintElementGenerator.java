@@ -10,19 +10,23 @@ import com.intellij.util.SmartList;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.frontend.graph.GraphElementManager;
 import com.virtuslab.gitmachete.frontend.graph.api.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.GraphNode;
 import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.print.elements.PrintElementColorManager;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.EdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.NodePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.print.elements.impl.PrintElementWithGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 
-@RequiredArgsConstructor
 public final class PrintElementGenerator implements IPrintElementGenerator {
   private final RepositoryGraph repositoryGraph;
-  private final GraphElementManager graphElementManager;
+  private final PrintElementColorManager printElementColorManager;
+
+  public PrintElementGenerator(RepositoryGraph repositoryGraph) {
+    this.repositoryGraph = repositoryGraph;
+    this.printElementColorManager = new PrintElementColorManager(repositoryGraph);
+  }
 
   @Override
   public Collection<PrintElementWithGraphElement> getPrintElements(@NonNegative int rowIndex) {
@@ -72,19 +76,19 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
     private final int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new NodePrintElement(rowIndex, position, node, graphElementManager));
+      nodes.add(new NodePrintElement(rowIndex, position, node, printElementColorManager));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, Type.DOWN, edge, graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.DOWN, edge, printElementColorManager));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, Type.UP, edge, graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.UP, edge, printElementColorManager));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, Type.RIGHT, edge, graphElementManager));
+      edges.add(new EdgePrintElement(rowIndex, position, Type.RIGHT, edge, printElementColorManager));
     }
 
     public Collection<PrintElementWithGraphElement> build() {

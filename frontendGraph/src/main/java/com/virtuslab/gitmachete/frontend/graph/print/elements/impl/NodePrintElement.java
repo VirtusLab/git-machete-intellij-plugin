@@ -14,8 +14,8 @@ public final class NodePrintElement extends PrintElementWithGraphElement impleme
   public NodePrintElement(@NonNegative int rowIndex,
       @NonNegative int positionInRow,
       GraphNode graphNode,
-      PrintElementColorManager graphElementManager) {
-    super(rowIndex, positionInRow, graphNode, graphElementManager);
+      PrintElementColorManager printElementColorManager) {
+    super(rowIndex, positionInRow, graphNode, printElementColorManager);
   }
 
   @Override
