@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import lombok.Data;
 
-import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 
 @Data
 public final class BranchOrCommitCell {

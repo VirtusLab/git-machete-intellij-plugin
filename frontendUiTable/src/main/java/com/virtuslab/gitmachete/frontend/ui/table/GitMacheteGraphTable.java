@@ -34,12 +34,13 @@ import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.graph.coloring.GraphItemColorToJBColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
+import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.ui.selection.ISelectionChangeObservable;
@@ -77,18 +78,16 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 
-    GraphCellPainter graphCellPainter = new GraphCellPainter(GraphItemColorToJBColorMapper::getColor) {
-      @Override
-      protected int getRowHeight() {
-        return GitMacheteGraphTable.this.getRowHeight();
-      }
-    };
+    var graphCellPainterFactory = RuntimeBinding.instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
+    var graphCellPainter = graphCellPainterFactory.create(/* IColorGenerator */ GraphItemColorToJBColorMapper::getColor,
+        /* table */ this);
 
     initColumns();
 
     @SuppressWarnings("guieffect:assignment.type.incompatible")
     @AlwaysSafe
-    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(this, graphCellPainter);
+    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */this,
+        graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
     setCellSelectionEnabled(false);
