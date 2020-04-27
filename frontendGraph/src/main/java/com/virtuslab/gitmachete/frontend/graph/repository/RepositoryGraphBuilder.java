@@ -88,7 +88,7 @@ public class RepositoryGraphBuilder {
 
       int prevSiblingNodeIndex = graphNodes.size() - 1;
       // We are building some non root branches here so some root branch node has been added already.
-      assert prevSiblingNodeIndex >= 0;
+      assert prevSiblingNodeIndex >= 0 : "There are no previous sibling node but should be";
       buildCommitsAndNonRootBranch(graphNodes, branch, prevSiblingNodeIndex, indentLevel);
 
       int upBranchIndex = graphNodes.size() - 1;
@@ -127,13 +127,13 @@ public class RepositoryGraphBuilder {
     GraphEdgeColor graphEdgeColor = SyncToParentStatusToGraphEdgeColorMapper.getGraphEdgeColor(syncToParentStatus);
     int branchNodeIndex = graphNodes.size() + commits.size();
     // We are building some non root branch here so some root branch node has been added already.
-    assert branchNodeIndex > 0;
+    assert branchNodeIndex > 0 : "Branch node index is not greater than 0 but should be";
 
     boolean isFirstNodeInBranch = true;
     for (IGitMacheteCommit commit : commits) {
       int lastNodeIndex = graphNodes.size() - 1;
       // We are building some non root branch here so some root branch node has been added already.
-      assert lastNodeIndex >= 0;
+      assert lastNodeIndex >= 0 : "Last node index is less than 0 but shouldn't be";
       int prevSiblingNodeIndex = isFirstNodeInBranch ? upstreamBranchIndex : lastNodeIndex;
       int nextSiblingNodeIndex = graphNodes.size() + 1;
       CommitNode c = new CommitNode(commit, graphEdgeColor, prevSiblingNodeIndex, nextSiblingNodeIndex,
@@ -146,8 +146,8 @@ public class RepositoryGraphBuilder {
     int lastNodeIndex = graphNodes.size() - 1;
     /*
      * If a branch has no commits (possibly due to commits getting strategy being {@code EMPTY_GET_COMMITS}) its {@code
-     * prevSiblingNodeIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code prevSiblingNodeIndex} is an
-     * index of most recently added node (its last commit).
+     * prevSiblingNodeIndex} is just the {@code upstreamBranchIndex}. Otherwise the {@code prevSiblingNodeIndex} is an index of
+     * most recently added node (its last commit).
      */
     int prevSiblingNodeIndex = commits.isEmpty() ? upstreamBranchIndex : lastNodeIndex;
 

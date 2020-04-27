@@ -29,7 +29,7 @@ public final class PrintElementGeneratorImpl implements PrintElementGenerator {
 
   @Override
   public Collection<PrintElementWithGraphElement> getPrintElements(int rowIndex) {
-    assert rowIndex >= 0;
+    assert rowIndex >= 0 : "Row index less than 0";
     PrintElementBuilder builder = new PrintElementBuilder(rowIndex);
     collectElements(rowIndex, builder);
     return builder.build();

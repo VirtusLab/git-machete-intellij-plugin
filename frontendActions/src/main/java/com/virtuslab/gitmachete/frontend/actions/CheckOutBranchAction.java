@@ -55,7 +55,7 @@ public class CheckOutBranchAction extends AnAction {
     }
 
     Project project = anActionEvent.getProject();
-    assert project != null;
+    assert project != null : "Can't get project from anActionEvent variable";
     GitRepository repository = getPresentIdeaRepository(anActionEvent);
 
     LOG.debug(() -> "Queuing \"${selectedBranchName}\" branch checkout background task");

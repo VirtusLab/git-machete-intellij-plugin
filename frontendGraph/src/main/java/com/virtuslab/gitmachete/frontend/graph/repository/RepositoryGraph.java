@@ -119,7 +119,8 @@ public class RepositoryGraph {
       // Suppose that the last node, at index n has a visible edge. Any visible edge has some (branch) node
       // that it leads to, hence there must exist some node at index k > n being a target to the visible edge.
       // But n is the index of the last node. Contradiction. )
-      assert upNodeIndex >= 0 && downNodeIndex < positionsOfVisibleEdges.size();
+      assert upNodeIndex >= 0
+          && downNodeIndex < positionsOfVisibleEdges.size() : "upNodeIndex or downNodeIndex has wrong value";
 
       return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex, /* targetId */ null, GraphEdgeType.USUAL), pos);
     }).collect(List.collector());

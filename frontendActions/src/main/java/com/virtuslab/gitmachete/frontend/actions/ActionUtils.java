@@ -5,6 +5,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
 
@@ -35,5 +36,15 @@ public final class ActionUtils {
     String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
     assert selectedBranchName != null : "Can't get selected branch";
     return gitMacheteRepository.getBranchByName(selectedBranchName);
+  }
+
+  static BaseGitMacheteNonRootBranch getCurrentBaseMacheteNonRootBranch(AnActionEvent anActionEvent) {
+    var gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
+    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
+    assert currentBranchOption.isDefined() : "Can't get current branch";
+    var baseGitMacheteBranch = currentBranchOption.get();
+    assert !baseGitMacheteBranch.isRootBranch() : "Selected branch is a root branch";
+
+    return baseGitMacheteBranch.asNonRootBranch();
   }
 }

@@ -12,11 +12,11 @@ public class GitMacheteVisibilityPredicate implements NotNullFunction<Project, B
 
   @Override
   public Boolean fun(Project project) {
-    // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` return `true` when the specified
+    // `com.intellij.openapi.vcs.ProjectLevelVcsManager#checkVcsIsActive(String)` returns `true` when the specified
     // VCS is used by at least one module in the project. Therefore it is guaranteed that Git Machete plugin tab
     // is created only when a git repository exists.
     boolean predicateResult = ProjectLevelVcsManager.getInstance(project).checkVcsIsActive(GitVcs.NAME);
-    LOG.debug(() -> "Visibility predicate return ${predicateResult}");
+    LOG.debug(() -> "Visibility predicate returned ${predicateResult}");
     return predicateResult;
   }
 }

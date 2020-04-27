@@ -149,7 +149,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       int padding = width + LabelPainter.RIGHT_PADDING.get();
       // Our assumption here comes from the fact that we expect positive row height of graph table,
       // hence non-negative width AND positive right padding from `LabelPainter.RIGHT_PADDING`.
-      assert padding > 0;
+      assert padding > 0 : "Padding is not greater than 0";
       return padding;
     }
 

@@ -64,7 +64,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     LOG.debug(() -> "Enter BaseSlideOutBranchAction#doSlideOut(anActionEvent = ${anActionEvent}, " +
         "branchToSlideOut = ${branchToSlideOut} (${branchToSlideOut.getName()}))");
     Project project = anActionEvent.getProject();
-    assert project != null : "Can't get Project";
+    assert project != null : "Can't get project from anActionEvent variable";
 
     var branchLayout = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT);
     assert branchLayout != null : "Can't get branch layout";

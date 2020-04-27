@@ -78,7 +78,7 @@ public class BranchLayout implements IBranchLayout {
       LOG.debug("Old entry is one of subentries. Finding upstream.");
 
       var entryUpstreamOption = findUpstreamEntryForEntry(oldEntry);
-      assert entryUpstreamOption.isDefined();
+      assert entryUpstreamOption.isDefined() : "Upstream is not defined";
       var upstreamEntry = entryUpstreamOption.get();
 
       LOG.debug(() -> "Upstream for old entry is ${upstreamEntry} (${upstreamEntry.getName()})");

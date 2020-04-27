@@ -28,7 +28,7 @@ public class ColorGetterByLayoutIndex {
       }
     }
 
-    assert nodeIndex >= 0;
+    assert nodeIndex >= 0 : "Node index less than 0";
     IGraphNode graphNode = repositoryGraph.getGraphNode(nodeIndex);
 
     return graphNode.getGraphEdgeColor().getId();

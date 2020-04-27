@@ -254,7 +254,7 @@ subprojects {
     slf4jLambdaApi = { ->
       dependencies {
         slf4jApi()
-        // It's so useful for us because we are using invocation of methods that potentially consumes some time
+        // It's so useful for us because we are using invocation of methods that potentially consume some time
         // also in debug messages but this plugin allow us to using lambdas that generates log messages
         // (mainly using string interpolation plugin) and values of this lambdas are calculated only when needed
         // (when given log level is active)

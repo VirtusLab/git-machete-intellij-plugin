@@ -111,7 +111,8 @@ public class GraphCellPainter {
   @UIEffect
   private void printVerticalEdge(Graphics2D g2, Color color, EdgePrintElement edgePrintElement) {
     int posInRow = edgePrintElement.getPositionInCurrentRow();
-    assert posInRow == edgePrintElement.getPositionInOtherRow();
+    assert posInRow == edgePrintElement
+        .getPositionInOtherRow() : "Position in current row is not equal to position in other row";
 
     if (edgePrintElement.getType() == EdgePrintElement.Type.DOWN) {
       paintDownLine(g2, color, posInRow);

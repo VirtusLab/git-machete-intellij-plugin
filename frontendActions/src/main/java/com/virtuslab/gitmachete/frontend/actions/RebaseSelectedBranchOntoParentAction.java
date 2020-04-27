@@ -54,11 +54,11 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing RebaseSelectedBranchOntoParentAction");
+    LOG.debug(() -> "Performing ${getClass().getSimpleName()}");
     var selectedGitMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
-    assert selectedGitMacheteBranchOption.isDefined();
+    assert selectedGitMacheteBranchOption.isDefined() : "Can't get selected branch";
     var baseGitMacheteBranch = selectedGitMacheteBranchOption.get();
-    assert !baseGitMacheteBranch.isRootBranch();
+    assert !baseGitMacheteBranch.isRootBranch() : "Selected branch is a root branch";
 
     var branchToRebase = baseGitMacheteBranch.asNonRootBranch();
     doRebase(anActionEvent, branchToRebase);
