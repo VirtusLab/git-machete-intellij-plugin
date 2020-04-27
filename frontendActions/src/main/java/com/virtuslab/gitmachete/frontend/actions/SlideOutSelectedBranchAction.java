@@ -5,6 +5,8 @@ import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedM
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
@@ -23,6 +25,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
+  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
   @UIEffect
@@ -54,6 +57,7 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    LOG.debug("Performing SlideOutSelectedBranchAction");
     var selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedMacheteBranchOption.isDefined();
     var baseGitMacheteBranch = selectedMacheteBranchOption.get();

@@ -10,9 +10,13 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.ui.GuiUtils;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.reflections.Reflections;
@@ -33,7 +37,8 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction {
-  private static final Logger LOG = Logger.getInstance(BaseSlideOutBranchAction.class);
+  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
+
   private final IBranchLayoutSaverFactory branchLayoutSaverFactory = getBranchLayoutSaverFactoryInstance();
 
   public BaseSlideOutBranchAction(String text, String actionDescription, Icon icon) {
@@ -56,27 +61,37 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
 
   @UIEffect
   public void doSlideOut(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToSlideOut) {
-
+    LOG.debug(() -> "Enter BaseSlideOutBranchAction#doSlideOut(anActionEvent = ${anActionEvent}, " +
+        "branchToSlideOut = ${branchToSlideOut} (${branchToSlideOut.getName()}))");
     Project project = anActionEvent.getProject();
-    assert project != null;
+    assert project != null : "Can't get Project";
 
     var branchLayout = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT);
-    assert branchLayout != null;
+    assert branchLayout != null : "Can't get branch layout";
 
     var branchName = branchToSlideOut.getName();
 
     try {
+      LOG.info(() -> "Sliding out \"${branchName}\" branch in memory");
       var newBranchLayout = branchLayout.slideOut(branchName);
       var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
       var branchLayoutFileSaver = branchLayoutSaverFactory.create(macheteFilePath);
 
+      LOG.info("Saving new branch layout into file");
       branchLayoutFileSaver.save(newBranchLayout, /* backupOldLayout */ true);
+
+      LOG.debug("Refreshing repository state");
       ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
     } catch (BranchLayoutException e) {
-      String message = e.getMessage();
+      String exceptionMessage = e.getMessage();
+      String errorMessage = "Error occurred while sliding out \"${branchName}\" branch" +
+          (exceptionMessage == null ? "" : ": " + exceptionMessage);
+      LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
-          message == null ? "" : message);
+          exceptionMessage == null ? "" : exceptionMessage);
+      GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(errorMessage, "Something Went Wrong..."),
+          ModalityState.NON_MODAL);
     }
   }
 
