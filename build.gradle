@@ -256,7 +256,7 @@ subprojects {
         slf4jApi()
         // It's so useful for us because we are using invocations of methods that potentially consume some time
         // also in debug messages, but this plugin allows us to use lambdas that generate log messages
-        // (mainly using string interpolation plugin) and values of this lambdas are calculated only when needed
+        // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
         // (i.e. when the given log level is active)
         compile(group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion)  {
           exclude(group: 'org.slf4j')
