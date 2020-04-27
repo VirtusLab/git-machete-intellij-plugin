@@ -5,10 +5,14 @@ import static lombok.Lombok.sneakyThrow;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.reflections.Reflections;
 
 public final class RuntimeBinding {
   private RuntimeBinding() {}
+
+  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("binding");
 
   private static final Reflections reflectionsInstance = new Reflections("com.virtuslab");
 
@@ -38,7 +42,10 @@ public final class RuntimeBinding {
         throw new ClassNotFoundException(
             "More than one viable class implementing ${interfaze.getCanonicalName()} found: ${classesString}");
       }
-      return classes.iterator().next().getDeclaredConstructor().newInstance();
+
+      var soleImplementingClass = classes.iterator().next();
+      LOG.debug(() -> "Binding ${interfaze.getCanonicalName()} to ${soleImplementingClass.getCanonicalName()}");
+      return soleImplementingClass.getDeclaredConstructor().newInstance();
     } catch (ReflectiveOperationException e) {
       throw sneakyThrow(e);
     }

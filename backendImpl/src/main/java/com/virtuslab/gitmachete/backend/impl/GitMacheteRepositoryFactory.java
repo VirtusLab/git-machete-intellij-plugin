@@ -198,7 +198,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   }
 
   private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
-    LOG.debug(() -> "Enter GitMacheteRepositoryFactory#deriveSyncToRemoteStatus(coreLocalBranch = ${coreLocalBranch.getName()})");
+    LOG.debug(
+        () -> "Enter GitMacheteRepositoryFactory#deriveSyncToRemoteStatus(coreLocalBranch = ${coreLocalBranch.getName()})");
 
     try {
       Option<GitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();

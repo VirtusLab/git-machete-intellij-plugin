@@ -35,6 +35,7 @@ To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gra
 Logging of this plugin has several categories:
 * backend
 * backendRoot
+* `binding`
 * branchLayout
 * frontendActions
 * frontendGraph
