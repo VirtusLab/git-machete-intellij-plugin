@@ -4,11 +4,11 @@ import java.util.function.Supplier;
 
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 
-public class MacheteLogger implements IMacheteLogger {
+public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
   private final LambdaLogger logger;
   private final String className;
 
-  MacheteLogger(LambdaLogger logger) {
+  PrefixedLambdaLogger(LambdaLogger logger) {
     this.logger = logger;
     // We are sure that at the moment when this constructor is called we have at least 4 elements in stacktrace array:
     // #0: java.lang.Thread#getStackTrace

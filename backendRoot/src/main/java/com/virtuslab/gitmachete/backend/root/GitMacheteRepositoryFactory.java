@@ -37,11 +37,11 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
-import com.virtuslab.logger.IMacheteLogger;
-import com.virtuslab.logger.MacheteLoggerFactory;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
-  private static final IMacheteLogger LOG = MacheteLoggerFactory.getLogger("backendRoot");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backendRoot");
 
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 

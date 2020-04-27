@@ -1,5 +1,5 @@
 rootProject.name = 'git-machete-intellij-plugin'
-include 'macheteLogger'
+include 'logging'
 include 'gitCoreApi'
 include 'gitCoreJGit'
 include 'branchLayoutApi'

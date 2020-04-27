@@ -7,5 +7,5 @@ dependencies {
   implementation project(':backendImpl')
   implementation project(':branchLayoutImpl')
   implementation project(':gitCoreJGit')
-  implementation project(':macheteLogger')
+  implementation project(':logging')
 }
