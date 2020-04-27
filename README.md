@@ -10,8 +10,8 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into a
 * IntelliJ 2019.3+ Community Edition/Ultimate
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
-  * Enable annotation processing (for Lombok): `File | Settings | Build, Execution, Deployment | Compiler | Annotation Processors | Enable Annotation Processing`
-  * Set Project SDK to JDK 11: `Project Structure | Project`
+  * Enable annotation processing (for Lombok): `File` -> `Settings` -> `Build`, `Execution`, `Deployment` -> `Compiler` -> `Annotation Processors` -> `Enable Annotation Processing`
+  * Set Project SDK to JDK 11: `Project Structure` -> `Project`
 
 ### Set up project
 
@@ -25,11 +25,11 @@ ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 ---
-Consider increasing maximum heap size for IDE (the default value is 2048MB). Go to `Help | Change Memory Settings` for this.
+Consider increasing maximum heap size for IDE (the default value is 2048MB). Go to `Help` -> `Change Memory Settings` for this.
 
 ### Run/Debug
 
-To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gradle task (`Gradle panel | Tasks | intellij | runIde` or `./gradlew runIde`).
+To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runIde` or `./gradlew runIde`).
 
 #### Logging
 
@@ -50,13 +50,13 @@ For our classes, the categories are customized and provided above; by default, t
 
 ### Generate plugin zip
 
-To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel | Tasks | intellij | buildPlugin` or `./gradlew buildPlugin`).
+To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).
 The resulting file will be available under `build/distributions/`.
 
 ### Install snapshot build of the plugin
 
 Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
-Go to `File | Settings | Plugins | (gear icon) | Install Plugin from Disk...`, select the zip and restart IDE.
+Go to `File` -> `Settings` -> `Plugins` -> `(gear icon)` -> `Install Plugin from Disk...`, select the zip and restart IDE.
 
 ### Rebuild the CI base image
 
