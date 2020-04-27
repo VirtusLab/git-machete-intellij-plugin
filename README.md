@@ -32,15 +32,16 @@ Consider increasing maximum heap size for IDE (the default value is 2048MB). Go 
 To run an instance of IDE with Git Machete IntelliJ Plugin execute `:runIde` Gradle task (`Gradle panel | Tasks | intellij | runIde` or `./gradlew runIde`).
 
 #### Logging
+
 Logging of this plugin has several categories:
-* backend
-* backendRoot
-* branchLayout
-* frontendActions
-* frontendGraph
-* frontendUiRoot
-* frontendUiTable
-* gitCore
+* `backend`
+* `backendRoot`
+* `branchLayout`
+* `frontendActions`
+* `frontendGraph`
+* `frontendUiRoot`
+* `frontendUiTable`
+* `gitCore`
 
 By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file (localization depends on IntelliJ version and OS). To find where this file is located, go to `Help` -> `Show Log in Files`.
 
