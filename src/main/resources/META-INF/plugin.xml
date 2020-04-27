@@ -1,7 +1,6 @@
 <idea-plugin>
     <id>com.virtuslab.git-machete</id>
     <name>Git Machete</name>
-    <version>"${version}"</version>
     <vendor email="mkondratek@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
 
     <description><![CDATA[
@@ -42,6 +41,18 @@
             <reference id="GitMachete.RebaseSelectedBranchOntoParentAction"/>
             <reference id="GitMachete.SlideOutSelectedBranchAction"/>
         </group>
+
+        <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
+                class="com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction"
+                text="Rebase Current Branch Onto Parent"
+                description="Rebase current branch onto parent"
+                icon="AllIcons.Actions.Menu_cut"/>
+
+        <action id="GitMachete.SlideOutCurrentBranchAction"
+                class="com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction"
+                text="Slide Out Current Branch"
+                description="Slide out current branch"
+                icon="AllIcons.Actions.GC"/>
 
         <!-- Note that certain other actions aren't listed here since they're instead instantiated directly from Java code. -->
     </actions>

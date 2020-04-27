@@ -3,7 +3,6 @@ vavr()
 dependencies {
   implementation project(':logging')
   implementation project(':frontendActionIds')
-  implementation project(':frontendActions')
   implementation project(':frontendUiTable')
 }
 

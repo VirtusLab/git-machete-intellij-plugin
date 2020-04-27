@@ -21,8 +21,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.actionids.ActionIds;
-import com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction;
-import com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
@@ -46,7 +44,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiation of GitMachetePanel");
 
     // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository in
-    // an opened project, so Git Machete plugin shouldn't even be loaded in the first place
+    // an opened project, so Git Machete plugin shouldn't even be loaded in the first place (as ensured by
+    // GitMacheteVisibilityPredicate).
     @SuppressWarnings("value:assignment.type.incompatible")
     @MinLen(1)
     List<GitRepository> repositories = new SmartList<>(GitUtil.getRepositories(project));
@@ -64,24 +63,24 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
   @UIEffect
   private ActionToolbar createGitMacheteVerticalToolbar() {
-    DefaultActionGroup gitMacheteActions = new DefaultActionGroup();
+    var actionManager = ActionManager.getInstance();
 
     // This check is needed as action register is shared between multiple running IDE instances
     // and we would not like to re-register the action.
-    var refreshGitMacheteStatusAction = ActionManager.getInstance().getAction(ActionIds.ACTION_REFRESH);
+    var refreshGitMacheteStatusAction = actionManager.getAction(ActionIds.ACTION_REFRESH);
     if (refreshGitMacheteStatusAction == null) {
       refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
-      ActionManager.getInstance().registerAction(ActionIds.ACTION_REFRESH, refreshGitMacheteStatusAction);
+      actionManager.registerAction(ActionIds.ACTION_REFRESH, refreshGitMacheteStatusAction);
     }
 
-    gitMacheteActions.addAll(
+    DefaultActionGroup gitMacheteActions = new DefaultActionGroup(
         refreshGitMacheteStatusAction,
         new ToggleListCommitsAction(),
-        new RebaseCurrentBranchOntoParentAction(),
-        new SlideOutCurrentBranchAction());
+        actionManager.getAction(ActionIds.ACTION_REBASE_CURRENT_ONTO_PARENT),
+        actionManager.getAction(ActionIds.ACTION_SLIDE_OUT_CURRENT));
 
-    ActionToolbar toolbar = ActionManager.getInstance()
-        .createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
+    ActionToolbar toolbar = actionManager.createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions,
+        /* horizontal */ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGitMacheteGraphTable());
     return toolbar;
   }

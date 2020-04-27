@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions;
 import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getCurrentBaseMacheteNonRootBranch;
 import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentMacheteRepository;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,13 +26,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  */
 public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
-
-  private static final String ACTION_TEXT = "Slide Out Current Branch";
-  private static final String ACTION_DESCRIPTION = "Slide out current branch";
-
-  public SlideOutCurrentBranchAction() {
-    super(ACTION_TEXT, ACTION_DESCRIPTION, AllIcons.Actions.GC);
-  }
 
   @Override
   @UIEffect

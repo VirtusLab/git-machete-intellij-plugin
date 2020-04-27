@@ -65,7 +65,7 @@
     <property name="illegalPattern" value="true"/>
     <property name="format" value="\binterface\s+[^I]"/>
     <property name="ignoreComments" value="true"/>
-    <property name="message" value="Interface names must start with 'I'" />
+    <property name="message" value="Interface names must start with 'I'"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>

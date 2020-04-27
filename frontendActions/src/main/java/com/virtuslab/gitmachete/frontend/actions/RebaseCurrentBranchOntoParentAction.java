@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions;
 import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getCurrentBaseMacheteNonRootBranch;
 import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentMacheteRepository;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -25,17 +24,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  */
 public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
   public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
-
-  private static final String ACTION_TEXT = "Rebase Current Branch Onto Parent";
-  private static final String ACTION_DESCRIPTION = "Rebase current branch onto parent";
-
-  /**
-   * This action "construction" happens here (not within plugin.xml, as in the case of {@link RebaseSelectedBranchOntoParentAction})
-   * because declaration of such GUI elements (the button in this case) is apparently less obvious than a context menu option.
-   */
-  public RebaseCurrentBranchOntoParentAction() {
-    super(ACTION_TEXT, ACTION_DESCRIPTION, AllIcons.Actions.Menu_cut);
-  }
 
   @Override
   @UIEffect
