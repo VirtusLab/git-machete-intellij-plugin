@@ -214,7 +214,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     try {
       Option<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (ts.isEmpty()) {
-        LOG.debug("Branch is untracked");
+        LOG.debug("Branch '${coreLocalBranch.getName()}' is untracked");
         return SyncToRemoteStatus.of(Untracked, "");
       }
 
@@ -232,7 +232,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         syncToRemoteStatus = SyncToRemoteStatus.of(InSync, trackingStatus.getRemoteName());
       }
 
-      LOG.debug(() -> "Sync to remove status: ${syncToRemoteStatus.toString()}");
+      LOG.debug(() -> "Sync to remote status for branch '${coreLocalBranch.getName()}': ${syncToRemoteStatus.toString()}");
 
       return syncToRemoteStatus;
 
@@ -260,12 +260,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       if (pointedCommit.equals(parentPointedCommit)) {
         if (coreLocalBranch.hasJustBeenCreated()) {
-          LOG.debug("This branch has been detected as just created, so we assume it's in sync");
+          LOG.debug("Branch '${coreLocalBranch.getName()}' has been detected as just created, so we assume it's in sync");
           return SyncToParentStatus.InSync;
         } else {
           LOG.debug(
-              "Parent commit is equal to this branch pointed commit and this branch "
-                  + "hasn't been detected as just created, so we assume it's merged");
+              "For this branch (${coreLocalBranch.getName()}) its parent's commit is equal to this branch pointed commit "
+                  + "and this branch hasn't been detected as just created, so we assume it's merged");
           return SyncToParentStatus.Merged;
         }
       } else {
@@ -275,13 +275,13 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         if (isParentAncestorOfChild) {
           if (forkPoint != null && !forkPoint.equals(parentPointedCommit)) {
             LOG.debug(
-                "Parent commit is ancestor of this branch pointed commit but fork point is not equal "
-                    + "to parent commit, so we assume that this branch is \"InSyncButForkPointOff\"");
+                "For this branch (${coreLocalBranch.getName()}) its parent's commit is ancestor of this branch pointed commit "
+                    + "but fork point is not equal to parent commit, so we assume that this branch is \"InSyncButForkPointOff\"");
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             LOG.debug(
-                "Parent commit is ancestor of this branch pointed commit and fork point "
-                    + "is absent or equal to parent commit, so we assume that this branch is in sync");
+                "For this branch (${coreLocalBranch.getName()}) its parent's commit is ancestor of this branch pointed commit and fork point "
+                    + "and fork point is absent or equal to parent commit, so we assume that this branch is in sync");
             return SyncToParentStatus.InSync;
           }
         } else {
@@ -290,13 +290,13 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
           if (isChildAncestorOfParent) {
             LOG.debug(
-                "Parent commit is not ancestor of this branch pointed commit but this branch pointed commit "
-                    + "is ancestor of parent branch commit, so we assume that this branch is merged");
+                "For this branch (${coreLocalBranch.getName()}) its parent's commit is not ancestor of this branch pointed commit "
+                    + "but this branch pointed commit is ancestor of parent branch commit, so we assume that this branch is merged");
             return SyncToParentStatus.Merged;
           } else {
             LOG.debug(
-                "Parent commit is not ancestor of this branch pointed commit neither this branch pointed commit "
-                    + "is ancestor of parent branch commit, so we assume that this branch is out of sync");
+                "For this branch (${coreLocalBranch.getName()}) its parent's commit is not ancestor of this branch pointed commit "
+                    + "neither this branch pointed commit is ancestor of parent branch commit, so we assume that this branch is out of sync");
             return SyncToParentStatus.OutOfSync;
           }
         }
