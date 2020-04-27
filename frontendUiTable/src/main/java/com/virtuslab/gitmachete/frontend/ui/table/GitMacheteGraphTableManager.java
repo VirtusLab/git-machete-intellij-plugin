@@ -36,8 +36,8 @@ import com.virtuslab.branchlayout.api.IBranchLayoutParserFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
-import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -52,7 +52,7 @@ public final class GitMacheteGraphTableManager {
   @Getter
   private final GitMacheteGraphTable gitMacheteGraphTable;
   private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef = new AtomicReference<>(null);
-  private final RepositoryGraphFactory repositoryGraphFactory;
+  private final IRepositoryGraphFactory repositoryGraphFactory;
   private final VcsRootComboBox vcsRootComboBox;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
   private final IBranchLayoutParserFactory branchLayoutParserFactory;
@@ -60,10 +60,10 @@ public final class GitMacheteGraphTableManager {
   public GitMacheteGraphTableManager(Project project, VcsRootComboBox vcsRootComboBox) {
     this.project = project;
     this.isListingCommits = false;
-    GraphTableModel graphTableModel = new GraphTableModel(RepositoryGraphFactory.getNullRepositoryGraph());
+    GraphTableModel graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
     this.gitMacheteGraphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef,
         vcsRootComboBox);
-    this.repositoryGraphFactory = new RepositoryGraphFactory();
+    this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
     this.vcsRootComboBox = vcsRootComboBox;
     this.gitMacheteRepositoryFactory = RuntimeBinding
         .instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
@@ -111,9 +111,9 @@ public final class GitMacheteGraphTableManager {
     // functionality) branch layout
 
     IGitMacheteRepository gitMacheteRepository = repositoryRef.get();
-    RepositoryGraph repositoryGraph;
+    IRepositoryGraph repositoryGraph;
     if (gitMacheteRepository == null) {
-      repositoryGraph = RepositoryGraph.getNullRepositoryGraph();
+      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
     } else {
       repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
       if (gitMacheteRepository.getRootBranches().isEmpty()) {

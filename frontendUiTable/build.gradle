@@ -7,7 +7,7 @@ dependencies {
   implementation project(':backendApi')
   implementation project(':frontendActionIds')
   implementation project(':frontendDataKeys')
-  implementation project(':frontendGraphImpl')
+  implementation project(':frontendGraphApi')
 }
 
 apply plugin: 'org.jetbrains.intellij'

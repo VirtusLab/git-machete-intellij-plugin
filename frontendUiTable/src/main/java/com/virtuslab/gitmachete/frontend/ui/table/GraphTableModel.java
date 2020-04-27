@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.cell.BranchOrCommitCell;
 
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public class GraphTableModel extends AbstractTableModel {
 
   @Getter
   @Setter
-  private RepositoryGraph repositoryGraph;
+  private IRepositoryGraph repositoryGraph;
 
   @Override
   @NonNegative

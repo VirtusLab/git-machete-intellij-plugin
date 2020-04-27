@@ -1,9 +1,7 @@
 vavr()
 
 dependencies {
-  api project(':frontendGraphApi')
-
-  implementation project(':logging')
+  api project(':backendApi')
 }
 
 apply plugin: 'org.jetbrains.intellij'

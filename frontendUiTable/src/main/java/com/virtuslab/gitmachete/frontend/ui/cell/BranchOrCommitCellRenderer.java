@@ -30,12 +30,12 @@ import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.graph.coloring.SyncToRemoteStatusToTextColorMapper;
-import com.virtuslab.gitmachete.frontend.graph.items.BranchItem;
-import com.virtuslab.gitmachete.frontend.graph.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.labeling.SyncToRemoteStatusLabelGenerator;
-import com.virtuslab.gitmachete.frontend.graph.print.GraphCellPainter;
-import com.virtuslab.gitmachete.frontend.graph.print.elements.api.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.coloring.SyncToRemoteStatusToTextColorMapper;
+import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
+import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.api.labeling.SyncToRemoteStatusLabelGenerator;
+import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
+import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 @UI
@@ -43,7 +43,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
   private final MyComponent myComponent;
 
-  public BranchOrCommitCellRenderer(GitMacheteGraphTable table, GraphCellPainter painter) {
+  public BranchOrCommitCellRenderer(GitMacheteGraphTable table, IGraphCellPainter painter) {
     myComponent = new MyComponent(table, painter);
   }
 
@@ -61,14 +61,14 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
   private static class MyComponent extends SimpleColoredRenderer {
     private final GitMacheteGraphTable graphTable;
-    private final GraphCellPainter painter;
+    private final IGraphCellPainter painter;
 
     // Note: using deprecated `UIUtil.createImage` instead of `ImageUtil.createImage` to maintain compatibility with
     // IntelliJ platform 2019.2
     GraphImage graphImage = new GraphImage(UIUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
 
     @UIEffect
-    MyComponent(GitMacheteGraphTable graphTable, GraphCellPainter painter) {
+    MyComponent(GitMacheteGraphTable graphTable, IGraphCellPainter painter) {
       this.graphTable = graphTable;
       this.painter = painter;
     }
@@ -122,7 +122,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       append(cell.getText(), attributes);
 
       if (graphItem.isBranchItem()) {
-        BranchItem branchItem = graphItem.asBranchItem();
+        IBranchItem branchItem = graphItem.asBranchItem();
         BaseGitMacheteBranch branch = branchItem.getBranch();
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
