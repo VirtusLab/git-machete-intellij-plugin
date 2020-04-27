@@ -17,6 +17,7 @@
     &checkerModuleDirectives;
 
     <module name="TreeWalker">
+        &prohibitJavaCollections;
         &treeWalkerModuleDirectives;
     </module>
 </module>

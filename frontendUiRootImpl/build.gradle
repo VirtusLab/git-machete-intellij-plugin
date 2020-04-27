@@ -1,0 +1,15 @@
+vavr()
+
+dependencies {
+  implementation project(':logging')
+  implementation project(':binding')
+  implementation project(':frontendActionIds')
+  implementation project(':frontendUiApi')
+}
+
+apply plugin: 'org.jetbrains.intellij'
+disableIntellijTasks()
+intellij {
+  version intellijVersion
+  plugins 'git4idea'
+}
