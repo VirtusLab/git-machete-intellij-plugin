@@ -7,6 +7,8 @@ import java.util.List;
 import com.intellij.util.SmartList;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
@@ -19,10 +21,12 @@ import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.PrintElementW
 import com.virtuslab.gitmachete.frontend.graph.impl.repository.RepositoryGraph;
 
 public final class PrintElementGenerator implements IPrintElementGenerator {
+  @NotOnlyInitialized
   private final RepositoryGraph repositoryGraph;
+  @NotOnlyInitialized
   private final PrintElementColorManager printElementColorManager;
 
-  public PrintElementGenerator(RepositoryGraph repositoryGraph) {
+  public PrintElementGenerator(@UnderInitialization RepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
     this.printElementColorManager = new PrintElementColorManager(repositoryGraph);
   }

@@ -7,6 +7,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -18,9 +19,9 @@ public class RepositoryGraph implements IRepositoryGraph {
 
   private final List<IGraphItem> items;
   private final List<List<Integer>> positionsOfVisibleEdges;
+  @NotOnlyInitialized
   private final PrintElementGenerator printElementGenerator;
 
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
     this.items = items;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
