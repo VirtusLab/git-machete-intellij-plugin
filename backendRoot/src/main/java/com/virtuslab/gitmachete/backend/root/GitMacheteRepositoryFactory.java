@@ -14,8 +14,6 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
@@ -39,9 +37,11 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.impl.SyncToRemoteStatus;
+import com.virtuslab.logger.IMacheteLogger;
+import com.virtuslab.logger.MacheteLoggerFactory;
 
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
-  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("backendRoot");
+  private static final IMacheteLogger LOG = MacheteLoggerFactory.getLogger("backendRoot");
 
   private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
 
@@ -165,7 +165,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
             // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
             // then assume fork-point(A)=parent(A)
             LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of " +
-                "pointed commit (${pointedCommit.getHash().getHashString()}) but parent branch commit is NOT ancestor " +
+                "pointed commit (${pointedCommit.getHash().getHashString()}) but parent branch commit is NOT ancestor "
+                +
                 "of pointed commit fork point (${forkPointOption.get().getHash().getHashString()}), " +
                 "so we assume that pointed commit fork point = parent branch commit");
             return Option.of(parentPointedCommit);
@@ -175,7 +176,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           // If parent(A) is ancestor of A, and fork-point(A) is missing,
           // then assume fork-point(A)=parent(A)
           LOG.debug(
-              () -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of pointed commit " +
+              () -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of pointed commit "
+                  +
                   "(${pointedCommit.getHash().getHashString()}) but fork point of pointed commit is missing, " +
                   "so we assume that pointed commit fork point = parent branch commit");
           return Option.of(parentPointedCommit);
@@ -208,7 +210,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   private ISyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     LOG.debug(
         () -> "Enter ${getClass().getSimpleName()}#deriveSyncToRemoteStatus" +
-                "(coreLocalBranch = ${coreLocalBranch.getName()})");
+            "(coreLocalBranch = ${coreLocalBranch.getName()})");
     try {
       Option<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (ts.isEmpty()) {
