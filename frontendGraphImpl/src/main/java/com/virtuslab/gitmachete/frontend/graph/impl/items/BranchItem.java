@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
-import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -13,7 +12,6 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
-import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 
 @Getter
 public final class BranchItem extends BaseGraphItem implements IBranchItem {
@@ -58,20 +56,5 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
   @Override
   public boolean hasChildItem() {
     return hasChildItem;
-  }
-
-  @Override
-  public boolean isBranchItem() {
-    return true;
-  }
-
-  @Override
-  public IBranchItem asBranchItem() {
-    return this;
-  }
-
-  @Override
-  public ICommitItem asCommitItem() {
-    throw new NotImplementedError();
   }
 }

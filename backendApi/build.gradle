@@ -1,5 +1,6 @@
 vavr()
 
 dependencies {
-    api project(":branchLayoutApi")
+  implementation project(':qual')
+  api project(':branchLayoutApi')
 }

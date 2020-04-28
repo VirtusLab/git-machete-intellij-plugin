@@ -50,7 +50,7 @@ public final class ActionUtils {
     var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
     assert currentBranchOption.isDefined() : "Can't get current branch";
     var baseGitMacheteBranch = currentBranchOption.get();
-    assert !baseGitMacheteBranch.isRootBranch() : "Selected branch is a root branch";
+    assert baseGitMacheteBranch.isNonRootBranch() : "Selected branch is a root branch";
 
     return baseGitMacheteBranch.asNonRootBranch();
   }

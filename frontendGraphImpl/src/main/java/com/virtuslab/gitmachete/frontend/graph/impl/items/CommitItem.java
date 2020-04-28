@@ -2,14 +2,12 @@ package com.virtuslab.gitmachete.frontend.graph.impl.items;
 
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
-import io.vavr.NotImplementedError;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
-import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 
 @Getter
@@ -49,20 +47,5 @@ public final class CommitItem extends BaseGraphItem implements ICommitItem {
   @Override
   public boolean hasChildItem() {
     return false;
-  }
-
-  @Override
-  public boolean isBranchItem() {
-    return false;
-  }
-
-  @Override
-  public IBranchItem asBranchItem() {
-    throw new NotImplementedError();
-  }
-
-  @Override
-  public ICommitItem asCommitItem() {
-    return this;
   }
 }

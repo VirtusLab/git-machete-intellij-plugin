@@ -5,9 +5,13 @@ import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.framework.qual.EnsuresQualifierIf;
+import org.checkerframework.framework.qual.RequiresQualifier;
 
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
+import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
+import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
 
 /**
  * Graph items ({@link IGraphItem}, {@link IBranchItem}, {@link ICommitItem}) represent the DATA of the graph.
@@ -54,9 +58,19 @@ public interface IGraphItem {
   /** @return the childItem which is an indented item (branch or commit) */
   boolean hasChildItem();
 
+  @EnsuresQualifierIf(expression = "this", result = true, qualifier = ConfirmedBranchItem.class)
+  @EnsuresQualifierIf(expression = "this", result = false, qualifier = ConfirmedCommitItem.class)
   boolean isBranchItem();
 
+  @EnsuresQualifierIf(expression = "this", result = true, qualifier = ConfirmedCommitItem.class)
+  @EnsuresQualifierIf(expression = "this", result = false, qualifier = ConfirmedBranchItem.class)
+  default boolean isCommitItem() {
+    return !isBranchItem();
+  }
+
+  @RequiresQualifier(expression = "this", qualifier = ConfirmedBranchItem.class)
   IBranchItem asBranchItem();
 
+  @RequiresQualifier(expression = "this", qualifier = ConfirmedCommitItem.class)
   ICommitItem asCommitItem();
 }

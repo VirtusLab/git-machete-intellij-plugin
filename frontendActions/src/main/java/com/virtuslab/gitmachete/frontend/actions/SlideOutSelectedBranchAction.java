@@ -61,7 +61,7 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
     var selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedMacheteBranchOption.isDefined() : "Can't get selected branch";
     var baseGitMacheteBranch = selectedMacheteBranchOption.get();
-    assert !baseGitMacheteBranch.isRootBranch() : "Selected branch is a root branch";
+    assert baseGitMacheteBranch.isNonRootBranch() : "Selected branch is a root branch";
 
     doSlideOut(anActionEvent, baseGitMacheteBranch.asNonRootBranch());
   }

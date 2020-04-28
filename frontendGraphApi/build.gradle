@@ -1,6 +1,7 @@
 vavr()
 
 dependencies {
+  implementation project(':qual')
   api project(':backendApi')
 }
 

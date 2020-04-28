@@ -4,7 +4,10 @@ dependencies {
   api project(':frontendGraphApi')
 
   implementation project(':logging')
+  implementation project(':backendApi')
 }
+
+applySubtypingChecker()
 
 apply plugin: 'org.jetbrains.intellij'
 disableIntellijTasks()

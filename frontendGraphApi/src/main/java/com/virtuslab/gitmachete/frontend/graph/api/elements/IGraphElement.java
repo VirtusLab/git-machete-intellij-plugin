@@ -1,7 +1,12 @@
 
 package com.virtuslab.gitmachete.frontend.graph.api.elements;
 
+import org.checkerframework.framework.qual.EnsuresQualifierIf;
+import org.checkerframework.framework.qual.RequiresQualifier;
+
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
+import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
+import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
 
 /**
  * Graph elements ({@link IGraphElement}, {@link GraphEdge}, {@link GraphNode}) represent the LOGICAL graph structure.
@@ -10,10 +15,19 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
  * here (unlike with {@link IRenderPart}).
  * */
 public interface IGraphElement {
-
+  @EnsuresQualifierIf(expression = "this", result = true, qualifier = ConfirmedGraphNode.class)
+  @EnsuresQualifierIf(expression = "this", result = false, qualifier = ConfirmedGraphEdge.class)
   boolean isNode();
 
+  @EnsuresQualifierIf(expression = "this", result = true, qualifier = ConfirmedGraphEdge.class)
+  @EnsuresQualifierIf(expression = "this", result = false, qualifier = ConfirmedGraphNode.class)
+  default boolean isEdge() {
+    return !isNode();
+  }
+
+  @RequiresQualifier(expression = "this", qualifier = ConfirmedGraphNode.class)
   GraphNode asNode();
 
+  @RequiresQualifier(expression = "this", qualifier = ConfirmedGraphEdge.class)
   GraphEdge asEdge();
 }
