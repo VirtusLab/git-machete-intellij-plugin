@@ -138,7 +138,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-    LOG.debug("Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
+    LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
         "coreLocalBranch = '${coreLocalBranch.getName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}'");
     return Try.of(() -> {
 
