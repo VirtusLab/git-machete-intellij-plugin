@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.print;
 
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import lombok.AllArgsConstructor;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 
 @AllArgsConstructor
 public class PrintElementColorIdProvider implements IPrintElementColorIdProvider {

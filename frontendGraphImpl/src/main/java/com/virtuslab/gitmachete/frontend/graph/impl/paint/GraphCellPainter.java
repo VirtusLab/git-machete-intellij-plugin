@@ -8,13 +8,13 @@ import java.awt.geom.Ellipse2D;
 
 import javax.swing.JTable;
 
-import com.intellij.vcs.log.paint.PaintParameters;
 import io.vavr.collection.List;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IColorProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
+import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 
