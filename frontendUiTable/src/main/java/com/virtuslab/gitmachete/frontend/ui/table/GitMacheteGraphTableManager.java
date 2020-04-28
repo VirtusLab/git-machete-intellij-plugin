@@ -133,6 +133,7 @@ public final class GitMacheteGraphTableManager {
     }
 
     gitMacheteGraphTable.repaint();
+    gitMacheteGraphTable.revalidate();
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {

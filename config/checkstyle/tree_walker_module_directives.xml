@@ -99,7 +99,7 @@
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bupdateUI\b"/>
-    <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint()."/>
+    <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()."/>
 </module>
 <module name="RightCurly">
     <property name="id" value="RightCurlySame"/>

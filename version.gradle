@@ -1,3 +1,3 @@
 ext {
-  PLUGIN_VERSION = '0.1.8-SNAPSHOT'
+  PLUGIN_VERSION = '0.1.9'
 }
