@@ -7,8 +7,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -28,12 +26,14 @@ import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @Getter
 @RequiredArgsConstructor
 @ToString
 public abstract class GitCoreBranch extends BaseGitCoreBranch {
-  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("gitCore");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
 
   protected final GitCoreRepository repo;
   protected final String branchName;

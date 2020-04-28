@@ -15,8 +15,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.reflections.Reflections;
@@ -25,6 +23,8 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.keys.DataKeys;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 /**
  * Expects DataKeys:
@@ -37,7 +37,7 @@ import com.virtuslab.gitmachete.frontend.keys.DataKeys;
  * </ul>
  */
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction {
-  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendActions");
+  public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   private final IBranchLayoutSaverFactory branchLayoutSaverFactory = getBranchLayoutSaverFactoryInstance();
 

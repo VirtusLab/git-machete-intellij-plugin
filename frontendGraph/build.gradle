@@ -2,6 +2,7 @@ vavr()
 
 dependencies {
   implementation project(':backendApi')
+  implementation project(':logging')
 }
 
 apply plugin: 'org.jetbrains.intellij'

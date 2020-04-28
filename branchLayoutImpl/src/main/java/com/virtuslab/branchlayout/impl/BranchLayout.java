@@ -4,17 +4,17 @@ import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Data;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @Data
 public class BranchLayout implements IBranchLayout {
-  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("branchLayout");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
   private final List<BaseBranchLayoutEntry> rootBranches;
 

@@ -1,7 +1,8 @@
 jgit()
-slf4jLambdaApi()
 vavr()
 
 dependencies {
+  implementation project(':logging')
+
   api project(':gitCoreApi')
 }

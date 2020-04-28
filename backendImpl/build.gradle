@@ -1,9 +1,9 @@
-slf4jLambdaApi()
 vavr()
 
 dependencies {
   implementation project(':gitCoreApi')
   implementation project(':branchLayoutApi')
+  implementation project(':logging')
 
   api project(':backendApi')
 }

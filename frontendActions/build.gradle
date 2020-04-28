@@ -1,11 +1,11 @@
 reflections()
-slf4jLambdaApi()
 vavr()
 
 dependencies {
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')
   implementation project(':frontendKeys')
+  implementation project(':logging')
 }
 
 apply plugin: 'org.jetbrains.intellij'

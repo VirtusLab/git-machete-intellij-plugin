@@ -1,10 +1,10 @@
-slf4jLambdaApi()
 vavr()
 
 dependencies {
   implementation project(':frontendActions')
   implementation project(':frontendKeys')
   implementation project(':frontendUiTable')
+  implementation project(':logging')
 }
 
 apply plugin: 'org.jetbrains.intellij'

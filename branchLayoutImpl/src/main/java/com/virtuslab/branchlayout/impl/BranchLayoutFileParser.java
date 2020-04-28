@@ -7,8 +7,6 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
@@ -17,11 +15,13 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutParser;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @RequiredArgsConstructor
 @Getter
 public class BranchLayoutFileParser implements IBranchLayoutParser {
-  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("branchLayout");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
   private final Path path;
   private Character indentCharacter = ' ';

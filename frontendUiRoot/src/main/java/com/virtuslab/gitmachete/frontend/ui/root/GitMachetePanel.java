@@ -17,8 +17,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.SmartList;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
@@ -28,9 +26,11 @@ import com.virtuslab.gitmachete.frontend.keys.ActionIDs;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTableManager;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMachetePanel extends SimpleToolWindowPanel {
-  private static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("frontendUiRoot");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
 
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
   private static final String REFRESH_STATUS_TEXT = "Refresh Status";
