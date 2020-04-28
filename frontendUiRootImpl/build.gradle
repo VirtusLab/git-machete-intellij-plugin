@@ -4,7 +4,8 @@ dependencies {
   implementation project(':logging')
   implementation project(':binding')
   implementation project(':frontendActionIds')
-  implementation project(':frontendUiApi')
+
+  api project(':frontendUiApi')
 }
 
 apply plugin: 'org.jetbrains.intellij'

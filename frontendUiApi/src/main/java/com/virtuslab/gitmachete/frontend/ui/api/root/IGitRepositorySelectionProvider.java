@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.api.selection;
+package com.virtuslab.gitmachete.frontend.ui.api.root;
 
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;

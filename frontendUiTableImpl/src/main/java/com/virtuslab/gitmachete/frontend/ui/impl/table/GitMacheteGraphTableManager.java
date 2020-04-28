@@ -37,7 +37,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.selection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;

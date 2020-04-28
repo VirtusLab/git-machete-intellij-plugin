@@ -40,7 +40,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.selection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 

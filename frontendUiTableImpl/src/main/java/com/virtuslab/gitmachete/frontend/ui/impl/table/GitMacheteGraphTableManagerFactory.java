@@ -2,7 +2,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import com.intellij.openapi.project.Project;
 
-import com.virtuslab.gitmachete.frontend.ui.api.selection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManagerFactory;
 

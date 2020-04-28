@@ -15,8 +15,8 @@ import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
-import com.virtuslab.gitmachete.frontend.ui.api.selection.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.selection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 
 public final class VcsRootComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionProvider {
 
