@@ -48,4 +48,4 @@ parse_version_from_git_revision base "$base_commit_short_hash"
 [[ $head_patch -gt $base_patch ]] && exit 0
 [[ $head_patch -eq $base_patch ]] && \
   die "Version must not be identical as in $base_desc" || \
-  die "Patch version $head_patch must not be lower than $base_patch in $base_desc"
+  die "Patch version $head_patch must be higher than $base_patch in $base_desc"

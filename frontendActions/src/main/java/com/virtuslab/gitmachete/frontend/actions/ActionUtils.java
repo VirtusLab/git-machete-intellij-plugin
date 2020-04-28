@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import java.nio.file.Path;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
@@ -29,10 +27,6 @@ final class ActionUtils {
 
   static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
-  }
-
-  static Option<Path> getGitMacheteFilePath(AnActionEvent anActionEvent) {
-    return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH));
   }
 
   static IGraphTableManager getGraphTableManager(AnActionEvent anActionEvent) {

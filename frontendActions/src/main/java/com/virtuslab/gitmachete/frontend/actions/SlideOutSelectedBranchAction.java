@@ -16,7 +16,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_FILE_PATH}</li>
+ *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT_MANAGER}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>

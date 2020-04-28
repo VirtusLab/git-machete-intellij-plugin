@@ -13,9 +13,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayoutSaverFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -25,16 +23,13 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_FILE_PATH}</li>
+ *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT_MANAGER}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction {
   public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
-
-  private final IBranchLayoutSaverFactory branchLayoutSaverFactory = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutSaverFactory.class);
 
   /**
    * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
@@ -63,10 +58,11 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     try {
       LOG.info("Sliding out '${branchName}' branch in memory");
       var newBranchLayout = branchLayout.get().slideOut(branchName);
+      var branchLayoutManager = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_MANAGER);
+      var branchLayoutFileWriter = branchLayoutManager.getWriter();
 
-      var branchLayoutFileSaver = branchLayoutSaverFactory.create(gitMacheteFilePath.get());
-      LOG.info("Saving new branch layout into file");
-      branchLayoutFileSaver.save(newBranchLayout, /* backupOldLayout */ true);
+      LOG.info("Writing new branch layout into file");
+      branchLayoutFileWriter.write(newBranchLayout, /* backupOldLayout */ true);
 
       LOG.debug("Refreshing repository state");
       ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);

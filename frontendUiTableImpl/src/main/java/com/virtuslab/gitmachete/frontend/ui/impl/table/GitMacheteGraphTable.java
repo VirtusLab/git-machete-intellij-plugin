@@ -10,7 +10,6 @@ import static io.vavr.API.Match;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.SwingUtilities;
@@ -32,6 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutManager;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -50,7 +50,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private IBranchLayout branchLayout;
 
   @Nullable
-  private Path macheteFilePath;
+  private IBranchLayoutManager branchLayoutManager;
 
   @Nullable
   private String selectedBranchName;
@@ -116,7 +116,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_FILE_PATH, macheteFilePath),
+        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_MANAGER, branchLayoutManager),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         Case($(), (Object) null));
@@ -126,8 +126,8 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     this.branchLayout = newBranchLayout;
   }
 
-  public void setMacheteFilePath(Path newMacheteFilePath) {
-    this.macheteFilePath = newMacheteFilePath;
+  public void setBranchLayoutManager(IBranchLayoutManager newBranchLayoutManager) {
+    this.branchLayoutManager = newBranchLayoutManager;
   }
 
   private class GitMacheteGraphTableMouseAdapter extends MouseAdapter {

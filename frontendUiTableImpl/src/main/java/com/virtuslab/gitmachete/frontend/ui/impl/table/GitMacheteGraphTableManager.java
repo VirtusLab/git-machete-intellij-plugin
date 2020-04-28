@@ -28,10 +28,11 @@ import org.checkerframework.common.value.qual.MinLen;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutParserFactory;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutManager;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
-import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
+import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
@@ -55,7 +56,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   private final IRepositoryGraphFactory repositoryGraphFactory;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
-  private final IBranchLayoutParserFactory branchLayoutParserFactory;
 
   public GitMacheteGraphTableManager(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
     this.project = project;
@@ -66,7 +66,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     GraphTableModel graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
     this.graphTable = new GitMacheteGraphTable(graphTableModel, gitMacheteRepositoryRef);
 
-    this.branchLayoutParserFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutParserFactory.class);
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
 
@@ -182,7 +181,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
             Path macheteFilePath = getMacheteFilePath(gr);
             boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-            updateRepository(mainDirectoryPath, gitDirectoryPath, isMacheteFilePresent);
+            updateRepository(mainDirectoryPath, gitDirectoryPath, macheteFilePath, isMacheteFilePresent);
             refreshGraphTable(macheteFilePath, isMacheteFilePresent);
           }
         }
@@ -196,9 +195,12 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
+  private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, Path macheteFilePath,
+      boolean isMacheteFilePresent) {
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
+    IBranchLayoutManager branchLayoutManager = branchLayoutManagerFactory.create(macheteFilePath);
+    graphTable.setBranchLayoutWriter(branchLayoutManager.getWriter());
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
 
@@ -206,10 +208,8 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
       if (gitRepository.isDefined()) {
         Try.of(() -> {
-          Path macheteFilePath = getMacheteFilePath(gitRepository.get());
-          IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
+          IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
           graphTable.setBranchLayout(branchLayout);
-          graphTable.setMacheteFilePath(macheteFilePath);
           return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
         })
             .onSuccess(gitMacheteRepositoryRef::set)
@@ -242,12 +242,16 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         : "Repository instantiation failed. For more information, please look at the IntelliJ logs");
   }
 
-  private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
-    return Try.of(() -> branchLayoutParserFactory.create(branchLayoutFilePath).parse())
+  private IBranchLayout createBranchLayout(IBranchLayoutManager branchLayoutManager) throws MacheteFileReaderException {
+    IBranchLayout branchLayout = Try.of(() -> branchLayoutManager.getReader().read())
         .getOrElseThrow(e -> {
           Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-          return new MacheteFileParseException("Error occurred while parsing machete file ${branchLayoutFilePath}" +
+          return new MacheteFileReaderException("Error occurred while parsing machete file" +
               (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
         });
+
+    graphTable.setBranchLayout(branchLayout);
+    return branchLayout;
   }
+
 }
