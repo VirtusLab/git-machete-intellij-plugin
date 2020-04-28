@@ -6,22 +6,27 @@ import com.intellij.util.SmartList;
 import io.vavr.collection.List;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
+import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.EdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.NodePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.PrintElementWithGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.repository.RepositoryGraph;
 
 public final class PrintElementGenerator implements IPrintElementGenerator {
-  private final RepositoryGraph repositoryGraph;
-  private final PrintElementColorIdProvider printElementColorIdProvider;
+  @NotOnlyInitialized
+  private final IRepositoryGraph repositoryGraph;
+  @NotOnlyInitialized
+  private final IPrintElementColorIdProvider printElementColorIdProvider;
 
-  public PrintElementGenerator(RepositoryGraph repositoryGraph) {
+  public PrintElementGenerator(@UnderInitialization IRepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
     this.printElementColorIdProvider = new PrintElementColorIdProvider(repositoryGraph);
   }
@@ -42,7 +47,7 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
       builder.consumeDownEdge(edgeAndPos._1(), edgeAndPos._2());
     });
 
-    java.util.List<GraphEdge> adjacentEdges = repositoryGraph.getAdjacentEdges(rowIndex);
+    List<GraphEdge> adjacentEdges = repositoryGraph.getAdjacentEdges(rowIndex);
     for (GraphEdge edge : adjacentEdges) {
       int downNodeIndex = edge.getDownNodeIndex();
       int upNodeIndex = edge.getUpNodeIndex();

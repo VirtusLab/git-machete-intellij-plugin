@@ -5,6 +5,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -16,37 +17,23 @@ public class RepositoryGraph implements IRepositoryGraph {
 
   private final List<IGraphItem> items;
   private final List<List<Integer>> positionsOfVisibleEdges;
+  @NotOnlyInitialized
   private final PrintElementGenerator printElementGenerator;
 
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:assignment.type.incompatible"})
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
     this.items = items;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
     this.printElementGenerator = new PrintElementGenerator(/* repositoryGraph */ this);
   }
 
-  public List<? extends IPrintElement> getPrintElements(@NonNegative int itemIndex) {
-    return printElementGenerator.getPrintElements(itemIndex);
-  }
-
-  @SuppressWarnings("upperbound:argument.type.incompatible")
-  public IGraphItem getGraphItem(@NonNegative int itemIndex) {
-    return items.get(itemIndex);
-  }
-
-  @NonNegative
-  public int getNodesCount() {
-    return items.size();
-  }
-
   /**
-   * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit node)
-   * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
+   * Adjacent edges are the edges that are visible in a row and directly connected to the node
+   * (representing branch/commit item) of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
    *
-   * @param itemIndex node index
-   * @return list of adjacent edges in a given node index
+   * @param itemIndex item index
+   * @return list of adjacent edges in a given item index
    */
-  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int itemIndex) {
+  public List<GraphEdge> getAdjacentEdges(@NonNegative int itemIndex) {
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
     @SuppressWarnings("upperbound:argument.type.incompatible")
     IGraphItem currentItem = items.get(itemIndex);
@@ -65,7 +52,21 @@ public class RepositoryGraph implements IRepositoryGraph {
       }
     }
 
-    return adjacentEdges;
+    return List.ofAll(adjacentEdges);
+  }
+
+  @SuppressWarnings("upperbound:argument.type.incompatible")
+  public IGraphItem getGraphItem(@NonNegative int itemIndex) {
+    return items.get(itemIndex);
+  }
+
+  @NonNegative
+  public int getNodesCount() {
+    return items.size();
+  }
+
+  public List<? extends IPrintElement> getPrintElements(@NonNegative int itemIndex) {
+    return printElementGenerator.getPrintElements(itemIndex);
   }
 
   /**
