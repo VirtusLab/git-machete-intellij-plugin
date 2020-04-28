@@ -13,7 +13,7 @@ import com.intellij.vcs.log.paint.PaintParameters;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.graph.api.paint.IColorGenerator;
+import com.virtuslab.gitmachete.frontend.graph.api.paint.IColorProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
@@ -21,7 +21,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 @RequiredArgsConstructor
 public class GraphCellPainter implements IGraphCellPainter {
 
-  private final IColorGenerator colorGenerator;
+  private final IColorProvider colorProvider;
 
   private final JTable table;
 
@@ -85,7 +85,7 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private Color getColor(IPrintElement printElement) {
-    return colorGenerator.getColor(printElement.getColorId());
+    return colorProvider.getColor(printElement.getColorId());
   }
 
   @Override

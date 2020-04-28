@@ -24,7 +24,7 @@ public class GraphTableModel extends AbstractTableModel {
   @Override
   @NonNegative
   public int getRowCount() {
-    return repositoryGraph.nodesCount();
+    return repositoryGraph.getNodesCount();
   }
 
   @Override

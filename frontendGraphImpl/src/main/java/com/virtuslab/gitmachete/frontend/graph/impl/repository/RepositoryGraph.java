@@ -24,11 +24,11 @@ public class RepositoryGraph implements IRepositoryGraph {
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
     this.items = items;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
-    this.printElementGenerator = new PrintElementGenerator(/* graph */ this);
+    this.printElementGenerator = new PrintElementGenerator(/* repositoryGraph */ this);
   }
 
-  public Collection<? extends IPrintElement> getPrintElements(@NonNegative int nodeIndex) {
-    return printElementGenerator.getPrintElements(nodeIndex);
+  public List<? extends IPrintElement> getPrintElements(@NonNegative int itemIndex) {
+    return printElementGenerator.getPrintElements(itemIndex);
   }
 
   @SuppressWarnings("upperbound:argument.type.incompatible")
@@ -37,7 +37,7 @@ public class RepositoryGraph implements IRepositoryGraph {
   }
 
   @NonNegative
-  public int nodesCount() {
+  public int getNodesCount() {
     return items.size();
   }
 
@@ -45,25 +45,25 @@ public class RepositoryGraph implements IRepositoryGraph {
    * Adjacent edges are the edges that are visible in a row and directly connected to the node (branch/commit node)
    * of this row. See {@link RepositoryGraph#getVisibleEdgesWithPositions} for more details.
    *
-   * @param nodeIndex node index
+   * @param itemIndex node index
    * @return list of adjacent edges in a given node index
    */
-  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int nodeIndex) {
+  public java.util.List<GraphEdge> getAdjacentEdges(@NonNegative int itemIndex) {
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
     @SuppressWarnings("upperbound:argument.type.incompatible")
-    IGraphItem currentItem = items.get(nodeIndex);
+    IGraphItem currentItem = items.get(itemIndex);
 
-    if (nodeIndex > 0) {
-      int upIndex = currentItem.getPrevSiblingItemIndex();
-      if (upIndex >= 0) {
-        adjacentEdges.add(GraphEdge.createEdge(nodeIndex, upIndex));
+    if (itemIndex > 0) {
+      int upNodeIndex = currentItem.getPrevSiblingItemIndex();
+      if (upNodeIndex >= 0) {
+        adjacentEdges.add(GraphEdge.createEdge(/* nodeIndex1 */ itemIndex, /* nodeIndex2 */ upNodeIndex));
       }
     }
 
-    if (nodeIndex < items.size() - 1) {
-      Integer nextSiblingNodeIndex = currentItem.getNextSiblingItemIndex();
-      if (nextSiblingNodeIndex != null) {
-        adjacentEdges.add(GraphEdge.createEdge(nodeIndex, nextSiblingNodeIndex));
+    if (itemIndex < items.size() - 1) {
+      Integer nextSiblingItemIndex = currentItem.getNextSiblingItemIndex();
+      if (nextSiblingItemIndex != null) {
+        adjacentEdges.add(GraphEdge.createEdge(/* nodeIndex1 */ itemIndex, /* nodeIndex2 */ nextSiblingItemIndex));
       }
     }
 
@@ -74,16 +74,16 @@ public class RepositoryGraph implements IRepositoryGraph {
    * Visible edges are the edges that are visible in a row but are NOT directly connected to the node
    * (representing branch/commit item) of this row. See {@link RepositoryGraph#getAdjacentEdges} for more details.
    *
-   * @param nodeIndex node index
-   * @return list of visible edges in a given node index
+   * @param itemIndex item index
+   * @return list of visible edges in a given item index
    */
-  public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int nodeIndex) {
-    assert nodeIndex < positionsOfVisibleEdges.size() : "Bad nodeIndex: " + nodeIndex;
+  public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int itemIndex) {
+    assert itemIndex < positionsOfVisibleEdges.size() : "Bad itemIndex: " + itemIndex;
 
-    return positionsOfVisibleEdges.get(nodeIndex).map(pos -> {
+    return positionsOfVisibleEdges.get(itemIndex).map(pos -> {
 
-      int upNodeIndex = nodeIndex - 1;
-      int downNodeIndex = nodeIndex + 1;
+      int upNodeIndex = itemIndex - 1;
+      int downNodeIndex = itemIndex + 1;
 
       while (downNodeIndex < positionsOfVisibleEdges.size()
           && positionsOfVisibleEdges.get(downNodeIndex).contains(pos)) {

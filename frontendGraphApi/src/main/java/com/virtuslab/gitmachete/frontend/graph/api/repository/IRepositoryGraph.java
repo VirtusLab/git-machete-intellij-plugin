@@ -10,7 +10,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 public interface IRepositoryGraph {
 
   @NonNegative
-  int nodesCount();
+  int getNodesCount();
 
   Collection<? extends IPrintElement> getPrintElements(@NonNegative int rowIndex);
 

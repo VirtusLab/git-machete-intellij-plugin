@@ -79,14 +79,14 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
 
     var graphCellPainterFactory = RuntimeBinding.instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
-    var graphCellPainter = graphCellPainterFactory.create(/* IColorGenerator */ GraphItemColorToJBColorMapper::getColor,
+    var graphCellPainter = graphCellPainterFactory.create(/* colorProvider */ GraphItemColorToJBColorMapper::getColor,
         /* table */ this);
 
     initColumns();
 
     @SuppressWarnings("guieffect:assignment.type.incompatible")
     @AlwaysSafe
-    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */this,
+    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */ this,
         graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
@@ -98,9 +98,9 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     getColumnModel().setColumnSelectionAllowed(false);
 
-    ScrollingUtil.installActions(this, false);
+    ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
 
-    addMouseListener(new GitMacheteGraphTableMouseAdapter(this));
+    addMouseListener(new GitMacheteGraphTableMouseAdapter(/* graphTable */ this));
   }
 
   @UIEffect
@@ -170,12 +170,12 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       }
 
       BranchOrCommitCell cell = (BranchOrCommitCell) getModel().getValueAt(row, col);
-      IGraphItem graphNode = cell.getGraphItem();
-      if (!graphNode.isBranchItem()) {
+      IGraphItem graphItem = cell.getGraphItem();
+      if (!graphItem.isBranchItem()) {
         return;
       }
 
-      selectedBranchName = graphNode.getValue();
+      selectedBranchName = graphItem.getValue();
 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuGroup = (ActionGroup) ActionManager.getInstance()

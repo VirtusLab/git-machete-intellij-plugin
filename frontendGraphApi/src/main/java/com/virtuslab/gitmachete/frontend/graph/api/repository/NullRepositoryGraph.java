@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
 public class NullRepositoryGraph implements IRepositoryGraph {
 
   @Override
-  public @NonNegative int nodesCount() {
+  public @NonNegative int getNodesCount() {
     return 0;
   }
 
