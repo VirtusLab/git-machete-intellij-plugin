@@ -106,17 +106,17 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
   private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository gitRepository,
       BaseGitMacheteNonRootBranch branchToRebase) {
-    LOG.debug(() -> "Enter BaseRebaseBranchOntoParentAction#doRebase(project = ${project}, " +
+    LOG.debug(() -> "Entering: project = ${project}, " +
         "macheteRepository = ${macheteRepository}, gitRepository = ${gitRepository}, " +
         "branchToRebase = ${branchToRebase} (${branchToRebase.getName()})");
     Try.of(() -> macheteRepository.getParametersForRebaseOntoParent(branchToRebase))
         .onSuccess(gitRebaseParameters -> {
-          LOG.debug(() -> "Queuing \"${branchToRebase.getName()}\" branch rebase background task");
+          LOG.debug(() -> "Queuing '${branchToRebase.getName()}' branch rebase background task");
           new Task.Backgroundable(project, "Rebasing") {
             @Override
             public void run(ProgressIndicator indicator) {
               GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
-              LOG.info(() -> "Rebasing \"${gitRebaseParameters.getCurrentBranch().getName()}\" branch " +
+              LOG.info(() -> "Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
                   "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                   "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
               GitRebaseUtils.rebase(project, List.of(gitRepository), params, indicator);

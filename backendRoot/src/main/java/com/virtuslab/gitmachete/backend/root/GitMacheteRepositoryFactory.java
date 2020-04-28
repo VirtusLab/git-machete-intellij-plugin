@@ -57,8 +57,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   @Override
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
-    LOG.debug(() -> "Enter GitMacheteRepositoryFactory#create(mainDirectoryPath = ${mainDirectoryPath}, "
-        + "gitDirectoryPath = ${gitDirectoryPath})");
+    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
     // To make sure there are no leftovers from the previous invocations.
     branchByName = HashMap.empty();
 
@@ -139,7 +138,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-    LOG.debug("Enter deduceForkPoint");
+    LOG.debug("Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
+        "coreLocalBranch = '${coreLocalBranch.getName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}'");
     return Try.of(() -> {
 
       var forkPointOption = coreLocalBranch.deriveForkPoint();
@@ -208,9 +208,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   }
 
   private ISyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
-    LOG.debug(
-        () -> "Enter ${getClass().getSimpleName()}#deriveSyncToRemoteStatus" +
-            "(coreLocalBranch = ${coreLocalBranch.getName()})");
+    LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}'");
     try {
       Option<IGitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (ts.isEmpty()) {
@@ -248,10 +246,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreLocalBranch parentCoreLocalBranch,
       @Nullable BaseGitCoreCommit forkPoint)
       throws GitMacheteException {
-    LOG.debug(() -> "Enter GitMacheteRepositoryFactory#deriveSyncToParentStatus" +
-        "(gitCoreRepository = ${gitCoreRepository}, coreLocalBranch = ${coreLocalBranch.getName()}, " +
-        "parentCoreLocalBranch = ${parentCoreLocalBranch.getName()}, " +
-        "forkPoint = ${forkPoint != null ? forkPoint.getHash().getHashString() : \"null\"})");
+    LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
+        "coreLocalBranch = '${coreLocalBranch.getName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}', "
+        + "forkPoint = ${forkPoint != null ? forkPoint.getHash().getHashString() : \"null\"})");
     try {
       BaseGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
       BaseGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
@@ -278,7 +275,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           if (forkPoint != null && !forkPoint.equals(parentPointedCommit)) {
             LOG.debug(
                 () -> "For this branch (${coreLocalBranch.getName()}) its parent's commit is ancestor of this branch pointed commit "
-                    + "but fork point is not equal to parent commit, so we assume that this branch is \"InSyncButForkPointOff\"");
+                    + "but fork point is not equal to parent commit, so we assume that this branch is 'InSyncButForkPointOff'");
             return SyncToParentStatus.InSyncButForkPointOff;
           } else {
             LOG.debug(

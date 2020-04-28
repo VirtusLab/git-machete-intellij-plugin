@@ -61,8 +61,8 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
 
   @UIEffect
   public void doSlideOut(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToSlideOut) {
-    LOG.debug(() -> "Enter BaseSlideOutBranchAction#doSlideOut(anActionEvent = ${anActionEvent}, " +
-        "branchToSlideOut = ${branchToSlideOut} (${branchToSlideOut.getName()}))");
+    LOG.debug(() -> "Entering: anActionEvent = ${anActionEvent}, " +
+        "branchToSlideOut = ${branchToSlideOut} (${branchToSlideOut.getName()})");
     Project project = anActionEvent.getProject();
     assert project != null : "Can't get project from anActionEvent variable";
 
@@ -72,7 +72,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     var branchName = branchToSlideOut.getName();
 
     try {
-      LOG.info(() -> "Sliding out \"${branchName}\" branch in memory");
+      LOG.info(() -> "Sliding out '${branchName}' branch in memory");
       var newBranchLayout = branchLayout.slideOut(branchName);
       var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
       var branchLayoutFileSaver = branchLayoutSaverFactory.create(macheteFilePath);
@@ -85,7 +85,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
-      String errorMessage = "Error occurred while sliding out \"${branchName}\" branch" +
+      String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",

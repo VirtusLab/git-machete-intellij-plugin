@@ -86,8 +86,8 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException {
-    LOG.debug(() -> "Enter getLocalBranches for repository ${mainDirectoryPath} (${gitDirectoryPath})");
-    LOG.debug("List of local branches branches:");
+    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug("List of local branches:");
     return Try.of(() -> getJgitGit().branchList().call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
@@ -103,8 +103,8 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException {
-    LOG.debug(() -> "Enter getRemoteBranches for repository ${mainDirectoryPath} (${gitDirectoryPath})");
-    LOG.debug("List of remote branches branches:");
+    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug("List of remote branches:");
     return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
@@ -136,7 +136,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Nullable
   private RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
-    LOG.debug(() -> "Enter deriveMergeBase for repository ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     RevWalk walk = new RevWalk(jgitRepo);
     walk.setRevFilter(RevFilter.MERGE_BASE);
     try {
@@ -155,7 +155,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Nullable
   private GitCoreCommitHash deriveMergeBaseIfNeeded(BaseGitCoreCommit a, BaseGitCoreCommit b) throws GitCoreException {
-    LOG.debug(() -> "Enter deriveMergeBaseIfNeeded for ${a} and ${b}");
+    LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
     var abKey = Tuple.of(a, b);
     var baKey = Tuple.of(b, a);
     if (mergeBaseCache.containsKey(abKey)) {
@@ -177,8 +177,8 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
       throws GitCoreException {
-    LOG.debug(() -> "Enter isAncestor(presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
-        "presumedDescendant = ${presumedDescendant.getHash().getHashString()})");
+    LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
+        "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");
 
     if (presumedAncestor.equals(presumedDescendant)) {
       LOG.debug("presumedAncestor is equal to presumedDescendant");
@@ -186,12 +186,12 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
     var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
     if (mergeBaseHash == null) {
-      LOG.debug("merge base of presumedAncestor and presumedDescendant not found " +
+      LOG.debug("Merge base of presumedAncestor and presumedDescendant not found " +
           "=> presumedAncestor is not ancestor of presumedDescendant");
       return false;
     }
     boolean isAncestor = mergeBaseHash.equals(presumedAncestor.getHash());
-    LOG.debug("merge base of presumedAncestor and presumedDescendant is equal to presumedAncestor " +
+    LOG.debug("Merge base of presumedAncestor and presumedDescendant is equal to presumedAncestor " +
         "=> presumedAncestor is ancestor of presumedDescendant");
     return isAncestor;
   }

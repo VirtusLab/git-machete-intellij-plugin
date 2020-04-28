@@ -29,7 +29,7 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
   private int levelWidth = 0;
 
   public BranchLayout parse() throws BranchLayoutException {
-    LOG.debug("Enter BranchLayout#parse");
+    LOG.debug("Entering");
     LOG.debug(() -> "Branch layout file path: ${path}");
 
     List<BaseBranchLayoutEntry> roots = List.empty();
@@ -41,7 +41,7 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
     deriveIndentCharacter(lines);
 
     LOG.debug(() -> "Indent character is ${indentCharacter.equals('\\t') ? \"TAB\" : indentCharacter.equals(' ') " +
-        "? \"SPACE\" : \"\\\"\" + indentCharacter + \"\\\"\"}");
+        "? \"SPACE\" : \"'\" + indentCharacter + \"'\"}");
     LOG.debug(() -> "Indent level width is ${levelWidth}");
 
     if (!linesWithoutBlank.isEmpty()) {
@@ -85,8 +85,8 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
   private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
       @GTENegativeOne int upstreamLineIndex) {
-    LOG.debug(() -> "Enter BranchLayoutFileParser#buildEntriesStructure(lines = ${lines}, " +
-        "lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, upstreamLineIndex = ${upstreamLineIndex})");
+    LOG.debug(() -> "Entering: lines = ${lines}, lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, " +
+        "upstreamLineIndex = ${upstreamLineIndex}");
     return lineIndexToUpstreamLineIndex
         .zipWithIndex()
         .filter(t -> t._1()._2() == upstreamLineIndex)
@@ -100,7 +100,7 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
    * entry with the specified {@code subentries}.
    */
   private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subentries) {
-    LOG.debug(() -> "Enter BranchLayoutFileParser#createEntry(line = \"${line}\", subentries = ${subentries})");
+    LOG.debug(() -> "Entering: line = '${line}', subentries = ${subentries}");
 
     String trimmedLine = line.trim();
     String branchName;
@@ -114,8 +114,8 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
       customAnnotation = null;
     }
 
-    LOG.debug(() -> "Creating BranchLayoutEntry(branchName = \"${branchName}\", " +
-        "customAnnotation = ${customAnnotation != null ? \"\\\"\" + customAnnotation + \"\\\"\" : null}, " +
+    LOG.debug(() -> "Creating BranchLayoutEntry(branchName = '${branchName}', " +
+        "customAnnotation = ${customAnnotation != null ? \"'\" + customAnnotation + \"'\" : null}, " +
         "subentries.length() = ${subentries.length()})");
 
     return new BranchLayoutEntry(branchName, customAnnotation, subentries);
@@ -126,7 +126,7 @@ public class BranchLayoutFileParser implements IBranchLayoutParser {
    *         provided {@code lines} indices. It may be understood as a helper metadata needed to build entries structure
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(List<String> lines) throws BranchLayoutException {
-    LOG.debug("Enter BranchLayoutFileParser#parseToArrayRepresentation");
+    LOG.debug("Entering");
 
     List<String> linesWithoutBlank = lines.reject(String::isBlank);
 

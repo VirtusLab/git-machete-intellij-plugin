@@ -45,7 +45,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Override
   public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch)
       throws GitMacheteMissingForkPointException {
-    LOG.debug(() -> "Enter getParametersForRebaseOntoParent for ${branch.getName()}");
+    LOG.debug(() -> "Entering: branch = '${branch.getName()}'");
     var forkPoint = branch.getForkPoint();
     if (forkPoint.isEmpty()) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${branch.getName()}'");
@@ -62,7 +62,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch branch) {
-    LOG.debug(() -> "Enter deriveParametersForMergeIntoParent for ${branch.getName()}");
+    LOG.debug(() -> "Entering: branch = '${branch.getName()}'");
     LOG.debug(() -> "Inferred merge parameters: currentBranch = ${branch.getName()}, " +
         "branchToMergeInto = ${branch.getUpstreamBranch().getName()}");
     return new GitMergeParameters(/* currentBranch */ branch, /* branchToMergeInto */ branch.getUpstreamBranch());

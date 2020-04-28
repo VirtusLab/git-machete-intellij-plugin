@@ -88,7 +88,7 @@ public class RepositoryGraphBuilder {
 
       int prevSiblingNodeIndex = graphNodes.size() - 1;
       // We are building some non root branches here so some root branch node has been added already.
-      assert prevSiblingNodeIndex >= 0 : "There are no previous sibling node but should be";
+      assert prevSiblingNodeIndex >= 0 : "There is no previous sibling node but should be";
       buildCommitsAndNonRootBranch(graphNodes, branch, prevSiblingNodeIndex, indentLevel);
 
       int upBranchIndex = graphNodes.size() - 1;

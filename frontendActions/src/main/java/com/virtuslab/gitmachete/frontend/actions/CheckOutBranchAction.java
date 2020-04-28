@@ -58,11 +58,11 @@ public class CheckOutBranchAction extends AnAction {
     assert project != null : "Can't get project from anActionEvent variable";
     GitRepository repository = getPresentIdeaRepository(anActionEvent);
 
-    LOG.debug(() -> "Queuing \"${selectedBranchName}\" branch checkout background task");
+    LOG.debug(() -> "Queuing '${selectedBranchName}' branch checkout background task");
     new Task.Backgroundable(project, "Checking out") {
       @Override
       public void run(ProgressIndicator indicator) {
-        LOG.info(() -> "Checking out branch \"${selectedBranchName}\"");
+        LOG.info(() -> "Checking out branch '${selectedBranchName}'");
         new GitBranchWorker(project, Git.getInstance(),
             new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
                 .checkout(selectedBranchName, /* detach */ false, List.of(repository));

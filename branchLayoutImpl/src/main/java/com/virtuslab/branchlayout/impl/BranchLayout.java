@@ -37,7 +37,7 @@ public class BranchLayout implements IBranchLayout {
 
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
   private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) throws BranchLayoutException {
-    LOG.debug(() -> "Enter slideOut for entry ${entryToSlideOut.getName()}");
+    LOG.debug(() -> "Entering: entryToSlideOut = '${entryToSlideOut.getName()}'");
 
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
     if (upstreamEntryOption.isEmpty()) {
@@ -69,7 +69,7 @@ public class BranchLayout implements IBranchLayout {
    *         {@code newEntry}
    */
   private IBranchLayout replace(BaseBranchLayoutEntry oldEntry, BaseBranchLayoutEntry newEntry) {
-    LOG.debug(() -> "Enter replace(oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
+    LOG.debug(() -> "Entering: oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
         "newEntry = ${newEntry} (${newEntry.getName()})");
     if (rootBranches.contains(oldEntry)) {
       LOG.debug("Old entry is one of the root entries. Replacing.");
@@ -109,7 +109,7 @@ public class BranchLayout implements IBranchLayout {
   private static Option<BaseBranchLayoutEntry> findEntryRecursively(
       List<BaseBranchLayoutEntry> entries,
       Predicate<BaseBranchLayoutEntry> predicate) {
-    LOG.debug(() -> "Enter findEntryRecursively(entries = ${entries}, predicate = ${predicate})");
+    LOG.debug(() -> "Entering: entries = ${entries}");
 
     for (var entry : entries) {
       LOG.debug(() -> "Testing entry ${entry} (${entry.getName()})");
@@ -125,7 +125,7 @@ public class BranchLayout implements IBranchLayout {
       }
     }
 
-    LOG.debug("Entry satisfies the predicate not found on this level neither its sublevels");
+    LOG.debug("Entry satisfies the predicate not found on this level nor its sublevels");
     return Option.none();
   }
 }

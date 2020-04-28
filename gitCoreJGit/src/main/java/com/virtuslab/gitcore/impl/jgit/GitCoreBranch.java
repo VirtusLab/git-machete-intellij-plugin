@@ -89,7 +89,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   @Override
   public List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
-    LOG.debug(() -> "Enter the deriveCommitsUntil for branch ${getFullName()}");
+    LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit.getHash().getHashString()}");
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
