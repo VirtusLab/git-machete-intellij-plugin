@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.graph.api.repository;
 
-import java.util.Collection;
-
+import io.vavr.collection.List;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -12,7 +11,7 @@ public interface IRepositoryGraph {
   @NonNegative
   int getNodesCount();
 
-  Collection<? extends IPrintElement> getPrintElements(@NonNegative int rowIndex);
+  List<? extends IPrintElement> getPrintElements(@NonNegative int rowIndex);
 
   IGraphItem getGraphItem(@NonNegative int rowIndex);
 }

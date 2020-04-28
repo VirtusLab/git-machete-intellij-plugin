@@ -1,8 +1,7 @@
 package com.virtuslab.gitmachete.frontend.graph.api.repository;
 
-import java.util.Collection;
-
 import io.vavr.NotImplementedError;
+import io.vavr.collection.List;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -16,7 +15,7 @@ public class NullRepositoryGraph implements IRepositoryGraph {
   }
 
   @Override
-  public Collection<? extends IPrintElement> getPrintElements(@NonNegative int rowIndex) {
+  public List<? extends IPrintElement> getPrintElements(@NonNegative int rowIndex) {
     throw new NotImplementedError();
   }
 

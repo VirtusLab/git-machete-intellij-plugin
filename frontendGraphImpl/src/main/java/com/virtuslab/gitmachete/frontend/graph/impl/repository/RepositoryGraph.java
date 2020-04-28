@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.repository;
 
-import java.util.Collection;
-
 import com.intellij.util.SmartList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;

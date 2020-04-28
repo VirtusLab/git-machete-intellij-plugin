@@ -5,11 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
-import java.util.Collection;
 
 import javax.swing.JTable;
 
 import com.intellij.vcs.log.paint.PaintParameters;
+import io.vavr.collection.List;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -90,7 +90,7 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @Override
   @UIEffect
-  public void draw(Graphics2D g2, Collection<? extends IPrintElement> printElements) {
+  public void draw(Graphics2D g2, List<? extends IPrintElement> printElements) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     for (IPrintElement printElement : printElements) {

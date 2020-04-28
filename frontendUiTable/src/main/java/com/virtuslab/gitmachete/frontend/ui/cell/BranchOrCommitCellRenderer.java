@@ -7,8 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.swing.JTable;
 
@@ -20,6 +18,7 @@ import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.paint.PaintParameters;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -109,8 +108,8 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (graphItem.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
       } else {
-        graphImage = getGraphImage(cell.getPrintElements().stream().filter(e -> !e.isNode())
-            .collect(Collectors.toList()), maxGraphNodePositionInRow);
+        graphImage = getGraphImage(cell.getPrintElements().toStream().filter(e -> !e.isNode())
+            .collect(List.collector()), maxGraphNodePositionInRow);
       }
 
       append(""); // appendTextPadding won't work without this
@@ -162,7 +161,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @UIEffect
-    private GraphImage getGraphImage(Collection<? extends IPrintElement> printElements,
+    private GraphImage getGraphImage(List<? extends IPrintElement> printElements,
         @NonNegative int maxGraphNodePositionInRow) {
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           /* width */ PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxGraphNodePositionInRow + 2),

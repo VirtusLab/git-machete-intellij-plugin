@@ -1,10 +1,9 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.print;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import com.intellij.util.SmartList;
+import io.vavr.collection.List;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -28,7 +27,7 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
   }
 
   @Override
-  public Collection<PrintElementWithGraphElement> getPrintElements(@NonNegative int rowIndex) {
+  public List<PrintElementWithGraphElement> getPrintElements(@NonNegative int rowIndex) {
     PrintElementBuilder builder = new PrintElementBuilder(rowIndex);
     collectElements(rowIndex, builder);
     return builder.build();
@@ -69,8 +68,8 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
 
   @RequiredArgsConstructor
   private final class PrintElementBuilder {
-    private final List<PrintElementWithGraphElement> edges = new ArrayList<>();
-    private final List<PrintElementWithGraphElement> nodes = new SmartList<>();
+    private final java.util.List<PrintElementWithGraphElement> edges = new ArrayList<>();
+    private final java.util.List<PrintElementWithGraphElement> nodes = new SmartList<>();
     @NonNegative
     private final int rowIndex;
 
@@ -90,10 +89,9 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
       edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.RIGHT, edge, printElementColorManager));
     }
 
-    public Collection<PrintElementWithGraphElement> build() {
-      List<PrintElementWithGraphElement> result = new ArrayList<>(edges);
-      result.addAll(nodes);
-      return result;
+    public List<PrintElementWithGraphElement> build() {
+      List<PrintElementWithGraphElement> result = List.ofAll(edges);
+      return result.appendAll(nodes);
     }
   }
 }
