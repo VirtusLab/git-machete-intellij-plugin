@@ -27,9 +27,8 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
    */
   @UIEffect
   public VcsRootComboBox(@MinLen(1) List<GitRepository> repositories) {
-    super(new MutableCollectionComboBoxModel<>(/* items */ repositories.asJavaMutable(),
-        /* selection */ repositories.get(0)));
-    setRenderer(SimpleListCellRenderer.create("", repo -> repo.getRoot().getName()));
+    super(new MutableCollectionComboBoxModel<>(/* items */ repositories.asJavaMutable(), /* selection */ repositories.get(0)));
+    setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", repo -> repo.getRoot().getName()));
   }
 
   @Override

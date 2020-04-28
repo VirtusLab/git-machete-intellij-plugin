@@ -1,6 +1,9 @@
+vavr()
+
 dependencies {
-  implementation project(':backendApi')
-  implementation project(':branchLayoutApi')
+  api project(':backendApi')
+  api project(':branchLayoutApi')
+  api project(':frontendUiApi')
 }
 
 apply plugin: 'org.jetbrains.intellij'

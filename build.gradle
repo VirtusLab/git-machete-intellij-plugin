@@ -300,7 +300,9 @@ subprojects {
 
     vavr = { ->
       dependencies {
-        implementation group: 'io.vavr', name: 'vavr', version: vavrVersion
+        // Unlike any other current dependency, Vavr classes are very likely to end up in binary interface of the depending subproject,
+        // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
+        api group: 'io.vavr', name: 'vavr', version: vavrVersion
       }
     }
   }

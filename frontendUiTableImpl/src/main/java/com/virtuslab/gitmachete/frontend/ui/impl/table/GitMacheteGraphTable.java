@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -20,11 +21,8 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -40,16 +38,13 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
   private final GraphTableModel graphTableModel;
-  private final Project project;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
-  private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
 
   @Nullable
   private IBranchLayout branchLayout;
@@ -61,21 +56,16 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable(
-      GraphTableModel graphTableModel,
-      Project project,
-      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef,
-      IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
+  public GitMacheteGraphTable(GraphTableModel graphTableModel,
+      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef) {
     super(graphTableModel);
 
     this.graphTableModel = graphTableModel;
-    this.project = project;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
-    this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
-    // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
+    // `@UnderInitialization(GitMacheteGraphTable.class)`, as would be with a non-final class) at this point.
 
     var graphCellPainterFactory = RuntimeBinding.instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
     var graphCellPainter = graphCellPainterFactory.create(/* colorProvider */ GraphItemColorToJBColorMapper::getColor,
@@ -104,8 +94,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
   @UIEffect
   public void setTextForEmptyGraph(String upperText, String lowerText) {
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, StatusText.DEFAULT_ATTRIBUTES,
-        /* listener */ null);
+    getEmptyText().setText(upperText).appendSecondaryText(lowerText, StatusText.DEFAULT_ATTRIBUTES, /* listener */ null);
   }
 
   @UIEffect
@@ -121,22 +110,17 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     return graphTableModel;
   }
 
-  private <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
-    return Case($(key.getName()), value);
-  }
-
   @Override
   @Nullable
   public Object getData(String dataId) {
     var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
+        // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_FILE_PATH, macheteFilePath),
         typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, gitRepositorySelectionProvider.getSelectedRepository()),
-        typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
 

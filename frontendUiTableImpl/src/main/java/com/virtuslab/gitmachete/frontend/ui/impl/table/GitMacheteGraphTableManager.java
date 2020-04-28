@@ -51,7 +51,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   @Getter
   @Setter
   private boolean isListingCommits;
-  private final AtomicReference<@Nullable IGitMacheteRepository> repositoryRef;
+  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
   @Getter
   private final GitMacheteGraphTable graphTable;
 
@@ -64,9 +64,9 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
     this.isListingCommits = false;
-    this.repositoryRef = new AtomicReference<>(null);
+    this.gitMacheteRepositoryRef = new AtomicReference<>(null);
     GraphTableModel graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
-    this.graphTable = new GitMacheteGraphTable(graphTableModel, project, repositoryRef, gitRepositorySelectionProvider);
+    this.graphTable = new GitMacheteGraphTable(graphTableModel, gitMacheteRepositoryRef);
 
     this.branchLayoutParserFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutParserFactory.class);
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
@@ -75,6 +75,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTableManager.class)`, as would be with a non-final class) at this point.
+
     subscribeToVcsRootChanges();
     subscribeToGitRepositoryChanges();
   }
@@ -114,7 +115,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
     // functionality) branch layout
 
-    IGitMacheteRepository gitMacheteRepository = repositoryRef.get();
+    IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
     IRepositoryGraph repositoryGraph;
     if (gitMacheteRepository == null) {
       repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
@@ -203,7 +204,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
       try {
         IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
-        repositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
+        gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
       } catch (Exception e) {
         LOG.error("Unable to create Git Machete repository", e);
         String exceptionMessage = e.getMessage();
@@ -219,7 +220,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       }
     } else {
       LOG.debug("Machete file is absent. Setting repository reference to null");
-      repositoryRef.set(null);
+      gitMacheteRepositoryRef.set(null);
     }
   }
 
