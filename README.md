@@ -38,7 +38,6 @@ Logging of this plugin has several categories:
 * `backendRoot`
 * `branchLayout`
 * `frontendActions`
-* `frontendGraph`
 * `frontendUiRoot`
 * `frontendUiTable`
 * `gitCore`
