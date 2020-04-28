@@ -198,7 +198,7 @@ public final class GitMacheteGraphTableManager {
         "isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
-      // This try-catch is a workaround caused strange behavior of Try.onFailure() that seems to rethrows exception
+      // This try-catch is a workaround caused by strange behavior of Try.onFailure() that seems to rethrow exception
       // (or something else happens)
       // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
       try {
@@ -213,7 +213,7 @@ public final class GitMacheteGraphTableManager {
             () -> Messages.showErrorDialog(
                 exceptionMessage != null
                     ? exceptionMessage
-                    : "Repository instantiation failed. For more information, pleas look at the IntelliJ logs",
+                    : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
                 "Something Went Wrong..."),
             ModalityState.NON_MODAL);
       }
