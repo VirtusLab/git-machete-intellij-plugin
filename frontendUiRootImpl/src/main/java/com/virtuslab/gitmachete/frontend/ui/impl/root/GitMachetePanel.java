@@ -51,7 +51,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   @UIEffect
   public GitMachetePanel(Project project) {
     super(/* vertical */ false, /* borderless */ true);
-    LOG.debug("Instantiation of ${getClass().getSimpleName()}");
+    LOG.debug("Instantiation");
 
     this.project = project;
     // GitUtil.getRepositories(project) should never return empty list because it means there's no git repository in an opened
