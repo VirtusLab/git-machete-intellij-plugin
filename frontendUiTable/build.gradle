@@ -5,6 +5,7 @@ dependencies {
   implementation project(':backendApi')
   implementation project(':frontendGraph')
   implementation project(':frontendKeys')
+  implementation project(':logging')
 }
 
 apply plugin: 'org.jetbrains.intellij'

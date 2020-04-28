@@ -8,11 +8,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.GuiUtils;
 import com.intellij.util.SmartList;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
@@ -38,9 +41,11 @@ import com.virtuslab.gitmachete.backend.api.MacheteFileParseException;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.repository.RepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.VcsRootComboBox;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMacheteGraphTableManager {
-  private static final Logger LOG = Logger.getInstance(GitMacheteGraphTableManager.class);
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
   private final Project project;
   @Getter
@@ -178,14 +183,28 @@ public final class GitMacheteGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
+  @SuppressWarnings({"IllegalCatch"})
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      Try.of(() -> {
+      // This try-catch is a workaround caused strange behavior of Try.onFailure() that seems to rethrows exception
+      // (or something else happens)
+      // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
+      try {
         IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
-        return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
-      })
-          .onFailure(e -> LOG.error("Unable to create Git Machete repository", e))
-          .onSuccess(repository -> repositoryRef.set(repository));
+        repositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
+      } catch (Exception e) {
+        LOG.error("Unable to create Git Machete repository", e);
+        String exceptionMessage = e.getMessage();
+        VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
+            exceptionMessage != null ? exceptionMessage : "");
+        GuiUtils.invokeLaterIfNeeded(
+            () -> Messages.showErrorDialog(
+                exceptionMessage != null
+                    ? exceptionMessage
+                    : "Repository instantiation failed. For more information, pleas look at the IntelliJ logs",
+                "Something Went Wrong..."),
+            ModalityState.NON_MODAL);
+      }
     } else {
       repositoryRef.set(null);
     }
