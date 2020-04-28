@@ -38,7 +38,7 @@ public class GraphTableModel extends AbstractTableModel {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN :
         IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
-        return new BranchOrCommitCell(graphItem, repositoryGraph.getPrintElements(rowIndex));
+        return new BranchOrCommitCell(graphItem, repositoryGraph.getRenderParts(rowIndex));
       default :
         throw new IllegalArgumentException("columnIndex is ${columnIndex} > ${getColumnCount() - 1}");
     }

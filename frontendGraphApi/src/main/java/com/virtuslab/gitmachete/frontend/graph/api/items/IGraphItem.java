@@ -7,11 +7,12 @@ import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 /**
  * Graph items ({@link IGraphItem}, {@link IBranchItem}, {@link ICommitItem}) represent the DATA of the graph.
  * There is no strict concept of edge here (unlike {@link com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement}
- * and {@link com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement}).
+ * and {@link IRenderPart}).
  * Items relation is defined by indices of cells in the graph table.
  * */
 public interface IGraphItem {

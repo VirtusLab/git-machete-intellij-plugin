@@ -34,7 +34,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.ui.table.GitMacheteGraphTable;
 
 @UI
@@ -106,9 +106,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       int maxGraphNodePositionInRow = getMaxGraphNodePositionInRow(graphItem);
 
       if (graphItem.hasBulletPoint()) {
-        graphImage = getGraphImage(cell.getPrintElements(), maxGraphNodePositionInRow);
+        graphImage = getGraphImage(cell.getRenderParts(), maxGraphNodePositionInRow);
       } else {
-        graphImage = getGraphImage(cell.getPrintElements().toStream().filter(e -> !e.isNode())
+        graphImage = getGraphImage(cell.getRenderParts().toStream().filter(e -> !e.isNode())
             .collect(List.collector()), maxGraphNodePositionInRow);
       }
 
@@ -161,7 +161,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     }
 
     @UIEffect
-    private GraphImage getGraphImage(List<? extends IPrintElement> printElements,
+    private GraphImage getGraphImage(List<? extends IRenderPart> renderParts,
         @NonNegative int maxGraphNodePositionInRow) {
       BufferedImage image = UIUtil.createImage(graphTable.getGraphicsConfiguration(),
           /* width */ PaintParameters.getNodeWidth(graphTable.getRowHeight()) * (maxGraphNodePositionInRow + 2),
@@ -169,7 +169,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
           BufferedImage.TYPE_INT_ARGB,
           PaintUtil.RoundingMode.CEIL);
       Graphics2D g2 = image.createGraphics();
-      painter.draw(g2, printElements);
+      painter.draw(g2, renderParts);
 
       int width = maxGraphNodePositionInRow * PaintParameters.getNodeWidth(graphTable.getRowHeight());
       return new GraphImage(image, width);

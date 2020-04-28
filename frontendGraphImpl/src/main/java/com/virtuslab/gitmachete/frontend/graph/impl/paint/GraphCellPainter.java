@@ -15,8 +15,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IColorProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 @RequiredArgsConstructor
 public class GraphCellPainter implements IGraphCellPainter {
@@ -84,39 +84,39 @@ public class GraphCellPainter implements IGraphCellPainter {
   }
 
   @UIEffect
-  private Color getColor(IPrintElement printElement) {
-    return colorProvider.getColor(printElement.getColorId());
+  private Color getColor(IRenderPart renderPart) {
+    return colorProvider.getColor(renderPart.getColorId());
   }
 
   @Override
   @UIEffect
-  public void draw(Graphics2D g2, List<? extends IPrintElement> printElements) {
+  public void draw(Graphics2D g2, List<? extends IRenderPart> renderParts) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    for (IPrintElement printElement : printElements) {
-      drawElement(g2, printElement);
+    for (IRenderPart renderPart : renderParts) {
+      drawRenderPart(g2, renderPart);
     }
   }
 
   @UIEffect
-  protected void drawElement(Graphics2D g2, IPrintElement printElement) {
-    if (printElement.isNode()) {
-      int posInRow = printElement.getPositionInRow();
-      paintCircle(g2, posInRow, getColor(printElement));
+  protected void drawRenderPart(Graphics2D g2, IRenderPart renderPart) {
+    if (renderPart.isNode()) {
+      int posInRow = renderPart.getPositionInRow();
+      paintCircle(g2, posInRow, getColor(renderPart));
     } else { // isEdge
-      printEdge(g2, getColor(printElement), printElement.asEdge());
+      drawEdge(g2, getColor(renderPart), renderPart.asEdge());
     }
   }
 
   @UIEffect
-  private void printEdge(Graphics2D g2, Color color, IEdgePrintElement edgePrintElement) {
-    int posInRow = edgePrintElement.getPositionInRow();
+  private void drawEdge(Graphics2D g2, Color color, IEdgeRenderPart edgeRenderPart) {
+    int posInRow = edgeRenderPart.getPositionInRow();
 
-    if (edgePrintElement.getType() == IEdgePrintElement.Type.DOWN) {
+    if (edgeRenderPart.getType() == IEdgeRenderPart.Type.DOWN) {
       paintDownLine(g2, color, posInRow);
-    } else if (edgePrintElement.getType() == IEdgePrintElement.Type.UP) {
+    } else if (edgeRenderPart.getType() == IEdgeRenderPart.Type.UP) {
       paintUpLine(g2, color, posInRow);
-    } else if (edgePrintElement.getType() == IEdgePrintElement.Type.RIGHT) {
+    } else if (edgeRenderPart.getType() == IEdgeRenderPart.Type.RIGHT) {
       paintRightLine(g2, color, posInRow);
     }
   }

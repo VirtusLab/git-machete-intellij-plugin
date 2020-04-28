@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.graph.impl.print;
+package com.virtuslab.gitmachete.frontend.graph.impl.render;
 
 import java.util.ArrayList;
 
@@ -12,33 +12,33 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
-import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementGenerator;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
+import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartGenerator;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.EdgePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.NodePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.elements.PrintElementWithGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.EdgeRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.NodeRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.RenderPart;
 
-public final class PrintElementGenerator implements IPrintElementGenerator {
+public final class RenderPartGenerator implements IRenderPartGenerator {
   @NotOnlyInitialized
   private final IRepositoryGraph repositoryGraph;
   @NotOnlyInitialized
-  private final IPrintElementColorIdProvider printElementColorIdProvider;
+  private final IRenderPartColorIdProvider renderPartColorIdProvider;
 
-  public PrintElementGenerator(@UnderInitialization IRepositoryGraph repositoryGraph) {
+  public RenderPartGenerator(@UnderInitialization IRepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
-    this.printElementColorIdProvider = new PrintElementColorIdProvider(repositoryGraph);
+    this.renderPartColorIdProvider = new RenderPartColorIdProvider(repositoryGraph);
   }
 
   @Override
-  public List<PrintElementWithGraphElement> getPrintElements(@NonNegative int rowIndex) {
-    PrintElementBuilder builder = new PrintElementBuilder(rowIndex);
-    collectElements(rowIndex, builder);
+  public List<RenderPart> getRenderParts(@NonNegative int rowIndex) {
+    RenderPartBuilder builder = new RenderPartBuilder(rowIndex);
+    collectParts(rowIndex, builder);
     return builder.build();
   }
 
-  private void collectElements(@NonNegative int rowIndex, PrintElementBuilder builder) {
+  private void collectParts(@NonNegative int rowIndex, RenderPartBuilder builder) {
     IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
     int position = graphItem.getIndentLevel();
 
@@ -72,32 +72,32 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
   }
 
   @RequiredArgsConstructor
-  private final class PrintElementBuilder {
-    private final java.util.List<PrintElementWithGraphElement> edges = new ArrayList<>();
-    private final java.util.List<PrintElementWithGraphElement> nodes = new SmartList<>();
+  private final class RenderPartBuilder {
+    private final java.util.List<RenderPart> edges = new ArrayList<>();
+    private final java.util.List<RenderPart> nodes = new SmartList<>();
     @NonNegative
     private final int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new NodePrintElement(rowIndex, position, node, printElementColorIdProvider));
+      nodes.add(new NodeRenderPart(rowIndex, position, node, renderPartColorIdProvider));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(
-          new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.DOWN, edge, printElementColorIdProvider));
+          new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.DOWN, edge, renderPartColorIdProvider));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.UP, edge, printElementColorIdProvider));
+      edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.UP, edge, renderPartColorIdProvider));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(
-          new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.RIGHT, edge, printElementColorIdProvider));
+          new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.RIGHT, edge, renderPartColorIdProvider));
     }
 
-    public List<PrintElementWithGraphElement> build() {
-      List<PrintElementWithGraphElement> result = List.ofAll(edges);
+    public List<RenderPart> build() {
+      List<RenderPart> result = List.ofAll(edges);
       return result.appendAll(nodes);
     }
   }

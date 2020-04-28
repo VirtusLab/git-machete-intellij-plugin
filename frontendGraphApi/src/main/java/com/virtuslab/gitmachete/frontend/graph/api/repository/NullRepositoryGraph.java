@@ -7,7 +7,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 public class NullRepositoryGraph implements IRepositoryGraph {
 
@@ -27,7 +27,7 @@ public class NullRepositoryGraph implements IRepositoryGraph {
   }
 
   @Override
-  public List<? extends IPrintElement> getPrintElements(@NonNegative int itemIndex) {
+  public List<? extends IRenderPart> getRenderParts(@NonNegative int itemIndex) {
     return List.empty();
   }
 

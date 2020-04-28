@@ -1,18 +1,18 @@
-package com.virtuslab.gitmachete.frontend.graph.impl.print;
+package com.virtuslab.gitmachete.frontend.graph.impl.render;
 
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
+import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 
-public class PrintElementColorIdProvider implements IPrintElementColorIdProvider {
+public class RenderPartColorIdProvider implements IRenderPartColorIdProvider {
   @NotOnlyInitialized
   private final IRepositoryGraph repositoryGraph;
 
-  public PrintElementColorIdProvider(@UnderInitialization IRepositoryGraph repositoryGraph) {
+  public RenderPartColorIdProvider(@UnderInitialization IRepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
   }
 

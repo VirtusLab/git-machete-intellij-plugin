@@ -9,21 +9,22 @@ import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
+import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartGenerator;
+import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.PrintElementGenerator;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.RenderPartGenerator;
 
 public class RepositoryGraph implements IRepositoryGraph {
 
   private final List<IGraphItem> items;
   private final List<List<Integer>> positionsOfVisibleEdges;
   @NotOnlyInitialized
-  private final PrintElementGenerator printElementGenerator;
+  private final IRenderPartGenerator renderPartGenerator;
 
   public RepositoryGraph(List<IGraphItem> items, List<List<Integer>> positionsOfVisibleEdges) {
     this.items = items;
     this.positionsOfVisibleEdges = positionsOfVisibleEdges;
-    this.printElementGenerator = new PrintElementGenerator(/* repositoryGraph */ this);
+    this.renderPartGenerator = new RenderPartGenerator(/* repositoryGraph */ this);
   }
 
   /**
@@ -65,8 +66,8 @@ public class RepositoryGraph implements IRepositoryGraph {
     return items.size();
   }
 
-  public List<? extends IPrintElement> getPrintElements(@NonNegative int itemIndex) {
-    return printElementGenerator.getPrintElements(itemIndex);
+  public List<? extends IRenderPart> getRenderParts(@NonNegative int itemIndex) {
+    return renderPartGenerator.getRenderParts(itemIndex);
   }
 
   /**
