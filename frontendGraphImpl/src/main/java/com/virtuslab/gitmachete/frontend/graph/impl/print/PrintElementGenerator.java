@@ -19,11 +19,11 @@ import com.virtuslab.gitmachete.frontend.graph.impl.repository.RepositoryGraph;
 
 public final class PrintElementGenerator implements IPrintElementGenerator {
   private final RepositoryGraph repositoryGraph;
-  private final PrintElementColorManager printElementColorManager;
+  private final PrintElementColorIdProvider printElementColorIdProvider;
 
   public PrintElementGenerator(RepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
-    this.printElementColorManager = new PrintElementColorManager(repositoryGraph);
+    this.printElementColorIdProvider = new PrintElementColorIdProvider(repositoryGraph);
   }
 
   @Override
@@ -74,19 +74,21 @@ public final class PrintElementGenerator implements IPrintElementGenerator {
     private final int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new NodePrintElement(rowIndex, position, node, printElementColorManager));
+      nodes.add(new NodePrintElement(rowIndex, position, node, printElementColorIdProvider));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.DOWN, edge, printElementColorManager));
+      edges.add(
+          new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.DOWN, edge, printElementColorIdProvider));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.UP, edge, printElementColorManager));
+      edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.UP, edge, printElementColorIdProvider));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.RIGHT, edge, printElementColorManager));
+      edges.add(
+          new EdgePrintElement(rowIndex, position, IEdgePrintElement.Type.RIGHT, edge, printElementColorIdProvider));
     }
 
     public List<PrintElementWithGraphElement> build() {

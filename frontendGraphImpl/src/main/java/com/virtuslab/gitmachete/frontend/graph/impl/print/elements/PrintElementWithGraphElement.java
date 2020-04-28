@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IPrintElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.PrintElementColorManager;
 
 @Getter
 @RequiredArgsConstructor
@@ -17,10 +17,10 @@ public abstract class PrintElementWithGraphElement implements IPrintElement {
   protected final int positionInRow;
   protected final IGraphElement graphElement;
 
-  private final PrintElementColorManager printElementColorManager;
+  private final IPrintElementColorIdProvider printElementColorIdProvider;
 
   @Override
   public int getColorId() {
-    return printElementColorManager.getColorId(graphElement);
+    return printElementColorIdProvider.getColorId(graphElement);
   }
 }

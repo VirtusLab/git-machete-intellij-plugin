@@ -5,17 +5,17 @@ import io.vavr.NotImplementedError;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
+import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.INodePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.PrintElementColorManager;
 
 public final class NodePrintElement extends PrintElementWithGraphElement implements INodePrintElement {
 
   public NodePrintElement(@NonNegative int rowIndex,
       @NonNegative int positionInRow,
       GraphNode graphNode,
-      PrintElementColorManager printElementColorManager) {
-    super(rowIndex, positionInRow, graphNode, printElementColorManager);
+      IPrintElementColorIdProvider printElementColorIdProvider) {
+    super(rowIndex, positionInRow, graphNode, printElementColorIdProvider);
   }
 
   @Override

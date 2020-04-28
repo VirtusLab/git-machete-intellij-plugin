@@ -6,9 +6,9 @@ import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
+import com.virtuslab.gitmachete.frontend.graph.api.print.IPrintElementColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.IEdgePrintElement;
 import com.virtuslab.gitmachete.frontend.graph.api.print.elements.INodePrintElement;
-import com.virtuslab.gitmachete.frontend.graph.impl.print.PrintElementColorManager;
 
 @Getter
 public final class EdgePrintElement extends PrintElementWithGraphElement implements IEdgePrintElement {
@@ -19,8 +19,8 @@ public final class EdgePrintElement extends PrintElementWithGraphElement impleme
       @NonNegative int positionInRow,
       Type type,
       GraphEdge graphEdge,
-      PrintElementColorManager printElementColorManager) {
-    super(rowIndex, positionInRow, graphEdge, printElementColorManager);
+      IPrintElementColorIdProvider printElementColorIdProvider) {
+    super(rowIndex, positionInRow, graphEdge, printElementColorIdProvider);
     this.type = type;
   }
 
