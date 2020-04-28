@@ -106,9 +106,11 @@ public final class GitMacheteGraphTableManager {
   /** Creates a new repository graph and sets it to the graph table model. */
   @UIEffect
   private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
+    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
     // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
     // No UI should be shown when IDEA is running in this mode.
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
+      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
     }
 
@@ -125,6 +127,7 @@ public final class GitMacheteGraphTableManager {
         gitMacheteGraphTable.setTextForEmptyGraph(
             "Your machete file is empty.",
             "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
+        LOG.info(() -> "Machete file (${macheteFilePath}) is empty");
       }
     }
     gitMacheteGraphTable.getModel().setRepositoryGraph(repositoryGraph);
@@ -133,6 +136,7 @@ public final class GitMacheteGraphTableManager {
       gitMacheteGraphTable.setTextForEmptyGraph(
           "There is no machete file (${macheteFilePath}) for this repository.",
           "Please use 'git machete discover' CLI command to automatically create machete file.");
+      LOG.info(() -> "Machete file (${macheteFilePath}) is absent");
     }
 
     gitMacheteGraphTable.repaint();
@@ -153,11 +157,14 @@ public final class GitMacheteGraphTableManager {
   }
 
   public void updateAndRefreshInBackground() {
+    LOG.debug("Entering");
     if (project != null && !project.isDisposed()) {
+      LOG.debug("Queuing 'Updating Git Machete repository and refreshing'");
       new Task.Backgroundable(project, "Updating Git Machete repository and refreshing") {
         @Override
         @UIEffect
         public void run(ProgressIndicator indicator) {
+          LOG.debug("Updating Git Machete repository and refreshing");
 
           // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
           // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
@@ -176,6 +183,8 @@ public final class GitMacheteGraphTableManager {
           refreshGraphTable(macheteFilePath, isMacheteFilePresent);
         }
       }.queue();
+    } else {
+      LOG.debug("project == null or was disposed");
     }
   }
 
@@ -185,7 +194,10 @@ public final class GitMacheteGraphTableManager {
    */
   @SuppressWarnings({"IllegalCatch"})
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
+    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
+        "isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
+      LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
       // This try-catch is a workaround caused strange behavior of Try.onFailure() that seems to rethrows exception
       // (or something else happens)
       // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
@@ -206,6 +218,7 @@ public final class GitMacheteGraphTableManager {
             ModalityState.NON_MODAL);
       }
     } else {
+      LOG.debug("Machete file is absent. Setting repository reference to null");
       repositoryRef.set(null);
     }
   }
