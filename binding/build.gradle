@@ -1,2 +1,5 @@
 reflections()
-slf4jLambdaApi()
+
+dependencies {
+  implementation project(':logging')
+}

@@ -5,14 +5,15 @@ import static lombok.Lombok.sneakyThrow;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.reflections.Reflections;
+
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class RuntimeBinding {
   private RuntimeBinding() {}
 
-  public static final LambdaLogger LOG = LambdaLoggerFactory.getLogger("binding");
+  public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("binding");
 
   private static final Reflections reflectionsInstance = new Reflections("com.virtuslab");
 
