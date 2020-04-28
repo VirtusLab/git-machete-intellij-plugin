@@ -180,13 +180,12 @@ public final class GitMacheteGraphTableManager {
    */
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     if (isMacheteFilePresent) {
-      var repository = Try
-          .of(() -> {
-            IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
-            return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
-          })
-          .onFailure(e -> LOG.error("Unable to create Git Machete repository", e)).get();
-      repositoryRef.set(repository);
+      Try.of(() -> {
+        IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
+        return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
+      })
+          .onFailure(e -> LOG.error("Unable to create Git Machete repository", e))
+          .onSuccess(repository -> repositoryRef.set(repository));
     } else {
       repositoryRef.set(null);
     }
