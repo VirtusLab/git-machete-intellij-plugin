@@ -59,6 +59,12 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
+            <action id="GitMachete.PushAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushAction"
+                    icon="AllIcons.Vcs.Push">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
             <action id="GitMachete.SlideOutCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
                     icon="AllIcons.Actions.GC">

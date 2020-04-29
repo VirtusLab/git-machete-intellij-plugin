@@ -7,6 +7,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
@@ -67,7 +68,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     // because the update method sets the selected item to null
     GitRepository selected = getModel().getSelected();
     if (!getModel().getItems().equals(repositories)) {
-      getModel().update(repositories.asJavaMutable());
+      getModel().update(DvcsUtil.sortRepositories(repositories.asJavaMutable()));
     }
 
     this.setVisible(getModel().getItems().size() > 1);
