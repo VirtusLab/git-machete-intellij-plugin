@@ -43,7 +43,8 @@
                     class="com.virtuslab.gitmachete.frontend.actions.RefreshStatusAction"
                     text="Refresh Status"
                     description="Refresh status"
-                    icon="AllIcons.Actions.Refresh"/>
+                    icon="AllIcons.Actions.Refresh"
+                    use-shortcut-of="Refresh"/>
 
             <action id="GitMachete.ToggleListCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.ToggleListCommitsAction"
