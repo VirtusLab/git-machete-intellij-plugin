@@ -16,11 +16,11 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class BranchLayout implements IBranchLayout {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
-  private final List<BaseBranchLayoutEntry> rootBranches;
+  private final List<BaseBranchLayoutEntry> rootEntries;
 
   @Override
   public Option<BaseBranchLayoutEntry> findEntryByName(String branchName) {
-    return findEntryRecursively(getRootBranches(), e -> e.getName().equals(branchName));
+    return findEntryRecursively(getRootEntries(), e -> e.getName().equals(branchName));
   }
 
   @Override
@@ -29,7 +29,7 @@ public class BranchLayout implements IBranchLayout {
     if (entryOption.isEmpty()) {
       throw new BranchLayoutException("Branch entry '${branchName}' does not exist");
     }
-    if (rootBranches.contains(entryOption.get())) {
+    if (rootEntries.contains(entryOption.get())) {
       throw new BranchLayoutException("Cannot slide out root branch entry");
     }
     return slideOut(entryOption.get());
@@ -71,9 +71,9 @@ public class BranchLayout implements IBranchLayout {
   private IBranchLayout replace(BaseBranchLayoutEntry oldEntry, BaseBranchLayoutEntry newEntry) {
     LOG.debug(() -> "Entering: oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
         "newEntry = ${newEntry} (${newEntry.getName()})");
-    if (rootBranches.contains(oldEntry)) {
+    if (rootEntries.contains(oldEntry)) {
       LOG.debug("Old entry is one of the root entries. Replacing.");
-      return new BranchLayout(rootBranches.replace(oldEntry, newEntry));
+      return new BranchLayout(rootEntries.replace(oldEntry, newEntry));
     } else {
       LOG.debug("Old entry is one of subentries. Finding upstream.");
 
@@ -102,7 +102,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   private Option<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
-    return findEntryRecursively(rootBranches, e -> e.getSubentries().contains(entry));
+    return findEntryRecursively(rootEntries, e -> e.getSubentries().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */

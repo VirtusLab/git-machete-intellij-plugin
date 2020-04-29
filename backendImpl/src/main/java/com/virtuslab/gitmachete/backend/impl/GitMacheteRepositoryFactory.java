@@ -59,7 +59,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
             e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
                 "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
 
-    var rootBranchTries = branchLayout.getRootBranches()
+    var rootBranchTries = branchLayout.getRootEntries()
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
     var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 

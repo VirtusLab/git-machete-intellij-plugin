@@ -4,7 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 public interface IBranchLayout {
-  List<BaseBranchLayoutEntry> getRootBranches();
+  List<BaseBranchLayoutEntry> getRootEntries();
 
   Option<BaseBranchLayoutEntry> findEntryByName(String branchName);
 

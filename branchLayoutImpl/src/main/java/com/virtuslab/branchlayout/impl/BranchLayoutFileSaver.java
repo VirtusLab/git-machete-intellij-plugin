@@ -28,7 +28,7 @@ public class BranchLayoutFileSaver implements IBranchLayoutSaver {
   public void save(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     LOG.debug(
         () -> "Entering: branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
-    var lines = printBranchesOntoStringList(branchLayout.getRootBranches(), 0);
+    var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), 0);
 
     if (backupOldFile) {
       Path parentDir = path.getParent();

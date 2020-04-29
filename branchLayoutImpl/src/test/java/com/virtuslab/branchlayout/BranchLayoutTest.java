@@ -65,9 +65,9 @@ public class BranchLayoutTest {
     IBranchLayout result = branchLayoutFile.slideOut(branchToSlideOutName);
 
     // then
-    assertEquals(result.getRootBranches().size(), 1);
-    assertEquals(result.getRootBranches().get(0).getName(), rootName);
-    var subbranches = result.getRootBranches().get(0).getSubentries();
+    assertEquals(result.getRootEntries().size(), 1);
+    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    var subbranches = result.getRootEntries().get(0).getSubentries();
     assertEquals(subbranches.size(), 2);
     assertEquals(subbranches.get(0).getName(), childName0);
     assertEquals(subbranches.get(1).getName(), childName1);
