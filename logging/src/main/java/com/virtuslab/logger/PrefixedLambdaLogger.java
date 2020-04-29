@@ -1,5 +1,7 @@
 package com.virtuslab.logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.function.Supplier;
 
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -33,6 +35,12 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     @SuppressWarnings("upperbound")
     StackTraceElement element = Thread.currentThread().getStackTrace()[6];
     return className + "#" + element.getMethodName() + ": ";
+  }
+
+  private String throwableToString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw));
+    return sw.toString();
   }
 
   @Override
@@ -72,6 +80,6 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
 
   @Override
   public void error(String format, Throwable t) {
-    logger.error(() -> getLogMessagePrefix() + format, t);
+    logger.error(() -> getLogMessagePrefix() + format + System.lineSeparator() + throwableToString(t));
   }
 }
