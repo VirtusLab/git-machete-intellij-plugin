@@ -198,38 +198,47 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  @SuppressWarnings({"IllegalCatch"})
+  @SuppressWarnings({"IllegalCatch", "subtyping"})
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
-      // This try-catch is a workaround caused by strange behavior of Try.onFailure() that seems to rethrow exception
-      // (or something else happens)
-      // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
-      try {
-        Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-        if (gitRepository.isDefined()) {
+
+      Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+
+      if (gitRepository.isDefined()) {
+        Try.of(() -> {
           Path macheteFilePath = getMacheteFilePath(gitRepository.get());
           IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
           graphTable.setBranchLayout(branchLayout);
           graphTable.setMacheteFilePath(macheteFilePath);
-          gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
-        } else {
-          LOG.warn("Skipping the repository update because no VCS repository is selected");
-        }
-      } catch (Exception e) {
-        LOG.error("Unable to create Git Machete repository", e);
-        String exceptionMessage = e.getMessage();
-        VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
-            exceptionMessage != null ? exceptionMessage : "");
-        GuiUtils.invokeLaterIfNeeded(
-            () -> Messages.showErrorDialog(
-                exceptionMessage != null
-                    ? exceptionMessage
-                    : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
-                "Something Went Wrong..."),
-            ModalityState.NON_MODAL);
+          return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
+        })
+            .onSuccess(repository -> gitMacheteRepositoryRef.set(repository))
+            .onFailure(cause -> {
+              LOG.error("Unable to create Git Machete repository", cause);
+
+              // Getting most inner exception to printout only proper message later
+              while (cause.getCause() != null) {
+                cause = cause.getCause();
+              }
+              String exceptionMessage = cause.getMessage();
+
+              VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
+                  exceptionMessage != null ? exceptionMessage : "");
+
+              GuiUtils.invokeLaterIfNeeded(
+                  () -> Messages.showErrorDialog(
+                      exceptionMessage != null
+                          ? exceptionMessage
+                          : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
+                      "Something Went Wrong..."),
+                  ModalityState.NON_MODAL);
+            });
+      } else {
+        LOG.warn("Selected repository is null. Setting repository reference to null");
+        gitMacheteRepositoryRef.set(null);
       }
     } else {
       LOG.debug("Machete file is absent. Setting repository reference to null");
