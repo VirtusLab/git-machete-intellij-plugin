@@ -114,13 +114,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   @Override
   @Nullable
   public Object getData(String dataId) {
-    var gitMacheteRepository = gitMacheteRepositoryRef.get();
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_FILE_PATH, macheteFilePath),
-        typeSafeCase(DataKeys.KEY_IS_GIT_MACHETE_REPOSITORY_READY, gitMacheteRepository != null),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         Case($(), (Object) null));
   }

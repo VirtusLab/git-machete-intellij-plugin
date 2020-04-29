@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentGraphTableManager;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
@@ -22,14 +22,14 @@ public class ToggleListCommitsAction extends ToggleAction implements DumbAware {
 
   @Override
   public boolean isSelected(AnActionEvent e) {
-    return getPresentGraphTableManager(e).isListingCommits();
+    return getGraphTableManager(e).isListingCommits();
   }
 
   @Override
   @UIEffect
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
-    var graphTableManager = getPresentGraphTableManager(e);
+    var graphTableManager = getGraphTableManager(e);
     graphTableManager.setListingCommits(state);
     graphTableManager.refreshGraphTable();
   }

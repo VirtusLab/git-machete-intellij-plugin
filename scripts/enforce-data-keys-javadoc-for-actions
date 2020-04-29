@@ -10,5 +10,5 @@ if git grep --files-without-match '^ \* Expects DataKeys:$' -- '*Action.java'; t
 fi
 
 if git grep --files-with-match 'getProject' -- '*Action.java' | xargs git grep --files-without-match '^ \*  <li>{@link CommonDataKeys#PROJECT}</li>$' -- ; then
-  die 'Provide a Javadoc documenting the `DataKey` (`CommonDataKeys#PROJECT`) required by the method `com.intellij.openapi.actionSystem.AnActionEvent#getProject` invoked in the above files.'
+  die 'Provide a Javadoc documenting the `DataKey` (`CommonDataKeys#PROJECT`) required by the method `com.intellij.openapi.actionSystem.AnActionEvent#getProject` invoked (possibly indirectly via `ActionUtils#getProject`) in the above files.'
 fi

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import com.intellij.openapi.actionSystem.DataKey;
 import git4idea.repo.GitRepository;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -18,14 +19,13 @@ public final class DataKeys {
 
   public static final DataKey<IBranchLayout> KEY_BRANCH_LAYOUT = DataKey.create("BRANCH_LAYOUT");
   public static final DataKey<Path> KEY_GIT_MACHETE_FILE_PATH = DataKey.create("GIT_MACHETE_FILE_PATH");
-  public static final DataKey<IGraphTableManager> KEY_GRAPH_TABLE_MANAGER = DataKey.create("GRAPH_TABLE_MANAGER");
   public static final DataKey<IGitMacheteRepository> KEY_GIT_MACHETE_REPOSITORY = DataKey.create("GIT_MACHETE_REPOSITORY");
-  public static final DataKey<Boolean> KEY_IS_GIT_MACHETE_REPOSITORY_READY = DataKey.create("IS_GIT_MACHETE_REPOSITORY_READY");
+  /** This key must always be available in the container hierarchy, and a DataProvider must always return a non-null value. */
+  public static final DataKey<@NonNull IGraphTableManager> KEY_GRAPH_TABLE_MANAGER = DataKey.create("GRAPH_TABLE_MANAGER");
   public static final DataKey<String> KEY_SELECTED_BRANCH_NAME = DataKey.create("SELECTED_BRANCH_NAME");
   public static final DataKey<GitRepository> KEY_SELECTED_VCS_REPOSITORY = DataKey.create("SELECTED_VCS_REPOSITORY");
 
   public static <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
     return Case($(key.getName()), value);
   }
-
 }

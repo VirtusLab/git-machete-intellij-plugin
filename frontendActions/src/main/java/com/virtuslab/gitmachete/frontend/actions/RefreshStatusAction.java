@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentGraphTableManager;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -22,6 +22,6 @@ public class RefreshStatusAction extends AnAction implements DumbAware {
   @Override
   public void actionPerformed(AnActionEvent e) {
     LOG.debug("Performing");
-    getPresentGraphTableManager(e).updateAndRefreshGraphTableInBackground();
+    getGraphTableManager(e).updateAndRefreshGraphTableInBackground();
   }
 }

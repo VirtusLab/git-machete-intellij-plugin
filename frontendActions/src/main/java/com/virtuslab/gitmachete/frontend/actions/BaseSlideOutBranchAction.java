@@ -2,8 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
 
-import javax.swing.Icon;
-
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,7 +27,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_FILE_PATH}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
@@ -38,12 +35,6 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
 
   private final IBranchLayoutSaverFactory branchLayoutSaverFactory = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutSaverFactory.class);
-
-  public BaseSlideOutBranchAction(String text, String actionDescription, Icon icon) {
-    super(text, actionDescription, icon);
-  }
-
-  public BaseSlideOutBranchAction() {}
 
   /**
    * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
@@ -59,22 +50,20 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
 
   @UIEffect
   public void doSlideOut(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToSlideOut) {
-    LOG.debug(() -> "Entering: anActionEvent = ${anActionEvent}, " +
-        "branchToSlideOut = ${branchToSlideOut} (${branchToSlideOut.getName()})");
-    Project project = anActionEvent.getProject();
-    assert project != null : "Can't get project from anActionEvent variable";
-
-    var branchLayout = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT);
-    assert branchLayout != null : "Can't get branch layout";
-
-    var branchName = branchToSlideOut.getName();
+    LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
+    String branchName = branchToSlideOut.getName();
+    Project project = ActionUtils.getProject(anActionEvent);
+    var branchLayout = ActionUtils.getBranchLayout(anActionEvent);
+    var gitMacheteFilePath = ActionUtils.getGitMacheteFilePath(anActionEvent);
+    if (branchLayout.isEmpty() || gitMacheteFilePath.isEmpty()) {
+      return;
+    }
 
     try {
       LOG.info(() -> "Sliding out '${branchName}' branch in memory");
-      var newBranchLayout = branchLayout.slideOut(branchName);
-      var macheteFilePath = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH);
-      var branchLayoutFileSaver = branchLayoutSaverFactory.create(macheteFilePath);
+      var newBranchLayout = branchLayout.get().slideOut(branchName);
 
+      var branchLayoutFileSaver = branchLayoutSaverFactory.create(gitMacheteFilePath.get());
       LOG.info("Saving new branch layout into file");
       branchLayoutFileSaver.save(newBranchLayout, /* backupOldLayout */ true);
 

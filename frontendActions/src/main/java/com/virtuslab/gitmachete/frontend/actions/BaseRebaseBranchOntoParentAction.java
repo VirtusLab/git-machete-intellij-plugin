@@ -1,14 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentIdeaRepository;
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
 import java.util.List;
-
-import javax.swing.Icon;
 
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -25,6 +23,7 @@ import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -39,7 +38,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -47,24 +45,21 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction {
   public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
-  public BaseRebaseBranchOntoParentAction(String text, String actionDescription, Icon icon) {
-    super(text, actionDescription, icon);
-  }
-
-  public BaseRebaseBranchOntoParentAction() {}
-
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    Repository.State state = getPresentIdeaRepository(anActionEvent).getState();
-    if (state != Repository.State.NORMAL) {
+    Option<Repository.State> state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
+
+    if (state.isEmpty()) {
+      presentation.setEnabled(false);
+    } else if (state.get() != Repository.State.NORMAL) {
       // `REVERTING`` state is available since 193.2495
       var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();
 
-      var stateName = Match(state).of(
+      var stateName = Match(state.get()).of(
           // In versions earlier than 193.2495 if repository is in reverting state,
           // com.intellij.dvcs.repo.Repository.getState returns `GRAFTING` state like when cherry-pick is in progress so
           // we return custom message in this case
@@ -94,14 +89,13 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
   public abstract void actionPerformed(AnActionEvent anActionEvent);
 
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
-    Project project = anActionEvent.getProject();
-    assert project != null : "Can't get project from anActionEvent variable";
+    Project project = ActionUtils.getProject(anActionEvent);
+    Option<IGitMacheteRepository> gitMacheteRepository = getGitMacheteRepository(anActionEvent);
+    Option<GitRepository> gitRepository = getSelectedVcsRepository(anActionEvent);
 
-    IGitMacheteRepository macheteRepository = getPresentMacheteRepository(anActionEvent);
-
-    GitRepository gitRepository = getPresentIdeaRepository(anActionEvent);
-
-    doRebase(project, macheteRepository, gitRepository, branchToRebase);
+    if (gitMacheteRepository.isDefined() && gitRepository.isDefined()) {
+      doRebase(project, gitMacheteRepository.get(), gitRepository.get(), branchToRebase);
+    }
   }
 
   private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository gitRepository,

@@ -95,10 +95,12 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   @UIEffect
   public void refreshGraphTable() {
     GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
-    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+    if (gitRepository != null) {
+      Path macheteFilePath = getMacheteFilePath(gitRepository);
+      boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+      refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+    }
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
@@ -175,13 +177,15 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
           gitRepositorySelectionProvider.updateRepositories(repositories);
 
           GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-          Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
-          Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
-          Path macheteFilePath = getMacheteFilePath(gitRepository);
-          boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+          if (gitRepository != null) {
+            Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
+            Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
+            Path macheteFilePath = getMacheteFilePath(gitRepository);
+            boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-          updateRepository(mainDirectoryPath, gitDirectoryPath, isMacheteFilePresent);
-          refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+            updateRepository(mainDirectoryPath, gitDirectoryPath, isMacheteFilePresent);
+            refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+          }
         }
       }.queue();
     } else {
@@ -203,8 +207,14 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       // (or something else happens)
       // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
       try {
-        IBranchLayout branchLayout = updateBranchLayoutAndMacheteFilePath();
-        gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
+        GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+        if (gitRepository != null) {
+          Path macheteFilePath = getMacheteFilePath(gitRepository);
+          IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
+          graphTable.setBranchLayout(branchLayout);
+          graphTable.setMacheteFilePath(macheteFilePath);
+          gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
+        }
       } catch (Exception e) {
         LOG.error("Unable to create Git Machete repository", e);
         String exceptionMessage = e.getMessage();
@@ -222,15 +232,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       LOG.debug("Machete file is absent. Setting repository reference to null");
       gitMacheteRepositoryRef.set(null);
     }
-  }
-
-  private IBranchLayout updateBranchLayoutAndMacheteFilePath() throws MacheteFileParseException {
-    GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
-    IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
-    graphTable.setBranchLayout(branchLayout);
-    graphTable.setMacheteFilePath(macheteFilePath);
-    return branchLayout;
   }
 
   private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {

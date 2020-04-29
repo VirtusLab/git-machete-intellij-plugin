@@ -1,57 +1,60 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
+import java.nio.file.Path;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
+import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 
-public final class ActionUtils {
+final class ActionUtils {
 
   private ActionUtils() {}
 
-  static GitRepository getPresentIdeaRepository(AnActionEvent anActionEvent) {
-    GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
-    assert repository != null : "Can't get selected GitRepository";
-    return repository;
+  static Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT));
   }
 
-  static IGraphTableManager getPresentGraphTableManager(AnActionEvent anActionEvent) {
-    IGraphTableManager graphTableManager = anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE_MANAGER);
-    assert graphTableManager != null : "Can't get graph table manager";
-    return graphTableManager;
+  static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
+    return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged().flatMap(
+        currentBranch -> currentBranch.isNonRootBranch() ? Option.some(currentBranch.asNonRootBranch()) : Option.none()));
   }
 
-  /**
-   * This method relies on key `KEY_GIT_MACHETE_REPOSITORY` corresponding to a non-null value
-   * and hence must always be called after checking the git machete repository readiness.
-   * See {@link BaseRebaseBranchOntoParentAction#update} and {@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}.
-   */
-  static IGitMacheteRepository getPresentMacheteRepository(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY);
-    assert gitMacheteRepository != null : "Can't get gitMacheteRepository";
+  static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
+  }
 
-    return gitMacheteRepository;
+  static Option<Path> getGitMacheteFilePath(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_FILE_PATH));
+  }
+
+  static IGraphTableManager getGraphTableManager(AnActionEvent anActionEvent) {
+    return anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE_MANAGER);
+  }
+
+  static Project getProject(AnActionEvent anActionEvent) {
+    var project = anActionEvent.getProject();
+    assert project != null : "Can't get project from action event";
+    return project;
+  }
+
+  static Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
   }
 
   static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
-    IGitMacheteRepository gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
-    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
-    assert selectedBranchName != null : "Can't get selected branch";
-    return gitMacheteRepository.getBranchByName(selectedBranchName);
+    return getGitMacheteRepository(anActionEvent).flatMap(
+        repository -> getSelectedBranchName(anActionEvent).flatMap(branchName -> repository.getBranchByName(branchName)));
   }
 
-  static BaseGitMacheteNonRootBranch getCurrentBaseMacheteNonRootBranch(AnActionEvent anActionEvent) {
-    var gitMacheteRepository = getPresentMacheteRepository(anActionEvent);
-    var currentBranchOption = gitMacheteRepository.getCurrentBranchIfManaged();
-    assert currentBranchOption.isDefined() : "Can't get current branch";
-    var baseGitMacheteBranch = currentBranchOption.get();
-    assert baseGitMacheteBranch.isNonRootBranch() : "Selected branch is a root branch";
-
-    return baseGitMacheteBranch.asNonRootBranch();
+  static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY));
   }
 }

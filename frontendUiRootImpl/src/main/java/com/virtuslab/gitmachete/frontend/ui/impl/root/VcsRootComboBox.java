@@ -13,6 +13,7 @@ import com.intellij.util.SmartList;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
@@ -41,7 +42,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   public void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
-    // because the update method sets selected item to null
+    // because the update method sets the selected item to null
     GitRepository selected = getModel().getSelected();
     if (!getModel().getItems().equals(repositories)) {
       getModel().update(repositories.asJavaMutable());
@@ -58,6 +59,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
+  @Nullable
   public GitRepository getSelectedRepository() {
     return getModel().getSelected();
   }

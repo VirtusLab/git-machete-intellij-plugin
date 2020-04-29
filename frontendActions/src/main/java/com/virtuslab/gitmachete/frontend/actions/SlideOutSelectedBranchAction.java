@@ -8,7 +8,6 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -19,7 +18,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_FILE_PATH}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_IS_GIT_MACHETE_REPOSITORY_READY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -50,19 +48,14 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
     }
   }
 
-  /**
-   * Assumption to the following code is that the result of {@link IGitMacheteRepository#getCurrentBranchIfManaged}
-   * is present and it is not a root branch because if it was not the user wouldn't be able to perform action in the first place
-   */
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug(() -> "Performing");
-    var selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
-    assert selectedMacheteBranchOption.isDefined() : "Can't get selected branch";
-    var baseGitMacheteBranch = selectedMacheteBranchOption.get();
-    assert baseGitMacheteBranch.isNonRootBranch() : "Selected branch is a root branch";
+    LOG.debug("Performing");
 
-    doSlideOut(anActionEvent, baseGitMacheteBranch.asNonRootBranch());
+    var selectedMacheteBranch = getSelectedMacheteBranch(anActionEvent);
+    if (selectedMacheteBranch.isDefined() && !selectedMacheteBranch.get().isRootBranch()) {
+      doSlideOut(anActionEvent, selectedMacheteBranch.get().asNonRootBranch());
+    }
   }
 }

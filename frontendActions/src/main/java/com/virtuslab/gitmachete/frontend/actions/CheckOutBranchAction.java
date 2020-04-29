@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getPresentIdeaRepository;
+import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedVcsRepository;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -34,8 +35,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class CheckOutBranchAction extends AnAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
-  public CheckOutBranchAction() {}
-
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
@@ -44,8 +43,8 @@ public class CheckOutBranchAction extends AnAction {
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    String selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
-    if (selectedBranchName == null) {
+    var selectedBranchName = ActionUtils.getSelectedBranchName(anActionEvent);
+    if (selectedBranchName.isEmpty()) {
       LOG.error("Branch to check out was not given");
       GuiUtils.invokeLaterIfNeeded(
           () -> Messages.showErrorDialog("Internal error occurred during check out: Branch to check out was not given",
@@ -54,20 +53,21 @@ public class CheckOutBranchAction extends AnAction {
       return;
     }
 
-    Project project = anActionEvent.getProject();
-    assert project != null : "Can't get project from anActionEvent variable";
-    GitRepository repository = getPresentIdeaRepository(anActionEvent);
+    Project project = ActionUtils.getProject(anActionEvent);
+    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
 
-    LOG.debug(() -> "Queuing '${selectedBranchName}' branch checkout background task");
-    new Task.Backgroundable(project, "Checking out") {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        LOG.info(() -> "Checking out branch '${selectedBranchName}'");
-        new GitBranchWorker(project, Git.getInstance(),
-            new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator))
-                .checkout(selectedBranchName, /* detach */ false, List.of(repository));
-      }
-      // TODO (#95): on success, refresh only indication of the current branch
-    }.queue();
+    if (selectedVcsRepository.isDefined()) {
+      LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
+      new Task.Backgroundable(project, "Checking out") {
+        @Override
+        public void run(ProgressIndicator indicator) {
+          LOG.info(() -> "Checking out branch '${selectedBranchName.get()}'");
+          GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
+          new GitBranchWorker(project, Git.getInstance(), uiHandler)
+              .checkout(selectedBranchName.get(), /* detach */ false, List.of(selectedVcsRepository.get()));
+        }
+        // TODO (#95): on success, refresh only indication of the current branch
+      }.queue();
+    }
   }
 }
