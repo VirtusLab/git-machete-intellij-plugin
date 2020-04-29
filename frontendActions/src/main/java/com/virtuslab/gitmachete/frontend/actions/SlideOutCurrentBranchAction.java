@@ -59,7 +59,7 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug(() -> "Performing ${getClass().getSimpleName()}");
+    LOG.debug(() -> "Performing");
     BaseGitMacheteNonRootBranch baseGitMacheteBranch = getCurrentBaseMacheteNonRootBranch(anActionEvent);
     doSlideOut(anActionEvent, baseGitMacheteBranch);
   }

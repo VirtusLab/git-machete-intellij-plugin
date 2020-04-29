@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.GROUP_TO_INVOKE_AS_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -21,6 +20,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.ui.ScrollingUtil;
@@ -34,6 +34,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -160,17 +161,16 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
       selectedBranchName = graphItem.getValue();
 
+      ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
-        ActionGroup contextMenuGroup = (ActionGroup) ActionManager.getInstance()
-            .getAction(GROUP_TO_INVOKE_AS_CONTEXT_MENU);
-        ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.UNKNOWN,
-            contextMenuGroup);
+        ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
+        ActionPopupMenu actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.UNKNOWN, contextMenuActionGroup);
         actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(),
-            DataManager.getInstance().getDataContext(graphTable));
-        ActionManager.getInstance().getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
+        DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
+        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(), dataContext);
+        actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }
   }

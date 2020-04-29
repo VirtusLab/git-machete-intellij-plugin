@@ -46,7 +46,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
       } else {
         var upstreamBranch = currentBranchOption.get().asNonRootBranch().getUpstreamBranch();
-        presentation.setDescription("Rebase '${currentBranchOption.get().getName()}' onto ${upstreamBranch.getName()}");
+        presentation.setDescription("Rebase '${currentBranchOption.get().getName()}' onto '${upstreamBranch.getName()}'");
       }
     }
   }
@@ -57,7 +57,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug(() -> "Performing ${getClass().getSimpleName()}");
+    LOG.debug(() -> "Performing");
     BaseGitMacheteNonRootBranch baseGitMacheteBranch = getCurrentBaseMacheteNonRootBranch(anActionEvent);
     doRebase(anActionEvent, baseGitMacheteBranch);
   }

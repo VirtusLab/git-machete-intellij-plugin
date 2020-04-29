@@ -8,6 +8,7 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 
 public final class ActionUtils {
 
@@ -17,6 +18,12 @@ public final class ActionUtils {
     GitRepository repository = anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY);
     assert repository != null : "Can't get selected GitRepository";
     return repository;
+  }
+
+  static IGraphTableManager getPresentGraphTableManager(AnActionEvent anActionEvent) {
+    IGraphTableManager graphTableManager = anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE_MANAGER);
+    assert graphTableManager != null : "Can't get graph table manager";
+    return graphTableManager;
   }
 
   /**

@@ -54,7 +54,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
    */
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug(() -> "Performing ${getClass().getSimpleName()}");
+    LOG.debug(() -> "Performing");
     var selectedGitMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedGitMacheteBranchOption.isDefined() : "Can't get selected branch";
     var baseGitMacheteBranch = selectedGitMacheteBranchOption.get();

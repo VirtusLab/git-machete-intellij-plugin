@@ -57,7 +57,7 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug(() -> "Performing ${getClass().getSimpleName()}");
+    LOG.debug(() -> "Performing");
     var selectedMacheteBranchOption = getSelectedMacheteBranch(anActionEvent);
     assert selectedMacheteBranchOption.isDefined() : "Can't get selected branch";
     var baseGitMacheteBranch = selectedMacheteBranchOption.get();

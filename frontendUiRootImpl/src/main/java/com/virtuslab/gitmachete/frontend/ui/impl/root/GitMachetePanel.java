@@ -7,16 +7,11 @@ import static io.vavr.API.Match;
 
 import java.awt.BorderLayout;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
@@ -28,7 +23,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.gitmachete.frontend.actionids.ActionIds;
+import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManagerFactory;
@@ -39,10 +34,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
 
   public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
-  private static final String REFRESH_STATUS_TEXT = "Refresh Status";
-  private static final String REFRESH_STATUS_DESCRIPTION = "Refresh status";
-  private static final String TOGGLE_LIST_COMMIT_TEXT = "Toggle List Commits";
-  private static final String TOGGLE_LIST_COMMIT_DESCRIPTION = "Toggle list commits";
 
   private final Project project;
   private final VcsRootComboBox vcsRootComboBox;
@@ -51,7 +42,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   @UIEffect
   public GitMachetePanel(Project project) {
     super(/* vertical */ false, /* borderless */ true);
-    LOG.debug("Instantiation");
+    LOG.debug("Instantiating");
 
     this.project = project;
     // GitUtil.getRepositories(project) should never return empty list because it means there's no git repository in an opened
@@ -85,56 +76,9 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   @UIEffect
   private ActionToolbar createGitMacheteVerticalToolbar() {
     var actionManager = ActionManager.getInstance();
-
-    // This check is needed as action register is shared between multiple running IDE instances
-    // and we would not like to re-register the action.
-    var refreshGitMacheteStatusAction = actionManager.getAction(ActionIds.ACTION_REFRESH);
-    if (refreshGitMacheteStatusAction == null) {
-      refreshGitMacheteStatusAction = new RefreshGitMacheteStatusAction();
-      actionManager.registerAction(ActionIds.ACTION_REFRESH, refreshGitMacheteStatusAction);
-    }
-
-    DefaultActionGroup gitMacheteActions = new DefaultActionGroup(
-        refreshGitMacheteStatusAction,
-        new ToggleListCommitsAction(),
-        actionManager.getAction(ActionIds.ACTION_REBASE_CURRENT_ONTO_PARENT),
-        actionManager.getAction(ActionIds.ACTION_SLIDE_OUT_CURRENT));
-
-    ActionToolbar toolbar = actionManager.createActionToolbar(GIT_MACHETE_TOOLBAR, gitMacheteActions, /* horizontal */ false);
+    var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
+    var toolbar = actionManager.createActionToolbar(GIT_MACHETE_TOOLBAR, toolbarActionGroup, /* horizontal */ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGraphTable());
     return toolbar;
-  }
-
-  private class RefreshGitMacheteStatusAction extends AnAction implements DumbAware {
-    @UIEffect
-    RefreshGitMacheteStatusAction() {
-      super(REFRESH_STATUS_TEXT, REFRESH_STATUS_DESCRIPTION, AllIcons.Actions.Refresh);
-    }
-
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-      LOG.debug("Refresh action invoked");
-      gitMacheteGraphTableManager.updateAndRefreshGraphTableInBackground();
-    }
-  }
-
-  private class ToggleListCommitsAction extends ToggleAction implements DumbAware {
-    @UIEffect
-    ToggleListCommitsAction() {
-      super(TOGGLE_LIST_COMMIT_TEXT, TOGGLE_LIST_COMMIT_DESCRIPTION, AllIcons.Actions.ShowHiddens);
-    }
-
-    @Override
-    public boolean isSelected(AnActionEvent e) {
-      return gitMacheteGraphTableManager.isListingCommits();
-    }
-
-    @Override
-    @UIEffect
-    public void setSelected(AnActionEvent e, boolean state) {
-      LOG.debug(() -> "Commits visibility changing action triggered with state = ${state}");
-      gitMacheteGraphTableManager.setListingCommits(state);
-      gitMacheteGraphTableManager.refreshGraphTable();
-    }
   }
 }

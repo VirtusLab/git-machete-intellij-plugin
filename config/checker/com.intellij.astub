@@ -98,6 +98,10 @@ class DataKey<T> {
   @SafeEffect String getName();
 }
 
+class ToggleAction {
+  @SafeEffect ToggleAction();
+}
+
 @UIPackage package com.intellij.openapi.actionSystem.ex;
 @UIPackage package com.intellij.openapi.diff;
 @UIPackage package com.intellij.openapi.editor;

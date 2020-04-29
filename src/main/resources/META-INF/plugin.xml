@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.virtuslab.git-machete</id>
     <name>Git Machete</name>
-    <vendor email="mkondratek@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
+    <vendor email="gitmachete@virtuslab.com" url="http://virtuslab.com">VirtusLab</vendor>
 
     <description><![CDATA[
         Probably the sharpest git repository organizer & rebase workflow automation tool you've ever seen ;)
@@ -20,40 +20,48 @@
     </extensions>
 
     <actions>
-        <!-- These actions are used in right-click context menu on branches. -->
-        <action id="GitMachete.CheckOutBranchAction"
-                class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction"
-                text="_Check Out Branch"
-                description="Check out this branch"/>
-
-        <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
-                class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction"
-                text="_Rebase Branch Onto Parent"
-                description="Rebase selected branch onto parent"/>
-
-        <action id="GitMachete.SlideOutSelectedBranchAction"
-                class="com.virtuslab.gitmachete.frontend.actions.SlideOutSelectedBranchAction"
-                text="_Slide Out Branch"
-                description="Slide out branch"/>
-
         <group id="GitMachete.ContextMenu">
-            <reference id="GitMachete.CheckOutBranchAction"/>
-            <reference id="GitMachete.RebaseSelectedBranchOntoParentAction"/>
-            <reference id="GitMachete.SlideOutSelectedBranchAction"/>
+            <!-- These actions are used in right-click context menu on branches. -->
+            <action id="GitMachete.CheckOutBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction"
+                    text="_Check Out Branch"
+                    description="Check out this branch"/>
+
+            <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction"
+                    text="_Rebase Branch Onto Parent"
+                    description="Rebase selected branch onto parent"/>
+
+            <action id="GitMachete.SlideOutSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.SlideOutSelectedBranchAction"
+                    text="_Slide Out Branch"
+                    description="Slide out branch"/>
         </group>
 
-        <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
-                class="com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction"
-                text="Rebase Current Branch Onto Parent"
-                description="Rebase current branch onto parent"
-                icon="AllIcons.Actions.Menu_cut"/>
+        <group id="GitMachete.Toolbar">
+            <action id="GitMachete.RefreshStatusAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.RefreshStatusAction"
+                    text="Refresh Status"
+                    description="Refresh status"
+                    icon="AllIcons.Actions.Refresh"/>
 
-        <action id="GitMachete.SlideOutCurrentBranchAction"
-                class="com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction"
-                text="Slide Out Current Branch"
-                description="Slide out current branch"
-                icon="AllIcons.Actions.GC"/>
+            <action id="GitMachete.ToggleListCommitsAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.ToggleListCommitsAction"
+                    text="Toggle List Commits"
+                    description="Toggle list commits"
+                    icon="AllIcons.Actions.ShowHiddens"/>
 
-        <!-- Note that certain other actions aren't listed here since they're instead instantiated directly from Java code. -->
+            <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction"
+                    text="Rebase Current Branch Onto Parent"
+                    description="Rebase current branch onto parent"
+                    icon="AllIcons.Actions.Menu_cut"/>
+
+            <action id="GitMachete.SlideOutCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction"
+                    text="Slide Out Current Branch"
+                    description="Slide out current branch"
+                    icon="AllIcons.Actions.GC"/>
+        </group>
     </actions>
 </idea-plugin>
