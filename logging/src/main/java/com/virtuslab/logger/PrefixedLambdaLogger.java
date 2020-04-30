@@ -23,7 +23,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     className = classPath[classPath.length - 1];
   }
 
-  private String getLogMessagePrefix() {
+  private String getStackTraceAsString() {
     // We are sure that at the moment when this method is called we have at least 7 elements in stacktrace array:
     // #0: java.lang.Thread#getStackTrace
     // #1: com.virtuslab.logger.MacheteLogger#getMethodReferenceName
@@ -45,41 +45,46 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
 
   @Override
   public void trace(String format) {
-    logger.trace(() -> getLogMessagePrefix() + format);
+    logger.trace(() -> getStackTraceAsString() + format);
   }
 
   @Override
   public void trace(Supplier<String> msgSupplier) {
-    logger.trace(() -> getLogMessagePrefix() + msgSupplier.get());
+    logger.trace(() -> getStackTraceAsString() + msgSupplier.get());
   }
 
   @Override
   public void debug(String format) {
-    logger.debug(() -> getLogMessagePrefix() + format);
+    logger.debug(() -> getStackTraceAsString() + format);
   }
 
   @Override
   public void debug(Supplier<String> msgSupplier) {
-    logger.debug(() -> getLogMessagePrefix() + msgSupplier.get());
+    logger.debug(() -> getStackTraceAsString() + msgSupplier.get());
   }
 
   @Override
   public void info(String format) {
-    logger.info(() -> getLogMessagePrefix() + format);
+    logger.info(() -> getStackTraceAsString() + format);
+  }
+
+  @Override
+  public void info(Supplier<String> msgSupplier) {
+    logger.info(() -> getStackTraceAsString() + msgSupplier.get());
   }
 
   @Override
   public void warn(String format) {
-    logger.warn(() -> getLogMessagePrefix() + format);
+    logger.warn(() -> getStackTraceAsString() + format);
   }
 
   @Override
   public void error(String format) {
-    logger.error(() -> getLogMessagePrefix() + format);
+    logger.error(() -> getStackTraceAsString() + format);
   }
 
   @Override
   public void error(String format, Throwable t) {
-    logger.error(() -> getLogMessagePrefix() + format + System.lineSeparator() + throwableToString(t));
+    logger.error(() -> getStackTraceAsString() + format + System.lineSeparator() + throwableToString(t));
   }
 }

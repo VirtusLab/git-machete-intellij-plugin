@@ -8,6 +8,7 @@ public interface IPrefixedLambdaLogger {
   void debug(String format);
   void debug(Supplier<String> msgSupplier);
   void info(String format);
+  void info(Supplier<String> msgSupplier);
   void warn(String format);
   void error(String format);
   void error(String format, Throwable t);

@@ -215,27 +215,8 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
           graphTable.setMacheteFilePath(macheteFilePath);
           return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
         })
-            .onSuccess(repository -> gitMacheteRepositoryRef.set(repository))
-            .onFailure(cause -> {
-              LOG.error("Unable to create Git Machete repository", cause);
-
-              // Getting most inner exception to printout only proper message later
-              while (cause.getCause() != null) {
-                cause = cause.getCause();
-              }
-              String exceptionMessage = cause.getMessage();
-
-              VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
-                  exceptionMessage != null ? exceptionMessage : "");
-
-              GuiUtils.invokeLaterIfNeeded(
-                  () -> Messages.showErrorDialog(
-                      exceptionMessage != null
-                          ? exceptionMessage
-                          : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
-                      "Something Went Wrong..."),
-                  ModalityState.NON_MODAL);
-            });
+            .onSuccess(gitMacheteRepositoryRef::set)
+            .onFailure(this::handleUpdateRepositoryExceptions);
       } else {
         LOG.warn("Selected repository is null. Setting repository reference to null");
         gitMacheteRepositoryRef.set(null);
@@ -244,6 +225,27 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       LOG.debug("Machete file is absent. Setting repository reference to null");
       gitMacheteRepositoryRef.set(null);
     }
+  }
+
+  private void handleUpdateRepositoryExceptions(Throwable cause) {
+    LOG.error("Unable to create Git Machete repository", cause);
+
+    // Getting the innermost exception since it's usually the primary cause that gives most valuable message
+    while (cause.getCause() != null) {
+      cause = cause.getCause();
+    }
+    String exceptionMessage = cause.getMessage();
+
+    VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
+        exceptionMessage != null ? exceptionMessage : "");
+
+    GuiUtils.invokeLaterIfNeeded(
+        () -> Messages.showErrorDialog(
+            exceptionMessage != null
+                ? exceptionMessage
+                : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
+            "Something Went Wrong..."),
+        ModalityState.NON_MODAL);
   }
 
   private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {
