@@ -38,7 +38,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
         presentation.setEnabled(false);
 
       } else if (currentBranch.get().isRootBranch()) {
-        presentation.setDescription("Can't rebase git machete root branch '${currentBranch.get().getName()}'");
+        presentation.setDescription("Can't rebase root branch '${currentBranch.get().getName()}'");
         presentation.setEnabled(false);
 
       } else {

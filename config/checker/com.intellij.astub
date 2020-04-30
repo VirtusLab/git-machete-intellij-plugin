@@ -344,8 +344,8 @@ class UIUtil {
 package com.intellij.vcs.log.graph.api.elements;
 
 class GraphEdge {
-    GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, @Nullable Integer targetId, GraphEdgeType type);
-    GraphEdge createNormalEdge(@NonNegative int nodeIndex1, @NonNegative int nodeIndex2, GraphEdgeType type);
+  GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, @Nullable Integer targetId, GraphEdgeType type);
+  GraphEdge createNormalEdge(@NonNegative int nodeIndex1, @NonNegative int nodeIndex2, GraphEdgeType type);
 }
 
 @UIPackage package com.intellij.vcs.log.paint;

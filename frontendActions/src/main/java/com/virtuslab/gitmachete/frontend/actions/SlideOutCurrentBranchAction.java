@@ -40,7 +40,7 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
         presentation.setEnabled(false);
 
       } else if (currentBranch.get().isRootBranch()) {
-        presentation.setDescription("Can't slide out git machete root branch '${currentBranch.get().getName()}'");
+        presentation.setDescription("Can't slide out root branch '${currentBranch.get().getName()}'");
         presentation.setEnabled(false);
 
       } else {

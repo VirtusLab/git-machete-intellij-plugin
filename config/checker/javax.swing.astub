@@ -6,7 +6,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 package javax.swing;
 
 class JComboBox<E> {
-    @SafeEffect ComboBoxModel<E> getModel();
+  @SafeEffect ComboBoxModel<E> getModel();
 }
 
 class JComponent {

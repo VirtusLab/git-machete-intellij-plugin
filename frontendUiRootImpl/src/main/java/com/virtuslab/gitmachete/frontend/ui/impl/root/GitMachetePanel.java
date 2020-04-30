@@ -24,6 +24,7 @@ import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
+import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManagerFactory;
@@ -32,8 +33,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
-
-  public static final String GIT_MACHETE_TOOLBAR = "GitMacheteToolbar";
 
   private final Project project;
   private final VcsRootComboBox vcsRootComboBox;
@@ -77,7 +76,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   private ActionToolbar createGitMacheteVerticalToolbar() {
     var actionManager = ActionManager.getInstance();
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
-    var toolbar = actionManager.createActionToolbar(GIT_MACHETE_TOOLBAR, toolbarActionGroup, /* horizontal */ false);
+    var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup, /* horizontal */ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGraphTable());
     return toolbar;
   }

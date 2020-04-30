@@ -19,7 +19,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link DataKeys#KEY_GRAPH_TABLE_MANAGER}</li>
  * </ul>
  */
-public class ToggleListCommitsAction extends ToggleAction implements DumbAware {
+public class ToggleListingCommitsAction extends ToggleAction implements DumbAware {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -31,7 +31,14 @@ public class ToggleListCommitsAction extends ToggleAction implements DumbAware {
     if (branchLayout.isDefined()) {
       boolean anyChildBranchExists = branchLayout.get().getRootEntries()
           .exists(rootBranch -> rootBranch.getSubentries().nonEmpty());
-      e.getPresentation().setEnabled(anyChildBranchExists);
+      var presentation = e.getPresentation();
+      if (anyChildBranchExists) {
+        presentation.setEnabled(true);
+        presentation.setDescription("Toggle listing commits");
+      } else {
+        presentation.setEnabled(false);
+        presentation.setDescription("Toggle listing commits disabled: no child branches present");
+      }
     }
   }
 
