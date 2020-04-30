@@ -198,7 +198,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  @SuppressWarnings({"IllegalCatch", "subtyping"})
   private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, boolean isMacheteFilePresent) {
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
@@ -228,12 +227,10 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   }
 
   private void handleUpdateRepositoryExceptions(Throwable t) {
-    // Only for silencing checkstyle
-    Throwable cause = t;
-
-    LOG.error("Unable to create Git Machete repository", cause);
+    LOG.error("Unable to create Git Machete repository", t);
 
     // Getting the innermost exception since it's usually the primary cause that gives most valuable message
+    Throwable cause = t;
     while (cause.getCause() != null) {
       cause = cause.getCause();
     }

@@ -3,7 +3,6 @@ package com.virtuslab.qual.internal;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
-import org.checkerframework.framework.qual.DefaultFor;
 import org.checkerframework.framework.qual.SubtypeOf;
 import org.checkerframework.framework.qual.TargetLocations;
 import org.checkerframework.framework.qual.TypeUseLocation;
@@ -28,5 +27,4 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
     ConfirmedBranchItem.class,
     ConfirmedCommitItem.class,
 })
-@DefaultFor(TypeUseLocation.LOWER_BOUND)
 public @interface SubtypingBottom {}

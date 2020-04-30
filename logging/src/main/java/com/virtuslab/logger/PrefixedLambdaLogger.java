@@ -23,7 +23,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     className = classPath[classPath.length - 1];
   }
 
-  private String getStackTraceAsString() {
+  private String getLogMessagePrefix() {
     // We are sure that at the moment when this method is called we have at least 7 elements in stacktrace array:
     // #0: java.lang.Thread#getStackTrace
     // #1: com.virtuslab.logger.MacheteLogger#getMethodReferenceName
@@ -37,7 +37,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     return className + "#" + element.getMethodName() + ": ";
   }
 
-  private String throwableToString(Throwable t) {
+  private String getStackTraceAsString(Throwable t) {
     StringWriter sw = new StringWriter();
     t.printStackTrace(new PrintWriter(sw));
     return sw.toString();
@@ -45,46 +45,46 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
 
   @Override
   public void trace(String format) {
-    logger.trace(() -> getStackTraceAsString() + format);
+    logger.trace(() -> getLogMessagePrefix() + format);
   }
 
   @Override
   public void trace(Supplier<String> msgSupplier) {
-    logger.trace(() -> getStackTraceAsString() + msgSupplier.get());
+    logger.trace(() -> getLogMessagePrefix() + msgSupplier.get());
   }
 
   @Override
   public void debug(String format) {
-    logger.debug(() -> getStackTraceAsString() + format);
+    logger.debug(() -> getLogMessagePrefix() + format);
   }
 
   @Override
   public void debug(Supplier<String> msgSupplier) {
-    logger.debug(() -> getStackTraceAsString() + msgSupplier.get());
+    logger.debug(() -> getLogMessagePrefix() + msgSupplier.get());
   }
 
   @Override
   public void info(String format) {
-    logger.info(() -> getStackTraceAsString() + format);
+    logger.info(() -> getLogMessagePrefix() + format);
   }
 
   @Override
   public void info(Supplier<String> msgSupplier) {
-    logger.info(() -> getStackTraceAsString() + msgSupplier.get());
+    logger.info(() -> getLogMessagePrefix() + msgSupplier.get());
   }
 
   @Override
   public void warn(String format) {
-    logger.warn(() -> getStackTraceAsString() + format);
+    logger.warn(() -> getLogMessagePrefix() + format);
   }
 
   @Override
   public void error(String format) {
-    logger.error(() -> getStackTraceAsString() + format);
+    logger.error(() -> getLogMessagePrefix() + format);
   }
 
   @Override
   public void error(String format, Throwable t) {
-    logger.error(() -> getStackTraceAsString() + format + System.lineSeparator() + throwableToString(t));
+    logger.error(() -> getLogMessagePrefix() + format + System.lineSeparator() + getStackTraceAsString(t));
   }
 }
