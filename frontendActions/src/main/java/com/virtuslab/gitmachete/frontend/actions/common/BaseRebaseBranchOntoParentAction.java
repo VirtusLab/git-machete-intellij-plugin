@@ -41,7 +41,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * </ul>
  */
 public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction {
-  public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
   @UIEffect

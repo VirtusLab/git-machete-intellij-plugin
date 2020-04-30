@@ -39,6 +39,11 @@
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
+            <action id="GitMachete.PullSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedBranchAction">
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
+            </action>
+
             <action id="GitMachete.PushSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
@@ -70,9 +75,21 @@
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
+            <action id="GitMachete.FetchAllRemotesAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction"
+                    icon="AllIcons.Actions.Download">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
+            <action id="GitMachete.PullCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchAction"
+                    icon="AllIcons.Ide.IncomingChangesOn">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
-                    icon="AllIcons.Vcs.Push">
+                    icon="AllIcons.Ide.OutgoingChangesOn">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
