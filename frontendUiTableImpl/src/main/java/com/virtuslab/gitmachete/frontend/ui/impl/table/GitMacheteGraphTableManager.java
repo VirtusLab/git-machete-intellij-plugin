@@ -56,6 +56,8 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   private final IRepositoryGraphFactory repositoryGraphFactory;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
+  private final IBranchLayoutManagerFactory branchLayoutManagerFactory = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
 
   public GitMacheteGraphTableManager(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
     this.project = project;
@@ -243,15 +245,12 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   }
 
   private IBranchLayout createBranchLayout(IBranchLayoutManager branchLayoutManager) throws MacheteFileReaderException {
-    IBranchLayout branchLayout = Try.of(() -> branchLayoutManager.getReader().read())
+    return Try.of(() -> branchLayoutManager.getReader().read())
         .getOrElseThrow(e -> {
           Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
           return new MacheteFileReaderException("Error occurred while parsing machete file" +
               (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
         });
-
-    graphTable.setBranchLayout(branchLayout);
-    return branchLayout;
   }
 
 }

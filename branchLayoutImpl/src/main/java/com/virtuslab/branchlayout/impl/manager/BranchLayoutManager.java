@@ -1,105 +1,62 @@
 package com.virtuslab.branchlayout.impl.manager;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
-import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import lombok.Getter;
 
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutManager;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
-import com.virtuslab.branchlayout.api.manager.IIndentDefining;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public class BranchLayoutManager implements IBranchLayoutManager {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
+  @Getter
   private final IBranchLayoutReader reader;
+  @Getter
   private final IBranchLayoutWriter writer;
 
-  public BranchLayoutManager(Path path, boolean isBranchLayoutPresent) {
-    char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
-    int indentWidth = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
-    if (isBranchLayoutPresent) {
-      IndentDerivator indentDerivator = new IndentDerivator(path);
-      indentCharacter = indentDerivator.getIndentCharacter();
-      indentWidth = indentDerivator.getIndentWidth();
-    }
-    this.reader = new BranchLayoutFileReader(path, indentCharacter, indentWidth);
-    this.writer = new BranchLayoutFileWriter(path, indentCharacter, indentWidth);
+  public BranchLayoutManager(Path path) {
+    boolean isBranchLayoutPresent = Files.isRegularFile(path);
+    IndentSpec indentSpec = isBranchLayoutPresent ? deriveIndentSpec(path) : IndentSpec.DEFAULT_SPEC;
+    this.reader = new BranchLayoutFileReader(path, indentSpec);
+    this.writer = new BranchLayoutFileWriter(path, indentSpec);
   }
 
-  @Override
-  public IBranchLayoutReader getReader() {
-    return reader;
-  }
+  private static IndentSpec deriveIndentSpec(Path path) {
+    LOG.debug("Entering: branch layout file path: ${path}");
 
-  @Override
-  public IBranchLayoutWriter getWriter() {
-    return writer;
-  }
+    List<String> lines = Try.of(() -> BranchLayoutFileUtils.readFileLines(path))
+        .getOrElse(() -> {
+          LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling back to default indent definition.");
+          return List.empty();
+        });
 
-  private static class IndentDerivator implements IIndentDefining {
+    LOG.debug(() -> "${lines.length()} line(s) found");
 
-    private final char indentCharacter;
-    @Positive
-    private final int indentWidth;
+    var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
+        .find(line -> line.startsWith(" ") || line.startsWith("\t"));
+    char indentCharacter = IndentSpec.DEFAULT_INDENT_CHARACTER;
+    int indentWidth = IndentSpec.DEFAULT_INDENT_WIDTH;
 
-    IndentDerivator(Path path) {
-      LOG.debug("Entering");
-      LOG.debug(() -> "Branch layout file path: ${path}");
-
-      List<String> lines = Try.of(() -> BranchLayoutFileUtils.getFileLines(path))
-          .getOrElse(() -> {
-            LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling to default indent definition.");
-            return List.empty();
-          });
-
-      LOG.debug(() -> "${lines.length()} line(s) found");
-
-      Tuple2<Character, @Positive Integer> charAndWidth = deriveIndentCharacter(lines);
-      indentCharacter = charAndWidth._1();
-      indentWidth = charAndWidth._2();
-
-      LOG.debug(() -> "Indent character is ${indentCharacter == '\\t' ? \"TAB\" : indentCharacter == ' ' " +
-          "? \"SPACE\" : \"'\" + indentCharacter + \"'\"}");
-      LOG.debug(() -> "Indent width is ${indentWidth}");
+    // Redundant non-emptiness check to satisfy IndexChecker
+    if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
+      indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
+      indentWidth = BranchLayoutFileUtils.getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
+      // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
+      assert indentWidth > 0 : "indent width is 0";
     }
+    IndentSpec indentSpec = new IndentSpec(indentCharacter, indentWidth);
 
-    /**
-     * Searches for first line starting with an indent character
-     *
-     * @return a tuple of {@code indentCharacter} and {@code indentWidth}
-     */
-    private Tuple2<Character, @Positive Integer> deriveIndentCharacter(@UnderInitialization IndentDerivator this,
-        List<String> lines) {
-      var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
-          .find(line -> line.startsWith(" ") || line.startsWith("\t"));
-      // Redundant non-emptiness check to satisfy IndexChecker
-      char indentCharacterTmp = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
-      int indentWidthTmp = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
-      if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
-        indentCharacterTmp = firstLineWithBlankPrefixOption.get().charAt(0);
-        indentWidthTmp = BranchLayoutFileUtils.getIndentIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacterTmp);
-        // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
-        assert indentWidthTmp > 0 : "indent width is 0";
-      }
-      return Tuple.<Character, @Positive Integer>of(indentCharacterTmp, indentWidthTmp);
-    }
+    LOG.debug(() -> "Indent character is ${indentSpec.getIndentCharacter() == '\\t' ? \"TAB\" :" +
+        " indentSpec.getIndentCharacter() == ' ' ? \"SPACE\" : \"'\" + indentSpec.getIndentCharacter() + \"'\"}");
+    LOG.debug(() -> "Indent width is ${indentSpec.getIndentWidth()}");
 
-    @Override
-    public char getIndentCharacter() {
-      return indentCharacter;
-    }
-
-    @Override
-    public @Positive int getIndentWidth() {
-      return indentWidth;
-    }
+    return indentSpec;
   }
 }

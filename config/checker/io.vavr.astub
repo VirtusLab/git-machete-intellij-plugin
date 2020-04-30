@@ -6,6 +6,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.checker.optional.qual.Present;
 import org.checkerframework.common.value.qual.EnsuresMinLenIf;
+import org.checkerframework.common.value.qual.MinLen;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 
@@ -37,6 +38,12 @@ interface Map<K, V> {
 }
 
 interface Traversable<T> {
+  @Pure T head(@MinLen(1) Traversable<T> this);
+
+  @EnsuresMinLenIf(expression="this", result=false, targetValue=1) @Pure boolean isEmpty();
+
+  @EnsuresMinLenIf(expression="this", result=true, targetValue=1) @Pure boolean nonEmpty();
+
   @LengthOf("this") @Pure int length();
 
   @LengthOf("this") @Pure int size();

@@ -4,7 +4,7 @@ function die() {
   endc='\033[0m'
 
   if [[ $# -ge 1 ]]; then
-    if [[ -t 0 ]]; then
+    if [[ -t 1 ]]; then
       echo -e "\n${red}>>> $@ <<<${endc}\n"
     else
       echo -e "\n>>> $@ <<<\n"
@@ -14,7 +14,7 @@ function die() {
 }
 
 function extract_version_from_gradle_file_stdin() {
-  [ -t 0 ] && die "${FUNCNAME[0]}: expecting non-terminal stdin, aborting" || true
+  [[ -t 0 ]] && die "${FUNCNAME[0]}: expecting non-terminal stdin, aborting" || true
 
   grep -Po "(?<=PLUGIN_VERSION = ').*(?=')"
 }

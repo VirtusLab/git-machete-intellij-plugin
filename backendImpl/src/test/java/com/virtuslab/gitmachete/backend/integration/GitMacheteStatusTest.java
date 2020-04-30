@@ -55,8 +55,7 @@ public class GitMacheteStatusTest {
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
-    IBranchLayout branchLayout = branchLayoutManagerFactory.create(repositoryGitDir.resolve("machete"),
-        /* isBranchLayoutPresent */ true).getReader().read();
+    IBranchLayout branchLayout = branchLayoutManagerFactory.create(repositoryGitDir.resolve("machete")).getReader().read();
 
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }

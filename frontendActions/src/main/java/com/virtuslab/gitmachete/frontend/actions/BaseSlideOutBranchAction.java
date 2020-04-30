@@ -23,7 +23,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
- *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT_MANAGER}</li>
+ *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT_WRITER}</li>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -49,20 +49,18 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     String branchName = branchToSlideOut.getName();
     Project project = ActionUtils.getProject(anActionEvent);
     var branchLayout = ActionUtils.getBranchLayout(anActionEvent);
-    var gitMacheteFilePath = ActionUtils.getGitMacheteFilePath(anActionEvent);
-    if (branchLayout.isEmpty() || gitMacheteFilePath.isEmpty()) {
-      LOG.warn("Skipping the action because branch layout and/or Git Machete file path is undefined");
+    var branchLayoutWriter = ActionUtils.getBranchLayoutWriter(anActionEvent);
+    if (branchLayout.isEmpty() || branchLayoutWriter.isEmpty()) {
+      LOG.warn("Skipping the action because branch layout and/or branch layout writer is undefined");
       return;
     }
 
     try {
       LOG.info("Sliding out '${branchName}' branch in memory");
       var newBranchLayout = branchLayout.get().slideOut(branchName);
-      var branchLayoutManager = anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_MANAGER);
-      var branchLayoutFileWriter = branchLayoutManager.getWriter();
 
       LOG.info("Writing new branch layout into file");
-      branchLayoutFileWriter.write(newBranchLayout, /* backupOldLayout */ true);
+      branchLayoutWriter.get().write(newBranchLayout, /* backupOldLayout */ true);
 
       LOG.debug("Refreshing repository state");
       ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);

@@ -25,13 +25,14 @@ import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
+import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutManager;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -46,11 +47,13 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private final GraphTableModel graphTableModel;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
 
+  @Setter
   @Nullable
   private IBranchLayout branchLayout;
 
+  @Setter
   @Nullable
-  private IBranchLayoutManager branchLayoutManager;
+  private IBranchLayoutWriter branchLayoutWriter;
 
   @Nullable
   private String selectedBranchName;
@@ -116,18 +119,10 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
-        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_MANAGER, branchLayoutManager),
+        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         Case($(), (Object) null));
-  }
-
-  public void setBranchLayout(IBranchLayout newBranchLayout) {
-    this.branchLayout = newBranchLayout;
-  }
-
-  public void setBranchLayoutManager(IBranchLayoutManager newBranchLayoutManager) {
-    this.branchLayoutManager = newBranchLayoutManager;
   }
 
   private class GitMacheteGraphTableMouseAdapter extends MouseAdapter {

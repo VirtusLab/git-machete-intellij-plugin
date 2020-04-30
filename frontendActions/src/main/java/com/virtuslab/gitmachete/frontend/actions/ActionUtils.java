@@ -6,6 +6,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -50,5 +51,9 @@ final class ActionUtils {
 
   static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY));
+  }
+
+  static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
   }
 }

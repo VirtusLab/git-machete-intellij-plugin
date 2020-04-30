@@ -7,7 +7,7 @@ import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
 
 public class BranchLayoutManagerFactory implements IBranchLayoutManagerFactory {
   @Override
-  public IBranchLayoutManager create(Path path, boolean isBranchLayoutPresent) {
-    return new BranchLayoutManager(path, isBranchLayoutPresent);
+  public IBranchLayoutManager create(Path path) {
+    return new BranchLayoutManager(path);
   }
 }
