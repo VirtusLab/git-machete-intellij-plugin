@@ -212,6 +212,17 @@ subprojects {
 
 
   ext {
+    applyJetBrainsPlugin = {withGit4ide ->
+      apply plugin: 'org.jetbrains.intellij'
+      disableIntellijTasks()
+      intellij {
+        version intellijVersion
+        if(withGit4ide) {
+          plugins 'git4idea'
+        }
+      }
+    }
+
     applySubtypingChecker = { ->
       dependencies {
         implementation project(':qual')

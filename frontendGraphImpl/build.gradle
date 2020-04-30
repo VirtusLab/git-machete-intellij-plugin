@@ -7,10 +7,5 @@ dependencies {
   implementation project(':backendApi')
 }
 
+applyJetBrainsPlugin(/* withGit4idea */ false)
 applySubtypingChecker()
-
-apply plugin: 'org.jetbrains.intellij'
-disableIntellijTasks()
-intellij {
-  version intellijVersion
-}

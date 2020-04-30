@@ -6,14 +6,11 @@ import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
@@ -40,6 +37,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFa
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.LoggingUtils;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMacheteGraphTableManager implements IGraphTableManager {
@@ -239,13 +237,9 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
         exceptionMessage != null ? exceptionMessage : "");
 
-    GuiUtils.invokeLaterIfNeeded(
-        () -> Messages.showErrorDialog(
-            exceptionMessage != null
-                ? exceptionMessage
-                : "Repository instantiation failed. For more information, please look at the IntelliJ logs",
-            "Something Went Wrong..."),
-        ModalityState.NON_MODAL);
+    LoggingUtils.showErrorDialog(exceptionMessage != null
+        ? exceptionMessage
+        : "Repository instantiation failed. For more information, please look at the IntelliJ logs");
   }
 
   private IBranchLayout createBranchLayout(Path branchLayoutFilePath) throws MacheteFileParseException {

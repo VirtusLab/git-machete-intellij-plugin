@@ -12,11 +12,5 @@ dependencies {
   api project(':frontendUiApi')
 }
 
+applyJetBrainsPlugin(/* withGit4idea */ true)
 applySubtypingChecker()
-
-apply plugin: 'org.jetbrains.intellij'
-disableIntellijTasks()
-intellij {
-  version intellijVersion
-  plugins 'git4idea'
-}

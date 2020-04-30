@@ -6,9 +6,4 @@ dependencies {
   api project(':frontendUiApi')
 }
 
-apply plugin: 'org.jetbrains.intellij'
-disableIntellijTasks()
-intellij {
-  version intellijVersion
-  plugins 'git4idea'
-}
+applyJetBrainsPlugin(/* withGit4idea */ true)

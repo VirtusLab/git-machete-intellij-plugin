@@ -5,8 +5,4 @@ dependencies {
   api project(':backendApi')
 }
 
-apply plugin: 'org.jetbrains.intellij'
-disableIntellijTasks()
-intellij {
-  version intellijVersion
-}
+applyJetBrainsPlugin(/* withGit4idea */ false)
