@@ -104,7 +104,7 @@ git remote add origin ~/$sandboxDir/generator-service-remote
 newb root
   cmt Root
 newb develop
-    cmt 'Develop commit (probalby empty)'
+  cmt 'Develop commit (probably empty)'
 newb forbid-ownership-link
   cmt Forbid ownership links
   push
@@ -124,7 +124,7 @@ newb toggle-rain
   cmt toggle
   cmt toggle 2
   push
-    cmt toggle 3
+  cmt toggle 3
 newb make-coffee
   cmt Get water
   cmt Search for help
@@ -142,7 +142,7 @@ git checkout send-a-pigeon-for-ws
 
 git checkout root
 newb master
-    cmt 'Master of puppets!!111111oneoneone commit'
+  cmt 'Master of puppets!!111111oneoneone commit'
   push
 newb coldfix/knor
   cmt pudliszki

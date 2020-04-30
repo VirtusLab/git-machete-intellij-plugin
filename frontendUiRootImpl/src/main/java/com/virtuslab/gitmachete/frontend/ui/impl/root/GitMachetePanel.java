@@ -76,7 +76,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   private ActionToolbar createGitMacheteVerticalToolbar() {
     var actionManager = ActionManager.getInstance();
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
-    var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup, /* horizontal */ false);
+    var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
+        /* horizontal */ false);
     toolbar.setTargetComponent(gitMacheteGraphTableManager.getGraphTable());
     return toolbar;
   }

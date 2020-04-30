@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -17,7 +18,6 @@ import javax.swing.SwingUtilities;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
@@ -34,7 +34,6 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
-import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -158,12 +157,12 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
-        ActionPopupMenu actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
+        var actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
         actionPopupMenu.getComponent().show(GitMacheteGraphTable.this, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
-        AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
+        var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }
