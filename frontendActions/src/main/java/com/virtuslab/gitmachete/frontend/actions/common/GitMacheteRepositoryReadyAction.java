@@ -20,12 +20,7 @@ public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction {
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    if (ActionUtils.getGitMacheteRepository(anActionEvent).isDefined()) {
-      presentation.setEnabled(true);
-      presentation.setVisible(true);
-    } else {
-      presentation.setEnabled(false);
-      presentation.setVisible(false);
-    }
+    boolean isEnabledAndVisible = ActionUtils.getGitMacheteRepository(anActionEvent).isDefined();
+    presentation.setEnabledAndVisible(isEnabledAndVisible);
   }
 }

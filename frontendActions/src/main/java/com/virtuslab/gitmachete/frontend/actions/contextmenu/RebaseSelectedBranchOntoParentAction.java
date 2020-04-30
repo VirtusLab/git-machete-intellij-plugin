@@ -37,8 +37,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
         BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
         presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
       } else {
-        presentation.setEnabled(false);
-        presentation.setVisible(false);
+        presentation.setEnabledAndVisible(false);
       }
     }
   }

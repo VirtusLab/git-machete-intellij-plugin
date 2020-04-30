@@ -38,8 +38,7 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
         var nonRootBranch = selectedBranch.get().asNonRootBranch();
         presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
       } else {
-        presentation.setEnabled(false);
-        presentation.setVisible(false);
+        presentation.setEnabledAndVisible(false);
       }
     }
   }
