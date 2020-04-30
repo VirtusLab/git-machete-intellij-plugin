@@ -227,7 +227,10 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     }
   }
 
-  private void handleUpdateRepositoryExceptions(Throwable cause) {
+  private void handleUpdateRepositoryExceptions(Throwable t) {
+    // Only for silencing checkstyle
+    Throwable cause = t;
+
     LOG.error("Unable to create Git Machete repository", cause);
 
     // Getting the innermost exception since it's usually the primary cause that gives most valuable message
