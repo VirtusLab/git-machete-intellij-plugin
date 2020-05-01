@@ -18,63 +18,51 @@
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
     </extensions>
 
+    <resource-bundle>actions.ResourceBundle</resource-bundle>
+
     <actions>
         <group id="GitMachete.ContextMenu">
             <!-- These actions are used in right-click context menu on branches. -->
             <action id="GitMachete.CheckOutBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction"
-                    text="Git Machete: Check Out Selected Branch"
-                    description="Check out this branch">
-                <override-text place="GitMacheteContextMenu" text="_Check Out Branch"/>
+                    class="com.virtuslab.gitmachete.frontend.actions.CheckOutBranchAction">
+                <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction"
-                    text="Git Machete: Rebase Selected Branch Onto Parent"
-                    description="Rebase this branch onto parent">
-                <override-text place="GitMacheteContextMenu" text="_Rebase Branch Onto Parent"/>
+                    class="com.virtuslab.gitmachete.frontend.actions.RebaseSelectedBranchOntoParentAction">
+                <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.SlideOutSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.SlideOutSelectedBranchAction"
-                    text="Git Machete: Slide Out Selected Branch"
-                    description="Slide out this branch">
-                <override-text place="GitMacheteContextMenu" text="_Slide Out Branch"/>
+                    class="com.virtuslab.gitmachete.frontend.actions.SlideOutSelectedBranchAction">
+                <override-text place="GitMacheteContextMenu"/>
             </action>
         </group>
 
         <group id="GitMachete.Toolbar">
             <action id="GitMachete.RefreshStatusAction"
                     class="com.virtuslab.gitmachete.frontend.actions.RefreshStatusAction"
-                    text="Git Machete: Refresh Status"
-                    description="Refresh status"
                     icon="AllIcons.Actions.Refresh"
                     use-shortcut-of="Refresh">
-                <override-text place="GitMacheteToolbar" text="Refresh Status"/>
+                <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.ToggleListingCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.ToggleListingCommitsAction"
-                    text="Git Machete: Toggle Listing Commits"
-                    description="Toggle listing commits"
                     icon="AllIcons.Actions.ShowHiddens">
-                <override-text place="GitMacheteToolbar" text="Toggle Listing Commits"/>
+                <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.RebaseCurrentBranchOntoParentAction"
-                    text="Git Machete: Rebase Current Branch Onto Parent"
-                    description="Rebase current branch onto parent"
                     icon="AllIcons.Actions.Menu_cut">
-                <override-text place="GitMacheteToolbar" text="Rebase Current Branch Onto Parent"/>
+                <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.SlideOutCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.SlideOutCurrentBranchAction"
-                    text="Git Machete: Slide Out Current Branch"
-                    description="Slide out current branch"
                     icon="AllIcons.Actions.GC">
-                <override-text place="GitMacheteToolbar" text="Slide Out Current Branch"/>
+                <override-text place="GitMacheteToolbar"/>
             </action>
         </group>
     </actions>
