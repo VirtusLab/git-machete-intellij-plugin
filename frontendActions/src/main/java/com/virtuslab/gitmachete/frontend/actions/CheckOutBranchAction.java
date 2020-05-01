@@ -42,7 +42,7 @@ public class CheckOutBranchAction extends AnAction {
     var presentation = anActionEvent.getPresentation();
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
-    presentation.setEnabled(selectedBranchName.isDefined());
+    presentation.setEnabledAndVisible(selectedBranchName.isDefined());
   }
 
   @Override
