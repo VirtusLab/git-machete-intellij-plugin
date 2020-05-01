@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
 

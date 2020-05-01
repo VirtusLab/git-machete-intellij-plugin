@@ -1,6 +1,6 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedVcsRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;

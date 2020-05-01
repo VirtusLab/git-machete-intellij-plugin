@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
 import java.util.List;
 
@@ -19,6 +19,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;

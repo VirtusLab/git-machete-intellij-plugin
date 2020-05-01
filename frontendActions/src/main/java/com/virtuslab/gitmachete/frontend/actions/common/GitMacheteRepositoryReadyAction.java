@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.common;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;

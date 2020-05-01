@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.common;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -13,47 +13,47 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 
-final class ActionUtils {
+public final class ActionUtils {
 
   private ActionUtils() {}
 
-  static Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
+  public static Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT));
   }
 
-  static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
+  public static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
   }
 
-  static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
+  public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged().flatMap(
         currentBranch -> currentBranch.isNonRootBranch() ? Option.some(currentBranch.asNonRootBranch()) : Option.none()));
   }
 
-  static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
+  public static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
   }
 
-  static IGraphTableManager getGraphTableManager(AnActionEvent anActionEvent) {
+  public static IGraphTableManager getGraphTableManager(AnActionEvent anActionEvent) {
     return anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE_MANAGER);
   }
 
-  static Project getProject(AnActionEvent anActionEvent) {
+  public static Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
     return project;
   }
 
-  static Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
+  public static Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
   }
 
-  static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
+  public static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(
         repository -> getSelectedBranchName(anActionEvent).flatMap(repository::getBranchByName));
   }
 
-  static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
+  public static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY));
   }
 }

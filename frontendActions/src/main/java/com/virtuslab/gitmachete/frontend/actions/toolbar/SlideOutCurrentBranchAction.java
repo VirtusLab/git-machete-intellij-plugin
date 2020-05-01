@@ -1,7 +1,7 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getCurrentMacheteNonRootBranch;
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteNonRootBranch;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -10,6 +10,7 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.frontend.actions.common.BaseSlideOutBranchAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;

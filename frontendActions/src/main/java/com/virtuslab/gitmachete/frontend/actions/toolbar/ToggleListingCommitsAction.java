@@ -1,7 +1,7 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getBranchLayout;
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGraphTableManager;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;

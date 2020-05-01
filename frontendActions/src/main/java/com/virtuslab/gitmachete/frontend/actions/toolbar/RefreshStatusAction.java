@@ -1,6 +1,6 @@
-package com.virtuslab.gitmachete.frontend.actions;
+package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGraphTableManager;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
