@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedVcsRepository;
-
 import java.util.List;
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -39,6 +37,12 @@ public class CheckOutBranchAction extends AnAction {
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
+
+    var selectedBranchName = ActionUtils.getSelectedBranchName(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
+    // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
+    presentation.setEnabled(selectedBranchName.isDefined());
   }
 
   @Override
@@ -54,20 +58,22 @@ public class CheckOutBranchAction extends AnAction {
     }
 
     Project project = ActionUtils.getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
+    Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
 
     if (selectedVcsRepository.isDefined()) {
       LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
       new Task.Backgroundable(project, "Checking out") {
         @Override
         public void run(ProgressIndicator indicator) {
-          LOG.info(() -> "Checking out branch '${selectedBranchName.get()}'");
+          LOG.info("Checking out branch '${selectedBranchName.get()}'");
           GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
           new GitBranchWorker(project, Git.getInstance(), uiHandler)
               .checkout(selectedBranchName.get(), /* detach */ false, List.of(selectedVcsRepository.get()));
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
+    } else {
+      LOG.warn("Skipping the action because selectedVcsRepository is empty");
     }
   }
 }

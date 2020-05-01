@@ -94,9 +94,9 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   @Override
   @UIEffect
   public void refreshGraphTable() {
-    GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-    if (gitRepository != null) {
-      Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+    if (gitRepository.isDefined()) {
+      Path macheteFilePath = getMacheteFilePath(gitRepository.get());
       boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
       refreshGraphTable(macheteFilePath, isMacheteFilePresent);
@@ -127,7 +127,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         graphTable.setTextForEmptyGraph(
             "Your machete file (${macheteFilePath}) is empty.",
             "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
-        LOG.info(() -> "Machete file (${macheteFilePath}) is empty");
+        LOG.info("Machete file (${macheteFilePath}) is empty");
       }
     }
     graphTable.getModel().setRepositoryGraph(repositoryGraph);
@@ -136,7 +136,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       graphTable.setTextForEmptyGraph(
           "There is no machete file (${macheteFilePath}) for this repository.",
           "Please use 'git machete discover' CLI command to automatically create machete file.");
-      LOG.info(() -> "Machete file (${macheteFilePath}) is absent");
+      LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
     graphTable.repaint();
@@ -176,11 +176,12 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
           List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
           gitRepositorySelectionProvider.updateRepositories(repositories);
 
-          GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-          if (gitRepository != null) {
-            Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
-            Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
-            Path macheteFilePath = getMacheteFilePath(gitRepository);
+          Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+          if (gitRepository.isDefined()) {
+            var gr = gitRepository.get();
+            Path mainDirectoryPath = getMainDirectoryPath(gr);
+            Path gitDirectoryPath = getGitDirectoryPath(gr);
+            Path macheteFilePath = getMacheteFilePath(gr);
             boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
             updateRepository(mainDirectoryPath, gitDirectoryPath, isMacheteFilePresent);
@@ -207,13 +208,15 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
       // (or something else happens)
       // For state that caused unexpected behavior see tag `strange-vavr-try-behavior`
       try {
-        GitRepository gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-        if (gitRepository != null) {
-          Path macheteFilePath = getMacheteFilePath(gitRepository);
+        Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+        if (gitRepository.isDefined()) {
+          Path macheteFilePath = getMacheteFilePath(gitRepository.get());
           IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
           graphTable.setBranchLayout(branchLayout);
           graphTable.setMacheteFilePath(macheteFilePath);
           gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
+        } else {
+          LOG.warn("Skipping the repository update because gitRepository is empty");
         }
       } catch (Exception e) {
         LOG.error("Unable to create Git Machete repository", e);

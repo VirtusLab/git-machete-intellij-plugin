@@ -56,11 +56,12 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     var branchLayout = ActionUtils.getBranchLayout(anActionEvent);
     var gitMacheteFilePath = ActionUtils.getGitMacheteFilePath(anActionEvent);
     if (branchLayout.isEmpty() || gitMacheteFilePath.isEmpty()) {
+      LOG.warn("Skipping the action because branchLayout and/or gitMacheteFilePath is empty");
       return;
     }
 
     try {
-      LOG.info(() -> "Sliding out '${branchName}' branch in memory");
+      LOG.info("Sliding out '${branchName}' branch in memory");
       var newBranchLayout = branchLayout.get().slideOut(branchName);
 
       var branchLayoutFileSaver = branchLayoutSaverFactory.create(gitMacheteFilePath.get());

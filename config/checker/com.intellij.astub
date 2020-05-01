@@ -245,10 +245,12 @@ class GuiUtils {
 }
 
 class CollectionComboBoxModel<T> {
-    @SafeEffect T getSelected();
-    @SafeEffect List<T> getItems();
-
+  // This method is annotated as `org.jetbrains.annotations.Nullable` already,
+  // but for some reason Checker unsoundly assumes that it's `NonNull` instead.
+  @Nullable @SafeEffect T getSelected();
+  @SafeEffect List<T> getItems();
 }
+
 
 @UIPackage package com.intellij.ui.border;
 @UIPackage package com.intellij.ui.breadcrumbs;

@@ -90,7 +90,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
 
-    addMouseListener(new GitMacheteGraphTableMouseAdapter(/* graphTable */ this));
+    addMouseListener(new GitMacheteGraphTableMouseAdapter());
   }
 
   @UIEffect
@@ -131,15 +131,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
     this.macheteFilePath = newMacheteFilePath;
   }
 
-  protected class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-
-    private final GitMacheteGraphTable graphTable;
-
+  private class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
     @UIEffect
-    public GitMacheteGraphTableMouseAdapter(GitMacheteGraphTable graphTable) {
-      this.graphTable = graphTable;
-    }
+    GitMacheteGraphTableMouseAdapter() {}
 
+    @Override
     @UIEffect
     public void mouseClicked(MouseEvent e) {
       Point point = e.getPoint();
@@ -163,10 +159,10 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
         ActionPopupMenu actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.UNKNOWN, contextMenuActionGroup);
-        actionPopupMenu.getComponent().show(graphTable, (int) point.getX(), (int) point.getY());
+        actionPopupMenu.getComponent().show(GitMacheteGraphTable.this, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
+        DataContext dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
         AnActionEvent actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }

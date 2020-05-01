@@ -68,7 +68,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   public Object getData(String dataId) {
     return Match(dataId).of(
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE_MANAGER, gitMacheteGraphTableManager),
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootComboBox.getSelectedRepository()),
+        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootComboBox.getSelectedRepository().getOrNull()),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }

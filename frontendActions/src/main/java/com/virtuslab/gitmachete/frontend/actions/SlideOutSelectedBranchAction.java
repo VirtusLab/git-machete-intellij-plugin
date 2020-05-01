@@ -33,14 +33,9 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
     var presentation = anActionEvent.getPresentation();
     if (presentation.isVisible()) {
       Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
-      if (selectedBranch.isDefined()) {
-        if (selectedBranch.get().isRootBranch()) {
-          presentation.setEnabled(false);
-          presentation.setVisible(false);
-        } else {
-          var nonRootBranch = selectedBranch.get().asNonRootBranch();
-          presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
-        }
+      if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
+        var nonRootBranch = selectedBranch.get().asNonRootBranch();
+        presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
       } else {
         presentation.setEnabled(false);
         presentation.setVisible(false);
@@ -53,9 +48,11 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    var selectedMacheteBranch = getSelectedMacheteBranch(anActionEvent);
-    if (selectedMacheteBranch.isDefined() && !selectedMacheteBranch.get().isRootBranch()) {
-      doSlideOut(anActionEvent, selectedMacheteBranch.get().asNonRootBranch());
+    var selectedBranch = getSelectedMacheteBranch(anActionEvent);
+    if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
+      doSlideOut(anActionEvent, selectedBranch.get().asNonRootBranch());
+    } else {
+      LOG.warn("Skipping the action because selectedBranch is empty or is a root branch: selectedBranch='${selectedBranch}'");
     }
   }
 }

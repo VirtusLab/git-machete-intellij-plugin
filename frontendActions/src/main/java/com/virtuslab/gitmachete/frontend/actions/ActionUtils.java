@@ -51,7 +51,7 @@ final class ActionUtils {
 
   static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(
-        repository -> getSelectedBranchName(anActionEvent).flatMap(branchName -> repository.getBranchByName(branchName)));
+        repository -> getSelectedBranchName(anActionEvent).flatMap(repository::getBranchByName));
   }
 
   static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {

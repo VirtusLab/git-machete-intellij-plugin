@@ -56,7 +56,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     if (state.isEmpty()) {
       presentation.setEnabled(false);
     } else if (state.get() != Repository.State.NORMAL) {
-      // `REVERTING`` state is available since 193.2495
+      // `REVERTING` state is available since 193.2495, but we're still supporting 192.*
       var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();
 
       var stateName = Match(state.get()).of(
@@ -95,6 +95,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
     if (gitMacheteRepository.isDefined() && gitRepository.isDefined()) {
       doRebase(project, gitMacheteRepository.get(), gitRepository.get(), branchToRebase);
+    } else {
+      LOG.warn("Skipping the action because gitMacheteRepository and/or gitRepository is empty");
     }
   }
 
@@ -103,16 +105,19 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     LOG.debug(() -> "Entering: project = ${project}, " +
         "macheteRepository = ${macheteRepository}, gitRepository = ${gitRepository}, " +
         "branchToRebase = ${branchToRebase} (${branchToRebase.getName()})");
+
     Try.of(() -> macheteRepository.getParametersForRebaseOntoParent(branchToRebase))
         .onSuccess(gitRebaseParameters -> {
           LOG.debug(() -> "Queuing '${branchToRebase.getName()}' branch rebase background task");
+
           new Task.Backgroundable(project, "Rebasing") {
             @Override
             public void run(ProgressIndicator indicator) {
               GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
-              LOG.info(() -> "Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
+              LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
                   "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                   "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
+
               GitRebaseUtils.rebase(project, List.of(gitRepository), params, indicator);
             }
 

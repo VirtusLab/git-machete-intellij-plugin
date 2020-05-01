@@ -53,9 +53,11 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
-    Option<BaseGitMacheteNonRootBranch> baseGitMacheteBranch = getCurrentMacheteNonRootBranch(anActionEvent);
-    if (baseGitMacheteBranch.isDefined()) {
-      doSlideOut(anActionEvent, baseGitMacheteBranch.get());
+    Option<BaseGitMacheteNonRootBranch> currentNonRootBranch = getCurrentMacheteNonRootBranch(anActionEvent);
+    if (currentNonRootBranch.isDefined()) {
+      doSlideOut(anActionEvent, currentNonRootBranch.get());
+    } else {
+      LOG.warn("Skipping the action because currentNonRootBranch is empty");
     }
   }
 }

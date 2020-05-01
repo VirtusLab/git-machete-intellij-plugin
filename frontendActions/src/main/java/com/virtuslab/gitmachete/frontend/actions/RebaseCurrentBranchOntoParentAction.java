@@ -51,9 +51,11 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
-    Option<BaseGitMacheteNonRootBranch> baseGitMacheteBranch = getCurrentMacheteNonRootBranch(anActionEvent);
-    if (baseGitMacheteBranch.isDefined()) {
-      doRebase(anActionEvent, baseGitMacheteBranch.get());
+    Option<BaseGitMacheteNonRootBranch> currentNonRootBranch = getCurrentMacheteNonRootBranch(anActionEvent);
+    if (currentNonRootBranch.isDefined()) {
+      doRebase(anActionEvent, currentNonRootBranch.get());
+    } else {
+      LOG.warn("Skipping the action because currentNonRootBranch is empty");
     }
   }
 }

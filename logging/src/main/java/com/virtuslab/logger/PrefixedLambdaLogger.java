@@ -61,18 +61,8 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
   }
 
   @Override
-  public void info(Supplier<String> msgSupplier) {
-    logger.info(() -> getLogMessagePrefix() + msgSupplier.get());
-  }
-
-  @Override
   public void warn(String format) {
     logger.warn(() -> getLogMessagePrefix() + format);
-  }
-
-  @Override
-  public void warn(Supplier<String> msgSupplier) {
-    logger.warn(() -> getLogMessagePrefix() + msgSupplier.get());
   }
 
   @Override
@@ -81,17 +71,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
   }
 
   @Override
-  public void error(Supplier<String> msgSupplier) {
-    logger.error(() -> getLogMessagePrefix() + msgSupplier.get());
-  }
-
-  @Override
   public void error(String format, Throwable t) {
     logger.error(() -> getLogMessagePrefix() + format, t);
-  }
-
-  @Override
-  public void error(Supplier<String> msgSupplier, Throwable t) {
-    logger.error(() -> getLogMessagePrefix() + msgSupplier.get(), t);
   }
 }
