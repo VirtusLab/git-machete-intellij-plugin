@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 
@@ -26,15 +25,5 @@ public final class NullRepository implements IGitMacheteRepository {
   @Override
   public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
     return Option.none();
-  }
-
-  @Override
-  public IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch) {
-    throw new NotImplementedError();
-  }
-
-  @Override
-  public IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch) {
-    throw new NotImplementedError();
   }
 }

@@ -9,7 +9,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
+import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -97,5 +100,29 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   @Override
   public Option<IGitMacheteCommit> getForkPoint() {
     return Option.of(forkPoint);
+  }
+
+  @Override
+  public IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException {
+    LOG.debug(() -> "Entering: branch = '${getName()}'");
+    if (forkPoint == null) {
+      throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${getName()}'");
+    }
+    var newBaseBranch = getUpstreamBranch();
+
+    LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
+        "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
+        "forkPointCommit = ${forkPoint != null ? forkPoint.getHash() : null}");
+
+    return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch.getPointedCommit(), forkPoint);
+  }
+
+  @Override
+  public IGitMergeParameters getParametersForMergeIntoParent() {
+    LOG.debug(() -> "Entering: branch = '${getName()}'");
+    LOG.debug(() -> "Inferred merge parameters: currentBranch = ${getName()}, " +
+        "branchToMergeInto = ${getUpstreamBranch().getName()}");
+
+    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getUpstreamBranch());
   }
 }

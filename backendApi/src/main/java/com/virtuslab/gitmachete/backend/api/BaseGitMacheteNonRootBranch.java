@@ -28,4 +28,8 @@ public abstract class BaseGitMacheteNonRootBranch extends BaseGitMacheteBranch {
   public abstract SyncToParentStatus getSyncToParentStatus();
 
   public abstract Option<IGitMacheteCommit> getForkPoint();
+
+  public abstract IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
+
+  public abstract IGitMergeParameters getParametersForMergeIntoParent();
 }

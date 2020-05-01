@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions;
 
-import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getGitMacheteRepository;
 import static com.virtuslab.gitmachete.frontend.actions.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -28,7 +27,6 @@ import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -90,23 +88,19 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
     Project project = ActionUtils.getProject(anActionEvent);
-    Option<IGitMacheteRepository> gitMacheteRepository = getGitMacheteRepository(anActionEvent);
     Option<GitRepository> gitRepository = getSelectedVcsRepository(anActionEvent);
 
-    if (gitMacheteRepository.isDefined() && gitRepository.isDefined()) {
-      doRebase(project, gitMacheteRepository.get(), gitRepository.get(), branchToRebase);
+    if (gitRepository.isDefined()) {
+      doRebase(project, gitRepository.get(), branchToRebase);
     } else {
-      LOG.warn("Skipping the action because Git Machete repository and/or Git repository is undefined");
+      LOG.warn("Skipping the action because Git repository is undefined");
     }
   }
 
-  private void doRebase(Project project, IGitMacheteRepository macheteRepository, GitRepository gitRepository,
-      BaseGitMacheteNonRootBranch branchToRebase) {
-    LOG.debug(() -> "Entering: project = ${project}, " +
-        "macheteRepository = ${macheteRepository}, gitRepository = ${gitRepository}, " +
-        "branchToRebase = ${branchToRebase} (${branchToRebase.getName()})");
+  private void doRebase(Project project, GitRepository gitRepository, BaseGitMacheteNonRootBranch branchToRebase) {
+    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    Try.of(() -> macheteRepository.getParametersForRebaseOntoParent(branchToRebase))
+    Try.of(() -> branchToRebase.getParametersForRebaseOntoParent())
         .onSuccess(gitRebaseParameters -> {
           LOG.debug(() -> "Queuing '${branchToRebase.getName()}' branch rebase background task");
 

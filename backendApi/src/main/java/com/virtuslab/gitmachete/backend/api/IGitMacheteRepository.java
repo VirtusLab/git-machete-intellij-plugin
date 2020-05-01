@@ -9,8 +9,4 @@ public interface IGitMacheteRepository {
   Option<BaseGitMacheteBranch> getCurrentBranchIfManaged();
 
   Option<BaseGitMacheteBranch> getBranchByName(String branchName);
-
-  IGitRebaseParameters getParametersForRebaseOntoParent(BaseGitMacheteNonRootBranch branch) throws GitMacheteException;
-
-  IGitMergeParameters deriveParametersForMergeIntoParent(BaseGitMacheteNonRootBranch upstreamBranch);
 }
