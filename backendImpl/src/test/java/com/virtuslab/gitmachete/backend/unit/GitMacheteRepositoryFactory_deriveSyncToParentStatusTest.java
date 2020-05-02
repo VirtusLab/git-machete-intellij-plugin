@@ -1,9 +1,9 @@
-package com.virtuslab.gitmachete.backend.root;
+package com.virtuslab.gitmachete.backend.unit;
 
-import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepository;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.TestGitCoreRepositoryFactory;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.getCommit;
-import static com.virtuslab.gitmachete.backend.root.TestUtils.getGitCoreLocalBranch;
+import static com.virtuslab.gitmachete.backend.unit.TestUtils.TestGitCoreRepository;
+import static com.virtuslab.gitmachete.backend.unit.TestUtils.TestGitCoreRepositoryFactory;
+import static com.virtuslab.gitmachete.backend.unit.TestUtils.getCommit;
+import static com.virtuslab.gitmachete.backend.unit.TestUtils.getGitCoreLocalBranch;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.root;
+package com.virtuslab.gitmachete.backend.unit;
 
 import java.nio.file.Path;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.root;
+package com.virtuslab.gitmachete.backend.unit;
 
 import io.vavr.control.Option;
 import org.junit.Assert;
