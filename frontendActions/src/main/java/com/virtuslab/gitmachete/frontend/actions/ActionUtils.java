@@ -21,6 +21,10 @@ final class ActionUtils {
     return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT));
   }
 
+  static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
+  }
+
   static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged().flatMap(
         currentBranch -> currentBranch.isNonRootBranch() ? Option.some(currentBranch.asNonRootBranch()) : Option.none()));
@@ -51,9 +55,5 @@ final class ActionUtils {
 
   static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_VCS_REPOSITORY));
-  }
-
-  static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
-    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
   }
 }
