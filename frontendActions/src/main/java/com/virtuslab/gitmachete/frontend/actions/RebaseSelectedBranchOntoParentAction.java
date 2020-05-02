@@ -50,7 +50,8 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
     if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
       doRebase(anActionEvent, selectedBranch.get().asNonRootBranch());
     } else {
-      LOG.warn("Skipping the action because selectedBranch is empty or is a root branch: selectedBranch='${selectedBranch}'");
+      LOG.warn("Skipping the action because selected branch is undefined or is a root branch: " +
+          "selectedBranch='${selectedBranch}'");
     }
   }
 }

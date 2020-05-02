@@ -96,7 +96,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     if (gitMacheteRepository.isDefined() && gitRepository.isDefined()) {
       doRebase(project, gitMacheteRepository.get(), gitRepository.get(), branchToRebase);
     } else {
-      LOG.warn("Skipping the action because gitMacheteRepository and/or gitRepository is empty");
+      LOG.warn("Skipping the action because Git Machete repository and/or Git repository is undefined");
     }
   }
 

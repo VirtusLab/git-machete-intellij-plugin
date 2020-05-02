@@ -56,7 +56,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     var branchLayout = ActionUtils.getBranchLayout(anActionEvent);
     var gitMacheteFilePath = ActionUtils.getGitMacheteFilePath(anActionEvent);
     if (branchLayout.isEmpty() || gitMacheteFilePath.isEmpty()) {
-      LOG.warn("Skipping the action because branchLayout and/or gitMacheteFilePath is empty");
+      LOG.warn("Skipping the action because branch layout and/or Git Machete file path is undefined");
       return;
     }
 

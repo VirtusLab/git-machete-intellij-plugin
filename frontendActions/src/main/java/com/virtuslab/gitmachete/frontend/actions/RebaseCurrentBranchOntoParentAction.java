@@ -55,7 +55,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
     if (currentNonRootBranch.isDefined()) {
       doRebase(anActionEvent, currentNonRootBranch.get());
     } else {
-      LOG.warn("Skipping the action because currentNonRootBranch is empty");
+      LOG.warn("Skipping the action because current non root branch is undefined");
     }
   }
 }

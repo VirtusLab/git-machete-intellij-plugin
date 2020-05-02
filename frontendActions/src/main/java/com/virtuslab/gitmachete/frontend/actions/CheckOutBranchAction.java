@@ -73,7 +73,7 @@ public class CheckOutBranchAction extends AnAction {
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
     } else {
-      LOG.warn("Skipping the action because selectedVcsRepository is empty");
+      LOG.warn("Skipping the action because no VCS repository is selected");
     }
   }
 }

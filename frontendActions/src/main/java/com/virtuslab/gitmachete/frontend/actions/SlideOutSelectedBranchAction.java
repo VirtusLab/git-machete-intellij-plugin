@@ -52,7 +52,8 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
     if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
       doSlideOut(anActionEvent, selectedBranch.get().asNonRootBranch());
     } else {
-      LOG.warn("Skipping the action because selectedBranch is empty or is a root branch: selectedBranch='${selectedBranch}'");
+      LOG.warn("Skipping the action because selected branch is undefined or is a root branch: " +
+          "selectedBranch='${selectedBranch}'");
     }
   }
 }

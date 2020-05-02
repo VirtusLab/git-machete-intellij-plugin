@@ -216,7 +216,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
           graphTable.setMacheteFilePath(macheteFilePath);
           gitMacheteRepositoryRef.set(gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout));
         } else {
-          LOG.warn("Skipping the repository update because gitRepository is empty");
+          LOG.warn("Skipping the repository update because no VCS repository is selected");
         }
       } catch (Exception e) {
         LOG.error("Unable to create Git Machete repository", e);

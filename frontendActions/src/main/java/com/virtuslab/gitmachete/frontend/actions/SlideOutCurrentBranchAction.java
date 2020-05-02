@@ -57,7 +57,7 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
     if (currentNonRootBranch.isDefined()) {
       doSlideOut(anActionEvent, currentNonRootBranch.get());
     } else {
-      LOG.warn("Skipping the action because currentNonRootBranch is empty");
+      LOG.warn("Skipping the action because current non-root branch is undefined");
     }
   }
 }
