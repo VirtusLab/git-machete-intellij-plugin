@@ -94,12 +94,14 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   @Override
   public void refreshGraphTable() {
-    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-    if (gitRepository.isDefined()) {
-      Path macheteFilePath = getMacheteFilePath(gitRepository.get());
-      boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+    synchronized (gitRepositorySelectionProvider) {
+      Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+      if (gitRepository.isDefined()) {
+        Path macheteFilePath = getMacheteFilePath(gitRepository.get());
+        boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-      refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+        refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+      }
     }
   }
 
@@ -172,24 +174,24 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         public void run(ProgressIndicator indicator) {
           LOG.debug("Updating Git Machete repository and refreshing");
 
-          // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
-          // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
-          @SuppressWarnings("value:assignment.type.incompatible")
-          @MinLen(1)
-          List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-          gitRepositorySelectionProvider.updateRepositories(repositories);
+          synchronized (gitRepositorySelectionProvider) {
+            // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
+            // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
+            @SuppressWarnings("value:assignment.type.incompatible")
+            @MinLen(1)
+            List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
+            gitRepositorySelectionProvider.updateRepositories(repositories);
 
-          Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-          if (gitRepository.isDefined()) {
-            var gr = gitRepository.get();
-            Path mainDirectoryPath = getMainDirectoryPath(gr);
-            Path gitDirectoryPath = getGitDirectoryPath(gr);
-            Path macheteFilePath = getMacheteFilePath(gr);
-            boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-
-            updateRepository(mainDirectoryPath, gitDirectoryPath, macheteFilePath, isMacheteFilePresent);
-            refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+            Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+            if (gitRepository.isDefined()) {
+              updateRepository(gitRepository.get());
+              refreshGraphTable();
+            } else {
+              LOG.warn("Selected repository is null. Setting repository reference to null");
+              gitMacheteRepositoryRef.set(null);
+            }
           }
+
         }
       }.queue();
     } else {
@@ -201,8 +203,12 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
    */
-  private void updateRepository(Path mainDirectoryPath, Path gitDirectoryPath, Path macheteFilePath,
-      boolean isMacheteFilePresent) {
+  private void updateRepository(GitRepository gitRepository) {
+    Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
+    Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
+    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
     IBranchLayoutManager branchLayoutManager = branchLayoutManagerFactory.create(macheteFilePath);
@@ -210,20 +216,13 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
 
-      Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-
-      if (gitRepository.isDefined()) {
-        Try.of(() -> {
-          IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
-          graphTable.setBranchLayout(branchLayout);
-          return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
-        })
-            .onSuccess(gitMacheteRepositoryRef::set)
-            .onFailure(this::handleUpdateRepositoryExceptions);
-      } else {
-        LOG.warn("Selected repository is null. Setting repository reference to null");
-        gitMacheteRepositoryRef.set(null);
-      }
+      Try.of(() -> {
+        IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
+        graphTable.setBranchLayout(branchLayout);
+        return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
+      })
+          .onSuccess(gitMacheteRepositoryRef::set)
+          .onFailure(this::handleUpdateRepositoryExceptions);
     } else {
       LOG.debug("Machete file is absent. Setting repository reference to null");
       gitMacheteRepositoryRef.set(null);

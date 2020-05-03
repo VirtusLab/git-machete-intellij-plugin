@@ -39,7 +39,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
   @Override
   @UIEffect
-  public void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
+  public synchronized void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
@@ -59,7 +59,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
-  public Option<GitRepository> getSelectedRepository() {
+  public synchronized Option<GitRepository> getSelectedRepository() {
     return Option.of(getModel().getSelected());
   }
 
