@@ -48,7 +48,6 @@ public class ToggleListingCommitsAction extends ToggleAction implements DumbAwar
   }
 
   @Override
-  @UIEffect
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
     var graphTableManager = getGraphTableManager(e);

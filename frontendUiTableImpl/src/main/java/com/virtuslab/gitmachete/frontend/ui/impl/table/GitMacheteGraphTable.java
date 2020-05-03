@@ -44,7 +44,6 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
-  private final GraphTableModel graphTableModel;
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
 
   @Setter
@@ -63,7 +62,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
       AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef) {
     super(graphTableModel);
 
-    this.graphTableModel = graphTableModel;
     this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
 
     // InitializationChecker allows us to invoke the below methods because the class is final
@@ -106,11 +104,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     // Otherwise sizes would be recalculated after each TableColumn re-initialization
     setAutoCreateColumnsFromModel(false);
-  }
-
-  @Override
-  public GraphTableModel getModel() {
-    return graphTableModel;
   }
 
   @Override
