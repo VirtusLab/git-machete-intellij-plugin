@@ -136,6 +136,13 @@ interface Application {
 @UIPackage package com.intellij.openapi.paths;
 
 
+package com.intellij.openapi.progress;
+
+interface Progressive {
+  @SafeEffect void run(ProgressIndicator indicator);
+}
+
+
 package com.intellij.openapi.project;
 
 @UI class DumbAwareToggleAction {}
