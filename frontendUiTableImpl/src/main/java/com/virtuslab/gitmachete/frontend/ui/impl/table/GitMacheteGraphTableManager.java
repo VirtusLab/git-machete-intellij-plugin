@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.swing.SwingUtilities;
+
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -65,7 +67,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
     this.isListingCommits = false;
     this.gitMacheteRepositoryRef = new AtomicReference<>(null);
-    GraphTableModel graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
+    var graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
     this.graphTable = new GitMacheteGraphTable(graphTableModel, gitMacheteRepositoryRef);
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
@@ -81,7 +83,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   private void subscribeToVcsRootChanges() {
     // The method reference is invoked when user changes repository in combo box menu
-    gitRepositorySelectionProvider.addSelectionChangeObserver(this::updateAndRefreshGraphTableInBackground);
+    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> updateAndRefreshGraphTableInBackground());
   }
 
   private void subscribeToGitRepositoryChanges() {
@@ -91,7 +93,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   }
 
   @Override
-  @UIEffect
   public void refreshGraphTable() {
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
     if (gitRepository.isDefined()) {
@@ -103,43 +104,46 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
-  @UIEffect
   private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
-    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
-    // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
-    // No UI should be shown when IDEA is running in this mode.
-    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
-      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
-      return;
-    }
-
-    // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
-    // functionality) branch layout
-
-    IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
-    IRepositoryGraph repositoryGraph;
-    if (gitMacheteRepository == null) {
-      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
-    } else {
-      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
-      if (gitMacheteRepository.getRootBranches().isEmpty()) {
-        graphTable.setTextForEmptyGraph(
-            "Your machete file (${macheteFilePath}) is empty.",
-            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
-        LOG.info("Machete file (${macheteFilePath}) is empty");
+    SwingUtilities.invokeLater(() -> {
+      LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
+      // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
+      // No UI should be shown when IDEA is running in this mode.
+      if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
+        LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
+        return;
       }
-    }
-    graphTable.getModel().setRepositoryGraph(repositoryGraph);
 
-    if (!isMacheteFilePresent) {
-      graphTable.setTextForEmptyGraph(
-          "There is no machete file (${macheteFilePath}) for this repository.",
-          "Please use 'git machete discover' CLI command to automatically create machete file.");
-      LOG.info("Machete file (${macheteFilePath}) is absent");
-    }
+      // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
+      // functionality) branch layout
 
-    graphTable.repaint();
-    graphTable.revalidate();
+      IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
+      IRepositoryGraph repositoryGraph;
+      if (gitMacheteRepository == null) {
+        repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
+      } else {
+        repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
+        if (gitMacheteRepository.getRootBranches().isEmpty()) {
+          graphTable.setTextForEmptyGraph(
+              "Your machete file (${macheteFilePath}) is empty.",
+              "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
+          LOG.info("Machete file (${macheteFilePath}) is empty");
+        }
+      }
+
+      GraphTableModel model = new GraphTableModel(repositoryGraph);
+      graphTable.setModel(model);
+
+      if (!isMacheteFilePresent) {
+        graphTable.setTextForEmptyGraph(
+            "There is no machete file (${macheteFilePath}) for this repository.",
+            "Please use 'git machete discover' CLI command to automatically create machete file.");
+        LOG.info("Machete file (${macheteFilePath}) is absent");
+      }
+
+      graphTable.repaint();
+      graphTable.revalidate();
+    });
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {

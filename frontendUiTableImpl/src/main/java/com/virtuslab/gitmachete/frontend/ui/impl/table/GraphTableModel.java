@@ -4,7 +4,6 @@ import javax.swing.table.AbstractTableModel;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -18,8 +17,7 @@ public class GraphTableModel extends AbstractTableModel {
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
   @Getter
-  @Setter
-  private IRepositoryGraph repositoryGraph;
+  private final IRepositoryGraph repositoryGraph;
 
   @Override
   @NonNegative
