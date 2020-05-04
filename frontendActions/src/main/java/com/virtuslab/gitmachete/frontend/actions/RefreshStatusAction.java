@@ -22,6 +22,6 @@ public class RefreshStatusAction extends AnAction implements DumbAware {
   @Override
   public void actionPerformed(AnActionEvent e) {
     LOG.debug("Performing");
-    getGraphTableManager(e).updateAndRefreshGraphTableInBackground();
+    getGraphTableManager(e).queueRepositoryUpdateAndGraphTableRefresh();
   }
 }

@@ -7,6 +7,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.common.value.qual.MinLen;
 
 public interface IGitRepositorySelectionProvider {
+  @UIEffect
   Option<GitRepository> getSelectedRepository();
 
   void addSelectionChangeObserver(IGitRepositorySelectionChangeObserver observer);

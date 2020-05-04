@@ -5,9 +5,9 @@ import javax.swing.JComponent;
 public interface IGraphTableManager {
   JComponent getGraphTable();
 
-  void refreshGraphTable();
+  void queueGraphTableRefreshOnDispatchThread();
 
-  void updateAndRefreshGraphTableInBackground();
+  void queueRepositoryUpdateAndGraphTableRefresh();
 
   boolean isListingCommits();
 

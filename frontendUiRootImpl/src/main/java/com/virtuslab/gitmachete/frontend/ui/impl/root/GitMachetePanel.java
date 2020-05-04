@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
+import static com.virtuslab.gitmachete.frontend.ui.impl.root.DispatchThreadUtils.getIfOnDispatchThreadOrNull;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -52,7 +53,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     this.vcsRootComboBox = new VcsRootComboBox(repositories);
     this.gitMacheteGraphTableManager = RuntimeBinding
         .instantiateSoleImplementingClass(IGraphTableManagerFactory.class).create(project, vcsRootComboBox);
-    gitMacheteGraphTableManager.updateAndRefreshGraphTableInBackground();
+    gitMacheteGraphTableManager.queueRepositoryUpdateAndGraphTableRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
 
@@ -63,11 +64,14 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   }
 
   @Override
-  @Nullable
-  public Object getData(String dataId) {
+  public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE_MANAGER, gitMacheteGraphTableManager),
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootComboBox.getSelectedRepository().getOrNull()),
+        // IntelliJ Platform seems to always invoke `getData` on the UI thread anyway;
+        // `getIfOnDispatchThreadOrNull` is more to ensure correctness wrt. `@UIEffect`,
+        // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.
+        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY,
+            getIfOnDispatchThreadOrNull(() -> vcsRootComboBox.getSelectedRepository().getOrNull())),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }

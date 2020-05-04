@@ -13,24 +13,31 @@ import org.checkerframework.framework.qual.EnsuresQualifierIf;
 package io.vavr;
 
 interface Value<T> {
-  @PolyNull @Pure T getOrElse(@PolyNull T other);
+  @Pure
+  @PolyNull T getOrElse(@PolyNull T other);
 
-  @Nullable @Pure T getOrNull();
+  @Pure
+  @Nullable T getOrNull();
 }
 
 
 package io.vavr.collection;
 
 interface Array<T> {
-  @Pure T get(@IndexFor("this") int index);
+  @Pure
+  T get(@IndexFor("this") int index);
 }
 
 interface List<T> {
-  @Pure T get(@IndexFor("this") int index);
+  @Pure
+  T get(@IndexFor("this") int index);
 
-  @LengthOf("this") @Pure int length();
+  @EnsuresMinLenIf(expression="this", result=false, targetValue=1)
+  @Pure
+  boolean isEmpty();
 
-  @EnsuresMinLenIf(expression="this", result=false, targetValue=1) @Pure boolean isEmpty();
+  @Pure
+  @LengthOf("this") int length();
 }
 
 interface Map<K, V> {
@@ -38,15 +45,22 @@ interface Map<K, V> {
 }
 
 interface Traversable<T> {
-  @Pure T head(@MinLen(1) Traversable<T> this);
+  @Pure
+  T head(@MinLen(1) Traversable<T> this);
 
-  @EnsuresMinLenIf(expression="this", result=false, targetValue=1) @Pure boolean isEmpty();
+  @EnsuresMinLenIf(expression="this", result=false, targetValue=1)
+  @Pure
+  boolean isEmpty();
 
-  @EnsuresMinLenIf(expression="this", result=true, targetValue=1) @Pure boolean nonEmpty();
+  @EnsuresMinLenIf(expression="this", result=true, targetValue=1)
+  @Pure
+  boolean nonEmpty();
 
-  @LengthOf("this") @Pure int length();
+  @Pure
+  @LengthOf("this") int length();
 
-  @LengthOf("this") @Pure int size();
+  @Pure
+  @LengthOf("this") int size();
 }
 
 
@@ -56,11 +70,16 @@ package io.vavr.control;
 interface Option<T> {
   <U> io.vavr.control.Option<@PolyNull U> flatMap(java.util.function.Function<? super T, ? extends io.vavr.control.Option<@PolyNull ? extends U>> mapper);
 
-  @Pure T get(@Present io.vavr.control.Option<T> this);
+  @Pure
+  T get(@Present io.vavr.control.Option<T> this);
 
-  @EnsuresQualifierIf(result = true, expression = "this", qualifier = Present.class) @Pure boolean isDefined();
+  @EnsuresQualifierIf(result = true, expression = "this", qualifier = Present.class)
+  @Pure
+  boolean isDefined();
 
-  @EnsuresQualifierIf(result = false, expression = "this", qualifier = Present.class) @Pure boolean isEmpty();
+  @EnsuresQualifierIf(result = false, expression = "this", qualifier = Present.class)
+  @Pure
+  boolean isEmpty();
 
   <U> io.vavr.control.Option<@PolyNull U> map(java.util.function.Function<? super T, @PolyNull ? extends U> mapper);
 

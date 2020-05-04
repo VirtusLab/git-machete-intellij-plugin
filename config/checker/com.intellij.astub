@@ -27,13 +27,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @UIPackage package com.intellij.diff.requests;
 @UIPackage package com.intellij.diff.util;
 
+
 package com.intellij.diff.tools.util.base;
 
 class TextDiffViewerUtil {
   class ComboBoxSettingAction<T> {
-    @UIEffect void update(AnActionEvent e);
+    @UIEffect
+    void update(AnActionEvent e);
   }
 }
+
 
 @UIPackage package com.intellij.dvcs.push;
 @UIPackage package com.intellij.execution;
@@ -84,25 +87,41 @@ class TextDiffViewerUtil {
 @UIPackage package com.intellij.openapi.actionSystem;
 
 class AnAction {
-  @SafeEffect AnAction();
+  @SafeEffect
+  AnAction();
+
   // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default given we're in a `@UIPackage`)
-  // since they are indeed invoked on the dispatch thread.
+  // since IntelliJ platform indeed always invokes them on the dispatch thread.
 }
 
 class AnActionEvent {
-  @SafeEffect <T> T getData(DataKey<T> key);
-  @SafeEffect Project getProject();
+  @SafeEffect
+  <T> T getData(DataKey<T> key);
+
+  @SafeEffect
+  Project getProject();
 }
 
 class DataKey<T> {
-  @SafeEffect String getName();
+  @SafeEffect
+  String getName();
 }
 
 class ToggleAction {
-  @SafeEffect ToggleAction();
+  @SafeEffect
+  ToggleAction();
 }
 
 @UIPackage package com.intellij.openapi.actionSystem.ex;
+
+
+package com.intellij.openapi.application;
+
+interface Application {
+  void invokeLater(@UI Runnable runnable);
+}
+
+
 @UIPackage package com.intellij.openapi.diff;
 @UIPackage package com.intellij.openapi.editor;
 @UIPackage package com.intellij.openapi.editor.colors;
@@ -239,16 +258,18 @@ package com.intellij.psi.search.scope.packageSet;
 
 @UIPackage package com.intellij.ui;
 
-class GuiUtils {
-  @SafeEffect void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState);
-  @SafeEffect void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState, Condition expired);
-}
-
 class CollectionComboBoxModel<T> {
   // This method is annotated as `org.jetbrains.annotations.Nullable` already,
   // but for some reason Checker unsoundly assumes that it's `NonNull` instead.
-  @Nullable @SafeEffect T getSelected();
-  @SafeEffect List<T> getItems();
+  @Nullable T getSelected();
+}
+
+class GuiUtils {
+  @SafeEffect
+  void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState);
+
+  @SafeEffect
+  void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState, Condition expired);
 }
 
 
@@ -334,7 +355,8 @@ package com.intellij.util.net.ssl;
 @UIPackage package com.intellij.util.ui;
 
 class UIUtil {
-  @SafeEffect Color getInactiveTextColor();
+  @SafeEffect
+  Color getInactiveTextColor();
 }
 
 
@@ -345,6 +367,7 @@ package com.intellij.vcs.log.graph.api.elements;
 
 class GraphEdge {
   GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, @Nullable Integer targetId, GraphEdgeType type);
+
   GraphEdge createNormalEdge(@NonNegative int nodeIndex1, @NonNegative int nodeIndex2, GraphEdgeType type);
 }
 
