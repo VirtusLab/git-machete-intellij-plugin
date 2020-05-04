@@ -5,7 +5,6 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -34,8 +33,6 @@ import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -51,26 +48,23 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   @Getter
   @Setter
   private boolean isListingCommits;
-  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
+  private @Nullable IGitMacheteRepository gitMacheteRepository;
   @Getter
   private final GitMacheteGraphTable graphTable;
 
-  private final IRepositoryGraphFactory repositoryGraphFactory;
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
-  private final IBranchLayoutManagerFactory branchLayoutManagerFactory = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
+  private final IBranchLayoutManagerFactory branchLayoutManagerFactory;
 
   public GitMacheteGraphTableManager(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
     this.project = project;
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
     this.isListingCommits = false;
-    this.gitMacheteRepositoryRef = new AtomicReference<>(null);
-    var graphTableModel = new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH);
-    this.graphTable = new GitMacheteGraphTable(graphTableModel, gitMacheteRepositoryRef);
+    this.gitMacheteRepository = null;
+    this.graphTable = new GitMacheteGraphTable();
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
-    this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
+    this.branchLayoutManagerFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just
@@ -101,60 +95,31 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         Path macheteFilePath = getMacheteFilePath(gitRepository.get());
         boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-        refreshGraphTable(macheteFilePath, isMacheteFilePresent);
+        refreshGraphTable(gitMacheteRepository, macheteFilePath, isMacheteFilePresent);
       }
     }, NON_MODAL);
   }
 
-  private void queueGraphTableRefreshOnDispatchThread(GitRepository gitRepository) {
+  private void queueGraphTableRefreshOnDispatchThread(@Nullable IGitMacheteRepository gmr, GitRepository gitRepository) {
     // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    GuiUtils.invokeLaterIfNeeded(() -> refreshGraphTable(macheteFilePath, isMacheteFilePresent), NON_MODAL);
+    GuiUtils.invokeLaterIfNeeded(() -> refreshGraphTable(gmr, macheteFilePath, isMacheteFilePresent), NON_MODAL);
   }
 
-  /** Creates a new repository graph and sets it to the graph table model. */
   @UIEffect
-  private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
+  private void refreshGraphTable(@Nullable IGitMacheteRepository gmr, Path macheteFilePath, boolean isMacheteFilePresent) {
     LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
     // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
     // No UI should be shown when IDEA is running in this mode.
-    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
-      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
-      return;
-    }
-
-    // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
-    // functionality) branch layout
-
-    IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
-    IRepositoryGraph repositoryGraph;
-    if (gitMacheteRepository == null) {
-      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
+    if (project.isInitialized() && !ApplicationManager.getApplication().isUnitTestMode()) {
+      this.gitMacheteRepository = gmr;
+      graphTable.refreshModel(gmr, macheteFilePath, isMacheteFilePresent, isListingCommits);
     } else {
-      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
-      if (gitMacheteRepository.getRootBranches().isEmpty()) {
-        graphTable.setTextForEmptyGraph(
-            "Your machete file (${macheteFilePath}) is empty.",
-            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
-        LOG.info("Machete file (${macheteFilePath}) is empty");
-      }
+      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
     }
-
-    GraphTableModel model = new GraphTableModel(repositoryGraph);
-    graphTable.setModel(model);
-
-    if (!isMacheteFilePresent) {
-      graphTable.setTextForEmptyGraph(
-          "There is no machete file (${macheteFilePath}) for this repository.",
-          "Please use 'git machete discover' CLI command to automatically create machete file.");
-      LOG.info("Machete file (${macheteFilePath}) is absent");
-    }
-
-    graphTable.repaint();
-    graphTable.revalidate();
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {
@@ -191,16 +156,16 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
               // and graph table refresh can only start once repository update is complete.
 
               // Thus, we synchronously run repository update first...
-              updateRepository(gitRepository.get());
+              Option<IGitMacheteRepository> gmr = updateRepository(gitRepository.get());
 
               // ... and only once it completes, we queue graph table update onto the UI thread.
               LOG.debug("Queuing graph table refresh onto the UI thread");
-              queueGraphTableRefreshOnDispatchThread(gitRepository.get());
+              queueGraphTableRefreshOnDispatchThread(gmr.getOrNull(), gitRepository.get());
             }
           }.queue();
         } else {
           LOG.warn("Selected repository is null. Setting repository reference to null");
-          gitMacheteRepositoryRef.set(null);
+          this.gitMacheteRepository = null;
         }
       }, NON_MODAL);
     } else {
@@ -212,7 +177,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTableManager#refreshGraphTable} completes.
    */
-  private void updateRepository(GitRepository gitRepository) {
+  private Option<IGitMacheteRepository> updateRepository(GitRepository gitRepository) {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
     Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
     Path macheteFilePath = getMacheteFilePath(gitRepository);
@@ -225,16 +190,14 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
 
-      Try.of(() -> {
+      return Try.of(() -> {
         IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
         graphTable.setBranchLayout(branchLayout);
         return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
-      })
-          .onSuccess(gitMacheteRepositoryRef::set)
-          .onFailure(this::handleUpdateRepositoryExceptions);
+      }).onFailure(this::handleUpdateRepositoryExceptions).toOption();
     } else {
       LOG.debug("Machete file is absent. Setting repository reference to null");
-      gitMacheteRepositoryRef.set(null);
+      return Option.none();
     }
   }
 

@@ -10,7 +10,7 @@ import static io.vavr.API.Match;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.concurrent.atomic.AtomicReference;
+import java.nio.file.Path;
 
 import javax.swing.SwingUtilities;
 
@@ -39,12 +39,18 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
-  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef;
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
+
+  private final IRepositoryGraphFactory repositoryGraphFactory;
 
   @Setter
   @Nullable
@@ -55,14 +61,16 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private IBranchLayoutWriter branchLayoutWriter;
 
   @Nullable
+  private IGitMacheteRepository gitMacheteRepository;
+
+  @Nullable
   private String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable(GraphTableModel graphTableModel,
-      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef) {
-    super(graphTableModel);
+  public GitMacheteGraphTable() {
+    super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
-    this.gitMacheteRepositoryRef = gitMacheteRepositoryRef;
+    this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
@@ -76,8 +84,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     @SuppressWarnings("guieffect:assignment.type.incompatible")
     @AlwaysSafe
-    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */ this,
-        graphCellPainter);
+    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */ this, graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
     setCellSelectionEnabled(false);
@@ -94,7 +101,41 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   }
 
   @UIEffect
-  public void setTextForEmptyGraph(String upperText, String lowerText) {
+  public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
+      boolean isMacheteFilePresent, boolean isListingCommits) {
+    // TODO (#176): When machete file is absent or empty,
+    // propose using branch layout automatically detected by discover functionality
+
+    this.gitMacheteRepository = newGitMacheteRepository;
+
+    IRepositoryGraph repositoryGraph;
+    if (newGitMacheteRepository == null) {
+      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
+    } else {
+      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(newGitMacheteRepository, isListingCommits);
+      if (newGitMacheteRepository.getRootBranches().isEmpty()) {
+        setTextForEmptyGraph(
+            "Your machete file (${macheteFilePath}) is empty.",
+            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
+        LOG.info("Machete file (${macheteFilePath}) is empty");
+      }
+    }
+
+    setModel(new GraphTableModel(repositoryGraph));
+
+    if (!isMacheteFilePresent) {
+      setTextForEmptyGraph(
+          "There is no machete file (${macheteFilePath}) for this repository.",
+          "Please use 'git machete discover' CLI command to automatically create machete file.");
+      LOG.info("Machete file (${macheteFilePath}) is absent");
+    }
+
+    repaint();
+    revalidate();
+  }
+
+  @UIEffect
+  private void setTextForEmptyGraph(String upperText, String lowerText) {
     getEmptyText().setText(upperText).appendSecondaryText(lowerText, StatusText.DEFAULT_ATTRIBUTES, /* listener */ null);
   }
 
@@ -113,7 +154,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepositoryRef.get()),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         Case($(), (Object) null));
   }

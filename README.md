@@ -43,7 +43,8 @@ Logging of this plugin has several categories:
 * `frontendUiTable`
 * `gitCore`
 
-By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file (localization depends on IntelliJ version and OS). To find where this file is located, go to `Help` -> `Show Log in Files`.
+By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file (localization depends on IntelliJ version and OS).
+To find where this file is located, go to `Help` -> `Show Log in Files`.
 
 To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
 For our classes, the categories are customized and provided above; by default, the category is a fully-qualified name of each class.
