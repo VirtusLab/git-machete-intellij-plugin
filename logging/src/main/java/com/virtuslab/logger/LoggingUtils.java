@@ -12,6 +12,6 @@ public final class LoggingUtils {
   }
 
   public static void showErrorDialog(String message) {
-    GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(message, "Something Went Wrong..."), ModalityState.NON_MODAL);
+    showErrorDialog(message, "Something Went Wrong...");
   }
 }

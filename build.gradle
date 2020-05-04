@@ -212,12 +212,12 @@ subprojects {
 
 
   ext {
-    applyJetBrainsPlugin = {withGit4ide ->
+    applyIntellijPlugin = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
       disableIntellijTasks()
       intellij {
         version intellijVersion
-        if(withGit4ide) {
+        if(params.withGit4idea) {
           plugins 'git4idea'
         }
       }

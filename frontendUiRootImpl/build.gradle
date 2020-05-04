@@ -9,4 +9,4 @@ dependencies {
   api project(':frontendUiApi')
 }
 
-applyJetBrainsPlugin(/* withGit4idea */ true)
+applyIntellijPlugin(withGit4idea: true)

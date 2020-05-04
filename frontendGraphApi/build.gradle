@@ -5,4 +5,4 @@ dependencies {
   api project(':backendApi')
 }
 
-applyJetBrainsPlugin(/* withGit4idea */ false)
+applyIntellijPlugin(withGit4idea: false)

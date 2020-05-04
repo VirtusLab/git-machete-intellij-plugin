@@ -10,5 +10,5 @@ dependencies {
   implementation project(':frontendDataKeys')
 }
 
-applyJetBrainsPlugin(/* withGit4idea */ true)
+applyIntellijPlugin(withGit4idea: true)
 applySubtypingChecker()
