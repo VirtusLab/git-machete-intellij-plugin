@@ -63,25 +63,30 @@ public class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
     if (ref.isSymbolic()) {
-      return Option.of(new GitCoreLocalBranch(this, Repository.shortenRefName(ref.getTarget().getName())));
+      String currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
+      return Try.of(() -> getLocalBranch(currentBranchName)).toOption();
     }
     return Option.none();
   }
 
   @Override
-  public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
+  public IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchBranchException("Local branch '${branchName}' does not exist in this repository");
     }
-    return new GitCoreLocalBranch(/* repo */ this, branchName);
+
+    // Cast necessary because ambiguous method call with null parameter
+    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName).getOrElse((IGitCoreRemoteBranch) null);
+
+    return new GitCoreLocalBranch(/* repo */ this, branchName, remoteBranch);
   }
 
   @Override
-  public GitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException {
+  public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + branchName)) {
-      throw new GitCoreNoSuchBranchException("Remote branch '${branchName}' does not exist in this repository");
+      return Option.none();
     }
-    return new GitCoreRemoteBranch(/* repo */ this, branchName);
+    return Option.of(new GitCoreRemoteBranch(/* repo */ this, branchName));
   }
 
   @Override
@@ -96,8 +101,11 @@ public class GitCoreRepository implements IGitCoreRepository {
           LOG.debug(() -> "* ${branch.getName()}");
           return branch;
         })
-        .map(ref -> new GitCoreLocalBranch(/* repo */ this,
-            ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "")))
+        .map(ref -> {
+          String shortBranchName = ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "");
+          return new GitCoreLocalBranch(/* repo */ this, shortBranchName,
+              Try.of(() -> getRemoteBranch(shortBranchName).getOrElse((IGitCoreRemoteBranch) null)).getOrNull());
+        })
         .collect(List.collector());
   }
 

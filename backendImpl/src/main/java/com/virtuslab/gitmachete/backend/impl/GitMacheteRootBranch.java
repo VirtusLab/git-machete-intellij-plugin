@@ -9,6 +9,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -23,12 +24,15 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final IGitMacheteCommit pointedCommit;
   private final SyncToRemoteStatus syncToRemoteStatus;
   @Nullable
+  private final IGitMacheteRemoteBranch remoteBranch;
+  @Nullable
   private final String customAnnotation;
 
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
       SyncToRemoteStatus syncToRemoteStatus,
-      @Nullable String customAnnotation) {
+      @Nullable String customAnnotation,
+      @Nullable IGitMacheteRemoteBranch remoteBranch) {
     LOG.debug(
         () -> "Creating GitMacheteRootBranch(name = ${name}, " +
             "downstreamBranches.length() = ${downstreamBranches.length()}, " +
@@ -39,6 +43,7 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
     this.pointedCommit = pointedCommit;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.customAnnotation = customAnnotation;
+    this.remoteBranch = remoteBranch;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 

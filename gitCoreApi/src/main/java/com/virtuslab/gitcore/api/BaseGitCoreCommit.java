@@ -15,7 +15,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract IGitCorePersonIdentity getCommitter();
 
-  public abstract Date getCommitTime();
+  public abstract Date getCommitDate();
 
   public abstract BaseGitCoreCommitHash getHash();
 

@@ -11,6 +11,7 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -35,6 +36,8 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SyncToParentStatus syncToParentStatus;
   @Nullable
+  private final IGitMacheteRemoteBranch remoteBranch;
+  @Nullable
   private final String customAnnotation;
 
   public GitMacheteNonRootBranch(String name,
@@ -44,7 +47,8 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       List<IGitMacheteCommit> commits,
       SyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
-      @Nullable String customAnnotation) {
+      @Nullable String customAnnotation,
+      @Nullable IGitMacheteRemoteBranch remoteBranch) {
     LOG.debug(
         () -> "Creating GitMacheteNonRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, "
             + "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, pointedCommit = ${pointedCommit.getHash()}, "
@@ -58,6 +62,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.syncToParentStatus = syncToParentStatus;
     this.customAnnotation = customAnnotation;
+    this.remoteBranch = remoteBranch;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 

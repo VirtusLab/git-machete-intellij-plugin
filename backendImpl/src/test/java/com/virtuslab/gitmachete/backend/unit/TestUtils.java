@@ -75,7 +75,7 @@ public class TestUtils {
     }
 
     @Override
-    public Date getCommitTime() {
+    public Date getCommitDate() {
       return null;
     }
 
@@ -112,7 +112,7 @@ public class TestUtils {
     }
 
     @Override
-    public IGitCoreRemoteBranch getRemoteBranch(String branchName) {
+    public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) {
       return null;
     }
 

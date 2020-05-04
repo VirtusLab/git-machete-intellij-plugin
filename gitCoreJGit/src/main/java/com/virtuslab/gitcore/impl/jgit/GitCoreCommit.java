@@ -14,7 +14,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   private final String message;
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
-  private final Date commitTime;
+  private final Date commitDate;
   private final BaseGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
@@ -22,7 +22,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
     this.message = jgitCommit.getFullMessage();
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());
     this.committer = new GitCorePersonIdentity(jgitCommit.getCommitterIdent());
-    this.commitTime = new Date((long) jgitCommit.getCommitTime() * 1000);
+    this.commitDate = new Date((long) jgitCommit.getCommitTime() * 1000);
     this.hash = GitCoreCommitHash.of(jgitCommit);
   }
 

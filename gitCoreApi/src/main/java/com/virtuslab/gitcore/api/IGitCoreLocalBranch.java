@@ -8,4 +8,6 @@ public interface IGitCoreLocalBranch extends IGitCoreBranch {
   Option<IGitCoreRemoteBranch> getRemoteTrackingBranch();
 
   Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException;
+
+  Option<IGitCoreRemoteBranch> getRemoteBranch();
 }

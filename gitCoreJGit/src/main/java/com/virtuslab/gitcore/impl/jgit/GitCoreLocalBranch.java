@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -29,8 +30,12 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   public static final String BRANCHES_PATH = "refs/heads/";
 
-  public GitCoreLocalBranch(GitCoreRepository repo, String branchName) {
+  @Nullable
+  private final IGitCoreRemoteBranch remoteBranch;
+
+  public GitCoreLocalBranch(GitCoreRepository repo, String branchName, @Nullable IGitCoreRemoteBranch remoteBranch) {
     super(repo, branchName);
+    this.remoteBranch = remoteBranch;
   }
 
   @Override
@@ -197,5 +202,10 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     LOG.debug("Fork point for branch '${getFullName()}' not found");
     return Option.none();
+  }
+
+  @Override
+  public Option<IGitCoreRemoteBranch> getRemoteBranch() {
+    return Option.of(remoteBranch);
   }
 }

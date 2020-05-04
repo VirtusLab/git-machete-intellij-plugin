@@ -10,7 +10,7 @@ public interface IGitCoreRepository {
 
   IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
 
-  IGitCoreRemoteBranch getRemoteBranch(String branchName) throws GitCoreException;
+  Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) throws GitCoreException;
 
   List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
 

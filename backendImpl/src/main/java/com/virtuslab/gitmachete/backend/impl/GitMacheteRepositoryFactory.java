@@ -23,11 +23,13 @@ import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -88,8 +90,10 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
-    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToRemoteStatus, customAnnotation);
+    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToRemoteStatus, customAnnotation,
+        remoteBranch);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
@@ -121,9 +125,23 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         deducedForkPoint.getOrNull());
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
     return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
-        commits, syncToRemoteStatus, syncToParentStatus, customAnnotation);
+        commits, syncToRemoteStatus, syncToParentStatus, customAnnotation, remoteBranch);
+  }
+
+  @Nullable
+  private IGitMacheteRemoteBranch getRemoteBranchFromCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
+      throws GitMacheteException {
+    IGitMacheteRemoteBranch remoteBranch = null;
+    if (coreLocalBranch.getRemoteBranch().isDefined()) {
+      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteBranch().get();
+      BaseGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.getPointedCommit())
+          .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
+      remoteBranch = new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
+    }
+    return remoteBranch;
   }
 
   private Option<BaseGitCoreCommit> deduceForkPoint(

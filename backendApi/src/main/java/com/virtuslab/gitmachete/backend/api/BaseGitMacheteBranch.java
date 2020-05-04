@@ -39,6 +39,8 @@ public abstract class BaseGitMacheteBranch {
 
   public abstract SyncToRemoteStatus getSyncToRemoteStatus();
 
+  public abstract Option<IGitMacheteRemoteBranch> getRemoteBranch();
+
   @Override
   public final boolean equals(@Nullable Object other) {
     return this == other;
