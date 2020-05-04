@@ -18,7 +18,6 @@ import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
@@ -26,7 +25,6 @@ import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -181,17 +179,9 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     LOG.debug("Entering");
 
     if (project != null && !project.isDisposed()) {
-      // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
-      // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
-      @SuppressWarnings("value:assignment.type.incompatible")
-      @MinLen(1)
-      // A bit of a shortcut: we're accessing git repositories even though we may be on UI thread here;
-      // this shouldn't ever be a heavyweight operation, however.
-      List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-
       LOG.debug("Queuing repository update onto a non-UI thread");
       GuiUtils.invokeLaterIfNeeded(() -> {
-        gitRepositorySelectionProvider.updateRepositories(repositories);
+        gitRepositorySelectionProvider.updateRepositories();
         Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
         if (gitRepository.isDefined()) {
           new Task.Backgroundable(project, "Updating Git Machete repository") {

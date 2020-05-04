@@ -7,26 +7,45 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import com.intellij.dvcs.repo.VcsRepositoryManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.GuiUtils;
 import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.util.SmartList;
+import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
+import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class VcsRootComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionProvider {
 
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
+
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
+  private final Project project;
+
   @UIEffect
-  public VcsRootComboBox(@MinLen(1) List<GitRepository> repositories) {
-    super(new MutableCollectionComboBoxModel<>(/* items */ repositories.asJavaMutable(), /* selection */ repositories.get(0)));
+  public VcsRootComboBox(Project project) {
+    super(new MutableCollectionComboBoxModel<>());
+    this.project = project;
+
+    updateRepositories();
     setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", repo -> repo.getRoot().getName()));
+
+    project.getMessageBus().connect()
+        .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
+          LOG.debug("VCS repository roots mappings changed");
+          GuiUtils.invokeLaterIfNeeded(() -> updateRepositories(), ModalityState.NON_MODAL);
+        });
   }
 
   @Override
@@ -36,7 +55,13 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
   @Override
   @UIEffect
-  public void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
+  public void updateRepositories() {
+    // GitUtil.getRepositories(project) should never return empty list because it means there's no git repository in an opened
+    // project, so Git Machete plugin shouldn't even be loaded in the first place (as ensured by GitMacheteVisibilityPredicate)
+    List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
+    LOG.debug(() -> "VCS roots:");
+    repositories.forEach(r -> LOG.debug("* {r.getRoot().getName()}"));
+
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
@@ -45,14 +70,20 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
       getModel().update(repositories.asJavaMutable());
     }
 
+    this.setVisible(getModel().getItems().size() > 1);
+
     boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
-    if (selectedItemUpdateRequired) {
-      getModel().setSelectedItem(repositories.get(0));
+    if (repositories.isEmpty()) {
+      LOG.debug(() -> "No VCS roots found");
+      observers.forEach(o -> o.onSelectionChanged());
+    } else if (selectedItemUpdateRequired) {
+      LOG.debug(() -> "Selecting first VCS root");
+      setSelectedItem(repositories.get(0));
     } else {
+      LOG.debug(() -> "Selecting previously selected VCS root");
+      // VcsRootComboBox#setSelectedItem is omitted to avoid unnecessary observers call
       getModel().setSelectedItem(selected);
     }
-
-    this.setVisible(getModel().getItems().size() > 1);
   }
 
   @Override

@@ -16,12 +16,8 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
-import git4idea.GitUtil;
-import git4idea.repo.GitRepository;
-import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.common.value.qual.MinLen;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
@@ -45,12 +41,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     LOG.debug("Instantiating");
 
     this.project = project;
-    // GitUtil.getRepositories(project) should never return empty list because it means there's no git repository in an opened
-    // project, so Git Machete plugin shouldn't even be loaded in the first place (as ensured by GitMacheteVisibilityPredicate)
-    @SuppressWarnings("value:assignment.type.incompatible")
-    @MinLen(1)
-    List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-    this.vcsRootComboBox = new VcsRootComboBox(repositories);
+    this.vcsRootComboBox = new VcsRootComboBox(project);
     this.gitMacheteGraphTableManager = RuntimeBinding
         .instantiateSoleImplementingClass(IGraphTableManagerFactory.class).create(project, vcsRootComboBox);
     gitMacheteGraphTableManager.queueRepositoryUpdateAndGraphTableRefresh();
