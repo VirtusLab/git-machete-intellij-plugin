@@ -12,5 +12,5 @@ dependencies {
   api project(':frontendUiApi')
 }
 
-applyIntellijPlugin(withGit4idea: true)
+applyIntellijPlugin(withGit4Idea: true)
 applySubtypingChecker()

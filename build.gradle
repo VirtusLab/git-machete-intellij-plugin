@@ -214,10 +214,25 @@ subprojects {
   ext {
     applyIntellijPlugin = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
-      disableIntellijTasks()
+
+      // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
+      // but don't want the associated tasks to be available; they should only be available in the root project.
+      buildPlugin.enabled = false
+      buildSearchableOptions.enabled = false
+      downloadRobotServerPlugin.enabled = false
+      jarSearchableOptions.enabled = false
+      patchPluginXml.enabled = false
+      prepareSandbox.enabled = false
+      prepareTestingSandbox.enabled = false
+      prepareUiTestingSandbox.enabled = false
+      publishPlugin.enabled = false
+      runIde.enabled = false
+      runIdeForUiTests.enabled = false
+      verifyPlugin.enabled = false
+
       intellij {
         version intellijVersion
-        if(params.withGit4idea) {
+        if (params.withGit4Idea) {
           plugins 'git4idea'
         }
       }
@@ -233,23 +248,6 @@ subprojects {
         def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
         extraJavacArgs += "-AqualDirs=${qualClassDir}"
       }
-    }
-
-    // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
-    // but don't want the associated tasks to be available; they should only be available in the root project.
-    disableIntellijTasks = { ->
-      buildPlugin.enabled = false
-      buildSearchableOptions.enabled = false
-      downloadRobotServerPlugin.enabled = false
-      jarSearchableOptions.enabled = false
-      patchPluginXml.enabled = false
-      prepareSandbox.enabled = false
-      prepareTestingSandbox.enabled = false
-      prepareUiTestingSandbox.enabled = false
-      publishPlugin.enabled = false
-      runIde.enabled = false
-      runIdeForUiTests.enabled = false
-      verifyPlugin.enabled = false
     }
 
     jgit = { ->

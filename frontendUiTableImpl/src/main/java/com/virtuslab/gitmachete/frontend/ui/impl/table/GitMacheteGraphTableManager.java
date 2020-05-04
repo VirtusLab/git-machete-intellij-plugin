@@ -37,7 +37,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFa
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.LoggingUtils;
+import com.virtuslab.logger.IntelliJLoggingUtils;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMacheteGraphTableManager implements IGraphTableManager {
@@ -237,7 +237,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     VcsNotifier.getInstance(project).notifyError("Repository instantiation failed",
         exceptionMessage != null ? exceptionMessage : "");
 
-    LoggingUtils.showErrorDialog(exceptionMessage != null
+    IntelliJLoggingUtils.showErrorDialog(exceptionMessage != null
         ? exceptionMessage
         : "Repository instantiation failed. For more information, please look at the IntelliJ logs");
   }

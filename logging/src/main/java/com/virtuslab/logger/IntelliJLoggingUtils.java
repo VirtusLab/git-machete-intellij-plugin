@@ -4,8 +4,8 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.GuiUtils;
 
-public final class LoggingUtils {
-  private LoggingUtils() {}
+public final class IntelliJLoggingUtils {
+  private IntelliJLoggingUtils() {}
 
   static void showErrorDialog(String message, String title) {
     GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(message, title), ModalityState.NON_MODAL);
