@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
+import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.swing.SwingUtilities;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.GuiUtils;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
@@ -83,69 +84,79 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   private void subscribeToVcsRootChanges() {
     // The method reference is invoked when user changes repository in combo box menu
-    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> updateAndRefreshGraphTableInBackground());
+    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndGraphTableRefresh());
   }
 
   private void subscribeToGitRepositoryChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener = repository -> updateAndRefreshGraphTableInBackground();
+    GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndGraphTableRefresh();
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
   @Override
-  public void refreshGraphTable() {
-    synchronized (gitRepositorySelectionProvider) {
+  public void queueGraphTableRefreshOnDispatchThread() {
+    GuiUtils.invokeLaterIfNeeded(() -> {
       Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
       if (gitRepository.isDefined()) {
+        // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
+        // this shouldn't ever be a heavyweight operation, however.
         Path macheteFilePath = getMacheteFilePath(gitRepository.get());
         boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
         refreshGraphTable(macheteFilePath, isMacheteFilePresent);
       }
-    }
+    }, NON_MODAL);
+  }
+
+  private void queueGraphTableRefreshOnDispatchThread(GitRepository gitRepository) {
+    // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
+    // this shouldn't ever be a heavyweight operation, however.
+    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
+    GuiUtils.invokeLaterIfNeeded(() -> refreshGraphTable(macheteFilePath, isMacheteFilePresent), NON_MODAL);
   }
 
   /** Creates a new repository graph and sets it to the graph table model. */
+  @UIEffect
   private void refreshGraphTable(Path macheteFilePath, boolean isMacheteFilePresent) {
-    SwingUtilities.invokeLater(() -> {
-      LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
-      // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
-      // No UI should be shown when IDEA is running in this mode.
-      if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
-        LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
-        return;
-      }
+    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
+    // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
+    // No UI should be shown when IDEA is running in this mode.
+    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
+      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
+      return;
+    }
 
-      // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
-      // functionality) branch layout
+    // TODO (#176): When machete file is not present or it's empty, propose using automatically detected (by discover
+    // functionality) branch layout
 
-      IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
-      IRepositoryGraph repositoryGraph;
-      if (gitMacheteRepository == null) {
-        repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
-      } else {
-        repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
-        if (gitMacheteRepository.getRootBranches().isEmpty()) {
-          graphTable.setTextForEmptyGraph(
-              "Your machete file (${macheteFilePath}) is empty.",
-              "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
-          LOG.info("Machete file (${macheteFilePath}) is empty");
-        }
-      }
-
-      GraphTableModel model = new GraphTableModel(repositoryGraph);
-      graphTable.setModel(model);
-
-      if (!isMacheteFilePresent) {
+    IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryRef.get();
+    IRepositoryGraph repositoryGraph;
+    if (gitMacheteRepository == null) {
+      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
+    } else {
+      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
+      if (gitMacheteRepository.getRootBranches().isEmpty()) {
         graphTable.setTextForEmptyGraph(
-            "There is no machete file (${macheteFilePath}) for this repository.",
-            "Please use 'git machete discover' CLI command to automatically create machete file.");
-        LOG.info("Machete file (${macheteFilePath}) is absent");
+            "Your machete file (${macheteFilePath}) is empty.",
+            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
+        LOG.info("Machete file (${macheteFilePath}) is empty");
       }
+    }
 
-      graphTable.repaint();
-      graphTable.revalidate();
-    });
+    GraphTableModel model = new GraphTableModel(repositoryGraph);
+    graphTable.setModel(model);
+
+    if (!isMacheteFilePresent) {
+      graphTable.setTextForEmptyGraph(
+          "There is no machete file (${macheteFilePath}) for this repository.",
+          "Please use 'git machete discover' CLI command to automatically create machete file.");
+      LOG.info("Machete file (${macheteFilePath}) is absent");
+    }
+
+    graphTable.repaint();
+    graphTable.revalidate();
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {
@@ -162,46 +173,55 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     return getGitDirectoryPath(gitRepository).resolve("machete");
   }
 
+  /**
+   * Repository update is queued as a background task, which in turn itself queues graph table refresh onto the UI thread.
+   */
   @Override
-  public void updateAndRefreshGraphTableInBackground() {
+  public void queueRepositoryUpdateAndGraphTableRefresh() {
     LOG.debug("Entering");
 
     if (project != null && !project.isDisposed()) {
-      LOG.debug("Queuing 'Updating Git Machete repository and refreshing'");
-      new Task.Backgroundable(project, "Updating Git Machete repository and refreshing") {
-        @Override
-        @UIEffect
-        public void run(ProgressIndicator indicator) {
-          LOG.debug("Updating Git Machete repository and refreshing");
+      // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
+      // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
+      @SuppressWarnings("value:assignment.type.incompatible")
+      @MinLen(1)
+      // A bit of a shortcut: we're accessing git repositories even though we may be on UI thread here;
+      // this shouldn't ever be a heavyweight operation, however.
+      List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
 
-          synchronized (gitRepositorySelectionProvider) {
-            // GitUtil.getRepositories(project) should never return empty list because it means there is no git repository
-            // in an opened project, so Git Machete plugin shouldn't even be loaded in the first place
-            @SuppressWarnings("value:assignment.type.incompatible")
-            @MinLen(1)
-            List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-            gitRepositorySelectionProvider.updateRepositories(repositories);
+      LOG.debug("Queuing repository update onto a non-UI thread");
+      GuiUtils.invokeLaterIfNeeded(() -> {
+        gitRepositorySelectionProvider.updateRepositories(repositories);
+        Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+        if (gitRepository.isDefined()) {
+          new Task.Backgroundable(project, "Updating Git Machete repository") {
+            @Override
+            public void run(ProgressIndicator indicator) {
+              // We can't queue repository update (onto a non-UI thread) and graph table refresh (onto the UI thread) separately
+              // since those two actions happen on two separate threads
+              // and graph table refresh can only start once repository update is complete.
 
-            Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-            if (gitRepository.isDefined()) {
+              // Thus, we synchronously run repository update first...
               updateRepository(gitRepository.get());
-              refreshGraphTable();
-            } else {
-              LOG.warn("Selected repository is null. Setting repository reference to null");
-              gitMacheteRepositoryRef.set(null);
-            }
-          }
 
+              // ... and only once it completes, we queue graph table update onto the UI thread.
+              LOG.debug("Queuing graph table refresh onto the UI thread");
+              queueGraphTableRefreshOnDispatchThread(gitRepository.get());
+            }
+          }.queue();
+        } else {
+          LOG.warn("Selected repository is null. Setting repository reference to null");
+          gitMacheteRepositoryRef.set(null);
         }
-      }.queue();
+      }, NON_MODAL);
     } else {
-      LOG.debug("project == null or was disposed");
+      LOG.debug("project == null or is disposed");
     }
   }
 
   /**
    * Updates repository which is the base of graph table model. The change will be seen after
-   * {@link GitMacheteGraphTableManager#refreshGraphTable()}.
+   * {@link GitMacheteGraphTableManager#refreshGraphTable} completes.
    */
   private void updateRepository(GitRepository gitRepository) {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);

@@ -92,20 +92,32 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bSneakyThrows\b"/>
+    <property name="message" value="String interpolation does not work in methods marked with lombok.SneakyThrows, use lombok.Lombok#sneakyThrow instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bString\.format\b"/>
     <property name="message" value="Use string interpolation instead (com.antkorwin:better-strings)"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
-    <property name="format" value="\bSneakyThrows\b"/>
-    <property name="message" value="String interpolation does not work in methods marked with lombok.SneakyThrows, use lombok.Lombok#sneakyThrow instead."/>
+    <property name="format" value="\bSwingUtilities\.invokeLater\b"/>
+    <property name="message" value="Use GuiUtils.invokeLaterIfNeeded(...) instead, see docs for com.intellij.openapi.application.ModalityState for the reason"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bsynchronized\b"/>
+    <property name="message" value="Avoid lock-based synchronization, consider Task.Backgroundable and/or GuiUtils.invokeLaterIfNeeded(...) instead"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bupdateUI\b"/>
-    <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()."/>
+    <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()"/>
 </module>
 <module name="RegexpSinglelineJava">
     <property name="ignoreComments" value="true"/>

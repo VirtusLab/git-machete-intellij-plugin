@@ -52,6 +52,6 @@ public class ToggleListingCommitsAction extends ToggleAction implements DumbAwar
     LOG.debug("Triggered with state = ${state}");
     var graphTableManager = getGraphTableManager(e);
     graphTableManager.setListingCommits(state);
-    graphTableManager.refreshGraphTable();
+    graphTableManager.queueGraphTableRefreshOnDispatchThread();
   }
 }

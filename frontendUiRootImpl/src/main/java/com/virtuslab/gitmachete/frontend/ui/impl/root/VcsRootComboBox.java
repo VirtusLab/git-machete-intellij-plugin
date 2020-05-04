@@ -23,9 +23,6 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
-  /**
-   * @param repositories non-empty list of {@link git4idea.repo.GitRepository} that represents VCS repositories
-   */
   @UIEffect
   public VcsRootComboBox(@MinLen(1) List<GitRepository> repositories) {
     super(new MutableCollectionComboBoxModel<>(/* items */ repositories.asJavaMutable(), /* selection */ repositories.get(0)));
@@ -39,7 +36,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
   @Override
   @UIEffect
-  public synchronized void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
+  public void updateRepositories(@MinLen(1) List<GitRepository> repositories) {
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
@@ -59,7 +56,8 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
-  public synchronized Option<GitRepository> getSelectedRepository() {
+  @UIEffect
+  public Option<GitRepository> getSelectedRepository() {
     return Option.of(getModel().getSelected());
   }
 
