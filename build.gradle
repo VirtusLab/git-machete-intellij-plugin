@@ -5,7 +5,7 @@ plugins {
   id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
   id 'io.freefair.lombok' version '5.0.0' apply false
   id 'org.ajoberstar.grgit' version '4.0.2' apply false
-  id 'org.checkerframework' version '0.4.15' apply false
+  id 'org.checkerframework' version '0.5.0' apply false
   id 'org.jetbrains.intellij' version '0.4.18' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
@@ -113,6 +113,11 @@ subprojects {
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
     ]
+  }
+
+  dependencies {
+    compileOnly 'org.checkerframework:checker-qual:3.4.0'
+    checkerFramework 'org.checkerframework:checker:3.4.0'
   }
 
 
