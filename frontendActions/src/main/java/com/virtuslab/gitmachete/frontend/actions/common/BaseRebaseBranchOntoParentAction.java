@@ -35,7 +35,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
