@@ -112,7 +112,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       int firstNonEmptyLineIndex = lines.indexOf(linesWithoutBlank.head());
       assert firstNonEmptyLineIndex >= 0 : "Non-empty line not found";
       throw new BranchLayoutException(firstNonEmptyLineIndex + 1,
-          "The initial line of branch layout file (${path.toAbsolutePath()}) may not be indented be indented");
+          "The initial line of branch layout file (${path.toAbsolutePath()}) may not be indented");
     }
 
     Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(linesWithoutBlank.size(),

@@ -49,7 +49,7 @@ public class BranchLayoutManager implements IBranchLayoutManager {
       indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
       indentWidth = BranchLayoutFileUtils.getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
       // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
-      assert indentWidth > 0 : "indent width is 0";
+      assert indentWidth > 0 : "indent width is ${indentWidth} <= 0";
     }
     IndentSpec indentSpec = new IndentSpec(indentCharacter, indentWidth);
 
