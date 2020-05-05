@@ -24,11 +24,9 @@ public final class DataKeys {
   public static final DataKey<@Nullable String> KEY_SELECTED_BRANCH_NAME = DataKey.create("SELECTED_BRANCH_NAME");
   public static final DataKey<@Nullable GitRepository> KEY_SELECTED_VCS_REPOSITORY = DataKey.create("SELECTED_VCS_REPOSITORY");
 
-  /**
-   * Note: this method isn't currently null-safe wrt. {@code value},
-   * see https://github.com/typetools/checker-framework/issues/3289
-   * and generally https://github.com/typetools/checker-framework/issues/979
-   */
+  // Note: this method isn't currently null-safe wrt. {@code value},
+  // see https://github.com/typetools/checker-framework/issues/3289
+  // and generally https://github.com/typetools/checker-framework/issues/979
   public static <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
     return Case($(key.getName()), value);
   }

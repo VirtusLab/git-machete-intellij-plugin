@@ -17,8 +17,8 @@ public class RepositoryGraphFactory implements IRepositoryGraphFactory {
   private IGitMacheteRepository repository = null;
 
   @Override
-  // Not the most beautiful solution, but let's enforce that this method is only ever called from UI thread to race conditions
-  // on mutable fields.
+  // Not the most beautiful solution, but let's enforce that this method is only ever called from UI thread
+  // to prevent race conditions on mutable fields.
   @UIEffect
   public IRepositoryGraph getRepositoryGraph(IGitMacheteRepository givenRepository, boolean isListingCommits) {
     if (givenRepository != this.repository || repositoryGraphWithCommits == null

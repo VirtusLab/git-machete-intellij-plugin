@@ -81,6 +81,8 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
   /**
    * Updates repository which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTable#refreshModel} completes.
+   *
+   * This method is heavyweight and must never be invoked on UI thread.
    */
   private Option<IGitMacheteRepository> updateRepository() {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
