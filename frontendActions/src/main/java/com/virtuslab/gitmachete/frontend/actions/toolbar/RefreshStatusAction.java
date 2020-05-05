@@ -2,9 +2,8 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbAwareAction;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -16,7 +15,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link DataKeys#KEY_GRAPH_TABLE_MANAGER}</li>
  * </ul>
  */
-public class RefreshStatusAction extends AnAction implements DumbAware {
+public class RefreshStatusAction extends DumbAwareAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

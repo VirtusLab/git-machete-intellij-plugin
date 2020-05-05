@@ -19,8 +19,11 @@ public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
-    boolean isEnabledAndVisible = ActionUtils.getGitMacheteRepository(anActionEvent).isDefined();
-    presentation.setEnabledAndVisible(isEnabledAndVisible);
+    boolean isEnabled = ActionUtils.getGitMacheteRepository(anActionEvent).isDefined();
+    anActionEvent.getPresentation().setEnabled(isEnabled);
+
+    if (!isEnabled) {
+      anActionEvent.getPresentation().setDescription("Action disabled due to undefined Git Machete repository");
+    }
   }
 }

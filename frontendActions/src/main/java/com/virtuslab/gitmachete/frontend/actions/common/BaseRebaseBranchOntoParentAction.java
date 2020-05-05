@@ -52,6 +52,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
+      presentation.setDescription("Can't rebase due to unknown repository state");
     } else if (state.get() != Repository.State.NORMAL) {
       // `REVERTING` state is available since 193.2495, but we're still supporting 192.*
       var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();

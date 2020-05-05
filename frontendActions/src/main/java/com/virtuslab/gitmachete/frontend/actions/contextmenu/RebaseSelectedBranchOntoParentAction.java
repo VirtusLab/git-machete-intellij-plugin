@@ -29,15 +29,20 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
-    if (presentation.isVisible()) {
+    if (anActionEvent.getPresentation().isVisible()) {
       Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
-      if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
-        var nonRootBranch = selectedBranch.get().asNonRootBranch();
-        BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
-        presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
+      if (selectedBranch.isDefined()) {
+        if (selectedBranch.get().isNonRootBranch()) {
+          var nonRootBranch = selectedBranch.get().asNonRootBranch();
+          BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+          anActionEvent.getPresentation().setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
+        } else {
+          // in case of root branch we do not want to show this option at all
+          anActionEvent.getPresentation().setEnabledAndVisible(false);
+        }
       } else {
-        presentation.setEnabledAndVisible(false);
+        anActionEvent.getPresentation().setEnabled(false);
+        anActionEvent.getPresentation().setDescription("Rebase disabled due to undefined selected branch");
       }
     }
   }

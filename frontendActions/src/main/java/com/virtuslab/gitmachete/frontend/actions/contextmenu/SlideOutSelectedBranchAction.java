@@ -31,14 +31,19 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
-    if (presentation.isVisible()) {
+    if (anActionEvent.getPresentation().isVisible()) {
       Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
-      if (selectedBranch.isDefined() && selectedBranch.get().isNonRootBranch()) {
-        var nonRootBranch = selectedBranch.get().asNonRootBranch();
-        presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
+      if (selectedBranch.isDefined()) {
+        if (selectedBranch.get().isNonRootBranch()) {
+          var nonRootBranch = selectedBranch.get().asNonRootBranch();
+          anActionEvent.getPresentation().setDescription("Slide out '${nonRootBranch.getName()}'");
+        } else {
+          // in case of root branch we do not want to show this option at all
+          anActionEvent.getPresentation().setEnabledAndVisible(false);
+        }
       } else {
-        presentation.setEnabledAndVisible(false);
+        anActionEvent.getPresentation().setEnabled(false);
+        anActionEvent.getPresentation().setDescription("Slide out disabled due to undefined selected branch");
       }
     }
   }
