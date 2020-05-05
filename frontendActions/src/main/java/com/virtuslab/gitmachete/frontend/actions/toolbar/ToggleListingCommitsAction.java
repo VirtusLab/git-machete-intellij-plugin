@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
@@ -10,6 +9,7 @@ import com.intellij.openapi.project.DumbAware;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -54,7 +54,8 @@ public class ToggleListingCommitsAction extends ToggleAction implements DumbAwar
   @UIEffect
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
-    getGraphTable(e).setListingCommits(state);
-    getGraphTableManager(e).queueGraphTableRefreshOnDispatchThread();
+    IGraphTable graphTable = getGraphTable(e);
+    graphTable.setListingCommits(state);
+    graphTable.refreshModel();
   }
 }

@@ -8,4 +8,7 @@ public interface IGraphTable {
 
   @UIEffect
   void setListingCommits(boolean isListingCommits);
+
+  @UIEffect
+  void refreshModel();
 }

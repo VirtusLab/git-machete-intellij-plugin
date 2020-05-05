@@ -10,7 +10,9 @@ import static io.vavr.API.Match;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.SwingUtilities;
 
@@ -24,10 +26,14 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
+import git4idea.GitUtil;
+import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
@@ -44,6 +50,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
@@ -55,6 +62,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
   private final Project project;
+  private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
   private final IRepositoryGraphFactory repositoryGraphFactory;
 
   @Getter
@@ -73,10 +81,11 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
   private String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable(Project project) {
+  public GitMacheteGraphTable(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
     super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
     this.project = project;
+    this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
     this.isListingCommits = false;
 
@@ -152,6 +161,32 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
       boolean isMacheteFilePresent) {
     this.gitMacheteRepository = newGitMacheteRepository;
     refreshModel(macheteFilePath, isMacheteFilePresent);
+  }
+
+  @Override
+  @UIEffect
+  public void refreshModel() {
+    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+    if (gitRepository.isDefined()) {
+      // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
+      // this shouldn't ever be a heavyweight operation, however.
+      Path macheteFilePath = getMacheteFilePath(gitRepository.get());
+      boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
+      refreshModel(macheteFilePath, isMacheteFilePresent);
+    } else {
+      LOG.warn("No git repository selected, not updating the model");
+    }
+  }
+
+  private static Path getGitDirectoryPath(GitRepository gitRepository) {
+    VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
+    assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
+    return Paths.get(vfGitDir.getPath());
+  }
+
+  private static Path getMacheteFilePath(GitRepository gitRepository) {
+    return getGitDirectoryPath(gitRepository).resolve("machete");
   }
 
   @UIEffect

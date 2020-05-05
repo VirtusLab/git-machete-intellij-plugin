@@ -52,7 +52,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     this.project = project;
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
-    this.graphTable = new GitMacheteGraphTable(project);
+    this.graphTable = new GitMacheteGraphTable(project, gitRepositorySelectionProvider);
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
     this.branchLayoutManagerFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
@@ -76,21 +76,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
-  @Override
-  public void queueGraphTableRefreshOnDispatchThread() {
-    GuiUtils.invokeLaterIfNeeded(() -> {
-      Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-      if (gitRepository.isDefined()) {
-        // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
-        // this shouldn't ever be a heavyweight operation, however.
-        Path macheteFilePath = getMacheteFilePath(gitRepository.get());
-        boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-
-        graphTable.refreshModel(macheteFilePath, isMacheteFilePresent);
-      }
-    }, NON_MODAL);
-  }
-
   private void queueGraphTableRefreshOnDispatchThread(@Nullable IGitMacheteRepository gmr, GitRepository gitRepository) {
     // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
@@ -101,17 +86,17 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         NON_MODAL);
   }
 
-  private Path getMainDirectoryPath(GitRepository gitRepository) {
+  private static Path getMainDirectoryPath(GitRepository gitRepository) {
     return Paths.get(gitRepository.getRoot().getPath());
   }
 
-  private Path getGitDirectoryPath(GitRepository gitRepository) {
+  private static Path getGitDirectoryPath(GitRepository gitRepository) {
     VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
     assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
     return Paths.get(vfGitDir.getPath());
   }
 
-  private Path getMacheteFilePath(GitRepository gitRepository) {
+  private static Path getMacheteFilePath(GitRepository gitRepository) {
     return getGitDirectoryPath(gitRepository).resolve("machete");
   }
 
