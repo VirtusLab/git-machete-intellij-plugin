@@ -35,7 +35,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
@@ -62,10 +61,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
   @Setter
   @UIEffect
   private boolean isListingCommits;
-
-  @Setter
-  @Nullable
-  private IBranchLayout branchLayout;
 
   @Setter
   @Nullable
@@ -175,12 +170,14 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
   @Override
   @Nullable
   public Object getData(String dataId) {
+    // Should be extracted to a local var since `gitMacheteRepository` is mutable and used for more than one case below.
+    var gmr = gitMacheteRepository;
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
-        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
+        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, gmr != null ? gmr.getBranchLayout().getOrNull() : null),
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gmr),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));

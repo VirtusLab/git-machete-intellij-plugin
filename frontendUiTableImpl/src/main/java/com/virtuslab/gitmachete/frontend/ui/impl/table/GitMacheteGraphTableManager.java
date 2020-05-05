@@ -170,7 +170,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
       return Try.of(() -> {
         IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
-        graphTable.setBranchLayout(branchLayout);
         return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
       }).onFailure(this::handleUpdateRepositoryExceptions).toOption();
     } else {

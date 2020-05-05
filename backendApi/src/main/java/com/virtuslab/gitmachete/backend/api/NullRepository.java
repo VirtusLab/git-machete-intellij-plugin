@@ -3,6 +3,8 @@ package com.virtuslab.gitmachete.backend.api;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 
+import com.virtuslab.branchlayout.api.IBranchLayout;
+
 public final class NullRepository implements IGitMacheteRepository {
   private static final NullRepository instance = new NullRepository();
 
@@ -10,6 +12,11 @@ public final class NullRepository implements IGitMacheteRepository {
 
   public static IGitMacheteRepository getInstance() {
     return instance;
+  }
+
+  @Override
+  public Option<IBranchLayout> getBranchLayout() {
+    return Option.none();
   }
 
   @Override

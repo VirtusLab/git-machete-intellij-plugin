@@ -20,8 +20,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Getter
   private final List<BaseGitMacheteRootBranch> rootBranches;
-  @Getter
+
+  @Nullable
   private final IBranchLayout branchLayout;
+
+  @Override
+  public Option<IBranchLayout> getBranchLayout() {
+    return Option.of(branchLayout);
+  }
 
   @Nullable
   private final BaseGitMacheteBranch currentBranch;
