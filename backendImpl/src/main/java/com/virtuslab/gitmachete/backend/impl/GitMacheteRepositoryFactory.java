@@ -10,10 +10,11 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import java.nio.file.Path;
 import java.time.Instant;
 
-import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Queue;
+import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -42,8 +43,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backendRoot");
 
-  private Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
-
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
   public GitMacheteRepositoryFactory() {
@@ -54,8 +53,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
-    // To make sure there are no leftovers from the previous invocations.
-    branchByName = HashMap.empty();
 
     IGitCoreRepository gitCoreRepository = Try
         .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
@@ -67,8 +64,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
     var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 
-    var rootBranchByName = rootBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
-    branchByName = branchByName.merge(rootBranchByName);
+    var branchByName = createBranchByNameMap(rootBranches);
 
     BaseGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
@@ -78,6 +74,19 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     LOG.debug(() -> "Current branch: ${currentBranch != null ? currentBranch.getName() : null}");
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
+  }
+
+  private Map<String, BaseGitMacheteBranch> createBranchByNameMap(Seq<GitMacheteRootBranch> rootBranches) {
+    Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
+    Queue<BaseGitMacheteBranch> queue = Queue.ofAll(rootBranches);
+    // BFS over all branches
+    while (queue.nonEmpty()) {
+      var headAndTail = queue.dequeue();
+      var branch = headAndTail._1;
+      branchByName = branchByName.put(branch.getName(), branch);
+      queue = headAndTail._2.appendAll(branch.getDownstreamBranches());
+    }
+    return branchByName;
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
@@ -213,10 +222,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var downstreamBranchTries = directUpstreamEntry.getSubentries().map(entry -> Try.of(
         () -> createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry)));
     var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
-
-    var downstreamBranchByName = downstreamBranches.toMap(branch -> Tuple.of(branch.getName(), branch));
-    branchByName = branchByName.merge(downstreamBranchByName);
-
     return List.ofAll(downstreamBranches);
   }
 
