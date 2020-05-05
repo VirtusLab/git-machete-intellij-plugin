@@ -42,7 +42,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -64,16 +64,14 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
+
+  private final IBranchLayoutReader branchLayoutReader;
   private final IRepositoryGraphFactory repositoryGraphFactory;
 
   @Getter
   @Setter
   @UIEffect
   private boolean isListingCommits;
-
-  @Setter
-  @Nullable
-  private IBranchLayoutWriter branchLayoutWriter;
 
   @Nullable
   private IGitMacheteRepository gitMacheteRepository;
@@ -87,6 +85,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     this.project = project;
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
+    this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
     this.isListingCommits = false;
 
@@ -218,7 +217,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         if (gitRepository.isDefined()) {
           LOG.debug("Queuing repository update onto a non-UI thread");
 
-          GitMacheteRepositoryUpdateTask.of(project, gitRepository.get(), /* graphTable */ this).queue();
+          GitMacheteRepositoryUpdateTask.of(/* graphTable */ this, project, gitRepository.get(), branchLayoutReader).queue();
         } else {
           LOG.warn("Selected repository is null");
         }
@@ -233,7 +232,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   public Object getData(String dataId) {
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
-        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),

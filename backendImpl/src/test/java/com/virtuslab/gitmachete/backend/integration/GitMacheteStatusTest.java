@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
@@ -47,8 +47,7 @@ public class GitMacheteStatusTest {
   public final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
 
   GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
-  IBranchLayoutManagerFactory branchLayoutManagerFactory = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
+  IBranchLayoutReader branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
 
   public GitMacheteStatusTest() throws IOException {}
 
@@ -56,7 +55,7 @@ public class GitMacheteStatusTest {
     createDirStructure();
     copyScriptsFromResources(scriptName);
     prepareRepoFromScript();
-    IBranchLayout branchLayout = branchLayoutManagerFactory.create(repositoryGitDir.resolve("machete")).getReader().read();
+    IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
 
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }

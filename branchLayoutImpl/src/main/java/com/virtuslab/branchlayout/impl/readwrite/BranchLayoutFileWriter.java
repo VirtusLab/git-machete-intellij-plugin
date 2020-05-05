@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.impl.manager;
+package com.virtuslab.branchlayout.impl.readwrite;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +14,8 @@ import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
+import com.virtuslab.branchlayout.impl.BranchLayout;
+import com.virtuslab.branchlayout.impl.IndentSpec;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -21,15 +23,14 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
-  private final Path path;
-
-  private final IndentSpec indentSpec;
-
   @Override
   public void write(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
-    LOG.debug(
-        () -> "Entering: branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
-    var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), 0);
+    LOG.debug(() -> "Entering: branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
+
+    var path = ((BranchLayout) branchLayout).getPath();
+    var indentSpec = ((BranchLayout) branchLayout).getIndentSpec();
+
+    var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
     if (backupOldFile) {
       Path parentDir = path.getParent();
@@ -48,7 +49,8 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         .getOrElseThrow(e -> new BranchLayoutException("Unable to write new branch layout file to ${path}", e));
   }
 
-  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, @NonNegative int level) {
+  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, IndentSpec indentSpec,
+      @NonNegative int level) {
     List<String> stringList = List.empty();
     for (var branch : branches) {
       var sb = new StringBuilder();
@@ -60,7 +62,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
       }
 
       stringList = stringList.append(sb.toString())
-          .appendAll(printBranchesOntoStringList(branch.getSubentries(), level + 1));
+          .appendAll(printBranchesOntoStringList(branch.getSubentries(), indentSpec, level + 1));
     }
     return stringList;
   }

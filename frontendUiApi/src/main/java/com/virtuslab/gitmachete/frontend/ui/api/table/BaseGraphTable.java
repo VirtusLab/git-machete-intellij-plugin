@@ -8,7 +8,6 @@ import com.intellij.ui.table.JBTable;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
 public abstract class BaseGraphTable extends JBTable {
@@ -23,8 +22,6 @@ public abstract class BaseGraphTable extends JBTable {
 
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
-
-  public abstract void setBranchLayoutWriter(IBranchLayoutWriter branchLayoutWriter);
 
   @UIEffect
   public abstract void refreshModel();

@@ -21,8 +21,7 @@ import org.checkerframework.checker.index.qual.Positive;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutManager;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
@@ -38,23 +37,25 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
   private final BaseGraphTable graphTable;
   private final Project project;
   private final GitRepository gitRepository;
+  private final IBranchLayoutReader branchLayoutReader;
 
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
-  private final IBranchLayoutManagerFactory branchLayoutManagerFactory;
 
-  private GitMacheteRepositoryUpdateTask(BaseGraphTable graphTable, Project project, GitRepository gitRepository) {
+  private GitMacheteRepositoryUpdateTask(BaseGraphTable graphTable, Project project, GitRepository gitRepository,
+      IBranchLayoutReader branchLayoutReader) {
     super(project, "Updating Git Machete repository");
 
     this.graphTable = graphTable;
     this.project = project;
     this.gitRepository = gitRepository;
+    this.branchLayoutReader = branchLayoutReader;
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
-    this.branchLayoutManagerFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
   }
 
-  public static GitMacheteRepositoryUpdateTask of(Project project, GitRepository gitRepository, BaseGraphTable graphTable) {
-    return new GitMacheteRepositoryUpdateTask(graphTable, project, gitRepository);
+  public static GitMacheteRepositoryUpdateTask of(BaseGraphTable graphTable, Project project, GitRepository gitRepository,
+      IBranchLayoutReader branchLayoutReader) {
+    return new GitMacheteRepositoryUpdateTask(graphTable, project, gitRepository, branchLayoutReader);
   }
 
   @Override
@@ -92,13 +93,11 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
 
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
-    IBranchLayoutManager branchLayoutManager = branchLayoutManagerFactory.create(macheteFilePath);
-    graphTable.setBranchLayoutWriter(branchLayoutManager.getWriter());
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
 
       return Try.of(() -> {
-        IBranchLayout branchLayout = createBranchLayout(branchLayoutManager);
+        IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
         return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
       }).onFailure(this::handleUpdateRepositoryExceptions).toOption();
     } else {
@@ -107,8 +106,8 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
     }
   }
 
-  private IBranchLayout createBranchLayout(IBranchLayoutManager branchLayoutManager) throws MacheteFileReaderException {
-    return Try.of(() -> branchLayoutManager.getReader().read())
+  private IBranchLayout createBranchLayout(Path path) throws MacheteFileReaderException {
+    return Try.of(() -> branchLayoutReader.read(path))
         .getOrElseThrow(e -> {
           Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
           return new MacheteFileReaderException("Error occurred while parsing machete file" +

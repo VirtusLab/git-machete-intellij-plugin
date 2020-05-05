@@ -39,8 +39,8 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     Project project = getProject(anActionEvent);
     var branchLayout = getBranchLayout(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    if (branchLayout.isEmpty() || branchLayoutWriter.isEmpty()) {
-      LOG.warn("Skipping the action because branch layout and/or branch layout writer is undefined");
+    if (branchLayout.isEmpty()) {
+      LOG.warn("Skipping the action because branch layout is undefined");
       return;
     }
 
@@ -49,7 +49,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       var newBranchLayout = branchLayout.get().slideOut(branchName);
 
       LOG.info("Writing new branch layout into file");
-      branchLayoutWriter.get().write(newBranchLayout, /* backupOldLayout */ true);
+      branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
 
       LOG.debug("Refreshing repository state");
       ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.vavr.collection.List;
@@ -16,21 +17,29 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.impl.BranchLayout;
-import com.virtuslab.branchlayout.impl.manager.BranchLayoutFileReader;
-import com.virtuslab.branchlayout.impl.manager.BranchLayoutFileUtils;
-import com.virtuslab.branchlayout.impl.manager.IndentSpec;
+import com.virtuslab.branchlayout.impl.IndentSpec;
+import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileReader;
+import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(BranchLayoutFileUtils.class)
+@PrepareForTest({BranchLayoutFileUtils.class, Files.class})
 public class BranchLayoutFileReaderTest {
+
+  private final Path path = Path.of("");
 
   private BranchLayoutFileReader getBranchLayoutFileReaderForLines(List<String> linesToReturn, int indentWidth)
       throws Exception {
-    IndentSpec indentSpec = new IndentSpec(/* indentCharacter */ ' ', indentWidth);
-    BranchLayoutFileReader reader = new BranchLayoutFileReader(Path.of(""), indentSpec);
+    BranchLayoutFileReader reader = new BranchLayoutFileReader();
+
     PowerMockito.mockStatic(BranchLayoutFileUtils.class);
+    var indentSpec = new IndentSpec(/* indentCharacter */ ' ', indentWidth);
+    PowerMockito.when(BranchLayoutFileUtils.getDefaultSpec()).thenReturn(indentSpec);
     PowerMockito.when(BranchLayoutFileUtils.readFileLines(any())).thenReturn(linesToReturn);
     PowerMockito.when(BranchLayoutFileUtils.getIndentWidth(anyString(), anyChar())).thenCallRealMethod();
+
+    PowerMockito.mockStatic(Files.class);
+    PowerMockito.when(Files.isRegularFile(any())).thenReturn(false);
+
     return reader;
   }
 
@@ -41,7 +50,7 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
 
     // when
-    BranchLayout branchLayout = reader.read();
+    BranchLayout branchLayout = reader.read(path);
 
     // then
     Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
@@ -57,7 +66,7 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
 
     // when
-    BranchLayout branchLayout = reader.read();
+    BranchLayout branchLayout = reader.read(path);
 
     // then
     Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
@@ -72,7 +81,7 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
 
     // when
-    BranchLayout branchLayout = reader.read();
+    BranchLayout branchLayout = reader.read(path);
 
     // then no exception thrown
     Assert.assertEquals(0, branchLayout.getRootEntries().size());
@@ -85,7 +94,7 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read());
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
     // then
     int i = exception.getErrorLine().get();
@@ -99,8 +108,9 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 3);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read());
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
+    System.out.println(exception);
     // then
     int i = exception.getErrorLine().get();
     assertEquals(4, i);
@@ -113,7 +123,7 @@ public class BranchLayoutFileReaderTest {
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 2);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read());
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
     // then
     int i = exception.getErrorLine().get();

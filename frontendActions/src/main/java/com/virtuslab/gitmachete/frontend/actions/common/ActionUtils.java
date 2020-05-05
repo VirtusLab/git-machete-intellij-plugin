@@ -21,8 +21,8 @@ public final class ActionUtils {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getBranchLayout());
   }
 
-  public static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {
-    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
+  public static IBranchLayoutWriter getBranchLayoutWriter(AnActionEvent anActionEvent) {
+    return anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER);
   }
 
   public static Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {

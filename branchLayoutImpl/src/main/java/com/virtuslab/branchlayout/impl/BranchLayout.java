@@ -1,10 +1,12 @@
 package com.virtuslab.branchlayout.impl;
 
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Data;
+import lombok.Getter;
 
 import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -17,6 +19,12 @@ public class BranchLayout implements IBranchLayout {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
   private final List<BaseBranchLayoutEntry> rootEntries;
+
+  @Getter
+  private final Path path;
+
+  @Getter
+  private final IndentSpec indentSpec;
 
   @Override
   public Option<BaseBranchLayoutEntry> findEntryByName(String branchName) {
@@ -73,7 +81,7 @@ public class BranchLayout implements IBranchLayout {
         "newEntry = ${newEntry} (${newEntry.getName()})");
     if (rootEntries.contains(oldEntry)) {
       LOG.debug("Old entry is one of the root entries. Replacing.");
-      return new BranchLayout(rootEntries.replace(oldEntry, newEntry));
+      return new BranchLayout(rootEntries.replace(oldEntry, newEntry), path, indentSpec);
     } else {
       LOG.debug("Old entry is one of subentries. Finding upstream.");
 

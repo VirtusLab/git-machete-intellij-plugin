@@ -2,6 +2,8 @@ package com.virtuslab.branchlayout.unit;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import org.junit.Test;
 
@@ -10,15 +12,20 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
+import com.virtuslab.branchlayout.impl.IndentSpec;
+import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
 
 public class BranchLayoutTest {
+
+  private final Path path = Path.of("");
+  private final IndentSpec indentSpec = BranchLayoutFileUtils.getDefaultSpec();
 
   @Test(expected = BranchLayoutException.class)
   public void withBranchSlideOut_givenRootBranch_throwsException() throws BranchLayoutException {
     // given
     var entryToSlideOutName = "root";
     BaseBranchLayoutEntry entry = new BranchLayoutEntry(entryToSlideOutName, /* customAnnotation */ null, List.empty());
-    var branchLayoutFile = new BranchLayout(List.of(entry));
+    var branchLayoutFile = new BranchLayout(List.of(entry), path, indentSpec);
 
     // when
     branchLayoutFile.slideOut(entryToSlideOutName);
@@ -30,7 +37,7 @@ public class BranchLayoutTest {
   public void withBranchSlideOut_givenNonExistingBranch_throwsException() throws BranchLayoutException {
     // given
     var branchToSlideOutName = "branch";
-    var branchLayoutFile = new BranchLayout(List.empty());
+    var branchLayoutFile = new BranchLayout(List.empty(), path, indentSpec);
 
     // when
     branchLayoutFile.slideOut(branchToSlideOutName);
@@ -59,7 +66,7 @@ public class BranchLayoutTest {
 
     var entry = new BranchLayoutEntry(branchToSlideOutName, /* customAnnotation */ null, childBranches);
     var rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, List.of(entry));
-    var branchLayoutFile = new BranchLayout(List.of(rootEntry));
+    var branchLayoutFile = new BranchLayout(List.of(rootEntry), path, indentSpec);
 
     // when
     IBranchLayout result = branchLayoutFile.slideOut(branchToSlideOutName);

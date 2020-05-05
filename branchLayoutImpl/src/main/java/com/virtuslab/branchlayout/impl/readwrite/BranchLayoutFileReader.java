@@ -1,11 +1,12 @@
-package com.virtuslab.branchlayout.impl.manager;
+package com.virtuslab.branchlayout.impl.readwrite;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
-import lombok.RequiredArgsConstructor;
+import io.vavr.control.Try;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -14,19 +15,18 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
+import com.virtuslab.branchlayout.impl.IndentSpec;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-@RequiredArgsConstructor
 public class BranchLayoutFileReader implements IBranchLayoutReader {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
-  private final Path path;
-
-  private final IndentSpec indentSpec;
-
   @Override
-  public BranchLayout read() throws BranchLayoutException {
+  public BranchLayout read(Path path) throws BranchLayoutException {
+    boolean isBranchLayoutPresent = Files.isRegularFile(path);
+    IndentSpec indentSpec = isBranchLayoutPresent ? deriveIndentSpec(path) : BranchLayoutFileUtils.getDefaultSpec();
+
     LOG.debug(() -> "Entering: Reading branch layout from ${path} with indent character ASCII " +
         "code = ${indentSpec.getIndentCharacter()} and indent width = ${indentSpec.getIndentWidth()}");
 
@@ -37,7 +37,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     List<BaseBranchLayoutEntry> roots = List.empty();
     if (!linesWithoutBlank.isEmpty()) {
-      Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(lines);
+      Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(path, indentSpec,
+          lines);
       LOG.debug(() -> "lineIndexToIndentLevelAndUpstreamLineIndex = ${lineIndexToIndentLevelAndUpstreamLineIndex}");
 
       roots = buildEntriesStructure(linesWithoutBlank, lineIndexToIndentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
@@ -45,7 +46,39 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       LOG.debug("Branch layout file is empty");
     }
 
-    return new BranchLayout(roots);
+    return new BranchLayout(roots, path, indentSpec);
+  }
+
+  private IndentSpec deriveIndentSpec(Path path) {
+    LOG.debug("Entering: branch layout file path: ${path}");
+
+    List<String> lines = Try.of(() -> BranchLayoutFileUtils.readFileLines(path))
+        .getOrElse(() -> {
+          LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling back to default indent definition.");
+          return List.empty();
+        });
+
+    LOG.debug(() -> "${lines.length()} line(s) found");
+
+    var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
+        .find(line -> line.startsWith(" ") || line.startsWith("\t"));
+    char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
+    int indentWidth = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
+
+    // Redundant non-emptiness check to satisfy IndexChecker
+    if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
+      indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
+      indentWidth = BranchLayoutFileUtils.getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
+      // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
+      assert indentWidth > 0 : "indent width is ${indentWidth} <= 0";
+    }
+    IndentSpec indentSpec = new IndentSpec(indentCharacter, indentWidth);
+
+    LOG.debug(() -> "Indent character is ${indentSpec.getIndentCharacter() == '\\t' ? \"TAB\" :" +
+        " indentSpec.getIndentCharacter() == ' ' ? \"SPACE\" : \"'\" + indentSpec.getIndentCharacter() + \"'\"}");
+    LOG.debug(() -> "Indent width is ${indentSpec.getIndentWidth()}");
+
+    return indentSpec;
   }
 
   /**
@@ -102,7 +135,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * @return an array containing the indent level and upstream entry describing line index which indices correspond to
    *         provided {@code lines} indices. It may be understood as a helper metadata needed to build entries structure
    */
-  private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(List<String> lines) throws BranchLayoutException {
+  private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
+      throws BranchLayoutException {
     LOG.debug("Entering");
 
     List<String> linesWithoutBlank = lines.reject(String::isBlank);
@@ -130,7 +164,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       }
 
       int lineIndentWidth = BranchLayoutFileUtils.getIndentWidth(line, indentSpec.getIndentCharacter());
-      int level = getIndentLevel(lineIndentWidth, realLineNumber);
+      int level = getIndentLevel(path, indentSpec, lineIndentWidth, realLineNumber);
 
       if (level - previousLevel > 1) {
         throw new BranchLayoutException(realLineNumber + 1,
@@ -157,7 +191,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   }
 
   @NonNegative
-  private int getIndentLevel(@NonNegative int indent, @NonNegative int lineNumber) throws BranchLayoutException {
+  private int getIndentLevel(Path path, IndentSpec indentSpec, @NonNegative int indent, @NonNegative int lineNumber)
+      throws BranchLayoutException {
     if (indent == 0) {
       return 0;
     }

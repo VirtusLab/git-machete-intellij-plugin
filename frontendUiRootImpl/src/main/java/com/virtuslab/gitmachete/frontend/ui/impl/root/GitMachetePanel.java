@@ -19,6 +19,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -32,6 +33,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
 
   private final VcsRootComboBox vcsRootComboBox;
   private final BaseGraphTable graphTable;
+  private final IBranchLayoutWriter branchLayoutWriter;
 
   @UIEffect
   public GitMachetePanel(Project project) {
@@ -41,6 +43,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     this.vcsRootComboBox = new VcsRootComboBox(project);
     this.graphTable = RuntimeBinding
         .instantiateSoleImplementingClass(IGraphTableFactory.class).create(project, vcsRootComboBox);
+    this.branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
 
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
@@ -54,6 +57,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   @Override
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
+        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         // IntelliJ Platform seems to always invoke `getData` on the UI thread anyway;
         // `getIfOnDispatchThreadOrNull` is more to ensure correctness wrt. `@UIEffect`,
         // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.
