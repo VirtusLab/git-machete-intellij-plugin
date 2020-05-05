@@ -8,7 +8,6 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.dataflow.qual.Pure;
 import org.eclipse.jgit.annotations.Nullable;
-import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.ObjectId;

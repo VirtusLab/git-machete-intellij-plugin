@@ -75,7 +75,6 @@ public class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreNoSuchBranchException("Local branch '${branchName}' does not exist in this repository");
     }
 
-    // Cast necessary because ambiguous method call with null parameter
     IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName).getOrNull();
 
     return new GitCoreLocalBranch(/* repo */ this, branchName, remoteBranch);

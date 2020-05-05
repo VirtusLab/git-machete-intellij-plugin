@@ -2,11 +2,13 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import java.nio.file.Path;
+import java.util.Date;
 
 import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
@@ -224,7 +226,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     try {
       Option<GitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
       if (ts.isEmpty()) {
-        LOG.debug("Branch '${coreLocalBranch.getName()}' is untracked");
+        LOG.debug(() -> "Branch '${coreLocalBranch.getName()}' is untracked");
         return SyncToRemoteStatus.of(Untracked, "");
       }
 
@@ -232,7 +234,22 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       SyncToRemoteStatus syncToRemoteStatus;
 
       if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(Diverged, trackingStatus.getRemoteName());
+        Option<IGitCoreRemoteBranch> remoteTrackingBranchOption = coreLocalBranch.getRemoteTrackingBranch();
+        if (remoteTrackingBranchOption.isDefined()) {
+          Date localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitDate();
+          Date remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitDate();
+          if (localBranchCommitDate.before(remoteBranchCommitDate)) {
+            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndOlderThanRemote, trackingStatus.getRemoteName());
+          } else {
+            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndNewerThanRemote, trackingStatus.getRemoteName());
+          }
+          // Theoretically this `else` should never happens coz deriveRemoteTrackingStatus() for coreLocalBranch
+          // should be empty in this case
+        } else {
+          LOG.debug(() -> "Because remote tracking branch for branch '${coreLocalBranch.getName()}' is undefined" +
+              "this branch is untracked");
+          return SyncToRemoteStatus.of(Untracked, "");
+        }
       } else if (trackingStatus.getAhead() > 0) {
         syncToRemoteStatus = SyncToRemoteStatus.of(Ahead, trackingStatus.getRemoteName());
       } else if (trackingStatus.getBehind() > 0) {

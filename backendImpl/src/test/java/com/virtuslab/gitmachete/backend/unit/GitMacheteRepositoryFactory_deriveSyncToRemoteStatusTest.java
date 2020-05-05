@@ -42,7 +42,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.Diverged, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote, status.getRelation());
   }
 
   @Test

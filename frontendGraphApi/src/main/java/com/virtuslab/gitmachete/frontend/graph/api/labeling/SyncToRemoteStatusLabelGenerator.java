@@ -2,7 +2,8 @@ package com.virtuslab.gitmachete.frontend.graph.api.labeling;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -18,7 +19,8 @@ public final class SyncToRemoteStatusLabelGenerator {
         Case($(Untracked), "untracked"),
         Case($(Ahead), "ahead of " + remoteName),
         Case($(Behind), "behind " + remoteName),
-        Case($(Diverged), "diverged from " + remoteName),
+        Case($(DivergedAndNewerThanRemote), "diverged from " + remoteName),
+        Case($(DivergedAndOlderThanRemote), "diverged from & older than " + remoteName),
         Case($(), "synchronization to " + remoteName + " is unknown"));
   }
 }

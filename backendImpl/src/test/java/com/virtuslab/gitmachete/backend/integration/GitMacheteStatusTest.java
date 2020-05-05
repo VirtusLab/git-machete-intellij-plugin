@@ -2,7 +2,7 @@ package com.virtuslab.gitmachete.backend.integration;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
@@ -198,7 +198,7 @@ public class GitMacheteStatusTest {
           Case($(Ahead), "ahead of " + syncToRemote.getRemoteName()),
           Case($(Behind), "behind " + syncToRemote.getRemoteName()),
           Case($(Untracked), "untracked"),
-          Case($(Diverged), "diverged from " + syncToRemote.getRemoteName())));
+          Case($(DivergedAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName())));
       sb.append(")");
     }
     sb.append(System.lineSeparator());

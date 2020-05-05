@@ -2,7 +2,8 @@ package com.virtuslab.gitmachete.frontend.graph.api.coloring;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Diverged;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.ORANGE;
 import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.RED;
@@ -20,7 +21,8 @@ public final class SyncToRemoteStatusToTextColorMapper {
       Untracked, ORANGE,
       Ahead, RED,
       Behind, RED,
-      Diverged, RED);
+      DivergedAndNewerThanRemote, RED,
+      DivergedAndOlderThanRemote, RED);
 
   public static JBColor getColor(SyncToRemoteStatus.Relation relation) {
     return COLORS.getOrElse(relation, JBColor.GRAY);
