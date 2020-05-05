@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -16,6 +17,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
+ *  <li>{@link DataKeys#KEY_GRAPH_TABLE}</li>
  *  <li>{@link DataKeys#KEY_GRAPH_TABLE_MANAGER}</li>
  * </ul>
  */
@@ -43,15 +45,16 @@ public class ToggleListingCommitsAction extends ToggleAction implements DumbAwar
   }
 
   @Override
+  @UIEffect
   public boolean isSelected(AnActionEvent e) {
-    return getGraphTableManager(e).isListingCommits();
+    return getGraphTable(e).isListingCommits();
   }
 
   @Override
+  @UIEffect
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
-    var graphTableManager = getGraphTableManager(e);
-    graphTableManager.setListingCommits(state);
-    graphTableManager.queueGraphTableRefreshOnDispatchThread();
+    getGraphTable(e).setListingCommits(state);
+    getGraphTableManager(e).queueGraphTableRefreshOnDispatchThread();
   }
 }

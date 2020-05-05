@@ -8,8 +8,4 @@ public interface IGraphTableManager {
   void queueGraphTableRefreshOnDispatchThread();
 
   void queueRepositoryUpdateAndGraphTableRefresh();
-
-  boolean isListingCommits();
-
-  void setListingCommits(boolean isListingCommits);
 }

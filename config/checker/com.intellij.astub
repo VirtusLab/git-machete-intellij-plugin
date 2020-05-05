@@ -90,7 +90,7 @@ class AnAction {
   @SafeEffect
   AnAction();
 
-  // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default given we're in a `@UIPackage`)
+  // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default since we're in a `@UIPackage`)
   // since IntelliJ platform indeed always invokes them on the dispatch thread.
 }
 
@@ -110,6 +110,9 @@ class DataKey<T> {
 class ToggleAction {
   @SafeEffect
   ToggleAction();
+
+  // We can safely mark `isSelected` and `setSelected` as `@UIEffect` (the default since we're in a `@UIPackage`)
+  // since IntelliJ platform indeed always invokes them on the dispatch thread.
 }
 
 @UIPackage package com.intellij.openapi.actionSystem.ex;

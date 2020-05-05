@@ -19,7 +19,6 @@ import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
-import lombok.Setter;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -44,9 +43,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
 
   @Getter
-  @Setter
-  private boolean isListingCommits;
-  @Getter
   private final GitMacheteGraphTable graphTable;
 
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
@@ -56,7 +52,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     this.project = project;
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
-    this.isListingCommits = false;
     this.graphTable = new GitMacheteGraphTable(project);
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
@@ -91,7 +86,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         Path macheteFilePath = getMacheteFilePath(gitRepository.get());
         boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-        graphTable.refreshModel(macheteFilePath, isMacheteFilePresent, isListingCommits);
+        graphTable.refreshModel(macheteFilePath, isMacheteFilePresent);
       }
     }, NON_MODAL);
   }
@@ -102,7 +97,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    GuiUtils.invokeLaterIfNeeded(() -> graphTable.refreshModel(gmr, macheteFilePath, isMacheteFilePresent, isListingCommits),
+    GuiUtils.invokeLaterIfNeeded(() -> graphTable.refreshModel(gmr, macheteFilePath, isMacheteFilePresent),
         NON_MODAL);
   }
 

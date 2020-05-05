@@ -12,6 +12,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 
 public final class DataKeys {
@@ -22,6 +23,8 @@ public final class DataKeys {
       .create("BRANCH_LAYOUT_WRITER");
   public static final DataKey<@Nullable IGitMacheteRepository> KEY_GIT_MACHETE_REPOSITORY = DataKey
       .create("GIT_MACHETE_REPOSITORY");
+  /** This key must always be available in the container hierarchy, and a DataProvider must always return a non-null value. */
+  public static final DataKey<@NonNull IGraphTable> KEY_GRAPH_TABLE = DataKey.create("GRAPH_TABLE");
   /** This key must always be available in the container hierarchy, and a DataProvider must always return a non-null value. */
   public static final DataKey<@NonNull IGraphTableManager> KEY_GRAPH_TABLE_MANAGER = DataKey.create("GRAPH_TABLE_MANAGER");
   public static final DataKey<@Nullable String> KEY_SELECTED_BRANCH_NAME = DataKey.create("SELECTED_BRANCH_NAME");

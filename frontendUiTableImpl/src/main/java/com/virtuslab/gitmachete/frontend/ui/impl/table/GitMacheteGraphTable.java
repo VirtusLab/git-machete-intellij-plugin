@@ -28,6 +28,7 @@ import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
+import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -44,17 +45,23 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
-public final class GitMacheteGraphTable extends JBTable implements DataProvider {
+public final class GitMacheteGraphTable extends JBTable implements DataProvider, IGraphTable {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
   private final Project project;
   private final IRepositoryGraphFactory repositoryGraphFactory;
+
+  @Getter
+  @Setter
+  @UIEffect
+  private boolean isListingCommits;
 
   @Setter
   @Nullable
@@ -76,6 +83,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     this.project = project;
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
+    this.isListingCommits = false;
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
@@ -106,7 +114,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   }
 
   @UIEffect
-  public void refreshModel(Path macheteFilePath, boolean isMacheteFilePresent, boolean isListingCommits) {
+  public void refreshModel(Path macheteFilePath, boolean isMacheteFilePresent) {
     LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
         "isListingCommits = ${isListingCommits}");
 
@@ -146,10 +154,9 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
   @UIEffect
   public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
-      boolean isMacheteFilePresent, boolean isListingCommits) {
-
+      boolean isMacheteFilePresent) {
     this.gitMacheteRepository = newGitMacheteRepository;
-    refreshModel(macheteFilePath, isMacheteFilePresent, isListingCommits);
+    refreshModel(macheteFilePath, isMacheteFilePresent);
   }
 
   @UIEffect
@@ -172,6 +179,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, branchLayout),
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
+        typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
