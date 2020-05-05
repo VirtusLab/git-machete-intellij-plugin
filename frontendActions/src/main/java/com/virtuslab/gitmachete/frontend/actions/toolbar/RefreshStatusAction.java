@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTableManager;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -12,7 +12,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
- *  <li>{@link DataKeys#KEY_GRAPH_TABLE_MANAGER}</li>
+ *  <li>{@link DataKeys#KEY_GRAPH_TABLE}</li>
  * </ul>
  */
 public class RefreshStatusAction extends DumbAwareAction {
@@ -21,6 +21,6 @@ public class RefreshStatusAction extends DumbAwareAction {
   @Override
   public void actionPerformed(AnActionEvent e) {
     LOG.debug("Performing");
-    getGraphTableManager(e).queueRepositoryUpdateAndGraphTableRefresh();
+    getGraphTable(e).queueRepositoryUpdateAndModelRefresh();
   }
 }

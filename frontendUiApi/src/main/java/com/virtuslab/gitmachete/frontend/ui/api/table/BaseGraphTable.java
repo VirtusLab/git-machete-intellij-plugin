@@ -24,6 +24,8 @@ public abstract class BaseGraphTable extends JBTable {
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
 
+  public abstract void setBranchLayoutWriter(IBranchLayoutWriter branchLayoutWriter);
+
   @UIEffect
   public abstract void refreshModel();
 
@@ -31,5 +33,9 @@ public abstract class BaseGraphTable extends JBTable {
   public abstract void refreshModel(@Nullable IGitMacheteRepository gitMacheteRepository, Path macheteFilePath,
       boolean isMacheteFilePresent);
 
-  public abstract void setBranchLayoutWriter(IBranchLayoutWriter branchLayoutWriter);
+  /**
+   * Queues repository update as a background task, which in turn itself queues model refresh onto the UI thread.
+   * As opposed to {@link BaseGraphTable#refreshModel}, does not need to be called from UI thread (i.e. is not {@link UIEffect}).
+   */
+  public abstract void queueRepositoryUpdateAndModelRefresh();
 }

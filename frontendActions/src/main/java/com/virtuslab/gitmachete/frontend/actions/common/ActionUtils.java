@@ -12,7 +12,6 @@ import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 
 public final class ActionUtils {
 
@@ -43,10 +42,6 @@ public final class ActionUtils {
 
   public static BaseGraphTable getGraphTable(AnActionEvent anActionEvent) {
     return anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE);
-  }
-
-  public static IGraphTableManager getGraphTableManager(AnActionEvent anActionEvent) {
-    return anActionEvent.getData(DataKeys.KEY_GRAPH_TABLE_MANAGER);
   }
 
   public static Project getProject(AnActionEvent anActionEvent) {

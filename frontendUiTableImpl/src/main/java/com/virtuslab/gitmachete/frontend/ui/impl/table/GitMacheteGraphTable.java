@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
+import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
@@ -26,10 +27,13 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.GuiUtils;
 import com.intellij.ui.ScrollingUtil;
+import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
@@ -112,6 +116,20 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
 
     addMouseListener(new GitMacheteGraphTableMouseAdapter());
+
+    subscribeToVcsRootChanges();
+    subscribeToGitRepositoryChanges();
+  }
+
+  private void subscribeToVcsRootChanges() {
+    // The method reference is invoked when user changes repository in combo box menu
+    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
+  }
+
+  private void subscribeToGitRepositoryChanges() {
+    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
+    GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
+    project.getMessageBus().connect().subscribe(topic, listener);
   }
 
   @UIEffect
@@ -188,6 +206,26 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     // Otherwise sizes would be recalculated after each TableColumn re-initialization
     setAutoCreateColumnsFromModel(false);
+  }
+
+  @Override
+  public void queueRepositoryUpdateAndModelRefresh() {
+    LOG.debug("Entering");
+
+    if (project != null && !project.isDisposed()) {
+      GuiUtils.invokeLaterIfNeeded(() -> {
+        Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+        if (gitRepository.isDefined()) {
+          LOG.debug("Queuing repository update onto a non-UI thread");
+
+          GitMacheteRepositoryUpdateTask.of(project, gitRepository.get(), /* graphTable */ this).queue();
+        } else {
+          LOG.warn("Selected repository is null");
+        }
+      }, NON_MODAL);
+    } else {
+      LOG.debug("project == null or is disposed");
+    }
   }
 
   @Override

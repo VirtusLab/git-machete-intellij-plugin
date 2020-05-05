@@ -24,8 +24,6 @@ import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManagerFactory;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -33,7 +31,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
 
   private final VcsRootComboBox vcsRootComboBox;
-  private final IGraphTableManager gitMacheteGraphTableManager;
+  private final BaseGraphTable graphTable;
 
   @UIEffect
   public GitMachetePanel(Project project) {
@@ -41,25 +39,21 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     LOG.debug("Instantiating");
 
     this.vcsRootComboBox = new VcsRootComboBox(project);
-    var gitMacheteGraphTable = RuntimeBinding
+    this.graphTable = RuntimeBinding
         .instantiateSoleImplementingClass(IGraphTableFactory.class).create(project, vcsRootComboBox);
-    this.gitMacheteGraphTableManager = RuntimeBinding
-        .instantiateSoleImplementingClass(IGraphTableManagerFactory.class)
-        .create(gitMacheteGraphTable, project, vcsRootComboBox);
 
-    gitMacheteGraphTableManager.queueRepositoryUpdateAndGraphTableRefresh();
+    graphTable.queueRepositoryUpdateAndModelRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
 
-    setToolbar(createGitMacheteVerticalToolbar(gitMacheteGraphTable).getComponent());
+    setToolbar(createGitMacheteVerticalToolbar().getComponent());
     add(VcsRootComboBox.createShrinkingWrapper(vcsRootComboBox), BorderLayout.NORTH);
-    setContent(ScrollPaneFactory.createScrollPane(gitMacheteGraphTable));
+    setContent(ScrollPaneFactory.createScrollPane(graphTable));
   }
 
   @Override
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
-        typeSafeCase(DataKeys.KEY_GRAPH_TABLE_MANAGER, gitMacheteGraphTableManager),
         // IntelliJ Platform seems to always invoke `getData` on the UI thread anyway;
         // `getIfOnDispatchThreadOrNull` is more to ensure correctness wrt. `@UIEffect`,
         // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.
@@ -69,7 +63,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   }
 
   @UIEffect
-  private ActionToolbar createGitMacheteVerticalToolbar(BaseGraphTable graphTable) {
+  private ActionToolbar createGitMacheteVerticalToolbar() {
     var actionManager = ActionManager.getInstance();
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
     var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,

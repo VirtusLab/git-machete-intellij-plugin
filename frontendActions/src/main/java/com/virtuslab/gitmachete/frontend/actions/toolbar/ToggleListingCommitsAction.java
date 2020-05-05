@@ -18,7 +18,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * <ul>
  *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT}</li>
  *  <li>{@link DataKeys#KEY_GRAPH_TABLE}</li>
- *  <li>{@link DataKeys#KEY_GRAPH_TABLE_MANAGER}</li>
  * </ul>
  */
 public class ToggleListingCommitsAction extends ToggleAction implements DumbAware {
