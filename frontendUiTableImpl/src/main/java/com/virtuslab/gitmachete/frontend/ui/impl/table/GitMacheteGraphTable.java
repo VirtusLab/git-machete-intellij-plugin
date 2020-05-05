@@ -18,9 +18,12 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -50,6 +53,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public final class GitMacheteGraphTable extends JBTable implements DataProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
+  private final Project project;
   private final IRepositoryGraphFactory repositoryGraphFactory;
 
   @Setter
@@ -67,9 +71,10 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   private String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable() {
+  public GitMacheteGraphTable(Project project) {
     super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
+    this.project = project;
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
 
     // InitializationChecker allows us to invoke the below methods because the class is final
@@ -101,19 +106,24 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
   }
 
   @UIEffect
-  public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
-      boolean isMacheteFilePresent, boolean isListingCommits) {
+  public void refreshModel(Path macheteFilePath, boolean isMacheteFilePresent, boolean isListingCommits) {
+    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
+        "isListingCommits = ${isListingCommits}");
+
     // TODO (#176): When machete file is absent or empty,
     // propose using branch layout automatically detected by discover functionality
 
-    this.gitMacheteRepository = newGitMacheteRepository;
+    if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
+      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
+      return;
+    }
 
     IRepositoryGraph repositoryGraph;
-    if (newGitMacheteRepository == null) {
+    if (gitMacheteRepository == null) {
       repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
     } else {
-      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(newGitMacheteRepository, isListingCommits);
-      if (newGitMacheteRepository.getRootBranches().isEmpty()) {
+      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
+      if (gitMacheteRepository.getRootBranches().isEmpty()) {
         setTextForEmptyGraph(
             "Your machete file (${macheteFilePath}) is empty.",
             "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
@@ -132,6 +142,14 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
 
     repaint();
     revalidate();
+  }
+
+  @UIEffect
+  public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
+      boolean isMacheteFilePresent, boolean isListingCommits) {
+
+    this.gitMacheteRepository = newGitMacheteRepository;
+    refreshModel(macheteFilePath, isMacheteFilePresent, isListingCommits);
   }
 
   @UIEffect
@@ -156,6 +174,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider 
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
+        typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
 

@@ -11,7 +11,6 @@ import java.awt.BorderLayout;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -31,7 +30,6 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
 
-  private final Project project;
   private final VcsRootComboBox vcsRootComboBox;
   private final IGraphTableManager gitMacheteGraphTableManager;
 
@@ -40,7 +38,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     super(/* vertical */ false, /* borderless */ true);
     LOG.debug("Instantiating");
 
-    this.project = project;
     this.vcsRootComboBox = new VcsRootComboBox(project);
     this.gitMacheteGraphTableManager = RuntimeBinding
         .instantiateSoleImplementingClass(IGraphTableManagerFactory.class).create(project, vcsRootComboBox);
@@ -63,7 +60,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
         // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.
         typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY,
             getIfOnDispatchThreadOrNull(() -> vcsRootComboBox.getSelectedRepository().getOrNull())),
-        typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
 

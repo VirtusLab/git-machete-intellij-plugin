@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -21,7 +20,6 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.Setter;
-import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -48,7 +46,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
   @Getter
   @Setter
   private boolean isListingCommits;
-  private @Nullable IGitMacheteRepository gitMacheteRepository;
   @Getter
   private final GitMacheteGraphTable graphTable;
 
@@ -60,8 +57,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
 
     this.isListingCommits = false;
-    this.gitMacheteRepository = null;
-    this.graphTable = new GitMacheteGraphTable();
+    this.graphTable = new GitMacheteGraphTable(project);
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
     this.branchLayoutManagerFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
@@ -95,7 +91,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
         Path macheteFilePath = getMacheteFilePath(gitRepository.get());
         boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-        refreshGraphTable(gitMacheteRepository, macheteFilePath, isMacheteFilePresent);
+        graphTable.refreshModel(macheteFilePath, isMacheteFilePresent, isListingCommits);
       }
     }, NON_MODAL);
   }
@@ -106,20 +102,8 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    GuiUtils.invokeLaterIfNeeded(() -> refreshGraphTable(gmr, macheteFilePath, isMacheteFilePresent), NON_MODAL);
-  }
-
-  @UIEffect
-  private void refreshGraphTable(@Nullable IGitMacheteRepository gmr, Path macheteFilePath, boolean isMacheteFilePresent) {
-    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
-    // isUnitTestMode() checks if IDEA is running as a command line applet or in unit test mode.
-    // No UI should be shown when IDEA is running in this mode.
-    if (project.isInitialized() && !ApplicationManager.getApplication().isUnitTestMode()) {
-      this.gitMacheteRepository = gmr;
-      graphTable.refreshModel(gmr, macheteFilePath, isMacheteFilePresent, isListingCommits);
-    } else {
-      LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
-    }
+    GuiUtils.invokeLaterIfNeeded(() -> graphTable.refreshModel(gmr, macheteFilePath, isMacheteFilePresent, isListingCommits),
+        NON_MODAL);
   }
 
   private Path getMainDirectoryPath(GitRepository gitRepository) {
@@ -164,8 +148,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
             }
           }.queue();
         } else {
-          LOG.warn("Selected repository is null. Setting repository reference to null");
-          this.gitMacheteRepository = null;
+          LOG.warn("Selected repository is null");
         }
       }, NON_MODAL);
     } else {
@@ -175,7 +158,7 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   /**
    * Updates repository which is the base of graph table model. The change will be seen after
-   * {@link GitMacheteGraphTableManager#refreshGraphTable} completes.
+   * {@link GitMacheteGraphTable#refreshModel} completes.
    */
   private Option<IGitMacheteRepository> updateRepository(GitRepository gitRepository) {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
