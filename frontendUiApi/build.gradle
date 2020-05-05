@@ -1,3 +1,7 @@
 vavr()
 
+dependencies {
+  api project(':backendApi')
+}
+
 applyIntellijPlugin(withGit4Idea: true)

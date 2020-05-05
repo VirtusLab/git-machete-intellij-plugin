@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
+import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -12,7 +13,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.swing.SwingUtilities;
 
@@ -26,12 +26,10 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.Getter;
@@ -156,6 +154,7 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
     revalidate();
   }
 
+  @Override
   @UIEffect
   public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
       boolean isMacheteFilePresent) {
@@ -177,16 +176,6 @@ public final class GitMacheteGraphTable extends JBTable implements DataProvider,
     } else {
       LOG.warn("No git repository selected, not updating the model");
     }
-  }
-
-  private static Path getGitDirectoryPath(GitRepository gitRepository) {
-    VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
-    assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
-    return Paths.get(vfGitDir.getPath());
-  }
-
-  private static Path getMacheteFilePath(GitRepository gitRepository) {
-    return getGitDirectoryPath(gitRepository).resolve("machete");
   }
 
   @UIEffect
