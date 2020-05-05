@@ -37,6 +37,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   protected final GitCoreRepository repo;
   protected final String branchName;
+  protected final String remoteName;
 
   private final AtomicReference<@Nullable GitCoreCommit> pointedCommitRef = new AtomicReference<>(null);
 
@@ -45,9 +46,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
     return branchName;
   }
 
-  public String getFullName() {
-    return getBranchesPath() + branchName;
-  }
+  public abstract String getFullName();
 
   public abstract String getBranchesPath();
 

@@ -1,12 +1,19 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import org.eclipse.jgit.lib.Constants;
+
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreRemoteBranch extends GitCoreBranch implements IGitCoreRemoteBranch {
-  public static final String BRANCHES_PATH = "refs/remotes/";
+  public static final String BRANCHES_PATH = Constants.R_REMOTES;
 
-  public GitCoreRemoteBranch(GitCoreRepository repo, String branchName) {
-    super(repo, branchName);
+  public GitCoreRemoteBranch(GitCoreRepository repo, String branchName, String remoteName) {
+    super(repo, branchName, remoteName);
+  }
+
+  @Override
+  public String getFullName() {
+    return getBranchesPath() + remoteName + "/" + branchName;
   }
 
   @Override

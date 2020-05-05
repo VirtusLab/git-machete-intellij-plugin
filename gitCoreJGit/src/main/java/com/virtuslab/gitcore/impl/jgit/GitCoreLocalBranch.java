@@ -9,7 +9,7 @@ import io.vavr.control.Try;
 import org.checkerframework.dataflow.qual.Pure;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
-import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.ReflogReader;
@@ -28,14 +28,20 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBranch {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
 
-  public static final String BRANCHES_PATH = "refs/heads/";
+  public static final String BRANCHES_PATH = Constants.R_HEADS;
 
   @Nullable
   private final IGitCoreRemoteBranch remoteBranch;
 
-  public GitCoreLocalBranch(GitCoreRepository repo, String branchName, @Nullable IGitCoreRemoteBranch remoteBranch) {
-    super(repo, branchName);
+  public GitCoreLocalBranch(GitCoreRepository repo, String branchName, String remoteName,
+      @Nullable IGitCoreRemoteBranch remoteBranch) {
+    super(repo, branchName, remoteName);
     this.remoteBranch = remoteBranch;
+  }
+
+  @Override
+  public String getFullName() {
+    return getBranchesPath() + branchName;
   }
 
   @Override
@@ -69,10 +75,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       return Option.none();
     }
 
-    String remoteName = repo.getJgitRepo().getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, getName(),
-        ConfigConstants.CONFIG_KEY_REMOTE);
     LOG.debug(() -> "Remote repository for this branch is named ${remoteName}");
-
     LOG.debug(() -> "Ahead: ${ts.getAheadCount()}; Behind: ${ts.getBehindCount()}");
 
     return Option.of(GitCoreBranchTrackingStatus.of(ts.getAheadCount(), ts.getBehindCount(), remoteName));
@@ -165,8 +168,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
     List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
-        .of(() -> repo.getRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
+        .of(() -> repo.getAllRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
             .map(branch -> Try.of(() -> {
+              String r = branch.getFullName();
               ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
               assert reflogReader != null : "Error while getting reflog reader";
               return reflogReader.getReverseEntries();

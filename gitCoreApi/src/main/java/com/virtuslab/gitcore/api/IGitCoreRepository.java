@@ -10,11 +10,15 @@ public interface IGitCoreRepository {
 
   IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
 
-  Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) throws GitCoreException;
+  Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException;
 
   List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
 
-  List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException;
+  List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException;
+
+  List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException;
+
+  List<String> getRemotes();
 
   Path getMainDirectoryPath();
 

@@ -11,8 +11,8 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
@@ -75,17 +75,18 @@ public class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreNoSuchBranchException("Local branch '${branchName}' does not exist in this repository");
     }
 
-    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName).getOrNull();
+    String remoteName = deriveRemoteName(branchName);
+    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName, remoteName).getOrNull();
 
-    return new GitCoreLocalBranch(/* repo */ this, branchName, remoteBranch);
+    return new GitCoreLocalBranch(/* repo */ this, branchName, remoteName, remoteBranch);
   }
 
   @Override
-  public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) throws GitCoreException {
-    if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + branchName)) {
+  public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException {
+    if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/" + branchName)) {
       return Option.none();
     }
-    return Option.of(new GitCoreRemoteBranch(/* repo */ this, branchName));
+    return Option.of(new GitCoreRemoteBranch(/* repo */ this, branchName, remoteName));
   }
 
   @Override
@@ -102,17 +103,18 @@ public class GitCoreRepository implements IGitCoreRepository {
         })
         .map(ref -> {
           String shortBranchName = ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "");
-          return new GitCoreLocalBranch(/* repo */ this, shortBranchName,
-              Try.of(() -> getRemoteBranch(shortBranchName).getOrNull()).getOrNull());
+          String remoteName = deriveRemoteName(shortBranchName);
+          return new GitCoreLocalBranch(/* repo */ this, shortBranchName, remoteName,
+              Try.of(() -> getRemoteBranch(shortBranchName, remoteName).getOrNull()).getOrNull());
         })
         .collect(List.collector());
   }
 
   @Override
-  public List<IGitCoreRemoteBranch> getRemoteBranches() throws GitCoreException {
-    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
-    LOG.debug("List of remote branches:");
-    return Try.of(() -> getJgitGit().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call())
+  public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
+    LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug("List of remote branches of '${remoteName}':");
+    return Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -120,13 +122,34 @@ public class GitCoreRepository implements IGitCoreRepository {
           LOG.debug(() -> "* ${branch.getName()}");
           return branch;
         })
-        .map(ref -> new GitCoreRemoteBranch(/* repo */ this,
-            ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH, /* replacement */ "")))
+        .map(ref -> {
+          String shortBranchName = ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH + remoteName, /* replacement */ "");
+          return new GitCoreRemoteBranch(/* repo */ this, shortBranchName, remoteName);
+        })
         .collect(List.collector());
   }
 
-  private boolean isBranchMissing(String branchName) throws GitCoreException {
-    return Try.of(() -> Option.of(jgitRepo.resolve(branchName)))
+  @Override
+  public List<String> getRemotes() {
+    return List.ofAll(getJgitRepo().getRemoteNames());
+  }
+
+  @Override
+  public List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
+    List<IGitCoreRemoteBranch> listOfRemotes = List.of();
+    for (var remoteName : getRemotes()) {
+      listOfRemotes = listOfRemotes.appendAll(getRemoteBranches(remoteName));
+    }
+    return listOfRemotes;
+  }
+
+  private String deriveRemoteName(String localBranchShortName) {
+    return jgitRepo.getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, localBranchShortName,
+        ConfigConstants.CONFIG_KEY_REMOTE);
+  }
+
+  private boolean isBranchMissing(String fullBranchName) throws GitCoreException {
+    return Try.of(() -> Option.of(jgitRepo.resolve(fullBranchName)))
         .getOrElseThrow(e -> new GitCoreException(e))
         .isEmpty();
   }
