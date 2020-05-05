@@ -8,9 +8,9 @@ import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
-import lombok.Getter;
 
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -20,15 +20,13 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
 
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
+  private final BaseGraphTable graphTable;
 
-  @Getter
-  private final GitMacheteGraphTable graphTable;
-
-  public GitMacheteGraphTableManager(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
+  public GitMacheteGraphTableManager(BaseGraphTable graphTable, Project project,
+      IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
+    this.graphTable = graphTable;
     this.project = project;
     this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
-
-    this.graphTable = new GitMacheteGraphTable(project, gitRepositorySelectionProvider);
 
     // InitializationChecker allows us to invoke instance methods below because the class is final
     // and all fields are already initialized. Hence, `this` is already `@Initialized` (and not just

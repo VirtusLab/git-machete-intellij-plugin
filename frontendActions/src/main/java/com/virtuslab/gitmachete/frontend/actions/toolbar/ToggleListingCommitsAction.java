@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAware;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -54,7 +54,7 @@ public class ToggleListingCommitsAction extends ToggleAction implements DumbAwar
   @UIEffect
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
-    IGraphTable graphTable = getGraphTable(e);
+    BaseGraphTable graphTable = getGraphTable(e);
     graphTable.setListingCommits(state);
     graphTable.refreshModel();
   }

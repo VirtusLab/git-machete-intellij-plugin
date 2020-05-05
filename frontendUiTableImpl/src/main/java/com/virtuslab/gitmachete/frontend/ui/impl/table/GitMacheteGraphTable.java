@@ -27,7 +27,6 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ScrollingUtil;
-import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
@@ -49,14 +48,14 @@ import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactor
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
-public final class GitMacheteGraphTable extends JBTable implements DataProvider, IGraphTable {
+public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
   private final Project project;

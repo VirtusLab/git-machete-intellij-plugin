@@ -22,6 +22,8 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManager;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableManagerFactory;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -39,15 +41,18 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     LOG.debug("Instantiating");
 
     this.vcsRootComboBox = new VcsRootComboBox(project);
+    var gitMacheteGraphTable = RuntimeBinding
+        .instantiateSoleImplementingClass(IGraphTableFactory.class).create(project, vcsRootComboBox);
     this.gitMacheteGraphTableManager = RuntimeBinding
-        .instantiateSoleImplementingClass(IGraphTableManagerFactory.class).create(project, vcsRootComboBox);
+        .instantiateSoleImplementingClass(IGraphTableManagerFactory.class)
+        .create(gitMacheteGraphTable, project, vcsRootComboBox);
+
     gitMacheteGraphTableManager.queueRepositoryUpdateAndGraphTableRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
 
-    setToolbar(createGitMacheteVerticalToolbar().getComponent());
+    setToolbar(createGitMacheteVerticalToolbar(gitMacheteGraphTable).getComponent());
     add(VcsRootComboBox.createShrinkingWrapper(vcsRootComboBox), BorderLayout.NORTH);
-    var gitMacheteGraphTable = gitMacheteGraphTableManager.getGraphTable();
     setContent(ScrollPaneFactory.createScrollPane(gitMacheteGraphTable));
   }
 
@@ -64,12 +69,12 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   }
 
   @UIEffect
-  private ActionToolbar createGitMacheteVerticalToolbar() {
+  private ActionToolbar createGitMacheteVerticalToolbar(BaseGraphTable graphTable) {
     var actionManager = ActionManager.getInstance();
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
     var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
         /* horizontal */ false);
-    toolbar.setTargetComponent(gitMacheteGraphTableManager.getGraphTable());
+    toolbar.setTargetComponent(graphTable);
     return toolbar;
   }
 }

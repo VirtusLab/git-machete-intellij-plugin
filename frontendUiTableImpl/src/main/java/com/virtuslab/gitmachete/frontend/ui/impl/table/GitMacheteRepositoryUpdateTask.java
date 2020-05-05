@@ -26,7 +26,7 @@ import com.virtuslab.branchlayout.api.manager.IBranchLayoutManagerFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.IntelliJLoggingUtils;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -35,26 +35,26 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
 
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
 
+  private final BaseGraphTable graphTable;
   private final Project project;
   private final GitRepository gitRepository;
-  private final IGraphTable graphTable;
 
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
   private final IBranchLayoutManagerFactory branchLayoutManagerFactory;
 
-  private GitMacheteRepositoryUpdateTask(Project project, GitRepository gitRepository, IGraphTable graphTable) {
+  private GitMacheteRepositoryUpdateTask(BaseGraphTable graphTable, Project project, GitRepository gitRepository) {
     super(project, "Updating Git Machete repository");
 
+    this.graphTable = graphTable;
     this.project = project;
     this.gitRepository = gitRepository;
-    this.graphTable = graphTable;
 
     this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
     this.branchLayoutManagerFactory = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutManagerFactory.class);
   }
 
-  public static GitMacheteRepositoryUpdateTask of(Project project, GitRepository gitRepository, IGraphTable graphTable) {
-    return new GitMacheteRepositoryUpdateTask(project, gitRepository, graphTable);
+  public static GitMacheteRepositoryUpdateTask of(Project project, GitRepository gitRepository, BaseGraphTable graphTable) {
+    return new GitMacheteRepositoryUpdateTask(graphTable, project, gitRepository);
   }
 
   @Override
@@ -105,6 +105,15 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
     }
   }
 
+  private IBranchLayout createBranchLayout(IBranchLayoutManager branchLayoutManager) throws MacheteFileReaderException {
+    return Try.of(() -> branchLayoutManager.getReader().read())
+        .getOrElseThrow(e -> {
+          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
+          return new MacheteFileReaderException("Error occurred while parsing machete file" +
+              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
+        });
+  }
+
   private void handleUpdateRepositoryExceptions(Throwable t) {
     LOG.error("Unable to create Git Machete repository", t);
 
@@ -121,15 +130,6 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
     IntelliJLoggingUtils.showErrorDialog(exceptionMessage != null
         ? exceptionMessage
         : "Repository instantiation failed. For more information, please look at the IntelliJ logs");
-  }
-
-  private IBranchLayout createBranchLayout(IBranchLayoutManager branchLayoutManager) throws MacheteFileReaderException {
-    return Try.of(() -> branchLayoutManager.getReader().read())
-        .getOrElseThrow(e -> {
-          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-          return new MacheteFileReaderException("Error occurred while parsing machete file" +
-              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
-        });
   }
 
 }
