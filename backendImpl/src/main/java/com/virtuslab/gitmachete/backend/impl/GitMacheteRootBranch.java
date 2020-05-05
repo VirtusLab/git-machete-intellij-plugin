@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -13,6 +14,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import org.checkerframework.dataflow.qual.Pure;
 
 @Getter
 @ToString
@@ -23,6 +25,7 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final IGitMacheteCommit pointedCommit;
   private final SyncToRemoteStatus syncToRemoteStatus;
+  @Getter(AccessLevel.NONE)
   @Nullable
   private final IGitMacheteRemoteBranch remoteBranch;
   @Nullable
@@ -65,5 +68,11 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
+  }
+
+  @Override
+  @Pure
+  public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
+    return Option.of(remoteBranch);
   }
 }

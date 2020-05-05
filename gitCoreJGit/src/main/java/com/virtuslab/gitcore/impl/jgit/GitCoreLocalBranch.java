@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.checkerframework.dataflow.qual.Pure;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
@@ -79,16 +80,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
+  @Pure
   public Option<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
-    var bc = new BranchConfig(repo.getJgitRepo().getConfig(), getName());
-    String remoteName = bc.getRemoteTrackingBranch();
-    if (remoteName == null) {
-      return Option.none();
-    } else {
-      @SuppressWarnings("index:argument.type.incompatible")
-      String branchName = remoteName.substring(GitCoreRemoteBranch.BRANCHES_PATH.length());
-      return Option.of(new GitCoreRemoteBranch(repo, branchName));
-    }
+    return Option.of(remoteBranch);
   }
 
   private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
@@ -202,10 +196,5 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     LOG.debug("Fork point for branch '${getFullName()}' not found");
     return Option.none();
-  }
-
-  @Override
-  public Option<IGitCoreRemoteBranch> getRemoteBranch() {
-    return Option.of(remoteBranch);
   }
 }

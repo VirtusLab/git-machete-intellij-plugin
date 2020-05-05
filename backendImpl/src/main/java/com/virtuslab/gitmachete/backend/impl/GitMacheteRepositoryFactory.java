@@ -135,8 +135,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   private IGitMacheteRemoteBranch getRemoteBranchFromCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
       throws GitMacheteException {
     IGitMacheteRemoteBranch remoteBranch = null;
-    if (coreLocalBranch.getRemoteBranch().isDefined()) {
-      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteBranch().get();
+    Option<IGitCoreRemoteBranch> remoteBranchOption = coreLocalBranch.getRemoteTrackingBranch();
+    if (remoteBranchOption.isDefined()) {
+      IGitCoreRemoteBranch coreRemoteBranch = remoteBranchOption.get();
       BaseGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.getPointedCommit())
           .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
       remoteBranch = new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));

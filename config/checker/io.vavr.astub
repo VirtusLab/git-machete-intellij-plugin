@@ -85,3 +85,8 @@ interface Option<T> {
 
   static <T> io.vavr.control.Option<@NonNull T> of(@Nullable T value);
 }
+
+
+interface Try<T> {
+    static <T> Try<T> of(CheckedFunction0<? extends @Nullable T> supplier);
+}

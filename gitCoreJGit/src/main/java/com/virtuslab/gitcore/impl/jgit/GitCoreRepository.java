@@ -76,7 +76,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
 
     // Cast necessary because ambiguous method call with null parameter
-    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName).getOrElse((IGitCoreRemoteBranch) null);
+    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName).getOrNull();
 
     return new GitCoreLocalBranch(/* repo */ this, branchName, remoteBranch);
   }
@@ -104,7 +104,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .map(ref -> {
           String shortBranchName = ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "");
           return new GitCoreLocalBranch(/* repo */ this, shortBranchName,
-              Try.of(() -> getRemoteBranch(shortBranchName).getOrElse((IGitCoreRemoteBranch) null)).getOrNull());
+              Try.of(() -> getRemoteBranch(shortBranchName).getOrNull()).getOrNull());
         })
         .collect(List.collector());
   }
