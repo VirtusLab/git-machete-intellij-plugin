@@ -33,6 +33,11 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.PushSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.SlideOutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction">
                 <override-text place="GitMacheteContextMenu"/>

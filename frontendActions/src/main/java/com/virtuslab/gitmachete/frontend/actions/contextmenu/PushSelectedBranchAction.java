@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.toolbar;
+package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -11,7 +11,6 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.common.BasePushBranchAction;
@@ -23,10 +22,11 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class PushCurrentBranchAction extends BasePushBranchAction {
+public class PushSelectedBranchAction extends BasePushBranchAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -34,13 +34,11 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    Option<BaseGitMacheteBranch> currentBranch = ActionUtils.getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged());
+    Option<String> selectedBranchName = ActionUtils.getSelectedBranchName(anActionEvent);
 
-    Option<String> currentBranchName = currentBranch.flatMap(branch -> Option.of(branch.getName()));
-
-    if (currentBranchName.isDefined()) {
-      Option<SyncToRemoteStatus> syncToRemoteStatus = currentBranch
+    if (selectedBranchName.isDefined()) {
+      Option<SyncToRemoteStatus> syncToRemoteStatus = ActionUtils.getGitMacheteRepository(anActionEvent)
+          .flatMap(repo -> repo.getBranchByName(selectedBranchName.get()))
           .flatMap(branch -> Option.of(branch.getSyncToRemoteStatus()));
 
       if (syncToRemoteStatus.isDefined()) {
@@ -48,7 +46,15 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
         boolean isEnabled = PUSH_ENABLING_STATUSES.contains(relation);
 
         if (isEnabled) {
-          anActionEvent.getPresentation().setDescription("Push branch '${currentBranchName.get()}' with push dialog");
+          Option<Boolean> isSelectedEqualCurrent = ActionUtils.getGitMacheteRepository(anActionEvent)
+              .flatMap(repo -> Option.of(repo.getCurrentBranchIfManaged()))
+              .flatMap(branch -> branch.isDefined() ? Option.of(branch.get().getName()) : Option.none())
+              .flatMap(branchName -> Option.of(branchName.equals(selectedBranchName.get())));
+
+          if (isSelectedEqualCurrent.isDefined() && isSelectedEqualCurrent.get()) {
+            anActionEvent.getPresentation().setText("Push Current Branch");
+          }
+          anActionEvent.getPresentation().setDescription("Push branch '${selectedBranchName.get()}' with push dialog");
         } else {
           anActionEvent.getPresentation().setEnabled(false);
           String descriptionSpec = Match(relation).of(
@@ -72,12 +78,12 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+
     Project project = ActionUtils.getProject(anActionEvent);
 
     Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = ActionUtils.getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged())
-        .flatMap(branch -> Option.of(branch.getName()));
+
+    Option<String> branchName = ActionUtils.getSelectedBranchName(anActionEvent);
 
     if (branchName.isDefined()) {
       doPush(project, selectedVcsRepository.toJavaList(), branchName.get());
