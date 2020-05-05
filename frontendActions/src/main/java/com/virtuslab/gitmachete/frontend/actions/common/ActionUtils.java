@@ -18,7 +18,7 @@ public final class ActionUtils {
   private ActionUtils() {}
 
   public static Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
-    return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT));
+    return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getBranchLayout());
   }
 
   public static Option<IBranchLayoutWriter> getBranchLayoutWriter(AnActionEvent anActionEvent) {

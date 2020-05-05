@@ -231,14 +231,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @Override
   @Nullable
   public Object getData(String dataId) {
-    // Should be extracted to a local var since `gitMacheteRepository` is mutable and used for more than one case below.
-    var gmr = gitMacheteRepository;
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
-        typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT, gmr != null ? gmr.getBranchLayout().getOrNull() : null),
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gmr),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));

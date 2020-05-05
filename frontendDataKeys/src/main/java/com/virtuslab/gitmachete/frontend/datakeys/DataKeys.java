@@ -9,7 +9,6 @@ import git4idea.repo.GitRepository;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
@@ -17,7 +16,6 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 public final class DataKeys {
   private DataKeys() {}
 
-  public static final DataKey<@Nullable IBranchLayout> KEY_BRANCH_LAYOUT = DataKey.create("BRANCH_LAYOUT");
   public static final DataKey<@Nullable IBranchLayoutWriter> KEY_BRANCH_LAYOUT_WRITER = DataKey.create("BRANCH_LAYOUT_WRITER");
   public static final DataKey<@Nullable IGitMacheteRepository> KEY_GIT_MACHETE_REPOSITORY = DataKey
       .create("GIT_MACHETE_REPOSITORY");
@@ -27,8 +25,9 @@ public final class DataKeys {
   public static final DataKey<@Nullable GitRepository> KEY_SELECTED_VCS_REPOSITORY = DataKey.create("SELECTED_VCS_REPOSITORY");
 
   /**
-   * Note: this method isn't currently null safe wrt. value,
-   * see https://github.com/typetools/checker-framework/issues/3289#issuecomment-623703212
+   * Note: this method isn't currently null-safe wrt. {@code value},
+   * see https://github.com/typetools/checker-framework/issues/3289
+   * and generally https://github.com/typetools/checker-framework/issues/979
    */
   public static <T> Match.Case<String, T> typeSafeCase(DataKey<T> key, T value) {
     return Case($(key.getName()), value);
