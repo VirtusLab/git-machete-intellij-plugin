@@ -88,5 +88,5 @@ interface Option<T> {
 
 
 interface Try<T> {
-    static <T> Try<T> of(CheckedFunction0<? extends @Nullable T> supplier);
+  static <T> Try<T> of(CheckedFunction0<? extends @Nullable T> supplier);
 }
