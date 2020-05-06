@@ -76,6 +76,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\b(class|interface) [A-Za-z0-9]*Manager\b"/>
+    <property name="message" value="Classes called '...Manager' are an indicator of poor design; likely a redesign (and not just a rename) is needed"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bnCopies\b"/>
     <property name="message" value="Usage of the prohibited Java Collections.nCopies"/>
 </module>
