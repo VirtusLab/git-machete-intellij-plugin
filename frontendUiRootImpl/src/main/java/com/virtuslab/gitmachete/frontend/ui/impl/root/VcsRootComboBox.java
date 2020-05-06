@@ -19,6 +19,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
@@ -53,11 +54,10 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     return (MutableCollectionComboBoxModel<GitRepository>) super.getModel();
   }
 
-  @Override
   @UIEffect
-  public void updateRepositories() {
-    // GitUtil.getRepositories(project) should never return empty list because it means there's no git repository in an opened
-    // project, so Git Machete plugin shouldn't even be loaded in the first place (as ensured by GitMacheteVisibilityPredicate)
+  private void updateRepositories() {
+    // A bit of a shortcut: we're accessing filesystem even though we are on UI thread here;
+    // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
     LOG.debug(() -> "VCS roots:");
     repositories.forEach(r -> LOG.debug("* {r.getRoot().getName()}"));
@@ -74,8 +74,11 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
     boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
+      // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
       LOG.debug(() -> "No VCS roots found");
-      observers.forEach(o -> o.onSelectionChanged());
+      if (selected != null) {
+        setSelectedItem(null);
+      }
     } else if (selectedItemUpdateRequired) {
       LOG.debug(() -> "Selecting first VCS root");
       setSelectedItem(repositories.get(0));
@@ -94,7 +97,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
 
   @Override
   @UIEffect
-  public void setSelectedItem(Object anObject) {
+  public void setSelectedItem(@Nullable Object anObject) {
     super.setSelectedItem(anObject);
     observers.forEach(o -> o.onSelectionChanged());
   }

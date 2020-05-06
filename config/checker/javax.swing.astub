@@ -8,6 +8,8 @@ package javax.swing;
 class JComboBox<E> {
   @SafeEffect
   ComboBoxModel<E> getModel();
+
+  void setSelectedItem(@Nullable Object anObject);
 }
 
 class JComponent {

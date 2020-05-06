@@ -9,7 +9,4 @@ public interface IGitRepositorySelectionProvider {
   Option<GitRepository> getSelectedRepository();
 
   void addSelectionChangeObserver(IGitRepositorySelectionChangeObserver observer);
-
-  @UIEffect
-  void updateRepositories();
 }

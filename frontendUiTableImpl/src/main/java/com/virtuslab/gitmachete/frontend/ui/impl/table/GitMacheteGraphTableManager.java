@@ -181,7 +181,6 @@ public final class GitMacheteGraphTableManager implements IGraphTableManager {
     if (project != null && !project.isDisposed()) {
       LOG.debug("Queuing repository update onto a non-UI thread");
       GuiUtils.invokeLaterIfNeeded(() -> {
-        gitRepositorySelectionProvider.updateRepositories();
         Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
         if (gitRepository.isDefined()) {
           new Task.Backgroundable(project, "Updating Git Machete repository") {
