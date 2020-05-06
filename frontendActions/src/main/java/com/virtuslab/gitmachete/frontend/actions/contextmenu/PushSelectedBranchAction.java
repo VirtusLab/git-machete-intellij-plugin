@@ -86,7 +86,11 @@ public class PushSelectedBranchAction extends BasePushBranchAction {
     Option<String> branchName = ActionUtils.getSelectedBranchName(anActionEvent);
 
     if (branchName.isDefined()) {
-      doPush(project, selectedVcsRepository.toJavaList(), branchName.get());
+      if (selectedVcsRepository.isDefined()) {
+        doPush(project, selectedVcsRepository.get(), branchName.get());
+      } else {
+        LOG.warn("Skipping the action because no VCS repository is selected");
+      }
     } else {
       LOG.warn("Skipping the action because name of branch to push is undefined");
     }

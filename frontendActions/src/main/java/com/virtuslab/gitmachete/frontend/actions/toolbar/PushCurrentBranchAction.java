@@ -80,7 +80,12 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
         .flatMap(branch -> Option.of(branch.getName()));
 
     if (branchName.isDefined()) {
-      doPush(project, selectedVcsRepository.toJavaList(), branchName.get());
+      if (selectedVcsRepository.isDefined()) {
+        doPush(project, selectedVcsRepository.get(), branchName.get());
+
+      } else {
+        LOG.warn("Skipping the action because no VCS repository is selected");
+      }
     } else {
       LOG.warn("Skipping the action because name of branch to push is undefined");
     }

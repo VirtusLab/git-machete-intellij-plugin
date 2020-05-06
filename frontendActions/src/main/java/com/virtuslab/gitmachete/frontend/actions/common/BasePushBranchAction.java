@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import java.util.Collections;
+
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -47,23 +49,19 @@ public abstract class BasePushBranchAction extends DumbAwareAction {
   public abstract void actionPerformed(AnActionEvent anActionEvent);
 
   @UIEffect
-  public void doPush(Project project, java.util.List<GitRepository> preselectedRepositories, String branchName) {
-    if (preselectedRepositories.size() > 0) {
-      @Nullable
-      GitLocalBranch localBranch = preselectedRepositories.get(0).getBranches().findLocalBranch(branchName);
+  public void doPush(Project project, GitRepository preselectedRepository, String branchName) {
+    @Nullable
+    GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
 
-      if (localBranch != null) {
-        new VcsPushDialog(project,
-            /* allRepositories */ preselectedRepositories,
-            preselectedRepositories,
-            /* currentRepo */ null,
-            GitPushSource.create(localBranch)).show();
-      } else {
-        LOG.warn("Skipping the action because no provided branch ${branchName} was not found in repository");
-      }
-
+    if (localBranch != null) {
+      java.util.List<GitRepository> selectedRepositories = Collections.singletonList(preselectedRepository);
+      new VcsPushDialog(project,
+          /* allRepositories */ selectedRepositories,
+          /* preselectedRepositories */ selectedRepositories,
+          /* currentRepo */ null,
+          GitPushSource.create(localBranch)).show();
     } else {
-      LOG.warn("Skipping the action because no VCS repository is selected");
+      LOG.warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
   }
 }
