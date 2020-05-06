@@ -114,7 +114,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
-    return Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH))
+    return Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -123,7 +123,8 @@ public class GitCoreRepository implements IGitCoreRepository {
           return branch;
         })
         .map(ref -> {
-          String shortBranchName = ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH + remoteName, /* replacement */ "");
+          String shortBranchName = ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/",
+              /* replacement */ "");
           return new GitCoreRemoteBranch(/* repo */ this, shortBranchName, remoteName);
         })
         .collect(List.collector());

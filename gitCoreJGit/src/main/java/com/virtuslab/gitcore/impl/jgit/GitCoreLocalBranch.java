@@ -89,6 +89,8 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
     LOG.debug(() -> "Entering: branch = '${getFullName()}'");
+    LOG.trace("Original list of entries: ");
+    entries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
     ObjectId entryToExcludeNewId;
     if (entries.size() > 0) {
       ReflogEntry firstEntry = entries.get(entries.size() - 1);
@@ -168,9 +170,9 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
     List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
-        .of(() -> repo.getAllRemoteBranches().filter(branch -> remoteTrackingBranch.filter(branch::equals).isEmpty())
+        .of(() -> repo.getAllRemoteBranches()
+            .reject(branch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(branch))
             .map(branch -> Try.of(() -> {
-              String r = branch.getFullName();
               ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
               assert reflogReader != null : "Error while getting reflog reader";
               return reflogReader.getReverseEntries();

@@ -112,7 +112,7 @@ public class TestUtils {
     }
 
     @Override
-    public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName) {
+    public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) {
       return null;
     }
 
@@ -122,7 +122,17 @@ public class TestUtils {
     }
 
     @Override
-    public List<IGitCoreRemoteBranch> getRemoteBranches() {
+    public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) {
+      return List.empty();
+    }
+
+    @Override
+    public List<IGitCoreRemoteBranch> getAllRemoteBranches() {
+      return List.empty();
+    }
+
+    @Override
+    public List<String> getRemotes() {
       return List.empty();
     }
 
