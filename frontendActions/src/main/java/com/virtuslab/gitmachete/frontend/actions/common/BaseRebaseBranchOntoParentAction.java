@@ -54,19 +54,13 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
       presentation.setEnabled(false);
       presentation.setDescription("Can't rebase due to unknown repository state");
     } else if (state.get() != Repository.State.NORMAL) {
-      // `REVERTING` state is available since 193.2495, but we're still supporting 192.*
-      var revertingState = Try.of(() -> Repository.State.valueOf("REVERTING")).getOrNull();
 
       var stateName = Match(state.get()).of(
-          // In versions earlier than 193.2495 if repository is in reverting state,
-          // com.intellij.dvcs.repo.Repository.getState returns `GRAFTING` state like when cherry-pick is in progress so
-          // we return custom message in this case
-          Case($(Repository.State.GRAFTING),
-              revertingState != null ? "during an ongoing cherry-pick" : "during an ongoing cherry-pick or revert"),
+          Case($(Repository.State.GRAFTING), "during an ongoing cherry-pick"),
           Case($(Repository.State.DETACHED), "in the detached head state"),
           Case($(Repository.State.MERGING), "during an ongoing merge"),
           Case($(Repository.State.REBASING), "during an ongoing rebase"),
-          Case($(revertingState), "during an ongoing revert"),
+          Case($(Repository.State.REVERTING), "during an ongoing revert"),
           Case($(), ": " + state.toString().toLowerCase()));
 
       presentation.setEnabled(false);

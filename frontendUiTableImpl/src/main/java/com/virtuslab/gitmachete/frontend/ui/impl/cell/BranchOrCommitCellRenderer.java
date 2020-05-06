@@ -14,6 +14,7 @@ import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.paint.PaintUtil;
+import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import com.intellij.vcs.log.ui.render.TypeSafeTableCellRenderer;
@@ -62,9 +63,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
     private final GitMacheteGraphTable graphTable;
     private final IGraphCellPainter painter;
 
-    // Note: using deprecated `UIUtil.createImage` instead of `ImageUtil.createImage` to maintain compatibility with
-    // IntelliJ platform 2019.2
-    GraphImage graphImage = new GraphImage(UIUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
+    GraphImage graphImage = new GraphImage(ImageUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB), 0);
 
     @UIEffect
     MyComponent(GitMacheteGraphTable graphTable, IGraphCellPainter painter) {

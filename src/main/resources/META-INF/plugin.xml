@@ -25,22 +25,28 @@
             <!-- These actions are used in right-click context menu on branches. -->
             <action id="GitMachete.CheckOutBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckOutBranchAction">
-                <override-text place="GitMacheteContextMenu"/>
+                <!-- "override-text" is available since 2020.1. As long as we support previous versions it cannot be used.
+                    Furthermore, prepending "Git Machete: " to action texts (without defined place) should take place
+                      once we introduce override-text here.
+                    This will distinguish Git Machete actions in "Find Action..." search dialog.
+                    We do not prepend it now to avoid text pollution in the toolbar/context menu.
+                    We assume that those are the most usual ways to execute a Git Machete action. -->
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RebaseSelectedBranchOntoParentAction">
-                <override-text place="GitMacheteContextMenu"/>
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.PushSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction">
-                <override-text place="GitMacheteContextMenu"/>
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.SlideOutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction">
-                <override-text place="GitMacheteContextMenu"/>
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
         </group>
 
@@ -49,31 +55,31 @@
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction"
                     icon="AllIcons.Actions.Refresh"
                     use-shortcut-of="Refresh">
-                <override-text place="GitMacheteToolbar"/>
+                <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.ToggleListingCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ToggleListingCommitsAction"
                     icon="AllIcons.Actions.ShowHiddens">
-                <override-text place="GitMacheteToolbar"/>
+                <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
                     icon="AllIcons.Actions.Menu_cut">
-                <override-text place="GitMacheteToolbar"/>
+                <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
                     icon="AllIcons.Vcs.Push">
-                <override-text place="GitMacheteToolbar"/>
+                <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.SlideOutCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
                     icon="AllIcons.Actions.GC">
-                <override-text place="GitMacheteToolbar"/>
+                <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
         </group>
     </actions>
