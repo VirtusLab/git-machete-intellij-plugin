@@ -10,6 +10,7 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.BaseRebaseBranchOntoParentAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -43,7 +44,11 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
         presentation.setDescription("Can't rebase root branch '${currentBranch.get().getName()}'");
         presentation.setEnabled(false);
 
-      } else {
+      } else if (currentBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
+        presentation.setEnabled(false);
+        presentation.setDescription("Can't rebase merged branch '${currentBranch.get().getName()}'");
+
+      } else if (currentBranch.get().isNonRootBranch()) {
         var upstreamBranch = currentBranch.get().asNonRootBranch().getUpstreamBranch();
         presentation.setDescription("Rebase '${currentBranch.get().getName()}' onto '${upstreamBranch.getName()}'");
       }
