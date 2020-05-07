@@ -1,9 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
@@ -37,35 +33,31 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
     Option<BaseGitMacheteBranch> currentBranch = ActionUtils.getGitMacheteRepository(anActionEvent)
         .flatMap(repo -> repo.getCurrentBranchIfManaged());
 
-    Option<String> currentBranchName = currentBranch.flatMap(branch -> Option.of(branch.getName()));
+    Option<String> currentBranchName = currentBranch.map(branch -> branch.getName());
 
-    if (currentBranchName.isDefined()) {
-      Option<SyncToRemoteStatus> syncToRemoteStatus = currentBranch
-          .flatMap(branch -> Option.of(branch.getSyncToRemoteStatus()));
-
-      if (syncToRemoteStatus.isDefined()) {
-        SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-        boolean isEnabled = PUSH_ENABLING_STATUSES.contains(relation);
-
-        if (isEnabled) {
-          anActionEvent.getPresentation().setDescription("Push branch '${currentBranchName.get()}' with push dialog");
-        } else {
-          anActionEvent.getPresentation().setEnabled(false);
-          String descriptionSpec = Match(relation).of(
-              Case($(SyncToRemoteStatus.Relation.Behind), "behind its remote"),
-              Case($(SyncToRemoteStatus.Relation.InSync), "in sync to its remote"),
-              Case($(), "in unknown status '${relation.toString()}' to its remote"));
-          anActionEvent.getPresentation().setDescription("Push disabled because current branch is ${descriptionSpec}");
-        }
-
-      } else {
-        anActionEvent.getPresentation().setEnabled(false);
-        anActionEvent.getPresentation().setDescription("Push disabled due to undefined sync to remote status");
-      }
-
-    } else {
+    if (currentBranchName.isEmpty()) {
       anActionEvent.getPresentation().setEnabled(false);
       anActionEvent.getPresentation().setDescription("Push disabled due to undefined current branch");
+      return;
+    }
+
+    Option<SyncToRemoteStatus> syncToRemoteStatus = currentBranch.map(branch -> branch.getSyncToRemoteStatus());
+
+    if (syncToRemoteStatus.isEmpty()) {
+      anActionEvent.getPresentation().setEnabled(false);
+      anActionEvent.getPresentation().setDescription("Push disabled due to undefined sync to remote status");
+      return;
+    }
+
+    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
+    boolean isEnabled = PUSH_ELIGIBLE_STATUSES.contains(relation);
+
+    if (isEnabled) {
+      anActionEvent.getPresentation().setDescription("Push branch '${currentBranchName.get()}' using push dialog");
+    } else {
+      anActionEvent.getPresentation().setEnabled(false);
+      String description = getRelationBasedDescription(relation);
+      anActionEvent.getPresentation().setDescription(description);
     }
   }
 
@@ -75,9 +67,7 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
     Project project = ActionUtils.getProject(anActionEvent);
 
     Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = ActionUtils.getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged())
-        .flatMap(branch -> Option.of(branch.getName()));
+    Option<String> branchName = ActionUtils.getCurrentBranchNameIfManaged(anActionEvent);
 
     if (branchName.isDefined()) {
       if (selectedVcsRepository.isDefined()) {

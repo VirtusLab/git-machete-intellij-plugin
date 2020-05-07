@@ -23,8 +23,8 @@
     <actions>
         <group id="GitMachete.ContextMenu">
             <!-- These actions are used in right-click context menu on branches. -->
-            <action id="GitMachete.CheckOutBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckOutBranchAction">
+            <action id="GitMachete.CheckoutSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction">
                 <!-- "override-text" is available since 2020.1. As long as we support previous versions it cannot be used.
                     Furthermore, prepending "Git Machete: " to action texts (without defined place) should take place
                       once we introduce override-text here.

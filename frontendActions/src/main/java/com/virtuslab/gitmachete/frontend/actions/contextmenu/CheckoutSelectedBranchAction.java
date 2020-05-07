@@ -28,7 +28,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  * </ul>
  */
-public class CheckOutBranchAction extends DumbAwareAction {
+public class CheckoutSelectedBranchAction extends DumbAwareAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

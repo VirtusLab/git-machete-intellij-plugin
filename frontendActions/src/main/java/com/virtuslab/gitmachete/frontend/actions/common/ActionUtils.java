@@ -25,6 +25,12 @@ public final class ActionUtils {
     return Option.of(anActionEvent.getData(DataKeys.KEY_BRANCH_LAYOUT_WRITER));
   }
 
+  public static Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
+    return getGitMacheteRepository(anActionEvent)
+        .flatMap(repo -> repo.getCurrentBranchIfManaged())
+        .map(branch -> branch.getName());
+  }
+
   public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged().flatMap(
         currentBranch -> currentBranch.isNonRootBranch() ? Option.some(currentBranch.asNonRootBranch()) : Option.none()));
