@@ -80,7 +80,6 @@ class TextDiffViewerUtil {
 @UIPackage package com.intellij.ide.util.treeView.smartTree;
 @UIPackage package com.intellij.ide.wizard;
 @UIPackage package com.intellij.navigation;
-@UIPackage package com.intellij.notification;
 @UIPackage package com.intellij.openapi;
 
 

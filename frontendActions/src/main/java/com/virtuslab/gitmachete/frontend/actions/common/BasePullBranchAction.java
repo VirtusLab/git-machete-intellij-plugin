@@ -10,9 +10,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.fetch.GitFetchResult;
-import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -57,22 +56,14 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
 
     new Task.Backgroundable(project, "Updating...", true) {
 
-      @Nullable
-      private GitFetchResult fetchResult = null;
-
       @Override
       public void run(ProgressIndicator indicator) {
-        var fetchSupport = GitFetchSupport.fetchSupport(project);
-        fetchResult = fetchSupport.fetch(gitRepository, trackingInfo.getRemote(), "${branchName}:${branchName}");
-        fetchResult.throwExceptionIfFailed();
-      }
-
-      @Override
-      public void onThrowable(Throwable error) {
-        if (fetchResult != null) {
+        var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
+        var fetchResult = fetchSupport.fetch(gitRepository, trackingInfo.getRemote(), "${branchName}:${branchName}");
+        try {
+          fetchResult.ourThrowExceptionIfFailed();
+        } catch (VcsException e) {
           fetchResult.showNotificationIfFailed("Update of branch '${branchName}' failed");
-        } else {
-          LOG.warn("Update failed due to an error but fetchResult is null");
         }
       }
 

@@ -8,13 +8,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import git4idea.fetch.GitFetchResult;
-import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
+import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -35,7 +35,7 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
     super.update(anActionEvent);
 
     Project project = ActionUtils.getProject(anActionEvent);
-    if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {
+    if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       anActionEvent.getPresentation().setEnabled(false);
       anActionEvent.getPresentation().setDescription("Update is already running...");
     }
@@ -55,19 +55,16 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
 
       @Override
       public void run(ProgressIndicator indicator) {
-        result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(selectedVcsRepository.toJavaList());
+        result = GitFetchSupportImpl.fetchSupport(project).fetchAllRemotes(selectedVcsRepository.toJavaList());
       }
 
       @Override
       public void onFinished() {
         if (result != null) {
-          onFetchFinished(result);
+          result.showNotification();
         }
       }
     }.queue();
   }
 
-  protected void onFetchFinished(GitFetchResult result) {
-    result.showNotification();
-  }
 }
