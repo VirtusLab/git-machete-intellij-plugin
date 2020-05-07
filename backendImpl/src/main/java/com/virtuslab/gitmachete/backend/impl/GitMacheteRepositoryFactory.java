@@ -8,7 +8,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.I
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 
 import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
@@ -94,8 +94,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
-    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, syncToRemoteStatus, customAnnotation,
-        remoteBranch);
+    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, remoteBranch, syncToRemoteStatus,
+        customAnnotation);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
@@ -130,7 +130,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
     return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
-        commits, syncToRemoteStatus, syncToParentStatus, customAnnotation, remoteBranch);
+        commits, remoteBranch, syncToRemoteStatus, syncToParentStatus, customAnnotation);
   }
 
   @Nullable
@@ -236,16 +236,16 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
         Option<IGitCoreRemoteBranch> remoteTrackingBranchOption = coreLocalBranch.getRemoteTrackingBranch();
         if (remoteTrackingBranchOption.isDefined()) {
-          Date localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitDate();
-          Date remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitDate();
-          if (localBranchCommitDate.before(remoteBranchCommitDate)) {
+          Instant localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitTime();
+          Instant remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitTime();
+          if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
             syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndOlderThanRemote, trackingStatus.getRemoteName());
           } else {
             syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndNewerThanRemote, trackingStatus.getRemoteName());
           }
-          // Theoretically this `else` should never happens coz deriveRemoteTrackingStatus() for coreLocalBranch
-          // should be empty in this case
         } else {
+          // Theoretically this `else` should never happen coz deriveRemoteTrackingStatus() for coreLocalBranch
+          // should be empty in this case
           LOG.debug(() -> "Because remote tracking branch for branch '${coreLocalBranch.getName()}' is undefined" +
               "this branch is untracked");
           return SyncToRemoteStatus.of(Untracked, "");

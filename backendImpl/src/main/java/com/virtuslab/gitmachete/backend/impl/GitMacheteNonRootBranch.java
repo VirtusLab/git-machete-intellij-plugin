@@ -2,12 +2,10 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.dataflow.qual.Pure;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
@@ -37,7 +35,6 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   private final List<IGitMacheteCommit> commits;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SyncToParentStatus syncToParentStatus;
-  @Getter(AccessLevel.NONE)
   @Nullable
   private final IGitMacheteRemoteBranch remoteBranch;
   @Nullable
@@ -48,10 +45,9 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
       List<IGitMacheteCommit> commits,
-      SyncToRemoteStatus syncToRemoteStatus,
+      @Nullable IGitMacheteRemoteBranch remoteBranch, SyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
-      @Nullable String customAnnotation,
-      @Nullable IGitMacheteRemoteBranch remoteBranch) {
+      @Nullable String customAnnotation) {
     LOG.debug(
         () -> "Creating GitMacheteNonRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, "
             + "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, pointedCommit = ${pointedCommit.getHash()}, "
@@ -106,7 +102,6 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
   }
 
   @Override
-  @Pure
   public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
     return Option.of(remoteBranch);
   }

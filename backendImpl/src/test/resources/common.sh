@@ -23,6 +23,15 @@ newrepo() {
   git init $opt
 }
 
+clone() {
+  path=$1
+  remote=$2
+  destinationFolder=$3
+  cd $path
+  git clone $remote $destinationFolder
+  cd $destinationFolder
+}
+
 gituserdata() {
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"

@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.backend.unit;
 
-import java.util.Date;
+import java.time.Instant;
 
 import io.vavr.control.Option;
 import org.junit.Assert;
@@ -48,8 +48,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(Option.of(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    PowerMockito.doReturn(new Date(1588761544)).when(coreLocalBranchCommit).getCommitDate();
-    PowerMockito.doReturn(new Date(1588761500)).when(coreRemoteBranchCommit).getCommitDate();
+    PowerMockito.doReturn(Instant.ofEpochSecond(1588761544)).when(coreLocalBranchCommit).getCommitTime();
+    PowerMockito.doReturn(Instant.ofEpochSecond(1588761500)).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
@@ -65,8 +65,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(Option.of(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    PowerMockito.doReturn(new Date(1588761544)).when(coreLocalBranchCommit).getCommitDate();
-    PowerMockito.doReturn(new Date(1588761678)).when(coreRemoteBranchCommit).getCommitDate();
+    PowerMockito.doReturn(Instant.ofEpochSecond(1588761544)).when(coreLocalBranchCommit).getCommitTime();
+    PowerMockito.doReturn(Instant.ofEpochSecond(1588761678)).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);

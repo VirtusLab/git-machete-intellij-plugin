@@ -137,11 +137,8 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
-    List<IGitCoreRemoteBranch> listOfRemotes = List.of();
-    for (var remoteName : getRemotes()) {
-      listOfRemotes = listOfRemotes.appendAll(getRemoteBranches(remoteName));
-    }
-    return listOfRemotes;
+    return getRemotes().toStream().flatMap(remoteName -> Try.of(() -> getRemoteBranches(remoteName)).get())
+        .collect(List.collector());
   }
 
   private String deriveRemoteName(String localBranchShortName) {

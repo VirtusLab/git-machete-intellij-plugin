@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.integration;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
@@ -83,6 +84,21 @@ public class GitMacheteStatusTest {
   @Test
   public void statusTestWithMultiRemotes() throws Exception {
     init("setup-with-multiple-remotes.sh");
+
+    String ourResult = repositoryStatus();
+    String gitMacheteCliStatus = gitMacheteCliStatus();
+
+    System.out.println("CLI OUTPUT:");
+    System.out.println(gitMacheteCliStatus);
+    System.out.println("OUR OUTPUT:");
+    System.out.println(ourResult);
+
+    Assert.assertEquals(gitMacheteCliStatus, ourResult);
+  }
+
+  @Test
+  public void statusTestForDivergedAndOlderThan() throws Exception {
+    init("setup-for-diverged-and-older-than.sh");
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -198,7 +214,8 @@ public class GitMacheteStatusTest {
           Case($(Ahead), "ahead of " + syncToRemote.getRemoteName()),
           Case($(Behind), "behind " + syncToRemote.getRemoteName()),
           Case($(Untracked), "untracked"),
-          Case($(DivergedAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName())));
+          Case($(DivergedAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName()),
+          Case($(DivergedAndOlderThanRemote), "diverged from & older than " + syncToRemote.getRemoteName())));
       sb.append(")");
     }
     sb.append(System.lineSeparator());

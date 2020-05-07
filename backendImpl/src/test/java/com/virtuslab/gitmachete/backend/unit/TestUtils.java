@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.unit;
 
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
@@ -75,7 +75,7 @@ public class TestUtils {
     }
 
     @Override
-    public Date getCommitDate() {
+    public Instant getCommitTime() {
       return null;
     }
 

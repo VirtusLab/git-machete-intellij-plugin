@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.checkerframework.dataflow.qual.Pure;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.Constants;
@@ -82,7 +81,6 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
-  @Pure
   public Option<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
     return Option.of(remoteBranch);
   }

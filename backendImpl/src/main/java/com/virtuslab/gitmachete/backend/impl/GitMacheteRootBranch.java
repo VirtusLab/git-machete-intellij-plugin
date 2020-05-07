@@ -2,11 +2,9 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.dataflow.qual.Pure;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
@@ -25,7 +23,6 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   private final List<GitMacheteNonRootBranch> downstreamBranches;
   private final IGitMacheteCommit pointedCommit;
   private final SyncToRemoteStatus syncToRemoteStatus;
-  @Getter(AccessLevel.NONE)
   @Nullable
   private final IGitMacheteRemoteBranch remoteBranch;
   @Nullable
@@ -33,9 +30,8 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
 
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      SyncToRemoteStatus syncToRemoteStatus,
-      @Nullable String customAnnotation,
-      @Nullable IGitMacheteRemoteBranch remoteBranch) {
+      @Nullable IGitMacheteRemoteBranch remoteBranch, SyncToRemoteStatus syncToRemoteStatus,
+      @Nullable String customAnnotation) {
     LOG.debug(
         () -> "Creating GitMacheteRootBranch(name = ${name}, " +
             "downstreamBranches.length() = ${downstreamBranches.length()}, " +
@@ -71,7 +67,6 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
   }
 
   @Override
-  @Pure
   public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
     return Option.of(remoteBranch);
   }

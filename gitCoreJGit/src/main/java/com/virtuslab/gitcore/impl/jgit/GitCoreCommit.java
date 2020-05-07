@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.util.Date;
+import java.time.Instant;
 
 import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -14,7 +14,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
   private final String message;
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
-  private final Date commitDate;
+  private final Instant commitTime;
   private final BaseGitCoreCommitHash hash;
 
   public GitCoreCommit(RevCommit commit) {
@@ -22,7 +22,7 @@ public class GitCoreCommit extends BaseGitCoreCommit {
     this.message = jgitCommit.getFullMessage();
     this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());
     this.committer = new GitCorePersonIdentity(jgitCommit.getCommitterIdent());
-    this.commitDate = new Date((long) jgitCommit.getCommitTime() * 1000);
+    this.commitTime = Instant.ofEpochSecond(jgitCommit.getCommitTime());
     this.hash = GitCoreCommitHash.of(jgitCommit);
   }
 

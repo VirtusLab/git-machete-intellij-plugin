@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface IGitMacheteCommit {
   String getMessage();
 
   String getHash();
 
-  Date getCommitDate();
+  Instant getCommitTime();
 }

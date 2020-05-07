@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.api;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -15,7 +15,7 @@ public abstract class BaseGitCoreCommit {
 
   public abstract IGitCorePersonIdentity getCommitter();
 
-  public abstract Date getCommitDate();
+  public abstract Instant getCommitTime();
 
   public abstract BaseGitCoreCommitHash getHash();
 
