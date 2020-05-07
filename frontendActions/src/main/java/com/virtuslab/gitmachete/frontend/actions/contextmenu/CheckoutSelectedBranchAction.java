@@ -40,7 +40,14 @@ public class CheckoutSelectedBranchAction extends DumbAwareAction {
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isDefined()) {
-      anActionEvent.getPresentation().setDescription("Checkout branch '${selectedBranchName.get()}'");
+      Option<String> currentBranchName = ActionUtils.getCurrentBranchNameIfManaged(anActionEvent);
+
+      if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
+        anActionEvent.getPresentation().setEnabled(false);
+        anActionEvent.getPresentation().setDescription("Branch '${selectedBranchName.get()}' is currently checked out");
+      } else {
+        anActionEvent.getPresentation().setDescription("Checkout branch '${selectedBranchName.get()}'");
+      }
     } else {
       anActionEvent.getPresentation().setEnabled(false);
       anActionEvent.getPresentation().setDescription("Checkout disabled due to undefined selected branch");
