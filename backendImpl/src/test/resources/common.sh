@@ -5,7 +5,7 @@ set -x
 newb() {
   if (( $# != 1 ))
   then
-    echo "newb() need 1 parameter, $# was given"
+    echo "newb() needs 1 parameter, $# was given"
     exit 100
   fi
   git checkout -b $1
@@ -14,7 +14,7 @@ newb() {
 cmt() {
   if (( $# < 1 ))
   then
-    echo "cmt() need at least 1 parameters, $# was given"
+    echo "cmt() needs at least 1 parameters, $# was given"
     exit 100
   fi
   b=$(git symbolic-ref --short HEAD)
@@ -27,7 +27,7 @@ cmt() {
 newrepo() {
   if (( $# < 2 ))
   then
-    echo "newrepo() need at least 2 parameters, $# was given"
+    echo "newrepo() needs at least 2 parameters, $# was given"
     exit 100
   fi
   path=$1
@@ -41,7 +41,7 @@ newrepo() {
 clone() {
   if (( $# != 3 ))
   then
-    echo "clone() need 3 parameters, $# was given"
+    echo "clone() needs 3 parameters, $# was given"
     exit 100
   fi
   path=$1

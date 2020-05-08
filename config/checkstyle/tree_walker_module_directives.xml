@@ -119,6 +119,12 @@
     <property name="format" value="\bupdateUI\b"/>
     <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()"/>
 </module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bjava\.util\.Date\b"/>
+    <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
+</module>
 <module name="RegexpSinglelineJava">
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\\n"/>
