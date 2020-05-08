@@ -64,6 +64,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\b(class|interface) [A-Za-z0-9]*Manager\b"/>
+    <property name="message" value="Classes called '...Manager' are an indicator of poor design; likely a redesign (and not just a rename) is needed"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bgetRequiredData\b"/>
     <property name="message" value="Usage of prohibited AnActionEvent#getRequiredData, use AnActionEvent#getData and a @NonNull type-parameterized DataKey instead"/>
 </module>
@@ -76,8 +82,14 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
-    <property name="format" value="\b(class|interface) [A-Za-z0-9]*Manager\b"/>
-    <property name="message" value="Classes called '...Manager' are an indicator of poor design; likely a redesign (and not just a rename) is needed"/>
+    <property name="format" value="\bjava\.util\.Date\b"/>
+    <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\\n"/>
+    <property name="message" value="Usage of \n is forbidden, use System.lineSeparator() instead"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
@@ -124,17 +136,6 @@
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bupdateUI\b"/>
     <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()"/>
-</module>
-<module name="Regexp">
-    <property name="illegalPattern" value="true"/>
-    <property name="ignoreComments" value="true"/>
-    <property name="format" value="\bjava\.util\.Date\b"/>
-    <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
-</module>
-<module name="RegexpSinglelineJava">
-    <property name="ignoreComments" value="true"/>
-    <property name="format" value="\\n"/>
-    <property name="message" value="Usage of \n is forbidden, use System.lineSeparator() instead"/>
 </module>
 <module name="RightCurly">
     <property name="id" value="RightCurlySame"/>

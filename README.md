@@ -25,7 +25,7 @@ ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 ---
-Consider increasing maximum heap size for IDE (the default value is 2048MB). Go to `Help` -> `Change Memory Settings` for this.
+Consider increasing maximum heap size for the IDE (the default value is 2048 MB). Go to `Help` -> `Change Memory Settings` for this.
 
 ### Run/Debug
 
@@ -47,7 +47,8 @@ By default, IntelliJ logs everything with level `INFO` and above into `idea.log`
 The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out.
 
 To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
-Typically with Java logging, the category is a fully-qualified name of each class; in our case, however, we're only ever using the categories provided above.
+The standard practice in Java logging is to use fully-qualified name of each class as category;
+in our case, however, we're only ever using the categories provided above.
 
 ### Generate plugin zip
 

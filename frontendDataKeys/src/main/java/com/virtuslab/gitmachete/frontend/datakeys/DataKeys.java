@@ -25,7 +25,7 @@ public final class DataKeys {
   public static final DataKey<@Nullable String> KEY_SELECTED_BRANCH_NAME = DataKey.create("SELECTED_BRANCH_NAME");
   public static final DataKey<@Nullable GitRepository> KEY_SELECTED_VCS_REPOSITORY = DataKey.create("SELECTED_VCS_REPOSITORY");
 
-  // Note: this method isn't currently fully null-safe, it's possibly pass a {@code null} as {@code value}
+  // Note: this method isn't currently fully null-safe, it's possible to pass {@code null} as {@code value}
   // even if {@code T} is marked as {@code @NonNull}.
   // See https://github.com/typetools/checker-framework/issues/3289
   // and generally https://github.com/typetools/checker-framework/issues/979.

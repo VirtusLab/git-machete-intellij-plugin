@@ -49,20 +49,20 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         .getOrElseThrow(e -> new BranchLayoutException("Unable to write new branch layout file to ${path}", e));
   }
 
-  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> branches, IndentSpec indentSpec,
+  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> entries, IndentSpec indentSpec,
       @NonNegative int level) {
     List<String> stringList = List.empty();
-    for (var branch : branches) {
+    for (var entry : entries) {
       var sb = new StringBuilder();
       sb.append(String.valueOf(indentSpec.getIndentCharacter()).repeat(level * indentSpec.getIndentWidth()))
-          .append(branch.getName());
-      Option<String> customAnnotation = branch.getCustomAnnotation();
+          .append(entry.getName());
+      Option<String> customAnnotation = entry.getCustomAnnotation();
       if (customAnnotation.isDefined()) {
         sb.append(" ").append(customAnnotation.get());
       }
 
-      stringList = stringList.append(sb.toString())
-          .appendAll(printBranchesOntoStringList(branch.getSubentries(), indentSpec, level + 1));
+      List<String> resultForSubentries = printBranchesOntoStringList(entry.getSubentries(), indentSpec, level + 1);
+      stringList = stringList.append(sb.toString()).appendAll(resultForSubentries);
     }
     return stringList;
   }
