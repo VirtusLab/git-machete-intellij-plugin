@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSe
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -31,20 +32,24 @@ public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (anActionEvent.getPresentation().isVisible()) {
-      Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
-      if (selectedBranch.isDefined()) {
-        if (selectedBranch.get().isNonRootBranch()) {
-          var nonRootBranch = selectedBranch.get().asNonRootBranch();
-          anActionEvent.getPresentation().setDescription("Slide out '${nonRootBranch.getName()}'");
-        } else {
-          // in case of root branch we do not want to show this option at all
-          anActionEvent.getPresentation().setEnabledAndVisible(false);
-        }
-      } else {
-        anActionEvent.getPresentation().setEnabled(false);
-        anActionEvent.getPresentation().setDescription("Slide out disabled due to undefined selected branch");
-      }
+    Presentation presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
+
+    Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
+
+    if (selectedBranch.isEmpty()) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Slide out disabled due to undefined selected branch");
+
+    } else if (selectedBranch.get().isNonRootBranch()) {
+      var nonRootBranch = selectedBranch.get().asNonRootBranch();
+      presentation.setDescription("Slide out '${nonRootBranch.getName()}'");
+
+    } else {
+      // in case of root branch we do not want to show this option at all
+      presentation.setEnabledAndVisible(false);
     }
   }
 

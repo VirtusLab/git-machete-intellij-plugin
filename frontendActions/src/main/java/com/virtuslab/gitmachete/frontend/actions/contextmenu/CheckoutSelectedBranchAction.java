@@ -1,12 +1,16 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedBranchName;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+
 import java.util.List;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
@@ -15,7 +19,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -23,12 +27,13 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
+ *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class CheckoutSelectedBranchAction extends DumbAwareAction {
+public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -36,34 +41,41 @@ public class CheckoutSelectedBranchAction extends DumbAwareAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    var selectedBranchName = ActionUtils.getSelectedBranchName(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
+
+    var selectedBranchName = getSelectedBranchName(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
-    if (selectedBranchName.isDefined()) {
-      Option<String> currentBranchName = ActionUtils.getCurrentBranchNameIfManaged(anActionEvent);
+    if (selectedBranchName.isEmpty()) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Checkout disabled due to undefined selected branch");
+      return;
+    }
 
-      if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
-        anActionEvent.getPresentation().setEnabled(false);
-        anActionEvent.getPresentation().setDescription("Branch '${selectedBranchName.get()}' is currently checked out");
-      } else {
-        anActionEvent.getPresentation().setDescription("Checkout branch '${selectedBranchName.get()}'");
-      }
+    Option<String> currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
+
+    if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Branch '${selectedBranchName.get()}' is currently checked out");
+
     } else {
-      anActionEvent.getPresentation().setEnabled(false);
-      anActionEvent.getPresentation().setDescription("Checkout disabled due to undefined selected branch");
+      presentation.setDescription("Checkout branch '${selectedBranchName.get()}'");
     }
   }
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var selectedBranchName = ActionUtils.getSelectedBranchName(anActionEvent);
+    var selectedBranchName = getSelectedBranchName(anActionEvent);
     if (selectedBranchName.isEmpty()) {
       LOG.warn("Skipping the action because selected branch is undefined");
       return;
     }
 
-    Project project = ActionUtils.getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
+    Project project = getProject(anActionEvent);
+    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
 
     if (selectedVcsRepository.isDefined()) {
       LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");

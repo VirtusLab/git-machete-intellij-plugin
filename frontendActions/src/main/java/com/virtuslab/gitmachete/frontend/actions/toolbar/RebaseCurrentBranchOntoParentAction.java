@@ -33,25 +33,28 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
     super.update(anActionEvent);
 
     Presentation presentation = anActionEvent.getPresentation();
-    if (presentation.isEnabledAndVisible()) {
-      var currentBranch = getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged());
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
 
-      if (currentBranch.isEmpty()) {
-        presentation.setDescription("Current revision is not a branch managed by Git Machete");
-        presentation.setEnabled(false);
+    var currentBranch = getGitMacheteRepository(anActionEvent)
+        .flatMap(repository -> repository.getCurrentBranchIfManaged());
 
-      } else if (currentBranch.get().isRootBranch()) {
-        presentation.setDescription("Can't rebase root branch '${currentBranch.get().getName()}'");
-        presentation.setEnabled(false);
+    if (currentBranch.isEmpty()) {
+      presentation.setDescription("Current revision is not a branch managed by Git Machete");
+      presentation.setEnabled(false);
 
-      } else if (currentBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
-        presentation.setEnabled(false);
-        presentation.setDescription("Can't rebase merged branch '${currentBranch.get().getName()}'");
+    } else if (currentBranch.get().isRootBranch()) {
+      presentation.setDescription("Can't rebase root branch '${currentBranch.get().getName()}'");
+      presentation.setEnabled(false);
 
-      } else if (currentBranch.get().isNonRootBranch()) {
-        var upstreamBranch = currentBranch.get().asNonRootBranch().getUpstreamBranch();
-        presentation.setDescription("Rebase '${currentBranch.get().getName()}' onto '${upstreamBranch.getName()}'");
-      }
+    } else if (currentBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Can't rebase merged branch '${currentBranch.get().getName()}'");
+
+    } else if (currentBranch.get().isNonRootBranch()) {
+      var upstreamBranch = currentBranch.get().asNonRootBranch().getUpstreamBranch();
+      presentation.setDescription("Rebase '${currentBranch.get().getName()}' onto '${upstreamBranch.getName()}'");
     }
   }
 

@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -8,7 +9,6 @@ import static io.vavr.API.Match;
 import java.util.List;
 
 import com.intellij.dvcs.repo.Repository;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ModalityState;
@@ -35,6 +35,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -48,11 +49,16 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     super.update(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
+
     Option<Repository.State> state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription("Can't rebase due to unknown repository state");
+
     } else if (state.get() != Repository.State.NORMAL) {
 
       var stateName = Match(state.get()).of(
@@ -68,20 +74,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     }
   }
 
-  /**
-   * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
-   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
-   * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
-   * This gives us certainty that all checks from actions' update implementations will be performed
-   * and all data available via data datakeys in those {@code update} implementations will still do be available
-   * in {@link BaseRebaseBranchOntoParentAction#actionPerformed} implementations.
-   */
-  @Override
-  @UIEffect
-  public abstract void actionPerformed(AnActionEvent anActionEvent);
-
   protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
-    Project project = ActionUtils.getProject(anActionEvent);
+    Project project = getProject(anActionEvent);
     Option<GitRepository> gitRepository = getSelectedVcsRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {

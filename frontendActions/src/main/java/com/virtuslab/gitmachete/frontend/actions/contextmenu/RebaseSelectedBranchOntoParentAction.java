@@ -18,6 +18,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
@@ -32,26 +33,28 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
     super.update(anActionEvent);
 
     Presentation presentation = anActionEvent.getPresentation();
-    if (presentation.isVisible()) {
-      Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
 
-      if (selectedBranch.isEmpty()) {
-        presentation.setEnabled(false);
-        presentation.setDescription("Rebase disabled due to undefined selected branch");
+    Option<BaseGitMacheteBranch> selectedBranch = getSelectedMacheteBranch(anActionEvent);
 
-      } else if (selectedBranch.get().isRootBranch()) {
-        // in case of root branch we do not want to show this option at all
-        presentation.setEnabledAndVisible(false);
+    if (selectedBranch.isEmpty()) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Rebase disabled due to undefined selected branch");
 
-      } else if (selectedBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
-        presentation.setEnabled(false);
-        presentation.setDescription("Can't rebase merged branch '${selectedBranch.get().getName()}'");
+    } else if (selectedBranch.get().isRootBranch()) {
+      // in case of root branch we do not want to show this option at all
+      presentation.setEnabledAndVisible(false);
 
-      } else if (selectedBranch.get().isNonRootBranch()) {
-        var nonRootBranch = selectedBranch.get().asNonRootBranch();
-        BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
-        presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
-      }
+    } else if (selectedBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
+      presentation.setEnabled(false);
+      presentation.setDescription("Can't rebase merged branch '${selectedBranch.get().getName()}'");
+
+    } else if (selectedBranch.get().isNonRootBranch()) {
+      var nonRootBranch = selectedBranch.get().asNonRootBranch();
+      BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+      presentation.setDescription("Rebase '${nonRootBranch.getName()}' onto '${upstream.getName()}'");
     }
   }
 

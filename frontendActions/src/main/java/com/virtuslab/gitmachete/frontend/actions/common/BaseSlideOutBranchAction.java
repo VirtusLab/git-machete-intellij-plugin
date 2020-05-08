@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayoutWriter;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ModalityState;
@@ -31,25 +33,13 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction {
   public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
-  /**
-   * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
-   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
-   * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
-   * This gives us certainty that all checks from actions' update implementations will be performed
-   * and all data available via data keys in those {@code update} implementations will still do be available
-   * in {@link BaseSlideOutBranchAction#actionPerformed} implementations.
-   */
-  @Override
-  @UIEffect
-  public abstract void actionPerformed(AnActionEvent anActionEvent);
-
   @UIEffect
   public void doSlideOut(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
-    Project project = ActionUtils.getProject(anActionEvent);
-    var branchLayout = ActionUtils.getBranchLayout(anActionEvent);
-    var branchLayoutWriter = ActionUtils.getBranchLayoutWriter(anActionEvent);
+    Project project = getProject(anActionEvent);
+    var branchLayout = getBranchLayout(anActionEvent);
+    var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     if (branchLayout.isEmpty() || branchLayoutWriter.isEmpty()) {
       LOG.warn("Skipping the action because branch layout and/or branch layout writer is undefined");
       return;
