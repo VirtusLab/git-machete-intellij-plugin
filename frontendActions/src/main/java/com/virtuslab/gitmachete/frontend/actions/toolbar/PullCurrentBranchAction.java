@@ -1,7 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
@@ -9,7 +14,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.common.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -18,6 +22,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 /**
  * Expects DataKeys:
  * <ul>
+ *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
  *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
@@ -30,22 +35,27 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    Option<BaseGitMacheteBranch> currentBranch = ActionUtils.getGitMacheteRepository(anActionEvent)
+    Presentation presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
+
+    Option<BaseGitMacheteBranch> currentBranch = getGitMacheteRepository(anActionEvent)
         .flatMap(repo -> repo.getCurrentBranchIfManaged());
 
     Option<String> currentBranchName = currentBranch.map(branch -> branch.getName());
 
     if (currentBranchName.isEmpty()) {
-      anActionEvent.getPresentation().setEnabled(false);
-      anActionEvent.getPresentation().setDescription("Pull disabled due to undefined current branch");
+      presentation.setEnabled(false);
+      presentation.setDescription("Pull disabled due to undefined current branch");
       return;
     }
 
     Option<SyncToRemoteStatus> syncToRemoteStatus = currentBranch.map(branch -> branch.getSyncToRemoteStatus());
 
     if (syncToRemoteStatus.isEmpty()) {
-      anActionEvent.getPresentation().setEnabled(false);
-      anActionEvent.getPresentation().setDescription("Pull disabled due to undefined sync to remote status");
+      presentation.setEnabled(false);
+      presentation.setDescription("Pull disabled due to undefined sync to remote status");
       return;
     }
 
@@ -53,22 +63,21 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
     boolean isEnabled = PULL_ENABLING_STATUSES.contains(relation);
 
     if (isEnabled) {
-      anActionEvent.getPresentation().setDescription("Pull branch '${currentBranchName.get()}'");
+      presentation.setDescription("Pull branch '${currentBranchName.get()}'");
     } else {
-      anActionEvent.getPresentation().setEnabled(false);
+      presentation.setEnabled(false);
       String description = getRelationBaseDescription(relation);
-      anActionEvent.getPresentation().setDescription(description);
+      presentation.setDescription(description);
     }
-
   }
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    Project project = ActionUtils.getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = ActionUtils.getGitMacheteRepository(anActionEvent)
+    Project project = getProject(anActionEvent);
+    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
+    Option<String> branchName = getGitMacheteRepository(anActionEvent)
         .flatMap(repo -> repo.getCurrentBranchIfManaged())
         .map(branch -> branch.getName());
 

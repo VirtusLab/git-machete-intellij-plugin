@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.intellij.openapi.vcs.VcsNotifier.STANDARD_NOTIFICATION;
 import static git4idea.GitUtil.findRemoteByName;
-import static git4idea.repo.GitRemote.ORIGIN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,7 +213,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
           throw (ProcessCanceledException) e.getCause();
         }
         String msg = Option.of(e.getCause())
-            .map(c -> c.getMessage())
+            .flatMap(c -> Option.of(c.getMessage()))
             .getOrElse("Error");
         results.add(new SingleRemoteResult(task.repository, task.remote, msg, Collections.emptyList()));
         LOG.error("Task execution error: ${msg}");
@@ -261,9 +260,9 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       // this emulates behavior of the native `git fetch`:
       // if current branch doesn't give a hint, then return "origin"; if there is no "origin", don't guess and fail
       return Option.of(repository.getCurrentBranch())
-          .map(b -> b.findTrackedBranch(repository))
+          .flatMap(b -> Option.of(b.findTrackedBranch(repository)))
           .map(t -> t.getRemote())
-          .map(r -> findRemoteByName(repository, ORIGIN))
+          .flatMap(r -> Option.of(findRemoteByName(repository, GitRemote.ORIGIN)))
           .getOrNull();
     }
   }
@@ -418,7 +417,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
     @Override
     public void throwExceptionIfFailed() {
-      //
+      // Actual (idea) implementations do throw here like we do in `FetchResultImpl.ourThrowExceptionIfFailed`.
+      // This is achieved thanks to Kotlin which has no checked exception.
     }
 
     public void ourThrowExceptionIfFailed() throws VcsException {

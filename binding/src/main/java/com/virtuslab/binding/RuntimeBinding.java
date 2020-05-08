@@ -13,7 +13,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public final class RuntimeBinding {
   private RuntimeBinding() {}
 
-  public static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("binding");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("binding");
 
   private static final Reflections reflectionsInstance = new Reflections("com.virtuslab");
 

@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -13,7 +16,6 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
@@ -34,7 +36,7 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    Project project = ActionUtils.getProject(anActionEvent);
+    Project project = getProject(anActionEvent);
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       anActionEvent.getPresentation().setEnabled(false);
       anActionEvent.getPresentation().setDescription("Update is already running...");
@@ -45,8 +47,8 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    Project project = ActionUtils.getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = ActionUtils.getSelectedVcsRepository(anActionEvent);
+    Project project = getProject(anActionEvent);
+    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Fetching...", /* canBeCancelled */ true) {
 
