@@ -1,18 +1,28 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.GIT_MACHETE_NOTIFICATION_GROUP;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayoutWriter;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.ui.GuiUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -98,7 +108,13 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
 
       LOG.debug("Refreshing repository state");
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-      VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
+
+      Notification notification = GIT_MACHETE_NOTIFICATION_GROUP
+          .createNotification("Branch <b>${branchName}</b> slid out", NotificationType.INFORMATION)
+          .addAction(new UndoSlideOutNotificationListener(branchLayout.get(), branchLayoutWriter));
+
+      VcsNotifier.getInstance(project).notify(notification);
+
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
       String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
@@ -106,6 +122,45 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
           exceptionMessage == null ? "" : exceptionMessage);
+    }
+  }
+
+  private final class UndoSlideOutNotificationListener extends NotificationAction {
+    private final IBranchLayout previousBranchLayout;
+    private final IBranchLayoutWriter branchLayoutWriter;
+
+    @UIEffect
+    private UndoSlideOutNotificationListener(IBranchLayout previousBranchLayout, IBranchLayoutWriter iBranchLayoutWriter) {
+      super("Undo Slide out");
+      this.previousBranchLayout = previousBranchLayout;
+      this.branchLayoutWriter = iBranchLayoutWriter;
+    }
+
+    @Override
+    public void actionPerformed(AnActionEvent anActionEvent, Notification notification) {
+      LOG.debug(() -> "Performing");
+      Project project = getProject(anActionEvent);
+
+      try {
+        LOG.info("Writing previous branch layout into file");
+        branchLayoutWriter.write(previousBranchLayout, /* backupOldLayout */ true);
+
+        LOG.debug("Refreshing repository state");
+        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+
+        VcsNotifier.getInstance(project).notifySuccess("", "Slide out undone");
+        notification.expire();
+
+      } catch (BranchLayoutException e) {
+        String exceptionMessage = e.getMessage();
+        String errorMessage = "Error occurred while undoing slide out" +
+            (exceptionMessage == null ? "" : ": " + exceptionMessage);
+        LOG.error(errorMessage);
+        VcsNotifier.getInstance(project).notifyError("Slide out undo failed",
+            exceptionMessage == null ? "" : exceptionMessage);
+        GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(errorMessage, "Something Went Wrong..."),
+            ModalityState.NON_MODAL);
+      }
     }
   }
 }
