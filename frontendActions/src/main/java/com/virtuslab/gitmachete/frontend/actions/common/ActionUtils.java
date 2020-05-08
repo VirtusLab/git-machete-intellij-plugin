@@ -32,8 +32,11 @@ public final class ActionUtils {
   }
 
   public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
-    return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged().flatMap(
-        currentBranch -> currentBranch.isNonRootBranch() ? Option.some(currentBranch.asNonRootBranch()) : Option.none()));
+    return getGitMacheteRepository(anActionEvent)
+        .flatMap(repository -> repository.getCurrentBranchIfManaged()
+            .flatMap(currentBranch -> currentBranch.isNonRootBranch()
+                ? Option.some(currentBranch.asNonRootBranch())
+                : Option.none()));
   }
 
   public static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {

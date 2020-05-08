@@ -169,6 +169,13 @@ public class GitCoreRepository implements IGitCoreRepository {
     try {
       walk.markStart(walk.parseCommit(toExistingObjectId(c1)));
       walk.markStart(walk.parseCommit(toExistingObjectId(c2)));
+      // Note that we'll get asking for one merge-base here
+      // even if there is more than one (in the rare case of criss-cross histories).
+      // This is still okay from the perspective of is-ancestor checks that are our sole use of merge-base:
+      // * if any of c1, c2 is an ancestor of another,
+      //   then there is exactly one merge-base - the ancestor,
+      // * if neither of c1, c2 is an ancestor of another,
+      //   then none of the (possibly more than one) merge-bases is equal to either of c1/c2 anyway.
       RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is ${mergeBase}");
@@ -178,7 +185,9 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private final java.util.Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
+  // Note that this cache can be static since merge-base for the given two commits
+  // will never change thanks to git commit graph immutability.
+  private static final java.util.Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
 
   @Nullable
   private GitCoreCommitHash deriveMergeBaseIfNeeded(BaseGitCoreCommit a, BaseGitCoreCommit b) throws GitCoreException {
