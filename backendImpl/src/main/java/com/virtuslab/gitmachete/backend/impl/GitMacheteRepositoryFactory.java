@@ -238,9 +238,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         if (remoteTrackingBranchOption.isDefined()) {
           Instant localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitTime();
           Instant remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitTime();
+          // In case when commit dates are equal we assume that our relation is `DivergedAndNewerThanRemote`
           if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
             syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndOlderThanRemote, trackingStatus.getRemoteName());
           } else {
+            if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
+              LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
+                  "'DivergedAndNewerThanRemote' sync to remote status");
+            }
             syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndNewerThanRemote, trackingStatus.getRemoteName());
           }
         } else {
@@ -258,8 +263,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         syncToRemoteStatus = SyncToRemoteStatus.of(InSync, trackingStatus.getRemoteName());
       }
 
-      LOG.debug(() -> "Sync to remote status for branch " +
-          "'${coreLocalBranch.getName()}': ${syncToRemoteStatus.toString()}");
+      LOG.debug(() -> "Sync to remote status for branch '${coreLocalBranch.getName()}': ${syncToRemoteStatus.toString()}");
 
       return syncToRemoteStatus;
 

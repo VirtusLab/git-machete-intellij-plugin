@@ -3,10 +3,20 @@
 set -x
 
 newb() {
+  if (( $# != 1 ))
+  then
+    echo "newb() need 1 parameter, $# was given"
+    exit 100
+  fi
   git checkout -b $1
 }
 
 cmt() {
+  if (( $# < 1 ))
+  then
+    echo "cmt() need at least 1 parameters, $# was given"
+    exit 100
+  fi
   b=$(git symbolic-ref --short HEAD)
   f=${b/\//-}-${1}-${2-}.txt
   touch $f
@@ -15,6 +25,11 @@ cmt() {
 }
 
 newrepo() {
+  if (( $# < 2 ))
+  then
+    echo "newrepo() need at least 2 parameters, $# was given"
+    exit 100
+  fi
   path=$1
   dir=$2
   mkdir $path/$dir
@@ -24,12 +39,17 @@ newrepo() {
 }
 
 clone() {
+  if (( $# != 3 ))
+  then
+    echo "clone() need 3 parameters, $# was given"
+    exit 100
+  fi
   path=$1
   remote=$2
-  destinationFolder=$3
+  destinationDir=$3
   cd $path
-  git clone $remote $destinationFolder
-  cd $destinationFolder
+  git clone $remote $destinationDir
+  cd $destinationDir
 }
 
 gituserdata() {

@@ -70,6 +70,10 @@ git checkout allow-ownership-link
 cmt Newer commit
 push
 
+git checkout master
+cmt Master newer commit
+push
+
 
 cd ../machete-sandbox
 git fetch

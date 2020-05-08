@@ -45,7 +45,8 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
       @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
       List<IGitMacheteCommit> commits,
-      @Nullable IGitMacheteRemoteBranch remoteBranch, SyncToRemoteStatus syncToRemoteStatus,
+      @Nullable IGitMacheteRemoteBranch remoteBranch,
+      SyncToRemoteStatus syncToRemoteStatus,
       SyncToParentStatus syncToParentStatus,
       @Nullable String customAnnotation) {
     LOG.debug(

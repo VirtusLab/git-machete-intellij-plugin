@@ -19,6 +19,7 @@ public final class SyncToRemoteStatusLabelGenerator {
         Case($(Untracked), "untracked"),
         Case($(Ahead), "ahead of " + remoteName),
         Case($(Behind), "behind " + remoteName),
+        // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
         Case($(DivergedAndNewerThanRemote), "diverged from " + remoteName),
         Case($(DivergedAndOlderThanRemote), "diverged from & older than " + remoteName),
         Case($(), "synchronization to " + remoteName + " is unknown"));

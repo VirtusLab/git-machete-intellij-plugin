@@ -114,9 +114,10 @@ public class GitCoreRepository implements IGitCoreRepository {
   public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
-    return Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
-        .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
-        .stream()
+    return List
+        .ofAll(
+            Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
+                .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e)))
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(branch -> {
           LOG.debug(() -> "* ${branch.getName()}");
@@ -126,8 +127,7 @@ public class GitCoreRepository implements IGitCoreRepository {
           String shortBranchName = ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/",
               /* replacement */ "");
           return new GitCoreRemoteBranch(/* repo */ this, shortBranchName, remoteName);
-        })
-        .collect(List.collector());
+        });
   }
 
   @Override
@@ -137,8 +137,7 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
-    return getRemotes().toStream().flatMap(remoteName -> Try.of(() -> getRemoteBranches(remoteName)).get())
-        .collect(List.collector());
+    return getRemotes().flatMap(remoteName -> Try.of(() -> getRemoteBranches(remoteName)).get());
   }
 
   private String deriveRemoteName(String localBranchShortName) {

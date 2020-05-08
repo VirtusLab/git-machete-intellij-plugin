@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.backend.unit;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import io.vavr.control.Option;
 import org.junit.Assert;
@@ -48,8 +49,10 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(Option.of(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    PowerMockito.doReturn(Instant.ofEpochSecond(1588761544)).when(coreLocalBranchCommit).getCommitTime();
-    PowerMockito.doReturn(Instant.ofEpochSecond(1588761500)).when(coreRemoteBranchCommit).getCommitTime();
+    Instant newerInstant = Instant.parse("2000-05-01T10:00:00Z");
+    Instant olderInstant = newerInstant.minus(10, ChronoUnit.MINUTES);
+    PowerMockito.doReturn(newerInstant).when(coreLocalBranchCommit).getCommitTime();
+    PowerMockito.doReturn(olderInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
@@ -65,14 +68,34 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     PowerMockito.doReturn(Option.of(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    PowerMockito.doReturn(Instant.ofEpochSecond(1588761544)).when(coreLocalBranchCommit).getCommitTime();
-    PowerMockito.doReturn(Instant.ofEpochSecond(1588761678)).when(coreRemoteBranchCommit).getCommitTime();
+    Instant olderInstant = Instant.parse("2000-05-01T10:00:00Z");
+    Instant newerInstant = olderInstant.plus(10, ChronoUnit.MINUTES);
+    PowerMockito.doReturn(olderInstant).when(coreLocalBranchCommit).getCommitTime();
+    PowerMockito.doReturn(newerInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote, status.getRelation());
+  }
+
+  @Test
+  public void deriveSyncToRemoteStatus_DivergedAndNewerThan_theSameDates() throws Exception {
+    // given
+    PowerMockito.doReturn(getTrackingStatusOption(1, 1, "origin")).when(coreLocalBranch).deriveRemoteTrackingStatus();
+    PowerMockito.doReturn(Option.of(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    Instant instant = Instant.parse("2000-05-01T10:00:00Z");
+    PowerMockito.doReturn(instant).when(coreLocalBranchCommit).getCommitTime();
+    PowerMockito.doReturn(instant).when(coreRemoteBranchCommit).getCommitTime();
+
+    // when
+    SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+
+    // then
+    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote, status.getRelation());
   }
 
   @Test

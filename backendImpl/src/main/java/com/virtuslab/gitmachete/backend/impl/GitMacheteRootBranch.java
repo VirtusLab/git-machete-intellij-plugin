@@ -30,7 +30,8 @@ public final class GitMacheteRootBranch extends BaseGitMacheteRootBranch {
 
   public GitMacheteRootBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteBranch, SyncToRemoteStatus syncToRemoteStatus,
+      @Nullable IGitMacheteRemoteBranch remoteBranch,
+      SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation) {
     LOG.debug(
         () -> "Creating GitMacheteRootBranch(name = ${name}, " +
