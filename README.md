@@ -7,7 +7,7 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into a
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
 
-# Logging
+## Logging
 
 SLF4J logging in this plugin has the following categories:
 
@@ -27,9 +27,9 @@ The standard practice in Java logging is to use fully-qualified name of each cla
 in our case, however, we're only ever using the categories provided above.
 
 
-# Development
+## Development
 
-## Prerequisites
+### Prerequisites
 
 * git
 * IntelliJ 2019.3+ Community Edition/Ultimate
@@ -41,8 +41,10 @@ in our case, however, we're only ever using the categories provided above.
 
 Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
 
+For running `./gradlew` from command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-## Build
+
+### Build
 
 To build the project, run `./gradlew build`.
 
@@ -50,24 +52,40 @@ Currently, very generous maximum heap size options are applied for Gradle's Java
 To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
 
 
-## Run & debug
+### Run & debug
 
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runIde` or `./gradlew runIde`).
 
 
-## Generate plugin zip
+### Run UI tests
+
+This repo ships with a JUnit driver fat jar (see `uiTests/lib/junit-driver-assembly-0.1.jar`) for UI tests,
+built using `sbt junitDriver/assembly` out of https://github.com/VirtuslabRnD/ide-probe/pull/97, commit `350189f7`,
+courtesy of [@lukaszwawrzyk](https://github.com/lukaszwawrzyk).
+
+UI tests are by default excluded from `./gradlew test` unless `runUiTests` property is set:
+
+```
+./gradlew -PrunUiTests --info test
+```
+
+Note that the first execution might take a couple of minutes since IntelliJ zips need to be downloaded (~500MB each). <br/>
+Use `ls -thor /tmp` to monitor the progress while they're downloading.
+
+
+### Generate plugin zip
 
 To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).
 The resulting file will be available under `build/distributions/`.
 
 
-## Install snapshot build of the plugin from CI
+### Install snapshot build of the plugin from CI
 
 Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin). <br/>
 Go to `File` -> `Settings` -> `Plugins` -> `(gear icon)` -> `Install Plugin from Disk...`, select the zip and restart IDE.
 
 
-## Contributing
+### Contributing
 
 For more details on contributing to the project, see the [guideline](CONTRIBUTING.md).

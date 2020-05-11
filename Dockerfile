@@ -10,6 +10,8 @@ RUN set -x \
   `# installing JDK and not just JRE to provide javadoc executable` \
   && apt-get install --no-install-recommends -y \
     curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xxd unzip \
+    `# tools necessary to run non-headless UI tests in the headless environment of CI` \
+    libx11-6 libxrender1 libxtst6 xvfb \
   && pip3 install git-machete==2.13.6 \
   && apt-get purge --autoremove -y python3-pip \
   && rm -rf /var/lib/apt/lists/*
@@ -28,7 +30,16 @@ WORKDIR /stripped_repo
 # Create gradle cache.
 # `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs
 # We need this to allow `./gradlew` to write in `./.gradle` directory (even though this directory won't make it to the final image anyway).
-RUN --mount=type=bind,rw,source=.,target=. \
+RUN --mount=type=bind,rw,source=.,target=.  set -x \
   `# no-daemon so that no data about the daemon active during the image build makes it to the final image under ~/.gradle/daemon/` \
-  ./gradlew --no-daemon --info resolveDependencies \
+  && find . \
+  && ./gradlew --no-daemon --info resolveDependencies \
   && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
+
+# Disable IntelliJ data sharing
+RUN set -x \
+  && mkdir -p /root/.local/share/JetBrains/consentOptions/ \
+  && echo -n rsch.send.usage.stat:1.1:0:1574939222872 > /root/.local/share/JetBrains/consentOptions/accepted
+
+# Enable NON-headless tests of plugin's UI (xvfb = X virtual framebuffer)
+ENV IDEPROBE_DISPLAY=xvfb

@@ -6,10 +6,9 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 # Note: this should be kept in sync with build.gradle -> patchPluginXml.
-# We're not including the release that we're currently building against anyway (see build.gradle -> allprojects.ext.intellijVersion)
+# We're not including the release that we're currently building against (see build.gradle -> allprojects.ext.intellijVersion)
 # since for this case binary compatibility is essentially guaranteed by the compiler.
-# Releases list: https://www.jetbrains.com/intellij-repository/releases/
-# + Ctrl-F for .idea
+# Releases list: https://www.jetbrains.com/intellij-repository/releases/ + Ctrl-F for .idea
 intellij_versions=(193.5233.102 201.6668.121)
 
 verifier_version=1.241

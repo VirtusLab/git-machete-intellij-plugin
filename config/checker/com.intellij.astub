@@ -197,6 +197,10 @@ package com.intellij.openapi.vcs.history;
 
 @UIPackage package com.intellij.openapi.wm;
 
+interface ToolWindow {
+  void activate(@Nullable @UI Runnable runnable);
+}
+
 
 package com.intellij.platform;
 

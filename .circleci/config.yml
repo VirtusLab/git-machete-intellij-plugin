@@ -11,7 +11,7 @@ jobs:
           name: Run pre-build checks
           command: bash -x ./scripts/run-pre-build-checks
       - run:
-          name: Start gradle daemon
+          name: Start Gradle daemon
           command: ./gradlew
       - run:
           name: Check formatting
@@ -28,10 +28,10 @@ jobs:
           command: ./gradlew --warn checkstyleMain
 
       - run:
-          name: Compile tests
-          command: ./gradlew compileTestJava
+          name: Compile backend tests
+          command: ./gradlew compileTestJava compileTestScala
       - run:
-          name: Run tests
+          name: Run backend tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
@@ -42,18 +42,44 @@ jobs:
       - run:
           name: Build plugin artifact
           command: ./gradlew buildPlugin
+      - store_artifacts:
+          path: build/distributions/
+          destination: .
       - run:
           name: Verify plugin artifact contents
           command: ./scripts/verify-artifact-contents
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./scripts/verify-binary-compatibility
-      - store_artifacts:
-          path: build/distributions/
-          destination: .
+      - run:
+          name: Run UI tests
+          command: |
+            ### Remove once Docker image is regenerated
+            ###
+            set -x
+            apt-get update
+            apt-get install -y libx11-6 libxrender1 libxtst6 xvfb
+            mkdir -p ~/.local/share/JetBrains/consentOptions/
+            echo -n rsch.send.usage.stat:1.1:0:1574939222872 > ~/.local/share/JetBrains/consentOptions/accepted
+            export IDEPROBE_DISPLAY=xvfb
+            set +x
+            ###
+
+            # TODO (#274): let the tests set up their required environment themselves
+            bash ./backendImpl/src/test/resources/setup-with-single-remote.sh ~
+
+            # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
+            # runUiTests: see uiTests/build.gradle
+            # debug: let's leave it for some time until we're sure that these tests are reliable
+            ./gradlew --stop
+            ./gradlew -PrunUiTests --debug --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M :uiTests:test
+      - store_test_results:
+          path: uiTests/build/test-results/
+
       - persist_to_workspace:
           root: .
           paths: ['*']
+
       - run:
           # See Lombok config in build.gradle for why this step is necessary.
           # We're running this at the very end so that the recompiled code doesn't end up in the plugin artifact.

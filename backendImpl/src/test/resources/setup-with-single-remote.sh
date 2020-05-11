@@ -2,7 +2,8 @@
 
 set -e -o pipefail -u
 
-source ./common.sh
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/common.sh
 
 push() {
   b=$(git symbolic-ref --short HEAD)

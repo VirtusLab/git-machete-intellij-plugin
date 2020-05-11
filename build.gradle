@@ -14,7 +14,7 @@ plugins {
 
 task resolveDependencies {
   doLast {
-    project.rootProject.subprojects.each { subProject ->
+    project.rootProject.allprojects.each { subProject ->
       subProject.buildscript.configurations.each { configuration ->
         if (configuration.canBeResolved) {
           configuration.resolve()
@@ -68,8 +68,10 @@ allprojects {
     betterStringsVerson = '0.3'
     checkerVersion = '3.4.0'
     checkstyleToolVersion = '8.30'
-    // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/verify-binary-compatibility
-    // must also be updated when we update the version below.
+    // The following places must also be updated when updating the version below:
+    // * `patchPluginXml.untilBuild` in root Gradle project config in this file
+    // * `intellij_versions` in scripts/verify-binary-compatibility
+    // * range of tested versions in uiTests/src/test/scala/com/virtuslab/gitmachete/uitest/OpenTabActionUiTest.scala
     intellijVersion = '2020.1.1'
     jgitVersion = '5.7.0.202003110725-r'
     junitVersion = '4.13'
@@ -78,6 +80,7 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.7'
     reflectionsVersion = '0.9.12'
+    scalaVersion = '2.13.1'
     slf4jLambdaApiVersion = '0.1'
     slf4jVersion = '1.7.30'
     vavrVersion = '0.10.3'
@@ -312,6 +315,12 @@ subprojects {
       }
     }
 
+    scala = { ->
+      dependencies {
+        compileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
+        testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
+      }
+    }
 
     slf4jApi = { ->
       dependencies {
@@ -373,11 +382,18 @@ intellij {
 }
 
 patchPluginXml {
-  // Note: update scripts/verify-binary-compatibility when updating the compatibility data
-  // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*` (strict version typed)
+  // The following places must also be updated when updating the build range below:
+  // * `intellij_versions` in scripts/verify-binary-compatibility
+  // * range of tested versions in uiTests/src/test/scala/com/virtuslab/gitmachete/uitest/OpenTabActionUiTest.scala
+
+  // Note that:
+  // * typically `untilBuild` is the build number corresponding to `allprojects.ext.intellijVersion`
+  // * `sinceBuild` changes independently of `intellijVersion`.
+
+  // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   sinceBuild '193' // aka 2019.3 (inclusive)
-  untilBuild '201.*' // aka 2020.1.1 (inclusive)
+  untilBuild '201.*' // aka 2020.1.* (inclusive)
 }
 
 publishPlugin {
