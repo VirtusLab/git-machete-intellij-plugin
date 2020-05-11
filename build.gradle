@@ -2,11 +2,11 @@ plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
 
-  id 'com.diffplug.gradle.spotless' version '3.27.2' apply false
-  id 'io.freefair.lombok' version '5.0.0' apply false
+  id 'com.diffplug.gradle.spotless' version '3.29.0' apply false
+  id 'io.freefair.lombok' version '5.0.1' apply false
   id 'org.ajoberstar.grgit' version '4.0.2' apply false
-  id 'org.checkerframework' version '0.5.0' apply false
-  id 'org.jetbrains.intellij' version '0.4.18' apply false
+  id 'org.checkerframework' version '0.5.1' apply false
+  id 'org.jetbrains.intellij' version '0.4.20' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
@@ -57,13 +57,13 @@ allprojects {
     checkstyleToolVersion = '8.30'
     // Both `patchPluginXml.untilBuild` in root project config and `intellij_versions` in scripts/verify-binary-compatibility
     // must also be updated when we update the version below.
-    intellijVersion = '2020.1'
-    jgitVersion = '5.5.1.201910021850-r'
+    intellijVersion = '2020.1.1'
+    jgitVersion = '5.7.0.202003110725-r'
     junitVersion = '4.13'
     // Only applies when Lombok is used as a regular dependency.
     // Lombok Gradle plugin pulls in its own (apparently non-configurable) Lombok version.
     lombokVersion = '1.18.12'
-    powerMockVersion = '2.0.6'
+    powerMockVersion = '2.0.7'
     reflectionsVersion = '0.9.12'
     slf4jLambdaApiVersion = '0.1'
     slf4jVersion = '1.7.30'
@@ -357,7 +357,7 @@ patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*` (strict version typed)
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   sinceBuild '193' // aka 2019.3 (inclusive)
-  untilBuild '201.*' // aka 2020.1 (inclusive)
+  untilBuild '201.*' // aka 2020.1.1 (inclusive)
 }
 
 runIde {

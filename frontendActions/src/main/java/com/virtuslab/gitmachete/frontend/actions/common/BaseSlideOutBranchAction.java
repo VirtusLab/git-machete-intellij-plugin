@@ -8,11 +8,8 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getPr
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.ui.GuiUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -61,8 +58,6 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
           exceptionMessage == null ? "" : exceptionMessage);
-      GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(errorMessage, "Something Went Wrong..."),
-          ModalityState.NON_MODAL);
     }
   }
 }

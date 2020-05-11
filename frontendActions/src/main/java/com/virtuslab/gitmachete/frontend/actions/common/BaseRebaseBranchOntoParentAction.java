@@ -11,13 +11,10 @@ import java.util.List;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.ui.GuiUtils;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
@@ -111,8 +108,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
           var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
           LOG.error(message);
           VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
-          GuiUtils.invokeLaterIfNeeded(() -> Messages.showErrorDialog(message, "Something Went Wrong..."),
-              ModalityState.NON_MODAL);
         });
   }
 
