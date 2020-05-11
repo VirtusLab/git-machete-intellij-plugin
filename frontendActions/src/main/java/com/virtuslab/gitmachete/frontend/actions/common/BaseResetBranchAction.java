@@ -42,6 +42,8 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  */
 public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final String VCS_LOGGER_TITLE = "Resetting";
+  private static final String TASK_TITLE = "Resetting...";
 
   protected abstract Option<String> getBranchName(AnActionEvent anActionEvent);
 
@@ -101,17 +103,17 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
           doResetToRemoteWithKeep(project, selectedVcsRepository.get(), branchName.get(), macheteRepository.get());
         } else {
           LOG.error("Skipping the action because can't get Git Machete repository");
-          VcsNotifier.getInstance(project).notifyError("Resetting",
+          VcsNotifier.getInstance(project).notifyError(VCS_LOGGER_TITLE,
               "Internal error occurred. For more information see IDE log file");
         }
       } else {
         LOG.warn("Skipping the action because no VCS repository is selected");
-        VcsNotifier.getInstance(project).notifyWarning("Resetting",
+        VcsNotifier.getInstance(project).notifyWarning(VCS_LOGGER_TITLE,
             "Skipping the action because no VCS repository is selected");
       }
     } else {
       LOG.warn("Skipping the action because name of branch to reset is undefined");
-      VcsNotifier.getInstance(project).notifyError("Resetting",
+      VcsNotifier.getInstance(project).notifyError(VCS_LOGGER_TITLE,
           "Internal error occurred. For more information see IDE log file");
     }
   }
@@ -119,12 +121,12 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
       IGitMacheteRepository macheteRepository) {
 
-    new Task.Backgroundable(project, "Resetting...", true) {
+    new Task.Backgroundable(project, TASK_TITLE, true) {
 
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug(() -> "Resetting '${branchName}' branch");
-        try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project, "Resetting...")) {
+        try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project, TASK_TITLE)) {
           GitLineHandler handler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           handler.addParameters("--keep");
 
@@ -136,7 +138,7 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
           } else {
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             LOG.warn(message);
-            VcsNotifier.getInstance(project).notifyWarning("Resetting", message);
+            VcsNotifier.getInstance(project).notifyWarning(VCS_LOGGER_TITLE, message);
           }
 
           handler.endOptions();
@@ -149,7 +151,7 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
           GitCommandResult result = Git.getInstance().runCommand(handler);
           if (!result.success()) {
             LOG.error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError("Resetting", result.getErrorOutputAsHtmlString());
+            VcsNotifier.getInstance(project).notifyError(VCS_LOGGER_TITLE, result.getErrorOutputAsHtmlString());
           }
           GitRepositoryManager.getInstance(project).updateRepository(gitRepository.getRoot());
           // If `changes` is null the whole root will be refreshed
