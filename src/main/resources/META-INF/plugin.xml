@@ -60,6 +60,12 @@
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
+            <action id="GitMachete.ResetSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ResetSelectedBranchAction"
+                    icon="MacheteIcons.RESET">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
             <action id="GitMachete.SlideOutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
@@ -109,6 +115,12 @@
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
                     icon="AllIcons.Ide.OutgoingChangesOn">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
+            <action id="GitMachete.ResetCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentBranchAction"
+                    icon="MacheteIcons.RESET">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
