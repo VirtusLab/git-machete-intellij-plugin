@@ -2,7 +2,9 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_EMPTY_TEXT;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getMacheteFilePath;
 import static io.vavr.API.$;
@@ -29,9 +31,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.ScrollingUtil;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
@@ -149,8 +151,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
       if (gitMacheteRepository.getRootBranches().isEmpty()) {
         setTextForEmptyGraph(
-            "Your machete file (${macheteFilePath}) is empty.",
-            "Please use 'git machete discover' CLI command to automatically fill in the machete file.");
+            "Provided machete file (${macheteFilePath}) is empty.",
+            "Open machete file", getOpenMacheteFileActionAsRunnable());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
     }
@@ -160,12 +162,20 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     if (!isMacheteFilePresent) {
       setTextForEmptyGraph(
           "There is no machete file (${macheteFilePath}) for this repository.",
-          "Please use 'git machete discover' CLI command to automatically create machete file.");
+          "Create & open machete file", getOpenMacheteFileActionAsRunnable());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
     repaint();
     revalidate();
+  }
+
+  @UIEffect
+  private Runnable getOpenMacheteFileActionAsRunnable() {
+    var action = ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE);
+    var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
+    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TEXT, new Presentation(), dataContext);
+    return () -> GuiUtils.invokeLaterIfNeeded(() -> action.actionPerformed(anActionEvent), NON_MODAL);
   }
 
   @Override
@@ -193,8 +203,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  private void setTextForEmptyGraph(String upperText, String lowerText) {
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, StatusText.DEFAULT_ATTRIBUTES, /* listener */ null);
+  private void setTextForEmptyGraph(String upperText, String lowerText, Runnable action) {
+    var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
+    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ e -> action.run());
   }
 
   @UIEffect
@@ -274,4 +285,5 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       }
     }
   }
+
 }

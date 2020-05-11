@@ -94,6 +94,12 @@
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
+            <action id="GitMachete.OpenMacheteFileAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
+                    icon="AllIcons.FileTypes.Text">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
             <action id="GitMachete.SlideOutCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
                     icon="AllIcons.Actions.GC">
