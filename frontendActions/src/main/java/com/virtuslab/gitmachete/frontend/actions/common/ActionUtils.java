@@ -31,9 +31,7 @@ public final class ActionUtils {
   }
 
   public static Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
-    return getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged())
-        .map(branch -> branch.getName());
+    return getCurrentMacheteBranch(anActionEvent).map(branch -> branch.getName());
   }
 
   public static Option<BaseGitMacheteBranch> getCurrentMacheteBranch(AnActionEvent anActionEvent) {
@@ -41,11 +39,9 @@ public final class ActionUtils {
   }
 
   public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
-    return getGitMacheteRepository(anActionEvent)
-        .flatMap(repository -> repository.getCurrentBranchIfManaged()
-            .flatMap(currentBranch -> currentBranch.isNonRootBranch()
-                ? Option.some(currentBranch.asNonRootBranch())
-                : Option.none()));
+    return getCurrentMacheteBranch(anActionEvent).flatMap(currentBranch -> currentBranch.isNonRootBranch()
+        ? Option.some(currentBranch.asNonRootBranch())
+        : Option.none());
   }
 
   public static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {

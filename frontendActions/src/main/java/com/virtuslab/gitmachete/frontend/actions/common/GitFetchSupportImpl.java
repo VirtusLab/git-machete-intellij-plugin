@@ -4,17 +4,12 @@ import static com.intellij.openapi.vcs.VcsNotifier.STANDARD_NOTIFICATION;
 import static git4idea.GitUtil.findRemoteByName;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -28,7 +23,6 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.util.BackgroundTaskUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.concurrency.AppExecutorUtil;
@@ -43,6 +37,12 @@ import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+import io.vavr.Lazy;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import kotlin.jvm.functions.Function1;
@@ -84,30 +84,35 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
   @Override
   public FetchResultImpl fetchDefaultRemote(Collection<GitRepository> repositories) {
-    var remotesToFetch = new ArrayList<RemoteRefCoordinates>();
-    for (var repository : repositories) {
-      var remote = getDefaultRemoteToFetch(repository);
-      if (remote != null) {
-        remotesToFetch.add(new RemoteRefCoordinates(repository, remote, /* refspec */ null));
-      } else {
-        LOG.info("No remote to fetch found in ${repository}");
-      }
-    }
+    var remotesToFetch = List.ofAll(repositories).map(repo -> Tuple.of(repo, getDefaultRemoteToFetch(repo)))
+        .filter(repoAndRemote -> {
+          if (repoAndRemote._2() != null) {
+            return true;
+          } else {
+            LOG.info("No remote to fetch found in ${repoAndRemote._1()}");
+            return false;
+          }
+
+        }).map(repoAndRemote -> new RemoteRefCoordinates(repoAndRemote._1(), repoAndRemote._2(), /* refspec */ null))
+        .collect(List.collector());
     return fetch(remotesToFetch);
   }
 
   @Override
   public FetchResultImpl fetchAllRemotes(Collection<GitRepository> repositories) {
-    var remotesToFetch = new ArrayList<RemoteRefCoordinates>();
-    for (var repository : repositories) {
-      if (repository.getRemotes().isEmpty()) {
-        LOG.info("No remote to fetch found in ${repository}");
-      } else {
-        for (var remote : repository.getRemotes()) {
-          remotesToFetch.add(new RemoteRefCoordinates(repository, remote, /* refspec */ null));
-        }
-      }
-    }
+    var remotesToFetch = List.ofAll(repositories).map(repo -> Tuple.of(repo, List.ofAll(repo.getRemotes())))
+        .filter(repoAndRemote -> {
+          if (repoAndRemote._2().nonEmpty()) {
+            return true;
+          } else {
+            LOG.info("No remote to fetch found in ${repoAndRemote._1()}");
+            return false;
+          }
+
+        })
+        .flatMap(repoAndRemote -> repoAndRemote._2()
+            .map(remote -> new RemoteRefCoordinates(repoAndRemote._1(), remote, /* refspec */ null)))
+        .collect(List.collector());
     return fetch(remotesToFetch);
   }
 
@@ -129,14 +134,14 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
         var tasks = fetchInParallel(arguments);
         var results = waitForFetchTasks(tasks);
 
-        var mergedResults = new HashMap<GitRepository, RepoResult>();
+        var mergedResults = new java.util.HashMap<GitRepository, RepoResult>();
         for (var result : results) {
-          var res = mergedResults.get(result.repository);
-          mergedResults.put(result.repository, mergeRepoResults(res, result));
+          mergedResults.compute(result.repository, (repo, res) -> mergeRepoResults(res, result));
         }
+
         activity.finished();
 
-        return new FetchResultImpl(project, VcsNotifier.getInstance(project), mergedResults);
+        return new FetchResultImpl(project, VcsNotifier.getInstance(project), HashMap.ofAll(mergedResults));
       });
     } finally {
       fetchRequestCounter.decrementAndGet();
@@ -144,57 +149,41 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   }
 
   private List<FetchTask> fetchInParallel(List<RemoteRefCoordinates> remotes) {
-    var tasks = new ArrayList<FetchTask>();
-    var maxThreads = getMaxThreads(remotes.stream().map(r -> r.repository).collect(Collectors.toList()), remotes.size());
+    var maxThreads = getMaxThreads(remotes.map(r -> r.repository).collect(List.collector()), remotes.size());
     LOG.debug("Fetching ${remotes} using ${maxThreads} threads");
     var executor = AppExecutorUtil.createBoundedApplicationPoolExecutor(/* name */ "GitFetch Pool", maxThreads);
     var commonIndicator = Option.of(progressManager.getProgressIndicator()).getOrElse(new EmptyProgressIndicator());
     var authenticationGate = new GitRestrictingAuthenticationGate();
-    for (var remoteRefCoordinates : remotes) {
+
+    return remotes.map(remoteRefCoordinates -> {
       LOG.debug("Fetching ${remoteRefCoordinates.remote} in ${remoteRefCoordinates.repository}");
       Future<SingleRemoteResult> future = executor.submit(() -> {
         commonIndicator.checkCanceled();
-        AtomicReference<@Nullable SingleRemoteResult> result = new AtomicReference<>(null);
+
+        var singleRemoteResult = Lazy.of(() -> doFetch(remoteRefCoordinates.repository,
+            remoteRefCoordinates.remote,
+            remoteRefCoordinates.refspec,
+            authenticationGate));
 
         ProgressManager.getInstance().executeProcessUnderProgress(() -> {
           commonIndicator.checkCanceled();
-          result.set(
-              doFetch(remoteRefCoordinates.repository,
-                  remoteRefCoordinates.remote,
-                  remoteRefCoordinates.refspec,
-                  authenticationGate));
+          singleRemoteResult.get();
         }, commonIndicator);
 
-        SingleRemoteResult singleRemoteResult = result.get();
-        assert singleRemoteResult != null : "Single remote result is null";
-        return singleRemoteResult;
+        return singleRemoteResult.get();
       });
-      tasks.add(new FetchTask(remoteRefCoordinates.repository, remoteRefCoordinates.remote, future));
-    }
-    return tasks;
+
+      return new FetchTask(remoteRefCoordinates.repository, remoteRefCoordinates.remote, future);
+    }).collect(List.collector());
   }
 
-  private int getMaxThreads(Collection<GitRepository> repositories, int numberOfRemotes) {
-    var config = Registry.intValue("git.parallel.fetch.threads");
-    var maxThreads = 1;
-    if (config > 0) {
-      maxThreads = config;
-    } else if (config == -1) {
-      maxThreads = Runtime.getRuntime().availableProcessors();
-    } else if (config == -2) {
-      maxThreads = numberOfRemotes;
-    } else if (config == -3) {
-      maxThreads = Math.min(numberOfRemotes, Runtime.getRuntime().availableProcessors() * 2);
-    }
-
-    if (isStoreCredentialsHelperUsed(repositories)) {
-      return 1;
-    }
-
-    return Math.min(maxThreads, MAX_SSH_CONNECTIONS);
+  private int getMaxThreads(List<GitRepository> repositories, int numberOfRemotes) {
+    return !isStoreCredentialsHelperUsed(repositories)
+        ? Math.min(numberOfRemotes, Runtime.getRuntime().availableProcessors() * 2)
+        : 1;
   }
 
-  private boolean isStoreCredentialsHelperUsed(Collection<GitRepository> repositories) {
+  private boolean isStoreCredentialsHelperUsed(List<GitRepository> repositories) {
     for (var repo : repositories) {
       var option = Try.of(() -> Option.of(GitConfigUtil.getValue(project, repo.getRoot(), "credential.helper")))
           .getOrElse(Option.none());
@@ -219,19 +208,18 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
         String msg = Option.of(e.getCause())
             .flatMap(c -> Option.of(c.getMessage()))
             .getOrElse("Error");
-        results.add(new SingleRemoteResult(task.repository, task.remote, msg, Collections.emptyList()));
+        results.add(new SingleRemoteResult(task.repository, task.remote, msg, List.empty()));
         LOG.error("Task execution error: ${msg}");
       }
     }
-    return results;
+    return List.ofAll(results);
   }
 
   private RepoResult mergeRepoResults(@Nullable RepoResult firstResult, SingleRemoteResult secondResult) {
     if (firstResult == null) {
-      return new RepoResult(Map.of(secondResult.remote, secondResult));
+      return new RepoResult(HashMap.of(secondResult.remote, secondResult));
     } else {
-      Map<GitRemote, SingleRemoteResult> results = new HashMap<>(firstResult.results);
-      results.put(secondResult.remote, secondResult);
+      var results = HashMap.of(secondResult.remote, secondResult).merge(firstResult.results);
       return new RepoResult(results);
     }
   }
@@ -275,13 +263,14 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       GitAuthenticationGate authenticationGate) {
     var recurseSubmodules = "--recurse-submodules=no";
 
-    java.util.List<String> params = refspec == null
-        ? Collections.singletonList(recurseSubmodules)
-        : Arrays.asList(refspec, recurseSubmodules);
+    List<String> params = refspec == null
+        ? List.of(recurseSubmodules)
+        : List.of(refspec, recurseSubmodules);
 
     GitImpl instance = (GitImpl) Git.getInstance();
-    var result = instance.fetch(repository, remote, Collections.emptyList(), authenticationGate, params.toArray(new String[0]));
-    var pruned = result.getOutput().stream().map(this::getPrunedRef).filter(r -> r.isEmpty()).collect(Collectors.toList());
+    var result = instance.fetch(repository, remote, Collections.emptyList(), authenticationGate,
+        params.toJavaArray(String[]::new));
+    var pruned = List.ofAll(result.getOutput()).map(this::getPrunedRef).filter(r -> r.isEmpty()).collect(List.collector());
 
     if (result.success()) {
       BackgroundTaskUtil.syncPublisher(repository.getProject(), GitAuthenticationListener.GIT_AUTHENTICATION_SUCCESS)
@@ -325,16 +314,16 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     Map<GitRemote, SingleRemoteResult> results;
 
     boolean totallySuccessful() {
-      return results.values().stream().allMatch(v -> v.success());
+      return results.values().forAll(v -> v.success());
     }
 
     @Nullable
     String error() {
       var errorMessage = multiRemoteMessage(true);
-      for (Map.Entry<GitRemote, SingleRemoteResult> e : results.entrySet()) {
-        String error = e.getValue().error;
+      for (Tuple2<GitRemote, SingleRemoteResult> res : results) {
+        String error = res._2().error;
         if (error != null) {
-          errorMessage.append(e.getKey(), error);
+          errorMessage.append(res._1(), error);
         }
       }
       return errorMessage.asString();
@@ -342,11 +331,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
     String prunedRefs() {
       var prunedRefs = multiRemoteMessage(false);
-      for (Map.Entry<GitRemote, SingleRemoteResult> e : results.entrySet()) {
-        if (!e.getValue().prunedRefs.isEmpty()) {
-          prunedRefs.append(e.getKey(), String.join(System.lineSeparator(), e.getValue().prunedRefs));
-        }
-      }
+      results.filter(r -> r._2().prunedRefs.nonEmpty())
+          .forEach(r -> prunedRefs.append(r._1(), String.join(System.lineSeparator(), r._2().prunedRefs)));
       return prunedRefs.asString();
     }
 
@@ -356,7 +342,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
      * remote in both repos. Such cases are rare, and can be handled when actual problem is reported.
      */
     private MultiMessage multiRemoteMessage(boolean remoteInPrefix) {
-      return new MultiMessage(results.keySet(),
+      return new MultiMessage(results.keySet().toJavaSet(),
           (Function1<GitRemote, String>) GitRemote::getName,
           (Function1<GitRemote, String>) GitRemote::getName,
           remoteInPrefix,
@@ -370,7 +356,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     private final GitRemote remote;
     @Nullable
     private final String error;
-    private final java.util.List<String> prunedRefs;
+    private final List<String> prunedRefs;
 
     public boolean success() {
       return error == null;
@@ -387,7 +373,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       this.project = project;
       this.vcsNotifier = vcsNotifier;
       this.results = results;
-      this.isFailed = results.values().stream().anyMatch(v -> !v.totallySuccessful());
+      this.isFailed = results.values().find(v -> !v.totallySuccessful()).isDefined();
     }
 
     @Override
@@ -431,24 +417,25 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     }
 
     private String buildMessage(String failureTitle) {
-      var roots = results.keySet().stream().map(it -> it.getRoot()).collect(Collectors.toList());
+      var roots = results.keySet().map(it -> it.getRoot()).collect(Collectors.toList());
       var errorMessage = new MultiRootMessage(project, roots, /* rootInPrefix */ true, /* html */ true);
       var prunedRefs = new MultiRootMessage(project, roots, /* rootInPrefix */ false, /* html */ true);
-      var failed = results.entrySet().stream()
-          .filter(e -> !e.getValue().totallySuccessful())
-          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      var failed = results.toStream()
+          .filter(e -> !e._2().totallySuccessful())
+          .collect(HashMap.collector());
 
-      for (Map.Entry<GitRepository, RepoResult> e : failed.entrySet()) {
-        String error = e.getValue().error();
+      for (Tuple2<GitRepository, RepoResult> fail : failed) {
+        String error = fail._2().error();
         if (error != null) {
-          errorMessage.append(e.getKey().getRoot(), error);
+          errorMessage.append(fail._1().getRoot(), error);
         }
       }
-      for (Map.Entry<GitRepository, RepoResult> e : results.entrySet()) {
-        prunedRefs.append(e.getKey().getRoot(), e.getValue().prunedRefs());
+
+      for (Tuple2<GitRepository, RepoResult> res : results) {
+        prunedRefs.append(res._1().getRoot(), res._2().prunedRefs());
       }
 
-      var mentionFailedRepos = failed.size() == roots.size() ? "" : GitUtil.mention(failed.keySet());
+      var mentionFailedRepos = failed.size() == roots.size() ? "" : GitUtil.mention(failed.keySet().toJavaSet());
       var title = !isFailed ? "<b>Fetch Successful</b>" : "<b>${failureTitle}</b>${mentionFailedRepos}";
       return title + prefixWithBr(errorMessage.asString()) + prefixWithBr(prunedRefs.asString());
     }
