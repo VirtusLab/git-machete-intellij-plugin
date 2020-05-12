@@ -1,9 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-
 import java.util.Collections;
 
 import com.intellij.dvcs.push.ui.VcsPushDialog;
@@ -55,13 +51,5 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
     } else {
       LOG.warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
-  }
-
-  protected String getRelationBasedDescription(SyncToRemoteStatus.Relation relation) {
-    String descriptionSpec = Match(relation).of(
-        Case($(SyncToRemoteStatus.Relation.Behind), "behind its remote"),
-        Case($(SyncToRemoteStatus.Relation.InSync), "in sync to its remote"),
-        Case($(), "in unknown status '${relation.toString()}' to its remote"));
-    return "Push disabled because current branch is ${descriptionSpec}";
   }
 }

@@ -1,9 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteBranch;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -13,7 +14,6 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.BasePushBranchAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -41,8 +41,7 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
       return;
     }
 
-    Option<BaseGitMacheteBranch> currentBranch = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged());
+    var currentBranch = getCurrentMacheteBranch(anActionEvent);
 
     Option<String> currentBranchName = currentBranch.map(branch -> branch.getName());
 
@@ -67,8 +66,8 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
       presentation.setDescription("Push branch '${currentBranchName.get()}' using push dialog");
     } else {
       presentation.setEnabled(false);
-      String description = getRelationBasedDescription(relation);
-      presentation.setDescription(description);
+      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
+      presentation.setDescription("Push disabled because ${descriptionSpec}");
     }
   }
 

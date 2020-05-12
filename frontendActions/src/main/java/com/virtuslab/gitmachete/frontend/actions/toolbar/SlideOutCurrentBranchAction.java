@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteBranch;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteNonRootBranch;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -36,7 +36,7 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
       return;
     }
 
-    var currentBranch = getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged());
+    var currentBranch = getCurrentMacheteBranch(anActionEvent);
 
     if (currentBranch.isEmpty()) {
       presentation.setDescription("Current revision is not a branch managed by Git Machete");

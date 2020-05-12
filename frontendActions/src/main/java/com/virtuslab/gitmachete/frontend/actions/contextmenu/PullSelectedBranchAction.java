@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedBranchName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -59,12 +61,10 @@ public class PullSelectedBranchAction extends BasePullBranchAction {
     }
 
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-    boolean isEnabled = PULL_ENABLING_STATUSES.contains(relation);
+    boolean isEnabled = PULL_ELIGIBLE_STATUSES.contains(relation);
 
     if (isEnabled) {
-      Option<Boolean> isSelectedEqualCurrent = getGitMacheteRepository(anActionEvent)
-          .flatMap(repo -> repo.getCurrentBranchIfManaged())
-          .map(branch -> branch.getName())
+      Option<Boolean> isSelectedEqualCurrent = getCurrentBranchNameIfManaged(anActionEvent)
           .map(branchName -> branchName.equals(selectedBranchName.get()));
 
       if (isSelectedEqualCurrent.isDefined() && isSelectedEqualCurrent.get()) {
@@ -75,8 +75,8 @@ public class PullSelectedBranchAction extends BasePullBranchAction {
 
     } else {
       presentation.setEnabled(false);
-      String description = getRelationBaseDescription(relation);
-      presentation.setDescription(description);
+      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
+      presentation.setDescription("Pull disabled because ${descriptionSpec}");
     }
 
   }

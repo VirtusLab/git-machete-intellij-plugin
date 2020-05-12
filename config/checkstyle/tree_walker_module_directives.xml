@@ -70,6 +70,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bextends AnAction implements DumbAware\b"/>
+    <property name="message" value="Use 'extends DumbAwareAction' instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bgetRequiredData\b"/>
     <property name="message" value="Usage of prohibited AnActionEvent#getRequiredData, use AnActionEvent#getData and a @NonNull type-parameterized DataKey instead"/>
 </module>

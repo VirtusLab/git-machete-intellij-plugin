@@ -3,12 +3,11 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.fetch.GitFetchResult;
 import git4idea.repo.GitRepository;
@@ -28,7 +27,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class FetchAllRemotesAction extends AnAction implements DumbAware {
+public class FetchAllRemotesAction extends DumbAwareAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -39,7 +38,7 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
     Project project = getProject(anActionEvent);
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       anActionEvent.getPresentation().setEnabled(false);
-      anActionEvent.getPresentation().setDescription("Update is already running...");
+      anActionEvent.getPresentation().setDescription("Fetch is already running...");
     }
   }
 
@@ -62,6 +61,7 @@ public class FetchAllRemotesAction extends AnAction implements DumbAware {
 
       @Override
       public void onFinished() {
+        var result = this.result;
         if (result != null) {
           result.showNotification();
         }

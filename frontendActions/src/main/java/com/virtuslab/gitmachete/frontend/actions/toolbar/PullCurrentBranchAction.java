@@ -1,8 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteBranch;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -12,7 +14,6 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -40,8 +41,7 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
       return;
     }
 
-    Option<BaseGitMacheteBranch> currentBranch = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged());
+    var currentBranch = getCurrentMacheteBranch(anActionEvent);
 
     Option<String> currentBranchName = currentBranch.map(branch -> branch.getName());
 
@@ -60,14 +60,14 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
     }
 
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-    boolean isEnabled = PULL_ENABLING_STATUSES.contains(relation);
+    boolean isEnabled = PULL_ELIGIBLE_STATUSES.contains(relation);
 
     if (isEnabled) {
       presentation.setDescription("Pull branch '${currentBranchName.get()}'");
     } else {
       presentation.setEnabled(false);
-      String description = getRelationBaseDescription(relation);
-      presentation.setDescription(description);
+      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
+      presentation.setDescription("Pull disabled because ${descriptionSpec}");
     }
   }
 
@@ -77,9 +77,7 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
 
     Project project = getProject(anActionEvent);
     Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getCurrentBranchIfManaged())
-        .map(branch -> branch.getName());
+    Option<String> branchName = getCurrentBranchNameIfManaged(anActionEvent);
 
     if (branchName.isDefined()) {
       if (selectedVcsRepository.isDefined()) {

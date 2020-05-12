@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGi
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedBranchName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -75,8 +76,8 @@ public class PushSelectedBranchAction extends BasePushBranchAction {
 
     } else {
       presentation.setEnabled(false);
-      String description = getRelationBasedDescription(relation);
-      presentation.setDescription(description);
+      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
+      presentation.setDescription("Push disabled because ${descriptionSpec}");
     }
   }
 

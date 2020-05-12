@@ -68,7 +68,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   private final Project project;
   private final ProgressManager progressManager = ProgressManager.getInstance();
 
-  private AtomicInteger fetchRequestCounter = new AtomicInteger(0);
+  private final AtomicInteger fetchRequestCounter = new AtomicInteger(0);
 
   private GitFetchSupportImpl(Project project) {
     this.project = project;
@@ -124,7 +124,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     try {
       fetchRequestCounter.incrementAndGet();
       return withIndicator(() -> {
-        var activity = IdeActivity.started(project, "vcs", "fetch");
+        var activity = IdeActivity.started(project, /* group */ "vcs", /* activityName */ "fetch");
 
         var tasks = fetchInParallel(arguments);
         var results = waitForFetchTasks(tasks);
@@ -147,25 +147,29 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     var tasks = new ArrayList<FetchTask>();
     var maxThreads = getMaxThreads(remotes.stream().map(r -> r.repository).collect(Collectors.toList()), remotes.size());
     LOG.debug("Fetching ${remotes} using ${maxThreads} threads");
-    var executor = AppExecutorUtil.createBoundedApplicationPoolExecutor("GitFetch pool", maxThreads);
+    var executor = AppExecutorUtil.createBoundedApplicationPoolExecutor(/* name */ "GitFetch Pool", maxThreads);
     var commonIndicator = Option.of(progressManager.getProgressIndicator()).getOrElse(new EmptyProgressIndicator());
     var authenticationGate = new GitRestrictingAuthenticationGate();
-    for (var cords : remotes) {
-      LOG.debug("Fetching ${cords.remote} in ${cords.repository}");
+    for (var remoteRefCoordinates : remotes) {
+      LOG.debug("Fetching ${remoteRefCoordinates.remote} in ${remoteRefCoordinates.repository}");
       Future<SingleRemoteResult> future = executor.submit(() -> {
         commonIndicator.checkCanceled();
         AtomicReference<@Nullable SingleRemoteResult> result = new AtomicReference<>(null);
 
         ProgressManager.getInstance().executeProcessUnderProgress(() -> {
           commonIndicator.checkCanceled();
-          result.set(doFetch(cords.repository, cords.remote, cords.refspec, authenticationGate));
+          result.set(
+              doFetch(remoteRefCoordinates.repository,
+                  remoteRefCoordinates.remote,
+                  remoteRefCoordinates.refspec,
+                  authenticationGate));
         }, commonIndicator);
 
         SingleRemoteResult singleRemoteResult = result.get();
         assert singleRemoteResult != null : "Single remote result is null";
         return singleRemoteResult;
       });
-      tasks.add(new FetchTask(cords.repository, cords.remote, future));
+      tasks.add(new FetchTask(remoteRefCoordinates.repository, remoteRefCoordinates.remote, future));
     }
     return tasks;
   }
@@ -415,7 +419,6 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       doShowNotification("Fetch Failed");
     }
 
-    @Override
     public void throwExceptionIfFailed() {
       // Actual (idea) implementations do throw here like we do in `FetchResultImpl.ourThrowExceptionIfFailed`.
       // This is achieved thanks to Kotlin which has no checked exception.
