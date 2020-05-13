@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteBranch;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentMacheteBranchIfManaged;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
@@ -41,7 +41,7 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
       return;
     }
 
-    var currentBranch = getCurrentMacheteBranch(anActionEvent);
+    var currentBranch = getCurrentMacheteBranchIfManaged(anActionEvent);
 
     Option<String> currentBranchName = currentBranch.map(branch -> branch.getName());
 

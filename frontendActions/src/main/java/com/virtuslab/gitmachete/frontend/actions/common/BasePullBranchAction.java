@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 
@@ -35,26 +36,42 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       return;
     }
 
-    new Task.Backgroundable(project, "Pulling...", true) {
+    var localFullName = trackingInfo.getLocalBranch().getFullName();
+    var remoteFullName = trackingInfo.getRemoteBranch().getFullName();
+
+    // Note the '+' sign preceding the refspec. It permits non-fast-forward updates.
+    // This strategy is used to fetch branch from remote repository to local remotes.
+    var refspecLocalRemote = "+${localFullName}:${remoteFullName}";
+
+    // On the other hand this refspec has no '+' sign.
+    // This is cause the fetch from local remotes to local heads must behave fast-forward-like.
+    var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
+
+    getFetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote()).queue();
+
+    // Remote set to '.' (dot) is just a local repository.
+    getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT).queue();
+  }
+
+  private static Task.Backgroundable getFetchBackgroundable(Project project, GitRepository gitRepository, String refspec,
+      GitRemote remote) {
+    return new Task.Backgroundable(project, "Pulling...", true) {
 
       @Override
       public void run(ProgressIndicator indicator) {
         var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
-        var localFullName = trackingInfo.getLocalBranch().getFullName();
-        var remoteFullName = trackingInfo.getRemoteBranch().getFullName();
-        var refspec = "+${localFullName}:${remoteFullName}";
-        var fetchResult = fetchSupport.fetch(gitRepository, trackingInfo.getRemote(), refspec);
+        var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
         try {
           fetchResult.ourThrowExceptionIfFailed();
         } catch (VcsException e) {
-          fetchResult.showNotificationIfFailed("Update of branch '${branchName}' failed");
+          fetchResult.showNotificationIfFailed("Fetch of refspec ${refspec} failed");
         }
       }
 
       @Override
       public void onSuccess() {
-        VcsNotifier.getInstance(project).notifySuccess("Branch '${branchName}' updated");
+        VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
       }
-    }.queue();
+    };
   }
 }

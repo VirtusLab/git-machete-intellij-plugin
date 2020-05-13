@@ -10,6 +10,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -72,8 +73,16 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     this.project = project;
   }
 
+  private static final AtomicReference<@Nullable GitFetchSupportImpl> INSTANCE = new AtomicReference<>(null);
+
   public static GitFetchSupportImpl fetchSupport(Project project) {
-    return new GitFetchSupportImpl(project);
+    var gitFetchSupport = INSTANCE.get();
+    if (gitFetchSupport == null) {
+      var newValue = new GitFetchSupportImpl(project);
+      INSTANCE.set(newValue);
+      return newValue;
+    }
+    return gitFetchSupport;
   }
 
   public boolean isFetchRunning() {
@@ -261,9 +270,13 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       GitAuthenticationGate authenticationGate) {
     var recurseSubmodules = "--recurse-submodules=no";
 
+    // By default git fetch refuses to update the head which corresponds to the current branch.
+    // This flag disables the check.
+    var updateHeadOk = "--update-head-ok";
+
     List<String> params = refspec == null
-        ? List.of(recurseSubmodules)
-        : List.of(refspec, recurseSubmodules);
+        ? List.of(recurseSubmodules, updateHeadOk)
+        : List.of(refspec, recurseSubmodules, updateHeadOk);
 
     GitImpl instance = (GitImpl) Git.getInstance();
     var result = instance.fetch(repository, remote, Collections.emptyList(), authenticationGate,

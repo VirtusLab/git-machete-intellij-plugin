@@ -31,15 +31,15 @@ public final class ActionUtils {
   }
 
   public static Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
-    return getCurrentMacheteBranch(anActionEvent).map(branch -> branch.getName());
+    return getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
   }
 
-  public static Option<BaseGitMacheteBranch> getCurrentMacheteBranch(AnActionEvent anActionEvent) {
+  public static Option<BaseGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged());
   }
 
   public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
-    return getCurrentMacheteBranch(anActionEvent).flatMap(currentBranch -> currentBranch.isNonRootBranch()
+    return getCurrentMacheteBranchIfManaged(anActionEvent).flatMap(currentBranch -> currentBranch.isNonRootBranch()
         ? Option.some(currentBranch.asNonRootBranch())
         : Option.none());
   }
