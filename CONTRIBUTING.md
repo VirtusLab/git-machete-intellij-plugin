@@ -72,9 +72,9 @@ Each regular (non-hotfix, non-release) PR is ultimately merged to `develop` and 
 Stacked PRs (Y -> X -> `develop`) are never merged until their base is finally changed to `develop`.
 They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
-Each release PR (from `develop` to `master`) must not have a pre-release version.
+Each release PR (from `develop` to `master`) must not have a pre-release version. <br/>
 Once the release PR is merged, `master` is built. <br/>
-**TODO (#261): ** After a manual approval, the `master` build publishes the plugin to JetBrains marketplace.
+After a manual approval, the `master` build **publishes the plugin to JetBrains marketplace**.
 
 TBD: flow for hotfix PRs (PRs to `master` but NOT from `develop`).
 They are likely going to require us to allow either of:

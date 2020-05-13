@@ -6,7 +6,8 @@
     <description><![CDATA[
         Probably the sharpest git repository organizer & rebase workflow automation tool you've ever seen ;)
 
-        You can read more at the <a href="https://github.com/VirtusLab/git-machete">website</a>.
+        You can read more at the <a href="https://github.com/VirtusLab/git-machete-intellij-plugin">plugin's GitHub repository</a>,
+        as well as at the <a href="https://github.com/VirtusLab/git-machete">git-machete CLI GitHub repository</a>.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
