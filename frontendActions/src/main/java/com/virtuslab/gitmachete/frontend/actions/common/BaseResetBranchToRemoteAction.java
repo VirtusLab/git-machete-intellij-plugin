@@ -6,8 +6,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getPr
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -18,7 +16,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUiHandlerImpl;
@@ -160,21 +157,6 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
             GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
             new GitBranchWorker(project, Git.getInstance(), uiHandler)
                 .checkout(branchName, /* detach */ false, List.of(gitRepository));
-
-            // Tricky synchronization witch checkout action
-            Semaphore semaphore = new Semaphore(1);
-            try {
-              semaphore.acquire();
-            } catch (InterruptedException ignore) {}
-
-            MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-            messageBusConnection.subscribe(GitRepository.GIT_REPO_CHANGE, repository -> semaphore.release());
-
-            try {
-              semaphore.tryAcquire(/* timeout */ 1500, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ignore) {}
-
-            messageBusConnection.disconnect();
 
             // Check again if we are in branch to reset to be sure that checkout was successful
             // This time we are using git4idea because GitMacheteRepository is immutable and it would return previous branch
