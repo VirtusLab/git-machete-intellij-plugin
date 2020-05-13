@@ -51,7 +51,9 @@ jobs:
       - store_artifacts:
           path: build/distributions/
           destination: .
-
+      - persist_to_workspace:
+          root: .
+          paths: ['*']
       - run:
           # See Lombok config in build.gradle for why this step is necessary.
           # We're running this at the very end so that the recompiled code doesn't end up in the plugin artifact.
@@ -61,3 +63,32 @@ jobs:
           command: |
             ./gradlew --stop
             LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew --max-workers=2 compileJava
+
+  publish:
+    working_directory: ~/git-machete-intellij-plugin
+    docker:
+      - image: gitmachete/intellij-plugin-ci
+    steps:
+      - attach_workspace:
+          at: .
+      - deploy:
+          name: Publish plugin to Jetbrains Marketplace
+          command: ./gradlew publishPlugin
+
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
+      - hold: # A job that will require manual approval in the CircleCI web application.
+          type: approval
+          requires: [build]
+          filters:
+            branches:
+              only: master
+      - publish:
+          requires: [hold]
+          filters:
+            branches:
+              only: master

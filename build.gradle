@@ -255,6 +255,9 @@ subprojects {
 
       intellij {
         version intellijVersion
+        // No need to instrument Java classes with nullability assertions, we've got this covered much better by Checker
+        // (and we don't plan to expose any part of the plugin as an API for other plugins).
+        instrumentCode false
         if (params.withGit4Idea) {
           plugins 'git4idea'
         }
@@ -375,6 +378,10 @@ patchPluginXml {
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   sinceBuild '193' // aka 2019.3 (inclusive)
   untilBuild '201.*' // aka 2020.1.1 (inclusive)
+}
+
+publishPlugin {
+  token System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
 }
 
 runIde {
