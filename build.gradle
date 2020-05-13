@@ -35,8 +35,8 @@ if (System.getenv('CI') == 'true') {
 import org.ajoberstar.grgit.Grgit
 
 allprojects {
-  apply plugin:'org.ajoberstar.grgit'
-  def git = Grgit.open(currentDir: project.rootDir)
+  apply plugin: 'org.ajoberstar.grgit'
+  def git = Grgit.open(currentDir: rootDir)
   def maybeSnapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
   def shortCommitHash = "+git.${git.head().abbreviatedId}"
   def maybeDirty = git.status().clean ? '' : '-dirty'

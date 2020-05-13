@@ -19,10 +19,10 @@ SLF4J logging in this plugin has the following categories:
 * `frontendUiTable`
 * `gitCore`
 
-By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file.
+By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
 The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out.
 
-To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
+To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`. <br/>
 The standard practice in Java logging is to use fully-qualified name of each class as category;
 in our case, however, we're only ever using the categories provided above.
 
@@ -35,10 +35,11 @@ in our case, however, we're only ever using the categories provided above.
 * IntelliJ 2019.3+ Community Edition/Ultimate
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
-  * Enable annotation processing (for Lombok): `File` -> `Settings` -> `Build`, `Execution`, `Deployment` -> `Compiler` -> `Annotation Processors` -> `Enable Annotation Processing`
+  * Enable annotation processing (for Lombok):
+    `File` -> `Settings` -> `Build`, `Execution`, `Deployment` -> `Compiler` -> `Annotation Processors` -> `Enable Annotation Processing`
   * Set Project SDK to JDK 11: `Project Structure` -> `Project`
 
-Consider increasing maximum heap size for the IDE (the default value is 2048 MB). Go to `Help` -> `Change Memory Settings` for this.
+Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
 
 
 ## Run & debug
@@ -55,7 +56,7 @@ The resulting file will be available under `build/distributions/`.
 
 ## Install snapshot build of the plugin from CI
 
-Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
+Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin). <br/>
 Go to `File` -> `Settings` -> `Plugins` -> `(gear icon)` -> `Install Plugin from Disk...`, select the zip and restart IDE.
 
 

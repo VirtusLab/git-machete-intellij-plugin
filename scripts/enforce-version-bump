@@ -46,6 +46,18 @@ parse_version_from_git_revision base "$base_commit_short_hash"
   die "Minor version $head_minor must not be lower than $base_minor in $base_desc"
 
 [[ $head_patch -gt $base_patch ]] && exit 0
-[[ $head_patch -eq $base_patch ]] && \
-  die "Version must not be identical as in $base_desc" || \
-  die "Patch version $head_patch must be higher than $base_patch in $base_desc"
+[[ $head_patch -eq $base_patch ]] || \
+  die "Patch version $head_patch must not be lower than $base_patch in $base_desc"
+
+# According to semver spec, a missing pre-release version is considered higher than any defined pre-release version (1.2.3 is higher than 1.2.3-rc999).
+head_pre_release_cmp=${head_pre_release:-999999}
+base_pre_release_cmp=${base_pre_release:-999999}
+[[ $head_pre_release_cmp -gt $base_pre_release_cmp ]] && exit 0
+
+if [[ $head_pre_release -eq $base_pre_release ]]; then
+  die "Version must not be identical as in $base_desc"
+elif ! [[ $base_pre_release ]]; then
+  die "Unreleased version $head_version cannot follow a released version $base_version in $base_desc"
+else
+  die "Pre-release version $head_pre_release must not be lower than $base_pre_release in $base_desc"
+fi
