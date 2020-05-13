@@ -40,7 +40,10 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       @Override
       public void run(ProgressIndicator indicator) {
         var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
-        var fetchResult = fetchSupport.fetch(gitRepository, trackingInfo.getRemote(), "${branchName}:${branchName}");
+        var localFullName = trackingInfo.getLocalBranch().getFullName();
+        var remoteFullName = trackingInfo.getRemoteBranch().getFullName();
+        var refspec = "+${localFullName}:${remoteFullName}";
+        var fetchResult = fetchSupport.fetch(gitRepository, trackingInfo.getRemote(), refspec);
         try {
           fetchResult.ourThrowExceptionIfFailed();
         } catch (VcsException e) {
