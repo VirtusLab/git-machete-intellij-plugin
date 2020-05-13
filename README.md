@@ -29,7 +29,7 @@ in our case, however, we're only ever using the categories provided above.
 
 # Development
 
-## Requirements
+## Prerequisites
 
 * git
 * IntelliJ 2019.3+ Community Edition/Ultimate
@@ -40,6 +40,14 @@ in our case, however, we're only ever using the categories provided above.
   * Set Project SDK to JDK 11: `Project Structure` -> `Project`
 
 Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
+
+
+## Build
+
+To build the project, run `./gradlew build`.
+
+Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
+To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
 
 
 ## Run & debug

@@ -94,7 +94,8 @@ subprojects {
       // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
       options.compilerArgs << '-Werror'
       if (System.getenv('CI') != 'true') {
-        options.forkOptions.jvmArgs += ['-Xmx12g', '-XX:+HeapDumpOnOutOfMemoryError']
+        def jvmArgsEnvVar = System.getenv('GRADLE_COMPILE_JAVA_JVM_ARGS')
+        options.forkOptions.jvmArgs += jvmArgsEnvVar ? jvmArgsEnvVar.tokenize(' ') : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError']
       }
     }
 
