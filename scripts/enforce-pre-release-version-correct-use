@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+parse_version_from_current_wd head
+
+if [[ ${CI_PULL_REQUEST-} ]]; then
+  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+  pr_num=${CI_PULL_REQUEST##*/}
+  base_branch=$(hub pr show --format=%B "$pr_num")
+  if [[ $base_branch == master && $head_pre_release ]]; then
+    die 'Pre-release version is not allowed on a PR to master'
+  elif [[ $base_branch != master && -z $head_pre_release ]]; then
+    die "A PR to $base_branch (!= master) must have a pre-release version (a.b.c-d, not a.b.c)"
+  fi
+
+elif [[ ${CIRCLE_BRANCH-} ]]; then
+  if [[ $CIRCLE_BRANCH == master && $head_pre_release ]]; then
+    die 'Pre-release version is not allowed on master branch tip'
+  elif [[ $CIRCLE_BRANCH != master && -z $head_pre_release ]]; then
+    # This case won't occur as for now since we don't build anything but master branch and PRs.
+    die 'Non-master branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
+  fi
+fi

@@ -12,12 +12,24 @@ if [ $# -eq 3 ]; then
   parse_version_from_git_revision base "$new_base"
   parse_version_from_git_revision head "$current_branch"
 
-  if [[ $head_patch -ne 0 ]]; then
-    target_version="$base_major.$base_minor.$((base_patch + 1))"
-  elif [[ $head_minor -ne 0 ]]; then
-    target_version="$base_major.$((base_minor + 1)).0"
+  if [[ $head_pre_release ]]; then
+    if [[ $head_pre_release -ne 1 ]]; then
+      target_version="$base_major.$base_minor.$base_patch-$((${base_pre_release:-0} + 1))"
+    elif [[ $head_patch -ne 0 ]]; then
+      target_version="$base_major.$base_minor.$((base_patch + 1))-1"
+    elif [[ $head_minor -ne 0 ]]; then
+      target_version="$base_major.$((base_minor + 1)).0-1"
+    else
+      target_version="$((base_major + 1)).0.0-1"
+    fi
   else
-    target_version="$((base_major + 1)).0.0"
+    if [[ $head_patch -ne 0 ]]; then
+      target_version="$base_major.$base_minor.$((base_patch + 1))"
+    elif [[ $head_minor -ne 0 ]]; then
+      target_version="$base_major.$((base_minor + 1)).0"
+    else
+      target_version="$((base_major + 1)).0.0"
+    fi
   fi
 
   if [[ $head_version != "$target_version" ]]; then
