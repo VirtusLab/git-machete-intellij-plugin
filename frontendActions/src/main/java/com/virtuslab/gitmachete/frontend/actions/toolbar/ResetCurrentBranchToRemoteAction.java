@@ -1,14 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.common.BaseResetBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.common.BaseResetBranchToRemoteAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 /**
@@ -19,12 +17,10 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class ResetCurrentBranchAction extends BaseResetBranchAction {
+public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAction {
   @Override
   protected Option<String> getBranchName(AnActionEvent anActionEvent) {
-    return getGitMacheteRepository(anActionEvent)
-        .flatMap(IGitMacheteRepository::getCurrentBranchIfManaged)
-        .map(BaseGitMacheteBranch::getName);
+    return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
   @Override

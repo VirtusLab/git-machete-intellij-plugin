@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.common.BaseResetBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.common.BaseResetBranchToRemoteAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 /**
@@ -17,7 +17,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class ResetSelectedBranchAction extends BaseResetBranchAction {
+public class ResetSelectedBranchToRemoteAction extends BaseResetBranchToRemoteAction {
   @Override
   protected Option<String> getBranchName(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);

@@ -40,7 +40,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAction {
+public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepositoryReadyAction {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
   private static final String VCS_LOGGER_TITLE = "Resetting";
   private static final String TASK_TITLE = "Resetting...";
@@ -59,16 +59,18 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
       return;
     }
 
-    Option<String> branchName = getBranchName(anActionEvent);
+    Option<String> branchNameOption = getBranchName(anActionEvent);
 
-    if (branchName.isEmpty()) {
+    if (branchNameOption.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription("Reset disabled due to undefined ${getActionType()} branch");
       return;
     }
 
+    String branchName = branchNameOption.get();
+
     Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getBranchByName(branchName.get()))
+        .flatMap(repo -> repo.getBranchByName(branchName))
         .map(BaseGitMacheteBranch::getSyncToRemoteStatus);
 
     if (syncToRemoteStatus.isEmpty()) {
@@ -80,7 +82,7 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
 
     if (relation != SyncToRemoteStatus.Relation.Untracked) {
-      presentation.setDescription("Reset branch '${branchName.get()} to its remote tracking branch");
+      presentation.setDescription("Reset branch '${branchName} to its remote tracking branch");
     } else {
       presentation.setEnabled(false);
       presentation.setDescription("Reset disabled because ${getActionType()} branch is untracked");
@@ -121,34 +123,34 @@ public abstract class BaseResetBranchAction extends GitMacheteRepositoryReadyAct
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
       IGitMacheteRepository macheteRepository) {
 
-    new Task.Backgroundable(project, TASK_TITLE, true) {
+    new Task.Backgroundable(project, TASK_TITLE, /* canBeCancelled */ true) {
 
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug(() -> "Resetting '${branchName}' branch");
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project, TASK_TITLE)) {
-          GitLineHandler handler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
-          handler.addParameters("--keep");
+          GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
+          resetHandler.addParameters("--keep");
 
           Option<BaseGitMacheteBranch> branchOption = macheteRepository.getBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
           Option<IGitMacheteRemoteBranch> remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {
-            handler.addParameters(remoteTrackingBranchOption.get().getPointedCommit().getHash());
+            resetHandler.addParameters(remoteTrackingBranchOption.get().getPointedCommit().getHash());
           } else {
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             LOG.warn(message);
             VcsNotifier.getInstance(project).notifyWarning(VCS_LOGGER_TITLE, message);
           }
 
-          handler.endOptions();
+          resetHandler.endOptions();
 
           // Checking out given branch
           GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
           new GitBranchWorker(project, Git.getInstance(), uiHandler)
               .checkout(branchName, /* detach */ false, java.util.List.of(gitRepository));
 
-          GitCommandResult result = Git.getInstance().runCommand(handler);
+          GitCommandResult result = Git.getInstance().runCommand(resetHandler);
           if (!result.success()) {
             LOG.error(result.getErrorOutputAsJoinedString());
             VcsNotifier.getInstance(project).notifyError(VCS_LOGGER_TITLE, result.getErrorOutputAsHtmlString());
