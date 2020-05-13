@@ -32,6 +32,8 @@ task resolveDependencies {
 if (System.getenv('CI') == 'true') {
   gradle.startParameter.logLevel = LogLevel.INFO
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+} else {
+  gradle.startParameter.configureOnDemand = true
 }
 
 dependencyUpdates {
@@ -91,6 +93,9 @@ subprojects {
     tasks.withType(JavaCompile) {
       // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
       options.compilerArgs << '-Werror'
+      if (System.getenv('CI') != 'true') {
+        options.forkOptions.jvmArgs += ['-Xmx12g', '-XX:+HeapDumpOnOutOfMemoryError']
+      }
     }
 
     tasks.withType(Javadoc) {
