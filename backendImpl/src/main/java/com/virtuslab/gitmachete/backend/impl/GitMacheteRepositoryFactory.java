@@ -41,7 +41,7 @@ import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backendRoot");
+  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
