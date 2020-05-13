@@ -74,6 +74,7 @@ Most non-standard/project-specific conventions are enforced by:
 * [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells ([config](config/checkstyle/checkstyle.xml))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling (most config in [build.gradle](build.gradle), stubs in [config/checker/](config/checker))
 
-Other unwritten conventions include:
+Other coding conventions include:
 
-* Don't write nullary lambdas in `::` notation, only unary lambdas (`::` notation is confusing when applied to parameterless lambda, suggests a unary one)
+* Don't write nullary lambdas in `receiver::method` notation, use explicit `() -> receiver.method()` notation instead.
+  `::` notation is confusing when applied to parameterless lambdas, it suggests a unary lambda.
