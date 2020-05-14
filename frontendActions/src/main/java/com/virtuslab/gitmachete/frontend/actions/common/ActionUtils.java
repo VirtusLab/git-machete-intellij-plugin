@@ -44,6 +44,10 @@ public final class ActionUtils {
         : Option.none());
   }
 
+  public static Option<BaseGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
+    return getGitMacheteRepository(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
+  }
+
   public static Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
   }

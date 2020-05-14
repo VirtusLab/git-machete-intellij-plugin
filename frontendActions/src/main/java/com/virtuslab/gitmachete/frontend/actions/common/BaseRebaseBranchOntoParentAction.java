@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
@@ -23,8 +24,11 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
@@ -37,7 +41,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction {
+public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -68,17 +72,58 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
       presentation.setEnabled(false);
       presentation.setDescription("Can't rebase ${stateName}");
+    } else {
+
+      var branchName = getNameOfBranchUnderAction(anActionEvent);
+      var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+
+      if (branch.isEmpty()) {
+        presentation.setEnabled(false);
+        presentation.setDescription("Rebase disabled due to undefined selected branch");
+
+      } else if (branch.get().isRootBranch()) {
+
+        if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
+          presentation.setEnabled(false);
+          presentation.setDescription("Root branch '${branchName}' cannot be rebased");
+        } else { //contextmenu
+          // in case of root branch we do not want to show this option at all
+          presentation.setEnabledAndVisible(false);
+        }
+
+      } else if (branch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.MergedToParent)) {
+        presentation.setEnabled(false);
+        presentation.setDescription("Can't rebase merged branch '${branchName}'");
+
+      } else if (branch.get().isNonRootBranch()) {
+        var nonRootBranch = branch.get().asNonRootBranch();
+        BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+        presentation.setDescription("Rebase '${branchName}' onto '${upstream.getName()}'");
+      }
     }
   }
 
-  protected void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
+  @Override
+  public void actionPerformed(AnActionEvent anActionEvent) {
+    LOG.debug("Performing");
+
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+    if (branch.isDefined() && branch.get().isNonRootBranch()) {
+      doRebase(anActionEvent, branch.get().asNonRootBranch());
+    } else {
+      LOG.warn("Skipping the action because branch is undefined or is a root branch: branch='${branch}'");
+    }
+  }
+
+  private void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
     Project project = getProject(anActionEvent);
     Option<GitRepository> gitRepository = getSelectedVcsRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       doRebase(project, gitRepository.get(), branchToRebase);
     } else {
-      LOG.warn("Skipping the action because Git repository is undefined");
+      LOG.warn("Skipping the action because no VCS repository is selected");
     }
   }
 
