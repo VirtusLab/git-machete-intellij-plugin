@@ -10,25 +10,16 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.BaseGitRepositoryTest;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
@@ -36,33 +27,17 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
-public class GitMacheteStatusTest {
+public class GitMacheteStatusTest extends BaseGitRepositoryTest {
   IGitMacheteRepository gitMacheteRepository = null;
-
-  public Path tmpTestDir = Files.createTempDirectory("machete-tests-");
-  public final Path scriptsDir = tmpTestDir.resolve("scripts");
-  public final Path repositoryBuildingScript = scriptsDir.resolve("repo.sh");
-  public final Path repositoryMainDir = tmpTestDir.resolve("machete-sandbox");
-  public final Path repositoryGitDir = repositoryMainDir.resolve(".git");
-  public final String repositoryPreparingCommand = "/bin/bash ${repositoryBuildingScript.toAbsolutePath()} ${tmpTestDir.toAbsolutePath()}";
-
   GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   IBranchLayoutReader branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
 
   public GitMacheteStatusTest() throws IOException {}
 
-  public void init(String scriptName) throws Exception {
-    createDirStructure();
-    copyScriptsFromResources(scriptName);
-    prepareRepoFromScript();
+  protected void init(String scriptName) throws Exception {
+    super.init(scriptName);
     IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
-
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
-  }
-
-  @After
-  public void cleanup() throws IOException {
-    Files.walk(tmpTestDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
   }
 
   @Test
@@ -108,37 +83,6 @@ public class GitMacheteStatusTest {
     System.out.println(ourResult);
 
     Assert.assertEquals(gitMacheteCliStatus, ourResult);
-  }
-
-  private void createDirStructure() throws IOException {
-    Files.createDirectories(scriptsDir);
-  }
-
-  private void copyScriptsFromResources(String scriptName) throws URISyntaxException, IOException {
-    // Common
-    URL resourceUrl = getClass().getResource("/common.sh");
-    assert resourceUrl != null : "Can't get resource";
-    Files.copy(Paths.get(resourceUrl.toURI()), scriptsDir.resolve("common.sh"), StandardCopyOption.REPLACE_EXISTING);
-
-    // Given
-    resourceUrl = getClass().getResource("/" + scriptName);
-    assert resourceUrl != null : "Can't get resource";
-    Files.copy(Paths.get(resourceUrl.toURI()), repositoryBuildingScript, StandardCopyOption.REPLACE_EXISTING);
-  }
-
-  private void prepareRepoFromScript() throws IOException, InterruptedException {
-    var process = Runtime.getRuntime()
-        .exec(repositoryPreparingCommand, /* array of environment vars */ new String[]{}, scriptsDir.toFile());
-    var completed = process.waitFor(5, TimeUnit.SECONDS);
-
-    // In case of non 0 exit code print stdout and stderr
-    if (process.exitValue() != 0) {
-      System.out.println(new String(process.getInputStream().readAllBytes()));
-      System.err.println(new String(process.getErrorStream().readAllBytes()));
-    }
-
-    Assert.assertTrue(completed);
-    Assert.assertEquals(0, process.exitValue());
   }
 
   private String gitMacheteCliStatus() throws IOException {

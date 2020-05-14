@@ -10,7 +10,6 @@ push() {
   git push -u origin $b
 }
 
-
 newrepo $1 machete-sandbox-remote --bare
 newrepo $1 machete-sandbox
 

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.ideprobe;
+package com.virtuslab.gitmachete.frontend.actions.unanchored;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 

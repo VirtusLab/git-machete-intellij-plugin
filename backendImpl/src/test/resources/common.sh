@@ -1,6 +1,18 @@
+#!/usr/bin/env bash
 
-# The repo setup scripts sometimes spuriously crash on CI, let's investigate that.
-set -x
+newrepo() {
+  if (( $# < 2 ))
+  then
+    echo "newrepo() needs at least 2 parameters, $# was given"
+    exit 100
+  fi
+  path=$1
+  dir=$2
+  mkdir -p $path/$dir
+  cd $path/$dir
+  opt=${3-}
+  git init $opt
+}
 
 newb() {
   if (( $# != 1 ))
@@ -22,20 +34,6 @@ cmt() {
   touch $f
   git add $f
   git commit -m "$*"
-}
-
-newrepo() {
-  if (( $# < 2 ))
-  then
-    echo "newrepo() needs at least 2 parameters, $# was given"
-    exit 100
-  fi
-  path=$1
-  dir=$2
-  mkdir $path/$dir
-  cd $path/$dir
-  opt=${3-}
-  git init $opt
 }
 
 clone() {
