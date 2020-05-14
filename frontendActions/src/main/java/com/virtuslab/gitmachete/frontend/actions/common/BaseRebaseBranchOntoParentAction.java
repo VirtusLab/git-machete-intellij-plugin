@@ -117,8 +117,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
   }
 
   private void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> gitRepository = getSelectedVcsRepository(anActionEvent);
+    var project = getProject(anActionEvent);
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       doRebase(project, gitRepository.get(), branchToRebase);

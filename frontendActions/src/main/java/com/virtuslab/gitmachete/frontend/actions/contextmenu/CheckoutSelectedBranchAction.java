@@ -11,11 +11,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
-import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -74,10 +72,10 @@ public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyActio
       return;
     }
 
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
+    var project = getProject(anActionEvent);
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
 
-    if (selectedVcsRepository.isDefined()) {
+    if (gitRepository.isDefined()) {
       LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
       new Task.Backgroundable(project, "Checking out") {
         @Override
@@ -85,7 +83,7 @@ public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyActio
           LOG.info("Checking out branch '${selectedBranchName.get()}'");
           GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
           new GitBranchWorker(project, Git.getInstance(), uiHandler)
-              .checkout(selectedBranchName.get(), /* detach */ false, List.of(selectedVcsRepository.get()));
+              .checkout(selectedBranchName.get(), /* detach */ false, List.of(gitRepository.get()));
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();

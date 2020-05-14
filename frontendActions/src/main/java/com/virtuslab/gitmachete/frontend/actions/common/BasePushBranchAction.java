@@ -52,16 +52,16 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
       return;
     }
 
-    Option<String> selectedBranchName = getNameOfBranchUnderAction(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
 
-    if (selectedBranchName.isEmpty()) {
+    if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription("Push disabled due to undefined branch name");
       return;
     }
 
     Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getBranchByName(selectedBranchName.get()))
+        .flatMap(repo -> repo.getBranchByName(branchName.get()))
         .map(branch -> branch.getSyncToRemoteStatus());
 
     if (syncToRemoteStatus.isEmpty()) {
@@ -74,14 +74,12 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
     boolean isEnabled = PUSH_ELIGIBLE_STATUSES.contains(relation);
 
     if (isEnabled) {
-      Option<Boolean> isSelectedEqualCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-          .map(branchName -> branchName.equals(selectedBranchName.get()));
 
-      if (isSelectedEqualCurrent.isDefined() && isSelectedEqualCurrent.get()) {
+      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
         presentation.setText("Push Current Branch");
       }
 
-      presentation.setDescription("Push branch '${selectedBranchName.get()}' using push dialog");
+      presentation.setDescription("Push branch '${branchName.get()}' using push dialog");
 
     } else {
       presentation.setEnabled(false);
@@ -94,13 +92,13 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = getNameOfBranchUnderAction(anActionEvent);
+    var project = getProject(anActionEvent);
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isDefined()) {
-      if (selectedVcsRepository.isDefined()) {
-        doPush(project, selectedVcsRepository.get(), branchName.get());
+      if (gitRepository.isDefined()) {
+        doPush(project, gitRepository.get(), branchName.get());
       } else {
         LOG.warn("Skipping the action because no VCS repository is selected");
       }

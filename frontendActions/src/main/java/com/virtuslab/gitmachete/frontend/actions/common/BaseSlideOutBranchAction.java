@@ -9,9 +9,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getPr
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -42,7 +40,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       return;
     }
 
-    Option<String> branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
 
     if (branch.isEmpty()) {
@@ -83,7 +81,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
   private void doSlideOut(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
-    Project project = getProject(anActionEvent);
+    var project = getProject(anActionEvent);
     var branchLayout = getBranchLayout(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     if (branchLayout.isEmpty()) {

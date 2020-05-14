@@ -8,10 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
 import git4idea.fetch.GitFetchResult;
-import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -35,7 +32,7 @@ public class FetchAllRemotesAction extends DumbAwareAction {
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    Project project = getProject(anActionEvent);
+    var project = getProject(anActionEvent);
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       anActionEvent.getPresentation().setEnabled(false);
       anActionEvent.getPresentation().setDescription("Fetch is already running...");
@@ -46,8 +43,8 @@ public class FetchAllRemotesAction extends DumbAwareAction {
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
+    var project = getProject(anActionEvent);
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Fetching...", /* canBeCancelled */ true) {
 
@@ -56,7 +53,7 @@ public class FetchAllRemotesAction extends DumbAwareAction {
 
       @Override
       public void run(ProgressIndicator indicator) {
-        result = GitFetchSupportImpl.fetchSupport(project).fetchAllRemotes(selectedVcsRepository.toJavaList());
+        result = GitFetchSupportImpl.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
       }
 
       @Override

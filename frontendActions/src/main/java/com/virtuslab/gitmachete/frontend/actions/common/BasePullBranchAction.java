@@ -48,7 +48,7 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       return;
     }
 
-    Option<String> branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
@@ -70,10 +70,8 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
     boolean isEnabled = PULL_ELIGIBLE_STATUSES.contains(relation);
 
     if (isEnabled) {
-      Option<Boolean> isSelectedEqualCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-          .map(bn -> bn.equals(branchName.get()));
 
-      if (isSelectedEqualCurrent.isDefined() && isSelectedEqualCurrent.get()) {
+      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
         presentation.setText("Pull Current Branch");
       }
 
@@ -91,13 +89,13 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> selectedVcsRepository = getSelectedVcsRepository(anActionEvent);
-    Option<String> branchName = getNameOfBranchUnderAction(anActionEvent);
+    var project = getProject(anActionEvent);
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isDefined()) {
-      if (selectedVcsRepository.isDefined()) {
-        doPull(project, selectedVcsRepository.get(), branchName.get());
+      if (gitRepository.isDefined()) {
+        doPull(project, gitRepository.get(), branchName.get());
       } else {
         LOG.warn("Skipping the action because no VCS repository is selected");
       }
@@ -122,12 +120,12 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
     var refspecLocalRemote = "+${localFullName}:${remoteFullName}";
 
     // On the other hand this refspec has no '+' sign.
-    // This is cause the fetch from local remotes to local heads must behave fast-forward-like.
+    // This is because the fetch from local remotes to local heads must behave fast-forward-like.
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
     getFetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote()).queue();
 
-    // Remote set to '.' (dot) is just a local repository.
+    // Remote set to '.' (dot) is just the local repository.
     getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT).queue();
   }
 

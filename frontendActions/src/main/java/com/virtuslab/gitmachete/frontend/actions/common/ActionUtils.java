@@ -12,7 +12,6 @@ import io.vavr.control.Option;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -38,12 +37,6 @@ public final class ActionUtils {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged());
   }
 
-  public static Option<BaseGitMacheteNonRootBranch> getCurrentMacheteNonRootBranch(AnActionEvent anActionEvent) {
-    return getCurrentMacheteBranchIfManaged(anActionEvent).flatMap(currentBranch -> currentBranch.isNonRootBranch()
-        ? Option.some(currentBranch.asNonRootBranch())
-        : Option.none());
-  }
-
   public static Option<BaseGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
     return getGitMacheteRepository(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
   }
@@ -64,11 +57,6 @@ public final class ActionUtils {
 
   public static Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
-  }
-
-  public static Option<BaseGitMacheteBranch> getSelectedMacheteBranch(AnActionEvent anActionEvent) {
-    return getGitMacheteRepository(anActionEvent).flatMap(
-        repository -> getSelectedBranchName(anActionEvent).flatMap(repository::getBranchByName));
   }
 
   public static Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
