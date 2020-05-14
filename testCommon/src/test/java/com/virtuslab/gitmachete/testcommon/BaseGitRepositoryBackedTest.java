@@ -15,7 +15,12 @@ import org.junit.After;
 import org.junit.Assert;
 
 public abstract class BaseGitRepositoryBackedTest {
-  protected Path parentDir = Files.createTempDirectory("machete-tests-");
+
+  protected final static String SETUP_WITH_SINGLE_REMOTE = "setup-with-single-remote.sh";
+  protected final static String SETUP_WITH_MULTIPLE_REMOTES = "setup-with-multiple-remotes.sh";
+  protected final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
+
+  protected final Path parentDir = Files.createTempDirectory("machete-tests-");
   protected final Path repositoryMainDir = parentDir.resolve("machete-sandbox");
   protected final Path repositoryGitDir = repositoryMainDir.resolve(".git");
 

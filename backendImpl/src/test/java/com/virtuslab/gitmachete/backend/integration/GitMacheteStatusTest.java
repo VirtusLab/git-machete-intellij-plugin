@@ -28,9 +28,10 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTest;
 
 public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
-  IGitMacheteRepository gitMacheteRepository = null;
-  GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
-  IBranchLayoutReader branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private IGitMacheteRepository gitMacheteRepository = null;
+  private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
+  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
 
   public GitMacheteStatusTest() throws IOException {}
 
@@ -42,7 +43,7 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
 
   @Test
   public void statusTest() throws Exception {
-    init("setup-with-single-remote.sh");
+    init(SETUP_WITH_SINGLE_REMOTE);
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -57,7 +58,7 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
 
   @Test
   public void statusTestWithMultiRemotes() throws Exception {
-    init("setup-with-multiple-remotes.sh");
+    init(SETUP_WITH_MULTIPLE_REMOTES);
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -72,7 +73,7 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
 
   @Test
   public void statusTestForDivergedAndOlderThan() throws Exception {
-    init("setup-for-diverged-and-older-than.sh");
+    init(SETUP_FOR_DIVERGED_AND_OLDER_THAN);
 
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();

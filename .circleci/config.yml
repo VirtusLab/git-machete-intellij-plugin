@@ -65,9 +65,6 @@ jobs:
             set +x
             ###
 
-            # TODO (#274): let the tests set up their required environment themselves
-            bash ./backendImpl/src/test/resources/setup-with-single-remote.sh ~
-
             # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
             # runUiTests: see uiTests/build.gradle
             # debug: let's leave it for some time until we're sure that these tests are reliable
