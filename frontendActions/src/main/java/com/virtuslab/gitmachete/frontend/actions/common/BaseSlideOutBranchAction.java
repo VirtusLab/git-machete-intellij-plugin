@@ -1,11 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_REFRESH;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayoutWriter;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
@@ -49,7 +48,7 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
       branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
 
       LOG.debug("Refreshing repository state");
-      ActionManager.getInstance().getAction(ACTION_REFRESH).actionPerformed(anActionEvent);
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();

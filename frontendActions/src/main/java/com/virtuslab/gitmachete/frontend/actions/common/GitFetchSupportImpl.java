@@ -63,8 +63,6 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
-  private static final int MAX_SSH_CONNECTIONS = 10;
-
   private final Project project;
   private final ProgressManager progressManager = ProgressManager.getInstance();
 

@@ -6,7 +6,7 @@ plugins {
   id 'io.freefair.lombok' version '5.0.1' apply false
   id 'org.ajoberstar.grgit' version '4.0.2' apply false
   id 'org.checkerframework' version '0.5.1' apply false
-  id 'org.jetbrains.intellij' version '0.4.20' apply false
+  id 'org.jetbrains.intellij' version '0.4.21' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
