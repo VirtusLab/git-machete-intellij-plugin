@@ -54,9 +54,10 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   public abstract String getBranchTypeString(boolean capitalized);
 
+  @SuppressWarnings("regexp")
   @Override
-  public GitCoreCommit getPointedCommit() throws GitCoreException {
-    GitCoreCommit gitCoreCommit = pointedCommitRef.get();
+  public synchronized GitCoreCommit getPointedCommit() throws GitCoreException {
+    var gitCoreCommit = pointedCommitRef.get();
     if (gitCoreCommit == null) {
       GitCoreCommit value = new GitCoreCommit(derivePointedRevCommit());
       pointedCommitRef.set(value);
