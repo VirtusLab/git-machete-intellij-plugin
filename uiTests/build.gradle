@@ -5,6 +5,10 @@ plugins {
 junit()
 scala()
 
+dependencies {
+  testImplementation project(':testCommon').sourceSets.test.output
+}
+
 test {
   // Exclude UI tests when running `./gradlew test`, unless a `-PrunUiTests` Gradle flag is provided.
   def runUiTests = project.hasProperty('runUiTests')

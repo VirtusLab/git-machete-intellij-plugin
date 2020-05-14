@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend;
+package com.virtuslab.gitmachete.testcommon;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 
-public abstract class BaseGitRepositoryTest {
+public abstract class BaseGitRepositoryBackedTest {
   protected Path parentDir = Files.createTempDirectory("machete-tests-");
   protected final Path repositoryMainDir = parentDir.resolve("machete-sandbox");
   protected final Path repositoryGitDir = repositoryMainDir.resolve(".git");
 
-  protected BaseGitRepositoryTest() throws IOException {}
+  protected BaseGitRepositoryBackedTest() throws IOException {}
 
   protected void init(String scriptName) throws Exception {
     copyScriptsFromResources("common.sh");
@@ -34,7 +34,8 @@ public abstract class BaseGitRepositoryTest {
   }
 
   private void prepareRepoFromScript(String scriptName) throws IOException, InterruptedException {
-    var process = Runtime.getRuntime().exec("/bin/bash ${parentDir.resolve(scriptName).toAbsolutePath()} ${parentDir.toAbsolutePath()}");
+    var process = Runtime.getRuntime()
+        .exec("/bin/bash ${parentDir.resolve(scriptName).toAbsolutePath()} ${parentDir.toAbsolutePath()}");
     var completed = process.waitFor(5, TimeUnit.SECONDS);
 
     // In case of non 0 exit code print stdout and stderr
