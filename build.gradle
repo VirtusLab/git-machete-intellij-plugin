@@ -30,10 +30,9 @@ task resolveDependencies {
 }
 
 if (System.getenv('CI') == 'true') {
+  gradle.startParameter.configureOnDemand = false
   gradle.startParameter.logLevel = LogLevel.INFO
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
-} else {
-  gradle.startParameter.configureOnDemand = true
 }
 
 dependencyUpdates {
