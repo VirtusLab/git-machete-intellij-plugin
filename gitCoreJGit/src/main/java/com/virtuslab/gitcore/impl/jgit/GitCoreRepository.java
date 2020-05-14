@@ -24,7 +24,7 @@ import org.eclipse.jgit.revwalk.filter.RevFilter;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
+import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -72,7 +72,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Override
   public IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
-      throw new GitCoreNoSuchBranchException("Local branch '${branchName}' does not exist in this repository");
+      throw new GitCoreNoSuchRevisionException("Local branch '${branchName}' does not exist in this repository");
     }
 
     String remoteName = deriveRemoteName(branchName);

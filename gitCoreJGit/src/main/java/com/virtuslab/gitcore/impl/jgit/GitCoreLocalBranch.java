@@ -120,8 +120,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
       } else if (e.getComment().startsWith("branch: Created from")) {
         LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
       } else if (e.getComment().equals("branch: Reset to " + getBranchName())) {
-        LOG.debug(
-            () -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${getBranchName()}'");
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${getBranchName()}'");
       } else if (e.getComment().equals("branch: Reset to HEAD")) {
         LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
       } else if (e.getComment().startsWith("reset: moving to ")) {
@@ -141,15 +140,6 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   @Override
   public Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}'");
-    RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    RevCommit commit = derivePointedRevCommit();
-    try {
-      walk.markStart(commit);
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
-
     LOG.debug("Getting local branches reflog lists");
 
     List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
@@ -186,6 +176,15 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
     List<ReflogEntry> filteredReflogEntries = reflogEntryLists.flatMap(this::rejectExcludedEntries);
 
     LOG.debug("Start walking through logs");
+
+    RevWalk walk = new RevWalk(repo.getJgitRepo());
+    walk.sort(RevSort.TOPO);
+    RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
+    try {
+      walk.markStart(commit);
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
 
     for (RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries

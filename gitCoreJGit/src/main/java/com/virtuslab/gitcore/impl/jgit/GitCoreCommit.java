@@ -10,25 +10,25 @@ import com.virtuslab.gitcore.api.BaseGitCoreCommitHash;
 
 @Getter
 public class GitCoreCommit extends BaseGitCoreCommit {
-  private final RevCommit jgitCommit;
   private final String message;
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
   private final Instant commitTime;
   private final BaseGitCoreCommitHash hash;
+  private final String stringValue;
 
+  @SuppressWarnings("index:argument.type.incompatible")
   public GitCoreCommit(RevCommit commit) {
-    this.jgitCommit = commit;
-    this.message = jgitCommit.getFullMessage();
-    this.author = new GitCorePersonIdentity(jgitCommit.getAuthorIdent());
-    this.committer = new GitCorePersonIdentity(jgitCommit.getCommitterIdent());
-    this.commitTime = Instant.ofEpochSecond(jgitCommit.getCommitTime());
-    this.hash = GitCoreCommitHash.of(jgitCommit);
+    this.message = commit.getFullMessage();
+    this.author = new GitCorePersonIdentity(commit.getAuthorIdent());
+    this.committer = new GitCorePersonIdentity(commit.getCommitterIdent());
+    this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
+    this.hash = GitCoreCommitHash.of(commit);
+    this.stringValue = commit.getId().getName().substring(0, 7) + ": " + commit.getShortMessage();
   }
 
   @Override
-  @SuppressWarnings("index:argument.type.incompatible")
   public String toString() {
-    return jgitCommit.getId().getName().substring(0, 7) + ": " + jgitCommit.getShortMessage();
+    return stringValue;
   }
 }

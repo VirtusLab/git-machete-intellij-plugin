@@ -2,15 +2,13 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -24,14 +22,13 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import com.virtuslab.gitcore.api.BaseGitCoreBranch;
 import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.GitCoreNoSuchBranchException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
+import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @Getter
 @RequiredArgsConstructor
-@ToString
 public abstract class GitCoreBranch extends BaseGitCoreBranch {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
 
@@ -39,7 +36,8 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   protected final String branchName;
   protected final String remoteName;
 
-  private final AtomicReference<@Nullable GitCoreCommit> pointedCommitRef = new AtomicReference<>(null);
+  @MonotonicNonNull
+  private GitCoreCommit pointedCommit = null;
 
   @Override
   public String getName() {
@@ -57,24 +55,38 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   @SuppressWarnings("regexp")
   @Override
   public synchronized GitCoreCommit getPointedCommit() throws GitCoreException {
-    var gitCoreCommit = pointedCommitRef.get();
-    if (gitCoreCommit == null) {
-      GitCoreCommit value = new GitCoreCommit(derivePointedRevCommit());
-      pointedCommitRef.set(value);
-      return value;
+    if (pointedCommit == null) {
+      var revStr = getFullName();
+      var revCommit = resolveRevCommit(revStr);
+      pointedCommit = new GitCoreCommit(revCommit);
     }
-    return gitCoreCommit;
+    return pointedCommit;
   }
 
-  protected RevCommit derivePointedRevCommit() throws GitCoreException {
+  /**
+   * - - - IMPORTANT NOTE - - -
+   * Bear in mind that RevCommit is a mutable object.
+   * Its internal state (inDegree, flags) changes during a rev walk (among others).
+   * To avoid potential bugs:
+   * - reinstance instead of reuse; this method provides "clean" instance based on a String revision
+   * - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged
+   * This comment applies everywhere.
+   *
+   * @param revStr revision String
+   *
+   * @throws GitCoreException unable to resolve the revision
+   *
+   * @return {@link RevCommit} specified by {@code revStr}
+   */
+  protected RevCommit resolveRevCommit(String revStr) throws GitCoreException {
     Repository jgitRepo = repo.getJgitRepo();
     RevWalk rw = new RevWalk(jgitRepo);
     RevCommit c;
     try {
-      ObjectId o = jgitRepo.resolve(getFullName());
+      ObjectId o = jgitRepo.resolve(revStr);
       if (o == null) {
-        throw new GitCoreNoSuchBranchException(
-            "${getBranchTypeString(/* capitalized */ true)} branch '${branchName}' does not exist in this repository");
+        throw new GitCoreNoSuchRevisionException(
+            "${getBranchTypeString(/* capitalized */ true)} branch '${branchName}', revision '${revStr}' does not exist in this repository");
       }
       c = rw.parseCommit(o);
     } catch (MissingObjectException | IncorrectObjectTypeException e) {
@@ -83,7 +95,6 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
     } catch (RevisionSyntaxException | IOException e) {
       throw new GitCoreException(e);
     }
-
     return c;
   }
 
@@ -93,7 +104,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = derivePointedRevCommit();
+    RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
 
     RevWalk revWalk = Try.of(() -> {
       walk.markStart(commit);
