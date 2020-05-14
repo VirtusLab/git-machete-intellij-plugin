@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+function change_notes_from_git_revision() {
+  local revision=$1
+  # If <change-notes> tag isn't present, xml_grep doesn't output anything and exits with 0.
+  git show "$revision":src/main/resources/META-INF/plugin.xml | xml_grep --text_only change-notes
+}
+
+if [[ ${CI_PULL_REQUEST-} ]]; then
+  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+  pr_num=${CI_PULL_REQUEST##*/}
+  base_branch=$(hub pr show --format=%B "$pr_num")
+
+  if [[ $base_branch == master ]]; then
+    git fetch --quiet origin master
+    head_notes=$(change_notes_from_git_revision HEAD)
+    master_notes=$(change_notes_from_git_revision origin/master)
+
+    if [[ "$head_notes" == "$master_notes" ]]; then
+      die "<change-notes> have not been changed from the current master (commit $(git rev-parse --short origin/master))"
+    fi
+  fi
+fi
