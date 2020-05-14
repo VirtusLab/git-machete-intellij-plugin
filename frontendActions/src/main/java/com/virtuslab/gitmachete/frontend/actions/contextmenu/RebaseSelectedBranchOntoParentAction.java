@@ -47,7 +47,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
       // in case of root branch we do not want to show this option at all
       presentation.setEnabledAndVisible(false);
 
-    } else if (selectedBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
+    } else if (selectedBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.MergedToParent)) {
       presentation.setEnabled(false);
       presentation.setDescription("Can't rebase merged branch '${selectedBranch.get().getName()}'");
 

@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -194,7 +194,7 @@ public class GitMacheteStatusTest {
       sb.append("x");
     else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
       sb.append("?");
-    else if (parentStatus == SyncToParentStatus.Merged)
+    else if (parentStatus == SyncToParentStatus.MergedToParent)
       sb.append("m");
     sb.append("-");
 
@@ -214,14 +214,14 @@ public class GitMacheteStatusTest {
       sb.append(customAnnotation.get());
     }
     var syncToRemote = branch.getSyncToRemoteStatus();
-    if (syncToRemote.getRelation() != InSync) {
+    if (syncToRemote.getRelation() != InSyncToRemote) {
       sb.append(" (");
       sb.append(Match(syncToRemote.getRelation()).of(
-          Case($(Ahead), "ahead of " + syncToRemote.getRemoteName()),
-          Case($(Behind), "behind " + syncToRemote.getRemoteName()),
+          Case($(AheadOfRemote), "ahead of " + syncToRemote.getRemoteName()),
+          Case($(BehindRemote), "behind " + syncToRemote.getRemoteName()),
           Case($(Untracked), "untracked"),
-          Case($(DivergedAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName()),
-          Case($(DivergedAndOlderThanRemote), "diverged from & older than " + syncToRemote.getRemoteName())));
+          Case($(DivergedFromAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName()),
+          Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + syncToRemote.getRemoteName())));
       sb.append(")");
     }
     sb.append(System.lineSeparator());

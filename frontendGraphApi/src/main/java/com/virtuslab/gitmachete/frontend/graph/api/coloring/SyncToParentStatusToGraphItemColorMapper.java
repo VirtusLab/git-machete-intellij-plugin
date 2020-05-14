@@ -9,7 +9,7 @@ public final class SyncToParentStatusToGraphItemColorMapper {
   private SyncToParentStatusToGraphItemColorMapper() {}
 
   private static final Map<SyncToParentStatus, GraphItemColor> ITEM_COLORS = HashMap.of(
-      SyncToParentStatus.Merged, GraphItemColor.GRAY,
+      SyncToParentStatus.MergedToParent, GraphItemColor.GRAY,
       SyncToParentStatus.InSyncButForkPointOff, GraphItemColor.YELLOW,
       SyncToParentStatus.OutOfSync, GraphItemColor.RED,
       SyncToParentStatus.InSync, GraphItemColor.GREEN);

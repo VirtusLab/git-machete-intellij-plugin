@@ -25,7 +25,7 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   protected final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(
-      SyncToRemoteStatus.Relation.Behind);
+      SyncToRemoteStatus.Relation.BehindRemote);
 
   protected void doPull(Project project, GitRepository gitRepository, String branchName) {
     var trackingInfo = gitRepository.getBranchTrackInfo(branchName);

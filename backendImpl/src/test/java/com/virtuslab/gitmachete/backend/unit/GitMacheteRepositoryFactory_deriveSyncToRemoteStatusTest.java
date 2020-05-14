@@ -58,7 +58,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote, status.getRelation());
   }
 
   @Test
@@ -77,7 +77,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote, status.getRelation());
   }
 
   @Test
@@ -95,7 +95,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote, status.getRelation());
   }
 
   @Test
@@ -108,7 +108,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.Ahead, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.AheadOfRemote, status.getRelation());
   }
 
   @Test
@@ -121,7 +121,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.Behind, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.BehindRemote, status.getRelation());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
     SyncToRemoteStatus status = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.InSync, status.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Relation.InSyncToRemote, status.getRelation());
   }
 
   private Option<GitCoreBranchTrackingStatus> getTrackingStatusOption(int ahead, int behind, String remoteName) {

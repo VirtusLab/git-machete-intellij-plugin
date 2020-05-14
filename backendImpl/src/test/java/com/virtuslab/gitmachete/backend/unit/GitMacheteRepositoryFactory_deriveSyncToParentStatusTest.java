@@ -68,7 +68,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
+    Assert.assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
   }
 
   @Test
@@ -116,7 +116,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(branch, parent, MISSING_FORKPOINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.Merged, syncToParentStatus);
+    Assert.assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
   }
 
   @Test

@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 public enum SyncToParentStatus {
-  Merged(0), InSyncButForkPointOff(1), OutOfSync(2), InSync(3);
+  MergedToParent(0), InSyncButForkPointOff(1), OutOfSync(2), InSync(3);
 
   private final int id;
 

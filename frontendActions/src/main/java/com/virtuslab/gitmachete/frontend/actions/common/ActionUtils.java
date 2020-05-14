@@ -77,11 +77,11 @@ public final class ActionUtils {
 
   public static String syncToRemoteStatusRelationToReadableBranchDescription(SyncToRemoteStatus.Relation relation) {
     var desc = Match(relation).of(
-        Case($(SyncToRemoteStatus.Relation.Ahead), "ahead its remote"),
-        Case($(SyncToRemoteStatus.Relation.Behind), "behind its remote"),
-        Case($(SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote), "diverged from (& newer) its remote"),
-        Case($(SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote), "diverged from (& older) its remote"),
-        Case($(SyncToRemoteStatus.Relation.InSync), "in sync to its remote"),
+        Case($(SyncToRemoteStatus.Relation.AheadOfRemote), "ahead of its remote"),
+        Case($(SyncToRemoteStatus.Relation.BehindRemote), "behind its remote"),
+        Case($(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote), "diverged from (& newer than) its remote"),
+        Case($(SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote), "diverged from (& older than) its remote"),
+        Case($(SyncToRemoteStatus.Relation.InSyncToRemote), "in sync to its remote"),
         Case($(SyncToRemoteStatus.Relation.Untracked), "untracked"),
         Case($(), "in unknown status '${relation.toString()}' to its remote"));
     return "the branch is ${desc}";

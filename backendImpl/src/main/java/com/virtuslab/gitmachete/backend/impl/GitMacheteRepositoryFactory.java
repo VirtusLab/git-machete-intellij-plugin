@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Ahead;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Behind;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import java.nio.file.Path;
@@ -245,13 +245,13 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           Instant remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitTime();
           // In case when commit dates are equal we assume that our relation is `DivergedAndNewerThanRemote`
           if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
-            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndOlderThanRemote, trackingStatus.getRemoteName());
+            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, trackingStatus.getRemoteName());
           } else {
             if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
               LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
                   "'DivergedAndNewerThanRemote' sync to remote status");
             }
-            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedAndNewerThanRemote, trackingStatus.getRemoteName());
+            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndNewerThanRemote, trackingStatus.getRemoteName());
           }
         } else {
           // Theoretically this `else` should never happen coz deriveRemoteTrackingStatus() for coreLocalBranch
@@ -261,11 +261,11 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           return SyncToRemoteStatus.of(Untracked, "");
         }
       } else if (trackingStatus.getAhead() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(Ahead, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(AheadOfRemote, trackingStatus.getRemoteName());
       } else if (trackingStatus.getBehind() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(Behind, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(BehindRemote, trackingStatus.getRemoteName());
       } else {
-        syncToRemoteStatus = SyncToRemoteStatus.of(InSync, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(InSyncToRemote, trackingStatus.getRemoteName());
       }
 
       LOG.debug(() -> "Sync to remote status for branch '${coreLocalBranch.getName()}': ${syncToRemoteStatus.toString()}");
@@ -302,7 +302,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           LOG.debug(
               () -> "For this branch (${coreLocalBranch.getName()}) its parent's commit is equal to this branch pointed commit "
                   + "and this branch hasn't been detected as just created, so we assume it's merged");
-          return SyncToParentStatus.Merged;
+          return SyncToParentStatus.MergedToParent;
         }
       } else {
         var isParentAncestorOfChild = gitCoreRepository.isAncestor(
@@ -328,7 +328,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
             LOG.debug(
                 () -> "For this branch (${coreLocalBranch.getName()}) its parent's commit is not ancestor of this branch pointed commit "
                     + "but this branch pointed commit is ancestor of parent branch commit, so we assume that this branch is merged");
-            return SyncToParentStatus.Merged;
+            return SyncToParentStatus.MergedToParent;
           } else {
             LOG.debug(
                 () -> "For this branch (${coreLocalBranch.getName()}) its parent's commit is not ancestor of this branch pointed commit "

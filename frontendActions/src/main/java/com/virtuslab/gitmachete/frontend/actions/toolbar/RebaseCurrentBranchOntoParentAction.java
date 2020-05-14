@@ -47,7 +47,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
       presentation.setDescription("Can't rebase root branch '${currentBranch.get().getName()}'");
       presentation.setEnabled(false);
 
-    } else if (currentBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.Merged)) {
+    } else if (currentBranch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.MergedToParent)) {
       presentation.setEnabled(false);
       presentation.setDescription("Can't rebase merged branch '${currentBranch.get().getName()}'");
 

@@ -128,7 +128,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
-        if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSync) {
+        if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSyncToRemote) {
           SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
               SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
           String remoteStatusLabel = SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getRelation(),

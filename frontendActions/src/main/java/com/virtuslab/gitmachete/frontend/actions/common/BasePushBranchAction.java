@@ -28,9 +28,9 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   protected final List<SyncToRemoteStatus.Relation> PUSH_ELIGIBLE_STATUSES = List.of(
-      SyncToRemoteStatus.Relation.Ahead,
-      SyncToRemoteStatus.Relation.DivergedAndNewerThanRemote,
-      SyncToRemoteStatus.Relation.DivergedAndOlderThanRemote,
+      SyncToRemoteStatus.Relation.AheadOfRemote,
+      SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
+      SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote,
       SyncToRemoteStatus.Relation.Untracked);
 
   @UIEffect
