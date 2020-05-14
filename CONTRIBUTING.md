@@ -31,7 +31,7 @@ Other coding conventions include:
 
 ## Rebuild the CI base image
 
-To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
+To push the rebuilt image, you need a write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
 
 ```
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin-ci .
@@ -45,13 +45,23 @@ We follow [Semantic versioning](semver.org):
 
 * MAJOR version must be bumped for each plugin release that stops supporting any IDEA build (typically when `sinceBuild` is increased). <br/>
   This does not apply to 0->1 major version transition, which is going to happen when the plugin's compatibility range is considered stable.
-* MINOR version must be bumped for each plugin release that either adds a new user-facing feature,
+* MINOR version must be bumped for each plugin release that either adds a new user-facing feature
   or starts supporting a new quarterly (`year.number`) IDEA build (typically when `untilBuild` is increased).
 * PATCH version must be bumped for each plugin release that adds no new user-facing features
   and doesn't change the range of supported IDEA builds.
-* Pre-release version (`d` in `a.b.c-d`) is bumped for each PR merged to `develop` (see PRs & releases below). <br/>
-  Released plugin versions must **never** have a pre-release version indicator (are always of the form `a.b.c`). <br/>
+* Pre-release version (`d` in `a.b.c-d`) must be bumped for each PR merged to `develop` (see PRs & releases below). <br/>
+  Released plugin versions must **never** have a pre-release version indicator (must be of the form `a.b.c`). <br/>
   Non-released plugin versions must **always** have a pre-release version indicator.
+
+### Sample sequence of versions between releases
+
+After a release e.g. `1.0.3`, we might have the following sequence of versions:
+* `1.0.4-1` - note that pre-release identifiers start with one, not zero
+* `1.0.4-2`
+* `1.0.4-3`
+* `1.1.0-1` - coz we've just adding new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
+* `1.1.0-2`
+* `1.1.0` - finally releasing as minor release; as a consequence, `1.0.4` never actually gets released
 
 
 ## PRs & releases
@@ -60,7 +70,7 @@ Each PR must bump the version (see [version.gradle](version.gradle)) comparing t
 
 Each regular (non-hotfix, non-release) PR is ultimately merged to `develop` and must have a non-empty pre-release version. <br/>
 Stacked PRs (Y -> X -> `develop`) are never merged until their base is finally changed to `develop`.
-They're must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
+They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
 Each release PR (from `develop` to `master`) must not have a pre-release version.
 Once the release PR is merged, `master` is built. <br/>
