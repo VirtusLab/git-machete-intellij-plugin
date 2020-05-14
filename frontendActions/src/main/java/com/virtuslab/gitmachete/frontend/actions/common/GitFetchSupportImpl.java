@@ -10,7 +10,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -48,6 +47,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import kotlin.jvm.functions.Function1;
 import lombok.AllArgsConstructor;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
@@ -73,14 +73,15 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     this.project = project;
   }
 
-  private static final AtomicReference<@Nullable GitFetchSupportImpl> INSTANCE = new AtomicReference<>(null);
+  @MonotonicNonNull
+  private static GitFetchSupportImpl instance = null;
 
-  public static GitFetchSupportImpl fetchSupport(Project project) {
-    var gitFetchSupport = INSTANCE.get();
+  @SuppressWarnings("regexp")
+  public static synchronized GitFetchSupportImpl fetchSupport(Project project) {
+    var gitFetchSupport = instance;
     if (gitFetchSupport == null) {
-      var newValue = new GitFetchSupportImpl(project);
-      INSTANCE.set(newValue);
-      return newValue;
+      gitFetchSupport = new GitFetchSupportImpl(project);
+      instance = gitFetchSupport;
     }
     return gitFetchSupport;
   }
@@ -278,8 +279,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
         ? List.of(recurseSubmodules, updateHeadOk)
         : List.of(refspec, recurseSubmodules, updateHeadOk);
 
-    GitImpl instance = (GitImpl) Git.getInstance();
-    var result = instance.fetch(repository, remote, Collections.emptyList(), authenticationGate,
+    GitImpl gitInstance = (GitImpl) Git.getInstance();
+    var result = gitInstance.fetch(repository, remote, Collections.emptyList(), authenticationGate,
         params.toJavaArray(String[]::new));
     var pruned = List.ofAll(result.getOutput()).map(this::getPrunedRef).filter(r -> r.isEmpty()).collect(List.collector());
 
