@@ -9,7 +9,11 @@ jobs:
       - checkout
       - run:
           name: Run pre-build checks
-          command: bash -x ./scripts/run-pre-build-checks
+          command: |
+            # Remove once `xml-twig-tools` package is baked into the Docker image
+            apt-get update && apt-get install -y --no-install-recommends xml-twig-tools
+
+            bash -x ./scripts/run-pre-build-checks
       - run:
           name: Start gradle daemon
           command: ./gradlew
