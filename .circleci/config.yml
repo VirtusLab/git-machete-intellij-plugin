@@ -84,7 +84,11 @@ workflows:
   version: 2
   workflow:
     jobs:
-      - build
+      - build:
+          filters:
+            # This filter does not deal with pull requests, all PR commits all built regardless of base/head branch.
+            branches:
+              only: [ develop, master ]
       - hold: # A job that will require manual approval in the CircleCI web application.
           type: approval
           requires: [build]
