@@ -17,7 +17,7 @@ function fail() {
 
 jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intellij-plugin/lib/).*\.jar' | sort)
 
-gradle_projects=$(cat settings.gradle | grep -Po "(?<=').*(?=')" | sort)
+gradle_projects=$(cat settings.gradle | grep -Po "(?<=^include ').*(?=')" | sort)
 for project in $gradle_projects; do
   expected_jar="$project-$plugin_version"
   grep -qEx "$expected_jar(-.*|\+.*|)\.jar" <<< "$jars_in_plugin_zip" || fail "$expected_jar*.jar is expected but missing from $plugin_zip"

@@ -32,7 +32,7 @@ jobs:
           command: ./gradlew compileTestJava
       - run:
           name: Run backend tests
-          command: ./gradlew -x :uiTests:compileTestScala test
+          command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
           path: branchLayoutImpl/build/test-results/
@@ -74,7 +74,7 @@ jobs:
             sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'
       - run:
           name: Compile UI tests
-          command: ./gradlew :uiTests:compileTestScala
+          command: ./gradlew -PrunUiTests :uiTests:compileTestScala
       - run:
           name: Run UI tests
           command: |
