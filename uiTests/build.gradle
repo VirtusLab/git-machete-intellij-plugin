@@ -16,13 +16,5 @@ dependencies {
 }
 
 test {
-  // Exclude UI tests when running `./gradlew test`, unless a `-PrunUiTests` Gradle flag is provided.
-  def runUiTests = project.hasProperty('runUiTests')
-
-  onlyIf {
-    runUiTests
-  }
-  if (runUiTests) {
-    dependsOn ':buildPlugin'
-  }
+  dependsOn ':buildPlugin'
 }

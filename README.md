@@ -72,10 +72,10 @@ To run UI tests locally, first:
 * execute `sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'`; <br>
   this should publish the artifacts to a local Maven repo under `~/.m2/repository`.
 
-UI tests are by default excluded from `./gradlew test` unless `runUiTests` property is set:
+UI tests are by default excluded from `./gradlew test` unless `enableUiTests` property is set:
 
 ```
-./gradlew -PrunUiTests --info test
+./gradlew -PenableUiTests --info test
 ```
 
 Note that the first execution might take a couple of minutes since IntelliJ zips need to be downloaded (~500MB each). <br/>

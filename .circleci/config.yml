@@ -74,7 +74,7 @@ jobs:
             sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'
       - run:
           name: Compile UI tests
-          command: ./gradlew -PrunUiTests :uiTests:compileTestScala
+          command: ./gradlew -PenableUiTests :uiTests:compileTestScala
       - run:
           name: Run UI tests
           command: |
@@ -90,10 +90,10 @@ jobs:
             ###
 
             # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
-            # runUiTests: see uiTests/build.gradle
+            # enableUiTests: see uiTests/build.gradle
             # debug: let's leave it for some time until we're sure that these tests are reliable
             ./gradlew --stop
-            ./gradlew -PrunUiTests --debug --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M :uiTests:test
+            ./gradlew -PenableUiTests --debug --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M :uiTests:test
       - store_test_results:
           path: uiTests/build/test-results/
 
