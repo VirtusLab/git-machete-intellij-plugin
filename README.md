@@ -60,9 +60,17 @@ execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runId
 
 ### Run UI tests
 
-This repo ships with a JUnit driver fat jar (see `uiTests/lib/junit-driver-assembly-0.1.jar`) for UI tests,
-built using `sbt junitDriver/assembly` out of https://github.com/VirtuslabRnD/ide-probe/pull/97, commit `350189f7`,
-courtesy of [@lukaszwawrzyk](https://github.com/lukaszwawrzyk).
+This repo requires artifacts of [ide-probe](https://github.com/VirtuslabRnD/ide-probe) to be available in the local Maven repository
+to perform non-headless UI tests of the plugin. <br/>
+Unfortunately, as for now we can't make the repository public and/or publish those artifacts to JCenter/Bintray due to VirtusLab's client's policy. <br>
+Kudos for [@lukaszwawrzyk](https://github.com/lukaszwawrzyk) for making ide-probe available for use in this project.
+
+To run UI tests locally, first:
+* install [sbt](https://www.scala-sbt.org/download.html)
+* clone [ide-probe](https://github.com/VirtuslabRnD/ide-probe)
+* inside ide-probe project folder, checkout `master` as of 2020-05-14: `git checkout 674acde5e17d9479733dd55faf880ea162248e37`
+* execute `sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'`; <br>
+  this should publish the artifacts to a local Maven repo under `~/.m2/repository`.
 
 UI tests are by default excluded from `./gradlew test` unless `runUiTests` property is set:
 

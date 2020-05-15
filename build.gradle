@@ -47,8 +47,8 @@ dependencyUpdates {
   }
 }
 
-
 allprojects {
+  apply plugin: 'org.ajoberstar.grgit'
   def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
   def maybeSnapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
   def shortCommitHash = "+git.${git.head().abbreviatedId}"
@@ -68,6 +68,7 @@ allprojects {
     betterStringsVerson = '0.3'
     checkerVersion = '3.4.0'
     checkstyleToolVersion = '8.30'
+    ideProbeJunitDriverVersion = '0.1'
     // The following places must also be updated when updating the version below:
     // * `patchPluginXml.untilBuild` in root Gradle project config in this file
     // * `intellij_versions` in scripts/verify-binary-compatibility
@@ -80,7 +81,10 @@ allprojects {
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.7'
     reflectionsVersion = '0.9.12'
-    scalaVersion = '2.13.1'
+    // Yes, `2` in case of Scala is an "epoch", and `13` is major release
+    // (b/c 2.13 is binary incompatible with 2.12, 2.12 incompatible with 2.11 etc.)
+    scalaVersionMajor = '2.13'
+    scalaVersion = "${scalaVersionMajor}.1"
     slf4jLambdaApiVersion = '0.1'
     slf4jVersion = '1.7.30'
     vavrVersion = '0.10.3'
@@ -276,6 +280,12 @@ subprojects {
         checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
         def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
         extraJavacArgs += "-AqualDirs=${qualClassDir}"
+      }
+    }
+
+    ideProbeJunitDriver = { ->
+      dependencies {
+        testImplementation group: 'com.virtuslab.ideprobe', name: "junit-driver_${scalaVersionMajor}", version: ideProbeJunitDriverVersion
       }
     }
 

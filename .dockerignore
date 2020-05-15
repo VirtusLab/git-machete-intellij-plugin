@@ -13,7 +13,6 @@ Dockerfile
 .gitignore
 .gradle/
 .idea/
-**/lib/
 LICENSE
 **/lombok.config
 *.md

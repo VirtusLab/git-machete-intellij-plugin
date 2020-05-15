@@ -2,6 +2,12 @@ plugins {
   id 'org.gradle.scala'
 }
 
+// TODO (#274): use artifacts published on Bintray/JCenter instead
+repositories {
+  mavenLocal()
+}
+
+ideProbeJunitDriver()
 junit()
 scala()
 
@@ -19,8 +25,4 @@ test {
   if (runUiTests) {
     dependsOn ':buildPlugin'
   }
-}
-
-dependencies {
-  testImplementation fileTree(dir: 'lib', include: '*.jar')
 }

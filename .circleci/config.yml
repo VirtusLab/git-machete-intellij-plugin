@@ -29,10 +29,10 @@ jobs:
 
       - run:
           name: Compile backend tests
-          command: ./gradlew compileTestJava compileTestScala
+          command: ./gradlew compileTestJava
       - run:
           name: Run backend tests
-          command: ./gradlew test
+          command: ./gradlew -x :uiTests:compileTestScala test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
           path: branchLayoutImpl/build/test-results/
@@ -51,6 +51,30 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./scripts/verify-binary-compatibility
+
+      - run:
+          # TODO (#274): use artifacts published on Bintray/JCenter instead
+          # Note: this step (at least building&publishing the ide-probe artifacts) can't be baked into the Docker image
+          # since the VirtuslabRnD/ide-probe is a private repository as for now,
+          # and also we can't publish the binary artifacts due to VL's client's policies.
+          name: Prepare prerequisites for UI tests
+          command: |
+            set -x
+            apt-get update
+            apt-get install -y gnupg
+            echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
+            curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add
+            apt-get update
+            apt-get install -y sbt
+            git clone https://${GITHUB_TOKEN}@github.com/VirtuslabRnD/ide-probe.git ~/ide-probe
+            cd ~/ide-probe/
+            git checkout 674acde5e17d9479733dd55faf880ea162248e37  # master as of 2020-05-14
+            # Actually, all the commands up to this point take ~30 seconds;
+            # it's sbt invocation itself that's the most time-consuming.
+            sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'
+      - run:
+          name: Compile UI tests
+          command: ./gradlew :uiTests:compileTestScala
       - run:
           name: Run UI tests
           command: |

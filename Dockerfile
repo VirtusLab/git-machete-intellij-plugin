@@ -12,7 +12,7 @@ RUN set -x \
     curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xxd unzip \
     `# tools necessary to run non-headless UI tests in the headless environment of CI` \
     libx11-6 libxrender1 libxtst6 xvfb \
-  && pip3 install git-machete==2.13.6 \
+  && pip3 install git-machete==2.14.0 \
   && apt-get purge --autoremove -y python3-pip \
   && rm -rf /var/lib/apt/lists/*
 
