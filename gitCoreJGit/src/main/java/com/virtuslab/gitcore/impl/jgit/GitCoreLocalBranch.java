@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.Constants;
@@ -138,6 +139,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
   }
 
   @Override
+  @SuppressWarnings("aliasing:enhancedfor.type.incompatible")
   public Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}'");
     LOG.debug("Getting local branches reflog lists");
@@ -179,14 +181,17 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
+    @Unique RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
     try {
       walk.markStart(commit);
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
 
-    for (RevCommit currentBranchCommit : walk) {
+    // There's apparently no way for AliasingChecker to work correctly with generics
+    // (in particular, with enhanced `for` loops, which are essentially syntax sugar over Iterator<...>);
+    // hence we need to suppress `aliasing:enhancedfor.type.incompatible` here.
+    for (@Unique RevCommit currentBranchCommit : walk) {
       boolean currentBranchCommitInReflogs = filteredReflogEntries
           .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
       if (currentBranchCommitInReflogs) {

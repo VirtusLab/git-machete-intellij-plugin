@@ -274,6 +274,12 @@ subprojects {
       }
     }
 
+    applyAliasingChecker = { ->
+      checkerFramework {
+        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
+      }
+    }
+
     applySubtypingChecker = { ->
       dependencies {
         implementation project(':qual')

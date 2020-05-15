@@ -99,9 +99,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     initColumns();
 
-    @SuppressWarnings("guieffect:assignment.type.incompatible")
-    @AlwaysSafe
-    BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(/* table */ this, graphCellPainter);
+    @SuppressWarnings("guieffect:assignment.type.incompatible") @AlwaysSafe BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(
+        /* table */ this, graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
     setCellSelectionEnabled(false);

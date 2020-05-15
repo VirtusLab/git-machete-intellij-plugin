@@ -140,6 +140,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="^.*(?&lt;!@Unique |@NonLeaked |import org\.eclipse\.jgit\.revwalk\.)\bRevCommit\b"/>
+    <property name="message" value="RevCommit is mutable and thus unsafe when leaked; always mark RevCommits as @org.checkerframework.common.aliasing.qual.Unique"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bupdateUI\b"/>
     <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()"/>
 </module>

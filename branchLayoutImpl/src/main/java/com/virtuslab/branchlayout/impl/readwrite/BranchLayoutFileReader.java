@@ -171,8 +171,9 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
             "One of branches in branch layout file (${path.toAbsolutePath()}) has incorrect level in relation to its parent branch");
       }
 
-      @SuppressWarnings("index:argument.type.incompatible")
-      Integer upstreamLineIndex = level <= 0 ? -1 : levelToPresentUpstream.get(level - 1);
+      @SuppressWarnings("index:argument.type.incompatible") Integer upstreamLineIndex = level <= 0
+          ? -1
+          : levelToPresentUpstream.get(level - 1);
       Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level, upstreamLineIndex);
 
       // Can't use lambda because `realLineNumber` and `lineIndex` are not effectively final

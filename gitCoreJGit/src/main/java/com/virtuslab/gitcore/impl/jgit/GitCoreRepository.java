@@ -10,6 +10,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -161,8 +162,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  @Nullable
-  private RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
+  private @Nullable @Unique RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     RevWalk walk = new RevWalk(jgitRepo);
     walk.setRevFilter(RevFilter.MERGE_BASE);
@@ -176,9 +176,9 @@ public class GitCoreRepository implements IGitCoreRepository {
       //   then there is exactly one merge-base - the ancestor,
       // * if neither of c1, c2 is an ancestor of another,
       //   then none of the (possibly more than one) merge-bases is equal to either of c1/c2 anyway.
-      RevCommit mergeBase = walk.next();
+      @Unique RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
-          "and ${c2.getHash().getHashString()} is ${mergeBase}");
+          "and ${c2.getHash().getHashString()} is ${mergeBase.toString()}");
       return mergeBase;
     } catch (IOException e) {
       throw new GitCoreException(e);
@@ -203,8 +203,8 @@ public class GitCoreRepository implements IGitCoreRepository {
           () -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
-      var mergeBase = deriveMergeBase(a, b);
-      GitCoreCommitHash mergeBaseHash = mergeBase != null ? GitCoreCommitHash.of(mergeBase) : null;
+      @Unique RevCommit mergeBase = deriveMergeBase(a, b);
+      GitCoreCommitHash mergeBaseHash = mergeBase != null ? new GitCoreCommitHash(mergeBase.getId().getName()) : null;
       mergeBaseCache.put(abKey, mergeBaseHash);
       return mergeBaseHash;
     }

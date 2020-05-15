@@ -109,8 +109,7 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
 
   @UIEffect
   private void doPush(Project project, GitRepository preselectedRepository, String branchName) {
-    @Nullable
-    GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
+    @Nullable GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
 
     if (localBranch != null) {
       java.util.List<GitRepository> selectedRepositories = Collections.singletonList(preselectedRepository);

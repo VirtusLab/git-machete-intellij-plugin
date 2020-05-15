@@ -9,6 +9,7 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -52,36 +53,30 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
   public abstract String getBranchTypeString(boolean capitalized);
 
-  @SuppressWarnings("regexp")
+  @SuppressWarnings("regexp") // to allow `synchronized`
   @Override
   public synchronized GitCoreCommit getPointedCommit() throws GitCoreException {
     if (pointedCommit == null) {
       var revStr = getFullName();
-      var revCommit = resolveRevCommit(revStr);
+      @Unique RevCommit revCommit = resolveRevCommit(revStr);
       pointedCommit = new GitCoreCommit(revCommit);
     }
     return pointedCommit;
   }
 
-  /**
-   * - - - IMPORTANT NOTE - - -
-   * Bear in mind that RevCommit is a mutable object.
-   * Its internal state (inDegree, flags) changes during a rev walk (among others).
-   * To avoid potential bugs:
-   * - reinstance instead of reuse; this method provides "clean" instance based on a String revision
-   * - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged
-   * This comment applies everywhere.
-   *
-   * @param revStr revision String
-   *
-   * @throws GitCoreException unable to resolve the revision
-   *
-   * @return {@link RevCommit} specified by {@code revStr}
-   */
-  protected RevCommit resolveRevCommit(String revStr) throws GitCoreException {
+  // - - - IMPORTANT NOTE - - -
+  // Bear in mind that RevCommit is a mutable object.
+  // Its internal state (inDegree, flags) changes during a rev walk (among others).
+  // To avoid potential bugs:
+  // - reinstantiate instead of reuse; this method provides a "clean" instance based on the given String revision
+  // - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged.
+  // This comment applies everywhere in the codebase.
+  // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
+  // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
+  protected @Unique RevCommit resolveRevCommit(String revStr) throws GitCoreException {
     Repository jgitRepo = repo.getJgitRepo();
     RevWalk rw = new RevWalk(jgitRepo);
-    RevCommit c;
+    @Unique RevCommit c;
     try {
       ObjectId o = jgitRepo.resolve(revStr);
       if (o == null) {
@@ -104,7 +99,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
+    @Unique RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
 
     RevWalk revWalk = Try.of(() -> {
       walk.markStart(commit);

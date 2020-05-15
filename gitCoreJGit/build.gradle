@@ -1,6 +1,8 @@
 jgit()
 vavr()
 
+applyAliasingChecker()
+
 dependencies {
   implementation project(':logging')
 

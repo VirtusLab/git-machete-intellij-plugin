@@ -36,8 +36,7 @@ public class RepositoryGraph implements IRepositoryGraph {
    */
   public List<GraphEdge> getAdjacentEdges(@NonNegative int itemIndex) {
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
-    @SuppressWarnings("upperbound:argument.type.incompatible")
-    IGraphItem currentItem = items.get(itemIndex);
+    @SuppressWarnings("upperbound:argument.type.incompatible") IGraphItem currentItem = items.get(itemIndex);
 
     if (itemIndex > 0) {
       int upNodeIndex = currentItem.getPrevSiblingItemIndex();

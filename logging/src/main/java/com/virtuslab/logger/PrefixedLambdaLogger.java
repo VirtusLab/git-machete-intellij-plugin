@@ -17,8 +17,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     // #1: com.virtuslab.logger.MacheteLogger#<init>
     // #2: com.virtuslab.logger.MacheteLoggerFactory#getLogger
     // #3: method from which MacheteLoggerFactory#getLogger was called
-    @SuppressWarnings("upperbound")
-    StackTraceElement element = Thread.currentThread().getStackTrace()[3];
+    @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[3];
     String[] classPath = element.getClassName().split("\\.");
     className = classPath[classPath.length - 1];
   }
@@ -32,8 +31,7 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     // #4: kr.pe.kwonnam.slf4jlambda.LambdaLogger#debug
     // #5: com.virtuslab.logger.MacheteLogger#debug
     // #6: method from which IMacheteLogger.<logMethod> was called;
-    @SuppressWarnings("upperbound")
-    StackTraceElement element = Thread.currentThread().getStackTrace()[6];
+    @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[6];
     return className + "#" + element.getMethodName() + ": ";
   }
 
