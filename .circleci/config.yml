@@ -113,6 +113,13 @@ jobs:
       - attach_workspace:
           at: .
       - deploy:
+          name: Push git tag
+          command: |
+            source scripts/utils.sh
+            tag=v$(extract_version_from_current_wd)
+            git tag "$tag"
+            git push https://${GITHUB_TOKEN}@github.com/Virtuslab/git-machete-intellij-plugin.git "$tag"
+      - deploy:
           name: Publish plugin to Jetbrains Marketplace
           command: ./gradlew publishPlugin
 

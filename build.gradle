@@ -48,20 +48,25 @@ dependencyUpdates {
 }
 
 allprojects {
-  def maybeSnapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
-  def maybeShortCommitHash = ''
-  def maybeDirty = ''
-  if (file("$rootDir/.git").exists()) {
-    // To make sure it's safe for Docker image builds
-    def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
-    maybeShortCommitHash = "+git.${git.head().abbreviatedId}"
-    maybeDirty = git.status().clean ? '' : '-dirty'
-    git.close()
-  }
-
   group 'com.virtuslab'
+
   apply from: "$rootDir/version.gradle"
-  version "${PLUGIN_VERSION}${maybeSnapshot}${maybeShortCommitHash}${maybeDirty}"
+  def ciBranch = System.getenv('CIRCLE_BRANCH')
+  if (ciBranch == 'master') {
+    version PLUGIN_VERSION
+  } else if (!file("$rootDir/.git").exists()) {
+    // To make sure it's safe for Docker image builds where .git folder is unavailable
+    version "${PLUGIN_VERSION}-SNAPSHOT"
+  } else {
+    def maybeSnapshot = ciBranch == 'develop' ? '' : '-SNAPSHOT'
+
+    def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
+    def shortCommitHash = git.head().abbreviatedId
+    def maybeDirty = git.status().clean ? '' : '-dirty'
+    git.close()
+
+    version "${PLUGIN_VERSION}${maybeSnapshot}+git.${shortCommitHash}${maybeDirty}"
+  }
 
   repositories {
     jcenter()
