@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+set -x
+status_branch_hook=$(cat <<'EOF'
+#!/usr/bin/env bash
+git log -1 --format=%cd  # commit timestamp of the branch tip
+EOF
+)
+
 newrepo() {
   if (( $# < 2 ))
   then
@@ -12,6 +19,10 @@ newrepo() {
   cd $path/$dir
   opt=${3-}
   git init $opt
+  mkdir -p .git/hooks/
+  hook_path=.git/hooks/machete-status-branch
+  echo "$status_branch_hook" > $hook_path
+  chmod +x $hook_path
 }
 
 newb() {

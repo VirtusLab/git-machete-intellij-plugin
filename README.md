@@ -57,6 +57,8 @@ To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g.
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runIde` or `./gradlew runIde`).
 
+To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
+
 
 ### Run UI tests
 

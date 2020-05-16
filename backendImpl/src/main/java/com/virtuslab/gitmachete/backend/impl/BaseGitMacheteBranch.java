@@ -19,18 +19,23 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable IGitMacheteRemoteBranch remoteBranch;
   private final @Nullable String customAnnotation;
+  private final @Nullable String statusHookOutput;
 
-  protected BaseGitMacheteBranch(String name, List<GitMacheteNonRootBranch> downstreamBranches,
+  protected BaseGitMacheteBranch(
+      String name,
+      List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
       @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
-      @Nullable String customAnnotation) {
+      @Nullable String customAnnotation,
+      @Nullable String statusHookOutput) {
     this.name = name;
     this.downstreamBranches = downstreamBranches;
     this.pointedCommit = pointedCommit;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.remoteBranch = remoteBranch;
     this.customAnnotation = customAnnotation;
+    this.statusHookOutput = statusHookOutput;
   }
 
   @Override
@@ -41,6 +46,11 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
+  }
+
+  @Override
+  public Option<String> getStatusHookOutput() {
+    return Option.of(statusHookOutput);
   }
 
   @Override

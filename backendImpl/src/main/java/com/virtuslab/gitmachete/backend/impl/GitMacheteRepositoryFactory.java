@@ -37,6 +37,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -60,8 +61,10 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
             e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
                 "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
 
+    var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
+
     var rootBranchTries = branchLayout.getRootEntries()
-        .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, entry)));
+        .map(entry -> Try.of(() -> createGitMacheteRootBranch(gitCoreRepository, statusHookExecutor, entry)));
     var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
 
     var branchByName = createBranchByNameMap(rootBranches);
@@ -89,9 +92,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     return branchByName;
   }
 
-  private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
+  private GitMacheteRootBranch createGitMacheteRootBranch(
+      IGitCoreRepository gitCoreRepository,
+      StatusBranchHookExecutor statusHookExecutor,
       IBranchLayoutEntry entry) throws GitMacheteException {
-    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
+    var branchName = entry.getName();
+    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(branchName))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
@@ -100,19 +106,23 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
-    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, statusHookExecutor, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
+    var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-    return new GitMacheteRootBranch(entry.getName(), downstreamBranches, pointedCommit,
-        remoteBranch, syncToRemoteStatus, customAnnotation);
+    return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit,
+        remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
+      StatusBranchHookExecutor statusHookExecutor,
       IGitCoreLocalBranch parentEntryCoreLocalBranch,
       IBranchLayoutEntry entry)
       throws GitMacheteException {
 
-    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
+    var branchName = entry.getName();
+
+    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(branchName))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     Option<IGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
@@ -135,11 +145,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
         deducedForkPoint.getOrNull());
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
-    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, statusHookExecutor, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
+    var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-    return new GitMacheteNonRootBranch(entry.getName(), downstreamBranches, pointedCommit,
-        remoteBranch, syncToRemoteStatus, customAnnotation, forkPoint, commits, syncToParentStatus);
+    return new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit,
+        remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint, commits, syncToParentStatus);
   }
 
   @Nullable
@@ -216,11 +227,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
   private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
       IGitCoreRepository gitCoreRepository,
+      StatusBranchHookExecutor statusHookExecutor,
       IGitCoreLocalBranch parentCoreLocalBranch,
       IBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
 
     var downstreamBranchTries = directUpstreamEntry.getSubentries().map(entry -> Try.of(
-        () -> createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry)));
+        () -> createGitMacheteNonRootBranch(gitCoreRepository, statusHookExecutor, parentCoreLocalBranch, entry)));
     var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitMacheteException::castOrWrap);
     return List.ofAll(downstreamBranches);
   }

@@ -34,9 +34,11 @@ public interface IGitMacheteBranch {
 
   List<IGitMacheteNonRootBranch> getDownstreamBranches();
 
-  Option<String> getCustomAnnotation();
-
   SyncToRemoteStatus getSyncToRemoteStatus();
 
   Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch();
+
+  Option<String> getCustomAnnotation();
+
+  Option<String> getStatusHookOutput();
 }

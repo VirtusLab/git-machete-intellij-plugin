@@ -38,21 +38,17 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
+      @Nullable String statusHookOutput,
       @Nullable IGitMacheteCommit forkPoint,
       List<IGitMacheteCommit> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation);
+    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
-    LOG.debug(
-        () -> "Creating ${getClass().getSimpleName()}(" +
-            "name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, " +
-            "pointedCommit = ${pointedCommit.getHash()}, syncToRemoteStatus = ${syncToRemoteStatus}, " +
-            "customAnnotation = ${customAnnotation}), " +
-            "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, commits.length() = ${commits.length()}, " +
-            "syncToParentStatus = ${syncToParentStatus}");
     this.forkPoint = forkPoint;
     this.commits = commits;
     this.syncToParentStatus = syncToParentStatus;
+
+    LOG.debug("Creating ${this}");
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
