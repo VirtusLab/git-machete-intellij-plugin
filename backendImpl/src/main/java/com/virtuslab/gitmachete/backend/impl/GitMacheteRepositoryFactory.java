@@ -20,17 +20,17 @@ import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitcore.api.BaseGitCoreCommit;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -66,7 +66,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     var branchByName = createBranchByNameMap(rootBranches);
 
-    BaseGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
+    IGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
         .flatMap(cb -> branchByName.get(cb.getName()))
         .getOrNull();
@@ -76,9 +76,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
 
-  private Map<String, BaseGitMacheteBranch> createBranchByNameMap(Seq<GitMacheteRootBranch> rootBranches) {
-    Map<String, BaseGitMacheteBranch> branchByName = HashMap.empty();
-    Queue<BaseGitMacheteBranch> queue = Queue.ofAll(rootBranches);
+  private Map<String, IGitMacheteBranch> createBranchByNameMap(Seq<GitMacheteRootBranch> rootBranches) {
+    Map<String, IGitMacheteBranch> branchByName = HashMap.empty();
+    Queue<IGitMacheteBranch> queue = Queue.ofAll(rootBranches);
     // BFS over all branches
     while (queue.nonEmpty()) {
       var headAndTail = queue.dequeue();
@@ -90,35 +90,35 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   }
 
   private GitMacheteRootBranch createGitMacheteRootBranch(IGitCoreRepository gitCoreRepository,
-      BaseBranchLayoutEntry entry) throws GitMacheteException {
+      IBranchLayoutEntry entry) throws GitMacheteException {
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
+    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
     var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
-    var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
-    return new GitMacheteRootBranch(entry.getName(), subbranches, pointedCommit, remoteBranch, syncToRemoteStatus,
-        customAnnotation);
+    return new GitMacheteRootBranch(entry.getName(), downstreamBranches, pointedCommit,
+        remoteBranch, syncToRemoteStatus, customAnnotation);
   }
 
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch parentEntryCoreLocalBranch,
-      BaseBranchLayoutEntry entry)
+      IBranchLayoutEntry entry)
       throws GitMacheteException {
 
     IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(entry.getName()))
         .getOrElseThrow(e -> new GitMacheteException(e));
 
-    Option<BaseGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
+    Option<IGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
         parentEntryCoreLocalBranch);
 
-    BaseGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
+    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     // translate IGitCoreCommit list to IGitMacheteCommit list
@@ -135,11 +135,11 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
         deducedForkPoint.getOrNull());
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
-    var subbranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
+    var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
 
-    return new GitMacheteNonRootBranch(entry.getName(), subbranches, forkPoint, pointedCommit,
-        commits, remoteBranch, syncToRemoteStatus, syncToParentStatus, customAnnotation);
+    return new GitMacheteNonRootBranch(entry.getName(), downstreamBranches, pointedCommit,
+        remoteBranch, syncToRemoteStatus, customAnnotation, forkPoint, commits, syncToParentStatus);
   }
 
   @Nullable
@@ -149,14 +149,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     Option<IGitCoreRemoteBranch> remoteBranchOption = coreLocalBranch.getRemoteTrackingBranch();
     if (remoteBranchOption.isDefined()) {
       IGitCoreRemoteBranch coreRemoteBranch = remoteBranchOption.get();
-      BaseGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.getPointedCommit())
+      IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.getPointedCommit())
           .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
       remoteBranch = new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
     }
     return remoteBranch;
   }
 
-  private Option<BaseGitCoreCommit> deduceForkPoint(
+  private Option<IGitCoreCommit> deduceForkPoint(
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
@@ -217,7 +217,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch parentCoreLocalBranch,
-      BaseBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
+      IBranchLayoutEntry directUpstreamEntry) throws GitMacheteException {
 
     var downstreamBranchTries = directUpstreamEntry.getSubentries().map(entry -> Try.of(
         () -> createGitMacheteNonRootBranch(gitCoreRepository, parentCoreLocalBranch, entry)));
@@ -281,14 +281,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch,
-      @Nullable BaseGitCoreCommit forkPoint)
+      @Nullable IGitCoreCommit forkPoint)
       throws GitMacheteException {
     LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
         "coreLocalBranch = '${coreLocalBranch.getName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}', "
         + "forkPoint = ${forkPoint != null ? forkPoint.getHash().getHashString() : \"null\"})");
     try {
-      BaseGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
-      BaseGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
+      IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
+      IGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
 
       LOG.debug(() -> "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}; " +
           "pointedCommit = ${pointedCommit.getHash().getHashString()}");

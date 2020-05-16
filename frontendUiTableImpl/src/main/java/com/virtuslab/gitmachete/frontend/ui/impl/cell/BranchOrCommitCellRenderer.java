@@ -27,7 +27,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
@@ -121,7 +121,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
       if (graphItem.isBranchItem()) {
         IBranchItem branchItem = graphItem.asBranchItem();
-        BaseGitMacheteBranch branch = branchItem.getBranch();
+        IGitMacheteBranch branch = branchItem.getBranch();
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
           append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);

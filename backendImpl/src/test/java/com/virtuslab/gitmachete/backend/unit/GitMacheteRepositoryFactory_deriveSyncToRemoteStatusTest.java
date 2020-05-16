@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
-import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
@@ -20,8 +20,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
 
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
   private final IGitCoreRemoteBranch coreRemoteBranch = PowerMockito.mock(IGitCoreRemoteBranch.class);
-  private final BaseGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(BaseGitCoreCommit.class);
-  private final BaseGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(BaseGitCoreCommit.class);
+  private final IGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
+  private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
 
   private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
     return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryFactory.class),

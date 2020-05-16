@@ -20,17 +20,17 @@ public final class NullRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public List<BaseGitMacheteRootBranch> getRootBranches() {
+  public List<IGitMacheteRootBranch> getRootBranches() {
     return List.empty();
   }
 
   @Override
-  public Option<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Option.none();
   }
 
   @Override
-  public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
+  public Option<IGitMacheteBranch> getBranchByName(String branchName) {
     return Option.none();
   }
 }

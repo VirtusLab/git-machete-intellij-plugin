@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 public interface IGitRebaseParameters {
-  BaseGitMacheteBranch getCurrentBranch();
+  IGitMacheteBranch getCurrentBranch();
 
   IGitMacheteCommit getNewBaseCommit();
 

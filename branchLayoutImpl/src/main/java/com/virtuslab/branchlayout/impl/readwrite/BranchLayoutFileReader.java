@@ -10,8 +10,8 @@ import io.vavr.control.Try;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
@@ -35,7 +35,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
-    List<BaseBranchLayoutEntry> roots = List.empty();
+    List<IBranchLayoutEntry> roots = List.empty();
     if (!linesWithoutBlank.isEmpty()) {
       Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(path, indentSpec,
           lines);
@@ -92,7 +92,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * @return list of entries with recursively built lists of subentries
    */
   @SuppressWarnings("index:argument.type.incompatible")
-  private List<BaseBranchLayoutEntry> buildEntriesStructure(List<String> lines,
+  private List<IBranchLayoutEntry> buildEntriesStructure(List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
       @GTENegativeOne int upstreamLineIndex) {
     LOG.debug(() -> "Entering: lines = ${lines}, lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, " +
@@ -109,7 +109,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * Parses line to {@link BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
    * entry with the specified {@code subentries}.
    */
-  private BaseBranchLayoutEntry createEntry(String line, List<BaseBranchLayoutEntry> subentries) {
+  private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> subentries) {
     LOG.debug(() -> "Entering: line = '${line}', subentries = ${subentries}");
 
     String trimmedLine = line.trim();

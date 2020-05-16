@@ -22,10 +22,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 
-import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -152,7 +152,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .isEmpty();
   }
 
-  private ObjectId toExistingObjectId(BaseGitCoreCommit c) throws GitCoreException {
+  private ObjectId toExistingObjectId(IGitCoreCommit c) throws GitCoreException {
     try {
       ObjectId result = jgitRepo.resolve(c.getHash().getHashString());
       assert result != null : "Invalid commit ${c}";
@@ -162,7 +162,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private @Nullable @Unique RevCommit deriveMergeBase(BaseGitCoreCommit c1, BaseGitCoreCommit c2) throws GitCoreException {
+  private @Nullable @Unique RevCommit deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     RevWalk walk = new RevWalk(jgitRepo);
     walk.setRevFilter(RevFilter.MERGE_BASE);
@@ -187,10 +187,10 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   // Note that this cache can be static since merge-base for the given two commits
   // will never change thanks to git commit graph immutability.
-  private static final java.util.Map<Tuple2<BaseGitCoreCommit, BaseGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
+  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
 
   @Nullable
-  private GitCoreCommitHash deriveMergeBaseIfNeeded(BaseGitCoreCommit a, BaseGitCoreCommit b) throws GitCoreException {
+  private GitCoreCommitHash deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
     var abKey = Tuple.of(a, b);
     var baKey = Tuple.of(b, a);
@@ -211,7 +211,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant)
+  public boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant)
       throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");

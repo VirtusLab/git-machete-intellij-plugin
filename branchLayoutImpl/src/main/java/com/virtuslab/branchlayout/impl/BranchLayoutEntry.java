@@ -7,20 +7,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @RequiredArgsConstructor
 @ToString
-public class BranchLayoutEntry extends BaseBranchLayoutEntry {
+public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Getter
   private final String name;
   @Nullable
   private final String customAnnotation;
   @Getter
-  private final List<BaseBranchLayoutEntry> subentries;
+  private final List<IBranchLayoutEntry> subentries;
 
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
+  }
+
+  @Override
+  public final boolean equals(@Nullable Object other) {
+    return this == other;
+  }
+
+  @Override
+  public final int hashCode() {
+    return getName().hashCode();
   }
 }

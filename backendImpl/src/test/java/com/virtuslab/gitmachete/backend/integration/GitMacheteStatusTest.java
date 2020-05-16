@@ -19,10 +19,10 @@ import org.junit.Test;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTest;
@@ -108,12 +108,12 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
     return sb.toString();
   }
 
-  private void printRootBranch(BaseGitMacheteRootBranch branch, StringBuilder sb) {
+  private void printRootBranch(IGitMacheteRootBranch branch, StringBuilder sb) {
     sb.append("  ");
     printCommonParts(branch, /* level */ 0, sb);
   }
 
-  private void printNonRootBranch(BaseGitMacheteNonRootBranch branch, int level, StringBuilder sb) {
+  private void printNonRootBranch(IGitMacheteNonRootBranch branch, int level, StringBuilder sb) {
     sb.append("  ");
 
     sb.append("| ".repeat(level));
@@ -146,7 +146,7 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
     printCommonParts(branch, level, sb);
   }
 
-  private void printCommonParts(BaseGitMacheteBranch branch, int level, StringBuilder sb) {
+  private void printCommonParts(IGitMacheteBranch branch, int level, StringBuilder sb) {
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();

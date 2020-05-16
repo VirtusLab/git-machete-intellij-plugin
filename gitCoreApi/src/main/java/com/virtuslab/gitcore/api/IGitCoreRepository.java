@@ -22,5 +22,5 @@ public interface IGitCoreRepository {
 
   Path getMainDirectoryPath();
 
-  boolean isAncestor(BaseGitCoreCommit presumedAncestor, BaseGitCoreCommit presumedDescendant) throws GitCoreException;
+  boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 }

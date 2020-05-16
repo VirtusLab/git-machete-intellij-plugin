@@ -7,10 +7,10 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -20,49 +20,39 @@ import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @Getter
-@ToString
-public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
+@ToString(callSuper = true)
+public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
 
-  private final String name;
   @ToString.Exclude
   @MonotonicNonNull
-  private BaseGitMacheteBranch upstreamBranch = null;
-  private final List<GitMacheteNonRootBranch> downstreamBranches;
-  @Nullable
-  private final IGitMacheteCommit forkPoint;
-  private final IGitMacheteCommit pointedCommit;
+  private IGitMacheteBranch upstreamBranch = null;
+  private final @Nullable IGitMacheteCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
-  private final SyncToRemoteStatus syncToRemoteStatus;
   private final SyncToParentStatus syncToParentStatus;
-  @Nullable
-  private final IGitMacheteRemoteBranch remoteBranch;
-  @Nullable
-  private final String customAnnotation;
 
-  public GitMacheteNonRootBranch(String name,
+  public GitMacheteNonRootBranch(
+      String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
-      @Nullable IGitMacheteCommit forkPoint,
       IGitMacheteCommit pointedCommit,
-      List<IGitMacheteCommit> commits,
       @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
-      SyncToParentStatus syncToParentStatus,
-      @Nullable String customAnnotation) {
+      @Nullable String customAnnotation,
+      @Nullable IGitMacheteCommit forkPoint,
+      List<IGitMacheteCommit> commits,
+      SyncToParentStatus syncToParentStatus) {
+    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation);
+
     LOG.debug(
-        () -> "Creating GitMacheteNonRootBranch(name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, "
-            + "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, pointedCommit = ${pointedCommit.getHash()}, "
-            + "commits.length() = ${commits.length()}, syncToRemoteStatus = ${syncToRemoteStatus}, "
-            + "syncToParentStatus = ${syncToParentStatus}, customAnnotation = ${customAnnotation})");
-    this.name = name;
-    this.downstreamBranches = downstreamBranches;
+        () -> "Creating ${getClass().getSimpleName()}(" +
+            "name = ${name}, downstreamBranches.length() = ${downstreamBranches.length()}, " +
+            "pointedCommit = ${pointedCommit.getHash()}, syncToRemoteStatus = ${syncToRemoteStatus}, " +
+            "customAnnotation = ${customAnnotation}), " +
+            "forkPoint = ${forkPoint != null ? forkPoint.getHash() : null}, commits.length() = ${commits.length()}, " +
+            "syncToParentStatus = ${syncToParentStatus}");
     this.forkPoint = forkPoint;
-    this.pointedCommit = pointedCommit;
     this.commits = commits;
-    this.syncToRemoteStatus = syncToRemoteStatus;
     this.syncToParentStatus = syncToParentStatus;
-    this.customAnnotation = customAnnotation;
-    this.remoteBranch = remoteBranch;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
@@ -71,40 +61,24 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteNonRootBranch {
     // This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
     // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepository).
     for (GitMacheteNonRootBranch branch : downstreamBranches) {
-      LOG.debug(() -> "Set this (${name}) branch as upstream for ${branch.getName()}");
       branch.setUpstreamBranch(this);
     }
   }
 
   @Override
-  public BaseGitMacheteBranch getUpstreamBranch() {
+  public IGitMacheteBranch getUpstreamBranch() {
     assert upstreamBranch != null : "upstreamBranch hasn't been set yet";
     return upstreamBranch;
   }
 
-  void setUpstreamBranch(BaseGitMacheteBranch givenUpstreamBranch) {
+  void setUpstreamBranch(IGitMacheteBranch givenUpstreamBranch) {
     assert upstreamBranch == null : "upstreamBranch has already been set";
     upstreamBranch = givenUpstreamBranch;
   }
 
   @Override
-  public List<BaseGitMacheteNonRootBranch> getDownstreamBranches() {
-    return List.narrow(downstreamBranches);
-  }
-
-  @Override
   public List<IGitMacheteCommit> getCommits() {
     return List.narrow(commits);
-  }
-
-  @Override
-  public Option<String> getCustomAnnotation() {
-    return Option.of(customAnnotation);
-  }
-
-  @Override
-  public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
-    return Option.of(remoteBranch);
   }
 
   @Override

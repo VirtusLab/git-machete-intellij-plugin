@@ -4,7 +4,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
-public class GitCoreRemoteBranch extends GitCoreBranch implements IGitCoreRemoteBranch {
+public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRemoteBranch {
   public static final String BRANCHES_PATH = Constants.R_REMOTES;
 
   public GitCoreRemoteBranch(GitCoreRepository repo, String branchName, String remoteName) {

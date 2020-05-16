@@ -10,9 +10,9 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.IndentSpec;
@@ -49,7 +49,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         .getOrElseThrow(e -> new BranchLayoutException("Unable to write new branch layout file to ${path}", e));
   }
 
-  private List<String> printBranchesOntoStringList(List<BaseBranchLayoutEntry> entries, IndentSpec indentSpec,
+  private List<String> printBranchesOntoStringList(List<IBranchLayoutEntry> entries, IndentSpec indentSpec,
       @NonNegative int level) {
     List<String> stringList = List.empty();
     for (var entry : entries) {
