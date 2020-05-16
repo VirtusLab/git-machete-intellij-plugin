@@ -37,7 +37,7 @@ import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
-import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -99,8 +99,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     initColumns();
 
-    @SuppressWarnings("guieffect:assignment.type.incompatible") @AlwaysSafe BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(
-        /* table */ this, graphCellPainter);
+    @UI BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(this, graphCellPainter);
     setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
 
     setCellSelectionEnabled(false);

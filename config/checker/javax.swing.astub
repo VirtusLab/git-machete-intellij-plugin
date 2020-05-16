@@ -1,5 +1,6 @@
 
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -17,6 +18,8 @@ class JComponent {
 }
 
 class JTable {
+  void setDefaultRenderer(Class<?> columnClass, @UI TableCellRenderer renderer);
+
   // `this` in all the below methods is @UnknownInitialization since all these methods are called from JTable's c'tor
   void setColumnModel(@UnknownInitialization JTable this, TableColumnModel columnModel);
 
