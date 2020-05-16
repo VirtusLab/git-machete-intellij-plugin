@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+file_names=$(git ls-files '*.java' | xargs basename -s .java | sort | paste -sd'|')
+
+if git grep -EHn  '^[^"]*"[^"$]*\<('"$file_names"')\>' -- '*.java' ':(exclude)./frontendActionIds'; then
+  die 'Avoid hardcoding class names in string literals (not refactor friendly), use Class#getSimpleName() instead'
+fi

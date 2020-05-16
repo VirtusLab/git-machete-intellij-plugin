@@ -169,6 +169,11 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
           Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + syncToRemote.getRemoteName())));
       sb.append(")");
     }
+    var statusHookOutput = branch.getStatusHookOutput();
+    if (statusHookOutput.isDefined()) {
+      sb.append("  ");
+      sb.append(statusHookOutput.get());
+    }
     sb.append(System.lineSeparator());
 
     for (var b : branch.getDownstreamBranches()) {

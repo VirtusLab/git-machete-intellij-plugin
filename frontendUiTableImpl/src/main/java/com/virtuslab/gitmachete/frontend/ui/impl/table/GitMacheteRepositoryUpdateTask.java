@@ -94,7 +94,7 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
         "isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
-      LOG.debug("Machete file is present. Try to create GitMacheteRepository instance");
+      LOG.debug("Machete file is present. Trying to create a ${IGitMacheteRepository.class.getSimpleName()} instance");
 
       return Try.of(() -> {
         IBranchLayout branchLayout = createBranchLayout(macheteFilePath);

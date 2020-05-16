@@ -21,14 +21,11 @@ public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements 
       IGitMacheteCommit pointedCommit,
       @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
-      @Nullable String customAnnotation) {
-    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation);
+      @Nullable String customAnnotation,
+      @Nullable String statusHookOutput) {
+    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
-    LOG.debug(
-        () -> "Creating GitMacheteRootBranch(name = ${name}, " +
-            "downstreamBranches.length() = ${downstreamBranches.length()}, " +
-            "pointedCommit = ${pointedCommit.getHash()}, syncToRemoteStatus = ${syncToRemoteStatus}, " +
-            "customAnnotation = ${customAnnotation})");
+    LOG.debug("Creating ${this}");
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
