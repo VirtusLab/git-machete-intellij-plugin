@@ -353,8 +353,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
      * repositories have two remotes, and then fetch succeeds for the first remote in both repos, and fails for the second
      * remote in both repos. Such cases are rare, and can be handled when actual problem is reported.
      */
-    private MultiMessage multiRemoteMessage(boolean remoteInPrefix) {
-      return new MultiMessage(results.keySet().toJavaSet(),
+    private MultiMessage<GitRemote> multiRemoteMessage(boolean remoteInPrefix) {
+      return new MultiMessage<GitRemote>(results.keySet().toJavaSet(),
           (Function1<GitRemote, String>) GitRemote::getName,
           (Function1<GitRemote, String>) GitRemote::getName,
           remoteInPrefix,

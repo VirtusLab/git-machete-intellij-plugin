@@ -7,8 +7,6 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.util.List;
-
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -142,7 +140,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
                   "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                   "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
 
-              GitRebaseUtils.rebase(project, List.of(gitRepository), params, indicator);
+              GitRebaseUtils.rebase(project, java.util.List.of(gitRepository), params, indicator);
             }
 
             // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential

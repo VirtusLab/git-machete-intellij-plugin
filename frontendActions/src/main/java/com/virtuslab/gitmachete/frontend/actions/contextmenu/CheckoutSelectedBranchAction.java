@@ -5,8 +5,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getPr
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedBranchName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 
-import java.util.List;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -83,7 +81,7 @@ public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyActio
           LOG.info("Checking out branch '${selectedBranchName.get()}'");
           GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
           new GitBranchWorker(project, Git.getInstance(), uiHandler)
-              .checkout(selectedBranchName.get(), /* detach */ false, List.of(gitRepository.get()));
+              .checkout(selectedBranchName.get(), /* detach */ false, java.util.List.of(gitRepository.get()));
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
