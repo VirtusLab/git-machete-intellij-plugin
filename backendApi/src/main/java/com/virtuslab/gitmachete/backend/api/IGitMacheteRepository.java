@@ -8,9 +8,9 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 public interface IGitMacheteRepository {
   Option<IBranchLayout> getBranchLayout();
 
-  List<BaseGitMacheteRootBranch> getRootBranches();
+  List<IGitMacheteRootBranch> getRootBranches();
 
-  Option<BaseGitMacheteBranch> getCurrentBranchIfManaged();
+  Option<IGitMacheteBranch> getCurrentBranchIfManaged();
 
-  Option<BaseGitMacheteBranch> getBranchByName(String branchName);
+  Option<IGitMacheteBranch> getBranchByName(String branchName);
 }

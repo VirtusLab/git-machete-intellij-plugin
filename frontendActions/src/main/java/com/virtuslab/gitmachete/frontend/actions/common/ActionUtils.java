@@ -11,7 +11,7 @@ import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -33,11 +33,11 @@ public final class ActionUtils {
     return getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
   }
 
-  public static Option<BaseGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
+  public static Option<IGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
     return getGitMacheteRepository(anActionEvent).flatMap(repository -> repository.getCurrentBranchIfManaged());
   }
 
-  public static Option<BaseGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
+  public static Option<IGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
     return getGitMacheteRepository(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
   }
 

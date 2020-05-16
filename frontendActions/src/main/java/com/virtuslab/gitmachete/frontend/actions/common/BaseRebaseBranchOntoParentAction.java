@@ -22,8 +22,8 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
@@ -95,7 +95,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
       } else if (branch.get().isNonRootBranch()) {
         var nonRootBranch = branch.get().asNonRootBranch();
-        BaseGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+        IGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
         presentation.setDescription("Rebase '${branchName}' onto '${upstream.getName()}'");
       }
     }
@@ -114,7 +114,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     }
   }
 
-  private void doRebase(AnActionEvent anActionEvent, BaseGitMacheteNonRootBranch branchToRebase) {
+  private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedVcsRepository(anActionEvent);
 
@@ -125,7 +125,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
     }
   }
 
-  private void doRebase(Project project, GitRepository gitRepository, BaseGitMacheteNonRootBranch branchToRebase) {
+  private void doRebase(Project project, GitRepository gitRepository, IGitMacheteNonRootBranch branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
     Try.of(() -> branchToRebase.getParametersForRebaseOntoParent())

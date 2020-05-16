@@ -7,9 +7,9 @@ import java.nio.file.Path;
 import io.vavr.collection.List;
 import org.junit.Test;
 
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
 import com.virtuslab.branchlayout.impl.IndentSpec;
@@ -24,7 +24,7 @@ public class BranchLayoutTest {
   public void withBranchSlideOut_givenRootBranch_throwsException() throws BranchLayoutException {
     // given
     var entryToSlideOutName = "root";
-    BaseBranchLayoutEntry entry = new BranchLayoutEntry(entryToSlideOutName, /* customAnnotation */ null, List.empty());
+    IBranchLayoutEntry entry = new BranchLayoutEntry(entryToSlideOutName, /* customAnnotation */ null, List.empty());
     var branchLayoutFile = new BranchLayout(List.of(entry), path, indentSpec);
 
     // when
@@ -60,7 +60,7 @@ public class BranchLayoutTest {
                   child1                   child1
     */
 
-    List<BaseBranchLayoutEntry> childBranches = List.of(
+    List<IBranchLayoutEntry> childBranches = List.of(
         new BranchLayoutEntry(childName0, /* customAnnotation */ null, List.empty()),
         new BranchLayoutEntry(childName1, /* customAnnotation */ null, List.empty()));
 

@@ -8,9 +8,9 @@ import io.vavr.control.Option;
 import lombok.Data;
 import lombok.Getter;
 
-import com.virtuslab.branchlayout.api.BaseBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -18,7 +18,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 public class BranchLayout implements IBranchLayout {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("branchLayout");
 
-  private final List<BaseBranchLayoutEntry> rootEntries;
+  private final List<IBranchLayoutEntry> rootEntries;
 
   @Getter
   private final Path path;
@@ -27,7 +27,7 @@ public class BranchLayout implements IBranchLayout {
   private final IndentSpec indentSpec;
 
   @Override
-  public Option<BaseBranchLayoutEntry> findEntryByName(String branchName) {
+  public Option<IBranchLayoutEntry> findEntryByName(String branchName) {
     return findEntryRecursively(getRootEntries(), e -> e.getName().equals(branchName));
   }
 
@@ -44,7 +44,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
-  private IBranchLayout slideOut(BaseBranchLayoutEntry entryToSlideOut) throws BranchLayoutException {
+  private IBranchLayout slideOut(IBranchLayoutEntry entryToSlideOut) throws BranchLayoutException {
     LOG.debug(() -> "Entering: entryToSlideOut = '${entryToSlideOut.getName()}'");
 
     var upstreamEntryOption = findUpstreamEntryForEntry(entryToSlideOut);
@@ -76,7 +76,7 @@ public class BranchLayout implements IBranchLayout {
    * @return a {@link IBranchLayout} containing all elements of this where the {@code entry} is replaced with
    *         {@code newEntry}
    */
-  private IBranchLayout replace(BaseBranchLayoutEntry oldEntry, BaseBranchLayoutEntry newEntry) {
+  private IBranchLayout replace(IBranchLayoutEntry oldEntry, IBranchLayoutEntry newEntry) {
     LOG.debug(() -> "Entering: oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
         "newEntry = ${newEntry} (${newEntry.getName()})");
     if (rootEntries.contains(oldEntry)) {
@@ -102,21 +102,21 @@ public class BranchLayout implements IBranchLayout {
   }
 
   /** @return a copy of the {@code entry} but with specified {@code subbranches} list */
-  private BaseBranchLayoutEntry updateSubbranchesForEntry(BaseBranchLayoutEntry entry,
-      List<BaseBranchLayoutEntry> subbranches) {
+  private IBranchLayoutEntry updateSubbranchesForEntry(IBranchLayoutEntry entry,
+      List<IBranchLayoutEntry> subbranches) {
     var name = entry.getName();
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
     return new BranchLayoutEntry(name, customAnnotation, subbranches);
   }
 
-  private Option<BaseBranchLayoutEntry> findUpstreamEntryForEntry(BaseBranchLayoutEntry entry) {
+  private Option<IBranchLayoutEntry> findUpstreamEntryForEntry(IBranchLayoutEntry entry) {
     return findEntryRecursively(rootEntries, e -> e.getSubentries().contains(entry));
   }
 
   /** Recursively traverses the list for an element that satisfies the {@code predicate}. */
-  private static Option<BaseBranchLayoutEntry> findEntryRecursively(
-      List<BaseBranchLayoutEntry> entries,
-      Predicate<BaseBranchLayoutEntry> predicate) {
+  private static Option<IBranchLayoutEntry> findEntryRecursively(
+      List<IBranchLayoutEntry> entries,
+      Predicate<IBranchLayoutEntry> predicate) {
     LOG.debug(() -> "Entering: entries = ${entries}");
 
     for (var entry : entries) {

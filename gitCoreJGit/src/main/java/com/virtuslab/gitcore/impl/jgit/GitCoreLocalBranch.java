@@ -17,15 +17,15 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBranch {
+public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
 
   public static final String BRANCHES_PATH = Constants.R_HEADS;
@@ -140,7 +140,7 @@ public class GitCoreLocalBranch extends GitCoreBranch implements IGitCoreLocalBr
 
   @Override
   @SuppressWarnings("aliasing:enhancedfor.type.incompatible")
-  public Option<BaseGitCoreCommit> deriveForkPoint() throws GitCoreException {
+  public Option<IGitCoreCommit> deriveForkPoint() throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}'");
     LOG.debug("Getting local branches reflog lists");
 

@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -19,7 +19,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
 
   @Getter
-  private final List<BaseGitMacheteRootBranch> rootBranches;
+  private final List<IGitMacheteRootBranch> rootBranches;
 
   @Nullable
   private final IBranchLayout branchLayout;
@@ -30,17 +30,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Nullable
-  private final BaseGitMacheteBranch currentBranch;
+  private final IGitMacheteBranch currentBranch;
 
-  private final Map<String, BaseGitMacheteBranch> branchByName;
+  private final Map<String, IGitMacheteBranch> branchByName;
 
   @Override
-  public Option<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Option.of(currentBranch);
   }
 
   @Override
-  public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
+  public Option<IGitMacheteBranch> getBranchByName(String branchName) {
     return branchByName.get(branchName);
   }
 }

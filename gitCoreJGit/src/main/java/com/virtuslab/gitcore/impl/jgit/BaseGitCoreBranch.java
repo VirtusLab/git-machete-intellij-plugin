@@ -9,6 +9,7 @@ import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -20,17 +21,17 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import com.virtuslab.gitcore.api.BaseGitCoreBranch;
-import com.virtuslab.gitcore.api.BaseGitCoreCommit;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
+import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 @Getter
 @RequiredArgsConstructor
-public abstract class GitCoreBranch extends BaseGitCoreBranch {
+public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
 
   protected final GitCoreRepository repo;
@@ -94,7 +95,7 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
   }
 
   @Override
-  public List<BaseGitCoreCommit> deriveCommitsUntil(BaseGitCoreCommit upToCommit) throws GitCoreException {
+  public List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit.getHash().getHashString()}");
 
     RevWalk walk = new RevWalk(repo.getJgitRepo());
@@ -130,5 +131,23 @@ public abstract class GitCoreBranch extends BaseGitCoreBranch {
     }
 
     return rfit.next().getOldId().equals(ObjectId.zeroId());
+  }
+
+  @Override
+  public final boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    } else if (!(other instanceof BaseGitCoreBranch)) {
+      return false;
+    } else {
+      var o = (BaseGitCoreBranch) other;
+      return getFullName().equals(o.getFullName())
+          && Try.of(() -> getPointedCommit().equals(o.getPointedCommit())).getOrElse(false);
+    }
+  }
+
+  @Override
+  public final int hashCode() {
+    return getFullName().hashCode() * 37 + Try.of(() -> getPointedCommit().hashCode()).getOrElse(0);
   }
 }
