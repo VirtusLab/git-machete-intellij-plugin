@@ -29,6 +29,11 @@ Other coding conventions include:
   `::` notation is confusing when applied to parameterless lambdas, as it suggests a unary lambda.
 
 
+## Check dependency updates
+
+`./gradlew dependencyUpdates`
+
+
 ## Rebuild the CI base image
 
 To push the rebuilt image, you need a write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
