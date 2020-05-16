@@ -124,7 +124,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       customAnnotation = null;
     }
 
-    LOG.debug(() -> "Creating BranchLayoutEntry(branchName = '${branchName}', " +
+    LOG.debug(() -> "Creating ${BranchLayoutEntry.class.getSimpleName()}(branchName = '${branchName}', " +
         "customAnnotation = ${customAnnotation != null ? \"'\" + customAnnotation + \"'\" : null}, " +
         "subentries.length() = ${subentries.length()})");
 

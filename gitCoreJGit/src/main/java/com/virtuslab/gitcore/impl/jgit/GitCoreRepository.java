@@ -43,7 +43,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   private final Path gitDirectoryPath;
 
   public GitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
-    LOG.debug(() -> "Creating GitCoreRepository(mainDirectoryPath = ${mainDirectoryPath}, " +
+    LOG.debug(() -> "Creating ${getClass().getSimpleName()}(mainDirectoryPath = ${mainDirectoryPath}, " +
         "gitDirectoryPath = ${gitDirectoryPath})");
     this.mainDirectoryPath = mainDirectoryPath;
     this.gitDirectoryPath = gitDirectoryPath;
@@ -203,12 +203,10 @@ public class GitCoreRepository implements IGitCoreRepository {
     var abKey = Tuple.of(a, b);
     var baKey = Tuple.of(b, a);
     if (mergeBaseCache.containsKey(abKey)) {
-      LOG.debug(
-          () -> "Merge base for ${a.getHash().getHashString()} and ${b.getHash().getHashString()} found in cache");
+      LOG.debug(() -> "Merge base for ${a.getHash().getHashString()} and ${b.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(abKey);
     } else if (mergeBaseCache.containsKey(baKey)) {
-      LOG.debug(
-          () -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
+      LOG.debug(() -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
       @Unique RevCommit mergeBase = deriveMergeBase(a, b);

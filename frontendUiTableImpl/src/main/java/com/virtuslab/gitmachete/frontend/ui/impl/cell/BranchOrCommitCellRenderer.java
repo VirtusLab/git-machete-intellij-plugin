@@ -123,9 +123,15 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (graphItem.isBranchItem()) {
         IBranchItem branchItem = graphItem.asBranchItem();
         IGitMacheteBranch branch = branchItem.getBranch();
+
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
           append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+        }
+
+        Option<String> statusHookOutput = branch.getStatusHookOutput();
+        if (statusHookOutput.isDefined()) {
+          append("   " + statusHookOutput.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
