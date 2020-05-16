@@ -34,10 +34,21 @@ if (System.getenv('CI') == 'true') {
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
 }
 
-import org.ajoberstar.grgit.Grgit
+dependencyUpdates {
+  def isNonStableVersion = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+  }
+
+  rejectVersionIf {
+    isNonStableVersion(it.candidate.version)
+  }
+}
+
 
 allprojects {
-  def git = Grgit.open(currentDir: rootDir)
+  def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
   def maybeSnapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
   def shortCommitHash = "+git.${git.head().abbreviatedId}"
   def maybeDirty = git.status().clean ? '' : '-dirty'
