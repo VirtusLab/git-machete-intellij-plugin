@@ -151,6 +151,14 @@
                     icon="MacheteIcons.SLIDE_OUT">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
+
+            <separator/>
+
+            <action id="GitMachete.HelpAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.HelpAction"
+                    icon="AllIcons.Actions.Help">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
         </group>
     </actions>
 

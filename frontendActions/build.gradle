@@ -9,6 +9,8 @@ dependencies {
   implementation project(':frontendUiApi')
   implementation project(':frontendDataKeys')
   implementation project(':frontendFile')
+  implementation project(':frontendGraphApi')
+  implementation project(':frontendUiTableImpl')
   implementation project(':frontendVfsUtils')
   implementation project(':frontendProviderServices')
 }
