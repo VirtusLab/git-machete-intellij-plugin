@@ -16,7 +16,15 @@ function die() {
 function extract_version_from_gradle_file_stdin() {
   [[ -t 0 ]] && die "${FUNCNAME[0]}: expecting non-terminal stdin, aborting" || true
 
-  grep -Po "(?<=PLUGIN_VERSION = ').*(?=')"
+  # Let's avoid any external process calls (cat/grep) to speed things up.
+
+  # Slurp stdin into a var. All lines will be squashed into just one.
+  output=$(</dev/stdin)
+  # Get rid of everything after&including the final apostrophe.
+  output=${output%\'*}
+  # Get rid of everything before&including the first apostrophe.
+  output=${output#*\'}
+  echo "$output"
 }
 
 function extract_version_from_current_wd() {
