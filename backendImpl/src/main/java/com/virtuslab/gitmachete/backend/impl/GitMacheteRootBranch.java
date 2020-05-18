@@ -8,12 +8,12 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @ToString(callSuper = true)
 public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements IGitMacheteRootBranch {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   public GitMacheteRootBranch(
       String name,

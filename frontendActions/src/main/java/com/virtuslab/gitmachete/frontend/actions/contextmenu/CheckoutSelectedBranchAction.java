@@ -15,15 +15,16 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryRe
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeyProject,
       IExpectsKeySelectedBranchName,
       IExpectsKeySelectedVcsRepository {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

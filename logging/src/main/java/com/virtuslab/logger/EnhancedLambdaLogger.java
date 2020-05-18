@@ -2,33 +2,54 @@ package com.virtuslab.logger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
+public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
   private final LambdaLogger logger;
   private final String className;
   private final ThreadLocal<@Nullable String> bufferedTimerMessage;
   private final ThreadLocal<@Nullable Long> timerStartMillis;
 
-  PrefixedLambdaLogger(LambdaLogger logger) {
-    this.logger = logger;
-    // We are sure that at the moment when this constructor is called we have at least 4 elements in stacktrace array:
+  private static boolean isInternalLoggingClass(String fqcn) {
+    return fqcn.equals("java.lang.Thread") || fqcn.startsWith("com.virtuslab.logger.")
+        || fqcn.startsWith("kr.pe.kwonnam.slf4jlambda.");
+  }
+
+  EnhancedLambdaLogger() {
+    // At the moment when this constructor is called we have the following elements at the top of the stack:
     // #0: java.lang.Thread#getStackTrace
     // #1: com.virtuslab.logger.MacheteLogger#<init>
     // #2: com.virtuslab.logger.MacheteLoggerFactory#getLogger
     // #3: method from which MacheteLoggerFactory#getLogger was called
-    @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[3];
-    String[] classPath = element.getClassName().split("\\.");
-    this.className = classPath[classPath.length - 1];
+    var stackTrace = Thread.currentThread().getStackTrace();
+    String category = Arrays.stream(stackTrace)
+        .map(e -> e.getClassName())
+        .filter(fqcn -> !isInternalLoggingClass(fqcn) && fqcn.startsWith("com.virtuslab."))
+        .findFirst()
+        .orElse("<unknown>")
+        .replace("com.virtuslab.", "")
+        .replaceAll("\\.[A-Z][^.]*$", "")
+        .replaceAll("\\.[^.]+$", "")
+        .replaceAll("\\.impl$", "");
+
+    this.logger = LambdaLoggerFactory.getLogger(category);
+    this.className = Arrays.stream(stackTrace)
+        .map(e -> e.getClassName())
+        .filter(fqcn -> !isInternalLoggingClass(fqcn))
+        .findFirst()
+        .orElse("<unknown>")
+        .replaceAll(".*\\.", "");
     this.bufferedTimerMessage = new ThreadLocal<>();
     this.timerStartMillis = new ThreadLocal<>();
   }
 
   private String getLogMessagePrefix() {
-    // We are sure that at the moment when this method is called we have at least 7 elements in stacktrace array:
+    // At the moment when this method is called we have the following elements at the top of the stack:
     // #0: java.lang.Thread#getStackTrace
     // #1: com.virtuslab.logger.MacheteLogger#getMethodReferenceName
     // #2: com.virtuslab.logger.MacheteLogger#lambda$debug$0
@@ -36,10 +57,15 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     // #4: kr.pe.kwonnam.slf4jlambda.LambdaLogger#debug
     // #5: com.virtuslab.logger.MacheteLogger#debug
     // #6: method from which IMacheteLogger.<logMethod> was called;
-    @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[6];
+    var stackTrace = Thread.currentThread().getStackTrace();
+    String methodName = Arrays.stream(stackTrace)
+        .filter(se -> !isInternalLoggingClass(se.getClassName()))
+        .findFirst()
+        .map(se -> se.getMethodName())
+        .orElse("<unknown>");
     String timerMessage = bufferedTimerMessage.get();
     bufferedTimerMessage.remove();
-    return className + "#" + element.getMethodName() + ": " + (timerMessage == null ? "" : timerMessage);
+    return className + "#" + methodName + ": " + (timerMessage == null ? "" : timerMessage);
   }
 
   private String getStackTraceAsString(Throwable t) {
@@ -53,14 +79,14 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
   }
 
   @Override
-  public IPrefixedLambdaLogger startTimer() {
+  public IEnhancedLambdaLogger startTimer() {
     bufferedTimerMessage.set("[thread #${getCurrentThreadId()}: starting timer] ");
     timerStartMillis.set(System.currentTimeMillis());
     return this;
   }
 
   @Override
-  public IPrefixedLambdaLogger withTimeElapsed() {
+  public IEnhancedLambdaLogger withTimeElapsed() {
     Long start = timerStartMillis.get();
     if (start == null) {
       throw new IllegalStateException("withTimeElapsed() called without a preceding startTimer() call");

@@ -24,12 +24,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public final class VcsRootComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionProvider {
 
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 

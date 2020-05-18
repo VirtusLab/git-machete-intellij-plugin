@@ -25,15 +25,16 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject,
       IExpectsKeySelectedVcsRepository {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

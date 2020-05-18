@@ -38,11 +38,11 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 

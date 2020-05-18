@@ -12,11 +12,11 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public final class StatusBranchHookExecutor {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("backend");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   // sun.nio.fs.UnixPath has a reasonable equals/hashCode.
   private static final java.util.Map<Tuple2<Path, Path>, StatusBranchHookExecutor> instanceByMainDirAndGitDirCache = new ConcurrentHashMap<>();

@@ -12,8 +12,8 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyBranchL
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -23,7 +23,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IExpectsKeyGraphTable,
       IExpectsKeyProject {
 
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

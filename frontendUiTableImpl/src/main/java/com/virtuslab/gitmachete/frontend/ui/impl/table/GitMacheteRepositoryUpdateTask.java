@@ -26,13 +26,13 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.logger.IntelliJLoggingUtils;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
 
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final BaseGraphTable graphTable;
   private final Project project;
