@@ -54,9 +54,6 @@ allprojects {
   if (ciBranch == 'master') {
     version PLUGIN_VERSION
   } else {
-    // As for now, we're unfortunately not running builds for develop yet
-    // (https://discuss.circleci.com/t/allow-branch-whitelist-to-override-only-build-pull-requests/6392),
-    // but let's have the logic in place already.
     def maybeSnapshot = ciBranch == 'develop' ? '' : '-SNAPSHOT'
 
     def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
