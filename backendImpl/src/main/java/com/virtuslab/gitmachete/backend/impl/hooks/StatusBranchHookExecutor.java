@@ -45,16 +45,17 @@ public final class StatusBranchHookExecutor {
 
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
     if (!hookFile.exists()) {
-      LOG.debug(
-          "Skipping machete-status-branch hook execution for ${branchName}: ${hookFile.getAbsolutePath()} does not exist");
+      LOG.debug("Skipping machete-status-branch hook execution for ${branchName}: " +
+          "${hookFile.getAbsolutePath()} does not exist");
       return Option.none();
     } else if (!hookFile.canExecute()) {
-      LOG.debug(
-          "Skipping machete-status-branch hook execution for ${branchName}: ${hookFile.getAbsolutePath()} cannot be executed");
+      LOG.debug("Skipping machete-status-branch hook execution for ${branchName}: " +
+          "${hookFile.getAbsolutePath()} cannot be executed");
       return Option.none();
     }
 
-    LOG.debug("Executing machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} in cwd=${mainDirectory}");
+    LOG.startTimer().debug("Executing machete-status-branch hook (${hookFile.getAbsolutePath()}) " +
+        "for ${branchName} in cwd=${mainDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(hookFile.getAbsolutePath(), branchName);
     // According to machete-status-branch hook spec (`git machete help hooks`),
@@ -72,11 +73,11 @@ public final class StatusBranchHookExecutor {
     int timeoutSeconds = 1;
     boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
     if (!completed) {
-      LOG.warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
+      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
           "did not complete within ${timeoutSeconds} seconds; ignoring the output");
       return Option.none();
     } else if (process.exitValue() != 0) {
-      LOG.warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
+      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
           "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
       return Option.none();
     }
@@ -84,7 +85,8 @@ public final class StatusBranchHookExecutor {
     // It's quite likely that the hook's output will be terminated with a newline,
     // and we don't want that to be displayed.
     String strippedOutput = new String(process.getInputStream().readAllBytes()).stripTrailing();
-    LOG.debug("Output of machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} is '${strippedOutput}'");
+    LOG.withTimeElapsed().debug("Output of machete-status-branch hook (${hookFile.getAbsolutePath()}) " +
+        "for ${branchName} is '${strippedOutput}'");
     return Option.some(strippedOutput);
   }
 

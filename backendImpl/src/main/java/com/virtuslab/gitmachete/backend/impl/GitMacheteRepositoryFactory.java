@@ -53,7 +53,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   @Override
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
-    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
+    LOG.startTimer().debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
 
     IGitCoreRepository gitCoreRepository = Try
         .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
@@ -74,7 +74,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         .flatMap(cb -> branchByName.get(cb.getName()))
         .getOrNull();
 
-    LOG.debug(() -> "Current branch: ${currentBranch != null ? currentBranch.getName() : null}");
+    LOG.debug(() -> "Current branch: ${currentBranch != null ? currentBranch.getName() : \"<none> (detached HEAD)\"}");
+    LOG.withTimeElapsed().debug(() -> "Finished");
 
     return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
   }
