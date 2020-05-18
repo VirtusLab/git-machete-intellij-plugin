@@ -4,9 +4,9 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_EMPTY_TEXT;
+import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
-import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getMacheteFilePath;
+import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.resolveMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -150,9 +150,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     } else {
       repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
       if (gitMacheteRepository.getRootBranches().isEmpty()) {
-        setTextForEmptyGraph(
+        setTextForEmptyTable(
             "Provided machete file (${macheteFilePath}) is empty.",
-            "Open machete file", getOpenMacheteFileActionAsRunnable());
+            "Open machete file", () -> getOpenMacheteFileActionAsRunnable());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
     }
@@ -160,9 +160,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     setModel(new GraphTableModel(repositoryGraph));
 
     if (!isMacheteFilePresent) {
-      setTextForEmptyGraph(
+      setTextForEmptyTable(
           "There is no machete file (${macheteFilePath}) for this repository.",
-          "Create & open machete file", getOpenMacheteFileActionAsRunnable());
+          "Create & open machete file", () -> getOpenMacheteFileActionAsRunnable());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
@@ -171,11 +171,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  private Runnable getOpenMacheteFileActionAsRunnable() {
+  private void getOpenMacheteFileActionAsRunnable() {
     var action = ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE);
     var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
-    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TEXT, new Presentation(), dataContext);
-    return () -> GuiUtils.invokeLaterIfNeeded(() -> action.actionPerformed(anActionEvent), NON_MODAL);
+    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
+    GuiUtils.invokeLaterIfNeeded(() -> action.actionPerformed(anActionEvent), NON_MODAL);
   }
 
   @Override
@@ -193,19 +193,19 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     if (gitRepository.isDefined()) {
       // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
       // this shouldn't ever be a heavyweight operation, however.
-      Path macheteFilePath = getMacheteFilePath(gitRepository.get());
+      Path macheteFilePath = resolveMacheteFilePath(gitRepository.get());
       boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
       refreshModel(macheteFilePath, isMacheteFilePresent);
     } else {
-      LOG.warn("No git repository selected, not updating the model");
+      LOG.warn("Selected git repository is undefined; unable to refresh model");
     }
   }
 
   @UIEffect
-  private void setTextForEmptyGraph(String upperText, String lowerText, Runnable action) {
+  private void setTextForEmptyTable(String upperText, String lowerText, @UI Runnable onClickRunnableAction) {
     var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ e -> action.run());
+    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ e -> onClickRunnableAction.run());
   }
 
   @UIEffect

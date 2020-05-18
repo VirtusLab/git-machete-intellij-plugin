@@ -17,6 +17,7 @@ include 'frontendGraphImpl'
 include 'frontendUiApi'
 include 'frontendUiTableImpl'
 include 'frontendUiRootImpl'
+include 'frontendVfsUtils'
 
 if (startParameter.projectProperties.containsKey('enableUiTests')) {
   include 'uiTests'

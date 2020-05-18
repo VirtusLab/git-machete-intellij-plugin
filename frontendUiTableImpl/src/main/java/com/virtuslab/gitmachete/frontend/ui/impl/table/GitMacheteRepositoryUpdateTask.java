@@ -1,12 +1,13 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getGitDirectoryPath;
-import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getMacheteFilePath;
-import static com.virtuslab.gitmachete.frontend.ui.impl.table.GitPathUtils.getMainDirectoryPath;
+import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.getGitDirectory;
+import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.getMainDirectory;
+import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.resolveMacheteFilePath;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -71,7 +72,7 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
     LOG.debug("Queuing graph table refresh onto the UI thread");
     // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Path macheteFilePath = resolveMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
     GuiUtils.invokeLaterIfNeeded(
@@ -86,9 +87,9 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
    * This method is heavyweight and must never be invoked on UI thread.
    */
   private Option<IGitMacheteRepository> updateRepository() {
-    Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
-    Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Path mainDirectoryPath = Paths.get(getMainDirectory(gitRepository).getPath());
+    Path gitDirectoryPath = Paths.get(getGitDirectory(gitRepository).getPath());
+    Path macheteFilePath = resolveMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
     LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +

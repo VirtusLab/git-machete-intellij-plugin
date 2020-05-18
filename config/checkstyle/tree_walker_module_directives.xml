@@ -72,6 +72,18 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="(?&lt;!Error) extends [A-Za-z0-9]*Error\b"/>
+    <property name="message" value="Classes extending errors must have the 'Error' suffix"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="(?&lt;!Exception) extends [A-Za-z0-9]*Exception\b"/>
+    <property name="message" value="Classes extending exceptions must have the 'Exception' suffix"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bextends AnAction implements DumbAware\b"/>
     <property name="message" value="Use 'extends DumbAwareAction' instead"/>
 </module>
