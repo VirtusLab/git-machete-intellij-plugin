@@ -25,11 +25,11 @@ import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final VcsRootComboBox vcsRootComboBox;
   private final BaseGraphTable graphTable;

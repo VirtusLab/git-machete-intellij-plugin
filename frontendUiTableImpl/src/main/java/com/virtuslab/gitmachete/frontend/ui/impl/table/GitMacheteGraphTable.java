@@ -55,12 +55,12 @@ import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProv
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiTable");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;

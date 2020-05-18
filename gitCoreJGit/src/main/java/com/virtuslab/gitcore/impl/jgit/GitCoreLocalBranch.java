@@ -22,11 +22,11 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("gitCore");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   public static final String BRANCHES_PATH = Constants.R_HEADS;
 
@@ -87,8 +87,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
   }
 
   private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
-    LOG.debug(() -> "Entering: branch = '${getFullName()}'");
-    LOG.trace("Original list of entries: ");
+    LOG.trace(() -> "Entering: branch = '${getFullName()}'; original list of entries:");
     entries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
     ObjectId entryToExcludeNewId;
     if (entries.size() > 0) {

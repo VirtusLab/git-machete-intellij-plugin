@@ -5,11 +5,11 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.NotNullFunction;
 import git4idea.GitVcs;
 
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendUiRoot");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   public Boolean fun(Project project) {

@@ -11,13 +11,12 @@ This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.co
 
 SLF4J logging in this plugin has the following categories:
 
-* `backend`
 * `binding`
-* `branchLayout`
-* `frontendActions`
-* `frontendUiRoot`
-* `frontendUiTable`
-* `gitCore`
+* `branchlayout`
+* `gitcore`
+* `gitmachete.backend`
+* `gitmachete.frontend.actions`
+* `gitmachete.frontend.ui`
 
 By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
 The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out.
