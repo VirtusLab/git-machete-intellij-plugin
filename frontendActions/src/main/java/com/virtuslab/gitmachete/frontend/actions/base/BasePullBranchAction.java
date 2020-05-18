@@ -17,8 +17,8 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMach
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -28,7 +28,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       IExpectsKeyProject,
       IExpectsKeySelectedVcsRepository {
 
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
 

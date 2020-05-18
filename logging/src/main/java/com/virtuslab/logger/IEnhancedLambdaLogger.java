@@ -2,9 +2,9 @@ package com.virtuslab.logger;
 
 import java.util.function.Supplier;
 
-public interface IPrefixedLambdaLogger {
-  IPrefixedLambdaLogger startTimer();
-  IPrefixedLambdaLogger withTimeElapsed();
+public interface IEnhancedLambdaLogger {
+  IEnhancedLambdaLogger startTimer();
+  IEnhancedLambdaLogger withTimeElapsed();
 
   void trace(String format);
   void trace(Supplier<String> msgSupplier);

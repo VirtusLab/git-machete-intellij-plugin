@@ -53,8 +53,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * @deprecated This implementation is a workaround to provide features missing in pre-2020.1 versions.
@@ -65,7 +65,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 @RequiredArgsConstructor
 public final class GitFetchSupportImpl implements GitFetchSupport {
 
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final Project project;
   private final ProgressManager progressManager = ProgressManager.getInstance();
