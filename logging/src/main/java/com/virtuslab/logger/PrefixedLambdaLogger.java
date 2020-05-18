@@ -5,10 +5,13 @@ import java.io.StringWriter;
 import java.util.function.Supplier;
 
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
   private final LambdaLogger logger;
   private final String className;
+  private final ThreadLocal<@Nullable String> bufferedTimerMessage;
+  private final ThreadLocal<@Nullable Long> timerStartMillis;
 
   PrefixedLambdaLogger(LambdaLogger logger) {
     this.logger = logger;
@@ -19,7 +22,9 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     // #3: method from which MacheteLoggerFactory#getLogger was called
     @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[3];
     String[] classPath = element.getClassName().split("\\.");
-    className = classPath[classPath.length - 1];
+    this.className = classPath[classPath.length - 1];
+    this.bufferedTimerMessage = new ThreadLocal<>();
+    this.timerStartMillis = new ThreadLocal<>();
   }
 
   private String getLogMessagePrefix() {
@@ -32,13 +37,37 @@ public class PrefixedLambdaLogger implements IPrefixedLambdaLogger {
     // #5: com.virtuslab.logger.MacheteLogger#debug
     // #6: method from which IMacheteLogger.<logMethod> was called;
     @SuppressWarnings("upperbound") StackTraceElement element = Thread.currentThread().getStackTrace()[6];
-    return className + "#" + element.getMethodName() + ": ";
+    String timerMessage = bufferedTimerMessage.get();
+    bufferedTimerMessage.remove();
+    return className + "#" + element.getMethodName() + ": " + (timerMessage == null ? "" : timerMessage);
   }
 
   private String getStackTraceAsString(Throwable t) {
     StringWriter sw = new StringWriter();
     t.printStackTrace(new PrintWriter(sw));
     return sw.toString();
+  }
+
+  private long getCurrentThreadId() {
+    return Thread.currentThread().getId();
+  }
+
+  @Override
+  public IPrefixedLambdaLogger startTimer() {
+    bufferedTimerMessage.set("[thread #${getCurrentThreadId()}: starting timer] ");
+    timerStartMillis.set(System.currentTimeMillis());
+    return this;
+  }
+
+  @Override
+  public IPrefixedLambdaLogger withTimeElapsed() {
+    Long start = timerStartMillis.get();
+    if (start == null) {
+      throw new IllegalStateException("withTimeElapsed() called without a preceding startTimer() call");
+    }
+    long elapsed = System.currentTimeMillis() - start;
+    bufferedTimerMessage.set("[thread #${getCurrentThreadId()}: elapsed ${elapsed}ms] ");
+    return this;
   }
 
   @Override
