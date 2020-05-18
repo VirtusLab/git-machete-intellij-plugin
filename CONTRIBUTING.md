@@ -82,4 +82,3 @@ They are likely going to require us to allow either of:
   (during a release, `develop` gets merged to the hotfixed `master` instead of `master` getting FFed to match `develop`) OR
 * rebasing the `develop` history since the latest release over the hotfixed `master`
   (so that `develop` commit remains a descendant of hotfixed `master`, and thus `master` can be FFed to match `develop` during a release)
-

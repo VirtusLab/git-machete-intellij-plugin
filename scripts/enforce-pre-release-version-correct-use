@@ -18,10 +18,9 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   fi
 
 elif [[ ${CIRCLE_BRANCH-} ]]; then
-  if [[ $CIRCLE_BRANCH == master && $head_pre_release ]]; then
-    die 'Pre-release version is not allowed on master branch tip'
+  if [[ ( $CIRCLE_BRANCH == master || $CIRCLE_BRANCH == release/* || $CIRCLE_BRANCH == hotfix/* ) && $head_pre_release ]]; then
+    die 'Pre-release version is not allowed on master/release/hotfix branch tip'
   elif [[ $CIRCLE_BRANCH != master && -z $head_pre_release ]]; then
-    # This case won't occur as for now since we don't build anything but master branch and PRs.
-    die 'Non-master branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
+    die 'Non-master/release/hotfix branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
   fi
 fi

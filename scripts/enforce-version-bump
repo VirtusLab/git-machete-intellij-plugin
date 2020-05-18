@@ -5,29 +5,44 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
+function local_base_revision_fallback() {
+  current_branch=$(git symbolic-ref --quiet --short HEAD)
+  if [[ $current_branch == develop || $current_branch == release/* || $current_branch == hotfix/* ]]; then
+    echo master
+  else
+    echo develop
+  fi
+}
+
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
-  base_branch=$(hub pr show --format=%B "$pr_num")
-  git fetch --quiet origin "$base_branch"
-  base_revision="origin/$base_branch"
+  # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads)
+  base_revision="origin/$(hub pr show --format=%B "$pr_num")"
+
+elif [[ ${CIRCLE_BRANCH-} == develop || ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
+  # Develop, hotfix or release build on CI, let's compare to master.
+  base_revision=origin/master
 
 elif [[ ${CIRCLE_BRANCH-} == master ]]; then
   # Master build on CI, no version check needed.
-  # Note: we don't run builds other than for PRs and for master branch (e.g. pre-PR branch builds).
   exit 0
+
+elif [[ ${CIRCLE_BRANCH-} ]]; then
+  # Non-PR, non-master/develop, non-release/hotfix branch build on CI, let's compare to develop.
+  base_revision=origin/develop
 
 elif git machete show up &>/dev/null; then
   # A local run.
   base_revision=$(git machete show up 2>/dev/null)
 
 elif command -v hub &>/dev/null; then
-  # A local run. Fall back to master if no PR is open for the current branch.
-  base_revision=$(hub pr show --format=%B 2>/dev/null || echo master)
+  # A local run.
+  base_revision=$(hub pr show --format=%B 2>/dev/null || local_base_revision_fallback)
 
 else
   # A local run.
-  base_revision=origin/master
+  base_revision=$(local_base_revision_fallback)
 fi
 
 
