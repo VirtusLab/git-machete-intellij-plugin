@@ -17,8 +17,8 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   base_branch=$(hub pr show --format=%B "$pr_num")
 
   if [[ $base_branch == master ]]; then
-    git fetch --quiet origin master
     head_notes=$(change_notes_from_git_revision HEAD)
+    # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads)
     master_notes=$(change_notes_from_git_revision origin/master)
 
     if [[ "$head_notes" == "$master_notes" ]]; then

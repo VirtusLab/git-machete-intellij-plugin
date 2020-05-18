@@ -11,7 +11,9 @@ jobs:
           name: Run pre-build checks
           command: |
             # Remove once `xml-twig-tools` package is baked into the Docker image
-            apt-get update && apt-get install -y --no-install-recommends xml-twig-tools
+            command -v xml_grep || {
+              apt-get update && apt-get install -y --no-install-recommends xml-twig-tools
+            }
 
             bash -x ./scripts/run-pre-build-checks
       - run:
