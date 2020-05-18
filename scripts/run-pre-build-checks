@@ -5,7 +5,7 @@ set -e
 # `$-` yields the list of the options of the current shell; we'll only interested in whether `x` is present
 x_option=${-//[^x]/}
 
-./scripts/enforce-change-notes-for-release-pr
+./scripts/enforce-change-notes-updated-on-release-pr
 ./scripts/enforce-data-keys-javadoc-for-actions
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
