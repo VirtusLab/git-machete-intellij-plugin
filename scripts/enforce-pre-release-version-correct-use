@@ -11,16 +11,23 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
   base_branch=$(hub pr show --format=%B "$pr_num")
-  if [[ $base_branch == master && $head_pre_release ]]; then
-    die 'Pre-release version is not allowed on a PR to master'
-  elif [[ $base_branch != master && -z $head_pre_release ]]; then
-    die "A PR to $base_branch (!= master) must have a pre-release version (a.b.c-d, not a.b.c)"
+  if [[ $base_branch == master ]]; then
+    [[ -z $head_pre_release ]] || \
+      die 'Pre-release version is not allowed on a PR to master'
+  elif [[ ${CIRCLE_BRANCH-} == backport/* ]]; then
+    [[ -z $head_pre_release ]] || \
+      die 'Pre-release version is not allowed on a backport-to-develop PR'
+  else
+    [[ $head_pre_release ]] || \
+      die "A non-backport PR to $base_branch (!= master) must have a pre-release version (a.b.c-d, not a.b.c)"
   fi
 
 elif [[ ${CIRCLE_BRANCH-} ]]; then
-  if [[ ( $CIRCLE_BRANCH == master || $CIRCLE_BRANCH == release/* || $CIRCLE_BRANCH == hotfix/* ) && $head_pre_release ]]; then
-    die 'Pre-release version is not allowed on master/release/hotfix branch tip'
-  elif [[ $CIRCLE_BRANCH != master && -z $head_pre_release ]]; then
-    die 'Non-master/release/hotfix branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
+  if [[ $CIRCLE_BRANCH == master || $CIRCLE_BRANCH == release/* || $CIRCLE_BRANCH == hotfix/* || $CIRCLE_BRANCH == backport/* ]]; then
+    [[ -z $head_pre_release ]] || \
+      die 'Pre-release version is not allowed on master/release/hotfix/backport branch tip'
+  else
+    [[ $head_pre_release ]] || \
+      die 'Non-master/release/hotfix/backport branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
   fi
 fi
