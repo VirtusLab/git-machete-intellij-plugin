@@ -9,7 +9,7 @@ function local_base_revision_fallback() {
   current_branch=$(git symbolic-ref --quiet --short HEAD)
   if [[ $current_branch == develop || $current_branch == release/* || $current_branch == hotfix/* ]]; then
     echo master
-  else
+  else  # including backport/*
     echo develop
   fi
 }
@@ -28,7 +28,7 @@ elif [[ ${CIRCLE_BRANCH-} == master ]]; then
   # Master build on CI, no version check needed.
   exit 0
 
-elif [[ ${CIRCLE_BRANCH-} ]]; then
+elif [[ ${CIRCLE_BRANCH-} ]]; then  # including backport/*
   # Non-PR, non-master/develop, non-release/hotfix branch build on CI, let's compare to develop.
   base_revision=origin/develop
 

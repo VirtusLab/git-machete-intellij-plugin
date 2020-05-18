@@ -76,15 +76,26 @@ After a release e.g. `1.0.3`, we might have the following sequence of versions:
 
 Each PR must bump the version (see [version.gradle](version.gradle)) comparing to its base.
 
-Each regular (non-hotfix, non-release) PR is ultimately merged to `develop` and must have a non-empty pre-release version. <br/>
-Stacked PRs (Y -> X -> `develop`) are never merged until their base is finally changed to `develop`.
+Each regular (non-hotfix, non-release, non-backport) PR is ultimately merged to `develop` and must have a non-empty pre-release version. <br/>
+Stacked PRs (Y -> X -> `develop`) must never be merged until their base is finally changed to `develop`.
 They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
-Each release PR (from `develop` to `master`) must not have a pre-release version. <br/>
-Once the release PR is merged, `master` is built. <br/>
-After a manual approval, the `master` build **publishes the plugin to JetBrains marketplace**.
+To create a release:
+* create a branch `release/<version>` out of the current develop
+* remove pre-release suffix from `PLUGIN_VERSION` in [version.gradle](version.gradle)
+* fill up `<change-notes>` in [plugin.xml](src/main/resources/META-INF/plugin.xml) with the updated change notes
+* open PR from `release/<version>` to `master`
 
-TBD: flow for hotfix PRs (PRs to `master` but NOT from `develop`).
+Once the release PR is merged, `master` is built. <br/>
+After a manual approval, the `master` build:
+* pushes a tag (`v<version>`) back to the repository
+* opens a backport PR from `backport/<version>` branch (created on fly from `master`) to `develop`
+* **publishes the plugin to JetBrains marketplace**
+
+Backport PRs are recognized by the `backport/*` branch name.
+They must have `develop` as its base, and version must not be pre-release.
+
+TBD: flow for hotfix PRs (PRs to `master` but NOT from `develop`) and their corresponding backport PRs.
 They are likely going to require us to allow either of:
 * non-linear history on `master`
   (during a release, `develop` gets merged to the hotfixed `master` instead of `master` getting FFed to match `develop`) OR
