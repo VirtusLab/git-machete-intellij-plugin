@@ -9,8 +9,8 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
+import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * This action is only used for UI tests.
@@ -21,7 +21,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * </ul>
  */
 public class OpenTabAction extends DumbAwareAction {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
+  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect
