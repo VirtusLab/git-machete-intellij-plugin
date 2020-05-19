@@ -78,16 +78,7 @@ jobs:
       - run:
           name: Run UI tests
           command: |
-            ### Remove once Docker image is regenerated
-            ###
-            set -x
-            apt-get update
-            apt-get install -y libx11-6 libxrender1 libxtst6 xvfb
-            mkdir -p ~/.local/share/JetBrains/consentOptions/
-            echo -n rsch.send.usage.stat:1.1:0:1574939222872 > ~/.local/share/JetBrains/consentOptions/accepted
-            export IDEPROBE_DISPLAY=xvfb
-            set +x
-            ###
+            apt-get update && apt-get install -y xauth
 
             # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
             # enableUiTests: see uiTests/build.gradle

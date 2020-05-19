@@ -9,7 +9,7 @@ RUN set -x \
   && apt-get update \
   `# installing JDK and not just JRE to provide javadoc executable` \
   && apt-get install --no-install-recommends -y \
-    curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xxd unzip \
+    curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xml-twig-tools xxd unzip \
     `# tools necessary to run non-headless UI tests in the headless environment of CI` \
     libx11-6 libxrender1 libxtst6 xvfb \
   && pip3 install git-machete==2.14.0 \
