@@ -66,7 +66,6 @@ allprojects {
 
   ext {
     betterStringsVerson = '0.3'
-    checkerVersion = '3.4.0'
     checkstyleToolVersion = '8.30'
     ideProbeJunitDriverVersion = '0.1'
     // The following places must also be updated when updating the version below:
@@ -138,11 +137,6 @@ subprojects {
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
     ]
-  }
-
-  dependencies {
-    compileOnly group: 'org.checkerframework', name: 'checker-qual', version: checkerVersion
-    checkerFramework group: 'org.checkerframework', name: 'checker', version: checkerVersion
   }
 
 
