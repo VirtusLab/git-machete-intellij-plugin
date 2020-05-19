@@ -48,16 +48,20 @@ dependencyUpdates {
 }
 
 allprojects {
-  apply plugin: 'org.ajoberstar.grgit'
-  def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
   def maybeSnapshot = System.getenv('CIRCLE_BRANCH') == 'master' ? '' : '-SNAPSHOT'
-  def shortCommitHash = "+git.${git.head().abbreviatedId}"
-  def maybeDirty = git.status().clean ? '' : '-dirty'
-  git.close()
+  def maybeShortCommitHash = ''
+  def maybeDirty = ''
+  if (file("$rootDir/.git").exists()) {
+    // To make sure it's safe for Docker image builds
+    def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
+    maybeShortCommitHash = "+git.${git.head().abbreviatedId}"
+    maybeDirty = git.status().clean ? '' : '-dirty'
+    git.close()
+  }
 
   group 'com.virtuslab'
   apply from: "$rootDir/version.gradle"
-  version "${PLUGIN_VERSION}${maybeSnapshot}${shortCommitHash}${maybeDirty}"
+  version "${PLUGIN_VERSION}${maybeSnapshot}${maybeShortCommitHash}${maybeDirty}"
 
   repositories {
     jcenter()
