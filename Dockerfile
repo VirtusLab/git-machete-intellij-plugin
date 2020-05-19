@@ -8,10 +8,7 @@ RUN set -x \
   && mkdir -p /usr/share/man/man1 \
   && apt-get update \
   `# installing JDK and not just JRE to provide javadoc executable` \
-  && apt-get install --no-install-recommends -y \
-    curl git openjdk-11-jdk-headless openssh-client python3 python3-pip xml-twig-tools xxd unzip \
-    `# tools necessary to run non-headless UI tests in the headless environment of CI` \
-    libx11-6 libxrender1 libxtst6 xvfb \
+  && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 python3-pip \
   && pip3 install git-machete==2.14.0 \
   && apt-get purge --autoremove -y python3-pip \
   && rm -rf /var/lib/apt/lists/*
@@ -35,6 +32,14 @@ RUN --mount=type=bind,rw,source=.,target=.  set -x \
   && find . \
   && ./gradlew --no-daemon --info resolveDependencies \
   && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
+
+# Secondary packages needed in just one (or few) steps of the pipeline; subject to frequent change, thus moved to the end of the pipeline
+RUN set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y xml-twig-tools xxd unzip \
+  `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
+  && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
+  && rm -rf /var/lib/apt/lists/*
 
 # Disable IntelliJ data sharing
 RUN set -x \

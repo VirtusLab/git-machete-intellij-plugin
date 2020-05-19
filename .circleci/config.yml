@@ -78,7 +78,10 @@ jobs:
       - run:
           name: Run UI tests
           command: |
-            apt-get update && apt-get install -y xauth
+            # To be removed once Docker CI image is regenerated
+            command -v xauth || {
+              apt-get update && apt-get install -y xauth
+            }
 
             # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
             # enableUiTests: see uiTests/build.gradle
