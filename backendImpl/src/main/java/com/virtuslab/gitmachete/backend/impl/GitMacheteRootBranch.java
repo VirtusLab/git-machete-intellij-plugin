@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
+import lombok.CustomLog;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -8,12 +9,10 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 @ToString(callSuper = true)
 public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements IGitMacheteRootBranch {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   public GitMacheteRootBranch(
       String name,

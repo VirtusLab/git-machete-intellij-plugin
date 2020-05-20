@@ -9,6 +9,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
@@ -30,13 +31,10 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 @Getter
 public class GitCoreRepository implements IGitCoreRepository {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
-
   private final Repository jgitRepo;
   private final Git jgitGit;
   private final Path mainDirectoryPath;

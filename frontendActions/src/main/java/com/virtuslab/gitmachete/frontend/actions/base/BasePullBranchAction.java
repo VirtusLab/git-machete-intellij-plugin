@@ -9,6 +9,7 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
@@ -17,9 +18,8 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMach
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
@@ -27,8 +27,6 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       IExpectsKeyGraphTable,
       IExpectsKeyProject,
       IExpectsKeySelectedVcsRepository {
-
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
 

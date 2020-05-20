@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
@@ -22,11 +23,9 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   public static final String BRANCHES_PATH = Constants.R_HEADS;
 
