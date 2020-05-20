@@ -31,17 +31,17 @@ public final class RuntimeBinding {
           .filter(c -> !c.isInterface() && !c.isAnonymousClass() && !c.isLocalClass() && !c.isMemberClass())
           .collect(Collectors.toSet());
       if (classes.isEmpty()) {
-        throw new ClassNotFoundException("No viable class implementing ${interfaze.getCanonicalName()} found");
+        throw new ClassNotFoundException("No viable class implementing " + interfaze.getCanonicalName() + " found");
       }
       if (classes.size() > 1) {
         var classesString = String.join(", ",
             classes.stream().map(c -> String.valueOf(c.getCanonicalName())).collect(Collectors.toSet()));
         throw new ClassNotFoundException(
-            "More than one viable class implementing ${interfaze.getCanonicalName()} found: ${classesString}");
+            "More than one viable class implementing " + interfaze.getCanonicalName() + " found: " + classesString);
       }
 
       var soleImplementingClass = classes.iterator().next();
-      LOG.debug(() -> "Binding ${interfaze.getCanonicalName()} to ${soleImplementingClass.getCanonicalName()}");
+      LOG.debug(() -> "Binding " + interfaze.getCanonicalName() + " to " + soleImplementingClass.getCanonicalName());
       return soleImplementingClass.getDeclaredConstructor().newInstance();
     } catch (ReflectiveOperationException e) {
       throw sneakyThrow(e);

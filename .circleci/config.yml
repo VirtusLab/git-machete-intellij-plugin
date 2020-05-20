@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run pre-build checks
+          name: Run pre-compile checks
           command: bash -x ./scripts/run-pre-build-checks
       - run:
           name: Start Gradle daemon
@@ -20,6 +20,9 @@ jobs:
           name: Compile production code without delombok
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
           command: LOMBOK_PROVIDED_BY=regular-dependency ./gradlew --max-workers=2 compileJava
+      - run:
+          name: Run post-compile checks
+          command: ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Check Javadoc correctness
           command: ./gradlew javadoc

@@ -194,6 +194,7 @@ subprojects {
   // String interpolation support, see https://github.com/antkorwin/better-strings
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
+  // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
   dependencies {
     def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
     annotationProcessor(betterStringsArtifact)
