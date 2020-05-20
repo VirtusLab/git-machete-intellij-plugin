@@ -13,12 +13,11 @@ import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * Expects DataKeys:
@@ -29,8 +28,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
+@CustomLog
 public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyAction {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

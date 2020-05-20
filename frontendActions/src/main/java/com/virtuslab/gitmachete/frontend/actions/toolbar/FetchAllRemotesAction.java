@@ -9,13 +9,12 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import git4idea.fetch.GitFetchResult;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * Expects DataKeys:
@@ -24,8 +23,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
+@CustomLog
 public class FetchAllRemotesAction extends DumbAwareAction {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

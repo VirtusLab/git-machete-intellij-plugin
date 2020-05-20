@@ -6,6 +6,7 @@ import java.util.Collection;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -26,13 +27,11 @@ import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 @Getter
 @RequiredArgsConstructor
 public abstract class BaseGitCoreBranch implements IGitCoreBranch {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   protected final GitCoreRepository repo;
   protected final String branchName;

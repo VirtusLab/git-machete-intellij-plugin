@@ -6,11 +6,10 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGr
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * Expects DataKeys:
@@ -19,8 +18,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
  *  <li>{@link DataKeys#KEY_GRAPH_TABLE}</li>
  * </ul>
  */
+@CustomLog
 public class ToggleListingCommitsAction extends ToggleAction implements DumbAware {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

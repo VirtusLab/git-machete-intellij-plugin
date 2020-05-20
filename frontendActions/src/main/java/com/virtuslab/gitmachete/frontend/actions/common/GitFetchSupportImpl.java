@@ -47,22 +47,20 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import kotlin.jvm.functions.Function1;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * @deprecated This implementation is a workaround to provide features missing in pre-2020.1 versions.
  * The main benefit of it is specific branch update ({@link GitFetchSupportImpl#fetch(GitRepository, GitRemote, String)}).
  * We need this class for {@link FetchAllRemotesAction} and {@link BasePullBranchAction}.
  */
+@CustomLog
 @Deprecated
 public final class GitFetchSupportImpl implements GitFetchSupport {
-
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final Project project;
   private final ProgressManager progressManager = ProgressManager.getInstance();

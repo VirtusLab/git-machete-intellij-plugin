@@ -10,14 +10,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.vcs.VcsNotifier;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * Expects DataKeys:
@@ -27,8 +26,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
+@CustomLog
 public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

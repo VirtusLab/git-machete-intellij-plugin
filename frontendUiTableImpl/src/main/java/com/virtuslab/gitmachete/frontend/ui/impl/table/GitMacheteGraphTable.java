@@ -35,6 +35,7 @@ import com.intellij.util.ui.StatusText;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -55,12 +56,10 @@ import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProv
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
+@CustomLog
 public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;

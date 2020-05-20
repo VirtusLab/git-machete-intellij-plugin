@@ -7,10 +7,8 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 /**
  * This action is only used for UI tests.
@@ -20,8 +18,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
  *  <li>{@link com.intellij.openapi.actionSystem.CommonDataKeys#PROJECT}</li>
  * </ul>
  */
+@CustomLog
 public class OpenTabAction extends DumbAwareAction {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

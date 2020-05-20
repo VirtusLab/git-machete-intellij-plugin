@@ -16,6 +16,7 @@ import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -26,13 +27,10 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.logger.IntelliJLoggingUtils;
 
+@CustomLog
 public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
-
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final BaseGraphTable graphTable;
   private final Project project;

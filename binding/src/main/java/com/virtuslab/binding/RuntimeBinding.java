@@ -4,15 +4,12 @@ import static lombok.Lombok.sneakyThrow;
 
 import java.util.stream.Collectors;
 
+import lombok.CustomLog;
 import org.reflections.Reflections;
 
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
-
+@CustomLog
 public final class RuntimeBinding {
   private RuntimeBinding() {}
-
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private static final Reflections reflectionsInstance = new Reflections("com.virtuslab");
 

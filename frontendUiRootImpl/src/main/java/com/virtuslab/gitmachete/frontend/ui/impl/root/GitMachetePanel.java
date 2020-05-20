@@ -15,6 +15,7 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -25,11 +26,9 @@ import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   private final VcsRootComboBox vcsRootComboBox;
   private final BaseGraphTable graphTable;

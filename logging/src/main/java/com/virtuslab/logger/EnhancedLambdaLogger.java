@@ -11,41 +11,26 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
   private final LambdaLogger logger;
-  private final String className;
+  private final String simpleClassName;
   private final ThreadLocal<@Nullable String> bufferedTimerMessage;
   private final ThreadLocal<@Nullable Long> timerStartMillis;
 
-  private static boolean isInternalLoggingClass(String fqcn) {
-    return fqcn.equals("java.lang.Thread") || fqcn.startsWith("com.virtuslab.logger.")
-        || fqcn.startsWith("kr.pe.kwonnam.slf4jlambda.");
-  }
-
-  EnhancedLambdaLogger() {
-    // At the moment when this constructor is called we have the following elements at the top of the stack:
-    // #0: java.lang.Thread#getStackTrace
-    // #1: com.virtuslab.logger.MacheteLogger#<init>
-    // #2: com.virtuslab.logger.MacheteLoggerFactory#getLogger
-    // #3: method from which MacheteLoggerFactory#getLogger was called
-    var stackTrace = Thread.currentThread().getStackTrace();
-    String category = Arrays.stream(stackTrace)
-        .map(e -> e.getClassName())
-        .filter(fqcn -> !isInternalLoggingClass(fqcn) && fqcn.startsWith("com.virtuslab."))
-        .findFirst()
-        .orElse("<unknown>")
+  EnhancedLambdaLogger(Class<?> clazz) {
+    String category = clazz
+        .getPackageName()
         .replace("com.virtuslab.", "")
-        .replaceAll("\\.[A-Z][^.]*$", "")
         .replaceAll("\\.[^.]+$", "")
         .replaceAll("\\.impl$", "");
 
     this.logger = LambdaLoggerFactory.getLogger(category);
-    this.className = Arrays.stream(stackTrace)
-        .map(e -> e.getClassName())
-        .filter(fqcn -> !isInternalLoggingClass(fqcn))
-        .findFirst()
-        .orElse("<unknown>")
-        .replaceAll(".*\\.", "");
+    this.simpleClassName = clazz.getSimpleName();
     this.bufferedTimerMessage = new ThreadLocal<>();
     this.timerStartMillis = new ThreadLocal<>();
+  }
+
+  private static boolean isInternalLoggingClass(String fqcn) {
+    return fqcn.equals("java.lang.Thread") || fqcn.startsWith("com.virtuslab.logger.")
+        || fqcn.startsWith("kr.pe.kwonnam.slf4jlambda.");
   }
 
   private String getLogMessagePrefix() {
@@ -65,16 +50,16 @@ public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
         .orElse("<unknown>");
     String timerMessage = bufferedTimerMessage.get();
     bufferedTimerMessage.remove();
-    return className + "#" + methodName + ": " + (timerMessage == null ? "" : timerMessage);
+    return simpleClassName + "#" + methodName + ": " + (timerMessage == null ? "" : timerMessage);
   }
 
-  private String getStackTraceAsString(Throwable t) {
+  private static String getStackTraceAsString(Throwable t) {
     StringWriter sw = new StringWriter();
     t.printStackTrace(new PrintWriter(sw));
     return sw.toString();
   }
 
-  private long getCurrentThreadId() {
+  private static long getCurrentThreadId() {
     return Thread.currentThread().getId();
   }
 
