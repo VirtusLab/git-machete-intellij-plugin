@@ -61,7 +61,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     LOG.debug("VCS roots:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
-    // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
+    // `com.intellij.ui.MutableCollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
     GitRepository selected = getModel().getSelected();
@@ -89,7 +89,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
-  @UIEffect
+  @SuppressWarnings("guieffect:call.invalid.ui") // Actually this is ui safe
   public Option<GitRepository> getSelectedRepository() {
     return Option.of(getModel().getSelected());
   }

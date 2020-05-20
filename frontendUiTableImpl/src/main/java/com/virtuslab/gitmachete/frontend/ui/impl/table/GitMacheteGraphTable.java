@@ -120,15 +120,15 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     subscribeToGitRepositoryChanges();
   }
 
-  private void subscribeToVcsRootChanges() {
-    // The method reference is invoked when user changes repository in combo box menu
-    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
-  }
-
   private void subscribeToGitRepositoryChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
     project.getMessageBus().connect().subscribe(topic, listener);
+  }
+
+  private void subscribeToVcsRootChanges() {
+    // The method reference is invoked when user changes repository in combo box menu
+    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
   @UIEffect

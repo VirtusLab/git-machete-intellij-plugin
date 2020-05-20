@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
-import static com.virtuslab.gitmachete.frontend.ui.impl.root.DispatchThreadUtils.getIfOnDispatchThreadOrNull;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -63,8 +62,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
         // IntelliJ Platform seems to always invoke `getData` on the UI thread anyway;
         // `getIfOnDispatchThreadOrNull` is more to ensure correctness wrt. `@UIEffect`,
         // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.
-        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY,
-            getIfOnDispatchThreadOrNull(() -> vcsRootComboBox.getSelectedRepository().getOrNull())),
+        typeSafeCase(DataKeys.KEY_SELECTED_VCS_REPOSITORY, vcsRootComboBox.getSelectedRepository().getOrNull()),
         Case($(), (Object) null));
   }
 
