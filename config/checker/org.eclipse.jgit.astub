@@ -6,6 +6,8 @@ import org.checkerframework.common.aliasing.qual.Unique;
 package org.eclipse.jgit.revwalk;
 
 class RevWalk {
+  @Unique RevWalk(Repository repo);
+
   void markStart(@NonLeaked RevCommit c);
 
   @Unique RevCommit next();

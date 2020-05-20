@@ -14,6 +14,9 @@ import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -158,23 +161,54 @@ public class GitCoreRepository implements IGitCoreRepository {
         .isEmpty();
   }
 
-  private ObjectId toExistingObjectId(IGitCoreCommit c) throws GitCoreException {
+  // - - - IMPORTANT NOTE - - -
+  // Bear in mind that RevCommit is a mutable object.
+  // Its internal state (inDegree, flags) changes during a rev walk (among others).
+  // To avoid potential bugs:
+  // - reinstantiate instead of reuse; this method provides a "clean" instance based on the given String revision
+  // - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged.
+  // This comment applies everywhere in the codebase.
+  // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
+  // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
+  public @Unique RevCommit revStringToRevCommit(String revStr) throws GitCoreException {
     try {
-      ObjectId result = jgitRepo.resolve(c.getHash().getHashString());
-      assert result != null : "Invalid commit ${c}";
-      return result;
-    } catch (IOException e) {
+      @Unique RevWalk rw = new RevWalk(jgitRepo);
+      return rw.parseCommit(revStringToObjectId(revStr));
+    } catch (MissingObjectException | IncorrectObjectTypeException e) {
+      throw new GitCoreNoSuchRevisionException("Commit '${revStr}' does not exist in this repository");
+    } catch (RevisionSyntaxException | IOException e) {
       throw new GitCoreException(e);
     }
   }
 
+  public @Unique RevCommit gitCoreCommitToRevCommit(IGitCoreCommit commit) throws GitCoreException {
+    return revStringToRevCommit(commit.getHash().getHashString());
+  }
+
+  private ObjectId revStringToObjectId(String revStr) throws GitCoreException {
+    ObjectId o;
+    try {
+      o = jgitRepo.resolve(revStr);
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+    if (o == null) {
+      throw new GitCoreNoSuchRevisionException("Commit '${revStr}' does not exist in this repository");
+    }
+    return o;
+  }
+
+  private ObjectId gitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
+    return revStringToObjectId(commit.getHash().getHashString());
+  }
+
   private @Nullable @Unique RevCommit deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
-    RevWalk walk = new RevWalk(jgitRepo);
+    @Unique RevWalk walk = new RevWalk(jgitRepo);
     walk.setRevFilter(RevFilter.MERGE_BASE);
     try {
-      walk.markStart(walk.parseCommit(toExistingObjectId(c1)));
-      walk.markStart(walk.parseCommit(toExistingObjectId(c2)));
+      walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c1)));
+      walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c2)));
       // Note that we'll get asking for one merge-base here
       // even if there is more than one (in the rare case of criss-cross histories).
       // This is still okay from the perspective of is-ancestor checks that are our sole use of merge-base:

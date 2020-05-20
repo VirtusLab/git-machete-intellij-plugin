@@ -27,7 +27,8 @@ public abstract class BaseGraphItem implements IGraphItem {
   @NonNegative
   private final int indentLevel;
 
-  protected BaseGraphItem(GraphItemColor graphItemColor,
+  protected BaseGraphItem(
+      GraphItemColor graphItemColor,
       @GTENegativeOne int prevSiblingItemIndex,
       @Positive int nextSiblingItemIndex,
       @NonNegative int indentLevel) {
@@ -37,7 +38,8 @@ public abstract class BaseGraphItem implements IGraphItem {
     this.indentLevel = indentLevel;
   }
 
-  protected BaseGraphItem(GraphItemColor graphItemColor,
+  protected BaseGraphItem(
+      GraphItemColor graphItemColor,
       @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel) {
     this.graphItemColor = graphItemColor;
