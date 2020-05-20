@@ -32,7 +32,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
     Whitebox.setInternalState(gitMacheteRepositoryFactory, "gitCoreRepositoryFactory", gitCoreRepositoryFactory);
   }
 
-  SyncToParentStatus invokeDeriveSyncToParentStatus(IGitCoreLocalBranch coreLocalBranch,
+  SyncToParentStatus invokeDeriveSyncToParentStatus(
+      IGitCoreLocalBranch coreLocalBranch,
       IGitCoreBranch parentCoreLocalBranch,
       IGitCoreCommit forkPoint) throws Exception {
     return Whitebox.invokeMethod(gitMacheteRepositoryFactory,

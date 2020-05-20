@@ -114,11 +114,11 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
   }
 
-  private GitMacheteNonRootBranch createGitMacheteNonRootBranch(IGitCoreRepository gitCoreRepository,
+  private GitMacheteNonRootBranch createGitMacheteNonRootBranch(
+      IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor,
       IGitCoreLocalBranch parentEntryCoreLocalBranch,
-      IBranchLayoutEntry entry)
-      throws GitMacheteException {
+      IBranchLayoutEntry entry) throws GitMacheteException {
 
     var branchName = entry.getName();
 

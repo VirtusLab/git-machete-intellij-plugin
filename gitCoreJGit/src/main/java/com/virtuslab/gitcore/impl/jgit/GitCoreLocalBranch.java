@@ -1,6 +1,5 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.io.IOException;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
@@ -15,7 +14,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
@@ -51,11 +49,6 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
   @Override
   public boolean isLocal() {
     return true;
-  }
-
-  @Override
-  public String getBranchTypeString() {
-    return getBranchTypeString(/* capitalized */ false);
   }
 
   @Override
@@ -177,15 +170,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
 
     LOG.debug("Start walking through logs");
 
-    RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    @Unique RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
-    try {
-      walk.markStart(commit);
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
-
+    @Unique RevWalk walk = getTopoRevWalkFromPointedCommit();
     // There's apparently no way for AliasingChecker to work correctly with generics
     // (in particular, with enhanced `for` loops, which are essentially syntax sugar over Iterator<...>);
     // hence we need to suppress `aliasing:enhancedfor.type.incompatible` here.

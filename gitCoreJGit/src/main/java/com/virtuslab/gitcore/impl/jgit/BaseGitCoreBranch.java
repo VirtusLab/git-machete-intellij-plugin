@@ -12,19 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import com.virtuslab.gitcore.api.GitCoreException;
-import com.virtuslab.gitcore.api.GitCoreNoSuchCommitException;
-import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 
@@ -49,7 +43,9 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
   public abstract String getBranchesPath();
 
-  public abstract String getBranchTypeString();
+  public final String getBranchTypeString() {
+    return getBranchTypeString(/* capitalized */ false);
+  }
 
   public abstract String getBranchTypeString(boolean capitalized);
 
@@ -57,58 +53,30 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   @Override
   public synchronized GitCoreCommit getPointedCommit() throws GitCoreException {
     if (pointedCommit == null) {
-      var revStr = getFullName();
-      @Unique RevCommit revCommit = resolveRevCommit(revStr);
+      @Unique RevCommit revCommit = repo.revStringToRevCommit(getFullName());
       pointedCommit = new GitCoreCommit(revCommit);
     }
     return pointedCommit;
   }
 
-  // - - - IMPORTANT NOTE - - -
-  // Bear in mind that RevCommit is a mutable object.
-  // Its internal state (inDegree, flags) changes during a rev walk (among others).
-  // To avoid potential bugs:
-  // - reinstantiate instead of reuse; this method provides a "clean" instance based on the given String revision
-  // - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged.
-  // This comment applies everywhere in the codebase.
-  // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
-  // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
-  protected @Unique RevCommit resolveRevCommit(String revStr) throws GitCoreException {
-    Repository jgitRepo = repo.getJgitRepo();
-    RevWalk rw = new RevWalk(jgitRepo);
-    @Unique RevCommit c;
+  protected @Unique RevWalk getTopoRevWalkFromPointedCommit() throws GitCoreException {
+    @Unique RevWalk walk = new RevWalk(repo.getJgitRepo());
+    walk.sort(RevSort.TOPO);
+    @Unique RevCommit commit = repo.gitCoreCommitToRevCommit(getPointedCommit());
     try {
-      ObjectId o = jgitRepo.resolve(revStr);
-      if (o == null) {
-        throw new GitCoreNoSuchRevisionException(
-            "${getBranchTypeString(/* capitalized */ true)} branch '${branchName}', revision '${revStr}' does not exist in this repository");
-      }
-      c = rw.parseCommit(o);
-    } catch (MissingObjectException | IncorrectObjectTypeException e) {
-      throw new GitCoreNoSuchCommitException(
-          "Commit pointed by ${getBranchTypeString()} branch '${branchName}' does not exist in this repository");
-    } catch (RevisionSyntaxException | IOException e) {
+      walk.markStart(commit);
+    } catch (IOException e) {
       throw new GitCoreException(e);
     }
-    return c;
+    return walk;
   }
 
   @Override
   public List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
-    LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit.getHash().getHashString()}");
+    LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit}");
 
-    RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    @Unique RevCommit commit = resolveRevCommit(getPointedCommit().getHash().getHashString());
-
-    RevWalk revWalk = Try.of(() -> {
-      walk.markStart(commit);
-      return walk;
-    }).getOrElseThrow(e -> new GitCoreException(e));
-
-    LOG.debug("Start revwalk");
-
-    return Iterator.ofAll(revWalk)
+    LOG.debug("Starting revwalk");
+    return Iterator.ofAll(getTopoRevWalkFromPointedCommit())
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
         .map(revCommit -> {
           LOG.debug(() -> revCommit.getId().getName());

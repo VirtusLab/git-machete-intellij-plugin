@@ -27,11 +27,6 @@ public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRe
   }
 
   @Override
-  public String getBranchTypeString() {
-    return getBranchTypeString(/* capitalized */ false);
-  }
-
-  @Override
   public String getBranchTypeString(boolean capitalized) {
     return capitalized ? "Remote" : "remote";
   }

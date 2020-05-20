@@ -15,7 +15,8 @@ public final class EdgeRenderPart extends RenderPart implements IEdgeRenderPart 
 
   private final Type type;
 
-  public EdgeRenderPart(@NonNegative int rowIndex,
+  public EdgeRenderPart(
+      @NonNegative int rowIndex,
       @NonNegative int positionInRow,
       Type type,
       GraphEdge graphEdge,
