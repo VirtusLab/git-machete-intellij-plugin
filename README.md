@@ -11,19 +11,23 @@ This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.co
 
 SLF4J logging in this plugin has the following categories:
 
-* `binding`
-* `branchlayout`
-* `gitcore`
-* `gitmachete.backend`
-* `gitmachete.frontend.actions`
-* `gitmachete.frontend.ui`
+```
+binding
+branchlayout
+gitcore
+gitmachete.backend
+gitmachete.frontend.actions
+gitmachete.frontend.ui
+```
 
-By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
-The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out.
-
-To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`. <br/>
 The standard practice in Java logging is to use fully-qualified name of each class as category;
 in our case, however, we're only ever using the categories provided above.
+
+By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
+The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out. <br/>
+Tip: use `tail -f` to watch the log file as it grows.
+
+To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`. <br/>
 
 
 ## Development

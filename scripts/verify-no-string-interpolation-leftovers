@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -o pipefail -u
+
+exit_code=0
+for class in $(find . -name '*.class' -type f); do
+  # This is also catching would-be interpolations written without the leading `$`.
+  output=$(strings $class | grep -E '^.+\{.*\}')
+  if [[ $? -eq 0 ]]; then
+    echo "Class file $class likely contains the following unprocessed string interpolations:"
+    echo "$output"
+    echo
+    exit_code=1
+  fi
+done
+exit $exit_code
