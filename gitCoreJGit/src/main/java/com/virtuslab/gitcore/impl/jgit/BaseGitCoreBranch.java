@@ -62,9 +62,9 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   protected @Unique RevWalk getTopoRevWalkFromPointedCommit() throws GitCoreException {
     @Unique RevWalk walk = new RevWalk(repo.getJgitRepo());
     walk.sort(RevSort.TOPO);
-    @Unique RevCommit commit = repo.gitCoreCommitToRevCommit(getPointedCommit());
+    ObjectId objectId = repo.gitCoreCommitToObjectId(getPointedCommit());
     try {
-      walk.markStart(commit);
+      walk.markStart(walk.parseCommit(objectId));
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
@@ -74,12 +74,19 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   @Override
   public List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit}");
+    @Unique RevWalk walk = getTopoRevWalkFromPointedCommit();
+    try {
+      walk.markUninteresting(walk.parseCommit(repo.gitCoreCommitToObjectId(upToCommit)));
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+    walk.sort(RevSort.BOUNDARY);
 
     LOG.debug("Starting revwalk");
-    return Iterator.ofAll(getTopoRevWalkFromPointedCommit())
+    return Iterator.ofAll(walk.iterator())
         .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
         .map(revCommit -> {
-          LOG.debug(() -> revCommit.getId().getName());
+          LOG.debug(() -> "* " + revCommit.getId().getName());
           return revCommit;
         })
         .map(GitCoreCommit::new)
