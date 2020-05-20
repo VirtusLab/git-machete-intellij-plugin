@@ -17,7 +17,7 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
@@ -117,7 +117,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends GitMachet
 
   private void doFastForward(Project project,
       GitRepository gitRepository,
-      BaseGitMacheteNonRootBranch gitMacheteNonRootBranch) {
+      IGitMacheteNonRootBranch gitMacheteNonRootBranch) {
     var trackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getName());
     var parentTrackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getUpstreamBranch().getName());
 

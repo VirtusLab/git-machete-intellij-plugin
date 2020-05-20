@@ -26,7 +26,7 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
@@ -70,7 +70,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
 
     Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
         .flatMap(repo -> repo.getBranchByName(branchNameString))
-        .map(BaseGitMacheteBranch::getSyncToRemoteStatus);
+        .map(IGitMacheteBranch::getSyncToRemoteStatus);
 
     if (syncToRemoteStatus.isEmpty()) {
       presentation.setEnabled(false);
@@ -134,7 +134,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
-          Option<BaseGitMacheteBranch> branchOption = macheteRepository.getBranchByName(branchName);
+          Option<IGitMacheteBranch> branchOption = macheteRepository.getBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
           Option<IGitMacheteRemoteBranch> remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {

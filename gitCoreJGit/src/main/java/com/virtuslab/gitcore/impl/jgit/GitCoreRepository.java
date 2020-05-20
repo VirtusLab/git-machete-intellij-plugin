@@ -2,6 +2,7 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.Function;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -117,7 +118,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     LOG.debug("List of remote branches of '${remoteName}':");
     return List
         .ofAll(
-            Try.of(() -> getJgitRepo().getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
+            Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
                 .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e)))
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(branch -> {
@@ -133,12 +134,19 @@ public class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<String> getRemotes() {
-    return List.ofAll(getJgitRepo().getRemoteNames());
+    return List.ofAll(jgitRepo.getRemoteNames());
+  }
+
+  private Try<List<IGitCoreRemoteBranch>> getRemoteBranchesTry(String remoteName) {
+    return Try.of(() -> getRemoteBranches(remoteName));
   }
 
   @Override
   public List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
-    return getRemotes().flatMap(remoteName -> Try.of(() -> getRemoteBranches(remoteName)).get());
+    return Try.traverse(getRemotes(), this::getRemoteBranchesTry)
+        .getOrElseThrow(GitCoreException::castOrWrap)
+        .flatMap(Function.identity())
+        .toList();
   }
 
   private String deriveRemoteName(String localBranchShortName) {

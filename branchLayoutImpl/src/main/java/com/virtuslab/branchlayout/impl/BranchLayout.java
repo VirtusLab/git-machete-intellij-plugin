@@ -43,7 +43,7 @@ public class BranchLayout implements IBranchLayout {
     return slideOut(entryOption.get());
   }
 
-  /** @return {@link IBranchLayout} where given {@code entryToSlideOut} is replaced with entries of its subbranches */
+  /** @return {@link IBranchLayout} where the given {@code entryToSlideOut} is replaced with its subentries */
   private IBranchLayout slideOut(IBranchLayoutEntry entryToSlideOut) throws BranchLayoutException {
     LOG.debug(() -> "Entering: entryToSlideOut = '${entryToSlideOut.getName()}'");
 
@@ -58,23 +58,22 @@ public class BranchLayout implements IBranchLayout {
     LOG.debug(() -> "Entry ${entryToSlideOut.getName()} has index ${indexInUpstream} in its upstream");
 
     LOG.debug("Removing this entry from upstream and setting this entry's parent as new parent " +
-        "for this branch's downstreams");
+        "for this branch's subentries");
 
-    var updatedSubbranches = upstream.getSubentries()
+    var updatedSubentries = upstream.getSubentries()
         .removeAt(indexInUpstream)
         .insertAll(indexInUpstream, entryToSlideOut.getSubentries());
 
     LOG.debug("Following subentries has been updated:");
-    entryToSlideOut.getSubentries().forEach(downstream -> LOG.debug(() -> "* ${downstream} (${downstream.getName()})"));
+    entryToSlideOut.getSubentries().forEach(subentry -> LOG.debug(() -> "* ${subentry} (${subentry.getName()})"));
 
-    var updatedUpstream = updateSubbranchesForEntry(upstream, updatedSubbranches);
+    var updatedUpstream = updateSubentriesForEntry(upstream, updatedSubentries);
 
     return replace(upstream, updatedUpstream);
   }
 
   /**
-   * @return a {@link IBranchLayout} containing all elements of this where the {@code entry} is replaced with
-   *         {@code newEntry}
+   * @return a {@link IBranchLayout} containing all elements of this where the {@code entry} is replaced with {@code newEntry}
    */
   private IBranchLayout replace(IBranchLayoutEntry oldEntry, IBranchLayoutEntry newEntry) {
     LOG.debug(() -> "Entering: oldEntry = ${oldEntry} (${oldEntry.getName()}), " +
@@ -95,18 +94,17 @@ public class BranchLayout implements IBranchLayout {
       var updatedSubentries = upstreamEntry.getSubentries().replace(oldEntry, newEntry);
       LOG.debug("Updated subentries:");
       updatedSubentries.forEach(entry -> LOG.debug(() -> "* ${entry} (${entry.getName()})"));
-      var updatedUpstreamEntry = updateSubbranchesForEntry(upstreamEntry, updatedSubentries);
+      var updatedUpstreamEntry = updateSubentriesForEntry(upstreamEntry, updatedSubentries);
 
       return replace(upstreamEntry, updatedUpstreamEntry);
     }
   }
 
-  /** @return a copy of the {@code entry} but with specified {@code subbranches} list */
-  private IBranchLayoutEntry updateSubbranchesForEntry(IBranchLayoutEntry entry,
-      List<IBranchLayoutEntry> subbranches) {
+  /** @return a copy of the {@code entry} but with the specified {@code subentries} */
+  private IBranchLayoutEntry updateSubentriesForEntry(IBranchLayoutEntry entry, List<IBranchLayoutEntry> subentries) {
     var name = entry.getName();
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
-    return new BranchLayoutEntry(name, customAnnotation, subbranches);
+    return new BranchLayoutEntry(name, customAnnotation, subentries);
   }
 
   private Option<IBranchLayoutEntry> findUpstreamEntryForEntry(IBranchLayoutEntry entry) {
