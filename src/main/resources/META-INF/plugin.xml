@@ -25,7 +25,9 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="TEXT"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-
+<!--        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>-->
+        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectAware"/>
+        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.icons.MacheteIconProvider"/>
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>

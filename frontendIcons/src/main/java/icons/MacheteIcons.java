@@ -17,6 +17,8 @@ public final class MacheteIcons {
 
   public static final Icon MACHETE_FILE = IconLoader.getIcon("/macheteFileIcon.svg");
 
+  public static final Icon MACHETE_LOAD_CHANGES = IconLoader.getIcon("/macheteLoadChanges.svg");
+
   public static final Icon PULL = IconLoader.getIcon("/incomingChangesOn.svg");
 
   public static final Icon PUSH = IconLoader.getIcon("/outgoingChangesOn.svg");

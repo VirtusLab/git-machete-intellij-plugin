@@ -75,7 +75,7 @@ allprojects {
 
   ext {
     betterStringsVerson = '0.3'
-    checkstyleToolVersion = '8.30'
+    checkstyleToolVersion = '8.33'
     // The following places must also be updated when updating the version below:
     // * `patchPluginXml.untilBuild` in root Gradle project config in this file
     // * `runPluginVerifier.ides` in root Gradle project config in this file

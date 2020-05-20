@@ -1,0 +1,3 @@
+vavr()
+
+addIntellijToCompileClasspath(withGit4Idea: true)
