@@ -16,21 +16,20 @@ import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.logger.IPrefixedLambdaLogger;
-import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
+@CustomLog
 public class OpenMacheteFileAction extends DumbAwareAction
     implements
       IExpectsKeyGraphTable,
       IExpectsKeyProject,
       IExpectsKeySelectedVcsRepository {
-  private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
   @UIEffect

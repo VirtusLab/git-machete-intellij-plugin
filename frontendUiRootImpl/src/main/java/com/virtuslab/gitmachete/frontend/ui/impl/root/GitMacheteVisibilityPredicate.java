@@ -4,12 +4,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.NotNullFunction;
 import git4idea.GitVcs;
+import lombok.CustomLog;
 
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
-
+@CustomLog
 public class GitMacheteVisibilityPredicate implements NotNullFunction<Project, Boolean> {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   public Boolean fun(Project project) {

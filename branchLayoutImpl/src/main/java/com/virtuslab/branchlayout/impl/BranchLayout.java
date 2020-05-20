@@ -5,19 +5,17 @@ import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 import lombok.Data;
 import lombok.Getter;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 @Data
 public class BranchLayout implements IBranchLayout {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
-
   private final List<IBranchLayoutEntry> rootEntries;
 
   @Getter

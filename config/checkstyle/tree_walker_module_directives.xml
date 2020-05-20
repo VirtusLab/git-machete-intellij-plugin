@@ -108,6 +108,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value=" LOG = "/>
+    <property name="message" value="Do not declare LOG field manually, use @lombok.CustomLog instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\\n"/>
     <property name="message" value="Usage of \n is forbidden, use System.lineSeparator() instead"/>
 </module>

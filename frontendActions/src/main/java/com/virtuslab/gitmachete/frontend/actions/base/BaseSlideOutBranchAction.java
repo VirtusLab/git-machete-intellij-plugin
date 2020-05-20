@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.vcs.VcsNotifier;
+import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -12,9 +13,8 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyBranchL
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
@@ -22,8 +22,6 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyGraphTable,
       IExpectsKeyProject {
-
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   @UIEffect

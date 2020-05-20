@@ -7,6 +7,7 @@ import java.nio.file.StandardCopyOption;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -16,12 +17,10 @@ import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
 import com.virtuslab.branchlayout.impl.BranchLayout;
 import com.virtuslab.branchlayout.impl.IndentSpec;
-import com.virtuslab.logger.EnhancedLambdaLoggerFactory;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
+@CustomLog
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
-  private static final IEnhancedLambdaLogger LOG = EnhancedLambdaLoggerFactory.create();
 
   @Override
   public void write(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
