@@ -59,7 +59,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
     LOG.debug(() -> "VCS roots:");
-    repositories.forEach(r -> LOG.debug("* {r.getRoot().getName()}"));
+    repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
