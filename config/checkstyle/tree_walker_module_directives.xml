@@ -166,6 +166,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="^.*(?&lt;!@Unique |@NonLeaked |\bnew |import org\.eclipse\.jgit\.revwalk\.)\bRevWalk\b"/>
+    <property name="message" value="RevWalk is mutable and thus unsafe when leaked; always mark RevWalks as @org.checkerframework.common.aliasing.qual.Unique"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bupdateUI\b"/>
     <property name="message" value="Probably unintended updateUI() usage. See docs and consider repaint() and revalidate()"/>
 </module>

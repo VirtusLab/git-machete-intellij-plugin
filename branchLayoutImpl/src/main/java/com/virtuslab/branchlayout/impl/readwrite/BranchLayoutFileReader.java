@@ -91,7 +91,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * @return list of entries with recursively built lists of subentries
    */
   @SuppressWarnings("index:argument.type.incompatible")
-  private List<IBranchLayoutEntry> buildEntriesStructure(List<String> lines,
+  private List<IBranchLayoutEntry> buildEntriesStructure(
+      List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
       @GTENegativeOne int upstreamLineIndex) {
     LOG.debug(() -> "Entering: lines = ${lines}, lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, " +
