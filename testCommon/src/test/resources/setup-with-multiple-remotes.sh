@@ -5,11 +5,6 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/common.sh
 
-push() {
-  b=$(git symbolic-ref --short HEAD)
-  git push -u $1 $b
-}
-
 newrepo $1 machete-sandbox-remote1 --bare
 newrepo $1 machete-sandbox-remote2 --bare
 newrepo $1 machete-sandbox

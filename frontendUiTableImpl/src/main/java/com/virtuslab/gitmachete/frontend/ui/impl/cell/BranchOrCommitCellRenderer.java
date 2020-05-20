@@ -131,7 +131,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
         Option<String> statusHookOutput = branch.getStatusHookOutput();
         if (statusHookOutput.isDefined()) {
-          append("   " + statusHookOutput.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+          append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
