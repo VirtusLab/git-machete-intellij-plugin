@@ -23,6 +23,9 @@ Most non-standard/project-specific conventions are enforced by:
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
   (most config in [build.gradle](build.gradle), stubs in [config/checker/](config/checker))
 
+Note that certain Checker Framework's checkers (`Index`, `Optional`, `Regex`) are by default only run in the CI to speed up local compilation. <br/>
+Pass `RUN_ALL_CHECKERS=true` env var to Gradle to enable all of them locally.
+
 Other coding conventions include:
 
 * Don't write nullary lambdas in `receiver::method` notation, use explicit `() -> receiver.method()` notation instead. <br/>

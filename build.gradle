@@ -134,12 +134,17 @@ subprojects {
     // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
     suppressLombokWarnings = false
     checkers = [
-      'org.checkerframework.checker.guieffect.GuiEffectChecker',
-      'org.checkerframework.checker.index.IndexChecker',
       'org.checkerframework.checker.nullness.NullnessChecker',
-      'org.checkerframework.checker.optional.OptionalChecker',
-      'org.checkerframework.checker.regex.RegexChecker',
     ]
+    if (System.getenv('CI') == 'true' || System.getenv('RUN_ALL_CHECKERS') == 'true') {
+      // The experience shows that the below checkers are just rarely failing (if ever, in case of Regex), as compared to GuiEffect/Nullness.
+      // Hence, they're only applied in CI, or locally only if a dedicated variable is present in the env.
+      checkers += [
+        'org.checkerframework.checker.index.IndexChecker',
+        'org.checkerframework.checker.optional.OptionalChecker',
+        'org.checkerframework.checker.regex.RegexChecker',
+      ]
+    }
     extraJavacArgs = [
       '-AassumeAssertionsAreEnabled',
       '-AinvariantArrays',
@@ -264,6 +269,12 @@ subprojects {
       runIde.enabled = false
       runIdeForUiTests.enabled = false
       verifyPlugin.enabled = false
+
+      checkerFramework {
+        // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
+        // but the risk is minuscule and not worth the extra computational burden in every single build.
+        checkers += 'org.checkerframework.checker.guieffect.GuiEffectChecker'
+      }
 
       intellij {
         version intellijVersion

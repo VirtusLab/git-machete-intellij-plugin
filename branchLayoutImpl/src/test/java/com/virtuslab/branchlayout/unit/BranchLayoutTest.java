@@ -74,9 +74,9 @@ public class BranchLayoutTest {
     // then
     assertEquals(result.getRootEntries().size(), 1);
     assertEquals(result.getRootEntries().get(0).getName(), rootName);
-    var subbranches = result.getRootEntries().get(0).getSubentries();
-    assertEquals(subbranches.size(), 2);
-    assertEquals(subbranches.get(0).getName(), childName0);
-    assertEquals(subbranches.get(1).getName(), childName1);
+    var subentries = result.getRootEntries().get(0).getSubentries();
+    assertEquals(subentries.size(), 2);
+    assertEquals(subentries.get(0).getName(), childName0);
+    assertEquals(subentries.get(1).getName(), childName1);
   }
 }

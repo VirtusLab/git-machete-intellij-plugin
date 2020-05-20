@@ -40,6 +40,7 @@ import com.virtuslab.gitmachete.frontend.ui.impl.table.GitMacheteGraphTable;
 
 @UI
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
+  private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
 
   private final MyComponent myComponent;
 
@@ -124,7 +125,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
         IGitMacheteBranch branch = branchItem.getBranch();
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
-          append("   " + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+          append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
