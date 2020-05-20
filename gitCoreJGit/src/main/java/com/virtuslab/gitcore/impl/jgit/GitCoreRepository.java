@@ -181,10 +181,6 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  public @Unique RevCommit gitCoreCommitToRevCommit(IGitCoreCommit commit) throws GitCoreException {
-    return revStringToRevCommit(commit.getHash().getHashString());
-  }
-
   private ObjectId revStringToObjectId(String revStr) throws GitCoreException {
     ObjectId o;
     try {
@@ -198,7 +194,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     return o;
   }
 
-  private ObjectId gitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
+  public ObjectId gitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
     return revStringToObjectId(commit.getHash().getHashString());
   }
 
