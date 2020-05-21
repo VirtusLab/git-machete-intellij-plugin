@@ -1,9 +1,14 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_BRANCH_SECTION;
+import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_MERGE;
+import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_REMOTE;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Function;
 
+import io.vavr.CheckedFunction1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -11,34 +16,31 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.Getter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 
+import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
+import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
 @CustomLog
-@Getter
 public class GitCoreRepository implements IGitCoreRepository {
   private final Repository jgitRepo;
-  private final Git jgitGit;
+  @Getter
   private final Path mainDirectoryPath;
   private final Path gitDirectoryPath;
 
@@ -48,9 +50,8 @@ public class GitCoreRepository implements IGitCoreRepository {
     this.mainDirectoryPath = mainDirectoryPath;
     this.gitDirectoryPath = gitDirectoryPath;
 
-    jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
+    this.jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
         e -> new GitCoreCannotAccessGitDirectoryException("Cannot access .git directory under ${gitDirectoryPath}", e));
-    jgitGit = new Git(jgitRepo);
   }
 
   @Override
@@ -72,30 +73,27 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
-    if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
-      throw new GitCoreNoSuchRevisionException("Local branch '${branchName}' does not exist in this repository");
+  public GitCoreLocalBranch getLocalBranch(String localBranchShortName) throws GitCoreException {
+    if (!isBranchPresent(Constants.R_HEADS + localBranchShortName)) {
+      throw new GitCoreNoSuchRevisionException("Local branch '${localBranchShortName}' does not exist in this repository");
     }
 
-    String remoteName = deriveRemoteName(branchName);
-    IGitCoreRemoteBranch remoteBranch = getRemoteBranch(branchName, remoteName).getOrNull();
-
-    return new GitCoreLocalBranch(/* repo */ this, branchName, remoteName, remoteBranch);
+    IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull()).getOrNull();
+    return new GitCoreLocalBranch(/* repo */ this, localBranchShortName, remoteBranch);
   }
 
-  @Override
-  public Option<GitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException {
-    if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/" + branchName)) {
+  private Option<GitCoreRemoteBranch> getRemoteBranch(String remoteName, String remoteBranchShortName) throws GitCoreException {
+    if (!isBranchPresent(Constants.R_REMOTES + remoteName + "/" + remoteBranchShortName)) {
       return Option.none();
     }
-    return Option.of(new GitCoreRemoteBranch(/* repo */ this, branchName, remoteName));
+    return Option.of(new GitCoreRemoteBranch(/* repo */ this, remoteName, remoteBranchShortName));
   }
 
   @Override
   public List<GitCoreLocalBranch> getLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of local branches:");
-    return Try.of(() -> getJgitGit().branchList().call())
+    return Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -104,10 +102,9 @@ public class GitCoreRepository implements IGitCoreRepository {
           return branch;
         })
         .map(ref -> {
-          String shortBranchName = ref.getName().replace(GitCoreLocalBranch.BRANCHES_PATH, /* replacement */ "");
-          String remoteName = deriveRemoteName(shortBranchName);
-          return new GitCoreLocalBranch(/* repo */ this, shortBranchName, remoteName,
-              Try.of(() -> getRemoteBranch(shortBranchName, remoteName).getOrNull()).getOrNull());
+          String localBranchShortName = ref.getName().replace(Constants.R_HEADS, /* replacement */ "");
+          IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull()).getOrNull();
+          return new GitCoreLocalBranch(/* repo */ this, localBranchShortName, remoteBranch);
         })
         .collect(List.collector());
   }
@@ -116,20 +113,20 @@ public class GitCoreRepository implements IGitCoreRepository {
   public List<GitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
-    return List
-        .ofAll(
-            Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/"))
-                .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e)))
+    String remoteBranchFullNamePrefix = Constants.R_REMOTES + remoteName + "/";
+    return Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(remoteBranchFullNamePrefix))
+        .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
+        .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(branch -> {
           LOG.debug(() -> "* ${branch.getName()}");
           return branch;
         })
         .map(ref -> {
-          String shortBranchName = ref.getName().replace(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/",
-              /* replacement */ "");
-          return new GitCoreRemoteBranch(/* repo */ this, shortBranchName, remoteName);
-        });
+          String remoteBranchShortName = ref.getName().replace(remoteBranchFullNamePrefix, /* replacement */ "");
+          return new GitCoreRemoteBranch(/* repo */ this, remoteName, remoteBranchShortName);
+        })
+        .collect(List.collector());
   }
 
   @Override
@@ -149,61 +146,99 @@ public class GitCoreRepository implements IGitCoreRepository {
         .toList();
   }
 
-  private String deriveRemoteName(String localBranchShortName) {
-    return jgitRepo.getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION, localBranchShortName,
-        ConfigConstants.CONFIG_KEY_REMOTE);
+  private Option<GitCoreRemoteBranch> deriveRemoteBranch(String localBranchShortName) throws GitCoreException {
+    return deriveRemoteName(localBranchShortName)
+        .flatMap(remoteName -> deriveRemoteBranchName(localBranchShortName)
+            .flatMap(remoteShortBranchName -> Try.of(() -> getRemoteBranch(remoteName, remoteShortBranchName)).get()));
   }
 
-  private boolean isBranchMissing(String fullBranchName) throws GitCoreException {
-    return Try.of(() -> Option.of(jgitRepo.resolve(fullBranchName)))
-        .getOrElseThrow(e -> new GitCoreException(e))
-        .isEmpty();
+  private Option<String> deriveRemoteName(String localBranchShortName) {
+    return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchShortName, CONFIG_KEY_REMOTE));
   }
 
-  // - - - IMPORTANT NOTE - - -
-  // Bear in mind that RevCommit is a mutable object.
-  // Its internal state (inDegree, flags) changes during a rev walk (among others).
-  // To avoid potential bugs:
-  // - reinstantiate instead of reuse; this method provides a "clean" instance based on the given String revision
-  // - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged.
-  // This comment applies everywhere in the codebase.
-  // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
-  // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
-  public @Unique RevCommit revStringToRevCommit(String revStr) throws GitCoreException {
-    try {
-      @Unique RevWalk rw = new RevWalk(jgitRepo);
-      return rw.parseCommit(revStringToObjectId(revStr));
-    } catch (MissingObjectException | IncorrectObjectTypeException e) {
-      throw new GitCoreNoSuchRevisionException("Commit '${revStr}' does not exist in this repository");
-    } catch (RevisionSyntaxException | IOException e) {
+  private Option<String> deriveRemoteBranchName(String localBranchShortName) {
+    return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchShortName, CONFIG_KEY_MERGE))
+        .map(branchFullName -> branchFullName.replace(Constants.R_HEADS, /* replacement */ ""));
+  }
+
+  @SuppressWarnings("IllegalCatch")
+  <T> T withRevWalk(CheckedFunction1<RevWalk, T> fun) throws GitCoreException {
+    try (RevWalk walk = new RevWalk(jgitRepo)) {
+      return fun.apply(walk);
+    } catch (Throwable e) {
       throw new GitCoreException(e);
     }
+  }
+
+  Option<GitCoreBranchTrackingStatus> deriveTrackingStatus(GitCoreLocalBranch localBranch) throws GitCoreException {
+    IGitCoreRemoteBranch remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+    if (remoteBranch == null) {
+      return Option.none();
+    }
+
+    return withRevWalk(walk -> {
+      @Unique RevCommit localCommit = walk.parseCommit(gitCoreCommitToObjectId(localBranch.getPointedCommit()));
+      @Unique RevCommit remoteCommit = walk.parseCommit(gitCoreCommitToObjectId(remoteBranch.getPointedCommit()));
+
+      var mergeBaseCommitHash = deriveMergeBaseIfNeeded(localBranch.getPointedCommit(), remoteBranch.getPointedCommit());
+      if (mergeBaseCommitHash.isEmpty()) {
+        return Option.none();
+      }
+      @Unique RevCommit mergeBase = walk.parseCommit(revStringToObjectId(mergeBaseCommitHash.get().getHashString()));
+
+      // Yes, `walk` is leaked here.
+      // `count()` calls `walk.reset()` at the very beginning but NOT at the end.
+      // We should be careful NOT to use `walk` afterwards (or at least call `reset()` first).
+      int aheadCount = RevWalkUtils.count(walk, localCommit, mergeBase);
+      int behindCount = RevWalkUtils.count(walk, remoteCommit, mergeBase);
+
+      return Option.some(GitCoreBranchTrackingStatus.of(remoteBranch.getRemoteName(), aheadCount, behindCount));
+    });
+  }
+
+  private boolean isBranchPresent(String branchFullName) throws GitCoreException {
+    return Try.of(() -> Option.of(jgitRepo.resolve(branchFullName)))
+        .getOrElseThrow(e -> new GitCoreException(e))
+        .isDefined();
+  }
+
+  public GitCoreCommit revStringToGitCoreCommit(String revStr) throws GitCoreException {
+    return withRevWalk(walk -> new GitCoreCommit(walk.parseCommit(revStringToObjectId(revStr))));
   }
 
   private ObjectId revStringToObjectId(String revStr) throws GitCoreException {
-    ObjectId o;
+    ObjectId objectId;
     try {
-      o = jgitRepo.resolve(revStr);
+      objectId = jgitRepo.resolve(revStr);
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
-    if (o == null) {
+    if (objectId == null) {
       throw new GitCoreNoSuchRevisionException("Commit '${revStr}' does not exist in this repository");
     }
-    return o;
+    return objectId;
   }
 
-  public ObjectId gitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
+  ObjectId gitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
     return revStringToObjectId(commit.getHash().getHashString());
   }
 
-  private @Nullable @Unique RevCommit deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
-    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
-    @Unique RevWalk walk = new RevWalk(jgitRepo);
-    walk.setRevFilter(RevFilter.MERGE_BASE);
+  Option<ReflogReader> getReflogReader(IGitCoreBranch branch) throws GitCoreException {
     try {
+      return Option.of(jgitRepo.getReflogReader(branch.getFullName()));
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
+  }
+
+  private Option<GitCoreCommitHash> deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
+    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+
+    return withRevWalk(walk -> {
+      walk.setRevFilter(RevFilter.MERGE_BASE);
       walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c1)));
       walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c2)));
+
       // Note that we'll get asking for one merge-base here
       // even if there is more than one (in the rare case of criss-cross histories).
       // This is still okay from the perspective of is-ancestor checks that are our sole use of merge-base:
@@ -214,18 +249,16 @@ public class GitCoreRepository implements IGitCoreRepository {
       @Unique RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is ${mergeBase.toString()}");
-      return mergeBase;
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
+      GitCoreCommitHash mergeBaseHash = mergeBase != null ? new GitCoreCommitHash(mergeBase.getId().getName()) : null;
+      return Option.of(mergeBaseHash);
+    });
   }
 
   // Note that this cache can be static since merge-base for the given two commits
   // will never change thanks to git commit graph immutability.
-  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
+  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, Option<GitCoreCommitHash>> mergeBaseCache = new java.util.HashMap<>();
 
-  @Nullable
-  private GitCoreCommitHash deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
+  private Option<GitCoreCommitHash> deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
     var abKey = Tuple.of(a, b);
     var baKey = Tuple.of(b, a);
@@ -236,10 +269,9 @@ public class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
-      @Unique RevCommit mergeBase = deriveMergeBase(a, b);
-      GitCoreCommitHash mergeBaseHash = mergeBase != null ? new GitCoreCommitHash(mergeBase.getId().getName()) : null;
-      mergeBaseCache.put(abKey, mergeBaseHash);
-      return mergeBaseHash;
+      var result = deriveMergeBase(a, b);
+      mergeBaseCache.put(abKey, result);
+      return result;
     }
   }
 
@@ -254,12 +286,12 @@ public class GitCoreRepository implements IGitCoreRepository {
       return true;
     }
     var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
-    if (mergeBaseHash == null) {
+    if (mergeBaseHash.isEmpty()) {
       LOG.debug("Merge base of presumedAncestor and presumedDescendant not found " +
           "=> presumedAncestor is not ancestor of presumedDescendant");
       return false;
     }
-    boolean isAncestor = mergeBaseHash.equals(presumedAncestor.getHash());
+    boolean isAncestor = mergeBaseHash.get().equals(presumedAncestor.getHash());
     LOG.debug("Merge base of presumedAncestor and presumedDescendant is equal to presumedAncestor " +
         "=> presumedAncestor is ancestor of presumedDescendant");
     return isAncestor;
