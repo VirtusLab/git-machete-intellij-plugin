@@ -7,7 +7,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
@@ -36,11 +35,6 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
     this.remoteBranch = remoteBranch;
     this.customAnnotation = customAnnotation;
     this.statusHookOutput = statusHookOutput;
-  }
-
-  @Override
-  public List<IGitMacheteNonRootBranch> getDownstreamBranches() {
-    return List.narrow(downstreamBranches);
   }
 
   @Override

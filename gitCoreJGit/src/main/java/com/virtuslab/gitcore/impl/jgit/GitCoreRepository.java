@@ -31,7 +31,6 @@ import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
@@ -55,7 +54,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
+  public Option<GitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
     Ref ref;
     try {
       ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
@@ -73,7 +72,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
+  public GitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException {
     if (isBranchMissing(GitCoreLocalBranch.BRANCHES_PATH + branchName)) {
       throw new GitCoreNoSuchRevisionException("Local branch '${branchName}' does not exist in this repository");
     }
@@ -85,7 +84,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException {
+  public Option<GitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException {
     if (isBranchMissing(GitCoreRemoteBranch.BRANCHES_PATH + remoteName + "/" + branchName)) {
       return Option.none();
     }
@@ -93,7 +92,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public List<IGitCoreLocalBranch> getLocalBranches() throws GitCoreException {
+  public List<GitCoreLocalBranch> getLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of local branches:");
     return Try.of(() -> getJgitGit().branchList().call())
@@ -114,7 +113,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
+  public List<GitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
     return List
@@ -138,12 +137,12 @@ public class GitCoreRepository implements IGitCoreRepository {
     return List.ofAll(jgitRepo.getRemoteNames());
   }
 
-  private Try<List<IGitCoreRemoteBranch>> getRemoteBranchesTry(String remoteName) {
+  private Try<List<GitCoreRemoteBranch>> getRemoteBranchesTry(String remoteName) {
     return Try.of(() -> getRemoteBranches(remoteName));
   }
 
   @Override
-  public List<IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
+  public List<GitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
     return Try.traverse(getRemotes(), this::getRemoteBranchesTry)
         .getOrElseThrow(GitCoreException::castOrWrap)
         .flatMap(Function.identity())
