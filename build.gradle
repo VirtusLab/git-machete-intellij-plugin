@@ -75,7 +75,7 @@ allprojects {
   }
 
   ext {
-    betterStringsVerson = '0.3'
+    betterStringsVerson = '0.4'
     checkstyleToolVersion = '8.33'
 
     // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
@@ -139,6 +139,7 @@ subprojects {
     // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
     suppressLombokWarnings = false
     checkers = [
+      'org.checkerframework.checker.fenum.FenumChecker',
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
     if (runAllCheckers) {
@@ -207,10 +208,20 @@ subprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
+  repositories {
+    mavenLocal()
+  }
+
   dependencies {
     def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
     annotationProcessor(betterStringsArtifact)
     testAnnotationProcessor(betterStringsArtifact)
+  }
+
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      options.compilerArgs += '-AcallToStringExplicitlyInInterpolations'
+    }
   }
 
 

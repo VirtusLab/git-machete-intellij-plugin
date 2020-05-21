@@ -136,16 +136,6 @@
     <property name="format" value="^package.*[A-Z]"/>
     <property name="message" value="Package name must be lowercase"/>
 </module>
-<!-- io.vavr.collection.Traversable#peek and java.util.stream.Stream#peek
-    unexpectedly differ in their behaviour - peek from vavr calls given method/lambda
-    only for the first element in collection/stream - unlike `peek` from Java `Stream` that does this for every element.
-    To avoid possible bugs, invocation of any method called "peek" is forbidden. -->
-<module name="Regexp">
-    <property name="illegalPattern" value="true"/>
-    <property name="ignoreComments" value="true"/>
-    <property name="format" value="\bpeek\b"/>
-    <property name="message" value="peek is inconsistent b/w Vavr and Java, use map or forEach instead"/>
-</module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>

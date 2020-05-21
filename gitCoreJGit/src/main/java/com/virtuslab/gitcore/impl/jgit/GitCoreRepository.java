@@ -404,11 +404,10 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
       LOG.debug("Starting revwalk");
       return Iterator.ofAll(walk.iterator())
-          .takeUntil(revCommit -> revCommit.getId().getName().equals(untilExclusive.getHash().getHashString()))
-          .map(revCommit -> {
-            LOG.debug(() -> "* " + revCommit.getId().getName());
-            return new GitCoreCommit(revCommit);
-          })
+          .toJavaStream()
+          .takeWhile(revCommit -> !revCommit.getId().getName().equals(untilExclusive.getHash().getHashString()))
+          .peek(revCommit -> LOG.debug(() -> "* " + revCommit.getId().getName()))
+          .map(GitCoreCommit::new)
           .collect(List.collector());
     });
   }

@@ -17,6 +17,18 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
+          name: '[TEMP] Publish better-strings annotation processor locally'
+          command: |
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 # To be removed once Docker CI image is regenerated
+
+            apt-get update
+            apt-get install -y maven
+            git clone https://github.com/PawelLipski/better-strings.git ~/better-strings
+            cd ~/better-strings
+            # https://github.com/antkorwin/better-strings/pull/14/files
+            git checkout 7911014a56af52ba32c9b7c29910138fd5d40c2b
+            mvn install
+      - run:
           name: Compile production code without delombok
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
           command: LOMBOK_PROVIDED_BY=regular-dependency ./gradlew --max-workers=2 compileJava

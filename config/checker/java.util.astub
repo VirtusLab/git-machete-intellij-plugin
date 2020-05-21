@@ -8,6 +8,10 @@ import org.checkerframework.dataflow.qual.Pure;
 
 package java.util;
 
+class Objects {
+  static <T> @NonNull T requireNonNull(@Nullable T obj);
+}
+
 class Optional<T> {
   @Pure
   T get();
