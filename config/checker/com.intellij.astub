@@ -1,4 +1,5 @@
 
+import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -129,6 +130,12 @@ interface Application {
 @UIPackage package com.intellij.openapi.editor.colors;
 @UIPackage package com.intellij.openapi.externalSystem;
 @UIPackage package com.intellij.openapi.fileChooser;
+@UIPackage package com.intellij.openapi.fileEditor;
+@UIPackage package com.intellij.openapi.fileTypes;
+
+@AlwaysSafe
+class LanguageFileType {}
+
 @UIPackage package com.intellij.openapi.keymap;
 @UIPackage package com.intellij.openapi.module;
 @UIPackage package com.intellij.openapi.options;

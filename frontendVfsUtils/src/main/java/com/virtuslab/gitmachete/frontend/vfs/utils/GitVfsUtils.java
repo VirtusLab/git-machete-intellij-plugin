@@ -24,9 +24,10 @@ public final class GitVfsUtils {
   /**
    * @param gitRepository {@link GitRepository} to get the virtual file from
    * @return an option of {@link VirtualFile} representing the machete file
+   *
    */
   public static Option<VirtualFile> getMacheteFile(GitRepository gitRepository) {
-    return Option.of(getGitDirectory(gitRepository).findChild("machete"));
+    return Option.of(getGitDirectory(gitRepository).findChild(MacheteFileType.FILE_NAME));
   }
 
   /**
@@ -36,6 +37,6 @@ public final class GitVfsUtils {
    * @return an option of {@link VirtualFile} representing the machete file
    */
   public static Path resolveMacheteFilePath(GitRepository gitRepository) {
-    return Path.of(getGitDirectory(gitRepository).getPath()).resolve("machete");
+    return Path.of(getGitDirectory(gitRepository).getPath()).resolve(MacheteFileType.FILE_NAME);
   }
 }
