@@ -72,11 +72,6 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public List<IGitMacheteCommit> getCommits() {
-    return List.narrow(commits);
-  }
-
-  @Override
   public Option<IGitMacheteCommit> getForkPoint() {
     return Option.of(forkPoint);
   }

@@ -274,6 +274,8 @@ subprojects {
       checkerFramework {
         // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
         // but the risk is minuscule and not worth the extra computational burden in every single build.
+        // This might change, however, if/when Checker Framework adds @Heavyweight annotation
+        // (https://github.com/typetools/checker-framework/issues/3253).
         checkers += 'org.checkerframework.checker.guieffect.GuiEffectChecker'
       }
 

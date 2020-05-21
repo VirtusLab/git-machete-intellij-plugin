@@ -1,10 +1,10 @@
 jgit()
 vavr()
 
-applyAliasingChecker()
-
 dependencies {
   implementation project(':logging')
 
   api project(':gitCoreApi')
 }
+
+applyAliasingChecker()

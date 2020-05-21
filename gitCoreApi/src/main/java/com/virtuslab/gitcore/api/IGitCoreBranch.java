@@ -12,6 +12,4 @@ public interface IGitCoreBranch {
   boolean isLocal();
 
   List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException;
-
-  boolean hasJustBeenCreated() throws GitCoreException;
 }

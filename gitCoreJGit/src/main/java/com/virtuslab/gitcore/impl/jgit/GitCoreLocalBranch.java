@@ -1,8 +1,10 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.util.function.Predicate;
-
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -12,7 +14,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
-import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
@@ -78,95 +79,34 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
     return Option.of(remoteBranch);
   }
 
-  private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
-    LOG.trace(() -> "Entering: branch = '${getFullName()}'; original list of entries:");
-    entries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
-    ObjectId entryToExcludeNewId;
-    if (entries.size() > 0) {
-      ReflogEntry firstEntry = entries.get(entries.size() - 1);
-      if (firstEntry.getComment().startsWith("branch: Created from")) {
-        entryToExcludeNewId = firstEntry.getNewId();
-        LOG.debug(
-            () -> "All entries with the same hash as first entry (${firstEntry.getNewId().toString()}) will be excluded "
-                + "because first entry comment starts with 'branch: Created from'");
-      } else {
-        entryToExcludeNewId = ObjectId.zeroId();
-      }
-    } else {
-      entryToExcludeNewId = ObjectId.zeroId();
-    }
-
-    // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
-    // for cases like branch rename just after branch creation
-    Predicate<ReflogEntry> isEntryExcluded = e -> {
-      String rebaseMessage = "rebase finished: " + getFullName() + " onto "
-          + Try.of(() -> getPointedCommit().getHash().getHashString()).getOrElse("");
-
-      // For debug logging only
-      String newIdHash = e.getNewId().getName();
-
-      if (e.getNewId().equals(entryToExcludeNewId)) {
-        LOG.debug(() -> "Exclude ${newIdHash} because it has the same hash as first entry");
-      } else if (e.getNewId().equals(e.getOldId())) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its old and new IDs are the same");
-      } else if (e.getComment().startsWith("branch: Created from")) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
-      } else if (e.getComment().equals("branch: Reset to " + getBranchName())) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${getBranchName()}'");
-      } else if (e.getComment().equals("branch: Reset to HEAD")) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
-      } else if (e.getComment().startsWith("reset: moving to ")) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'reset: moving to '");
-      } else if (e.getComment().equals(rebaseMessage)) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment is '${rebaseMessage}'");
-      } else {
-        return false;
-      }
-
-      return true;
-    };
-
-    return entries.reject(isEntryExcluded);
-  }
-
   @Override
   @SuppressWarnings("aliasing:enhancedfor.type.incompatible")
   public Option<IGitCoreCommit> deriveForkPoint() throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}'");
-    LOG.debug("Getting local branches reflog lists");
+    LOG.debug("Getting reflogs of local branches");
 
-    List<List<ReflogEntry>> reflogEntryListsOfLocalBranches = Try.of(() -> repo.getLocalBranches().reject(this::equals)
-        .map(branch -> Try.of(() -> {
-          ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
-          assert reflogReader != null : "Error while getting reflog reader";
-          return reflogReader.getReverseEntries();
-        }))
-        .map(Try::get)
-        .map(List::ofAll)
-        .collect(List.collector()))
-        .getOrElseThrow(e -> new GitCoreException(e));
+    Map<String, List<ReflogEntry>> filteredReflogByLocalBranchName = repo
+        .getLocalBranches()
+        .reject(this::equals)
+        .toMap(branch -> Tuple.of(branch.getName(), Try.of(() -> branch.deriveFilteredReflog()).get()));
 
-    LOG.debug("Getting remote branches reflog lists");
+    LOG.debug("Getting reflogs of remote branches");
 
     Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
-    List<List<ReflogEntry>> reflogEntryListsOfRemoteBranches = Try
-        .of(() -> repo.getAllRemoteBranches()
-            .reject(branch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(branch))
-            .map(branch -> Try.of(() -> {
-              ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(branch.getFullName());
-              assert reflogReader != null : "Error while getting reflog reader";
-              return reflogReader.getReverseEntries();
-            }))
-            .map(Try::get)
-            .map(List::ofAll)
-            .collect(List.collector()))
-        .getOrElseThrow(e -> new GitCoreException(e));
+    Map<String, List<ReflogEntry>> filteredReflogByRemoteBranchName = repo
+        .getAllRemoteBranches()
+        .reject(branch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(branch))
+        .toMap(branch -> Tuple.of(branch.getName(), Try.of(() -> branch.deriveFilteredReflog()).get()));
 
-    List<List<ReflogEntry>> reflogEntryLists = reflogEntryListsOfLocalBranches
-        .appendAll(reflogEntryListsOfRemoteBranches);
+    Map<String, List<ReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
+        .merge(filteredReflogByRemoteBranchName);
 
-    List<ReflogEntry> filteredReflogEntries = reflogEntryLists.flatMap(this::rejectExcludedEntries);
+    Seq<Tuple2<ObjectId, String>> objectIdAndBranchNamePairs = filteredReflogsByBranchName
+        .flatMap(bnAres -> bnAres._2.map(re -> Tuple.of(re.getNewId(), bnAres._1)));
+    Map<ObjectId, Seq<String>> branchesContainingInReflogByCommit = objectIdAndBranchNamePairs
+        .groupBy(oidAbn -> oidAbn._1)
+        .mapValues(oidAbns -> oidAbns.map(oidAbn -> oidAbn._2));
 
     LOG.debug("Start walking through logs");
 
@@ -175,16 +115,22 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
     // (in particular, with enhanced `for` loops, which are essentially syntax sugar over Iterator<...>);
     // hence we need to suppress `aliasing:enhancedfor.type.incompatible` here.
     for (@Unique RevCommit currentBranchCommit : walk) {
-      boolean currentBranchCommitInReflogs = filteredReflogEntries
-          .exists(branchReflogEntry -> currentBranchCommit.getId().equals(branchReflogEntry.getNewId()));
-      if (currentBranchCommitInReflogs) {
-        LOG.debug(() -> "Commit ${currentBranchCommit.getId().getName()} found in reflogs. " +
-            "Returning as fork point for branch '${getFullName()}'");
+      Option<Seq<String>> containingBranches = branchesContainingInReflogByCommit.get(currentBranchCommit.getId());
+      if (containingBranches.isDefined()) {
+        LOG.debug(() -> "Commit ${currentBranchCommit.getId().getName()} found " +
+            "in filtered reflog(s) of ${containingBranches.get().mkString(\", \")}; " +
+            "returning as fork point for branch '${getFullName()}'");
         return Option.of(new GitCoreCommit(currentBranchCommit));
       }
     }
 
     LOG.debug("Fork point for branch '${getFullName()}' not found");
     return Option.none();
+  }
+
+  @Override
+  public boolean hasJustBeenCreated() throws GitCoreException {
+    List<ReflogEntry> reflog = deriveFilteredReflog();
+    return reflog.isEmpty() || reflog.head().getOldId().equals(ObjectId.zeroId());
   }
 }

@@ -55,7 +55,7 @@ public class RepositoryGraphBuilder {
       int currentBranchIndex = graphItems.size();
       positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
       addRootBranch(graphItems, branch);
-      List<IGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
+      List<? extends IGitMacheteNonRootBranch> downstreamBranches = branch.getDownstreamBranches();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, downstreamBranches, currentBranchIndex,
           /* indentLevel */ 0);
     }
@@ -74,7 +74,7 @@ public class RepositoryGraphBuilder {
   private void recursivelyAddCommitsAndBranches(
       java.util.List<IGraphItem> graphItems,
       java.util.List<java.util.List<Integer>> positionsOfVisibleEdges,
-      List<IGitMacheteNonRootBranch> downstreamBranches,
+      List<? extends IGitMacheteNonRootBranch> downstreamBranches,
       @GTENegativeOne int upstreamBranchIndex,
       @NonNegative int indentLevel) {
     boolean isFirstBranch = true;
@@ -94,7 +94,7 @@ public class RepositoryGraphBuilder {
       buildCommitsAndNonRootBranch(graphItems, branch, prevSiblingItemIndex, indentLevel);
 
       int upBranchIndex = graphItems.size() - 1;
-      List<IGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
+      List<? extends IGitMacheteNonRootBranch> branches = branch.getDownstreamBranches();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, /* downstream */ branches,
           upBranchIndex, indentLevel + 1);
 
