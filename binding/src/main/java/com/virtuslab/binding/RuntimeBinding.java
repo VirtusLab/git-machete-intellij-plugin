@@ -1,10 +1,9 @@
 package com.virtuslab.binding;
 
-import static lombok.Lombok.sneakyThrow;
-
 import java.util.stream.Collectors;
 
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 @CustomLog
@@ -25,26 +24,24 @@ public final class RuntimeBinding {
    *  <li>{@link IllegalAccessException} if the parameterless constructor of sole implementing class is not accessible</li>
    * </ul>
    */
+  @SneakyThrows
   public static <T> T instantiateSoleImplementingClass(Class<T> interfaze) {
-    try {
-      java.util.Set<Class<? extends T>> classes = reflectionsInstance.getSubTypesOf(interfaze).stream()
-          .filter(c -> !c.isInterface() && !c.isAnonymousClass() && !c.isLocalClass() && !c.isMemberClass())
-          .collect(Collectors.toSet());
-      if (classes.isEmpty()) {
-        throw new ClassNotFoundException("No viable class implementing " + interfaze.getCanonicalName() + " found");
-      }
-      if (classes.size() > 1) {
-        var classesString = String.join(", ",
-            classes.stream().map(c -> String.valueOf(c.getCanonicalName())).collect(Collectors.toSet()));
-        throw new ClassNotFoundException(
-            "More than one viable class implementing " + interfaze.getCanonicalName() + " found: " + classesString);
-      }
-
-      var soleImplementingClass = classes.iterator().next();
-      LOG.debug(() -> "Binding " + interfaze.getCanonicalName() + " to " + soleImplementingClass.getCanonicalName());
-      return soleImplementingClass.getDeclaredConstructor().newInstance();
-    } catch (ReflectiveOperationException e) {
-      throw sneakyThrow(e);
+    java.util.Set<Class<? extends T>> classes = reflectionsInstance.getSubTypesOf(interfaze).stream()
+        .filter(c -> !c.isInterface() && !c.isAnonymousClass() && !c.isLocalClass() && !c.isMemberClass())
+        .collect(Collectors.toSet());
+    if (classes.isEmpty()) {
+      // For some obscure reason, string interpolation & Lombok don't work together in this specific class.
+      throw new ClassNotFoundException("No viable class implementing " + interfaze.getCanonicalName() + " found");
     }
+    if (classes.size() > 1) {
+      var classesString = String.join(", ",
+          classes.stream().map(c -> String.valueOf(c.getCanonicalName())).collect(Collectors.toSet()));
+      throw new ClassNotFoundException(
+          "More than one viable class implementing " + interfaze.getCanonicalName() + " found: " + classesString);
+    }
+
+    var soleImplementingClass = classes.iterator().next();
+    LOG.debug(() -> "Binding " + interfaze.getCanonicalName() + " to " + soleImplementingClass.getCanonicalName());
+    return soleImplementingClass.getDeclaredConstructor().newInstance();
   }
 }
