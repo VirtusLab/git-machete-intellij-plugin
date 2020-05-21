@@ -136,12 +136,6 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
-    <property name="format" value="\bSneakyThrows\b"/>
-    <property name="message" value="String interpolation does not work in methods marked with lombok.SneakyThrows, use lombok.Lombok#sneakyThrow instead"/>
-</module>
-<module name="Regexp">
-    <property name="illegalPattern" value="true"/>
-    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bString\.format\b"/>
     <property name="message" value="Use string interpolation instead (com.antkorwin:better-strings)"/>
 </module>
