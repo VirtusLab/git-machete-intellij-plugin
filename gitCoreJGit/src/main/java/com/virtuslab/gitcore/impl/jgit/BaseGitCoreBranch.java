@@ -5,18 +5,17 @@ import java.util.function.Predicate;
 
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.ReflogReader;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
@@ -28,8 +27,8 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
   protected final GitCoreRepository repo;
-  protected final String branchName;
-  protected final String remoteName;
+  @Getter
+  protected final String shortName;
 
   @MonotonicNonNull
   private GitCoreCommit pointedCommit = null;
@@ -37,63 +36,39 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   @MonotonicNonNull
   private List<ReflogEntry> filteredReflog = null;
 
-  @Override
-  public String getName() {
-    return branchName;
-  }
-
-  public abstract String getFullName();
-
-  public abstract String getBranchesPath();
-
-  public final String getBranchTypeString() {
-    return getBranchTypeString(/* capitalized */ false);
-  }
-
   public abstract String getBranchTypeString(boolean capitalized);
 
   @SuppressWarnings("regexp") // to allow `synchronized`
   @Override
   public synchronized GitCoreCommit getPointedCommit() throws GitCoreException {
     if (pointedCommit == null) {
-      @Unique RevCommit revCommit = repo.revStringToRevCommit(getFullName());
-      pointedCommit = new GitCoreCommit(revCommit);
+      pointedCommit = repo.revStringToGitCoreCommit(getFullName());
     }
     return pointedCommit;
-  }
-
-  protected @Unique RevWalk getTopoRevWalkFromPointedCommit() throws GitCoreException {
-    @Unique RevWalk walk = new RevWalk(repo.getJgitRepo());
-    walk.sort(RevSort.TOPO);
-    ObjectId objectId = repo.gitCoreCommitToObjectId(getPointedCommit());
-    try {
-      walk.markStart(walk.parseCommit(objectId));
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
-    return walk;
   }
 
   @Override
   public List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${getFullName()}', upToCommit = ${upToCommit}");
-    @Unique RevWalk walk = getTopoRevWalkFromPointedCommit();
-    try {
-      walk.markUninteresting(walk.parseCommit(repo.gitCoreCommitToObjectId(upToCommit)));
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
-    walk.sort(RevSort.BOUNDARY);
 
-    LOG.debug("Starting revwalk");
-    return Iterator.ofAll(walk.iterator())
-        .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
-        .map(revCommit -> {
-          LOG.debug(() -> "* " + revCommit.getId().getName());
-          return revCommit;
-        })
-        .map(GitCoreCommit::new)
-        .collect(List.collector());
+    return repo.withRevWalk(walk -> {
+      walk.sort(RevSort.TOPO);
+      walk.sort(RevSort.BOUNDARY);
+
+      ObjectId objectId = repo.gitCoreCommitToObjectId(getPointedCommit());
+      walk.markStart(walk.parseCommit(objectId));
+      walk.markUninteresting(walk.parseCommit(repo.gitCoreCommitToObjectId(upToCommit)));
+
+      LOG.debug("Starting revwalk");
+      return Iterator.ofAll(walk.iterator())
+          .takeUntil(revCommit -> revCommit.getId().getName().equals(upToCommit.getHash().getHashString()))
+          .map(revCommit -> {
+            LOG.debug(() -> "* " + revCommit.getId().getName());
+            return revCommit;
+          })
+          .map(GitCoreCommit::new)
+          .collect(List.collector());
+    });
   }
 
   private List<ReflogEntry> rejectExcludedEntries(List<ReflogEntry> entries) {
@@ -130,8 +105,8 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
         LOG.debug(() -> "Exclude ${newIdHash} because its old and new IDs are the same");
       } else if (e.getComment().startsWith("branch: Created from")) {
         LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
-      } else if (e.getComment().equals("branch: Reset to " + branchName)) {
-        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${branchName}'");
+      } else if (e.getComment().equals("branch: Reset to " + shortName)) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${shortName}'");
       } else if (e.getComment().equals("branch: Reset to HEAD")) {
         LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
       } else if (e.getComment().startsWith("reset: moving to ")) {
@@ -157,11 +132,11 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
   protected synchronized List<ReflogEntry> deriveFilteredReflog() throws GitCoreException {
     if (filteredReflog == null) {
       try {
-        ReflogReader reflogReader = repo.getJgitRepo().getReflogReader(getFullName());
-        if (reflogReader == null) {
+        Option<ReflogReader> reflogReader = repo.getReflogReader(this);
+        if (reflogReader.isEmpty()) {
           throw new GitCoreNoSuchRevisionException("Local branch '${getFullName()}' does not exist in this repository");
         }
-        filteredReflog = rejectExcludedEntries(List.ofAll(reflogReader.getReverseEntries()));
+        filteredReflog = rejectExcludedEntries(List.ofAll(reflogReader.get().getReverseEntries()));
       } catch (IOException e) {
         throw new GitCoreException(e);
       }

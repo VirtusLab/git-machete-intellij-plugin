@@ -8,9 +8,7 @@ import io.vavr.control.Option;
 public interface IGitCoreRepository {
   Option<? extends IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
 
-  IGitCoreLocalBranch getLocalBranch(String branchName) throws GitCoreException;
-
-  Option<? extends IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) throws GitCoreException;
+  IGitCoreLocalBranch getLocalBranch(String localBranchShortName) throws GitCoreException;
 
   List<? extends IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
 

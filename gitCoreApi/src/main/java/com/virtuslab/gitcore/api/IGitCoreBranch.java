@@ -3,7 +3,7 @@ package com.virtuslab.gitcore.api;
 import io.vavr.collection.List;
 
 public interface IGitCoreBranch {
-  String getName();
+  String getShortName();
 
   String getFullName();
 
