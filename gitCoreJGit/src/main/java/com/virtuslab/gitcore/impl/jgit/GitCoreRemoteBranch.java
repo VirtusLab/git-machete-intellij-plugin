@@ -1,29 +1,23 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import lombok.Getter;
 import org.eclipse.jgit.lib.Constants;
 
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRemoteBranch {
-  public static final String BRANCHES_PATH = Constants.R_REMOTES;
 
-  public GitCoreRemoteBranch(GitCoreRepository repo, String branchName, String remoteName) {
-    super(repo, branchName, remoteName);
+  @Getter
+  private final String remoteName;
+
+  public GitCoreRemoteBranch(GitCoreRepository repo, String remoteName, String shortName) {
+    super(repo, shortName);
+    this.remoteName = remoteName;
   }
 
   @Override
   public String getFullName() {
-    return getBranchesPath() + remoteName + "/" + branchName;
-  }
-
-  @Override
-  public String getBranchesPath() {
-    return BRANCHES_PATH;
-  }
-
-  @Override
-  public boolean isLocal() {
-    return false;
+    return Constants.R_REMOTES + remoteName + "/" + shortName;
   }
 
   @Override

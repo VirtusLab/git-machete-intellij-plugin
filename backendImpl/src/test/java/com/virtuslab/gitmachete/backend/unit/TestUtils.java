@@ -140,12 +140,7 @@ public class TestUtils {
     }
 
     @Override
-    public IGitCoreLocalBranch getLocalBranch(String branchName) {
-      return null;
-    }
-
-    @Override
-    public Option<IGitCoreRemoteBranch> getRemoteBranch(String branchName, String remoteName) {
+    public IGitCoreLocalBranch getLocalBranch(String localBranchShortName) {
       return null;
     }
 
