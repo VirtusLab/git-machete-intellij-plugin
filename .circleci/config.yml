@@ -22,7 +22,10 @@ jobs:
           command: LOMBOK_PROVIDED_BY=regular-dependency ./gradlew --max-workers=2 compileJava
       - run:
           name: Run post-compile checks
-          command: ./scripts/verify-no-string-interpolation-leftovers
+          command: |
+            ### Remove once Docker image is regenerated
+            command -v strings || { apt-get update && apt-get install -y binutils; }
+            ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Check Javadoc correctness
           command: ./gradlew javadoc
