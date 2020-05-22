@@ -68,7 +68,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     var branchByName = createBranchByNameMap(rootBranches);
 
-    IGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.getCurrentBranch())
+    IGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
         .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
         .flatMap(cb -> branchByName.get(cb.getShortName()))
         .getOrNull();
@@ -97,8 +97,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       StatusBranchHookExecutor statusHookExecutor,
       IBranchLayoutEntry entry) throws GitMacheteException {
     var branchName = entry.getName();
-    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(branchName))
-        .getOrElseThrow(e -> new GitMacheteException(e));
+    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranch(branchName)
+        .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
     IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
@@ -122,8 +122,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     var branchName = entry.getName();
 
-    IGitCoreLocalBranch coreLocalBranch = Try.of(() -> gitCoreRepository.getLocalBranch(branchName))
-        .getOrElseThrow(e -> new GitMacheteException(e));
+    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranch(branchName)
+        .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
     Option<IGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
         parentEntryCoreLocalBranch);

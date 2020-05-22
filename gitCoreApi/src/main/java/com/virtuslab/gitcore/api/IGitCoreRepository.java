@@ -6,17 +6,17 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 public interface IGitCoreRepository {
-  Option<? extends IGitCoreLocalBranch> getCurrentBranch() throws GitCoreException;
+  Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
 
-  IGitCoreLocalBranch getLocalBranch(String localBranchShortName) throws GitCoreException;
+  Option<IGitCoreLocalBranch> deriveLocalBranch(String localBranchShortName);
 
-  List<? extends IGitCoreLocalBranch> getLocalBranches() throws GitCoreException;
+  List<? extends IGitCoreLocalBranch> deriveLocalBranches() throws GitCoreException;
 
-  List<? extends IGitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException;
+  List<? extends IGitCoreRemoteBranch> deriveRemoteBranches(String remoteName) throws GitCoreException;
 
-  List<? extends IGitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException;
+  List<? extends IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException;
 
-  List<String> getRemotes();
+  List<String> deriveAllRemotes();
 
   Path getMainDirectoryPath();
 
