@@ -32,6 +32,7 @@ newb call-ws
   cmt Call web service
   cmt 1st round of fixes
   push origin
+  git branch --unset-upstream  # let's remove tracking config
 newb drop-constraint # not added to definition file
   cmt Drop unneeded SQL constraints
 git checkout call-ws
@@ -44,6 +45,7 @@ newb master
 newb hotfix/add-trigger
   cmt HOTFIX Add the trigger
   push remote-repo
+  git branch --unset-upstream  # let's remove tracking config
   git commit --amend -m 'HOTFIX Add the trigger (amended)'
 
 cat >.git/machete <<EOF

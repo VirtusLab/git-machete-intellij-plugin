@@ -45,7 +45,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
 
   @Override
   public Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException {
-    return repo.deriveTrackingStatus(this);
+    return repo.deriveRemoteTrackingStatus(this);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
     LOG.debug("Getting reflogs of local branches");
 
     Map<String, List<ReflogEntry>> filteredReflogByLocalBranchName = repo
-        .getLocalBranches()
+        .deriveLocalBranches()
         .reject(this::equals)
         .toMap(branch -> Tuple.of(branch.getShortName(), Try.of(() -> branch.deriveFilteredReflog()).get()));
 
@@ -69,7 +69,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
     Option<IGitCoreRemoteBranch> remoteTrackingBranch = getRemoteTrackingBranch();
 
     Map<String, List<ReflogEntry>> filteredReflogByRemoteBranchName = repo
-        .getAllRemoteBranches()
+        .deriveAllRemoteBranches()
         .reject(branch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(branch))
         .toMap(branch -> Tuple.of(branch.getShortName(), Try.of(() -> branch.deriveFilteredReflog()).get()));
 
@@ -99,7 +99,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
           LOG.debug(() -> "Commit ${currentBranchCommit.getId().getName()} found " +
               "in filtered reflog(s) of ${containingBranches.get().mkString(\", \")}; " +
               "returning as fork point for branch '${getFullName()}'");
-          return Option.of(new GitCoreCommit(currentBranchCommit));
+          return Option.some(new GitCoreCommit(currentBranchCommit));
         }
       }
 
