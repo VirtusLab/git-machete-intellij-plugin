@@ -34,6 +34,7 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
@@ -43,6 +44,8 @@ public class GitCoreRepository implements IGitCoreRepository {
   @Getter
   private final Path mainDirectoryPath;
   private final Path gitDirectoryPath;
+
+  private static final String ORIGIN = "origin";
 
   public GitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
     LOG.debug(() -> "Creating ${getClass().getSimpleName()}(mainDirectoryPath = ${mainDirectoryPath}, " +
@@ -55,7 +58,7 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<GitCoreLocalBranch> getCurrentBranch() throws GitCoreException {
+  public Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException {
     Ref ref;
     try {
       ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
@@ -67,30 +70,31 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
     if (ref.isSymbolic()) {
       String currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
-      return Try.of(() -> getLocalBranch(currentBranchName)).toOption();
+      return deriveLocalBranch(currentBranchName);
     }
     return Option.none();
   }
 
   @Override
-  public GitCoreLocalBranch getLocalBranch(String localBranchShortName) throws GitCoreException {
+  public Option<IGitCoreLocalBranch> deriveLocalBranch(String localBranchShortName) {
     if (!isBranchPresent(Constants.R_HEADS + localBranchShortName)) {
-      throw new GitCoreNoSuchRevisionException("Local branch '${localBranchShortName}' does not exist in this repository");
+      return Option.none();
     }
 
-    IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull()).getOrNull();
-    return new GitCoreLocalBranch(/* repo */ this, localBranchShortName, remoteBranch);
+    IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull())
+        .getOrNull();
+    return Option.some(new GitCoreLocalBranch(/* repo */ this, localBranchShortName, remoteBranch));
   }
 
-  private Option<GitCoreRemoteBranch> getRemoteBranch(String remoteName, String remoteBranchShortName) throws GitCoreException {
+  private Option<GitCoreRemoteBranch> deriveRemoteBranch(String remoteName, String remoteBranchShortName) {
     if (!isBranchPresent(Constants.R_REMOTES + remoteName + "/" + remoteBranchShortName)) {
       return Option.none();
     }
-    return Option.of(new GitCoreRemoteBranch(/* repo */ this, remoteName, remoteBranchShortName));
+    return Option.some(new GitCoreRemoteBranch(/* repo */ this, remoteName, remoteBranchShortName));
   }
 
   @Override
-  public List<GitCoreLocalBranch> getLocalBranches() throws GitCoreException {
+  public List<GitCoreLocalBranch> deriveLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of local branches:");
     return Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
@@ -98,19 +102,20 @@ public class GitCoreRepository implements IGitCoreRepository {
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(branch -> {
-          LOG.debug(() -> "* ${branch.getName()}");
+          LOG.debug(() -> "* " + branch.getName());
           return branch;
         })
         .map(ref -> {
           String localBranchShortName = ref.getName().replace(Constants.R_HEADS, /* replacement */ "");
-          IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull()).getOrNull();
+          IGitCoreRemoteBranch remoteBranch = Try.of(() -> deriveRemoteBranch(localBranchShortName).getOrNull())
+              .getOrNull();
           return new GitCoreLocalBranch(/* repo */ this, localBranchShortName, remoteBranch);
         })
         .collect(List.collector());
   }
 
   @Override
-  public List<GitCoreRemoteBranch> getRemoteBranches(String remoteName) throws GitCoreException {
+  public List<GitCoreRemoteBranch> deriveRemoteBranches(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
     String remoteBranchFullNamePrefix = Constants.R_REMOTES + remoteName + "/";
@@ -119,7 +124,7 @@ public class GitCoreRepository implements IGitCoreRepository {
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
         .map(branch -> {
-          LOG.debug(() -> "* ${branch.getName()}");
+          LOG.debug(() -> "* " + branch.getName());
           return branch;
         })
         .map(ref -> {
@@ -130,35 +135,57 @@ public class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public List<String> getRemotes() {
+  public List<String> deriveAllRemotes() {
     return List.ofAll(jgitRepo.getRemoteNames());
   }
 
-  private Try<List<GitCoreRemoteBranch>> getRemoteBranchesTry(String remoteName) {
-    return Try.of(() -> getRemoteBranches(remoteName));
+  private Try<List<GitCoreRemoteBranch>> deriveRemoteBranchesTry(String remoteName) {
+    return Try.of(() -> deriveRemoteBranches(remoteName));
   }
 
   @Override
-  public List<GitCoreRemoteBranch> getAllRemoteBranches() throws GitCoreException {
-    return Try.traverse(getRemotes(), this::getRemoteBranchesTry)
+  public List<GitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException {
+    return Try.traverse(deriveAllRemotes(), this::deriveRemoteBranchesTry)
         .getOrElseThrow(GitCoreException::castOrWrap)
         .flatMap(Function.identity())
         .toList();
   }
 
-  private Option<GitCoreRemoteBranch> deriveRemoteBranch(String localBranchShortName) throws GitCoreException {
-    return deriveRemoteName(localBranchShortName)
-        .flatMap(remoteName -> deriveRemoteBranchName(localBranchShortName)
-            .flatMap(remoteShortBranchName -> Try.of(() -> getRemoteBranch(remoteName, remoteShortBranchName)).get()));
+  private Option<GitCoreRemoteBranch> deriveRemoteBranch(String localBranchShortName) {
+    return deriveConfiguredRemoteBranch(localBranchShortName).orElse(() -> deriveInferredRemoteBranch(localBranchShortName));
   }
 
-  private Option<String> deriveRemoteName(String localBranchShortName) {
+  private Option<GitCoreRemoteBranch> deriveConfiguredRemoteBranch(String localBranchShortName) {
+    return deriveConfiguredRemoteName(localBranchShortName)
+        .flatMap(remoteName -> deriveConfiguredRemoteBranchName(localBranchShortName)
+            .flatMap(remoteShortBranchName -> Try.of(() -> deriveRemoteBranch(remoteName, remoteShortBranchName)).get()));
+  }
+
+  private Option<String> deriveConfiguredRemoteName(String localBranchShortName) {
     return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchShortName, CONFIG_KEY_REMOTE));
   }
 
-  private Option<String> deriveRemoteBranchName(String localBranchShortName) {
+  private Option<String> deriveConfiguredRemoteBranchName(String localBranchShortName) {
     return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchShortName, CONFIG_KEY_MERGE))
         .map(branchFullName -> branchFullName.replace(Constants.R_HEADS, /* replacement */ ""));
+  }
+
+  private Option<GitCoreRemoteBranch> deriveInferredRemoteBranch(String localBranchShortName) {
+    var remotes = deriveAllRemotes();
+
+    if (remotes.contains(ORIGIN)) {
+      var maybeRemoteBranch = deriveRemoteBranch(ORIGIN, localBranchShortName);
+      if (maybeRemoteBranch.isDefined()) {
+        return maybeRemoteBranch;
+      }
+    }
+    for (String otherRemote : remotes.reject(r -> r.equals(ORIGIN))) {
+      var maybeRemoteBranch = deriveRemoteBranch(otherRemote, localBranchShortName);
+      if (maybeRemoteBranch.isDefined()) {
+        return maybeRemoteBranch;
+      }
+    }
+    return Option.none();
   }
 
   @SuppressWarnings("IllegalCatch")
@@ -170,7 +197,7 @@ public class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  Option<GitCoreBranchTrackingStatus> deriveTrackingStatus(GitCoreLocalBranch localBranch) throws GitCoreException {
+  Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus(GitCoreLocalBranch localBranch) throws GitCoreException {
     IGitCoreRemoteBranch remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
     if (remoteBranch == null) {
       return Option.none();
@@ -196,10 +223,8 @@ public class GitCoreRepository implements IGitCoreRepository {
     });
   }
 
-  private boolean isBranchPresent(String branchFullName) throws GitCoreException {
-    return Try.of(() -> Option.of(jgitRepo.resolve(branchFullName)))
-        .getOrElseThrow(e -> new GitCoreException(e))
-        .isDefined();
+  private boolean isBranchPresent(String branchFullName) {
+    return Try.of(() -> jgitRepo.resolve(branchFullName)).getOrNull() != null;
   }
 
   public GitCoreCommit revStringToGitCoreCommit(String revStr) throws GitCoreException {

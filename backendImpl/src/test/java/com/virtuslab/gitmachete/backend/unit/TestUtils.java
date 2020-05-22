@@ -135,32 +135,32 @@ public class TestUtils {
     }
 
     @Override
-    public Option<IGitCoreLocalBranch> getCurrentBranch() {
+    public Option<IGitCoreLocalBranch> deriveCurrentBranch() {
       return Option.none();
     }
 
     @Override
-    public IGitCoreLocalBranch getLocalBranch(String localBranchShortName) {
-      return null;
+    public Option<IGitCoreLocalBranch> deriveLocalBranch(String localBranchShortName) {
+      return Option.none();
     }
 
     @Override
-    public List<IGitCoreLocalBranch> getLocalBranches() {
+    public List<IGitCoreLocalBranch> deriveLocalBranches() {
       return List.empty();
     }
 
     @Override
-    public List<IGitCoreRemoteBranch> getRemoteBranches(String remoteName) {
+    public List<IGitCoreRemoteBranch> deriveRemoteBranches(String remoteName) {
       return List.empty();
     }
 
     @Override
-    public List<IGitCoreRemoteBranch> getAllRemoteBranches() {
+    public List<IGitCoreRemoteBranch> deriveAllRemoteBranches() {
       return List.empty();
     }
 
     @Override
-    public List<String> getRemotes() {
+    public List<String> deriveAllRemotes() {
       return List.empty();
     }
 
