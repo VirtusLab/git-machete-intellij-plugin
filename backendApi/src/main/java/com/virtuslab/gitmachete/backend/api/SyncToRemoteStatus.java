@@ -8,6 +8,10 @@ public class SyncToRemoteStatus {
     Untracked, AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote, InSyncToRemote
   }
 
+  public static SyncToRemoteStatus untracked() {
+    return of(Relation.Untracked, "");
+  }
+
   private final Relation relation;
   private final String remoteName;
 }

@@ -84,8 +84,7 @@ public class RepositoryGraph implements IRepositoryGraph {
       int upNodeIndex = itemIndex - 1;
       int downNodeIndex = itemIndex + 1;
 
-      while (downNodeIndex < positionsOfVisibleEdges.size()
-          && positionsOfVisibleEdges.get(downNodeIndex).contains(pos)) {
+      while (downNodeIndex < positionsOfVisibleEdges.size() && positionsOfVisibleEdges.get(downNodeIndex).contains(pos)) {
         downNodeIndex++;
       }
 

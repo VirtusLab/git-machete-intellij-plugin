@@ -1,8 +1,12 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import io.vavr.Lazy;
+import io.vavr.collection.List;
+import io.vavr.control.Either;
 import lombok.Getter;
-import org.eclipse.jgit.lib.Constants;
 
+import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRemoteBranch {
@@ -10,14 +14,18 @@ public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRe
   @Getter
   private final String remoteName;
 
-  public GitCoreRemoteBranch(GitCoreRepository repo, String remoteName, String shortName) {
-    super(repo, shortName);
+  public GitCoreRemoteBranch(
+      String shortName,
+      Lazy<Either<GitCoreException, GitCoreCommit>> pointedCommit,
+      Lazy<Either<GitCoreException, List<IGitCoreReflogEntry>>> reflog,
+      String remoteName) {
+    super(shortName, pointedCommit, reflog);
     this.remoteName = remoteName;
   }
 
   @Override
   public String getFullName() {
-    return Constants.R_REMOTES + remoteName + "/" + shortName;
+    return BranchFullNameUtils.getRemoteBranchFullName(remoteName, shortName);
   }
 
   @Override

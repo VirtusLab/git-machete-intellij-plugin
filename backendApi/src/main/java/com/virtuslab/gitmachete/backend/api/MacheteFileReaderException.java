@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.backend.api;
 
-public class MacheteFileReaderException extends GitMacheteJGitException {
+public class MacheteFileReaderException extends GitMacheteException {
   public MacheteFileReaderException() {
     super();
   }

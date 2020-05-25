@@ -5,11 +5,13 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.B
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.function.Predicate;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -25,8 +27,11 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
@@ -97,14 +102,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       StatusBranchHookExecutor statusHookExecutor,
       IBranchLayoutEntry entry) throws GitMacheteException {
     var branchName = entry.getName();
-    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranch(branchName)
+    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranchByShortName(branchName)
         .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
-    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
+    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.derivePointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
+    var syncToRemoteStatus = deriveSyncToRemoteStatus(gitCoreRepository, coreLocalBranch);
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, statusHookExecutor, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
@@ -117,33 +122,31 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   private GitMacheteNonRootBranch createGitMacheteNonRootBranch(
       IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor,
-      IGitCoreLocalBranch parentEntryCoreLocalBranch,
+      IGitCoreLocalBranch parentCoreLocalBranch,
       IBranchLayoutEntry entry) throws GitMacheteException {
 
     var branchName = entry.getName();
 
-    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranch(branchName)
+    IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranchByShortName(branchName)
         .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
-    Option<IGitCoreCommit> deducedForkPoint = deduceForkPoint(gitCoreRepository, coreLocalBranch,
-        parentEntryCoreLocalBranch);
+    IGitCoreCommit coreForkPoint = deriveParentAwareForkPoint(gitCoreRepository, coreLocalBranch, parentCoreLocalBranch)
+        .getOrNull();
 
-    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.getPointedCommit())
+    IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.derivePointedCommit())
         .getOrElseThrow(e -> new GitMacheteException(e));
 
     // translate IGitCoreCommit list to IGitMacheteCommit list
-    List<IGitMacheteCommit> commits = deducedForkPoint.isDefined()
-        ? Try.of(() -> coreLocalBranch.deriveCommitsUntil(deducedForkPoint.get()))
+    List<IGitMacheteCommit> commits = coreForkPoint != null
+        ? Try.of(() -> gitCoreRepository.deriveCommitRange(coreLocalBranch.derivePointedCommit(), coreForkPoint))
             .getOrElseThrow(e -> new GitMacheteException(e))
             .map(GitMacheteCommit::new)
-            .collect(List.collector())
         : List.empty();
 
     var pointedCommit = new GitMacheteCommit(corePointedCommit);
-    var forkPoint = deducedForkPoint.isDefined() ? new GitMacheteCommit(deducedForkPoint.get()) : null;
-    var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
-    var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentEntryCoreLocalBranch,
-        deducedForkPoint.getOrNull());
+    var forkPoint = coreForkPoint != null ? new GitMacheteCommit(coreForkPoint) : null;
+    var syncToRemoteStatus = deriveSyncToRemoteStatus(gitCoreRepository, coreLocalBranch);
+    var syncToParentStatus = deriveSyncToParentStatus(gitCoreRepository, coreLocalBranch, parentCoreLocalBranch, coreForkPoint);
     var customAnnotation = entry.getCustomAnnotation().getOrNull();
     var downstreamBranches = deriveDownstreamBranches(gitCoreRepository, statusHookExecutor, coreLocalBranch, entry);
     var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
@@ -160,24 +163,73 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     Option<IGitCoreRemoteBranch> remoteBranchOption = coreLocalBranch.getRemoteTrackingBranch();
     if (remoteBranchOption.isDefined()) {
       IGitCoreRemoteBranch coreRemoteBranch = remoteBranchOption.get();
-      IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.getPointedCommit())
+      IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.derivePointedCommit())
           .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
       remoteBranch = new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
     }
     return remoteBranch;
   }
 
-  private Option<IGitCoreCommit> deduceForkPoint(
+  private Option<IGitCoreCommit> deriveParentAgnosticForkPoint(
+      IGitCoreRepository gitCoreRepository,
+      IGitCoreLocalBranch branch) throws GitCoreException {
+    LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
+
+    LOG.debug("Getting reflogs of local branches");
+
+    Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = gitCoreRepository
+        .deriveAllLocalBranches()
+        .reject(branch::equals)
+        .toMap(otherLocalBranch -> Tuple.of(
+            otherLocalBranch.getShortName(),
+            Try.of(() -> deriveFilteredReflog(otherLocalBranch)).get()));
+
+    LOG.debug("Getting reflogs of remote branches");
+
+    Option<IGitCoreRemoteBranch> remoteTrackingBranch = branch.getRemoteTrackingBranch();
+
+    Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteBranchName = gitCoreRepository
+        .deriveAllRemoteBranches()
+        .reject(someRemoteBranch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(someRemoteBranch))
+        .toMap(unrelatedRemotedBranch -> Tuple.of(
+            unrelatedRemotedBranch.getShortName(),
+            Try.of(() -> deriveFilteredReflog(unrelatedRemotedBranch)).get()));
+
+    Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
+        .merge(filteredReflogByRemoteBranchName);
+
+    Seq<Tuple2<IGitCoreCommitHash, String>> objectIdAndBranchNamePairs = filteredReflogsByBranchName
+        .flatMap(bnAres -> bnAres._2.map(re -> Tuple.of(re.getNewCommitHash(), bnAres._1)));
+    Map<IGitCoreCommitHash, Seq<String>> branchesContainingInReflogByCommit = objectIdAndBranchNamePairs
+        .groupBy(oidAbn -> oidAbn._1)
+        .mapValues(oidAbns -> oidAbns.map(oidAbn -> oidAbn._2));
+
+    LOG.debug("Start walking through logs");
+
+    return gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(), commitHash -> {
+      Seq<String> containingBranches = branchesContainingInReflogByCommit.getOrElse(commitHash, List.empty());
+      if (containingBranches.nonEmpty()) {
+        LOG.debug(() -> "Commit ${commitHash} found " +
+            "in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
+            "returning as fork point for branch '${branch.getFullName()}'");
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+  private Option<IGitCoreCommit> deriveParentAwareForkPoint(
       IGitCoreRepository gitCoreRepository,
       IGitCoreLocalBranch coreLocalBranch,
       IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
     LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
         "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}'");
-    return Try.of(() -> {
+    try {
 
-      var forkPointOption = coreLocalBranch.deriveForkPoint();
-      var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
-      var pointedCommit = coreLocalBranch.getPointedCommit();
+      var forkPointOption = deriveParentAgnosticForkPoint(gitCoreRepository, coreLocalBranch);
+      var parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
+      var pointedCommit = coreLocalBranch.derivePointedCommit();
 
       LOG.debug(
           () -> "forkPointOption = ${forkPointOption.isDefined() ? forkPointOption.get().getHash().getHashString() : \"empty\"}, "
@@ -221,7 +273,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       return forkPointOption;
 
-    }).getOrElseThrow(e -> new GitMacheteException(e));
+    } catch (GitCoreException e) {
+      throw new GitMacheteException(e);
+    }
   }
 
   private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
@@ -236,47 +290,46 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     return List.ofAll(downstreamBranches);
   }
 
-  private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
+  private SyncToRemoteStatus deriveSyncToRemoteStatus(
+      IGitCoreRepository gitCoreRepository,
+      IGitCoreLocalBranch coreLocalBranch) throws GitMacheteException {
     LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getShortName()}'");
 
     try {
-      Option<GitCoreBranchTrackingStatus> ts = coreLocalBranch.deriveRemoteTrackingStatus();
-      if (ts.isEmpty()) {
+      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${coreLocalBranch.getShortName()}' is untracked");
-        return SyncToRemoteStatus.of(Untracked, "");
+        return SyncToRemoteStatus.untracked();
       }
 
-      GitCoreBranchTrackingStatus trackingStatus = ts.get();
+      GitCoreBranchTrackingStatus trackingStatus = gitCoreRepository.deriveRemoteTrackingStatus(coreLocalBranch).getOrNull();
+      if (trackingStatus == null) {
+        LOG.debug(() -> "Tracking status for '${coreLocalBranch.getShortName()}' could not be determined");
+        return SyncToRemoteStatus.untracked();
+      }
+
+      String remoteName = coreRemoteBranch.getRemoteName();
       SyncToRemoteStatus syncToRemoteStatus;
 
       if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
-        Option<IGitCoreRemoteBranch> remoteTrackingBranchOption = coreLocalBranch.getRemoteTrackingBranch();
-        if (remoteTrackingBranchOption.isDefined()) {
-          Instant localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitTime();
-          Instant remoteBranchCommitDate = remoteTrackingBranchOption.get().getPointedCommit().getCommitTime();
-          // In case when commit dates are equal we assume that our relation is `DivergedAndNewerThanRemote`
-          if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
-            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, trackingStatus.getRemoteName());
-          } else {
-            if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
-              LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
-                  "'DivergedAndNewerThanRemote' sync to remote status");
-            }
-            syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndNewerThanRemote, trackingStatus.getRemoteName());
-          }
+        Instant localBranchCommitDate = coreLocalBranch.derivePointedCommit().getCommitTime();
+        Instant remoteBranchCommitDate = coreRemoteBranch.derivePointedCommit().getCommitTime();
+        // In case when commit dates are equal we assume that our relation is `DivergedAndNewerThanRemote`
+        if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
+          syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, remoteName);
         } else {
-          // Theoretically this `else` should never happen coz deriveRemoteTrackingStatus() for coreLocalBranch
-          // should be empty in this case
-          LOG.debug(() -> "Because remote tracking branch for branch '${coreLocalBranch.getShortName()}' is undefined" +
-              "this branch is untracked");
-          return SyncToRemoteStatus.of(Untracked, "");
+          if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
+            LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
+                "'DivergedAndNewerThanRemote' sync to remote status");
+          }
+          syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndNewerThanRemote, remoteName);
         }
       } else if (trackingStatus.getAhead() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(AheadOfRemote, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(AheadOfRemote, remoteName);
       } else if (trackingStatus.getBehind() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(BehindRemote, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(BehindRemote, remoteName);
       } else {
-        syncToRemoteStatus = SyncToRemoteStatus.of(InSyncToRemote, trackingStatus.getRemoteName());
+        syncToRemoteStatus = SyncToRemoteStatus.of(InSyncToRemote, remoteName);
       }
 
       LOG.debug(() -> "Sync to remote status for branch '${coreLocalBranch.getShortName()}': ${syncToRemoteStatus.toString()}");
@@ -286,6 +339,72 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
+  }
+
+  /**
+   * @param branch branch in question
+   * @return reflog entries, excluding branch creation and branch reset events irrelevant for fork point/upstream inference,
+   *         ordered from the latest to the oldest
+   * @throws GitCoreException in case of JGit error
+   */
+  private List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranch branch) throws GitCoreException {
+    LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
+
+    List<IGitCoreReflogEntry> reflogEntries = branch.deriveReflog();
+    reflogEntries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
+
+    IGitCoreCommitHash entryToExcludeNewId;
+    if (reflogEntries.size() > 0) {
+      var firstEntry = reflogEntries.get(reflogEntries.size() - 1);
+      String createdFromPrefix = "branch: Created from";
+      if (firstEntry.getComment().startsWith(createdFromPrefix)) {
+        entryToExcludeNewId = firstEntry.getNewCommitHash();
+        LOG.debug(
+            () -> "All entries with the same hash as first entry (${firstEntry.getNewCommitHash().toString()}) will be excluded "
+                + "because first entry comment starts with '${createdFromPrefix}'");
+      } else {
+        entryToExcludeNewId = null;
+      }
+    } else {
+      entryToExcludeNewId = null;
+    }
+
+    String rebaseComment = "rebase finished: " + branch.getFullName() + " onto "
+        + Try.of(() -> branch.derivePointedCommit().getHash().getHashString()).getOrElse("");
+
+    // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
+    // for cases like branch rename just after branch creation
+    Predicate<IGitCoreReflogEntry> isEntryExcluded = e -> {
+      // For debug logging only
+      String newIdHash = e.getNewCommitHash().getHashString();
+
+      if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
+        LOG.debug(() -> "Exclude ${newIdHash} because it has the same hash as first entry");
+      } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its old and new IDs are the same");
+      } else if (e.getComment().startsWith("branch: Created from")) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
+      } else if (e.getComment().equals("branch: Reset to " + branch.getShortName())) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${branch.getShortName()}'");
+      } else if (e.getComment().equals("branch: Reset to HEAD")) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
+      } else if (e.getComment().startsWith("reset: moving to ")) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'reset: moving to '");
+      } else if (e.getComment().equals(rebaseComment)) {
+        LOG.debug(() -> "Exclude ${newIdHash} because its comment is '${rebaseComment}'");
+      } else {
+        return false;
+      }
+
+      return true;
+    };
+
+    return reflogEntries.reject(isEntryExcluded);
+  }
+
+  private boolean hasJustBeenCreated(IGitCoreLocalBranch branch) throws GitCoreException {
+    List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
+    return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
   }
 
   private SyncToParentStatus deriveSyncToParentStatus(
@@ -298,14 +417,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}', "
         + "forkPoint = ${forkPoint != null ? forkPoint.getHash().getHashString() : \"null\"})");
     try {
-      IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
-      IGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
+      IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
+      IGitCoreCommit pointedCommit = coreLocalBranch.derivePointedCommit();
 
       LOG.debug(() -> "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}; " +
           "pointedCommit = ${pointedCommit.getHash().getHashString()}");
 
       if (pointedCommit.equals(parentPointedCommit)) {
-        if (coreLocalBranch.hasJustBeenCreated()) {
+        if (hasJustBeenCreated(coreLocalBranch)) {
           LOG.debug(() -> "Branch '${coreLocalBranch.getShortName()}' has been detected as just created, " +
               "so we assume it's in sync");
           return SyncToParentStatus.InSync;
