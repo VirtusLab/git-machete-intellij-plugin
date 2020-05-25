@@ -99,8 +99,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
             return false;
           }
 
-        }).map(repoAndRemote -> new RemoteRefCoordinates(repoAndRemote._1(), repoAndRemote._2(), /* refspec */ null))
-        .collect(List.collector());
+        }).map(repoAndRemote -> new RemoteRefCoordinates(repoAndRemote._1(), repoAndRemote._2(), /* refspec */ null));
     return fetch(remotesToFetch);
   }
 
@@ -117,8 +116,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
         })
         .flatMap(repoAndRemote -> repoAndRemote._2()
-            .map(remote -> new RemoteRefCoordinates(repoAndRemote._1(), remote, /* refspec */ null)))
-        .collect(List.collector());
+            .map(remote -> new RemoteRefCoordinates(repoAndRemote._1(), remote, /* refspec */ null)));
     return fetch(remotesToFetch);
   }
 
@@ -155,7 +153,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   }
 
   private List<FetchTask> fetchInParallel(List<RemoteRefCoordinates> remotes) {
-    var maxThreads = getMaxThreads(remotes.map(r -> r.repository).collect(List.collector()), remotes.size());
+    var maxThreads = getMaxThreads(remotes.map(r -> r.repository), remotes.size());
     LOG.debug("Fetching ${remotes} using ${maxThreads} threads");
     var executor = AppExecutorUtil.createBoundedApplicationPoolExecutor(/* name */ "GitFetch Pool", maxThreads);
     var commonIndicator = Option.of(progressManager.getProgressIndicator()).getOrElse(new EmptyProgressIndicator());
@@ -166,7 +164,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       Future<SingleRemoteResult> future = executor.submit(() -> {
         commonIndicator.checkCanceled();
 
-        var singleRemoteResult = Lazy.of(() -> doFetch(remoteRefCoordinates.repository,
+        var singleRemoteResult = Lazy.of(() -> doFetch(
+            remoteRefCoordinates.repository,
             remoteRefCoordinates.remote,
             remoteRefCoordinates.refspec,
             authenticationGate));
@@ -180,7 +179,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
       });
 
       return new FetchTask(remoteRefCoordinates.repository, remoteRefCoordinates.remote, future);
-    }).collect(List.collector());
+    });
   }
 
   private int getMaxThreads(List<GitRepository> repositories, int numberOfRemotes) {
@@ -280,7 +279,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     GitImpl gitInstance = (GitImpl) Git.getInstance();
     var result = gitInstance.fetch(repository, remote, Collections.emptyList(), authenticationGate,
         params.toJavaArray(String[]::new));
-    var pruned = List.ofAll(result.getOutput()).map(this::getPrunedRef).filter(r -> r.isEmpty()).collect(List.collector());
+    var pruned = List.ofAll(result.getOutput()).map(this::getPrunedRef).filter(r -> r.isEmpty());
 
     if (result.success()) {
       BackgroundTaskUtil.syncPublisher(repository.getProject(), GitAuthenticationListener.GIT_AUTHENTICATION_SUCCESS)

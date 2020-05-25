@@ -9,11 +9,5 @@ public interface IGitCoreLocalBranch extends IGitCoreBranch {
     return true;
   }
 
-  Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus() throws GitCoreException;
-
   Option<IGitCoreRemoteBranch> getRemoteTrackingBranch();
-
-  Option<IGitCoreCommit> deriveForkPoint() throws GitCoreException;
-
-  boolean hasJustBeenCreated() throws GitCoreException;
 }

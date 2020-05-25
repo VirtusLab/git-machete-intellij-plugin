@@ -3,13 +3,13 @@ package com.virtuslab.gitcore.api;
 import io.vavr.collection.List;
 
 public interface IGitCoreBranch {
+  boolean isLocal();
+
   String getShortName();
 
   String getFullName();
 
-  IGitCoreCommit getPointedCommit() throws GitCoreException;
+  IGitCoreCommit derivePointedCommit() throws GitCoreException;
 
-  boolean isLocal();
-
-  List<IGitCoreCommit> deriveCommitsUntil(IGitCoreCommit upToCommit) throws GitCoreException;
+  List<IGitCoreReflogEntry> deriveReflog() throws GitCoreException;
 }

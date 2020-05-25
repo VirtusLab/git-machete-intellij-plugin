@@ -31,6 +31,6 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
 
   @Override
   public final int hashCode() {
-    return getName().hashCode();
+    return super.hashCode();
   }
 }

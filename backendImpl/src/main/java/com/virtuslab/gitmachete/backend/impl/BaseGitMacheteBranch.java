@@ -59,6 +59,6 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
 
   @Override
   public final int hashCode() {
-    return getName().hashCode() * 37 + getPointedCommit().hashCode();
+    return super.hashCode();
   }
 }
