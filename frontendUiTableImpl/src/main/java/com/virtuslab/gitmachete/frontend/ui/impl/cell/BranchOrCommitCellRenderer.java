@@ -108,8 +108,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       if (graphItem.hasBulletPoint()) {
         graphImage = getGraphImage(cell.getRenderParts(), maxGraphNodePositionInRow);
       } else {
-        graphImage = getGraphImage(cell.getRenderParts().toStream().filter(e -> !e.isNode())
-            .collect(List.collector()), maxGraphNodePositionInRow);
+        graphImage = getGraphImage(cell.getRenderParts().filter(e -> !e.isNode()), maxGraphNodePositionInRow);
       }
 
       append(""); // appendTextPadding won't work without this
