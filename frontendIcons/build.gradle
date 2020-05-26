@@ -1,1 +1,1 @@
-applyIntellijPlugin(withGit4Idea: false)
+addIntellijToCompileClasspath(withGit4Idea: false)

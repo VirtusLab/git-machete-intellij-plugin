@@ -5,58 +5,9 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-# Note: this should be kept in sync with build.gradle -> patchPluginXml.
-# We're not including the release that we're currently building against (see build.gradle -> allprojects.ext.intellijVersion)
-# since for this case binary compatibility is essentially guaranteed by the compiler.
-# Releases list: https://www.jetbrains.com/intellij-repository/releases/ + Ctrl-F for .idea
-intellij_versions=(193.5233.102 201.6668.121)
-
-verifier_version=1.241
-plugin_version=$(extract_version_from_current_wd)
-plugin_zip=$(ls -1t build/distributions/git-machete-intellij-plugin-${plugin_version}*.zip | head -1)
-
-[[ -f $plugin_zip ]] || die "File $plugin_zip not found, run 'buildPlugin' Gradle task"
-
-# See https://github.com/JetBrains/intellij-plugin-verifier
-verifier_dir="$HOME/.cache/intellij-verifier"
-mkdir -p $verifier_dir
-
-verifier_jar_path=$verifier_dir/verifier-all.jar
-if ! [[ -f $verifier_jar_path ]]; then
-  echo "Downloading IntelliJ Plugin Verifier v${verifier_version}..."
-  curl -fsL -o $verifier_jar_path https://dl.bintray.com/jetbrains/intellij-plugin-service/org/jetbrains/intellij/plugins/verifier-cli/${verifier_version}/verifier-cli-${verifier_version}-all.jar
+export JAVA_HOME=$(which java | xargs readlink --canonicalize | xargs dirname | xargs dirname)
+./gradlew runPluginVerifier
+if stat -t build/pluginVerifier/reports/*/plugins/*/*/compatibility-problems.txt >/dev/null 2>&1; then
+  die 'Compatibility problems detected'
+  exit 1
 fi
-
-exit_code=0
-
-for iv in ${intellij_versions[*]}; do
-  year=20${iv:0:2}
-  release=${iv:2:1}
-  idea_dir=$verifier_dir/idea-IC-${iv}
-  if ! [[ -d $idea_dir ]]; then
-    echo "Downloading IntelliJ IDEA Community v${iv}..."
-    # Released packages apparently aren't available under version.build file name, only under year.release name
-    # EAP packages apparently aren't available under year.release file name, only under version.build name
-    curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${year}.${release}.tar.gz \
-    || curl -fsL -o $idea_dir.tar.gz https://download.jetbrains.com/idea/ideaIC-${iv}.tar.gz
-
-    # This hack is necessary in case when downloaded tar.gz has different name than dir inside this tar.gz
-    # like in case of 193.6911.18
-    mkdir -p $idea_dir
-    tar xzf $idea_dir.tar.gz -C $idea_dir --strip-components 1
-    rm -f $idea_dir.tar.gz
-  fi
-
-  output=$(java -jar "$verifier_jar_path" check-plugin -vrd "build/verification-$(date +%F_%T)" -runtime-dir "${idea_dir}/jbr/bin" "$plugin_zip" "$idea_dir")
-  if echo "$output" | grep -qxE 'Plugin (.*) against .*: .* compatibility problems?'
-  then
-    echo "We have one or more compatibility problem(s) with version $iv:"
-    echo -e "$output\n\n"
-    exit_code=1
-  else
-    echo "Plugin is compatible with version $iv":
-    echo -e "$output\n\n"
-  fi
-done
-
-exit $exit_code

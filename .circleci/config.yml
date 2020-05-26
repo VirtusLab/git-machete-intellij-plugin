@@ -23,8 +23,11 @@ jobs:
       - run:
           name: Run post-compile checks
           command: |
-            ### Remove once Docker image is regenerated
-            command -v strings || { apt-get update && apt-get install -y binutils; }
+            # To be removed once Docker CI image is regenerated
+            command -v strings || {
+              apt-get update && apt-get install -y binutils
+            }
+
             ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Check Javadoc correctness
@@ -34,7 +37,7 @@ jobs:
           command: ./gradlew --warn checkstyleMain
 
       - run:
-          name: Compile backend tests
+          name: Compile tests
           command: ./gradlew compileTestJava
       - run:
           name: Run backend tests
@@ -57,45 +60,42 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./scripts/verify-binary-compatibility
-
       - run:
-          # TODO (#274): use artifacts published on Bintray/JCenter instead
-          # Note: this step (at least building&publishing the ide-probe artifacts) can't be baked into the Docker image
-          # since the VirtuslabRnD/ide-probe is a private repository as for now,
-          # and also we can't publish the binary artifacts due to VL's client's policies.
+          # To be removed once Docker CI image is regenerated
           name: Prepare prerequisites for UI tests
           command: |
-            set -x
-            apt-get update
-            apt-get install -y gnupg
-            echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
-            # keyserver.ubuntu.com is exceptionally flaky, let's keep the public key in the repo instead of downloading
-            # from https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823
-            apt-key add < sbt-debian.pub
-            apt-get update
-            apt-get install -y sbt
-            git clone https://${GITHUB_TOKEN}@github.com/VirtuslabRnD/ide-probe.git ~/ide-probe
-            cd ~/ide-probe/
-            git checkout 674acde5e17d9479733dd55faf880ea162248e37  # master as of 2020-05-14
-            # Actually, all the commands up to this point take ~30 seconds;
-            # it's sbt invocation itself that's the most time-consuming.
-            sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'
-      - run:
-          name: Compile UI tests
-          command: ./gradlew -PenableUiTests :uiTests:compileTestScala
-      - run:
-          name: Run UI tests
-          command: |
-            # To be removed once Docker CI image is regenerated
+            command -v nc || {
+              apt-get update && apt-get install -y netcat
+            }
+
             command -v xauth || {
               apt-get update && apt-get install -y xauth
             }
 
-            # stop, max-workers, jvmargs: limit Gradle's memory consumption so that enough space is left for IntelliJ
-            # enableUiTests: see uiTests/build.gradle
-            # debug: let's leave it for some time until we're sure that these tests are reliable
-            ./gradlew --stop
-            ./gradlew -PenableUiTests --debug --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M :uiTests:test
+            dir="/root/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@=="
+            mkdir -p "$dir"
+            echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <!DOCTYPE map SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+            <map MAP_XML_VERSION="1.0">
+              <entry key="accepted_version" value="2.1"/>
+              <entry key="eua_accepted_version" value="1.1"/>
+              <entry key="privacyeap_accepted_version" value="2.1"/>
+            </map>' > "$dir/prefs.xml"
+
+      - run:
+          name: Run UI tests against 2019.3 (earliest supported)
+          command: ./scripts/run-ui-tests 2019.3
+      - store_test_results:
+          path: uiTests/build/test-results/
+      - run:
+          name: Run UI tests against 2020.1
+          command: ./scripts/run-ui-tests 2020.1
+      # We can't just store the results once at the end since they get overwritten with each UI test run.
+      - store_test_results:
+          path: uiTests/build/test-results/
+      - run:
+          name: Run UI tests against 2020.1.1 (latest non-EAP & our build target)
+          command: ./scripts/run-ui-tests 2020.1.1
       - store_test_results:
           path: uiTests/build/test-results/
 

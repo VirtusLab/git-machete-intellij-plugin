@@ -6,9 +6,10 @@ dependencies {
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')
   implementation project(':frontendActionIds')
+  implementation project(':frontendUiApi')
   implementation project(':frontendDataKeys')
   implementation project(':frontendVfsUtils')
 }
 
-applyIntellijPlugin(withGit4Idea: true)
+addIntellijToCompileClasspath(withGit4Idea: true)
 applySubtypingChecker()

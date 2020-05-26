@@ -5,7 +5,7 @@
 .circleci/
 **/config/
 _config.yml
-Dockerfile
+Dockerfile*
 .dockerignore
 .git/
 .gitattributes

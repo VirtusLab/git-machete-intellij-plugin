@@ -146,10 +146,5 @@
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
         </group>
-
-        <!-- TODO (#274): consider excluding this action from the production builds of the plugin -->
-        <action id="GitMachete.OpenTabAction"
-                class="com.virtuslab.gitmachete.frontend.actions.unanchored.OpenTabAction"
-                text="Git Machete: Open Tab"/>
     </actions>
 </idea-plugin>
