@@ -1,5 +1,9 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.cell;
 
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
+
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -28,9 +32,13 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
+import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
@@ -125,28 +133,40 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
         Option<String> customAnnotation = branch.getCustomAnnotation();
         if (customAnnotation.isDefined()) {
-          append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+          append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation.get(), GRAY_ATTRIBUTES);
         }
 
         Option<String> statusHookOutput = branch.getStatusHookOutput();
         if (statusHookOutput.isDefined()) {
-          append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput.get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+          append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput.get(), GRAY_ATTRIBUTES);
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
         if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSyncToRemote) {
-          SimpleTextAttributes textAttributes = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN,
+          var textAttributes = new SimpleTextAttributes(STYLE_PLAIN,
               SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
           String remoteStatusLabel = SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getRelation(),
               syncToRemoteStatus.getRemoteName());
           append("  (" + remoteStatusLabel + ")", textAttributes);
         }
+      } else {
+        ICommitItem commitItem = graphItem.asCommitItem();
+        IGitMacheteNonRootBranch containingBranch = commitItem.getContainingBranch();
+        IGitMacheteForkPointCommit forkPoint = containingBranch.getForkPoint().getOrNull();
+
+        if (commitItem.getCommit().equals(forkPoint)) {
+          var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, ColorDefinitions.RED);
+          append(" ➔ fork point ??? ", textAttributes);
+
+          var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "
+              + forkPoint.getBranchesWhereFoundInReflog().mkString(", ");
+          append(text, REGULAR_ATTRIBUTES);
+        }
       }
     }
 
     @UIEffect
-    @Positive
-    private int calculateTextPadding(@NonNegative int maxPosition) {
+    private @Positive int calculateTextPadding(@NonNegative int maxPosition) {
       int width = (maxPosition + 1) * PaintParameters.getNodeWidth(graphTable.getRowHeight());
       int padding = width + LabelPainter.RIGHT_PADDING.get();
       // Our assumption here comes from the fact that we expect positive row height of graph table,
@@ -155,8 +175,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       return padding;
     }
 
-    @NonNegative
-    private int getMaxGraphNodePositionInRow(IGraphItem graphItem) {
+    private @NonNegative int getMaxGraphNodePositionInRow(IGraphItem graphItem) {
       // If item is a child (non root) branch, then the text must be shifted right to make place
       // for the corresponding the right edge to the left.
       // If item is a commit, then the text must be shifted right to keep it horizontally aligned

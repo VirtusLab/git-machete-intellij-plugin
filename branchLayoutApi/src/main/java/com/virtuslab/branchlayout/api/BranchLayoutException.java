@@ -5,9 +5,8 @@ import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BranchLayoutException extends Exception {
-  @Nullable
-  @Positive
-  private final Integer errorLine;
+
+  private final @Nullable @Positive Integer errorLine;
 
   public BranchLayoutException(@Nullable @Positive Integer errorLine, String message) {
     super(message);

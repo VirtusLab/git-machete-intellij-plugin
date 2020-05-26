@@ -11,8 +11,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -26,7 +26,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   @ToString.Exclude
   @MonotonicNonNull
   private IGitMacheteBranch upstreamBranch = null;
-  private final @Nullable IGitMacheteCommit forkPoint;
+  private final @Nullable IGitMacheteForkPointCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
   private final SyncToParentStatus syncToParentStatus;
 
@@ -34,14 +34,13 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
-      @Nullable IGitMacheteCommit forkPoint,
+      @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+    super(name, downstreamBranches, pointedCommit, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;
@@ -72,7 +71,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public Option<IGitMacheteCommit> getForkPoint() {
+  public Option<IGitMacheteForkPointCommit> getForkPoint() {
     return Option.of(forkPoint);
   }
 

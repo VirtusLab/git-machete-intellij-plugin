@@ -27,7 +27,7 @@ public interface IGitMacheteNonRootBranch extends IGitMacheteBranch {
 
   SyncToParentStatus getSyncToParentStatus();
 
-  Option<IGitMacheteCommit> getForkPoint();
+  Option<IGitMacheteForkPointCommit> getForkPoint();
 
   IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
 

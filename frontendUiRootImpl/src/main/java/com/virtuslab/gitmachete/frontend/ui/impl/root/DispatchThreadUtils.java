@@ -12,9 +12,8 @@ public final class DispatchThreadUtils {
     T get();
   }
 
-  @Nullable
   @SuppressWarnings("guieffect:call.invalid.ui")
-  public static <T> T getIfOnDispatchThreadOrNull(IDispatchThreadSupplier<T> supplier) {
+  public static <T> @Nullable T getIfOnDispatchThreadOrNull(IDispatchThreadSupplier<T> supplier) {
     return ApplicationManager.getApplication().isDispatchThread() ? supplier.get() : null;
   }
 }

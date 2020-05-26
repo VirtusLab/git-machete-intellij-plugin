@@ -7,6 +7,5 @@ import org.checkerframework.checker.index.qual.Positive;
 public class IndentSpec {
   private final char indentCharacter;
 
-  @Positive
-  private final int indentWidth;
+  private final @Positive int indentWidth;
 }

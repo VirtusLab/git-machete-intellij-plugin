@@ -14,8 +14,7 @@ import com.virtuslab.branchlayout.impl.IndentSpec;
 public final class BranchLayoutFileUtils {
   private BranchLayoutFileUtils() {}
 
-  @Positive
-  public static final int DEFAULT_INDENT_WIDTH = 2;
+  public static final @Positive int DEFAULT_INDENT_WIDTH = 2;
   public static final char DEFAULT_INDENT_CHARACTER = ' ';
   private static final IndentSpec DEFAULT_SPEC = new IndentSpec(DEFAULT_INDENT_CHARACTER, DEFAULT_INDENT_WIDTH);
 
@@ -24,8 +23,7 @@ public final class BranchLayoutFileUtils {
     return DEFAULT_SPEC;
   }
 
-  @NonNegative
-  public static int getIndentWidth(String line, char indentCharacter) {
+  public static @NonNegative int getIndentWidth(String line, char indentCharacter) {
     return (int) line.chars().takeWhile(c -> c == indentCharacter).count();
   }
 

@@ -2,11 +2,14 @@ package com.virtuslab.gitcore.api;
 
 import java.time.Instant;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * The only criterion for equality of any instances of any class implementing this interface is equality of {@code getHash}
  */
 public interface IGitCoreCommit {
-  String getMessage();
+  String getShortMessage();
 
   IGitCorePersonIdentity getAuthor();
 
@@ -15,4 +18,19 @@ public interface IGitCoreCommit {
   Instant getCommitTime();
 
   IGitCoreCommitHash getHash();
+
+  @EnsuresNonNullIf(expression = "#2", result = true)
+  static boolean defaultEquals(IGitCoreCommit self, @Nullable Object other) {
+    if (self == other) {
+      return true;
+    } else if (!(other instanceof IGitCoreCommit)) {
+      return false;
+    } else {
+      return self.getHash().equals(((IGitCoreCommit) other).getHash());
+    }
+  }
+
+  static int defaultHashCode(IGitCoreCommit self) {
+    return self.getHash().hashCode();
+  }
 }

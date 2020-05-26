@@ -191,8 +191,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     return lineIndexToIndentLevelAndUpstreamLineIndex;
   }
 
-  @NonNegative
-  private int getIndentLevel(Path path, IndentSpec indentSpec, @NonNegative int indent, @NonNegative int lineNumber)
+  private @NonNegative int getIndentLevel(Path path, IndentSpec indentSpec, @NonNegative int indent,
+      @NonNegative int lineNumber)
       throws BranchLayoutException {
     if (indent == 0) {
       return 0;

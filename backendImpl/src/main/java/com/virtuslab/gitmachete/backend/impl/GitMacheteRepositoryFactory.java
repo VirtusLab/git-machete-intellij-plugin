@@ -20,6 +20,8 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.Value;
+import lombok.With;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -38,7 +40,6 @@ import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -122,11 +123,10 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
       var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
-      var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
       return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit,
-          remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+          syncToRemoteStatus, customAnnotation, statusHookOutput);
     }
 
     private GitMacheteNonRootBranch createGitMacheteNonRootBranch(
@@ -138,47 +138,110 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       IGitCoreLocalBranch coreLocalBranch = gitCoreRepository.deriveLocalBranchByShortName(branchName)
           .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
-      IGitCoreCommit coreForkPoint = deriveParentAwareForkPoint(coreLocalBranch, parentCoreLocalBranch)
-          .getOrNull();
-
       IGitCoreCommit corePointedCommit = Try.of(() -> coreLocalBranch.derivePointedCommit())
           .getOrElseThrow(e -> new GitMacheteException(e));
 
+      CoreForkPoint coreForkPoint = deriveParentAwareForkPoint(coreLocalBranch, parentCoreLocalBranch);
+      IGitCoreCommit coreForkPointCommit = coreForkPoint != null ? coreForkPoint.coreCommit : null;
+
+      var syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, coreForkPointCommit);
+
       // translate IGitCoreCommit list to IGitMacheteCommit list
-      List<IGitMacheteCommit> commits = coreForkPoint != null
-          ? Try.of(() -> gitCoreRepository.deriveCommitRange(coreLocalBranch.derivePointedCommit(), coreForkPoint))
-              .getOrElseThrow(e -> new GitMacheteException(e))
-              .map(GitMacheteCommit::new)
-          : List.empty();
+      List<IGitMacheteCommit> commits;
+      if (coreForkPointCommit == null) {
+        // That's a rare case in practice, mostly happens due to reflog expiry.
+        commits = List.empty();
+      } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
+        // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
+        // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
+        commits = Try
+            .of(() -> gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.derivePointedCommit()))
+            .getOrElseThrow(e -> new GitMacheteException(e))
+            .map(GitMacheteCommit::new);
+      } else {
+        // We're handling the cases of green, gray and red edges here.
+        commits = Try
+            .of(() -> gitCoreRepository.deriveCommitRange(corePointedCommit, coreForkPointCommit))
+            .getOrElseThrow(e -> new GitMacheteException(e))
+            .map(GitMacheteCommit::new);
+      }
 
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
-      var forkPoint = coreForkPoint != null ? new GitMacheteCommit(coreForkPoint) : null;
+      var forkPoint = coreForkPoint != null
+          ? new GitMacheteForkPointCommit(coreForkPoint.coreCommit, coreForkPoint.containingBranches)
+          : null;
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
-      var syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, coreForkPoint);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
       var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
-      var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
       return new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit,
-          remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint, commits, syncToParentStatus);
+          syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint, commits, syncToParentStatus);
     }
 
-    @Nullable
-    private IGitMacheteRemoteBranch getRemoteBranchFromCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
-        throws GitMacheteException {
-      IGitMacheteRemoteBranch remoteBranch = null;
-      Option<IGitCoreRemoteBranch> remoteBranchOption = coreLocalBranch.getRemoteTrackingBranch();
-      if (remoteBranchOption.isDefined()) {
-        IGitCoreRemoteBranch coreRemoteBranch = remoteBranchOption.get();
-        IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.derivePointedCommit())
-            .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
-        remoteBranch = new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
+    @Value(staticConstructor = "of")
+    @With
+    private static class CoreForkPoint {
+      IGitCoreCommit coreCommit;
+      List<String> containingBranches;
+    }
+
+    private @Nullable CoreForkPoint deriveParentAwareForkPoint(
+        IGitCoreLocalBranch coreLocalBranch,
+        IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
+      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, " +
+          "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}'");
+      try {
+        var coreForkPoint = deriveParentAgnosticForkPoint(coreLocalBranch);
+        var forkPointString = coreForkPoint != null ? coreForkPoint.toString() : "empty";
+        var parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
+        var pointedCommit = coreLocalBranch.derivePointedCommit();
+
+        LOG.debug(() -> "coreForkPoint = ${forkPointString}, " +
+            "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}, " +
+            "pointedCommit = ${pointedCommit.getHash().getHashString()}");
+
+        var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
+
+        LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) " +
+            "is ${isParentAncestorOfChild ? \"\" : \" NOT\"} ancestor of child commit " +
+            "(${pointedCommit.getHash().getHashString()})");
+
+        if (isParentAncestorOfChild) {
+          if (coreForkPoint != null) {
+            var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, coreForkPoint.coreCommit);
+
+            if (!isParentAncestorOfForkPoint) {
+              // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
+              // then assume fork-point(A)=parent(A)
+              LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of " +
+                  "pointed commit (${pointedCommit.getHash().getHashString()}) but parent branch commit " +
+                  "is NOT ancestor of pointed commit fork point (${forkPointString}), " +
+                  "so we assume that pointed commit fork point = parent branch commit");
+              return coreForkPoint.withCoreCommit(parentPointedCommit);
+            }
+
+          } else {
+            // If parent(A) is ancestor of A, and fork-point(A) is missing,
+            // then assume fork-point(A)=parent(A)
+            LOG.debug(
+                () -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of pointed commit " +
+                    "(${pointedCommit.getHash().getHashString()}) but fork point of pointed commit is missing, " +
+                    "so we assume that pointed commit fork point = parent branch commit");
+            return CoreForkPoint.of(parentPointedCommit, List.empty());
+          }
+        }
+
+        // String interpolation caused some weird Nullness Checker issues (exception from `com.sun.tools.javac`) in this line.
+        LOG.debug(() -> "Deduced fork point for branch " + coreLocalBranch.getShortName() + " is " + forkPointString);
+
+        return coreForkPoint;
+      } catch (GitCoreException e) {
+        throw new GitMacheteException(e);
       }
-      return remoteBranch;
     }
 
-    private Option<IGitCoreCommit> deriveParentAgnosticForkPoint(IGitCoreLocalBranch branch) throws GitCoreException {
+    private @Nullable CoreForkPoint deriveParentAgnosticForkPoint(IGitCoreLocalBranch branch) throws GitCoreException {
       LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
       LOG.debug("Getting reflogs of local branches");
@@ -197,9 +260,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteBranchName = gitCoreRepository
           .deriveAllRemoteBranches()
           .reject(someRemoteBranch -> remoteTrackingBranch.isDefined() && remoteTrackingBranch.get().equals(someRemoteBranch))
-          .toMap(unrelatedRemotedBranch -> Tuple.of(
-              unrelatedRemotedBranch.getShortName(),
-              Try.of(() -> deriveFilteredReflog(unrelatedRemotedBranch)).get()));
+          .toMap(unrelatedRemoteBranch -> Tuple.of(
+              unrelatedRemoteBranch.getShortName(),
+              Try.of(() -> deriveFilteredReflog(unrelatedRemoteBranch)).get()));
 
       Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
           .merge(filteredReflogByRemoteBranchName);
@@ -212,74 +275,21 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       LOG.debug("Start walking through logs");
 
-      return gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(), commitHash -> {
+      IGitCoreCommit forkPoint = gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(), commitHash -> {
         Seq<String> containingBranches = branchesContainingInReflogByCommit.getOrElse(commitHash, List.empty());
-        if (containingBranches.nonEmpty()) {
-          LOG.debug(() -> "Commit ${commitHash} found " +
-              "in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
-              "returning as fork point for branch '${branch.getFullName()}'");
-          return true;
-        } else {
-          return false;
-        }
-      });
-    }
+        return containingBranches.nonEmpty();
+      }).getOrNull();
 
-    private Option<IGitCoreCommit> deriveParentAwareForkPoint(
-        IGitCoreLocalBranch coreLocalBranch,
-        IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, " +
-          "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}'");
-      try {
-
-        var forkPointOption = deriveParentAgnosticForkPoint(coreLocalBranch);
-        var parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
-        var pointedCommit = coreLocalBranch.derivePointedCommit();
-
-        LOG.debug(
-            () -> "forkPointOption = ${forkPointOption.isDefined() ? forkPointOption.get().getHash().getHashString() : \"empty\"}, "
-                + "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}, " +
-                "pointedCommit = ${pointedCommit.getHash().getHashString()}");
-
-        var isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
-
-        LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) " +
-            "is${isParentAncestorOfChild ? \"\" : \" NOT\"} ancestor of child commit " +
-            "(${pointedCommit.getHash().getHashString()})");
-
-        if (isParentAncestorOfChild) {
-          if (forkPointOption.isDefined()) {
-            var isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit, forkPointOption.get());
-
-            if (!isParentAncestorOfForkPoint) {
-              // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
-              // then assume fork-point(A)=parent(A)
-              LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of " +
-                  "pointed commit (${pointedCommit.getHash().getHashString()}) but parent branch commit " +
-                  "is NOT ancestor of pointed commit fork point (${forkPointOption.get().getHash().getHashString()}), " +
-                  "so we assume that pointed commit fork point = parent branch commit");
-              return Option.of(parentPointedCommit);
-            }
-
-          } else {
-            // If parent(A) is ancestor of A, and fork-point(A) is missing,
-            // then assume fork-point(A)=parent(A)
-            LOG.debug(
-                () -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of pointed commit " +
-                    "(${pointedCommit.getHash().getHashString()}) but fork point of pointed commit is missing, " +
-                    "so we assume that pointed commit fork point = parent branch commit");
-            return Option.of(parentPointedCommit);
-          }
-        }
-
-        String forkPointString = forkPointOption.isDefined() ? forkPointOption.get().getHash().getHashString() : "empty";
-        // String interpolation caused some weird Nullness Checker issues (exception from `com.sun.tools.javac`) in this line.
-        LOG.debug(() -> "Deduced fork point for branch " + coreLocalBranch.getShortName() + " is " + forkPointString);
-
-        return forkPointOption;
-
-      } catch (GitCoreException e) {
-        throw new GitMacheteException(e);
+      if (forkPoint != null) {
+        // We now know that this list is non-empty.
+        List<String> containingBranches = branchesContainingInReflogByCommit.getOrElse(forkPoint.getHash(), List.empty())
+            .toList();
+        LOG.debug(() -> "Commit ${forkPoint} found in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
+            "returning as fork point for branch '${branch.getFullName()}'");
+        return CoreForkPoint.of(forkPoint, containingBranches);
+      } else {
+        LOG.debug(() -> "Fork for branch '${branch.getFullName()}' not found ");
+        return null;
       }
     }
 
