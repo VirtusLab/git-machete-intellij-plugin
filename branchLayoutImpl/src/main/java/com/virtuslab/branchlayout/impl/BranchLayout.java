@@ -6,22 +6,22 @@ import java.util.function.Predicate;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
-import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @CustomLog
-@Data
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class BranchLayout implements IBranchLayout {
+
   private final List<IBranchLayoutEntry> rootEntries;
-
-  @Getter
   private final Path path;
-
-  @Getter
   private final IndentSpec indentSpec;
 
   @Override

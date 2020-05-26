@@ -12,41 +12,32 @@ import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
 @Getter
 public class GitCoreCommit implements IGitCoreCommit {
-  private final String message;
+  private final String shortMessage;
   private final GitCorePersonIdentity author;
   private final GitCorePersonIdentity committer;
   private final Instant commitTime;
   private final IGitCoreCommitHash hash;
-  private final String stringValue;
 
-  @SuppressWarnings("index:argument.type.incompatible")
   public GitCoreCommit(@NonLeaked RevCommit commit) {
-    this.message = commit.getFullMessage();
+    this.shortMessage = commit.getShortMessage();
     this.author = new GitCorePersonIdentity(commit.getAuthorIdent());
     this.committer = new GitCorePersonIdentity(commit.getCommitterIdent());
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
     this.hash = GitCoreCommitHash.of(commit.getId());
-    this.stringValue = commit.getId().getName().substring(0, 7) + ": " + commit.getShortMessage();
   }
 
   @Override
   public String toString() {
-    return stringValue;
+    return hash.getShortHashString() + ": " + shortMessage;
   }
 
   @Override
   public final boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    } else if (!(other instanceof IGitCoreCommit)) {
-      return false;
-    } else {
-      return getHash().equals(((IGitCoreCommit) other).getHash());
-    }
+    return IGitCoreCommit.defaultEquals(this, other);
   }
 
   @Override
   public final int hashCode() {
-    return getHash().hashCode();
+    return IGitCoreCommit.defaultHashCode(this);
   }
 }

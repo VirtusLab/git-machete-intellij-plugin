@@ -2,6 +2,14 @@
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.common.aliasing.qual.NonLeaked;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.checkerframework.common.value.qual.ArrayLen;
+
+package org.eclipse.jgit.lib;
+
+class AnyObjectId {
+  @ArrayLen(40) String getName();
+}
+
 
 package org.eclipse.jgit.revwalk;
 

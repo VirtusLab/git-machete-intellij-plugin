@@ -17,15 +17,11 @@ public abstract class BaseGraphItem implements IGraphItem {
 
   private final GraphItemColor graphItemColor;
 
-  @GTENegativeOne
-  private final int prevSiblingItemIndex;
+  private final @GTENegativeOne int prevSiblingItemIndex;
 
-  @Positive
-  @MonotonicNonNull
-  private Integer nextSiblingItemIndex = null;
+  private @MonotonicNonNull @Positive Integer nextSiblingItemIndex = null;
 
-  @NonNegative
-  private final int indentLevel;
+  private final @NonNegative int indentLevel;
 
   protected BaseGraphItem(
       GraphItemColor graphItemColor,
@@ -48,9 +44,7 @@ public abstract class BaseGraphItem implements IGraphItem {
   }
 
   @Override
-  @Nullable
-  @Positive
-  public Integer getNextSiblingItemIndex() {
+  public @Nullable @Positive Integer getNextSiblingItemIndex() {
     return this.nextSiblingItemIndex;
   }
 

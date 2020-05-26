@@ -72,11 +72,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @UIEffect
   private boolean isListingCommits;
 
-  @Nullable
-  private IGitMacheteRepository gitMacheteRepository;
+  private @Nullable IGitMacheteRepository gitMacheteRepository;
 
-  @Nullable
-  private String selectedBranchName;
+  private @Nullable String selectedBranchName;
 
   @UIEffect
   public GitMacheteGraphTable(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
@@ -225,8 +223,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @Override
-  @Nullable
-  public Object getData(String dataId) {
+  public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
         typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),

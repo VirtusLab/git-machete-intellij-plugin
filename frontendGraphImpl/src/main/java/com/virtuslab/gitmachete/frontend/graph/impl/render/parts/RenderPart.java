@@ -8,13 +8,14 @@ import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
 import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
-@Getter
 @RequiredArgsConstructor
 public abstract class RenderPart implements IRenderPart {
-  @NonNegative
-  protected final int rowIndex;
-  @NonNegative
-  protected final int positionInRow;
+  @Getter
+  protected final @NonNegative int rowIndex;
+
+  @Getter
+  protected final @NonNegative int positionInRow;
+
   protected final IGraphElement graphElement;
 
   private final IRenderPartColorIdProvider renderPartColorIdProvider;

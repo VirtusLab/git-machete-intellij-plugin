@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.backend.unit.TestUtils.TestGitCoreReflogE
 import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreLocalBranch;
 
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -17,15 +18,16 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
 
   private static final IGitCoreCommit MISSING_FORK_POINT = createGitCoreCommit();
 
+  @SneakyThrows
   private SyncToParentStatus invokeDeriveSyncToParentStatus(
       IGitCoreLocalBranch childBranch,
       IGitCoreLocalBranch parentBranch,
-      IGitCoreCommit forkPointCommit) throws Exception {
+      IGitCoreCommit forkPointCommit) {
     return Whitebox.invokeMethod(aux, "deriveSyncToParentStatus", childBranch, parentBranch, forkPointCommit);
   }
 
   @Test
-  public void branchAndParentPointingSameCommitAndBranchJustCreated_inSync() throws Exception {
+  public void branchAndParentPointingSameCommitAndBranchJustCreated_inSync() {
     // given
     IGitCoreCommit commit = createGitCoreCommit();
     IGitCoreLocalBranch parentBranch = createGitCoreLocalBranch(commit);
@@ -39,7 +41,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
   }
 
   @Test
-  public void branchAndParentPointingSameCommitAndBranchNotJustCreated_merged() throws Exception {
+  public void branchAndParentPointingSameCommitAndBranchNotJustCreated_merged() {
     // given
     IGitCoreCommit commit = createGitCoreCommit();
     IGitCoreLocalBranch parentBranch = createGitCoreLocalBranch(commit);
@@ -53,7 +55,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
   }
 
   @Test
-  public void parentPointedCommitIsAncestorOfBranchPointedCommitAndItsForkPoint_inSync() throws Exception {
+  @SneakyThrows
+  public void parentPointedCommitIsAncestorOfBranchPointedCommitAndItsForkPoint_inSync() {
     // given
     IGitCoreCommit parentCommit = createGitCoreCommit();
     IGitCoreCommit childCommit = createGitCoreCommit();
@@ -69,8 +72,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
   }
 
   @Test
-  public void parentPointedCommitIsAncestorOfBranchPointedCommitButNotItsForkPoint_inSyncButOffForkPoint()
-      throws Exception {
+  @SneakyThrows
+  public void parentPointedCommitIsAncestorOfBranchPointedCommitButNotItsForkPoint_inSyncButOffForkPoint() {
     // given
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -87,7 +90,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
   }
 
   @Test
-  public void branchPointedCommitIsAncestorOfParentPointedCommit_merged() throws Exception {
+  @SneakyThrows
+  public void branchPointedCommitIsAncestorOfParentPointedCommit_merged() {
     // given
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -104,7 +108,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
   }
 
   @Test
-  public void neitherBranchPointedCommitIsAncestorOfParentPointedCommitNorTheOtherWay_outOfSync() throws Exception {
+  @SneakyThrows
+  public void neitherBranchPointedCommitIsAncestorOfParentPointedCommitNorTheOtherWay_outOfSync() {
     // given
     IGitCoreCommit parentCommit = createGitCoreCommit();
     IGitCoreCommit childCommit = createGitCoreCommit();

@@ -15,8 +15,7 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 @CustomLog
 public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
 
-  @Nullable
-  private final IGitCoreRemoteBranch remoteBranch;
+  private @Nullable final IGitCoreRemoteBranch remoteBranch;
 
   public GitCoreLocalBranch(
       String shortBranchName,

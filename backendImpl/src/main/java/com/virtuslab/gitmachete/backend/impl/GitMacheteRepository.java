@@ -17,18 +17,16 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Getter
   private final List<IGitMacheteRootBranch> rootBranches;
 
-  @Nullable
-  private final IBranchLayout branchLayout;
+  private final @Nullable IBranchLayout branchLayout;
+
+  private final @Nullable IGitMacheteBranch currentBranch;
+
+  private final Map<String, IGitMacheteBranch> branchByName;
 
   @Override
   public Option<IBranchLayout> getBranchLayout() {
     return Option.of(branchLayout);
   }
-
-  @Nullable
-  private final IGitMacheteBranch currentBranch;
-
-  private final Map<String, IGitMacheteBranch> branchByName;
 
   @Override
   public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {

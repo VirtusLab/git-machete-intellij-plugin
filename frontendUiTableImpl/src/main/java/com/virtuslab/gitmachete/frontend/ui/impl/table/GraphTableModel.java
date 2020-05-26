@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import javax.swing.table.AbstractTableModel;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -16,23 +15,20 @@ public class GraphTableModel extends AbstractTableModel {
   private static final int COLUMN_COUNT = BRANCH_OR_COMMIT_COLUMN + 1;
   private static final String[] COLUMN_NAMES = {"Branch or Commit value"};
 
-  @Getter
   private final IRepositoryGraph repositoryGraph;
 
   @Override
-  @NonNegative
-  public int getRowCount() {
+  public @NonNegative int getRowCount() {
     return repositoryGraph.getNodesCount();
   }
 
   @Override
-  @NonNegative
-  public final int getColumnCount() {
+  public @NonNegative int getColumnCount() {
     return COLUMN_COUNT;
   }
 
   @Override
-  public final Object getValueAt(@NonNegative int rowIndex, @NonNegative int columnIndex) {
+  public Object getValueAt(@NonNegative int rowIndex, @NonNegative int columnIndex) {
     switch (columnIndex) {
       case BRANCH_OR_COMMIT_COLUMN :
         IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);

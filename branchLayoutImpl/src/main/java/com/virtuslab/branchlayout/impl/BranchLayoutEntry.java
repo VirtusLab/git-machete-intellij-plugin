@@ -14,8 +14,9 @@ import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Getter
   private final String name;
-  @Nullable
-  private final String customAnnotation;
+
+  private final @Nullable String customAnnotation;
+
   @Getter
   private final List<IBranchLayoutEntry> subentries;
 

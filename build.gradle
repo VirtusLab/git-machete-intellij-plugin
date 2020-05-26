@@ -124,6 +124,7 @@ subprojects {
       // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
       options.addStringOption('Xwerror', '-quiet')
       options.addStringOption('Xdoclint:all', '-quiet')
+      options.addStringOption('encoding', 'UTF-8')
     }
   }
 
@@ -148,6 +149,7 @@ subprojects {
     extraJavacArgs = [
       '-AassumeAssertionsAreEnabled',
       '-AinvariantArrays',
+      '-Alint=cast:redundant,cast:unsafe',
       '-ArequirePrefixInWarningSuppressions',
       '-AshowSuppressWarningKeys',
       "-Astubs=$rootDir/config/checker/",
@@ -174,6 +176,8 @@ subprojects {
       def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
       compileOnly lombokArtifact
       annotationProcessor lombokArtifact
+      testCompileOnly lombokArtifact
+      testAnnotationProcessor lombokArtifact
     }
   }
   // Hopefully that'll be no longer needed if/when the changes requested
@@ -253,6 +257,12 @@ subprojects {
 
 
   ext {
+    applyAliasingChecker = { ->
+      checkerFramework {
+        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
+      }
+    }
+
     applyIntellijPlugin = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
 
@@ -287,12 +297,6 @@ subprojects {
         if (params.withGit4Idea) {
           plugins 'git4idea'
         }
-      }
-    }
-
-    applyAliasingChecker = { ->
-      checkerFramework {
-        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
       }
     }
 

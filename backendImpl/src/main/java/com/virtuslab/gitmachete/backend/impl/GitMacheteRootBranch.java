@@ -6,7 +6,6 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
@@ -18,11 +17,10 @@ public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements 
       String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
-    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+    super(name, downstreamBranches, pointedCommit, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     LOG.debug("Creating ${this}");
 
