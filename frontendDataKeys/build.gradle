@@ -6,4 +6,4 @@ dependencies {
   api project(':frontendUiApi')
 }
 
-applyIntellijPlugin(withGit4Idea: true)
+addIntellijToCompileClasspath(withGit4Idea: true)

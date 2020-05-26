@@ -34,7 +34,7 @@ RUN --mount=type=bind,rw,source=.,target=.  set -x \
   && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
 
 # Secondary packages needed in just one (or few) steps of the pipeline; subject to frequent change, thus moved to the end of the pipeline
-# (package => needed for command(s))
+# (package       => needed for command(s))
 # binutils       => strings
 # xml-twig-tools => xml_grep
 # xxd            => xxd

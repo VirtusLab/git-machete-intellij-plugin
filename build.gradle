@@ -84,8 +84,6 @@ allprojects {
     intellijVersion = '2020.1.1'
     jgitVersion = '5.7.0.202003110725-r'
     junitVersion = '4.13'
-    // Only applies when Lombok is used as a regular dependency.
-    // Lombok Gradle plugin pulls in its own (apparently non-configurable) Lombok version.
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.7'
     reflectionsVersion = '0.9.12'
@@ -106,6 +104,7 @@ subprojects {
   gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
       options.compilerArgs += [
+        '-encoding', 'UTF-8',
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
@@ -165,6 +164,9 @@ subprojects {
     // Minus: some compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
     //        which may differ a lot from the original source
     apply plugin: 'io.freefair.lombok'
+    lombok {
+      version = lombokVersion
+    }
     generateLombokConfig.enabled = false
   } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
     // Plus:  all compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
@@ -257,13 +259,7 @@ subprojects {
 
 
   ext {
-    applyAliasingChecker = { ->
-      checkerFramework {
-        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
-      }
-    }
-
-    applyIntellijPlugin = { Map params ->
+    addIntellijToCompileClasspath = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
 
       // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
@@ -297,6 +293,12 @@ subprojects {
         if (params.withGit4Idea) {
           plugins 'git4idea'
         }
+      }
+    }
+
+    applyAliasingChecker = { ->
+      checkerFramework {
+        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
       }
     }
 
@@ -416,6 +418,7 @@ subprojects.each { subproject ->
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
+  instrumentCode false
   pluginName 'git-machete-intellij-plugin'
   version intellijVersion
 }

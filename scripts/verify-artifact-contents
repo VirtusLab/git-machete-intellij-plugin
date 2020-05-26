@@ -30,7 +30,7 @@ done
 
 # We don't want either slf4j-api or any SLF4J implementation jars in the final plugin artifact
 # since this would lead to a linker error (for api) or an SLF4J error (for impl) in the runtime.
-forbidden_library_prefixes=(checker ide-probe junit-driver lombok scala slf4j)
+forbidden_library_prefixes=(checker ide-probe idea junit-driver lombok scala slf4j)
 for lib in ${forbidden_library_prefixes[@]}; do
   if matching_jars=$(grep "^$lib" <<< "$jars_in_plugin_zip"); then
     for jar in $matching_jars; do

@@ -12,9 +12,47 @@ junit()
 scala()
 
 dependencies {
+  // We use compile-only dependency to make sure that in the runtime, the UI test actions plugin
+  // uses the classes provided by the *main* plugin (and not its own copies of these classes).
+  // See plugin.xml in this subproject for the declaration of runtime dependency on the main plugin.
+  compileOnly project(':logging')
+  compileOnly project(':frontendUiRootImpl')
+
   testImplementation project(':testCommon').sourceSets.test.output
 }
 
 test {
+  // Dependency is necessary since the tests explicitly provide paths of plugin zips
+  // (both main plugin & UI test actions plugin) to the IntelliJ instances they launch.
   dependsOn ':buildPlugin'
+  dependsOn ":${project.name}:buildPlugin"
+}
+
+
+apply plugin: 'org.jetbrains.intellij'
+
+// We only want to leave `buildPlugin` (and `patchPluginXml` & `prepareSandbox` tasks it depends on) enabled.
+buildSearchableOptions.enabled = false
+downloadRobotServerPlugin.enabled = false
+jarSearchableOptions.enabled = false
+prepareTestingSandbox.enabled = false
+prepareUiTestingSandbox.enabled = false
+publishPlugin.enabled = false
+runIde.enabled = false
+runIdeForUiTests.enabled = false
+verifyPlugin.enabled = false
+
+intellij {
+  // Note that we could theoretically define dependency on the main plugin by declaring `plugins rootProject` here,
+  // instead of declaring `compileOnly` dependencies on specific modules;
+  // this would, however create a cyclic dependency between the root project and this subproject.
+
+  instrumentCode false
+  pluginName 'git-machete-uitest-actions'
+  version intellijVersion
+}
+
+patchPluginXml {
+  sinceBuild rootProject.patchPluginXml.sinceBuild
+  untilBuild rootProject.patchPluginXml.untilBuild
 }

@@ -1,0 +1,21 @@
+
+<!-- This plugin is NOT meant to be published,
+     and its main purpose is to keep UI-test-specific actions outside of the main (published) plugin codebase. -->
+
+<idea-plugin>
+    <id>com.virtuslab.git-machete.ui-test-actions</id>
+    <name>Git Machete UI Test Actions</name>
+
+    <vendor email="gitmachete@virtuslab.com" url="https://virtuslab.com">VirtusLab</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <!-- Note that this dependency is runtime-only and does not affect compilation;
+         see build.gradle in this subproject for compile-only dependencies. -->
+    <depends>com.virtuslab.git-machete</depends>
+
+    <actions>
+        <action id="GitMachete.UITest.OpenTabAction"
+                class="com.virtuslab.gitmachete.uitest.actions.OpenTabAction"
+                text="Git Machete: Open Tab"/>
+    </actions>
+</idea-plugin>
