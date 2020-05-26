@@ -58,7 +58,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     // A bit of a shortcut: we're accessing filesystem even though we are on UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-    LOG.debug(() -> "VCS roots:");
+    LOG.debug("VCS roots:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
     // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
@@ -74,15 +74,15 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
       // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
-      LOG.debug(() -> "No VCS roots found");
+      LOG.debug("No VCS roots found");
       if (selected != null) {
         setSelectedItem(null);
       }
     } else if (selectedItemUpdateRequired) {
-      LOG.debug(() -> "Selecting first VCS root");
+      LOG.debug("Selecting first VCS root");
       setSelectedItem(repositories.get(0));
     } else {
-      LOG.debug(() -> "Selecting previously selected VCS root");
+      LOG.debug("Selecting previously selected VCS root");
       // VcsRootComboBox#setSelectedItem is omitted to avoid unnecessary observers call
       getModel().setSelectedItem(selected);
     }
