@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -31,6 +32,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
 
   private final VcsRootComboBox vcsRootComboBox;
+  @Getter
   private final BaseGraphTable graphTable;
   private final IBranchLayoutWriter branchLayoutWriter;
 
@@ -41,7 +43,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
 
     this.vcsRootComboBox = new VcsRootComboBox(project);
     this.graphTable = RuntimeBinding
-        .instantiateSoleImplementingClass(IGraphTableFactory.class).create(project, vcsRootComboBox);
+        .instantiateSoleImplementingClass(IGraphTableFactory.class)
+        .create(project, vcsRootComboBox);
     this.branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
 
     graphTable.queueRepositoryUpdateAndModelRefresh();

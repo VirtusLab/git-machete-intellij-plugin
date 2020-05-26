@@ -5,4 +5,4 @@ dependencies {
   api project(':backendApi')
 }
 
-applyIntellijPlugin(withGit4Idea: false)
+addIntellijToCompileClasspath(withGit4Idea: false)

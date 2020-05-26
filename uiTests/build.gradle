@@ -1,20 +1,15 @@
-plugins {
-  id 'org.gradle.scala'
-}
-
-// TODO (#274): use artifacts published on Bintray/JCenter instead
-repositories {
-  mavenLocal()
-}
-
-ideProbeJunitDriver()
 junit()
-scala()
+remoteRobot()
 
 dependencies {
   testImplementation project(':testCommon').sourceSets.test.output
 }
 
 test {
-  dependsOn ':buildPlugin'
+  onlyIf {
+    project.hasProperty('enableUiTests')
+  }
+
+  // Always re-run the tests, never assume they're up to date.
+  outputs.upToDateWhen { false }
 }

@@ -21,7 +21,4 @@ include 'frontendIcons'
 include 'frontendUiApi'
 include 'frontendUiTableImpl'
 include 'frontendUiRootImpl'
-
-if (startParameter.projectProperties.containsKey('enableUiTests')) {
-  include 'uiTests'
-}
+include 'uiTests'

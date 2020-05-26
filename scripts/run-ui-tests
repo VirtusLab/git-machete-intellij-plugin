@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u -x
+
+intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
+
+log=~/gradlew-runIdeForUiTests.log
+# Let's make sure there is no state left from the previous test runs.
+rm -rf build/idea-sandbox/
+
+# If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.
+# --auto-servernum is deprecated in favor of --auto-display,
+# but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
+command=${CI:+xvfb-run --auto-servernum}
+$command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests 1>"$log" 2>&1 &
+
+# Let's wait until Remote Robot plugin living within the IDE starts listening.
+while ! nc -z localhost 8080; do
+  sleep 3
+done
+cat "$log"
+
+set +e
+
+./gradlew -PenableUiTests --info :uiTests:test
+exit_code=$?
+# The test will gracefully close the IDE instance if successful,
+# but we still need to kill the IDE instance in case that test was not successful AND the IDE is still running.
+if [[ $(jobs | wc -l) -gt 0 ]]; then
+  # $! expands to the PID of the last process executed in the background
+  kill $!
+fi
+exit $exit_code

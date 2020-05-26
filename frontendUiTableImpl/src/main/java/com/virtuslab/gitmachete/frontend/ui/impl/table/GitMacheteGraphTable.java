@@ -210,13 +210,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   public void queueRepositoryUpdateAndModelRefresh() {
     LOG.debug("Entering");
 
-    if (project != null && !project.isDisposed()) {
+    if (!project.isDisposed()) {
       GuiUtils.invokeLaterIfNeeded(() -> {
         Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
         if (gitRepository.isDefined()) {
-          LOG.debug("Queuing repository update onto a non-UI thread");
-
-          @UI Consumer<Option<IGitMacheteRepository>> doOnUIThreadWhenDone = newGitMacheteRepository -> {
+          @UI Consumer<Option<IGitMacheteRepository>> refreshModelAndRunCallback = newGitMacheteRepository -> {
             this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
 
             // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
@@ -226,13 +224,16 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
             refreshModel(macheteFilePath, isMacheteFilePresent);
           };
 
-          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, doOnUIThreadWhenDone).queue();
+          LOG.debug("Queuing repository update onto a non-UI thread");
+
+          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, refreshModelAndRunCallback)
+              .queue();
         } else {
           LOG.warn("Selected repository is null");
         }
       }, NON_MODAL);
     } else {
-      LOG.debug("project == null or is disposed");
+      LOG.debug("Project is disposed");
     }
   }
 
@@ -269,7 +270,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         return;
       }
 
-      selectedBranchName = graphItem.getValue();
+      selectedBranchName = graphItem.asBranchItem().getBranch().getName();
 
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {

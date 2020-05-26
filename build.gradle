@@ -76,23 +76,19 @@ allprojects {
   ext {
     betterStringsVerson = '0.3'
     checkstyleToolVersion = '8.30'
-    ideProbeJunitDriverVersion = '0.1'
     // The following places must also be updated when updating the version below:
     // * `patchPluginXml.untilBuild` in root Gradle project config in this file
-    // * `intellij_versions` in scripts/verify-binary-compatibility
-    // * range of tested versions in uiTests/src/test/scala/com/virtuslab/gitmachete/uitest/OpenTabActionUiTest.scala
+    // * `runPluginVerifier.ides` in root Gradle project config in this file
+    // * range of UI-tested versions in .circle/config.yml
     intellijVersion = '2020.1.1'
+    intellijVersionForRunIde = project.properties.intellijVersionForRunIde ?: intellijVersion
     jgitVersion = '5.7.0.202003110725-r'
     junitVersion = '4.13'
-    // Only applies when Lombok is used as a regular dependency.
-    // Lombok Gradle plugin pulls in its own (apparently non-configurable) Lombok version.
+    kotlinStdlibVersion = '1.3.21'
     lombokVersion = '1.18.12'
     powerMockVersion = '2.0.7'
     reflectionsVersion = '0.9.12'
-    // Yes, `2` in case of Scala is an "epoch", and `13` is major release
-    // (b/c 2.13 is binary incompatible with 2.12, 2.12 incompatible with 2.11 etc.)
-    scalaVersionMajor = '2.13'
-    scalaVersion = "${scalaVersionMajor}.1"
+    remoteRobotVersion = '0.9.35'
     slf4jLambdaApiVersion = '0.1'
     slf4jVersion = '1.7.30'
     vavrVersion = '0.10.3'
@@ -106,6 +102,7 @@ subprojects {
   gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
       options.compilerArgs += [
+        '-encoding', 'UTF-8',
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
@@ -165,6 +162,9 @@ subprojects {
     // Minus: some compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
     //        which may differ a lot from the original source
     apply plugin: 'io.freefair.lombok'
+    lombok {
+      version = lombokVersion
+    }
     generateLombokConfig.enabled = false
   } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
     // Plus:  all compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
@@ -258,13 +258,7 @@ subprojects {
 
 
   ext {
-    applyAliasingChecker = { ->
-      checkerFramework {
-        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
-      }
-    }
-
-    applyIntellijPlugin = { Map params ->
+    addIntellijToCompileClasspath = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
 
       // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
@@ -301,6 +295,12 @@ subprojects {
       }
     }
 
+    applyAliasingChecker = { ->
+      checkerFramework {
+        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
+      }
+    }
+
     applySubtypingChecker = { ->
       dependencies {
         implementation project(':qual')
@@ -310,12 +310,6 @@ subprojects {
         checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
         def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
         extraJavacArgs += "-AqualDirs=${qualClassDir}"
-      }
-    }
-
-    ideProbeJunitDriver = { ->
-      dependencies {
-        testImplementation group: 'com.virtuslab.ideprobe', name: "junit-driver_${scalaVersionMajor}", version: ideProbeJunitDriverVersion
       }
     }
 
@@ -355,10 +349,14 @@ subprojects {
       }
     }
 
-    scala = { ->
+    remoteRobot = { ->
+      repositories {
+        maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+      }
+
       dependencies {
-        compileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
-        testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
+        testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinStdlibVersion
+        testImplementation group: 'com.intellij.remoterobot', name: 'remote-robot', version: remoteRobotVersion
       }
     }
 
@@ -417,14 +415,15 @@ subprojects.each { subproject ->
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
+  instrumentCode false
   pluginName 'git-machete-intellij-plugin'
   version intellijVersion
 }
 
 patchPluginXml {
   // The following places must also be updated when updating the build range below:
-  // * `intellij_versions` in scripts/verify-binary-compatibility
-  // * range of tested versions in uiTests/src/test/scala/com/virtuslab/gitmachete/uitest/OpenTabActionUiTest.scala
+  // * `runPluginVerifier.ides` in root Gradle project config in this file
+  // * range of UI-tested versions in .circle/config.yml
 
   // Note that:
   // * typically `untilBuild` is the build number corresponding to `allprojects.ext.intellijVersion`
@@ -436,10 +435,32 @@ patchPluginXml {
   untilBuild '201.*' // aka 2020.1.* (inclusive)
 }
 
-publishPlugin {
-  token System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
+apply from: 'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
+
+runPluginVerifier {
+  pluginFileName = "${intellij.pluginName}-${version}"
+  ides = [ 'IC-2019.3', 'IC-2020.1', 'IC-2020.1.1' ]
+  verifierVersion = '1.241'
+}
+
+repositories {
+  maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
 }
 
 runIde {
-  jvmArgs '-Djdk.gtk.version=2'
+  if (intellijVersionForRunIde != intellijVersion) {
+    ideDirectory runPluginVerifier.resolveIde('IC-' + intellijVersionForRunIde)
+  }
+}
+
+runIdeForUiTests {
+  if (intellijVersionForRunIde != intellijVersion) {
+    ideDirectory runPluginVerifier.resolveIde('IC-' + intellijVersionForRunIde)
+  }
+}
+
+downloadRobotServerPlugin.version = remoteRobotVersion
+
+publishPlugin {
+  token System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
 }

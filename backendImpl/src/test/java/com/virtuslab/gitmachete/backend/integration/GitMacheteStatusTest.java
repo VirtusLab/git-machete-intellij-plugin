@@ -10,7 +10,6 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import lombok.SneakyThrows;
@@ -33,8 +32,6 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
-
-  public GitMacheteStatusTest() throws IOException {}
 
   @SneakyThrows
   protected void init(String scriptName) {

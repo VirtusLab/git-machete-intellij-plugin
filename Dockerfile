@@ -22,34 +22,48 @@ RUN set -x \
   && rm hub.tgz \
   && hub --version
 
-WORKDIR /stripped_repo
-
 # Create gradle cache.
 # `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs
 # We need this to allow `./gradlew` to write in `./.gradle` directory (even though this directory won't make it to the final image anyway).
+WORKDIR /stripped_repo
 RUN --mount=type=bind,rw,source=.,target=.  set -x \
   `# no-daemon so that no data about the daemon active during the image build makes it to the final image under ~/.gradle/daemon/` \
   && find . \
   && ./gradlew --no-daemon --info resolveDependencies \
   && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
+WORKDIR /root
+RUN rmdir /stripped_repo
 
-# Secondary packages needed in just one (or few) steps of the pipeline; subject to frequent change, thus moved to the end of the pipeline
-# (package => needed for command(s))
+# Secondary packages needed in just one (or few) steps of the pipeline;
+# subject to frequent change, thus moved towards the end of the pipeline.
+# (package       => needed for command(s))
 # binutils       => strings
+# netcat         => nc
 # xml-twig-tools => xml_grep
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils xml-twig-tools xxd unzip \
+  && apt-get install --no-install-recommends -y binutils netcat xml-twig-tools xxd unzip \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*
 
 # Disable IntelliJ data sharing
 RUN set -x \
-  && mkdir -p /root/.local/share/JetBrains/consentOptions/ \
-  && echo -n rsch.send.usage.stat:1.1:0:1574939222872 > /root/.local/share/JetBrains/consentOptions/accepted
+  && dir=/root/.local/share/JetBrains/consentOptions \
+  && mkdir -p "$dir" \
+  && echo -n "rsch.send.usage.stat:1.1:0:$(date +%s)000" > "$dir/accepted"
 
-# Enable NON-headless tests of plugin's UI (xvfb = X virtual framebuffer)
-ENV IDEPROBE_DISPLAY=xvfb
+# Accept End User Agreement/privacy policy
+RUN set -x \
+  && dir="/root/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@==" \
+  && mkdir -p "$dir" \
+  && echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n\
+<!DOCTYPE map SYSTEM "http://java.sun.com/dtd/preferences.dtd">\n\
+<map MAP_XML_VERSION="1.0">\n\
+  <entry key="accepted_version" value="2.1"/>\n\
+  <entry key="eua_accepted_version" value="1.1"/>\n\
+  <entry key="privacyeap_accepted_version" value="2.1"/>\n\
+</map>' > "$dir/prefs.xml" \
+  && cat "$dir/prefs.xml"

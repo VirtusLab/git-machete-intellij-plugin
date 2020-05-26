@@ -1,16 +1,12 @@
 package com.virtuslab.gitmachete.testcommon;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
-import org.junit.After;
 import org.junit.Assert;
 
 public abstract class BaseGitRepositoryBackedTest {
@@ -20,11 +16,16 @@ public abstract class BaseGitRepositoryBackedTest {
   protected final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
   protected final static String SETUP_FOR_YELLOW_EDGES = "setup-for-yellow-edges.sh";
 
-  protected final Path parentDir = Files.createTempDirectory("machete-tests-");
-  protected final Path repositoryMainDir = parentDir.resolve("machete-sandbox");
-  protected final Path repositoryGitDir = repositoryMainDir.resolve(".git");
+  protected final Path parentDir;
+  protected final Path repositoryMainDir;
+  protected final Path repositoryGitDir;
 
-  protected BaseGitRepositoryBackedTest() throws IOException {}
+  @SneakyThrows
+  protected BaseGitRepositoryBackedTest() {
+    parentDir = Files.createTempDirectory("machete-tests-");
+    repositoryMainDir = parentDir.resolve("machete-sandbox");
+    repositoryGitDir = repositoryMainDir.resolve(".git");
+  }
 
   protected void init(String scriptName) {
     copyScriptsFromResources("common.sh");
@@ -42,7 +43,7 @@ public abstract class BaseGitRepositoryBackedTest {
   @SneakyThrows
   private void prepareRepoFromScript(String scriptName) {
     var process = Runtime.getRuntime()
-        .exec("/bin/bash ${parentDir.resolve(scriptName).toAbsolutePath()} ${parentDir.toAbsolutePath()}");
+        .exec("/bin/bash " + parentDir.resolve(scriptName).toAbsolutePath() + " " + parentDir.toAbsolutePath());
     var completed = process.waitFor(5, TimeUnit.SECONDS);
 
     // In case of non 0 exit code print stdout and stderr
@@ -54,11 +55,4 @@ public abstract class BaseGitRepositoryBackedTest {
     Assert.assertTrue(completed);
     Assert.assertEquals(0, process.exitValue());
   }
-
-  @After
-  @SneakyThrows
-  public void cleanup() {
-    Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-  }
-
 }

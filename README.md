@@ -65,26 +65,12 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 
 ### Run UI tests
 
-This repo requires artifacts of [ide-probe](https://github.com/VirtuslabRnD/ide-probe) to be available in the local Maven repository
-to perform non-headless UI tests of the plugin. <br/>
-Unfortunately, as for now we can't make the repository public and/or publish those artifacts to JCenter/Bintray due to VirtusLab's client's policy. <br>
-Kudos for [@lukaszwawrzyk](https://github.com/lukaszwawrzyk) for making ide-probe available for use in this project.
-
-To run UI tests locally, first:
-* install [sbt](https://www.scala-sbt.org/download.html)
-* clone [ide-probe](https://github.com/VirtuslabRnD/ide-probe)
-* inside ide-probe project folder, checkout `master` as of 2020-05-14: `git checkout 674acde5e17d9479733dd55faf880ea162248e37`
-* execute `sbt '; api/publishM2; probePlugin/publishM2; driver/publishM2; junitDriver/publishM2'`; <br>
-  this should publish the artifacts to a local Maven repo under `~/.m2/repository`.
-
-UI tests are by default excluded from `./gradlew test` unless `enableUiTests` property is set:
-
 ```
-./gradlew -PenableUiTests --info test
+./scripts/run-ui-tests [<intellij-version>]
 ```
 
-Note that the first execution might take a couple of minutes since IntelliJ zips need to be downloaded (~500MB each). <br/>
-Use `ls -thor /tmp` to monitor the progress while they're downloading.
+See [Gradle Intellij plugin docs](https://github.com/JetBrains/gradle-intellij-plugin/tree/master/examples/ui-test-example)
+for more details.
 
 
 ### Generate plugin zip
