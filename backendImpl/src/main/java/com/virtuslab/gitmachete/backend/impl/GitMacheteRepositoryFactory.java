@@ -67,12 +67,15 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
 
-    return new Aux(gitCoreRepository, statusHookExecutor).createGitMacheteRepository(branchLayout);
+    var result = new Aux(gitCoreRepository, statusHookExecutor).createGitMacheteRepository(branchLayout);
+    LOG.withTimeElapsed().debug("Finished");
+    return result;
   }
 
   private static class Aux {
     private final IGitCoreRepository gitCoreRepository;
     private final StatusBranchHookExecutor statusHookExecutor;
+    private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
 
     Aux(IGitCoreRepository gitCoreRepository, StatusBranchHookExecutor statusHookExecutor) {
       this.gitCoreRepository = gitCoreRepository;
@@ -89,9 +92,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
           .flatMap(cb -> branchByName.get(cb.getShortName()))
           .getOrNull();
-
       LOG.debug(() -> "Current branch: ${currentBranch != null ? currentBranch.getName() : \"<none> (detached HEAD)\"}");
-      LOG.withTimeElapsed().debug(() -> "Finished");
 
       return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
     }
@@ -347,6 +348,10 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
      * ordered from the latest to the oldest
      */
     private List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranch branch) throws GitCoreException {
+      if (filteredReflogByBranch.containsKey(branch)) {
+        return filteredReflogByBranch.get(branch);
+      }
+
       LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
 
       List<IGitCoreReflogEntry> reflogEntries = branch.deriveReflog();
@@ -398,7 +403,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         return true;
       };
 
-      return reflogEntries.reject(isEntryExcluded);
+      var result = reflogEntries.reject(isEntryExcluded);
+      filteredReflogByBranch.put(branch, result);
+      return result;
     }
 
     private boolean hasJustBeenCreated(IGitCoreLocalBranch branch) throws GitCoreException {
