@@ -11,29 +11,17 @@ import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
-import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
-public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest {
-
-  private static final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = PowerMockito
-      .mock(GitMacheteRepositoryFactory.class);
-
-  private final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);
+public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends BaseGitMacheteRepositoryFactoryTest {
 
   private static final IGitCoreCommit MISSING_FORK_POINT = createGitCoreCommit();
 
-  SyncToParentStatus invokeDeriveSyncToParentStatus(
+  private SyncToParentStatus invokeDeriveSyncToParentStatus(
       IGitCoreLocalBranch childBranch,
       IGitCoreLocalBranch parentBranch,
       IGitCoreCommit forkPointCommit) throws Exception {
-    return Whitebox.invokeMethod(gitMacheteRepositoryFactory,
-        "deriveSyncToParentStatus",
-        gitCoreRepository,
-        childBranch,
-        parentBranch,
-        forkPointCommit);
+    return Whitebox.invokeMethod(aux, "deriveSyncToParentStatus", childBranch, parentBranch, forkPointCommit);
   }
 
   @Test

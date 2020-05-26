@@ -13,23 +13,17 @@ import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
-import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 
-public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest {
+public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends BaseGitMacheteRepositoryFactoryTest {
 
-  private final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
   private final IGitCoreRemoteBranch coreRemoteBranch = PowerMockito.mock(IGitCoreRemoteBranch.class);
   private final IGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
   private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
 
   private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
-    return Whitebox.invokeMethod(PowerMockito.mock(GitMacheteRepositoryFactory.class),
-        "deriveSyncToRemoteStatus",
-        gitCoreRepository,
-        coreLocalBranch);
+    return Whitebox.invokeMethod(aux, "deriveSyncToRemoteStatus", coreLocalBranch);
   }
 
   @Test
