@@ -228,7 +228,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     private Option<IGitCoreCommit> deriveParentAwareForkPoint(
         IGitCoreLocalBranch coreLocalBranch,
         IGitCoreLocalBranch parentCoreLocalBranch) throws GitMacheteException {
-      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
+      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, " +
           "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}'");
       try {
 
@@ -418,7 +418,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         IGitCoreLocalBranch parentCoreLocalBranch,
         @Nullable IGitCoreCommit forkPoint)
         throws GitMacheteException {
-      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository.getMainDirectoryPath()}, " +
+      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, " +
           "coreLocalBranch = '${coreLocalBranch.getShortName()}', parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}', "
           + "forkPoint = ${forkPoint != null ? forkPoint.getHash().getHashString() : \"null\"})");
       try {

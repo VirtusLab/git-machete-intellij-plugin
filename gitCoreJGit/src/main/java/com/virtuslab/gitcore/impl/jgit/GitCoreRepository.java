@@ -21,7 +21,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
-import lombok.Getter;
+import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -47,22 +47,24 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
 @CustomLog
-public class GitCoreRepository implements IGitCoreRepository {
-  @Getter
+@ToString(onlyExplicitlyIncluded = true)
+public final class GitCoreRepository implements IGitCoreRepository {
+  @ToString.Include
   private final Path mainDirectoryPath;
+  @ToString.Include
   private final Path gitDirectoryPath;
   private final Repository jgitRepo;
 
   private static final String ORIGIN = "origin";
 
   public GitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
-    LOG.debug(() -> "Creating ${getClass().getSimpleName()}(mainDirectoryPath = ${mainDirectoryPath}, " +
-        "gitDirectoryPath = ${gitDirectoryPath})");
     this.mainDirectoryPath = mainDirectoryPath;
     this.gitDirectoryPath = gitDirectoryPath;
 
     this.jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
         e -> new GitCoreCannotAccessGitDirectoryException("Cannot access .git directory under ${gitDirectoryPath}", e));
+
+    LOG.debug(() -> "Creating ${this})");
   }
 
   @Override

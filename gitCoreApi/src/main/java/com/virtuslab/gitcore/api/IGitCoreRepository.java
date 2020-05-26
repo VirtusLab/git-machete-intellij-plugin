@@ -1,14 +1,11 @@
 package com.virtuslab.gitcore.api;
 
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 public interface IGitCoreRepository {
-  Path getMainDirectoryPath();
-
   List<IGitCoreLocalBranch> deriveAllLocalBranches() throws GitCoreException;
 
   Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
