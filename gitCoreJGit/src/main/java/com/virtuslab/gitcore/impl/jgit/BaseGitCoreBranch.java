@@ -5,7 +5,6 @@ import java.util.function.Function;
 import io.vavr.Lazy;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
-import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,19 +39,11 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
   @Override
   public final boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    } else if (!(other instanceof BaseGitCoreBranch)) {
-      return false;
-    } else {
-      var o = (BaseGitCoreBranch) other;
-      return getFullName().equals(o.getFullName())
-          && Try.of(() -> derivePointedCommit().equals(o.derivePointedCommit())).getOrElse(false);
-    }
+    return IGitCoreBranch.defaultEquals(this, other);
   }
 
   @Override
   public final int hashCode() {
-    return getFullName().hashCode() * 37 + Try.of(() -> derivePointedCommit().hashCode()).getOrElse(0);
+    return IGitCoreBranch.defaultHashCode(this);
   }
 }

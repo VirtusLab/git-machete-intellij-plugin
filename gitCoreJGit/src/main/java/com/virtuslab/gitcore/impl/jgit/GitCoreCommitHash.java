@@ -2,19 +2,16 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.common.value.qual.ArrayLen;
 import org.eclipse.jgit.lib.ObjectId;
 
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
-@Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 public final class GitCoreCommitHash implements IGitCoreCommitHash {
-  private final String hashString;
+  private final @ArrayLen(40) String hashString;
 
   static GitCoreCommitHash of(ObjectId objectId) {
     return new GitCoreCommitHash(objectId.getName());
@@ -25,18 +22,22 @@ public final class GitCoreCommitHash implements IGitCoreCommitHash {
   }
 
   @Override
+  public @ArrayLen(40) String getHashString() {
+    return hashString;
+  }
+
+  @Override
+  public String toString() {
+    return "<" + hashString + ">";
+  }
+
+  @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    } else if (!(other instanceof IGitCoreCommitHash)) {
-      return false;
-    } else {
-      return getHashString().equals(((IGitCoreCommitHash) other).getHashString());
-    }
+    return IGitCoreCommitHash.defaultEquals(this, other);
   }
 
   @Override
   public int hashCode() {
-    return getHashString().hashCode();
+    return IGitCoreCommitHash.defaultHashCode(this);
   }
 }

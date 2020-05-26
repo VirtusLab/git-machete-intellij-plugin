@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -22,12 +23,13 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   private final IGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
   private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
 
-  private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws Exception {
+  @SneakyThrows
+  private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) {
     return Whitebox.invokeMethod(aux, "deriveSyncToRemoteStatus", coreLocalBranch);
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_Untracked() throws Exception {
+  public void deriveSyncToRemoteStatus_Untracked() {
     // given
     PowerMockito.doReturn(Option.none()).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -39,7 +41,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_DivergedAndNewerThan() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_DivergedAndNewerThan() {
     // given
     var branchTrackingStatus = GitCoreBranchTrackingStatus.of(1, 1);
     PowerMockito.doReturn(Option.of(branchTrackingStatus)).when(gitCoreRepository).deriveRemoteTrackingStatus(coreLocalBranch);
@@ -60,7 +63,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_DivergedAndOlderThan() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_DivergedAndOlderThan() {
     // given
     var gitCoreBranchTrackingStatus = GitCoreBranchTrackingStatus.of(1, 2);
     PowerMockito.doReturn(Option.of(gitCoreBranchTrackingStatus)).when(gitCoreRepository)
@@ -81,7 +85,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_DivergedAndNewerThan_theSameDates() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_DivergedAndNewerThan_theSameDates() {
     // given
     var gitCoreBranchTrackingStatus = GitCoreBranchTrackingStatus.of(2, 1);
     PowerMockito.doReturn(Option.of(gitCoreBranchTrackingStatus)).when(gitCoreRepository)
@@ -101,7 +106,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_Ahead() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_Ahead() {
     // given
     var gitCoreBranchTrackingStatus = GitCoreBranchTrackingStatus.of(3, 0);
     PowerMockito.doReturn(Option.of(gitCoreBranchTrackingStatus)).when(gitCoreRepository)
@@ -116,7 +122,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_Behind() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_Behind() {
     // given
     var gitCoreBranchTrackingStatus = GitCoreBranchTrackingStatus.of(0, 3);
     PowerMockito.doReturn(Option.of(gitCoreBranchTrackingStatus)).when(gitCoreRepository)
@@ -131,7 +138,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
   }
 
   @Test
-  public void deriveSyncToRemoteStatus_InSync() throws Exception {
+  @SneakyThrows
+  public void deriveSyncToRemoteStatus_InSync() {
     // given
     var gitCoreBranchTrackingStatus = GitCoreBranchTrackingStatus.of(0, 0);
     PowerMockito.doReturn(Option.of(gitCoreBranchTrackingStatus)).when(gitCoreRepository)

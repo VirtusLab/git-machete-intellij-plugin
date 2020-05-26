@@ -60,8 +60,7 @@ public class RepositoryGraph implements IRepositoryGraph {
     return items.get(itemIndex);
   }
 
-  @NonNegative
-  public int getNodesCount() {
+  public @NonNegative int getNodesCount() {
     return items.size();
   }
 

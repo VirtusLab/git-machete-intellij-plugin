@@ -5,7 +5,7 @@ import lombok.Data;
 @Data(staticConstructor = "of")
 public class SyncToRemoteStatus {
   public enum Relation {
-    Untracked, AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote, InSyncToRemote
+    Untracked, InSyncToRemote, AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote
   }
 
   public static SyncToRemoteStatus untracked() {

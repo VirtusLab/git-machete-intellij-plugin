@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -18,6 +19,8 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
   private final IGitMacheteBranch branch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
+
+  @Getter(AccessLevel.NONE)
   private final boolean hasChildItem;
 
   public BranchItem(

@@ -75,8 +75,7 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
   private final class RenderPartBuilder {
     private final java.util.List<BaseRenderPart> edges = new ArrayList<>();
     private final java.util.List<BaseRenderPart> nodes = new SmartList<>();
-    @NonNegative
-    private final int rowIndex;
+    private final @NonNegative int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
       nodes.add(new NodeRenderPart(rowIndex, position, node, renderPartColorIdProvider));

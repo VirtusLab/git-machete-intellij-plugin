@@ -46,7 +46,6 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import kotlin.jvm.functions.Function1;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -235,9 +234,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     }
   }
 
-  @Nullable
   @Override
-  public GitRemote getDefaultRemoteToFetch(GitRepository repository) {
+  public @Nullable GitRemote getDefaultRemoteToFetch(GitRepository repository) {
     var remotes = repository.getRemotes();
     if (remotes.isEmpty()) {
       return null;
@@ -297,8 +295,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   private class RemoteRefCoordinates {
     private final GitRepository repository;
     private final GitRemote remote;
-    @Nullable
-    private final String refspec;
+    private final @Nullable String refspec;
   }
 
   @AllArgsConstructor
@@ -341,9 +338,10 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
      * remote in both repos. Such cases are rare, and can be handled when actual problem is reported.
      */
     private MultiMessage<GitRemote> multiRemoteMessage(boolean remoteInPrefix) {
-      return new MultiMessage<GitRemote>(results.keySet().toJavaSet(),
-          (Function1<GitRemote, String>) GitRemote::getName,
-          (Function1<GitRemote, String>) GitRemote::getName,
+      return new MultiMessage<GitRemote>(
+          results.keySet().toJavaSet(),
+          GitRemote::getName,
+          GitRemote::getName,
           remoteInPrefix,
           /* html */ true);
     }
@@ -353,8 +351,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   private class SingleRemoteResult {
     private final GitRepository repository;
     private final GitRemote remote;
-    @Nullable
-    private final String error;
+    private final @Nullable String error;
     private final List<String> prunedRefs;
 
     public boolean success() {

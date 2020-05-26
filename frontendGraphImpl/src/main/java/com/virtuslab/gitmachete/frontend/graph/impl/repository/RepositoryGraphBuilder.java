@@ -138,9 +138,7 @@ public class RepositoryGraphBuilder {
       assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
       int prevSiblingItemIndex = isFirstItemInBranch ? upstreamBranchIndex : lastItemIndex;
       int nextSiblingItemIndex = graphItems.size() + 1;
-      CommitItem c = new CommitItem(commit, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex,
-          branchItemIndex,
-          indentLevel);
+      CommitItem c = new CommitItem(commit, branch, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
       graphItems.add(c);
       isFirstItemInBranch = false;
     }

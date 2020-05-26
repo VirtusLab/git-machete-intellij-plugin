@@ -13,6 +13,7 @@ import static io.vavr.API.Match;
 import java.io.IOException;
 import java.io.InputStream;
 
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,46 +36,38 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
 
   public GitMacheteStatusTest() throws IOException {}
 
-  protected void init(String scriptName) throws Exception {
+  @SneakyThrows
+  protected void init(String scriptName) {
     super.init(scriptName);
     IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }
 
   @Test
-  public void statusTest() throws Exception {
+  public void statusTest() {
     init(SETUP_WITH_SINGLE_REMOTE);
-
-    String ourResult = repositoryStatus();
-    String gitMacheteCliStatus = gitMacheteCliStatus();
-
-    System.out.println("CLI OUTPUT:");
-    System.out.println(gitMacheteCliStatus);
-    System.out.println("OUR OUTPUT:");
-    System.out.println(ourResult);
-
-    Assert.assertEquals(gitMacheteCliStatus, ourResult);
+    compareToCli();
   }
 
   @Test
-  public void statusTestWithMultiRemotes() throws Exception {
+  public void statusTestWithMultiRemotes() {
     init(SETUP_WITH_MULTIPLE_REMOTES);
-
-    String ourResult = repositoryStatus();
-    String gitMacheteCliStatus = gitMacheteCliStatus();
-
-    System.out.println("CLI OUTPUT:");
-    System.out.println(gitMacheteCliStatus);
-    System.out.println("OUR OUTPUT:");
-    System.out.println(ourResult);
-
-    Assert.assertEquals(gitMacheteCliStatus, ourResult);
+    compareToCli();
   }
 
   @Test
-  public void statusTestForDivergedAndOlderThan() throws Exception {
+  public void statusTestForDivergedAndOlderThan() {
     init(SETUP_FOR_DIVERGED_AND_OLDER_THAN);
+    compareToCli();
+  }
 
+  @Test
+  public void statusTestForYellowEdges() {
+    init(SETUP_FOR_YELLOW_EDGES);
+    compareToCli();
+  }
+
+  private void compareToCli() {
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
 
@@ -86,7 +79,8 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
     Assert.assertEquals(gitMacheteCliStatus, ourResult);
   }
 
-  private String gitMacheteCliStatus() throws IOException {
+  @SneakyThrows
+  private String gitMacheteCliStatus() {
     var gitMacheteProcessBuilder = new ProcessBuilder();
     gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
     gitMacheteProcessBuilder.directory(repositoryMainDir.toFile());
@@ -121,11 +115,16 @@ public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
     sb.append(System.lineSeparator());
 
     var commits = branch.getCommits().reverse();
+    var forkPoint = branch.getForkPoint().getOrNull();
 
     for (var c : commits) {
       sb.append("  ");
       sb.append("| ".repeat(level));
-      sb.append(c.getMessage().split("\n", 2)[0]);
+      sb.append(c.getShortMessage());
+      if (c.equals(forkPoint)) {
+        sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
+        sb.append(forkPoint.getBranchesWhereFoundInReflog().sorted().mkString(", "));
+      }
       sb.append(System.lineSeparator());
     }
 

@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -19,14 +20,20 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 
 public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends BaseGitMacheteRepositoryFactoryTest {
 
+  @SneakyThrows
   private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(
       IGitCoreLocalBranch childBranch,
-      IGitCoreLocalBranch parentBranch) throws Exception {
-    return Whitebox.invokeMethod(aux, "deriveParentAwareForkPoint", childBranch, parentBranch);
+      IGitCoreLocalBranch parentBranch) {
+    Object coreForkPoint = Whitebox.invokeMethod(aux, "deriveParentAwareForkPoint", childBranch, parentBranch);
+    if (coreForkPoint != null)
+      return Option.some(Whitebox.getInternalState(coreForkPoint, "coreCommit"));
+    else
+      return Option.none();
   }
 
   @Test(expected = GitMacheteException.class)
-  public void gitCoreThrows() throws Exception {
+  @SneakyThrows
+  public void gitCoreThrows() {
     // given
     IGitCoreCommit commit = createGitCoreCommit();
     IGitCoreLocalBranch childBranch = createGitCoreLocalBranch(commit);
@@ -41,7 +48,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentAgnosticForkPointIsMissingAndParentIsNotAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentAgnosticForkPointIsMissingAndParentIsNotAncestorOfChild() {
     // given
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -62,7 +70,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentAgnosticForkPointIsMissingAndParentIsAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentAgnosticForkPointIsMissingAndParentIsAncestorOfChild() {
     // given
     IGitCoreCommit parentCommit = createGitCoreCommit();
     IGitCoreCommit childCommit = createGitCoreCommit();
@@ -84,7 +93,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentIsNotAncestorOfForkPointAndParentIsAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentIsNotAncestorOfForkPointAndParentIsAncestorOfChild() {
     // given
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -108,7 +118,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentIsNotAncestorOfForkPointAndParentIsNotAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentIsNotAncestorOfForkPointAndParentIsNotAncestorOfChild() {
     // given
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -132,7 +143,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentIsAncestorOfForkPointAndParentIsNotAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentIsAncestorOfForkPointAndParentIsNotAncestorOfChild() {
     // given
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();
@@ -156,7 +168,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends 
   }
 
   @Test
-  public void parentIsAncestorOfForkPointAndParentIsAncestorOfChild() throws Exception {
+  @SneakyThrows
+  public void parentIsAncestorOfForkPointAndParentIsAncestorOfChild() {
     // given
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
     IGitCoreCommit parentCommit = createGitCoreCommit();

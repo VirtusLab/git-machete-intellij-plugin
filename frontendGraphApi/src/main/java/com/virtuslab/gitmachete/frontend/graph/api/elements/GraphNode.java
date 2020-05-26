@@ -6,12 +6,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-@Getter
 @RequiredArgsConstructor
 public final class GraphNode implements IGraphElement {
 
-  @NonNegative
-  private final int nodeIndex;
+  @Getter
+  private final @NonNegative int nodeIndex;
 
   @Override
   public boolean isNode() {

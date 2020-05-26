@@ -2,14 +2,15 @@ package com.virtuslab.gitmachete.backend.unit;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.powermock.api.mockito.PowerMockito;
 
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
@@ -22,8 +23,8 @@ public class TestUtils {
     return new TestGitCoreCommit();
   }
 
-  static IGitCoreLocalBranch createGitCoreLocalBranch(IGitCoreCommit pointedCommit, IGitCoreReflogEntry... reflogEntries)
-      throws GitCoreException {
+  @SneakyThrows
+  static IGitCoreLocalBranch createGitCoreLocalBranch(IGitCoreCommit pointedCommit, IGitCoreReflogEntry... reflogEntries) {
     IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
     PowerMockito.doReturn(pointedCommit).when(mock).derivePointedCommit();
     PowerMockito.doReturn(List.ofAll(Arrays.asList(reflogEntries))).when(mock).deriveReflog();
@@ -32,12 +33,12 @@ public class TestUtils {
 
   static class TestGitCoreCommitHash implements IGitCoreCommitHash {
 
-    private static int counter;
+    private static final AtomicInteger counter = new AtomicInteger(0);
 
     private final int id;
 
     TestGitCoreCommitHash() {
-      id = counter++;
+      id = counter.incrementAndGet();
     }
 
     @Override
@@ -46,19 +47,13 @@ public class TestUtils {
     }
 
     @Override
-    public final boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      } else if (!(other instanceof IGitCoreCommitHash)) {
-        return false;
-      } else {
-        return getHashString().equals(((IGitCoreCommitHash) other).getHashString());
-      }
+    public boolean equals(@Nullable Object other) {
+      return IGitCoreCommitHash.defaultEquals(this, other);
     }
 
     @Override
-    public final int hashCode() {
-      return getHashString().hashCode();
+    public int hashCode() {
+      return IGitCoreCommitHash.defaultHashCode(this);
     }
   }
 
@@ -81,7 +76,7 @@ public class TestUtils {
 
   static class TestGitCoreCommit implements IGitCoreCommit {
     @Override
-    public String getMessage() {
+    public String getShortMessage() {
       throw new NotImplementedError();
     }
 
@@ -107,18 +102,12 @@ public class TestUtils {
 
     @Override
     public final boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      } else if (!(other instanceof IGitCoreCommit)) {
-        return false;
-      } else {
-        return getHash().equals(((IGitCoreCommit) other).getHash());
-      }
+      return IGitCoreCommit.defaultEquals(this, other);
     }
 
     @Override
     public final int hashCode() {
-      return getHash().hashCode();
+      return IGitCoreCommit.defaultHashCode(this);
     }
   }
 }

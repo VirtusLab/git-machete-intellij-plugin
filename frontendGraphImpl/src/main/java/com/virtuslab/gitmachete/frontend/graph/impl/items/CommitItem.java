@@ -7,25 +7,26 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 
 @Getter
 public final class CommitItem extends BaseGraphItem implements ICommitItem {
+
   private final IGitMacheteCommit commit;
-  @Positive
-  private final int branchItemIndex;
+  private final IGitMacheteNonRootBranch containingBranch;
 
   public CommitItem(
       IGitMacheteCommit commit,
+      IGitMacheteNonRootBranch containingBranch,
       GraphItemColor containingBranchGraphItemColor,
       @NonNegative int prevSiblingItemIndex,
       @Positive int nextSiblingItemIndex,
-      @Positive int branchItemIndex,
       @NonNegative int indentLevel) {
     super(containingBranchGraphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
     this.commit = commit;
-    this.branchItemIndex = branchItemIndex;
+    this.containingBranch = containingBranch;
   }
 
   @Override
@@ -36,7 +37,7 @@ public final class CommitItem extends BaseGraphItem implements ICommitItem {
 
   @Override
   public String getValue() {
-    return commit.getMessage();
+    return commit.getShortMessage();
   }
 
   @Override

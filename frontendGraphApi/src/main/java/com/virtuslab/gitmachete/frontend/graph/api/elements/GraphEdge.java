@@ -12,11 +12,9 @@ public final class GraphEdge implements IGraphElement {
     return new GraphEdge(Math.min(nodeIndex1, nodeIndex2), Math.max(nodeIndex1, nodeIndex2));
   }
 
-  @NonNegative
-  private final int upNodeIndex;
+  private final @NonNegative int upNodeIndex;
 
-  @NonNegative
-  private final int downNodeIndex;
+  private final @NonNegative int downNodeIndex;
 
   @Override
   public boolean isNode() {
