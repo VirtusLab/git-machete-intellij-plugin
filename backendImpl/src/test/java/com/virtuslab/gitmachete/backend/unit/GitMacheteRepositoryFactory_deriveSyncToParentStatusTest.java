@@ -23,7 +23,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends Ba
       IGitCoreLocalBranch childBranch,
       IGitCoreLocalBranch parentBranch,
       IGitCoreCommit forkPointCommit) {
-    return Whitebox.invokeMethod(aux, "deriveSyncToParentStatus", childBranch, parentBranch, forkPointCommit);
+    return Whitebox.invokeMethod(aux(), "deriveSyncToParentStatus", childBranch, parentBranch, forkPointCommit);
   }
 
   @Test

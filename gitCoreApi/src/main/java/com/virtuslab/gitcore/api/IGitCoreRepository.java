@@ -14,11 +14,7 @@ public interface IGitCoreRepository {
 
   Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus(IGitCoreLocalBranch localBranch) throws GitCoreException;
 
-  List<String> deriveAllRemotes();
-
   List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException;
-
-  List<IGitCoreRemoteBranch> deriveRemoteBranchesForRemote(String remoteName) throws GitCoreException;
 
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 

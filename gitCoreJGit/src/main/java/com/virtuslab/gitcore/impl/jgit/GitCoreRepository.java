@@ -190,8 +190,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .collect(List.collector());
   }
 
-  @Override
-  public List<IGitCoreRemoteBranch> deriveRemoteBranchesForRemote(String remoteName) throws GitCoreException {
+  private List<IGitCoreRemoteBranch> deriveRemoteBranchesForRemote(String remoteName) throws GitCoreException {
     LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
     LOG.debug("List of remote branches of '${remoteName}':");
     String remoteBranchFullNamePrefix = Constants.R_REMOTES + remoteName + "/";
@@ -213,8 +212,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .collect(List.collector());
   }
 
-  @Override
-  public List<String> deriveAllRemotes() {
+  private List<String> deriveAllRemotes() {
     return List.ofAll(jgitRepo.getRemoteNames());
   }
 
@@ -225,7 +223,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   public List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException {
     return Try.traverse(deriveAllRemotes(), this::tryDeriveRemoteBranchesForRemote)
-        .getOrElseThrow(GitCoreException::castOrWrap)
+        .getOrElseThrow(GitCoreException::getOrWrap)
         .flatMap(e -> e)
         .map(IGitCoreRemoteBranch.class::cast)
         .toList();
@@ -233,7 +231,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private Option<GitCoreRemoteBranch> deriveRemoteBranchForLocalBranch(String localBranchShortName) {
     return deriveConfiguredRemoteBranchForLocalBranch(localBranchShortName)
-        .orElse(() -> deriveInferredRemoteBranchForLocalBrnch(localBranchShortName));
+        .orElse(() -> deriveInferredRemoteBranchForLocalBranch(localBranchShortName));
   }
 
   private Option<GitCoreRemoteBranch> deriveConfiguredRemoteBranchForLocalBranch(String localBranchShortName) {
@@ -251,7 +249,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .map(branchFullName -> branchFullName.replace(Constants.R_HEADS, /* replacement */ ""));
   }
 
-  private Option<GitCoreRemoteBranch> deriveInferredRemoteBranchForLocalBrnch(String localBranchShortName) {
+  private Option<GitCoreRemoteBranch> deriveInferredRemoteBranchForLocalBranch(String localBranchShortName) {
     var remotes = deriveAllRemotes();
 
     if (remotes.contains(ORIGIN)) {
@@ -348,8 +346,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant)
-      throws GitCoreException {
+  public boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");
 
