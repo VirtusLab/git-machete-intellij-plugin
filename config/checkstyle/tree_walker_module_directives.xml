@@ -131,7 +131,13 @@
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bpeek\b"/>
-    <property name="message" value="Usage of the prohibited peek method"/>
+    <property name="message" value="peek is inconsistent b/w Vavr and Java, use map or forEach instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bprintln\b"/>
+    <property name="message" value="println should not be invoked in production code"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>

@@ -1,4 +1,6 @@
 
+import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
+import org.checkerframework.checker.guieffect.qual.PolyUIType;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -22,6 +24,15 @@ class AtomicReference<V> {
   // (which sets the underlying value to `null`) would be inferred by Checker to `AtomicReference<@NonNull V>` and not `AtomicReference<@Nullable V>`...
   // and this in turn would make Checker unsoundly assume that `get`'s result is guaranteed to be non-null.
   @Nullable V get();
+}
+
+
+package java.util.function;
+
+@PolyUIType
+interface Consumer<T> {
+  @PolyUIEffect
+  void accept(T var1);
 }
 
 
