@@ -1,10 +1,10 @@
-package com.virtuslab.gitmachete.frontend.vfs.utils;
+package com.virtuslab.gitmachete.frontend.file;
 
 import javax.swing.Icon;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
@@ -22,7 +22,7 @@ public class MacheteFileType extends LanguageFileType {
 
   @Override
   public String getName() {
-    return "Machete";
+    return "Machete file";
   }
 
   @Override
@@ -32,11 +32,11 @@ public class MacheteFileType extends LanguageFileType {
 
   @Override
   public String getDefaultExtension() {
-    return "";
+    return "machete";
   }
 
   @Override
-  public @Nullable Icon getIcon() {
-    return null;
+  public Icon getIcon() {
+    return AllIcons.Actions.Menu_cut;
   }
 }

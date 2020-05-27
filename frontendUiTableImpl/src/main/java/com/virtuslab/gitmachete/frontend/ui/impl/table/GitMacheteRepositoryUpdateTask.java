@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.getGitDirectory;
-import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.getMainDirectory;
-import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.resolveMacheteFilePath;
+import static com.virtuslab.gitmachete.frontend.file.GitVfsUtils.getGitDirectory;
+import static com.virtuslab.gitmachete.frontend.file.GitVfsUtils.getMainDirectory;
+import static com.virtuslab.gitmachete.frontend.file.GitVfsUtils.resolveMacheteFilePath;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

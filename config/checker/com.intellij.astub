@@ -17,6 +17,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @UIPackage package com.intellij.codeInsight.hints;
 @UIPackage package com.intellij.codeInsight.hints.settings;
 @UIPackage package com.intellij.codeInsight.lookup;
+
+class LookupElementBuilder {
+  @SafeEffect
+  LookupElementBuilder create(String lookupString);
+}
+
 @UIPackage package com.intellij.codeInsight.preview;
 @UIPackage package com.intellij.codeInspection;
 @UIPackage package com.intellij.codeInspection.ex;
@@ -174,7 +180,6 @@ package com.intellij.openapi.vcs;
 
 package com.intellij.openapi.vcs.changes;
 
-@UI class Change {}
 @UI class ChangelistBuilder {}
 @UI class CommitSession {}
 @UI class EmptyChangelistBuilder {}
@@ -197,6 +202,12 @@ package com.intellij.openapi.vcs.history;
 
 
 @UIPackage package com.intellij.openapi.vcs.ui;
+
+class CommitMessage {
+  @SafeEffect
+  List<ChangeList> getChangeLists();
+}
+
 @UIPackage package com.intellij.openapi.vcs.ui.cloneDialog;
 @UIPackage package com.intellij.openapi.vcs.versionBrowser;
 
@@ -281,6 +292,11 @@ class GuiUtils {
 
   @SafeEffect
   void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState, Condition expired);
+}
+
+class TextFieldWithAutoCompletionListProvider<T> {
+  @SafeEffect
+  String getCompletionPrefix(CompletionParameters parameters);
 }
 
 

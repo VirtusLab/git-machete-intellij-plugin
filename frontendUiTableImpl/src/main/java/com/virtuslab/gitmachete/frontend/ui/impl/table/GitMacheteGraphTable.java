@@ -6,7 +6,7 @@ import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_OPEN_
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
-import static com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils.resolveMacheteFilePath;
+import static com.virtuslab.gitmachete.frontend.file.GitVfsUtils.resolveMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;

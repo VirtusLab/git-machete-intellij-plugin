@@ -10,6 +10,7 @@
         as well as at the <a href="https://github.com/VirtusLab/git-machete">git-machete CLI GitHub repository</a>.
     ]]></description>
 
+    <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
 
@@ -19,8 +20,10 @@
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
         <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl"/>
 
-        <fileType id="GitMachete.MacheteFileType" name="Machete" fileNames="machete" fieldName="INSTANCE" language="TEXT"
-        implementationClass="com.virtuslab.gitmachete.frontend.vfs.utils.MacheteFileType"/>
+        <fileType language="TEXT" fileNames="machete" fieldName="INSTANCE" name="Machete file"
+                  implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType"/>
+        <completion.contributor language="TEXT" implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
+
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>

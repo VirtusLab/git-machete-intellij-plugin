@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.vfs.utils;
+package com.virtuslab.gitmachete.frontend.file;
 
 import java.nio.file.Path;
 
@@ -8,6 +8,8 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
 public final class GitVfsUtils {
+
+  private static final String MACHETE_FILE_NAME = "machete";
 
   private GitVfsUtils() {}
 
@@ -27,7 +29,7 @@ public final class GitVfsUtils {
    *
    */
   public static Option<VirtualFile> getMacheteFile(GitRepository gitRepository) {
-    return Option.of(getGitDirectory(gitRepository).findChild(MacheteFileType.FILE_NAME));
+    return Option.of(getGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME));
   }
 
   /**
@@ -37,6 +39,6 @@ public final class GitVfsUtils {
    * @return an option of {@link VirtualFile} representing the machete file
    */
   public static Path resolveMacheteFilePath(GitRepository gitRepository) {
-    return Path.of(getGitDirectory(gitRepository).getPath()).resolve(MacheteFileType.FILE_NAME);
+    return Path.of(getGitDirectory(gitRepository).getPath()).resolve(MACHETE_FILE_NAME);
   }
 }

@@ -20,8 +20,8 @@ import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.vfs.utils.GitVfsUtils;
-import com.virtuslab.gitmachete.frontend.vfs.utils.MacheteFileType;
+import com.virtuslab.gitmachete.frontend.file.GitVfsUtils;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileType;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
