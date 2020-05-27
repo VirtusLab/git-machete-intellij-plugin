@@ -93,14 +93,12 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
     var gitRepository = getSelectedVcsRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
-    if (branchName.isDefined()) {
-      if (gitRepository.isDefined()) {
-        doPull(project, gitRepository.get(), branchName.get());
-      } else {
-        LOG.warn("Skipping the action because no VCS repository is selected");
-      }
-    } else {
+    if (!branchName.isDefined()) {
       LOG.warn("Skipping the action because name of branch to pull is undefined");
+    } else if (!gitRepository.isDefined()) {
+      LOG.warn("Skipping the action because no VCS repository is selected");
+    } else {
+      doPull(project, gitRepository.get(), branchName.get());
     }
   }
 
@@ -147,6 +145,9 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       @Override
       public void onSuccess() {
         VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
+        // For some reason, the call to `BaseGitMacheteGraphTable::queueRepositoryUpdateAndModelRefresh` within `actionPerformed`
+        // does not refresh the graph table after the pulls. Therefore, the following solution is to be used.
+        project.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(gitRepository);
       }
     };
   }

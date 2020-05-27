@@ -17,6 +17,7 @@
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
+        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl"/>
 
         <fileType id="GitMachete.MacheteFileType" name="Machete" fileNames="machete" fieldName="INSTANCE" language="TEXT"
         implementationClass="com.virtuslab.gitmachete.frontend.vfs.utils.MacheteFileType"/>

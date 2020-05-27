@@ -18,6 +18,7 @@ import com.intellij.dvcs.MultiMessage;
 import com.intellij.dvcs.MultiRootMessage;
 import com.intellij.internal.statistic.IdeActivity;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
@@ -47,7 +48,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import kotlin.jvm.functions.Function1;
 import lombok.AllArgsConstructor;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
@@ -60,6 +61,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * We need this class for {@link FetchAllRemotesAction} and {@link BasePullBranchAction}.
  */
 @Deprecated
+@RequiredArgsConstructor
 public final class GitFetchSupportImpl implements GitFetchSupport {
 
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
@@ -69,21 +71,8 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
 
   private final AtomicInteger fetchRequestCounter = new AtomicInteger(0);
 
-  private GitFetchSupportImpl(Project project) {
-    this.project = project;
-  }
-
-  @MonotonicNonNull
-  private static GitFetchSupportImpl instance = null;
-
-  @SuppressWarnings("regexp")
-  public static synchronized GitFetchSupportImpl fetchSupport(Project project) {
-    var gitFetchSupport = instance;
-    if (gitFetchSupport == null) {
-      gitFetchSupport = new GitFetchSupportImpl(project);
-      instance = gitFetchSupport;
-    }
-    return gitFetchSupport;
+  public static GitFetchSupportImpl fetchSupport(Project project) {
+    return ServiceManager.getService(project, GitFetchSupportImpl.class);
   }
 
   public boolean isFetchRunning() {
