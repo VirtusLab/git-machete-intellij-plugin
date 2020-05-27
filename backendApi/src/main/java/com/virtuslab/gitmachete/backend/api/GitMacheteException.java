@@ -17,7 +17,7 @@ public class GitMacheteException extends Exception {
     super(message, e);
   }
 
-  public static GitMacheteException castOrWrap(Throwable e) {
+  public static GitMacheteException getOrWrap(Throwable e) {
     return e instanceof GitMacheteException ? (GitMacheteException) e : new GitMacheteException(e);
   }
 }

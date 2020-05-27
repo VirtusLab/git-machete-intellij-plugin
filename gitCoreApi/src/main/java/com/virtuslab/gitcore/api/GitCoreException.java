@@ -17,7 +17,7 @@ public class GitCoreException extends Exception {
     super(cause);
   }
 
-  public static GitCoreException castOrWrap(Throwable e) {
+  public static GitCoreException getOrWrap(Throwable e) {
     return e instanceof GitCoreException ? (GitCoreException) e : new GitCoreException(e);
   }
 }
