@@ -25,7 +25,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends Ba
 
   @SneakyThrows
   private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) {
-    return Whitebox.invokeMethod(aux, "deriveSyncToRemoteStatus", coreLocalBranch);
+    return Whitebox.invokeMethod(aux(), "deriveSyncToRemoteStatus", coreLocalBranch);
   }
 
   @Test
