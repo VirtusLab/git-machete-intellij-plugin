@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import javax.swing.SwingUtilities;
 
@@ -72,8 +73,10 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @UIEffect
   private boolean isListingCommits;
 
+  @UIEffect
   private @Nullable IGitMacheteRepository gitMacheteRepository;
 
+  @UIEffect
   private @Nullable String selectedBranchName;
 
   @UIEffect
@@ -133,7 +136,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     // TODO (#176): When machete file is absent or empty,
     // propose using branch layout automatically detected by discover functionality
-
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
@@ -167,14 +169,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
   @Override
   @UIEffect
-  public void refreshModel(@Nullable IGitMacheteRepository newGitMacheteRepository, Path macheteFilePath,
-      boolean isMacheteFilePresent) {
-    this.gitMacheteRepository = newGitMacheteRepository;
-    refreshModel(macheteFilePath, isMacheteFilePresent);
-  }
-
-  @Override
-  @UIEffect
   public void refreshModel() {
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
     if (gitRepository.isDefined()) {
@@ -182,7 +176,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       // this shouldn't ever be a heavyweight operation, however.
       Path macheteFilePath = getMacheteFilePath(gitRepository.get());
       boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-
       refreshModel(macheteFilePath, isMacheteFilePresent);
     } else {
       LOG.warn("No git repository selected, not updating the model");
@@ -212,7 +205,17 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         if (gitRepository.isDefined()) {
           LOG.debug("Queuing repository update onto a non-UI thread");
 
-          GitMacheteRepositoryUpdateTask.of(/* graphTable */ this, project, gitRepository.get(), branchLayoutReader).queue();
+          @UI Consumer<Option<IGitMacheteRepository>> doOnUIThreadWhenDone = newGitMacheteRepository -> {
+            this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
+
+            // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
+            // this shouldn't ever be a heavyweight operation, however.
+            Path macheteFilePath = getMacheteFilePath(gitRepository.get());
+            boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+            refreshModel(macheteFilePath, isMacheteFilePresent);
+          };
+
+          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, doOnUIThreadWhenDone).queue();
         } else {
           LOG.warn("Selected repository is null");
         }
