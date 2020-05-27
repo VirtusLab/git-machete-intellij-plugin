@@ -1,14 +1,9 @@
 package com.virtuslab.gitmachete.frontend.ui.api.table;
 
-import java.nio.file.Path;
-
 import javax.swing.table.AbstractTableModel;
 
 import com.intellij.ui.table.JBTable;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 
 public abstract class BaseGraphTable extends JBTable {
 
@@ -23,12 +18,12 @@ public abstract class BaseGraphTable extends JBTable {
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
 
+  /**
+   * Refresh the model synchronously (i.e. in a blocking manner).
+   * Must be called from UI thread (hence {@link UIEffect}).
+   */
   @UIEffect
   public abstract void refreshModel();
-
-  @UIEffect
-  public abstract void refreshModel(@Nullable IGitMacheteRepository gitMacheteRepository, Path macheteFilePath,
-      boolean isMacheteFilePresent);
 
   /**
    * Queues repository update as a background task, which in turn itself queues model refresh onto the UI thread.
