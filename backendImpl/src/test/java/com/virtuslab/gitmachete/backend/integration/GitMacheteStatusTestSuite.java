@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.B
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -24,6 +25,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 
@@ -41,7 +43,13 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   }
 
   @Test
-  public void status() {
+  public void statusWithNoRemotes() {
+    init(SETUP_FOR_NO_REMOTES);
+    compareToCli();
+  }
+
+  @Test
+  public void statusWithSingleRemote() {
     init(SETUP_WITH_SINGLE_REMOTE);
     compareToCli();
   }
@@ -53,19 +61,19 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   }
 
   @Test
-  public void statusForDivergedAndOlderThan() {
+  public void statusWithDivergedAndOlderThan() {
     init(SETUP_FOR_DIVERGED_AND_OLDER_THAN);
     compareToCli();
   }
 
   @Test
-  public void statusForYellowEdges() {
+  public void statusWithYellowEdges() {
     init(SETUP_FOR_YELLOW_EDGES);
     compareToCli();
   }
 
   @Test
-  public void statusForOverriddenForkPoint() {
+  public void statusWithOverriddenForkPoint() {
     init(SETUP_FOR_OVERRIDDEN_FORK_POINT);
     compareToCli();
   }
@@ -161,14 +169,17 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
       sb.append(customAnnotation.get());
     }
     var syncToRemote = branch.getSyncToRemoteStatus();
-    if (syncToRemote.getRelation() != InSyncToRemote) {
+
+    SyncToRemoteStatus.Relation relation = syncToRemote.getRelation();
+    if (relation != NoRemotes && relation != InSyncToRemote) {
+      var remoteName = syncToRemote.getRemoteName();
       sb.append(" (");
-      sb.append(Match(syncToRemote.getRelation()).of(
-          Case($(AheadOfRemote), "ahead of " + syncToRemote.getRemoteName()),
-          Case($(BehindRemote), "behind " + syncToRemote.getRemoteName()),
+      sb.append(Match(relation).of(
           Case($(Untracked), "untracked"),
-          Case($(DivergedFromAndNewerThanRemote), "diverged from " + syncToRemote.getRemoteName()),
-          Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + syncToRemote.getRemoteName())));
+          Case($(AheadOfRemote), "ahead of " + remoteName),
+          Case($(BehindRemote), "behind " + remoteName),
+          Case($(DivergedFromAndNewerThanRemote), "diverged from " + remoteName),
+          Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + remoteName)));
       sb.append(")");
     }
     var statusHookOutput = branch.getStatusHookOutput();

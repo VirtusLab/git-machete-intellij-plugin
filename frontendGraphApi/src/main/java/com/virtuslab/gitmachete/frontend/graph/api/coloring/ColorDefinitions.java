@@ -13,8 +13,8 @@ public final class ColorDefinitions {
   private static final Color YELLOW_COLOR = Color.decode("#C4A000");
   private static final Color GREEN_COLOR = Color.decode("#008000");
   private static final Color GRAY_COLOR = Color.decode("#AAAAAA");
-  private static final Color DARK_COLOR = Color.decode("#555555");
-  private static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, 0);
+  private static final Color DARK_GREY_COLOR = Color.decode("#555555");
+  private static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, /* alpha */ 0);
 
   /**
    * {@link com.intellij.ui.JBColor} are pairs of colors for light and dark IDE theme. LHS colors names are their
@@ -24,6 +24,6 @@ public final class ColorDefinitions {
   public static final JBColor ORANGE = new JBColor(DARK_ORANGE_COLOR, ORANGE_COLOR);
   public static final JBColor YELLOW = new JBColor(YELLOW_COLOR, YELLOW_COLOR);
   public static final JBColor GREEN = new JBColor(GREEN_COLOR, GREEN_COLOR);
-  public static final JBColor GRAY = new JBColor(DARK_COLOR, GRAY_COLOR);
+  public static final JBColor GRAY = new JBColor(DARK_GREY_COLOR, GRAY_COLOR);
   public static final JBColor TRANSPARENT = new JBColor(TRANSPARENT_COLOR, TRANSPARENT_COLOR);
 }

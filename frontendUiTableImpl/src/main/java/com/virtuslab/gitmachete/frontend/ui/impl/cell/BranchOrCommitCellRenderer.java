@@ -3,6 +3,20 @@ package com.virtuslab.gitmachete.frontend.ui.impl.cell;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.ORANGE;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.RED;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.TRANSPARENT;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.isIn;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -14,6 +28,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JTable;
 
+import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -36,11 +51,9 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions;
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.SyncToRemoteStatusToTextColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.labeling.SyncToRemoteStatusLabelGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
@@ -67,6 +80,25 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
       int column) {
     myComponent.customize(value, isSelected, hasFocus, row, column);
     return myComponent;
+  }
+
+  private static JBColor getColor(SyncToRemoteStatus relation) {
+    return Match(relation.getRelation()).of(
+        Case($(isIn(NoRemotes, InSyncToRemote)), TRANSPARENT),
+        Case($(Untracked), ORANGE),
+        Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
+  }
+
+  private static String getLabel(SyncToRemoteStatus status) {
+    var remoteName = status.getRemoteName();
+    return Match(status.getRelation()).of(
+        Case($(isIn(NoRemotes, InSyncToRemote)), ""),
+        Case($(Untracked), "  (untracked)"),
+        Case($(AheadOfRemote), "  (ahead of ${remoteName})"),
+        Case($(BehindRemote), "  (behind ${remoteName})"),
+        // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
+        Case($(DivergedFromAndNewerThanRemote), "  (diverged from ${remoteName})"),
+        Case($(DivergedFromAndOlderThanRemote), "  (diverged from & older than ${remoteName})"));
   }
 
   private static class MyComponent extends SimpleColoredRenderer {
@@ -143,13 +175,9 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
         }
 
         SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
-        if (syncToRemoteStatus.getRelation() != SyncToRemoteStatus.Relation.InSyncToRemote) {
-          var textAttributes = new SimpleTextAttributes(STYLE_PLAIN,
-              SyncToRemoteStatusToTextColorMapper.getColor(syncToRemoteStatus.getRelation()));
-          String remoteStatusLabel = SyncToRemoteStatusLabelGenerator.getLabel(syncToRemoteStatus.getRelation(),
-              syncToRemoteStatus.getRemoteName());
-          append("  (" + remoteStatusLabel + ")", textAttributes);
-        }
+        var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(syncToRemoteStatus));
+        String remoteStatusLabel = getLabel(syncToRemoteStatus);
+        append(remoteStatusLabel, textAttributes);
       } else {
         ICommitItem commitItem = graphItem.asCommitItem();
         IGitMacheteNonRootBranch containingBranch = commitItem.getContainingBranch();

@@ -35,10 +35,10 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 
-import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
+import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
@@ -167,30 +167,27 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus(IGitCoreLocalBranch localBranch)
-      throws GitCoreException {
-    IGitCoreRemoteBranch remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
-    if (remoteBranch == null) {
-      return Option.none();
-    }
+  public Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
+      IGitCoreCommit fromPerspectiveOf,
+      IGitCoreCommit asComparedTo) throws GitCoreException {
 
     return withRevWalk(walk -> {
-      @Unique RevCommit localCommit = walk.parseCommit(gitCoreCommitToObjectId(localBranch.derivePointedCommit()));
-      @Unique RevCommit remoteCommit = walk.parseCommit(gitCoreCommitToObjectId(remoteBranch.derivePointedCommit()));
-
-      var mergeBaseHash = deriveMergeBaseIfNeeded(localBranch.derivePointedCommit(), remoteBranch.derivePointedCommit());
+      var mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash.isEmpty()) {
         return Option.none();
       }
+
+      @Unique RevCommit fromPerspectiveOfCommit = walk.parseCommit(gitCoreCommitToObjectId(fromPerspectiveOf));
+      @Unique RevCommit asComparedToCommit = walk.parseCommit(gitCoreCommitToObjectId(asComparedTo));
       @Unique RevCommit mergeBase = walk.parseCommit(mergeBaseHash.get().getObjectId());
 
       // Yes, `walk` is leaked here.
       // `count()` calls `walk.reset()` at the very beginning but NOT at the end.
       // `walk` must NOT be used afterwards (or at least without a prior `reset()` call).
-      int aheadCount = RevWalkUtils.count(walk, localCommit, mergeBase);
-      int behindCount = RevWalkUtils.count(walk, remoteCommit, mergeBase);
+      int aheadCount = RevWalkUtils.count(walk, fromPerspectiveOfCommit, mergeBase);
+      int behindCount = RevWalkUtils.count(walk, asComparedToCommit, mergeBase);
 
-      return Option.some(GitCoreBranchTrackingStatus.of(aheadCount, behindCount));
+      return Option.some(GitCoreRelativeCommitCount.of(aheadCount, behindCount));
     });
   }
 
@@ -268,7 +265,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .collect(List.collector());
   }
 
-  private List<String> deriveAllRemotes() {
+  @Override
+  public List<String> deriveAllRemoteNames() {
     return List.ofAll(jgitRepo.getRemoteNames());
   }
 
@@ -278,7 +276,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException {
-    return Try.traverse(deriveAllRemotes(), this::tryDeriveRemoteBranchesForRemote)
+    return Try.traverse(deriveAllRemoteNames(), this::tryDeriveRemoteBranchesForRemote)
         .getOrElseThrow(GitCoreException::getOrWrap)
         .flatMap(e -> e)
         .map(IGitCoreRemoteBranch.class::cast)
@@ -307,7 +305,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private Option<GitCoreRemoteBranch> deriveInferredRemoteBranchForLocalBranch(String localBranchShortName) {
-    var remotes = deriveAllRemotes();
+    var remotes = deriveAllRemoteNames();
 
     if (remotes.contains(ORIGIN)) {
       var maybeRemoteBranch = deriveRemoteBranchByShortName(ORIGIN, localBranchShortName);

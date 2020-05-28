@@ -24,8 +24,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.gitcore.api.GitCoreBranchTrackingStatus;
 import com.virtuslab.gitcore.api.GitCoreException;
+import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
@@ -74,6 +74,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     private final IGitCoreRepository gitCoreRepository;
     private final StatusBranchHookExecutor statusHookExecutor;
     private final Map<String, IGitCoreLocalBranch> localBranchByName;
+    private final List<String> remoteNames;
     private final Map<String, IGitCoreRemoteBranch> remoteBranchByName;
     private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
 
@@ -83,6 +84,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       try {
         this.localBranchByName = gitCoreRepository.deriveAllLocalBranches()
             .toMap(localBranch -> Tuple.of(localBranch.getShortName(), localBranch));
+        this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
         this.remoteBranchByName = gitCoreRepository.deriveAllRemoteBranches()
             .toMap(remoteBranch -> Tuple.of(remoteBranch.getShortName(), remoteBranch));
       } catch (GitCoreException e) {
@@ -364,37 +366,44 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       String localBranchShortName = coreLocalBranch.getShortName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchShortName}'");
 
+      if (remoteNames.isEmpty()) {
+        LOG.debug("There are no remotes");
+        return SyncToRemoteStatus.noRemotes();
+      }
+
       IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${localBranchShortName}' is untracked");
         return SyncToRemoteStatus.untracked();
       }
 
-      GitCoreBranchTrackingStatus trackingStatus = gitCoreRepository.deriveRemoteTrackingStatus(coreLocalBranch).getOrNull();
-      if (trackingStatus == null) {
-        LOG.debug(() -> "Tracking status for '${localBranchShortName}' could not be determined");
+      GitCoreRelativeCommitCount relativeCommitCount = gitCoreRepository
+          .deriveRelativeCommitCount(coreLocalBranch.derivePointedCommit(), coreRemoteBranch.derivePointedCommit())
+          .getOrNull();
+      if (relativeCommitCount == null) {
+        LOG.debug(() -> "Relative commit count for '${localBranchShortName}' could not be determined");
         return SyncToRemoteStatus.untracked();
       }
 
       String remoteName = coreRemoteBranch.getRemoteName();
       SyncToRemoteStatus syncToRemoteStatus;
 
-      if (trackingStatus.getAhead() > 0 && trackingStatus.getBehind() > 0) {
+      if (relativeCommitCount.getAhead() > 0 && relativeCommitCount.getBehind() > 0) {
         Instant localBranchCommitDate = coreLocalBranch.derivePointedCommit().getCommitTime();
         Instant remoteBranchCommitDate = coreRemoteBranch.derivePointedCommit().getCommitTime();
-        // In case when commit dates are equal we assume that our relation is `DivergedAndNewerThanRemote`
+        // In case when commit dates are equal we assume that our relation is `DivergedFromAndNewerThanRemote`
         if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
           syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, remoteName);
         } else {
           if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
             LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
-                "'DivergedAndNewerThanRemote' sync to remote status");
+                "${DivergedFromAndNewerThanRemote} sync to remote status");
           }
           syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndNewerThanRemote, remoteName);
         }
-      } else if (trackingStatus.getAhead() > 0) {
+      } else if (relativeCommitCount.getAhead() > 0) {
         syncToRemoteStatus = SyncToRemoteStatus.of(AheadOfRemote, remoteName);
-      } else if (trackingStatus.getBehind() > 0) {
+      } else if (relativeCommitCount.getBehind() > 0) {
         syncToRemoteStatus = SyncToRemoteStatus.of(BehindRemote, remoteName);
       } else {
         syncToRemoteStatus = SyncToRemoteStatus.of(InSyncToRemote, remoteName);

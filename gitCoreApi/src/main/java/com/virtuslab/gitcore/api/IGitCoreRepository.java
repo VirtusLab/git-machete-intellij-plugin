@@ -14,7 +14,11 @@ public interface IGitCoreRepository {
 
   Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
 
-  Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus(IGitCoreLocalBranch localBranch) throws GitCoreException;
+  Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
+      IGitCoreCommit fromPerspectiveOf,
+      IGitCoreCommit asComparedTo) throws GitCoreException;
+
+  List<String> deriveAllRemoteNames() throws GitCoreException;
 
   List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException;
 

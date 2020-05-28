@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Data(staticConstructor = "of")
 @ToString
-public class GitCoreBranchTrackingStatus {
+public class GitCoreRelativeCommitCount {
   private final int ahead;
   private final int behind;
 }

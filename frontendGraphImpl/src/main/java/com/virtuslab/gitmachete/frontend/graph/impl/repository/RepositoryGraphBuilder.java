@@ -1,12 +1,24 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.repository;
 
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButForkPointOff;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.MergedToParent;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.OutOfSync;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor.GRAY;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor.GREEN;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor.RED;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor.TRANSPARENT;
+import static com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor.YELLOW;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 import com.intellij.util.SmartList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,9 +31,9 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.NullRepository;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.SyncToParentStatusToGraphItemColorMapper;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IBranchGetCommitsStrategy;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
@@ -118,6 +130,16 @@ public class RepositoryGraphBuilder {
     graphItems.add(branchItem);
   }
 
+  private static final Map<SyncToParentStatus, GraphItemColor> ITEM_COLORS = HashMap.of(
+      MergedToParent, GRAY,
+      InSyncButForkPointOff, YELLOW,
+      OutOfSync, RED,
+      InSync, GREEN);
+
+  private static GraphItemColor getGraphItemColor(SyncToParentStatus syncToParentStatus) {
+    return ITEM_COLORS.getOrElse(syncToParentStatus, TRANSPARENT);
+  }
+
   private void buildCommitsAndNonRootBranch(
       java.util.List<IGraphItem> graphItems,
       IGitMacheteNonRootBranch branch,
@@ -126,7 +148,7 @@ public class RepositoryGraphBuilder {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     var syncToParentStatus = branch.getSyncToParentStatus();
-    GraphItemColor graphItemColor = SyncToParentStatusToGraphItemColorMapper.getGraphItemColor(syncToParentStatus);
+    GraphItemColor graphItemColor = getGraphItemColor(syncToParentStatus);
     int branchItemIndex = graphItems.size() + commits.size();
     // We are building some non root branch here so some root branch item has been added already.
     assert branchItemIndex > 0 : "Branch node index is not greater than 0 but should be";

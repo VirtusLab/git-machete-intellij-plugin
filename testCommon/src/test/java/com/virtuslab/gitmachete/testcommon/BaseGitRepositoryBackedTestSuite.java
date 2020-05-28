@@ -11,6 +11,7 @@ import org.junit.Assert;
 
 public abstract class BaseGitRepositoryBackedTestSuite {
 
+  protected final static String SETUP_FOR_NO_REMOTES = "setup-with-no-remotes.sh";
   protected final static String SETUP_WITH_SINGLE_REMOTE = "setup-with-single-remote.sh";
   protected final static String SETUP_WITH_MULTIPLE_REMOTES = "setup-with-multiple-remotes.sh";
   protected final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
