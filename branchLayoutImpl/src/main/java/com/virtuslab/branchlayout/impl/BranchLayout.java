@@ -15,13 +15,17 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @CustomLog
-@Getter
 @RequiredArgsConstructor
 @ToString
 public class BranchLayout implements IBranchLayout {
 
+  @Getter(onMethod_ = {@Override})
   private final List<IBranchLayoutEntry> rootEntries;
+
+  @Getter
   private final Path path;
+
+  @Getter
   private final IndentSpec indentSpec;
 
   @Override

@@ -8,7 +8,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 
 @EqualsAndHashCode
-@Getter
+@Getter(onMethod_ = {@Override})
 @ToString
 public class GitCorePersonIdentity implements IGitCorePersonIdentity {
   private final String name;

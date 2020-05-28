@@ -12,7 +12,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
 @EqualsAndHashCode
-@Getter
+@Getter(onMethod_ = {@Override})
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 public class GitCoreReflogEntry implements IGitCoreReflogEntry {

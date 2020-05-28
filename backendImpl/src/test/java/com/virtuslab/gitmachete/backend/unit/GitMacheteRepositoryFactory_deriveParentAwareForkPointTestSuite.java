@@ -14,6 +14,7 @@ import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
 
 public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
@@ -21,10 +22,13 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTestSuite ext
   private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(
       IGitCoreLocalBranch childBranch,
       IGitCoreLocalBranch parentBranch) {
-    Object coreForkPoint = Whitebox
+
+    PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue(any(), any(), any());
+
+    GitMacheteForkPointCommit forkPoint = (GitMacheteForkPointCommit) Whitebox
         .invokeMethod(aux(childBranch, parentBranch), "deriveParentAwareForkPoint", childBranch, parentBranch);
-    if (coreForkPoint != null)
-      return Option.some(Whitebox.getInternalState(coreForkPoint, "coreCommit"));
+    if (forkPoint != null)
+      return Option.some(Whitebox.invokeMethod(forkPoint, "getCoreCommit"));
     else
       return Option.none();
   }

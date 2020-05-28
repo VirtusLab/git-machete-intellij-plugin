@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.time.Instant;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -11,20 +12,33 @@ import org.checkerframework.common.value.qual.ArrayLen;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 
-@Getter
-@RequiredArgsConstructor
-@ToString
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@ToString(onlyExplicitlyIncluded = true)
 public class GitMacheteCommit implements IGitMacheteCommit {
-  private final String shortMessage;
-  private final @ArrayLen(40) String hash;
-  private final @ArrayLen(7) String shortHash;
-  private final Instant commitTime;
 
-  public GitMacheteCommit(IGitCoreCommit coreCommit) {
-    shortMessage = coreCommit.getShortMessage();
-    hash = coreCommit.getHash().getHashString();
-    shortHash = coreCommit.getHash().getShortHashString();
-    commitTime = coreCommit.getCommitTime();
+  @Getter(AccessLevel.PACKAGE)
+  private final IGitCoreCommit coreCommit;
+
+  @Override
+  @ToString.Include(name = "message")
+  public String getShortMessage() {
+    return coreCommit.getShortMessage();
+  }
+
+  @Override
+  public @ArrayLen(40) String getHash() {
+    return coreCommit.getHash().getHashString();
+  }
+
+  @Override
+  @ToString.Include(name = "hash")
+  public @ArrayLen(7) String getShortHash() {
+    return coreCommit.getHash().getShortHashString();
+  }
+
+  @Override
+  public Instant getCommitTime() {
+    return coreCommit.getCommitTime();
   }
 
   @Override

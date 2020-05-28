@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.backend.unit;
 import java.util.Arrays;
 
 import io.vavr.collection.List;
-import io.vavr.control.Try;
 import lombok.SneakyThrows;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
@@ -15,8 +14,12 @@ import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
 public class BaseGitMacheteRepositoryFactoryTestSuite {
 
-  protected static final Class<?> AUX_CLASS = Try.of(() -> Whitebox
-      .getInnerClassType(GitMacheteRepositoryFactory.class, "Aux")).get();
+  private static final Class<?> AUX_CLASS = getAuxClass();
+
+  @SneakyThrows
+  private static Class<?> getAuxClass() {
+    return Whitebox.getInnerClassType(GitMacheteRepositoryFactory.class, "Aux");
+  }
 
   protected final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);
 
@@ -29,5 +32,4 @@ public class BaseGitMacheteRepositoryFactoryTestSuite {
         .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class)
         .newInstance(gitCoreRepository, /* statusBranchHookExecutor */ null);
   }
-
 }

@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.backend.unit.TestUtils.TestGitCoreReflogE
 import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreLocalBranch;
 
+import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
 
 public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
@@ -23,7 +25,8 @@ public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTestSuite exten
       IGitCoreLocalBranch childBranch,
       IGitCoreLocalBranch parentBranch,
       IGitCoreCommit forkPointCommit) {
-    return Whitebox.invokeMethod(aux(), "deriveSyncToParentStatus", childBranch, parentBranch, forkPointCommit);
+    return Whitebox.invokeMethod(aux(), "deriveSyncToParentStatus",
+        childBranch, parentBranch, GitMacheteForkPointCommit.inferred(forkPointCommit, /* containingBranches */ List.empty()));
   }
 
   @Test

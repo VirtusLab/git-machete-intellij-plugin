@@ -41,26 +41,32 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   }
 
   @Test
-  public void statusTest() {
+  public void status() {
     init(SETUP_WITH_SINGLE_REMOTE);
     compareToCli();
   }
 
   @Test
-  public void statusTestWithMultiRemotes() {
+  public void statusWithMultiRemotes() {
     init(SETUP_WITH_MULTIPLE_REMOTES);
     compareToCli();
   }
 
   @Test
-  public void statusTestForDivergedAndOlderThan() {
+  public void statusForDivergedAndOlderThan() {
     init(SETUP_FOR_DIVERGED_AND_OLDER_THAN);
     compareToCli();
   }
 
   @Test
-  public void statusTestForYellowEdges() {
+  public void statusForYellowEdges() {
     init(SETUP_FOR_YELLOW_EDGES);
+    compareToCli();
+  }
+
+  @Test
+  public void statusForOverriddenForkPoint() {
+    init(SETUP_FOR_OVERRIDDEN_FORK_POINT);
     compareToCli();
   }
 
@@ -120,7 +126,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
         sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
-        sb.append(forkPoint.getBranchesWhereFoundInReflog().sorted().mkString(", "));
+        sb.append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "));
       }
       sb.append(System.lineSeparator());
     }

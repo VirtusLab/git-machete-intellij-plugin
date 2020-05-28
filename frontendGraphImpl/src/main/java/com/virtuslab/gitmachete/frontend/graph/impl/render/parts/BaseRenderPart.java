@@ -10,10 +10,10 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 @RequiredArgsConstructor
 public abstract class BaseRenderPart implements IRenderPart {
-  @Getter
+  @Getter(onMethod_ = {@Override})
   protected final @NonNegative int rowIndex;
 
-  @Getter
+  @Getter(onMethod_ = {@Override})
   protected final @NonNegative int positionInRow;
 
   protected final IGraphElement graphElement;
