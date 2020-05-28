@@ -12,12 +12,12 @@ import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 @RequiredArgsConstructor
 @ToString
 public class BranchLayoutEntry implements IBranchLayoutEntry {
-  @Getter
+  @Getter(onMethod_ = {@Override})
   private final String name;
 
   private final @Nullable String customAnnotation;
 
-  @Getter
+  @Getter(onMethod_ = {@Override})
   private final List<IBranchLayoutEntry> subentries;
 
   @Override

@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 
-@Getter
+@Getter(onMethod_ = {@Override})
 public final class CommitItem extends BaseGraphItem implements ICommitItem {
 
   private final IGitMacheteCommit commit;

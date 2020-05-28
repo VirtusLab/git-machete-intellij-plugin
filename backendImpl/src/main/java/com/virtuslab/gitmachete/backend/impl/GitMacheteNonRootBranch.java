@@ -20,7 +20,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @CustomLog
-@Getter
+@Getter(onMethod_ = {@Override})
 @ToString(callSuper = true)
 public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
 
@@ -35,14 +35,15 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteBranch,
+      @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
       @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+    super(name, downstreamBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+        statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;

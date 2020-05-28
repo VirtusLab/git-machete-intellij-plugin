@@ -11,7 +11,7 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
 public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRemoteBranch {
 
-  @Getter
+  @Getter(onMethod_ = {@Override})
   private final String remoteName;
 
   public GitCoreRemoteBranch(

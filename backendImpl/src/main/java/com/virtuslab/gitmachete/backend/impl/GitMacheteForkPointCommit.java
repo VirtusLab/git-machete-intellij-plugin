@@ -8,13 +8,29 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 
 @ToString(callSuper = true)
-public class GitMacheteForkPointCommit extends GitMacheteCommit implements IGitMacheteForkPointCommit {
+public final class GitMacheteForkPointCommit extends GitMacheteCommit implements IGitMacheteForkPointCommit {
 
-  @Getter
-  private final List<String> branchesWhereFoundInReflog;
+  @Getter(onMethod_ = {@Override})
+  private final List<String> branchesContainingInReflog;
 
-  public GitMacheteForkPointCommit(IGitCoreCommit coreCommit, List<String> branchesWhereFoundInReflog) {
+  @Getter(onMethod_ = {@Override})
+  private final boolean isOverridden;
+
+  private GitMacheteForkPointCommit(IGitCoreCommit coreCommit, List<String> branchesContainingInReflog, boolean isOverridden) {
     super(coreCommit);
-    this.branchesWhereFoundInReflog = branchesWhereFoundInReflog;
+    this.branchesContainingInReflog = branchesContainingInReflog;
+    this.isOverridden = isOverridden;
+  }
+
+  public static GitMacheteForkPointCommit overridden(IGitCoreCommit overrideCoreCommit) {
+    return new GitMacheteForkPointCommit(overrideCoreCommit, List.empty(), true);
+  }
+
+  public static GitMacheteForkPointCommit inferred(IGitCoreCommit coreCommit, List<String> containingBranches) {
+    return new GitMacheteForkPointCommit(coreCommit, containingBranches, false);
+  }
+
+  public static GitMacheteForkPointCommit parentFallback(IGitCoreCommit parentCoreCommit) {
+    return new GitMacheteForkPointCommit(parentCoreCommit, List.empty(), false);
   }
 }

@@ -15,6 +15,7 @@ public abstract class BaseGitRepositoryBackedTestSuite {
   protected final static String SETUP_WITH_MULTIPLE_REMOTES = "setup-with-multiple-remotes.sh";
   protected final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
   protected final static String SETUP_FOR_YELLOW_EDGES = "setup-for-yellow-edges.sh";
+  protected final static String SETUP_FOR_OVERRIDDEN_FORK_POINT = "setup-for-overridden-fork-point.sh";
 
   protected final Path parentDir;
   protected final Path repositoryMainDir;

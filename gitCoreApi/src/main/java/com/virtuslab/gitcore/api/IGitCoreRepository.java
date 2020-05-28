@@ -6,11 +6,13 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 public interface IGitCoreRepository {
+  Option<String> deriveConfigValue(String section, String subsection, String name);
+
+  Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;
+
   List<IGitCoreLocalBranch> deriveAllLocalBranches() throws GitCoreException;
 
   Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
-
-  Option<IGitCoreLocalBranch> deriveLocalBranchByShortName(String localBranchShortName);
 
   Option<GitCoreBranchTrackingStatus> deriveRemoteTrackingStatus(IGitCoreLocalBranch localBranch) throws GitCoreException;
 

@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 @RequiredArgsConstructor
 public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
-  @Getter
+  @Getter(onMethod_ = {@Override})
   protected final String shortName;
 
   private final Lazy<Either<GitCoreException, GitCoreCommit>> pointedCommit;

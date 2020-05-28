@@ -44,7 +44,7 @@ public class TestUtils {
 
     @Override
     public String getHashString() {
-      return String.valueOf(id);
+      return String.valueOf(id).repeat(40);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TestUtils {
   static class TestGitCoreCommit implements IGitCoreCommit {
     @Override
     public String getShortMessage() {
-      throw new NotImplementedError();
+      return "test commit message";
     }
 
     @Override

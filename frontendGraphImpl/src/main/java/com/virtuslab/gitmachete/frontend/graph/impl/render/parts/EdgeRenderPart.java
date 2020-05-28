@@ -10,7 +10,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProv
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
 
-@Getter
+@Getter(onMethod_ = {@Override})
 public final class EdgeRenderPart extends BaseRenderPart implements IEdgeRenderPart {
 
   private final Type type;

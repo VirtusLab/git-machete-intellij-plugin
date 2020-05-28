@@ -30,9 +30,6 @@ jobs:
 
             ./scripts/verify-no-string-interpolation-leftovers
       - run:
-          name: Check Javadoc correctness
-          command: ./gradlew javadoc
-      - run:
           name: Run static code analyzer
           command: ./gradlew --warn checkstyleMain
 
@@ -112,6 +109,12 @@ jobs:
           command: |
             ./gradlew --stop
             LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew --max-workers=2 compileJava
+      - run:
+          # javadoc can't currently run on non-delomboked code due to `@Getter(onMethod_ = {...})` annotations,
+          # see https://projectlombok.org/features/experimental/onX on the underlying mechanics
+          name: Check Javadoc correctness on delomboked code
+          command: |
+            LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew javadoc
 
   publish:
     working_directory: ~/git-machete-intellij-plugin

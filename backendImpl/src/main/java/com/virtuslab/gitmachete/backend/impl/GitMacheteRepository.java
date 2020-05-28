@@ -14,7 +14,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 
 @RequiredArgsConstructor
 public class GitMacheteRepository implements IGitMacheteRepository {
-  @Getter
+  @Getter(onMethod_ = {@Override})
   private final List<IGitMacheteRootBranch> rootBranches;
 
   private final @Nullable IBranchLayout branchLayout;

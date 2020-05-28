@@ -13,6 +13,6 @@ public enum GraphItemColor {
   private final int id;
 
   public static GraphItemColor getById(int id) {
-    return Arrays.stream(values()).filter(e -> e.getId() == id).findFirst().orElse(TRANSPARENT);
+    return Arrays.stream(values()).filter(e -> e.id == id).findFirst().orElse(TRANSPARENT);
   }
 }

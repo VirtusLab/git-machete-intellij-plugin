@@ -160,7 +160,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
           append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ??? ", textAttributes);
 
           var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "
-              + forkPoint.getBranchesWhereFoundInReflog().mkString(", ");
+              + forkPoint.getBranchesContainingInReflog().mkString(", ");
           append(text, REGULAR_ATTRIBUTES);
         }
       }

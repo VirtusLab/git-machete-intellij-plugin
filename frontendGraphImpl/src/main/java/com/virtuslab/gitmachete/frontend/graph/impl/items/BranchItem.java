@@ -14,7 +14,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 
-@Getter
+@Getter(onMethod_ = {@Override})
 public final class BranchItem extends BaseGraphItem implements IBranchItem {
   private final IGitMacheteBranch branch;
   private final SyncToRemoteStatus syncToRemoteStatus;
