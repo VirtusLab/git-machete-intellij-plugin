@@ -51,13 +51,12 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
-import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
+import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
@@ -94,13 +93,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
     // `@UnderInitialization(GitMacheteGraphTable.class)`, as would be with a non-final class) at this point.
 
-    var graphCellPainterFactory = RuntimeBinding.instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
-    var graphCellPainter = graphCellPainterFactory.create(/* table */ this);
-
     initColumns();
 
-    @UI BranchOrCommitCellRenderer branchOrCommitCellRenderer = new BranchOrCommitCellRenderer(this, graphCellPainter);
-    setDefaultRenderer(BranchOrCommitCell.class, branchOrCommitCellRenderer);
+    setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
 
     setCellSelectionEnabled(false);
     setShowVerticalLines(false);

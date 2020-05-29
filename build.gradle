@@ -102,7 +102,6 @@ subprojects {
   gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
       options.compilerArgs += [
-        '-encoding', 'UTF-8',
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
