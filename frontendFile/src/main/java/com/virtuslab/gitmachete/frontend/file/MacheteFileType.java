@@ -2,9 +2,10 @@ package com.virtuslab.gitmachete.frontend.file;
 
 import javax.swing.Icon;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
+
+import com.virtuslab.frontend.icons.MacheteIcons;
 
 public class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
@@ -35,6 +36,6 @@ public class MacheteFileType extends LanguageFileType {
 
   @Override
   public Icon getIcon() {
-    return AllIcons.Actions.Menu_cut;
+    return MacheteIcons.ICON;
   }
 }
