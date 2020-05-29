@@ -4,19 +4,18 @@ import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
+import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 
-public class RenderPartColorIdProvider implements IRenderPartColorIdProvider {
+public class GraphItemColorForGraphElementProvider {
   @NotOnlyInitialized
   private final IRepositoryGraph repositoryGraph;
 
-  public RenderPartColorIdProvider(@UnderInitialization IRepositoryGraph repositoryGraph) {
+  public GraphItemColorForGraphElementProvider(@UnderInitialization IRepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
   }
 
-  public int getColorId(IGraphElement element) {
+  public GraphItemColor getGraphItemColor(IGraphElement element) {
     int nodeIndex;
     if (element.isNode()) {
       nodeIndex = element.asNode().getNodeIndex();
@@ -24,8 +23,6 @@ public class RenderPartColorIdProvider implements IRenderPartColorIdProvider {
       nodeIndex = element.asEdge().getDownNodeIndex();
     }
 
-    IGraphItem graphItem = repositoryGraph.getGraphItem(nodeIndex);
-
-    return graphItem.getGraphItemColor().getId();
+    return repositoryGraph.getGraphItem(nodeIndex).getColor();
   }
 }

@@ -8,11 +8,15 @@ import java.awt.geom.Ellipse2D;
 
 import javax.swing.JTable;
 
+import com.intellij.ui.JBColor;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.graph.api.paint.IColorProvider;
+import com.virtuslab.gitmachete.frontend.defs.Colors;
+import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainter;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
@@ -20,8 +24,6 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 @RequiredArgsConstructor
 public class GraphCellPainter implements IGraphCellPainter {
-
-  private final IColorProvider colorProvider;
 
   private final JTable table;
 
@@ -73,19 +75,23 @@ public class GraphCellPainter implements IGraphCellPainter {
   @UIEffect
   private void paintCircle(Graphics2D g2, int position, Color color) {
     int nodeWidth = PaintParameters.getNodeWidth(getRowHeight());
-    int circleRadius = PaintParameters.getCircleRadius(getRowHeight());
-
     int x0 = nodeWidth * position + nodeWidth / 2;
     int y0 = getRowHeight() / 2;
-    int r = circleRadius;
+    int r = PaintParameters.getCircleRadius(getRowHeight());
     Ellipse2D.Double circle = new Ellipse2D.Double(x0 - r + 0.5, y0 - r + 0.5, 2 * r, 2 * r);
     g2.setColor(color);
     g2.fill(circle);
   }
 
+  private static final Map<GraphItemColor, JBColor> COLORS = HashMap.of(
+      GraphItemColor.GRAY, Colors.GRAY,
+      GraphItemColor.YELLOW, Colors.YELLOW,
+      GraphItemColor.RED, Colors.RED,
+      GraphItemColor.GREEN, Colors.GREEN);
+
   @UIEffect
   private Color getColor(IRenderPart renderPart) {
-    return colorProvider.getColor(renderPart.getColorId());
+    return COLORS.getOrElse(renderPart.getGraphItemColor(), Colors.TRANSPARENT);
   }
 
   @Override

@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionIds.ACTION_OPEN_MACHETE_FILE;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
-import static com.virtuslab.gitmachete.frontend.actionids.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
+import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -48,9 +48,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColorToJBColorMapper;
+import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
@@ -96,8 +95,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     // `@UnderInitialization(GitMacheteGraphTable.class)`, as would be with a non-final class) at this point.
 
     var graphCellPainterFactory = RuntimeBinding.instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
-    var graphCellPainter = graphCellPainterFactory.create(/* colorProvider */ GraphItemColorToJBColorMapper::getColor,
-        /* table */ this);
+    var graphCellPainter = graphCellPainterFactory.create(/* table */ this);
 
     initColumns();
 

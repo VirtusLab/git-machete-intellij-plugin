@@ -8,7 +8,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
@@ -48,7 +47,7 @@ public interface IGraphItem {
   /** @return the attributes (eg. boldness) to be used by the displayed text */
   SimpleTextAttributes getAttributes();
 
-  GraphItemColor getGraphItemColor();
+  GraphItemColor getColor();
 
   @NonNegative
   int getIndentLevel();

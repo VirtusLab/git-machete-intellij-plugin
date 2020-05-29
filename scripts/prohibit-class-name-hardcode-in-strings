@@ -7,6 +7,6 @@ source "$self_dir"/utils.sh
 
 file_names=$(git ls-files '*.java' | xargs basename -s .java | sort | paste -sd'|')
 
-if git grep -EHn  '^[^"]*"[^"$]*\<('"$file_names"')\>' -- '*.java' ':(exclude)./frontendActionIds'; then
+if git grep -EHn  '^[^"]*"[^"$]*\<('"$file_names"')\>' -- '*.java' ':(exclude)./frontendDefs'; then
   die 'Avoid hardcoding class names in string literals, use more refactor-friendly Class#getSimpleName() instead'
 fi

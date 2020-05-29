@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.graph.api.render.parts;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
+import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 
 /**
  * Render parts ({@link IRenderPart}, {@link IEdgeRenderPart}, {@link INodeRenderPart}) represent RENDERED graph.
@@ -17,7 +18,7 @@ public interface IRenderPart {
   @NonNegative
   int getPositionInRow();
 
-  int getColorId();
+  GraphItemColor getGraphItemColor();
 
   boolean isNode();
 

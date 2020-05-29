@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement;
-import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
+import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.GraphItemColorForGraphElementProvider;
 
 @RequiredArgsConstructor
 public abstract class BaseRenderPart implements IRenderPart {
@@ -18,10 +19,10 @@ public abstract class BaseRenderPart implements IRenderPart {
 
   protected final IGraphElement graphElement;
 
-  private final IRenderPartColorIdProvider renderPartColorIdProvider;
+  private final GraphItemColorForGraphElementProvider renderPartColorIdProvider;
 
   @Override
-  public int getColorId() {
-    return renderPartColorIdProvider.getColorId(graphElement);
+  public GraphItemColor getGraphItemColor() {
+    return renderPartColorIdProvider.getGraphItemColor(graphElement);
   }
 }

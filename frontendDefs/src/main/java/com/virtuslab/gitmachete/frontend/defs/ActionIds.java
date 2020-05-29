@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actionids;
+package com.virtuslab.gitmachete.frontend.defs;
 
 public final class ActionIds {
   private ActionIds() {}

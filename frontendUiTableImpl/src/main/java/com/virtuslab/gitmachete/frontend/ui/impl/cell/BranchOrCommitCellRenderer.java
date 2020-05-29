@@ -10,9 +10,9 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.D
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
-import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.ORANGE;
-import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.RED;
-import static com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions.TRANSPARENT;
+import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
+import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
+import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -50,7 +50,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.ColorDefinitions;
+import com.virtuslab.gitmachete.frontend.defs.Colors;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -184,7 +184,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
         IGitMacheteForkPointCommit forkPoint = containingBranch.getForkPoint().getOrNull();
 
         if (commitItem.getCommit().equals(forkPoint)) {
-          var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, ColorDefinitions.RED);
+          var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, Colors.RED);
           append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ??? ", textAttributes);
 
           var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "

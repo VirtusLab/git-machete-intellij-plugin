@@ -5,6 +5,7 @@ dependencies {
 
   implementation project(':logging')
   implementation project(':backendApi')
+  implementation project(':frontendDefs')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: false)

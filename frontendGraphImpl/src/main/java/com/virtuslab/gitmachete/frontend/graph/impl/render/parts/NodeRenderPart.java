@@ -5,9 +5,9 @@ import io.vavr.NotImplementedError;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
-import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.GraphItemColorForGraphElementProvider;
 
 public final class NodeRenderPart extends BaseRenderPart implements INodeRenderPart {
 
@@ -15,7 +15,7 @@ public final class NodeRenderPart extends BaseRenderPart implements INodeRenderP
       @NonNegative int rowIndex,
       @NonNegative int positionInRow,
       GraphNode graphNode,
-      IRenderPartColorIdProvider renderPartColorIdProvider) {
+      GraphItemColorForGraphElementProvider renderPartColorIdProvider) {
     super(rowIndex, positionInRow, graphNode, renderPartColorIdProvider);
   }
 

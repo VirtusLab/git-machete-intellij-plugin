@@ -22,9 +22,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
-import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
 

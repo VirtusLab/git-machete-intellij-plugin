@@ -6,9 +6,9 @@ import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
-import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.GraphItemColorForGraphElementProvider;
 
 @Getter(onMethod_ = {@Override})
 public final class EdgeRenderPart extends BaseRenderPart implements IEdgeRenderPart {
@@ -20,7 +20,7 @@ public final class EdgeRenderPart extends BaseRenderPart implements IEdgeRenderP
       @NonNegative int positionInRow,
       Type type,
       GraphEdge graphEdge,
-      IRenderPartColorIdProvider renderPartColorIdProvider) {
+      GraphItemColorForGraphElementProvider renderPartColorIdProvider) {
     super(rowIndex, positionInRow, graphEdge, renderPartColorIdProvider);
     this.type = type;
   }

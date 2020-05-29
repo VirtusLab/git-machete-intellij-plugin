@@ -1,11 +1,11 @@
-package com.virtuslab.gitmachete.frontend.graph.api.coloring;
+package com.virtuslab.gitmachete.frontend.defs;
 
 import java.awt.Color;
 
 import com.intellij.ui.JBColor;
 
-public final class ColorDefinitions {
-  private ColorDefinitions() {}
+public final class Colors {
+  private Colors() {}
 
   private static final Color RED_COLOR = Color.decode("#FF0000");
   private static final Color ORANGE_COLOR = Color.decode("#FDA909");

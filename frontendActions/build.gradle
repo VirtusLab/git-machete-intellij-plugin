@@ -5,7 +5,7 @@ dependencies {
   implementation project(':binding')
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')
-  implementation project(':frontendActionIds')
+  implementation project(':frontendDefs')
   implementation project(':frontendUiApi')
   implementation project(':frontendDataKeys')
   implementation project(':frontendVfsUtils')

@@ -12,7 +12,6 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphEdge;
 import com.virtuslab.gitmachete.frontend.graph.api.elements.GraphNode;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
-import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProvider;
 import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
@@ -24,11 +23,11 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
   @NotOnlyInitialized
   private final IRepositoryGraph repositoryGraph;
   @NotOnlyInitialized
-  private final IRenderPartColorIdProvider renderPartColorIdProvider;
+  private final GraphItemColorForGraphElementProvider itemColorForElementProvider;
 
   public RenderPartGenerator(@UnderInitialization IRepositoryGraph repositoryGraph) {
     this.repositoryGraph = repositoryGraph;
-    this.renderPartColorIdProvider = new RenderPartColorIdProvider(repositoryGraph);
+    this.itemColorForElementProvider = new GraphItemColorForGraphElementProvider(repositoryGraph);
   }
 
   @Override
@@ -78,21 +77,19 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
     private final @NonNegative int rowIndex;
 
     public void consumeNode(GraphNode node, @NonNegative int position) {
-      nodes.add(new NodeRenderPart(rowIndex, position, node, renderPartColorIdProvider));
+      nodes.add(new NodeRenderPart(rowIndex, position, node, itemColorForElementProvider));
     }
 
     public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(
-          new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.DOWN, edge, renderPartColorIdProvider));
+      edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.DOWN, edge, itemColorForElementProvider));
     }
 
     public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.UP, edge, renderPartColorIdProvider));
+      edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.UP, edge, itemColorForElementProvider));
     }
 
     public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
-      edges.add(
-          new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.RIGHT, edge, renderPartColorIdProvider));
+      edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.RIGHT, edge, itemColorForElementProvider));
     }
 
     public List<BaseRenderPart> build() {

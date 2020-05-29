@@ -8,14 +8,14 @@ import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.graph.api.coloring.GraphItemColor;
+import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 
 @Getter(onMethod_ = {@Override})
 @ToString
 public abstract class BaseGraphItem implements IGraphItem {
 
-  private final GraphItemColor graphItemColor;
+  private final GraphItemColor color;
 
   private final @GTENegativeOne int prevSiblingItemIndex;
 
@@ -24,21 +24,21 @@ public abstract class BaseGraphItem implements IGraphItem {
   private final @NonNegative int indentLevel;
 
   protected BaseGraphItem(
-      GraphItemColor graphItemColor,
+      GraphItemColor color,
       @GTENegativeOne int prevSiblingItemIndex,
       @Positive int nextSiblingItemIndex,
       @NonNegative int indentLevel) {
-    this.graphItemColor = graphItemColor;
+    this.color = color;
     this.prevSiblingItemIndex = prevSiblingItemIndex;
     this.nextSiblingItemIndex = nextSiblingItemIndex;
     this.indentLevel = indentLevel;
   }
 
   protected BaseGraphItem(
-      GraphItemColor graphItemColor,
+      GraphItemColor color,
       @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel) {
-    this.graphItemColor = graphItemColor;
+    this.color = color;
     this.prevSiblingItemIndex = prevSiblingItemIndex;
     this.indentLevel = indentLevel;
   }
