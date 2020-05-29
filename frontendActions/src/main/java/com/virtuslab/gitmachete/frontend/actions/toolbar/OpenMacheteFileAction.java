@@ -21,7 +21,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.file.GitVfsUtils;
-import com.virtuslab.gitmachete.frontend.file.MacheteFileType;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -47,7 +46,7 @@ public class OpenMacheteFileAction extends DumbAwareAction {
         @Override
         public Option<VirtualFile> compute() {
           return Try.of(
-              () -> Option.of(gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ MacheteFileType.FILE_NAME)))
+              () -> Option.of(gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete")))
               .onFailure(e -> VcsNotifier.getInstance(project).notifyError(/* title */ "",
                   /* message */ "Failed to open machete file"))
               .get();
@@ -61,7 +60,7 @@ public class OpenMacheteFileAction extends DumbAwareAction {
           doOpenFile(project, macheteFile.get());
         } catch (DirNamedMacheteExistsException e) {
           VcsNotifier.getInstance(project)
-              .notifyError(/* title */ "", /* message */ "Cannot create file '${MacheteFileType.FILE_NAME}': " +
+              .notifyError(/* title */ "", /* message */ "Cannot create file 'machete': " +
                   "Directory with the same name exists");
         }
       }

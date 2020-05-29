@@ -9,8 +9,6 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage;
 public class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
 
-  public static final String FILE_NAME = "machete";
-
   protected MacheteFileType() {
     super(PlainTextLanguage.INSTANCE);
   }
