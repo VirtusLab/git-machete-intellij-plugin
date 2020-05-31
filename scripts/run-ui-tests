@@ -12,7 +12,9 @@ rm -rf build/idea-sandbox/
 # --auto-servernum is deprecated in favor of --auto-display,
 # but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
 command=${CI:+xvfb-run --auto-servernum}
-$command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests 1>"$log" 2>&1 &
+$command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests >"$log" 2>&1 &
+# $! expands to the PID of the last process executed in the background
+ide_pid=$!
 
 # Let's wait until Remote Robot plugin living within the IDE starts listening.
 while ! nc -z localhost 8080; do
@@ -26,8 +28,7 @@ set +e
 exit_code=$?
 # The test will gracefully close the IDE instance if successful,
 # but we still need to kill the IDE instance in case that test was not successful AND the IDE is still running.
-if [[ $(jobs | wc -l) -gt 0 ]]; then
-  # $! expands to the PID of the last process executed in the background
-  kill $!
+if ps -p $ide_pid >/dev/null 2>&1; then
+  kill $ide_pid
 fi
 exit $exit_code

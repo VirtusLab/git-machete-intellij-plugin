@@ -132,16 +132,21 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  public void refreshModel(Path macheteFilePath, boolean isMacheteFilePresent) {
-    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
-        "isListingCommits = ${isListingCommits}");
-
+  private void refreshModel(GitRepository gitRepository) {
     // TODO (#176): When machete file is absent or empty,
     // propose using branch layout automatically detected by discover functionality
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
     }
+
+    // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
+    // this shouldn't ever be a heavyweight operation, however.
+    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
+    LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
+        "isListingCommits = ${isListingCommits}");
 
     IRepositoryGraph repositoryGraph;
     if (gitMacheteRepository == null) {
@@ -182,11 +187,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   public void refreshModel() {
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
     if (gitRepository.isDefined()) {
-      // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
-      // this shouldn't ever be a heavyweight operation, however.
-      Path macheteFilePath = getMacheteFilePath(gitRepository.get());
-      boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-      refreshModel(macheteFilePath, isMacheteFilePresent);
+      refreshModel(gitRepository.get());
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
     }
@@ -214,20 +215,13 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       GuiUtils.invokeLaterIfNeeded(() -> {
         Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
         if (gitRepository.isDefined()) {
-          @UI Consumer<Option<IGitMacheteRepository>> refreshModelAndRunCallback = newGitMacheteRepository -> {
+          @UI Consumer<Option<IGitMacheteRepository>> doRefreshModel = newGitMacheteRepository -> {
             this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
-
-            // A bit of a shortcut: we're accessing filesystem even though we may be on UI thread here;
-            // this shouldn't ever be a heavyweight operation, however.
-            Path macheteFilePath = getMacheteFilePath(gitRepository.get());
-            boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
-            refreshModel(macheteFilePath, isMacheteFilePresent);
+            refreshModel(gitRepository.get());
           };
 
           LOG.debug("Queuing repository update onto a non-UI thread");
-
-          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, refreshModelAndRunCallback)
-              .queue();
+          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, doRefreshModel).queue();
         } else {
           LOG.warn("Selected repository is null");
         }
