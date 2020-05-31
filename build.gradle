@@ -446,15 +446,21 @@ repositories {
   maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
 }
 
+File resolveIdeaCommunity(String version) {
+  return runPluginVerifier.resolveIde('IC-' + version)
+}
+
 runIde {
+  // gradle-intellij-plugin doesn't have native support for building and running against different IntelliJ versions,
+  // hence a little workaround is needed; see https://github.com/JetBrains/gradle-intellij-plugin/issues/450 for details
   if (intellijVersionForRunIde != intellijVersion) {
-    ideDirectory runPluginVerifier.resolveIde('IC-' + intellijVersionForRunIde)
+    ideDirectory resolveIdeaCommunity(intellijVersionForRunIde)
   }
 }
 
 runIdeForUiTests {
   if (intellijVersionForRunIde != intellijVersion) {
-    ideDirectory runPluginVerifier.resolveIde('IC-' + intellijVersionForRunIde)
+    ideDirectory resolveIdeaCommunity(intellijVersionForRunIde)
   }
 }
 

@@ -9,5 +9,4 @@ export JAVA_HOME=$(which java | xargs readlink --canonicalize | xargs dirname | 
 ./gradlew runPluginVerifier
 if stat -t build/pluginVerifier/reports/*/plugins/*/*/compatibility-problems.txt >/dev/null 2>&1; then
   die 'Compatibility problems detected'
-  exit 1
 fi
