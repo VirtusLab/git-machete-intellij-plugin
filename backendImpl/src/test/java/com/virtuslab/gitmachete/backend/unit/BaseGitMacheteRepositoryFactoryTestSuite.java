@@ -13,7 +13,7 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
-public class BaseGitMacheteRepositoryFactoryTest {
+public class BaseGitMacheteRepositoryFactoryTestSuite {
 
   protected static final Class<?> AUX_CLASS = Try.of(() -> Whitebox
       .getInnerClassType(GitMacheteRepositoryFactory.class, "Aux")).get();

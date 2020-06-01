@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTest extends BaseGitMacheteRepositoryFactoryTest {
+public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
   private final IGitCoreRemoteBranch coreRemoteBranch = PowerMockito.mock(IGitCoreRemoteBranch.class);

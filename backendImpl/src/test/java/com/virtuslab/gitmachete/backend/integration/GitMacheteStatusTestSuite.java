@@ -25,9 +25,9 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTest;
+import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 
-public class GitMacheteStatusTest extends BaseGitRepositoryBackedTest {
+public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite {
   private IGitMacheteRepository gitMacheteRepository = null;
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding

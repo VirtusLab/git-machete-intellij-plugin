@@ -14,7 +14,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 
-public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTest extends BaseGitMacheteRepositoryFactoryTest {
+public class GitMacheteRepositoryFactory_deriveSyncToParentStatusTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
   private static final IGitCoreCommit MISSING_FORK_POINT = createGitCoreCommit();
 

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 
-public abstract class BaseGitRepositoryBackedTest {
+public abstract class BaseGitRepositoryBackedTestSuite {
 
   protected final static String SETUP_WITH_SINGLE_REMOTE = "setup-with-single-remote.sh";
   protected final static String SETUP_WITH_MULTIPLE_REMOTES = "setup-with-multiple-remotes.sh";
@@ -21,7 +21,7 @@ public abstract class BaseGitRepositoryBackedTest {
   protected final Path repositoryGitDir;
 
   @SneakyThrows
-  protected BaseGitRepositoryBackedTest() {
+  protected BaseGitRepositoryBackedTestSuite() {
     parentDir = Files.createTempDirectory("machete-tests-");
     repositoryMainDir = parentDir.resolve("machete-sandbox");
     repositoryGitDir = repositoryMainDir.resolve(".git");

@@ -1,4 +1,14 @@
 
+function info() {
+  green='\033[32m'
+  endc='\033[0m'
+  if [[ -t 1 ]]; then
+    echo -e "\n${green}>>> $@ <<<${endc}\n"
+  else
+    echo -e "\n>>> $@ <<<\n"
+  fi
+}
+
 function die() {
   red='\033[91m'
   endc='\033[0m'
