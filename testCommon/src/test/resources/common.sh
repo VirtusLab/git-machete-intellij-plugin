@@ -1,62 +1,50 @@
 #!/usr/bin/env bash
 
-set -x
 status_branch_hook=$(cat <<'EOF'
 #!/usr/bin/env bash
 git log -1 --format=%cd  # commit timestamp of the branch tip
 EOF
 )
 
+# All functions defined here are guaranteed to preserve the original working directory.
+
 newrepo() {
-  if (( $# < 2 )); then
-    echo "${FUNCNAME[0]} needs at least 2 parameters, $# was given"
+  if (( $# < 1 )); then
+    echo "${FUNCNAME[0]} <dir> [<git-init-options>...] needs at least 1 parameter, $# was given"
     exit 100
   fi
-  local path=$1
-  local dir=$2
-  mkdir -p $path/$dir
-  cd $path/$dir
-  local opt=${3-}
-  git init $opt
+
+  local dir=$1
+  mkdir -p $dir
+  cd $dir
+  shift
+  git init $@
   mkdir -p .git/hooks/
   local hook_path=.git/hooks/machete-status-branch
   echo "$status_branch_hook" > $hook_path
   chmod +x $hook_path
-}
-
-clone() {
-  if (( $# != 3 )); then
-    echo "${FUNCNAME[0]} needs 3 parameters, $# was given"
-    exit 100
-  fi
-  local path=$1
-  local remote=$2
-  local destinationDir=$3
-  cd $path
-  git clone $remote $destinationDir
-  cd $destinationDir
-}
-
-gituserdata() {
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"
+  cd -
 }
 
 newb() {
   if (( $# != 1 )); then
-    echo "${FUNCNAME[0]} needs 1 parameter, $# was given"
+    echo "${FUNCNAME[0]} <branch-name> needs 1 parameter, $# was given"
     exit 100
   fi
+
   git checkout -b $1
 }
 
 cmt() {
   if (( $# < 1 )); then
-    echo "${FUNCNAME[0]} needs at least 1 parameter, $# was given"
+    echo "${FUNCNAME[0]} <commit-message-words...> needs at least 1 parameter, $# was given"
     exit 100
   fi
+
   local b=$(git symbolic-ref --short HEAD)
-  local f=${b/\//-}-${1}-${2-}.txt
+  local f=${b/\//-}-$(sed 's/ /-/g' <<< "$@").txt
   touch $f
   git add $f
   git commit -m "$*"

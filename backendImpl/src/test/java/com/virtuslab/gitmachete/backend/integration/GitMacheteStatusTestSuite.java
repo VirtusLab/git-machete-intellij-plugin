@@ -11,11 +11,17 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.InputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -78,6 +84,15 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     compareToCli();
   }
 
+  @Rule(order = Integer.MIN_VALUE)
+  public TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
+    @Override
+    @SneakyThrows
+    protected void succeeded(Description description) {
+      Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+  };
+
   private void compareToCli() {
     String ourResult = repositoryStatus();
     String gitMacheteCliStatus = gitMacheteCliStatus();
@@ -92,11 +107,11 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
-    var gitMacheteProcessBuilder = new ProcessBuilder();
-    gitMacheteProcessBuilder.command("git", "machete", "status", "-l");
-    gitMacheteProcessBuilder.directory(repositoryMainDir.toFile());
-    var gitMacheteProcess = gitMacheteProcessBuilder.start();
-    return convertStreamToString(gitMacheteProcess.getInputStream());
+    var process = new ProcessBuilder()
+        .command("git", "machete", "status", "-l")
+        .directory(repositoryMainDir.toFile())
+        .start();
+    return new String(process.getInputStream().readAllBytes());
   }
 
   private String repositoryStatus() {
@@ -192,10 +207,5 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     for (var b : branch.getDownstreamBranches()) {
       printNonRootBranch(b, /* level */ level + 1, sb);
     }
-  }
-
-  private static String convertStreamToString(InputStream is) {
-    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-    return s.hasNext() ? s.next() : "";
   }
 }

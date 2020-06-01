@@ -30,13 +30,13 @@ public abstract class BaseGitRepositoryBackedTestSuite {
   }
 
   protected void init(String scriptName) {
-    copyScriptsFromResources("common.sh");
-    copyScriptsFromResources(scriptName);
+    copyScriptFromResources("common.sh");
+    copyScriptFromResources(scriptName);
     prepareRepoFromScript(scriptName);
   }
 
   @SneakyThrows
-  private void copyScriptsFromResources(String scriptName) {
+  private void copyScriptFromResources(String scriptName) {
     URL resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
     Files.copy(Path.of(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
@@ -44,8 +44,10 @@ public abstract class BaseGitRepositoryBackedTestSuite {
 
   @SneakyThrows
   private void prepareRepoFromScript(String scriptName) {
-    var process = Runtime.getRuntime()
-        .exec("/bin/bash " + parentDir.resolve(scriptName).toAbsolutePath() + " " + parentDir.toAbsolutePath());
+    var process = new ProcessBuilder()
+        .command("/bin/bash", parentDir.resolve(scriptName).toString())
+        .directory(parentDir.toFile())
+        .start();
     var completed = process.waitFor(5, TimeUnit.SECONDS);
 
     // In case of non 0 exit code print stdout and stderr
