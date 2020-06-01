@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSe
 
 import java.util.Collections;
 
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
@@ -15,12 +16,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
+import git4idea.GitUtil;
+import git4idea.config.GitVcsSettings;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-import com.virtuslab.gitmachete.frontend.file.GitVfsUtils;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
@@ -39,23 +42,23 @@ public class OpenMacheteFileAction extends DumbAwareAction {
   public void actionPerformed(AnActionEvent anActionEvent) {
     Project project = anActionEvent.getProject();
 
-    var gitDir = getSelectedVcsRepository(anActionEvent).map(GitVfsUtils::getGitDirectory);
+    // When selected vcs repository is empty (due to e.g. unopened Git Machete tab)
+    // an attempt to guess current repository based on presently opened file
+    var gitDir = getSelectedVcsRepository(anActionEvent)
+        .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
+            GitUtil.getRepositoryManager(project),
+            GitVcsSettings.getInstance(project).getRecentRootPath()))
+        .map(GitVfsUtils::getGitDirectory);
 
     if (gitDir.isEmpty()) {
       LOG.warn("Skipping the action because Git repository is undefined");
       return;
     }
 
-    var macheteFile = ApplicationManager.getApplication().runWriteAction(new Computable<Option<VirtualFile>>() {
-      @Override
-      public Option<VirtualFile> compute() {
-        return Try.of(
-            () -> Option.of(gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete")))
-            .onFailure(e -> VcsNotifier.getInstance(project)
-                .notifyError(/* title */ "", /* message */ "Failed to open machete file"))
-            .get();
-      }
-    });
+    var macheteFile = ApplicationManager.getApplication().runWriteAction((Computable<Option<VirtualFile>>) () -> Try
+        .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
+        .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError( /* message */ "Failed to open machete file"))
+        .toOption());
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
@@ -66,8 +69,7 @@ public class OpenMacheteFileAction extends DumbAwareAction {
         doOpenFile(project, macheteFile.get());
       } catch (DirNamedMacheteExistsException e) {
         VcsNotifier.getInstance(project)
-            .notifyError(/* title */ "", /* message */ "Cannot create file 'machete': " +
-                "Directory with the same name exists");
+            .notifyWeakError(/* message */ "Cannot create file 'machete': Directory with the same name exists");
       }
     }
   }

@@ -20,7 +20,7 @@
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
         <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl"/>
 
-        <fileType language="TEXT" fileNames="machete" fieldName="INSTANCE" name="Machete file"
+        <fileType language="TEXT" fileNames="machete" fieldName="INSTANCE" name="MACHETE_FILE"
                   implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType"/>
         <lang.fileViewProviderFactory language="TEXT"
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
@@ -79,6 +79,14 @@
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
+            <action id="GitMachete.OpenMacheteFileAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
+                    icon="AllIcons.FileTypes.Text">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
+            <separator/>
+
             <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
                     icon="AllIcons.Actions.Menu_cut">
@@ -100,12 +108,6 @@
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
                     icon="AllIcons.Ide.OutgoingChangesOn">
-                <!--                <override-text place="GitMacheteToolbar"/>-->
-            </action>
-
-            <action id="GitMachete.OpenMacheteFileAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
-                    icon="AllIcons.FileTypes.Text">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 

@@ -7,10 +7,10 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage;
 
 import com.virtuslab.frontend.icons.MacheteIcons;
 
-public class MacheteFileType extends LanguageFileType {
+public final class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
 
-  protected MacheteFileType() {
+  private MacheteFileType() {
     super(PlainTextLanguage.INSTANCE);
   }
 
@@ -21,12 +21,12 @@ public class MacheteFileType extends LanguageFileType {
 
   @Override
   public String getName() {
-    return "Machete file";
+    return "MACHETE_FILE";
   }
 
   @Override
   public String getDescription() {
-    return "Configuration file for Git Machete";
+    return "Branch layout file for Git Machete";
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
@@ -99,6 +100,7 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       LOG.warn("Skipping the action because no VCS repository is selected");
     } else {
       doPull(project, gitRepository.get(), branchName.get());
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }
   }
 
@@ -145,9 +147,6 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
       @Override
       public void onSuccess() {
         VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
-        // For some reason, the call to `BaseGitMacheteGraphTable::queueRepositoryUpdateAndModelRefresh` within `actionPerformed`
-        // does not refresh the graph table after the pulls. Therefore, the following solution is to be used.
-        project.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(gitRepository);
       }
     };
   }
