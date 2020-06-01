@@ -22,6 +22,8 @@
 
         <fileType language="TEXT" fileNames="machete" fieldName="INSTANCE" name="Machete file"
                   implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType"/>
+        <lang.fileViewProviderFactory language="TEXT"
+                                      implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="TEXT" implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
 
     </extensions>

@@ -5,10 +5,10 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSe
 
 import java.util.Collections;
 
-import com.intellij.ide.util.PsiNavigationSupport;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessProvider;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -41,31 +41,34 @@ public class OpenMacheteFileAction extends DumbAwareAction {
 
     var gitDir = getSelectedVcsRepository(anActionEvent).map(GitVfsUtils::getGitDirectory);
 
-    if (gitDir.isDefined()) {
-      var macheteFile = ApplicationManager.getApplication().runWriteAction(new Computable<Option<VirtualFile>>() {
-        @Override
-        public Option<VirtualFile> compute() {
-          return Try.of(
-              () -> Option.of(gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete")))
-              .onFailure(e -> VcsNotifier.getInstance(project).notifyError(/* title */ "",
-                  /* message */ "Failed to open machete file"))
-              .get();
-        }
-      });
-
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-
-      if (macheteFile.isDefined()) {
-        try {
-          doOpenFile(project, macheteFile.get());
-        } catch (DirNamedMacheteExistsException e) {
-          VcsNotifier.getInstance(project)
-              .notifyError(/* title */ "", /* message */ "Cannot create file 'machete': " +
-                  "Directory with the same name exists");
-        }
-      }
-    } else {
+    if (gitDir.isEmpty()) {
       LOG.warn("Skipping the action because Git repository is undefined");
+      return;
+    }
+
+    var macheteFile = ApplicationManager.getApplication().runWriteAction(new Computable<Option<VirtualFile>>() {
+      @Override
+      public Option<VirtualFile> compute() {
+        return Try.of(
+            () -> Option.of(gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete")))
+            .onFailure(e -> VcsNotifier.getInstance(project)
+                .notifyError(/* title */ "", /* message */ "Failed to open machete file"))
+            .get();
+      }
+    });
+
+    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+
+    if (macheteFile.isEmpty()) {
+      LOG.warn("Skipping the action because machete file is undefined");
+    } else {
+      try {
+        doOpenFile(project, macheteFile.get());
+      } catch (DirNamedMacheteExistsException e) {
+        VcsNotifier.getInstance(project)
+            .notifyError(/* title */ "", /* message */ "Cannot create file 'machete': " +
+                "Directory with the same name exists");
+      }
     }
   }
 
@@ -75,11 +78,10 @@ public class OpenMacheteFileAction extends DumbAwareAction {
       throw new DirNamedMacheteExistsException();
     }
 
-    ApplicationManager.getApplication().runWriteAction(() -> {
-      NonProjectFileWritingAccessProvider.allowWriting(Collections.singletonList(file));
-    });
+    ApplicationManager.getApplication()
+        .runWriteAction(() -> NonProjectFileWritingAccessProvider.allowWriting(Collections.singletonList(file)));
 
-    PsiNavigationSupport.getInstance().createNavigatable(project, file, /* offset */ -1).navigate(true);
+    new OpenFileDescriptor(project, file).navigate(/* requestFocus */ true);
   }
 
   private static class DirNamedMacheteExistsException extends Exception {}
