@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
@@ -60,8 +60,7 @@ public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyActi
       return;
     }
 
-    Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getBranchByName(branchName.get()))
+    Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteBranchByName(anActionEvent, branchName.get())
         .map(branch -> branch.getSyncToRemoteStatus());
 
     if (syncToRemoteStatus.isEmpty()) {

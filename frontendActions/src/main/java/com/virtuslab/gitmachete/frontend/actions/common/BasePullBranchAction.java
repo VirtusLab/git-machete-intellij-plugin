@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getFetchBackgroundable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
@@ -10,11 +11,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncT
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -123,31 +120,10 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
     // This is because the fetch from local remotes to local heads must behave fast-forward-like.
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
-    getFetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote()).queue();
+    getFetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(), /* taskTitle */ "Pulling...")
+        .queue();
 
     // Remote set to '.' (dot) is just the local repository.
-    getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT).queue();
-  }
-
-  private static Task.Backgroundable getFetchBackgroundable(Project project, GitRepository gitRepository, String refspec,
-      GitRemote remote) {
-    return new Task.Backgroundable(project, "Pulling...", true) {
-
-      @Override
-      public void run(ProgressIndicator indicator) {
-        var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
-        var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
-        try {
-          fetchResult.ourThrowExceptionIfFailed();
-        } catch (VcsException e) {
-          fetchResult.showNotificationIfFailed("Fetch of refspec ${refspec} failed");
-        }
-      }
-
-      @Override
-      public void onSuccess() {
-        VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
-      }
-    };
+    getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT, /* taskTitle */ "Pulling...").queue();
   }
 }

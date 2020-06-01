@@ -5,7 +5,12 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
@@ -73,5 +78,30 @@ public final class ActionUtils {
         Case($(SyncToRemoteStatus.Relation.Untracked), "untracked"),
         Case($(), "in unknown status '${relation.toString()}' to its remote"));
     return "the branch is ${desc}";
+  }
+
+  static Task.Backgroundable getFetchBackgroundable(Project project,
+      GitRepository gitRepository,
+      String refspec,
+      GitRemote remote,
+      final String taskTitle) {
+    return new Task.Backgroundable(project, taskTitle, true) {
+
+      @Override
+      public void run(ProgressIndicator indicator) {
+        var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
+        var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
+        try {
+          fetchResult.ourThrowExceptionIfFailed();
+        } catch (VcsException e) {
+          fetchResult.showNotificationIfFailed("Fetch of refspec ${refspec} failed");
+        }
+      }
+
+      @Override
+      public void onSuccess() {
+        VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
+      }
+    };
   }
 }

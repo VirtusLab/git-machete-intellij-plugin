@@ -66,6 +66,11 @@
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
+            <action id="GitMachete.MergeSelectedBranchIntoParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.MergeSelectedBranchIntoParentAction">
+                <!--                <override-text place="GitMacheteContextMenu"/>-->
+            </action>
+
             <action id="GitMachete.SlideOutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
@@ -121,6 +126,12 @@
             <action id="GitMachete.ResetCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentBranchToRemoteAction"
                     icon="MacheteIcons.RESET">
+                <!--                <override-text place="GitMacheteToolbar"/>-->
+            </action>
+
+            <action id="GitMachete.MergeCurrentBranchIntoParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.MergeCurrentBranchIntoParentAction"
+                    icon="AllIcons.Vcs.Merge">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
