@@ -2,6 +2,10 @@
 
 set -e -o pipefail -u
 
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+
 intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
 
 log=~/gradlew-runIdeForUiTests.log
@@ -27,10 +31,16 @@ trap finish EXIT
 
 last_line=0
 # Let's wait until Remote Robot plugin living within the IDE starts listening.
+info 'Logs of gradle runIdeForUiTests'
 while ! nc -z localhost 8080; do
   sleep 0.5
   tail -n+$((last_line+1)) $log
   last_line=$(wc -l < $log)
 done
 
-./gradlew -PenableUiTests --info :uiTests:test
+info 'Logs of gradle uiTests:test'
+./gradlew -PenableUiTests --info uiTests:test || {
+  info 'Logs of IDE under test'
+  cat build/idea-sandbox/system/log/idea.log
+  die 'UI tests failed; inspect Gradle and IDE logs above'
+}

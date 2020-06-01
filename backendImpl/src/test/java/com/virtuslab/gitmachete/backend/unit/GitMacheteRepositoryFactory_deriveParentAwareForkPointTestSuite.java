@@ -15,7 +15,7 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 
-public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTest extends BaseGitMacheteRepositoryFactoryTest {
+public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
   @SneakyThrows
   private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(

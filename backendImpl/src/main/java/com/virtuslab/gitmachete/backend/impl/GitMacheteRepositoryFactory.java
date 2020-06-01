@@ -57,7 +57,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   @Override
   public IGitMacheteRepository create(Path mainDirectoryPath, Path gitDirectoryPath, IBranchLayout branchLayout)
       throws GitMacheteException {
-    LOG.startTimer().debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
+    LOG.startTimer().info("Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
 
     IGitCoreRepository gitCoreRepository = Try
         .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
@@ -68,7 +68,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
 
     var result = new Aux(gitCoreRepository, statusHookExecutor).createGitMacheteRepository(branchLayout);
-    LOG.withTimeElapsed().debug("Finished");
+    LOG.withTimeElapsed().info("Finished");
     return result;
   }
 
