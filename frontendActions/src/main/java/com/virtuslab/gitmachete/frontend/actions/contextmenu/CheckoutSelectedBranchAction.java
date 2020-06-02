@@ -9,9 +9,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
+import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -78,15 +80,20 @@ public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyActio
       new Task.Backgroundable(project, "Checking out") {
         @Override
         public void run(ProgressIndicator indicator) {
-          LOG.info("Checking out branch '${selectedBranchName.get()}'");
-          GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
-          new GitBranchWorker(project, Git.getInstance(), uiHandler)
-              .checkout(selectedBranchName.get(), /* detach */ false, java.util.List.of(gitRepository.get()));
+          doCheckout(selectedBranchName.get(), gitRepository.get(), project, indicator);
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
     } else {
       LOG.warn("Skipping the action because no VCS repository is selected");
     }
+  }
+
+  public static void doCheckout(String branchNameToCheckout, GitRepository gitRepository, Project project,
+      ProgressIndicator indicator) {
+    LOG.info("Checking out branch '${branchNameToCheckout}'");
+    GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
+    new GitBranchWorker(project, Git.getInstance(), uiHandler)
+        .checkout(branchNameToCheckout, /* detach */ false, java.util.List.of(gitRepository));
   }
 }

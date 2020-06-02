@@ -19,7 +19,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
  */
 public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAction {
   @Override
-  protected Option<String> getBranchName(AnActionEvent anActionEvent) {
+  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
