@@ -98,26 +98,28 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var macheteRepository = getGitMacheteRepository(anActionEvent);
 
-    if (branchName.isDefined()) {
-      if (gitRepository.isDefined()) {
-        if (macheteRepository.isDefined()) {
-          doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(),
-              anActionEvent);
-        } else {
-          LOG.error("Skipping the action because can't get Git Machete repository");
-          VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-              "Internal error occurred. For more information see IDE log file");
-        }
-      } else {
-        LOG.warn("Skipping the action because no VCS repository is selected");
-        VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
-            "Skipping the action because no VCS repository is selected");
-      }
-    } else {
+    if (branchName.isEmpty()) {
       LOG.warn("Skipping the action because name of branch to reset is undefined");
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
           "Internal error occurred. For more information see IDE log file");
+      return;
     }
+
+    if (gitRepository.isEmpty()) {
+      LOG.warn("Skipping the action because no VCS repository is selected");
+      VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
+          "Skipping the action because no VCS repository is selected");
+      return;
+    }
+
+    if (macheteRepository.isEmpty()) {
+      LOG.error("Skipping the action because can't get Git Machete repository");
+      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
+          "Internal error occurred. For more information see IDE log file");
+      return;
+    }
+
+    doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(), anActionEvent);
   }
 
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
@@ -174,7 +176,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
           }
         }
 
-        // If we are here this mean that all went good
+        // If we are here this means that all went good
         VcsNotifier.getInstance(project).notifySuccess("Branch '${branchName}' reset to remote");
         LOG.debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
       }
