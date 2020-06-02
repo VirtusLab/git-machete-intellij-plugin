@@ -85,7 +85,7 @@ public final class ActionUtils {
       String refspec,
       GitRemote remote,
       final String taskTitle) {
-    return new Task.Backgroundable(project, taskTitle, true) {
+    return new Task.Backgroundable(project, taskTitle, /* canByCancelled */ true) {
 
       @Override
       public void run(ProgressIndicator indicator) {

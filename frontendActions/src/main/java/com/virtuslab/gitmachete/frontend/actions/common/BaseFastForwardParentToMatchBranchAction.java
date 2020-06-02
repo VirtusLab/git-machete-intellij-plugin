@@ -31,7 +31,9 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public abstract class BaseMergeBranchIntoParentAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
+public abstract class BaseFastForwardParentToMatchBranchAction extends GitMacheteRepositoryReadyAction
+    implements
+      IBranchNameProvider {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -47,14 +49,14 @@ public abstract class BaseMergeBranchIntoParentAction extends GitMacheteReposito
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Merge disabled due to undefined branch name");
+      presentation.setDescription("Fast forward disabled due to undefined branch name");
       return;
     }
 
     var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName.get());
     if (gitMacheteBranch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Merge disabled due to undefined machete branch");
+      presentation.setDescription("Fast forward disabled due to undefined machete branch");
       return;
     }
 
@@ -72,14 +74,14 @@ public abstract class BaseMergeBranchIntoParentAction extends GitMacheteReposito
     var gitMacheteNonRoot = gitMacheteBranch.get().asNonRootBranch();
     var syncToParentStatus = gitMacheteNonRoot.getSyncToParentStatus();
 
-    if (SyncToParentStatus.InSync == syncToParentStatus) {
+    if (syncToParentStatus == SyncToParentStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Merge Current Branch Into Parent");
+        presentation.setText("Fast Forward Parent To Match Current Branch");
       }
 
       var parentName = gitMacheteNonRoot.getUpstreamBranch().getName();
-      presentation.setDescription("Merge branch '${branchName.get()}' into '${parentName}'");
+      presentation.setDescription("Fast forward branch '${parentName}' to match '${branchName.get()}'");
 
     } else {
       presentation.setEnabled(false);
@@ -90,7 +92,7 @@ public abstract class BaseMergeBranchIntoParentAction extends GitMacheteReposito
           Case($(SyncToParentStatus.OutOfSync), "out of sync to its parent"),
           Case($(), "in unknown status '${syncToParentStatus.toString()}' to its parent"));
 
-      presentation.setDescription("Merge disabled because the branch is ${desc}");
+      presentation.setDescription("Fast forward disabled because the branch is ${desc}");
     }
   }
 

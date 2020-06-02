@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.common.BaseMergeBranchIntoParentAction;
+import com.virtuslab.gitmachete.frontend.actions.common.BaseFastForwardParentToMatchBranchAction;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 /**
@@ -18,7 +18,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
-public class MergeSelectedBranchIntoParentAction extends BaseMergeBranchIntoParentAction {
+public class FastForwardParentToMatchSelectedBranchAction extends BaseFastForwardParentToMatchBranchAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
