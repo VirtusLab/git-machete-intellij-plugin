@@ -22,6 +22,7 @@ import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
@@ -36,6 +37,7 @@ import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
  * Expects DataKeys:
  * <ul>
  *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
+ *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
  *  <li>{@link CommonDataKeys#PROJECT}</li>
  * </ul>
  */
@@ -139,6 +141,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             LOG.warn(message);
             VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
+            return;
           }
 
           resetHandler.endOptions();
@@ -152,8 +155,8 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
 
             // Check again if we are in branch to reset to be sure that checkout was successful
             // This time we are using git4idea because GitMacheteRepository is immutable and it would return previous branch
-            GitLocalBranch nullableLocalBranch = gitRepository.getCurrentBranch();
-            if (nullableLocalBranch == null || !nullableLocalBranch.getName().equals(branchName)) {
+            @Nullable GitLocalBranch localBranch = gitRepository.getCurrentBranch();
+            if (localBranch == null || !localBranch.getName().equals(branchName)) {
               LOG.error("Checkout to branch ${branchName} failed");
               VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
                   "Error occurred during checkout of the branch that was to be reset! Operation aborted.");
@@ -167,6 +170,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
           if (!result.success()) {
             LOG.error(result.getErrorOutputAsJoinedString());
             VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
+            return;
           }
         }
 
