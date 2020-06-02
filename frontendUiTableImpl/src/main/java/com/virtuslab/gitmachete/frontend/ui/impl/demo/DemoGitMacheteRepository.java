@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.toolbar;
+package com.virtuslab.gitmachete.frontend.ui.impl.demo;
 
 import java.time.Instant;
 
@@ -22,11 +22,11 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class HelpGitMacheteRepository implements IGitMacheteRepository {
+public class DemoGitMacheteRepository implements IGitMacheteRepository {
 
   private final List<BaseGitMacheteRootBranch> roots;
 
-  public HelpGitMacheteRepository() {
+  public DemoGitMacheteRepository() {
     var nullPointedCommit = new Commit("");
     NonRoot[] nonRoots = {
         new NonRoot(/* name */ "allow-ownership-link",
@@ -94,6 +94,11 @@ public class HelpGitMacheteRepository implements IGitMacheteRepository {
   @Override
   public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
     throw new NotImplementedError();
+  }
+
+  @Override
+  public Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+    return Option.none();
   }
 
   @AllArgsConstructor
