@@ -8,14 +8,11 @@ source "$self_dir"/utils.sh
 
 intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
 
-log=~/gradlew-runIdeForUiTests.log
-# Let's make sure there is no state left from the previous test runs.
-rm -rf build/idea-sandbox/
-
 # If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.
 # --auto-servernum is deprecated in favor of --auto-display,
 # but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
 command=${CI:+xvfb-run --auto-servernum}
+log=~/gradlew-runIdeForUiTests.log
 $command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests >$log 2>&1 &
 # $! expands to the PID of the last process executed in the background
 ide_pid=$!
