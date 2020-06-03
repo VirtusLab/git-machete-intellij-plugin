@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.unanchored;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.wm.ToolWindow;
@@ -9,18 +7,14 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 /**
  * This action is only used for UI tests.
- *
- * Expects DataKeys:
- * <ul>
- *  <li>{@link com.intellij.openapi.actionSystem.CommonDataKeys#PROJECT}</li>
- * </ul>
  */
-public class OpenTabAction extends DumbAwareAction {
+public class OpenTabAction extends DumbAwareAction implements IExpectsKeyProject {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

@@ -1,13 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
-
 import java.util.Collections;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessProvider;
@@ -22,25 +18,24 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public class OpenMacheteFileAction extends DumbAwareAction {
+public class OpenMacheteFileAction extends DumbAwareAction
+    implements
+      IExpectsKeyGraphTable,
+      IExpectsKeyProject,
+      IExpectsKeySelectedVcsRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Project project = anActionEvent.getProject();
+    Project project = getProject(anActionEvent);
 
     // When selected vcs repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file

@@ -105,7 +105,7 @@ class AnActionEvent {
   <T> T getData(DataKey<T> key);
 
   @SafeEffect
-  Project getProject();
+  @Nullable Project getProject();
 }
 
 class DataKey<T> {

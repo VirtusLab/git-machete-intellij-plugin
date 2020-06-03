@@ -1,13 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
-
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -31,19 +25,14 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
+public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepositoryReadyAction
+    implements
+      IBranchNameProvider,
+      IExpectsKeyProject,
+      IExpectsKeySelectedVcsRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
   private static final String VCS_NOTIFIER_TITLE = "Resetting";
   private static final String TASK_TITLE = "Resetting...";

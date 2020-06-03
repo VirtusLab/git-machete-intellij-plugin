@@ -6,7 +6,6 @@ set -e
 x_option=${-//[^x]/}
 
 ./scripts/enforce-change-notes-updated-on-release-pr
-./scripts/enforce-data-keys-javadoc-for-actions
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
 ./scripts/enforce-issue-number-for-todos

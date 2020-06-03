@@ -1,15 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.FetchBackgroundable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
@@ -19,22 +13,20 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
+public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyAction
+    implements
+      IBranchNameProvider,
+      IExpectsKeyGitMacheteRepository,
+      IExpectsKeyGraphTable,
+      IExpectsKeyProject,
+      IExpectsKeySelectedVcsRepository {
+
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
-  private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(
-      SyncToRemoteStatus.Relation.BehindRemote);
+  private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
 
   @Override
   @UIEffect

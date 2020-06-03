@@ -1,12 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedBranchName;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -18,20 +12,17 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteRepositoryReadyAction;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedBranchName;
+import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_SELECTED_VCS_REPOSITORY}</li>
- *  <li>{@link DataKeys#KEY_SELECTED_BRANCH_NAME}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyAction {
+public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyAction
+    implements
+      IExpectsKeyProject,
+      IExpectsKeySelectedBranchName,
+      IExpectsKeySelectedVcsRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

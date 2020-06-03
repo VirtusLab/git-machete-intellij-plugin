@@ -1,16 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import java.util.Collections;
 
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
@@ -22,18 +17,14 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
+public abstract class BasePushBranchAction extends GitMacheteRepositoryReadyAction
+    implements
+      IBranchNameProvider,
+      IExpectsKeyProject,
+      IExpectsKeySelectedVcsRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   protected final List<SyncToRemoteStatus.Relation> PUSH_ELIGIBLE_STATUSES = List.of(

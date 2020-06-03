@@ -1,21 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
-
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
-
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- * </ul>
- */
-public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction {
+public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction implements IExpectsKeyGitMacheteRepository {
 
   @Override
   @UIEffect
@@ -35,7 +25,7 @@ public abstract class GitMacheteRepositoryReadyAction extends DumbAwareAction {
    * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
    * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
    * This gives us certainty that all checks from actions' update implementations will be performed
-   * and all data available via data keys in those {@code update} implementations will still do be available
+   * and all data available via data keys in those {@code update} implementations will still be available
    * in {@link GitMacheteRepositoryReadyAction#actionPerformed} implementations.
    */
   @Override

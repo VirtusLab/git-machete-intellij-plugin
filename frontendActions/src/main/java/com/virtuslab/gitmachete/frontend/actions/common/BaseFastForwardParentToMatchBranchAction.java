@@ -1,16 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.FetchBackgroundable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
@@ -20,20 +15,14 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
 public abstract class BaseFastForwardParentToMatchBranchAction extends GitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider {
+      IBranchNameProvider,
+      IExpectsKeyProject,
+      IExpectsKeySelectedVcsRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

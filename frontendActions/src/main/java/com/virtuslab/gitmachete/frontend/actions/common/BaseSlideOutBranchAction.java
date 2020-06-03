@@ -1,13 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayout;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getBranchLayoutWriter;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.vcs.VcsNotifier;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -15,19 +8,17 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-/**
- * Expects DataKeys:
- * <ul>
- *  <li>{@link DataKeys#KEY_BRANCH_LAYOUT_WRITER}</li>
- *  <li>{@link DataKeys#KEY_GIT_MACHETE_REPOSITORY}</li>
- *  <li>{@link CommonDataKeys#PROJECT}</li>
- * </ul>
- */
-public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction implements IBranchNameProvider {
+public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction
+    implements
+      IBranchNameProvider,
+      IExpectsKeyBranchLayout,
+      IExpectsKeyBranchLayoutWriter,
+      IExpectsKeyGraphTable,
+      IExpectsKeyProject {
+
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override
@@ -46,18 +37,12 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription("Slide out disabled due to undefined branch");
-      return;
-    }
-
-    assert branchName.isDefined() : "branchName is undefined";
-    if (branch.get().isNonRootBranch()) {
-      var nonRootBranch = branch.get().asNonRootBranch();
-      presentation.setDescription("Slide out '${branchName.get()}'");
-
+    } else if (branch.get().isNonRootBranch()) {
+      presentation.setDescription("Slide out '${branch.get().getName()}'");
     } else {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Root branch '${branchName.get()}' cannot be slid out");
+        presentation.setDescription("Root branch '${branch.get().getName()}' cannot be slid out");
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);

@@ -5,5 +5,5 @@
 <module name="RegexpMultiline">
     <property name="format" value="\bassert\b[^:]*;"/>
     <property name="message" value="Assertion without comment/message"/>
-    <property name="matchAcrossLines" value="true" />
+    <property name="matchAcrossLines" value="true"/>
 </module>
