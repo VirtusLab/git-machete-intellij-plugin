@@ -22,6 +22,11 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 
+  @ToString.Include(name = "downstreamBranches") // avoid recursive `toString` calls on downstream branches
+  private List<String> getDownstreamBranchNames() {
+    return downstreamBranches.map(e -> e.getName());
+  }
+
   protected BaseGitMacheteBranch(
       String name,
       List<GitMacheteNonRootBranch> downstreamBranches,

@@ -17,6 +17,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -98,13 +99,20 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       var branchByName = createBranchByNameMap(rootBranches);
 
-      IGitMacheteBranch currentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
-          .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e))
+      Option<IGitCoreLocalBranch> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
+          .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
+      LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
+          ? coreCurrentBranch.get().getShortName()
+          : "<none> (detached HEAD)"));
+
+      IGitMacheteBranch currentBranchIfManaged = coreCurrentBranch
           .flatMap(cb -> branchByName.get(cb.getShortName()))
           .getOrNull();
-      LOG.debug(() -> "Current branch: " + (currentBranch != null ? currentBranch.getName() : "<none> (detached HEAD)"));
+      LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
+          ? currentBranchIfManaged.getName()
+          : "<none> (unmanaged branch or detached HEAD)"));
 
-      return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranch, branchByName);
+      return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranchIfManaged, branchByName);
     }
 
     private Map<String, IGitMacheteBranch> createBranchByNameMap(Seq<GitMacheteRootBranch> rootBranches) {
@@ -195,8 +203,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(
         IGitCoreLocalBranch coreLocalBranch,
         IGitCoreLocalBranch parentCoreLocalBranch) throws GitCoreException {
-      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, " +
-          "coreLocalBranch = '${coreLocalBranch.getShortName()}', " +
+      LOG.startTimer().debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getShortName()}', " +
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}'");
 
       IGitCoreCommit overriddenForkPointCommit = deriveParentAgnosticOverriddenForkPoint(coreLocalBranch);
@@ -244,7 +251,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       }
 
       // String interpolation caused some weird Nullness Checker issues (exception from `com.sun.tools.javac`) in this line.
-      LOG.debug(() -> "Parent-aware fork point for branch " + coreLocalBranch.getShortName() +
+      LOG.withTimeElapsed().debug(() -> "Parent-aware fork point for branch " + coreLocalBranch.getShortName() +
           " is " + parentAgnosticForkPointString);
 
       return parentAgnosticForkPoint;
@@ -322,6 +329,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteBranchName = remoteBranchByName
           .rejectValues(someRemoteBranch -> someRemoteBranch.equals(remoteTrackingBranch))
           .mapValues(unrelatedRemoteBranch -> Try.of(() -> deriveFilteredReflog(unrelatedRemoteBranch)).get());
+
+      LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
 
       Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
           .merge(filteredReflogByRemoteBranchName);
@@ -434,9 +443,8 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         String createdFromPrefix = "branch: Created from";
         if (firstEntry.getComment().startsWith(createdFromPrefix)) {
           entryToExcludeNewId = firstEntry.getNewCommitHash();
-          LOG.debug(
-              () -> "All entries with the same hash as first entry (${firstEntry.getNewCommitHash().toString()}) will be excluded "
-                  + "because first entry comment starts with '${createdFromPrefix}'");
+          LOG.trace(() -> "All entries with the same hash as first entry (${firstEntry.getNewCommitHash().toString()}) " +
+              "will be excluded because first entry comment starts with '${createdFromPrefix}'");
         } else {
           entryToExcludeNewId = null;
         }
@@ -454,19 +462,19 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         String newIdHash = e.getNewCommitHash().getHashString();
 
         if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
-          LOG.debug(() -> "Exclude ${newIdHash} because it has the same hash as first entry");
+          LOG.trace(() -> "Exclude ${newIdHash} because it has the same hash as first entry");
         } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its old and new IDs are the same");
+          LOG.trace(() -> "Exclude ${newIdHash} because its old and new IDs are the same");
         } else if (e.getComment().startsWith("branch: Created from")) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
+          LOG.trace(() -> "Exclude ${newIdHash} because its comment starts with 'branch: Created from'");
         } else if (e.getComment().equals("branch: Reset to " + branch.getShortName())) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${branch.getShortName()}'");
+          LOG.trace(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to ${branch.getShortName()}'");
         } else if (e.getComment().equals("branch: Reset to HEAD")) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
+          LOG.trace(() -> "Exclude ${newIdHash} because its comment is 'branch: Reset to HEAD'");
         } else if (e.getComment().startsWith("reset: moving to ")) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its comment starts with 'reset: moving to '");
+          LOG.trace(() -> "Exclude ${newIdHash} because its comment starts with 'reset: moving to '");
         } else if (e.getComment().equals(rebaseComment)) {
-          LOG.debug(() -> "Exclude ${newIdHash} because its comment is '${rebaseComment}'");
+          LOG.trace(() -> "Exclude ${newIdHash} because its comment is '${rebaseComment}'");
         } else {
           return false;
         }
@@ -490,9 +498,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         @Nullable GitMacheteForkPointCommit forkPoint)
         throws GitCoreException {
       var branchShortName = coreLocalBranch.getShortName();
-      LOG.debug(() -> "Entering: gitCoreRepository = ${gitCoreRepository}, coreLocalBranch = '${branchShortName}', " +
+      LOG.debug(() -> "Entering: coreLocalBranch = '${branchShortName}', " +
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getShortName()}', " +
-          "forkPoint = ${forkPoint != null ? forkPoint.toString() : \"null\"})");
+          "forkPoint = ${forkPoint})");
 
       IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
       IGitCoreCommit pointedCommit = coreLocalBranch.derivePointedCommit();
@@ -518,7 +526,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         if (isParentAncestorOfChild) {
           if (forkPoint == null || forkPoint.isOverridden() || forkPoint.getCoreCommit().equals(parentPointedCommit)) {
             LOG.debug(
-                () -> "For this branch (${branchShortName}) its parent's commit is ancestor of this branch pointed commit and fork point "
+                () -> "For this branch (${branchShortName}) its parent's commit is ancestor of this branch pointed commit "
                     + "and fork point is absent or overridden or equal to parent commit, so we assume that this branch is in sync");
             return SyncToParentStatus.InSync;
           } else {

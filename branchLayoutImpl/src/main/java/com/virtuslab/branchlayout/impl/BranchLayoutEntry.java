@@ -20,6 +20,11 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Getter(onMethod_ = {@Override})
   private final List<IBranchLayoutEntry> subentries;
 
+  @ToString.Include(name = "subentries") // avoid recursive `toString` calls on subentries
+  private List<String> getSubentryNames() {
+    return subentries.map(e -> e.getName());
+  }
+
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);

@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.render;
 
-import java.util.ArrayList;
-
 import com.intellij.util.SmartList;
 import io.vavr.collection.List;
 import lombok.RequiredArgsConstructor;
@@ -72,27 +70,27 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
 
   @RequiredArgsConstructor
   private final class RenderPartBuilder {
-    private final java.util.List<BaseRenderPart> edges = new ArrayList<>();
+    private final java.util.List<BaseRenderPart> edges = new SmartList<>();
     private final java.util.List<BaseRenderPart> nodes = new SmartList<>();
     private final @NonNegative int rowIndex;
 
-    public void consumeNode(GraphNode node, @NonNegative int position) {
+    void consumeNode(GraphNode node, @NonNegative int position) {
       nodes.add(new NodeRenderPart(rowIndex, position, node, itemColorForElementProvider));
     }
 
-    public void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
+    void consumeDownEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.DOWN, edge, itemColorForElementProvider));
     }
 
-    public void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
+    void consumeUpEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.UP, edge, itemColorForElementProvider));
     }
 
-    public void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
+    void consumeRightEdge(GraphEdge edge, @NonNegative int position) {
       edges.add(new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.RIGHT, edge, itemColorForElementProvider));
     }
 
-    public List<BaseRenderPart> build() {
+    List<BaseRenderPart> build() {
       return List.ofAll(edges).appendAll(nodes);
     }
   }

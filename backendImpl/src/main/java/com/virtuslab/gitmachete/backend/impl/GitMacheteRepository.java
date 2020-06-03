@@ -19,7 +19,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private final @Nullable IBranchLayout branchLayout;
 
-  private final @Nullable IGitMacheteBranch currentBranch;
+  private final @Nullable IGitMacheteBranch currentBranchIfManaged;
 
   private final Map<String, IGitMacheteBranch> branchByName;
 
@@ -30,7 +30,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
-    return Option.of(currentBranch);
+    return Option.of(currentBranchIfManaged);
   }
 
   @Override

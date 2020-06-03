@@ -342,7 +342,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       // it's basically impossible to get these numbers correctly in a unambiguous manner.
       @Unique RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
-          "and ${c2.getHash().getHashString()} is ${mergeBase.toString()}");
+          "and ${c2.getHash().getHashString()} is ${mergeBase.getId().getName()}");
       GitCoreCommitHash mergeBaseHash = mergeBase != null ? GitCoreCommitHash.of(mergeBase.getId()) : null;
       return Option.of(mergeBaseHash);
     });
@@ -393,7 +393,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   public List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive)
       throws GitCoreException {
-    LOG.debug(() -> "Entering: fromInclusive = '${fromInclusive}', untilExclusive = ${untilExclusive}");
+    LOG.debug(() -> "Entering: fromInclusive = '${fromInclusive}', untilExclusive = '${untilExclusive}'");
 
     return withRevWalk(walk -> {
       walk.sort(RevSort.TOPO);

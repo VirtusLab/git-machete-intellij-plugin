@@ -24,12 +24,16 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 @ToString(callSuper = true)
 public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
 
-  @ToString.Exclude
   @MonotonicNonNull
   private IGitMacheteBranch upstreamBranch = null;
   private final @Nullable IGitMacheteForkPointCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
   private final SyncToParentStatus syncToParentStatus;
+
+  @ToString.Include(name = "upstreamBranch") // avoid recursive `toString` call on upstream branch to avoid stack overflow
+  private @Nullable String getUpstreamBranchName() {
+    return upstreamBranch != null ? upstreamBranch.getName() : null;
+  }
 
   public GitMacheteNonRootBranch(
       String name,

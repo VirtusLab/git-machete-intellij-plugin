@@ -95,8 +95,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
       @GTENegativeOne int upstreamLineIndex) {
-    LOG.debug(() -> "Entering: lines = ${lines}, lineIndexToUpstreamLineIndex = ${lineIndexToUpstreamLineIndex}, " +
-        "upstreamLineIndex = ${upstreamLineIndex}");
+
     return lineIndexToUpstreamLineIndex
         .zipWithIndex()
         .filter(t -> t._1()._2() == upstreamLineIndex)
@@ -124,11 +123,9 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       customAnnotation = null;
     }
 
-    LOG.debug(() -> "Creating ${BranchLayoutEntry.class.getSimpleName()}(branchName = '${branchName}', " +
-        "customAnnotation = ${customAnnotation != null ? \"'\" + customAnnotation + \"'\" : null}, " +
-        "subentries.length() = ${subentries.length()})");
-
-    return new BranchLayoutEntry(branchName, customAnnotation, subentries);
+    var result = new BranchLayoutEntry(branchName, customAnnotation, subentries);
+    LOG.debug(() -> "Created ${result}");
+    return result;
   }
 
   /**
@@ -137,7 +134,6 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
       throws BranchLayoutException {
-    LOG.debug("Entering");
 
     List<String> linesWithoutBlank = lines.reject(String::isBlank);
 
@@ -175,10 +171,6 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
           ? -1
           : levelToPresentUpstream.get(level - 1);
       Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level, upstreamLineIndex);
-
-      // Can't use lambda because `realLineNumber` and `lineIndex` are not effectively final
-      LOG.debug("For line ${realLineNumber}: lineIndex = ${lineIndex}, level = ${level}, " +
-          "upstreamLineIndex = ${upstreamLineIndex}");
 
       lineIndexToIndentLevelAndUpstreamLineIndex = lineIndexToIndentLevelAndUpstreamLineIndex.update(lineIndex,
           levelAndUpstreamLineIndex);
