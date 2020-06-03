@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.vfsutils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
@@ -22,7 +21,7 @@ public final class GitVfsUtils {
 
   public static Path getGitDirectoryPath(GitRepository gitRepository) {
     VirtualFile vfGitDir = getGitDirectory(gitRepository);
-    return Paths.get(vfGitDir.getPath());
+    return Path.of(vfGitDir.getPath());
   }
 
   public static VirtualFile getMainDirectory(GitRepository gitRepository) {
@@ -30,7 +29,7 @@ public final class GitVfsUtils {
   }
 
   public static Path getMainDirectoryPath(GitRepository gitRepository) {
-    return Paths.get(gitRepository.getRoot().getPath());
+    return Path.of(gitRepository.getRoot().getPath());
   }
 
   /**

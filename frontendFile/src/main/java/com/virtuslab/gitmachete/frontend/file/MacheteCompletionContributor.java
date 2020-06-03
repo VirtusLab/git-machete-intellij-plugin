@@ -4,12 +4,9 @@ import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PlainPrefixMatcher;
-import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
 
@@ -17,9 +14,8 @@ public class MacheteCompletionContributor extends CompletionContributor {
 
   @Override
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
-
     PsiFile file = parameters.getOriginalFile();
-    Project project = file.getProject();
+    var project = file.getProject();
 
     var gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
         .find(r -> file.getVirtualFile().getPath().startsWith(r.getRoot().getPath()));
@@ -28,22 +24,40 @@ public class MacheteCompletionContributor extends CompletionContributor {
       return;
     }
 
-    var lists = List.ofAll(gitRepository.get().getInfo().getLocalBranchesWithHashes().keySet())
+    var branchNames = List.ofAll(gitRepository.get().getInfo().getLocalBranchesWithHashes().keySet())
         .map(localBranch -> localBranch.getName());
 
+    /**
+     * {@link CompletionResultSet#stopHere} marks the result set as stopped.
+     * Completion service calls contributors as long as everyone gets called or result set get marked as stopped.
+     * The following call allows to avoid other contributor invocations (performance).
+     *
+     * See {@link com.intellij.codeInsight.completion.CompletionService#getVariantsFromContributors}
+     */
     result.stopHere();
-    int count = parameters.getInvocationCount();
 
-    String prefix = TextFieldWithAutoCompletionListProvider.getCompletionPrefix(parameters);
-    if (count == 0 && prefix.length() < 1) {
-      return;
-    }
-
-    CompletionResultSet resultSet = result.caseInsensitive().withPrefixMatcher(
-        count == 0 ? new PlainPrefixMatcher(prefix, true) : new CamelHumpMatcher(prefix));
-    for (String list : lists) {
+    String prefix = getCompletionPrefix(parameters);
+    var matcher = new PlainPrefixMatcher(prefix, /* prefixMatchesOnly */ true);
+    var completionResultSet = result.caseInsensitive().withPrefixMatcher(matcher);
+    for (String branchName : branchNames) {
       ProgressManager.checkCanceled();
-      resultSet.addElement(LookupElementBuilder.create(list));
+      completionResultSet.addElement(LookupElementBuilder.create(branchName));
     }
+  }
+
+  public static String getCompletionPrefix(CompletionParameters parameters) {
+    String text = parameters.getOriginalFile().getText();
+    int offset = parameters.getOffset();
+    return getCompletionPrefix(text, offset);
+  }
+
+  private static String getCompletionPrefix(String text, int offset) {
+    int lastSpaceIdx = text.lastIndexOf(' ', offset - 1) + 1;
+    int lastTabIdx = text.lastIndexOf('\t', offset - 1) + 1;
+    int lastNewLine = text.lastIndexOf(System.lineSeparator(), offset - 1) + 1;
+    var max = Math.max(Math.max(lastSpaceIdx, lastTabIdx), lastNewLine);
+    assert max <= offset : "File offset less than max indent/new line character index";
+    assert offset <= text.length() : "File text length less than offset";
+    return text.substring(max, offset);
   }
 }

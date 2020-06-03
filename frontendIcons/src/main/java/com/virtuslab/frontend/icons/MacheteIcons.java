@@ -6,5 +6,5 @@ import com.intellij.openapi.util.IconLoader;
 
 public final class MacheteIcons {
   private MacheteIcons() {}
-  public static final Icon ICON = IconLoader.getIcon("/pluginIcon.svg");
+  public static final Icon ICON = IconLoader.getIcon("/macheteFileIcon.svg");
 }

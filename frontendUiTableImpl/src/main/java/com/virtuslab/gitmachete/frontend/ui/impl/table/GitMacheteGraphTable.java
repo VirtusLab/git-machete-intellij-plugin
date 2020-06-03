@@ -205,7 +205,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @UIEffect
   private void setTextForEmptyTable(String upperText, String lowerText, @UI Runnable onClickRunnableAction) {
     var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ e -> onClickRunnableAction.run());
+    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ __ -> onClickRunnableAction.run());
   }
 
   @UIEffect

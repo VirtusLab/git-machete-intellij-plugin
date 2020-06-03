@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +34,7 @@ public abstract class BaseGitRepositoryBackedTest {
   private void copyScriptsFromResources(String scriptName) throws URISyntaxException, IOException {
     URL resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
-    Files.copy(Paths.get(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(Path.of(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
   }
 
   private void prepareRepoFromScript(String scriptName) throws IOException, InterruptedException {

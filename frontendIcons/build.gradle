@@ -1,2 +1,2 @@
 
-applyIntellijPlugin(withGit4Idea: true)
+applyIntellijPlugin(withGit4Idea: false)
