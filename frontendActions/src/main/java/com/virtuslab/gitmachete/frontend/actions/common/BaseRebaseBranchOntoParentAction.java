@@ -78,12 +78,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
       if (branch.isEmpty()) {
         presentation.setEnabled(false);
         presentation.setDescription("Rebase disabled due to undefined selected branch");
+        return;
+      }
 
-      } else if (branch.get().isRootBranch()) {
+      assert branchName.isDefined() : "branchName is undefined";
+      if (branch.get().isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
-          presentation.setDescription("Root branch '${branchName}' cannot be rebased");
+          presentation.setDescription("Root branch '${branchName.get()}' cannot be rebased");
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
@@ -91,7 +94,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends GitMacheteReposit
 
       } else if (branch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.MergedToParent)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Can't rebase merged branch '${branchName}'");
+        presentation.setDescription("Can't rebase merged branch '${branchName.get()}'");
 
       } else if (branch.get().isNonRootBranch()) {
         var nonRootBranch = branch.get().asNonRootBranch();

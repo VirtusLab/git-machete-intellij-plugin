@@ -81,7 +81,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
 
     if (relation != SyncToRemoteStatus.Relation.Untracked) {
-      presentation.setDescription("Reset branch '${branchNameString} to its remote tracking branch");
+      presentation.setDescription("Reset branch '${branchNameString}' to its remote tracking branch");
     } else {
       presentation.setEnabled(false);
       presentation.setDescription("Reset disabled because branch '${branchNameString}' is untracked");

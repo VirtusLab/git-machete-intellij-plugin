@@ -46,16 +46,18 @@ public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReady
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription("Slide out disabled due to undefined branch");
+      return;
+    }
 
-    } else if (branch.get().isNonRootBranch()) {
+    assert branchName.isDefined() : "branchName is undefined";
+    if (branch.get().isNonRootBranch()) {
       var nonRootBranch = branch.get().asNonRootBranch();
-      presentation.setDescription("Slide out '${branchName}'");
+      presentation.setDescription("Slide out '${branchName.get()}'");
 
     } else {
-
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Root branch '${branchName}' cannot be slid out");
+        presentation.setDescription("Root branch '${branchName.get()}' cannot be slid out");
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
