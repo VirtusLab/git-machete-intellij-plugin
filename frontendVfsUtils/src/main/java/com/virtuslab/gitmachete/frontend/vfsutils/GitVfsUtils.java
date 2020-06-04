@@ -48,6 +48,6 @@ public final class GitVfsUtils {
    * @return an option of {@link VirtualFile} representing the machete file
    */
   public static Path getMacheteFilePath(GitRepository gitRepository) {
-    return Path.of(getGitDirectory(gitRepository).getPath()).resolve(MACHETE_FILE_NAME);
+    return getGitDirectoryPath(gitRepository).resolve(MACHETE_FILE_NAME);
   }
 }

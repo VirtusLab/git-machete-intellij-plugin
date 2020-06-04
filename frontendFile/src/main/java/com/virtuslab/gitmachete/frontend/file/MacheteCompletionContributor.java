@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion.PlainPrefixMatcher;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
 
@@ -51,6 +52,10 @@ public class MacheteCompletionContributor extends CompletionContributor {
     return getCompletionPrefix(text, offset);
   }
 
+  /**
+   * Sadly the original method {@link TextFieldWithAutoCompletionListProvider#getCompletionPrefix}
+   * cannot be used as it does not take '\t' into account.
+   */
   private static String getCompletionPrefix(String text, int offset) {
     int lastSpaceIdx = text.lastIndexOf(' ', offset - 1) + 1;
     int lastTabIdx = text.lastIndexOf('\t', offset - 1) + 1;
