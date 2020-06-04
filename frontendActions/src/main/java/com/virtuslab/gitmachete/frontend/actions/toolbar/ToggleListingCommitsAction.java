@@ -5,16 +5,16 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyBranchLayout;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
 public class ToggleListingCommitsAction extends ToggleAction
     implements
       DumbAware,
-      IExpectsKeyBranchLayout,
-      IExpectsKeyGraphTable {
+      IExpectsKeyGraphTable,
+      IExpectsKeyGitMacheteRepository {
   private static final IPrefixedLambdaLogger LOG = PrefixedLambdaLoggerFactory.getLogger("frontendActions");
 
   @Override

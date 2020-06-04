@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.common.BaseSlideOutBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutBranchAction;
 
 public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @Override

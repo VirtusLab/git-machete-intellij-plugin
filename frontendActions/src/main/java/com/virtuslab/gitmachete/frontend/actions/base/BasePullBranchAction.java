@@ -1,7 +1,6 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.FetchBackgroundable;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.syncToRemoteStatusRelationToReadableBranchDescription;
+import static com.virtuslab.gitmachete.frontend.actions.common.SyncToRemoteStatusDescriptionProvider.syncToRemoteStatusRelationToReadableBranchDescription;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -13,10 +12,15 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyAction
+public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,

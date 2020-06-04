@@ -24,11 +24,15 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepositoryReadyAction
+public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject,

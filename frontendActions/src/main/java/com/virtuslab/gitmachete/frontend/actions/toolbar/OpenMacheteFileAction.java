@@ -18,9 +18,9 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyGraphTable;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;

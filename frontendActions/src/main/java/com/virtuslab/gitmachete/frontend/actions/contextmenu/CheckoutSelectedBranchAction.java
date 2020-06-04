@@ -11,14 +11,14 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteRepositoryReadyAction;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedBranchName;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-public class CheckoutSelectedBranchAction extends GitMacheteRepositoryReadyAction
+public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeyProject,
       IExpectsKeySelectedBranchName,

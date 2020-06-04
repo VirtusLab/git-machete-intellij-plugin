@@ -9,8 +9,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 

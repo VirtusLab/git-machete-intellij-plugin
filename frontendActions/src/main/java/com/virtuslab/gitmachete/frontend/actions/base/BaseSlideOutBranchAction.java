@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -8,14 +8,18 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyBranchLayoutWriter;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 
-public abstract class BaseSlideOutBranchAction extends GitMacheteRepositoryReadyAction
+public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyBranchLayout,
       IExpectsKeyBranchLayoutWriter,
+      IExpectsKeyGitMacheteRepository,
       IExpectsKeyGraphTable,
       IExpectsKeyProject {
 

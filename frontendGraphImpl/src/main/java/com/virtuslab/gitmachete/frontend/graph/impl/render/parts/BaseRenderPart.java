@@ -10,7 +10,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 
 @Getter
 @RequiredArgsConstructor
-public abstract class RenderPart implements IRenderPart {
+public abstract class BaseRenderPart implements IRenderPart {
   @NonNegative
   protected final int rowIndex;
   @NonNegative

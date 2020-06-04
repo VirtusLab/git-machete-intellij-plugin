@@ -51,6 +51,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;

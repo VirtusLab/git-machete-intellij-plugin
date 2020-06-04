@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProv
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
 
-public final class NodeRenderPart extends RenderPart implements INodeRenderPart {
+public final class NodeRenderPart extends BaseRenderPart implements INodeRenderPart {
 
   public NodeRenderPart(@NonNegative int rowIndex,
       @NonNegative int positionInRow,

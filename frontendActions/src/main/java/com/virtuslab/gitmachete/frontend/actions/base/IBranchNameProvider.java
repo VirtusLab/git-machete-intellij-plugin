@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;

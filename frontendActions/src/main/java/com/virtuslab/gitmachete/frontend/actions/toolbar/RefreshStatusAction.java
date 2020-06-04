@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 
-import com.virtuslab.gitmachete.frontend.actions.common.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.logger.IPrefixedLambdaLogger;
 import com.virtuslab.logger.PrefixedLambdaLoggerFactory;
 

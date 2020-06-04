@@ -16,9 +16,9 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartColorIdProv
 import com.virtuslab.gitmachete.frontend.graph.api.render.IRenderPartGenerator;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
+import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.BaseRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.EdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.NodeRenderPart;
-import com.virtuslab.gitmachete.frontend.graph.impl.render.parts.RenderPart;
 
 public final class RenderPartGenerator implements IRenderPartGenerator {
   @NotOnlyInitialized
@@ -32,7 +32,7 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
   }
 
   @Override
-  public List<RenderPart> getRenderParts(@NonNegative int rowIndex) {
+  public List<BaseRenderPart> getRenderParts(@NonNegative int rowIndex) {
     RenderPartBuilder builder = new RenderPartBuilder(rowIndex);
     collectParts(rowIndex, builder);
     return builder.build();
@@ -73,8 +73,8 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
 
   @RequiredArgsConstructor
   private final class RenderPartBuilder {
-    private final java.util.List<RenderPart> edges = new ArrayList<>();
-    private final java.util.List<RenderPart> nodes = new SmartList<>();
+    private final java.util.List<BaseRenderPart> edges = new ArrayList<>();
+    private final java.util.List<BaseRenderPart> nodes = new SmartList<>();
     @NonNegative
     private final int rowIndex;
 
@@ -96,9 +96,8 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
           new EdgeRenderPart(rowIndex, position, IEdgeRenderPart.Type.RIGHT, edge, renderPartColorIdProvider));
     }
 
-    public List<RenderPart> build() {
-      List<RenderPart> result = List.ofAll(edges);
-      return result.appendAll(nodes);
+    public List<BaseRenderPart> build() {
+      return List.ofAll(edges).appendAll(nodes);
     }
   }
 }

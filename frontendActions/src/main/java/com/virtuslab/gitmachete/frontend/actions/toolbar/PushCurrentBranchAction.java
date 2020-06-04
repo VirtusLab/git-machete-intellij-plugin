@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.common.BasePushBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BasePushBranchAction;
 
 public class PushCurrentBranchAction extends BasePushBranchAction {
   @Override

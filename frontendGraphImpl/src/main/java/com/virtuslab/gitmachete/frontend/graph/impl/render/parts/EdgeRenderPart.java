@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
 
 @Getter
-public final class EdgeRenderPart extends RenderPart implements IEdgeRenderPart {
+public final class EdgeRenderPart extends BaseRenderPart implements IEdgeRenderPart {
 
   private final Type type;
 
