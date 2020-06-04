@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.FetchBackgroundable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getFetchBackgroundable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteRepository;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGraphTable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
@@ -73,7 +73,7 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
         presentation.setText("Pull Current Branch");
       }
 
-      presentation.setDescription("Pull branch '${branchName.get()}'");
+      presentation.setDescription("Pull (fast-forward only) branch '${branchName.get()}'");
 
     } else {
       presentation.setEnabled(false);
@@ -120,10 +120,10 @@ public abstract class BasePullBranchAction extends GitMacheteRepositoryReadyActi
     // This is because the fetch from local remotes to local heads must behave fast-forward-like.
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
-    getFetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(), /* taskTitle */ "Pulling...")
+    new FetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(), /* taskTitle */ "Pulling...")
         .queue();
 
     // Remote set to '.' (dot) is just the local repository.
-    getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT, /* taskTitle */ "Pulling...").queue();
+    new FetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT, /* taskTitle */ "Pulling...").queue();
   }
 }

@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.FetchBackgroundable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getCurrentBranchNameIfManaged;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getFetchBackgroundable;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getGitMacheteBranchByName;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getProject;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getSelectedVcsRepository;
@@ -63,7 +63,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends GitMachet
     if (gitMacheteBranch.get().isRootBranch()) {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Root branch '${branchName}' cannot be merged");
+        presentation.setDescription("Root branch '${branchName}' cannot be fast-forwarded");
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -86,9 +86,8 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends GitMachet
     } else {
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
-          Case($(SyncToParentStatus.InSync), "in sync to its parent"),
           Case($(SyncToParentStatus.InSyncButForkPointOff), "in sync to its parent but fork point is off"),
-          Case($(SyncToParentStatus.MergedToParent), "merge into parent"),
+          Case($(SyncToParentStatus.MergedToParent), "merged into parent"),
           Case($(SyncToParentStatus.OutOfSync), "out of sync to its parent"),
           Case($(), "in unknown status '${syncToParentStatus.toString()}' to its parent"));
 
@@ -106,17 +105,19 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends GitMachet
 
     if (gitMacheteBranch.isDefined()) {
       if (gitRepository.isDefined()) {
-        assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to merge is a root";
-        doMerge(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
+        assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to fast forward is a root";
+        doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
       } else {
         LOG.warn("Skipping the action because no VCS repository is selected");
       }
     } else {
-      LOG.warn("Skipping the action because machete branch to merge is undefined");
+      LOG.warn("Skipping the action because machete branch to fast forward is undefined");
     }
   }
 
-  private void doMerge(Project project, GitRepository gitRepository, BaseGitMacheteNonRootBranch gitMacheteNonRootBranch) {
+  private void doFastForward(Project project,
+      GitRepository gitRepository,
+      BaseGitMacheteNonRootBranch gitMacheteNonRootBranch) {
     var trackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getName());
     var parentTrackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getUpstreamBranch().getName());
 
@@ -130,12 +131,9 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends GitMachet
 
     var localFullName = trackingInfo.getLocalBranch().getFullName();
     var parentLocalFullName = parentTrackingInfo.getLocalBranch().getFullName();
-
-    // On the other hand this refspec has no '+' sign.
-    // This is because the fetch from local remotes to local heads must behave fast-forward-like.
-    var refspecRemoteLocal = "${localFullName}:${parentLocalFullName}";
+    var refspecChildParent = "${localFullName}:${parentLocalFullName}";
 
     // Remote set to '.' (dot) is just the local repository.
-    getFetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT, "Merging...").queue();
+    new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT, "Fast Forwarding...").queue();
   }
 }

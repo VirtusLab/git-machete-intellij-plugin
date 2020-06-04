@@ -80,28 +80,40 @@ public final class ActionUtils {
     return "the branch is ${desc}";
   }
 
-  static Task.Backgroundable getFetchBackgroundable(Project project,
-      GitRepository gitRepository,
-      String refspec,
-      GitRemote remote,
-      final String taskTitle) {
-    return new Task.Backgroundable(project, taskTitle, /* canByCancelled */ true) {
+  static class FetchBackgroundable extends Task.Backgroundable {
 
-      @Override
-      public void run(ProgressIndicator indicator) {
-        var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
-        var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
-        try {
-          fetchResult.ourThrowExceptionIfFailed();
-        } catch (VcsException e) {
-          fetchResult.showNotificationIfFailed("Fetch of refspec ${refspec} failed");
-        }
-      }
+    private final Project project;
+    private final GitRepository gitRepository;
+    private final GitRemote remote;
+    private final String refspec;
 
-      @Override
-      public void onSuccess() {
-        VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
+    FetchBackgroundable(Project project,
+        GitRepository gitRepository,
+        String refspec,
+        GitRemote remote,
+        final String taskTitle) {
+      super(project, taskTitle, /* canBeCancelled */ true);
+      this.project = project;
+      this.gitRepository = gitRepository;
+      this.remote = remote;
+      this.refspec = refspec;
+    }
+
+    @Override
+    public void run(ProgressIndicator indicator) {
+      var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
+      var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
+      try {
+        fetchResult.ourThrowExceptionIfFailed();
+      } catch (VcsException e) {
+        fetchResult.showNotificationIfFailed("Fetch of refspec ${refspec} failed");
       }
-    };
+    }
+
+    @Override
+    public void onSuccess() {
+      VcsNotifier.getInstance(project).notifySuccess("Fetch of refspec ${refspec} succeeded");
+    }
   }
+
 }
