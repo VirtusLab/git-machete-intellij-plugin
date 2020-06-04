@@ -4,8 +4,7 @@ import javax.swing.Icon;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
-
-import com.virtuslab.frontend.icons.MacheteIcons;
+import icons.MacheteIcons;
 
 public final class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
