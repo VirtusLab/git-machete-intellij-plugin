@@ -35,6 +35,6 @@ public final class MacheteFileType extends LanguageFileType {
 
   @Override
   public Icon getIcon() {
-    return MacheteIcons.ICON;
+    return MacheteIcons.MACHETE_FILE;
   }
 }

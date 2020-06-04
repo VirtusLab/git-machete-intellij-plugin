@@ -46,17 +46,20 @@
             </action>
 
             <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RebaseSelectedBranchOntoParentAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RebaseSelectedBranchOntoParentAction"
+                    icon="MacheteIcons.REBASE">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.PullSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedBranchAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedBranchAction"
+                    icon="MacheteIcons.PULL">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.PushSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction"
+                    icon="MacheteIcons.PUSH">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
@@ -67,12 +70,14 @@
             </action>
 
             <action id="GitMachete.FastForwardParentToMatchSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardParentToMatchSelectedBranchAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardParentToMatchSelectedBranchAction"
+                    icon="MacheteIcons.FAST_FORWARD">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
 
             <action id="GitMachete.SlideOutSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction"
+                    icon="MacheteIcons.SLIDE_OUT">
                 <!--                <override-text place="GitMacheteContextMenu"/>-->
             </action>
         </group>
@@ -80,20 +85,20 @@
         <group id="GitMachete.Toolbar">
             <action id="GitMachete.RefreshStatusAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction"
-                    icon="AllIcons.Actions.Refresh"
+                    icon="MacheteIcons.REFRESH_STATUS"
                     use-shortcut-of="Refresh">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.ToggleListingCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ToggleListingCommitsAction"
-                    icon="AllIcons.Actions.ShowHiddens">
+                    icon="MacheteIcons.TOGGLE_LISTING_COMMITS">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.OpenMacheteFileAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
-                    icon="AllIcons.FileTypes.Text">
+                    icon="MacheteIcons.TEXT_FILE">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
@@ -101,25 +106,25 @@
 
             <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
-                    icon="AllIcons.Actions.Menu_cut">
+                    icon="MacheteIcons.REBASE">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.FetchAllRemotesAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction"
-                    icon="AllIcons.Actions.Download">
+                    icon="MacheteIcons.FETCH">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.PullCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchAction"
-                    icon="AllIcons.Ide.IncomingChangesOn">
+                    icon="MacheteIcons.PULL">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
-                    icon="AllIcons.Ide.OutgoingChangesOn">
+                    icon="MacheteIcons.PUSH">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
@@ -131,13 +136,13 @@
 
             <action id="GitMachete.FastForwardParentToMatchCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardParentToMatchCurrentBranchAction"
-                    icon="AllIcons.Diff.ApplyNotConflictsLeft">
+                    icon="MacheteIcons.FAST_FORWARD">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
 
             <action id="GitMachete.SlideOutCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
-                    icon="AllIcons.Actions.GC">
+                    icon="MacheteIcons.SLIDE_OUT">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
         </group>
