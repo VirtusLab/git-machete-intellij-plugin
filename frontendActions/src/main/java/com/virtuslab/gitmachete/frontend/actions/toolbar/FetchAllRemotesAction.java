@@ -33,9 +33,12 @@ public class FetchAllRemotesAction extends DumbAwareAction {
     super.update(anActionEvent);
 
     var project = getProject(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
-      anActionEvent.getPresentation().setEnabled(false);
-      anActionEvent.getPresentation().setDescription("Fetch is already running...");
+      presentation.setEnabled(false);
+      presentation.setDescription("Fetch is already running...");
+    } else {
+      presentation.setDescription("Fetch all remotes");
     }
   }
 
