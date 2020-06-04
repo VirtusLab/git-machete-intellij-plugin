@@ -23,9 +23,4 @@ public class ResetSelectedBranchToRemoteAction extends BaseResetBranchToRemoteAc
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
   }
-
-  @Override
-  protected String getActionType() {
-    return "selected";
-  }
 }

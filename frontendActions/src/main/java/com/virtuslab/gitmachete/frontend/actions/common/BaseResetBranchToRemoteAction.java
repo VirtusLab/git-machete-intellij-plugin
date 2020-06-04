@@ -15,11 +15,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
+import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -46,8 +48,6 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
   private static final String VCS_NOTIFIER_TITLE = "Resetting";
   private static final String TASK_TITLE = "Resetting...";
 
-  protected abstract String getActionType();
-
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
@@ -62,7 +62,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
 
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Reset disabled due to undefined ${getActionType()} branch");
+      presentation.setDescription("Reset disabled due to undefined branch");
       return;
     }
 
@@ -84,7 +84,7 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
       presentation.setDescription("Reset branch '${branchNameString} to its remote tracking branch");
     } else {
       presentation.setEnabled(false);
-      presentation.setDescription("Reset disabled because ${getActionType()} branch is untracked");
+      presentation.setDescription("Reset disabled because branch '${branchNameString}' is untracked");
     }
   }
 
@@ -169,6 +169,12 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
           }
 
           GitCommandResult result = Git.getInstance().runCommand(resetHandler);
+
+          // git4idea methods are used instead of our RefreshStatusAction, to refresh state not only in our plugin,
+          // but also in whole IDE. Repository status will be refreshed also in our plugin because we are subscribed
+          // to IDE event bus.
+          refreshRepo(project, gitRepository);
+
           if (!result.success()) {
             LOG.error(result.getErrorOutputAsJoinedString());
             VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
@@ -181,5 +187,11 @@ public abstract class BaseResetBranchToRemoteAction extends GitMacheteRepository
         LOG.debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
       }
     }.queue();
+  }
+
+  private void refreshRepo(Project project, GitRepository gitRepository) {
+    GitRepositoryManager.getInstance(project).updateRepository(gitRepository.getRoot());
+    // If `changes` is null the whole root will be refreshed
+    GitUtil.refreshVfs(gitRepository.getRoot(), /* changes */ null);
   }
 }

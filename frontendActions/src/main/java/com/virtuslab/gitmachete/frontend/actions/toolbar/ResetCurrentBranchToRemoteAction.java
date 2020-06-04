@@ -22,9 +22,4 @@ public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAct
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
-
-  @Override
-  protected String getActionType() {
-    return "current";
-  }
 }
