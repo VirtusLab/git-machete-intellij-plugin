@@ -38,6 +38,7 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -132,9 +133,10 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
       var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
+      var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit, syncToRemoteStatus,
+      return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus,
           customAnnotation, statusHookOutput);
     }
 
@@ -175,10 +177,22 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
       var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
+      var remoteBranch = getRemoteBranchFromCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      return new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit, syncToRemoteStatus,
+      return new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus,
           customAnnotation, statusHookOutput, forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
+    }
+
+    private @Nullable IGitMacheteRemoteBranch getRemoteBranchFromCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
+        throws GitMacheteException {
+      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      if (coreRemoteBranch == null) {
+        return null;
+      }
+      IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.derivePointedCommit())
+          .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
+      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
     }
 
     @Value(staticConstructor = "of")

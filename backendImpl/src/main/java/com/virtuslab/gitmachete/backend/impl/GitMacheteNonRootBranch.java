@@ -13,6 +13,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -34,13 +35,14 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       String name,
       List<GitMacheteNonRootBranch> downstreamBranches,
       IGitMacheteCommit pointedCommit,
+      @Nullable IGitMacheteRemoteBranch remoteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
       @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, downstreamBranches, pointedCommit, syncToRemoteStatus, customAnnotation, statusHookOutput);
+    super(name, downstreamBranches, pointedCommit, remoteBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;
