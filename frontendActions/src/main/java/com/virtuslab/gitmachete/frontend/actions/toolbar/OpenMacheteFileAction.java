@@ -5,16 +5,15 @@ import java.util.Collections;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessProvider;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -49,7 +48,7 @@ public class OpenMacheteFileAction extends DumbAwareAction
       return;
     }
 
-    var macheteFile = ApplicationManager.getApplication().runWriteAction((Computable<Option<VirtualFile>>) () -> Try
+    var macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError( /* message */ "Failed to open machete file"))
         .toOption());
