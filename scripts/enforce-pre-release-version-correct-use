@@ -28,6 +28,6 @@ elif [[ ${CIRCLE_BRANCH-} ]]; then
       die 'Pre-release version is not allowed on master/release/hotfix/backport branch tip'
   else
     [[ $head_pre_release ]] || \
-      die 'Non-master/release/hotfix/backport branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
+      die 'Non-{master/release/hotfix/backport} branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
   fi
 fi
