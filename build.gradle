@@ -80,7 +80,7 @@ allprojects {
     // * `patchPluginXml.untilBuild` in root Gradle project config in this file
     // * `runPluginVerifier.ides` in root Gradle project config in this file
     // * range of UI-tested versions in .circle/config.yml
-    intellijVersion = '2020.1.1'
+    intellijVersion = '2020.1.2'
     intellijVersionForRunIde = project.properties.intellijVersionForRunIde ?: intellijVersion
     jgitVersion = '5.7.0.202003110725-r'
     junitVersion = '4.13'
@@ -438,12 +438,13 @@ apply from: 'https://raw.githubusercontent.com/FWDekker/intellij-randomness/mast
 
 runPluginVerifier {
   pluginFileName = "${intellij.pluginName}-${version}"
-  ides = [ 'IC-2019.3', 'IC-2020.1', 'IC-2020.1.1' ]
+  ides = [ 'IC-2019.3', 'IC-2020.1', 'IC-2020.1.2' ]
   verifierVersion = '1.241'
 }
 
 repositories {
   maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
+  maven { url = 'https://www.jetbrains.com/intellij-repository/snapshots/' }
 }
 
 File resolveIdeaCommunity(String version) {

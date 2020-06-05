@@ -67,7 +67,7 @@ function openTabAndReturnRowCount(project) {
   } while (toolWindow == null);
 
   // The test is (obviously) not run on UI thread,
-  // so `runOrInvokeAndWait` really means `enqueue UI thread and wait until complete`.
+  // so `runOrInvokeAndWait` really means `enqueue onto UI thread and wait until complete`.
   GuiUtils.runOrInvokeAndWait(function () {
     toolWindow.activate(function () {});
   });

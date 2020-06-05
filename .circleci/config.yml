@@ -94,8 +94,8 @@ jobs:
       - store_test_results:
           path: uiTests/build/test-results/
       - run:
-          name: Run UI tests against 2020.1.1 (latest non-EAP & our build target)
-          command: ./scripts/run-ui-tests 2020.1.1
+          name: Run UI tests against 2020.1.2 (latest non-EAP & our build target)
+          command: ./scripts/run-ui-tests 2020.1.2
       - store_test_results:
           path: uiTests/build/test-results/
 
