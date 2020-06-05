@@ -36,6 +36,8 @@ public interface IGitMacheteBranch {
 
   SyncToRemoteStatus getSyncToRemoteStatus();
 
+  Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch();
+
   Option<String> getCustomAnnotation();
 
   Option<String> getStatusHookOutput();

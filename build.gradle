@@ -181,7 +181,8 @@ subprojects {
     }
   }
   // Hopefully that'll be no longer needed if/when the changes requested
-  // on https://github.com/rzwitserloot/lombok/issues/2433 are incorporated into Lombok.
+  // either on https://github.com/rzwitserloot/lombok/issues/2433 or on https://github.com/typetools/checker-framework/issues/3356
+  // are incorporated into Lombok or Checker, respectively.
 
 
   apply plugin: 'com.diffplug.gradle.spotless'
