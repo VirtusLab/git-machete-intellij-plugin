@@ -116,7 +116,7 @@ jobs:
           command: |
             LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew javadoc
 
-  publish:
+  release:
     working_directory: ~/git-machete-intellij-plugin
     docker:
       - image: gitmachete/intellij-plugin-ci
@@ -136,7 +136,16 @@ jobs:
             git tag "$tag"
             git push origin "$tag"
       - deploy:
-          name: Open backport-to-develop PR
+          name: Create GitHub release
+          command: |
+            source scripts/utils.sh
+            tag=v$(extract_version_from_current_wd)
+            hub release create \
+              --attach build/distributions/git-machete-intellij-plugin-*.zip \
+              --message "$tag"$'\n\n'"$(<CHANGE-NOTES.html)" \
+              $tag
+      - deploy:
+          name: Open backport PR to develop
           command: |
             source scripts/utils.sh
             version=$(extract_version_from_current_wd)
@@ -164,7 +173,7 @@ workflows:
           filters:
             branches:
               only: master
-      - publish:
+      - release:
           requires: [hold]
           filters:
             branches:

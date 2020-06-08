@@ -39,12 +39,11 @@ RUN rmdir /stripped_repo
 # (package       => needed for command(s))
 # binutils       => strings
 # netcat         => nc
-# xml-twig-tools => xml_grep
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils netcat xml-twig-tools xxd unzip \
+  && apt-get install --no-install-recommends -y binutils netcat xxd unzip \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*
