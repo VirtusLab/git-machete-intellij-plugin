@@ -1,7 +1,5 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import java.util.function.Function;
-
 import io.vavr.Lazy;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
@@ -30,12 +28,12 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
   @Override
   public GitCoreCommit derivePointedCommit() throws GitCoreException {
-    return pointedCommit.get().getOrElseThrow(Function.identity());
+    return pointedCommit.get().getOrElseThrow(e -> e);
   }
 
   @Override
   public List<IGitCoreReflogEntry> deriveReflog() throws GitCoreException {
-    return reflog.get().getOrElseThrow(Function.identity());
+    return reflog.get().getOrElseThrow(e -> e);
   }
 
   @Override

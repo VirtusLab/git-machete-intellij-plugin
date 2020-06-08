@@ -2,19 +2,15 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.eclipse.jgit.lib.ReflogEntry;
 
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
-@EqualsAndHashCode
-@Getter
+@Data
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 public class GitCoreReflogEntry implements IGitCoreReflogEntry {
   private final String comment;
   private final Option<IGitCoreCommitHash> oldCommitHash;

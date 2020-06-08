@@ -22,8 +22,8 @@ public class GitCoreCommit implements IGitCoreCommit {
   @SuppressWarnings("index:argument.type.incompatible")
   public GitCoreCommit(@NonLeaked RevCommit commit) {
     this.message = commit.getFullMessage();
-    this.author = new GitCorePersonIdentity(commit.getAuthorIdent());
-    this.committer = new GitCorePersonIdentity(commit.getCommitterIdent());
+    this.author = GitCorePersonIdentity.of(commit.getAuthorIdent());
+    this.committer = GitCorePersonIdentity.of(commit.getCommitterIdent());
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
     this.hash = GitCoreCommitHash.of(commit.getId());
     this.stringValue = commit.getId().getName().substring(0, 7) + ": " + commit.getShortMessage();

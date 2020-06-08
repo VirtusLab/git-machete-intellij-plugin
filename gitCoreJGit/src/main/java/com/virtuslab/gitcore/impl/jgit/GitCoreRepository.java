@@ -8,7 +8,6 @@ import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_REMOTE;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.vavr.CheckedFunction1;
@@ -227,7 +226,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   public List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException {
     return Try.traverse(deriveAllRemotes(), this::tryDeriveRemoteBranchesForRemote)
         .getOrElseThrow(GitCoreException::castOrWrap)
-        .flatMap(Function.identity())
+        .flatMap(e -> e)
         .map(IGitCoreRemoteBranch.class::cast)
         .toList();
   }

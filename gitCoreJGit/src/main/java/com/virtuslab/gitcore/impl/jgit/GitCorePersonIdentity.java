@@ -1,21 +1,19 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.lib.PersonIdent;
 
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 
-@EqualsAndHashCode
-@Getter
-@ToString
+@Data
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class GitCorePersonIdentity implements IGitCorePersonIdentity {
   private final String name;
   private final String email;
 
-  public GitCorePersonIdentity(PersonIdent person) {
-    this.name = person.getName();
-    this.email = person.getEmailAddress();
+  public static GitCorePersonIdentity of(PersonIdent person) {
+    return new GitCorePersonIdentity(person.getName(), person.getEmailAddress());
   }
 }
