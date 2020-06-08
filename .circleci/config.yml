@@ -113,7 +113,7 @@ jobs:
             ./gradlew --stop
             LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew --max-workers=2 compileJava
 
-  publish:
+  release:
     working_directory: ~/git-machete-intellij-plugin
     docker:
       - image: gitmachete/intellij-plugin-ci
@@ -131,9 +131,18 @@ jobs:
             source scripts/utils.sh
             tag=v$(extract_version_from_current_wd)
             git tag "$tag"
-            git push origin "$tag"
+            git push --force origin "$tag" # REMOVE FORCE!!!!!!!!!!!!!!!
       - deploy:
-          name: Open backport-to-develop PR
+          name: Create GitHub release
+          command: |
+            source scripts/utils.sh
+            tag=v$(extract_version_from_current_wd)
+            hub release create \
+              --attach build/distributions/git-machete-intellij-plugin-*.zip \
+              --message "$tag"$'\n\n'"$(<CHANGE-NOTES.html)" \
+              $tag
+      - deploy:
+          name: Open backport PR to develop
           command: |
             source scripts/utils.sh
             version=$(extract_version_from_current_wd)
@@ -145,9 +154,9 @@ jobs:
               --base=develop \
               --message="Backport release of v$version to develop" \
               --labels=backport
-      - deploy:
-          name: Publish plugin to Jetbrains Marketplace
-          command: ./gradlew publishPlugin
+#      - deploy:
+#          name: Publish plugin to Jetbrains Marketplace
+#          command: ./gradlew publishPlugin
 
 
 workflows:
@@ -160,9 +169,9 @@ workflows:
           requires: [build]
           filters:
             branches:
-              only: master
-      - publish:
+              only: chore/release-gh # master
+      - release:
           requires: [hold]
           filters:
             branches:
-              only: master
+              only: chore/release-gh # master
