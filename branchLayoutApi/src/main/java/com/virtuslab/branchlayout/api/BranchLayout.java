@@ -10,7 +10,7 @@ import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 @UsesObjectEquals
 public class BranchLayout implements IBranchLayout {
 
-  @Getter(onMethod_ = {@Override})
+  @Getter
   private final List<IBranchLayoutEntry> rootEntries;
 
   private final Map<String, IBranchLayoutEntry> entryByName;

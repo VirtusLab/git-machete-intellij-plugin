@@ -84,3 +84,4 @@ elif [ $# -eq 1 ]; then
   sed -i.bak "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
   rm -f version.gradle.bak
 fi
+

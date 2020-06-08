@@ -12,7 +12,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 
-@Getter(onMethod_ = {@Override})
+@Getter
 @ToString
 @UsesObjectEquals
 public abstract class BaseGraphItem implements IGraphItem {

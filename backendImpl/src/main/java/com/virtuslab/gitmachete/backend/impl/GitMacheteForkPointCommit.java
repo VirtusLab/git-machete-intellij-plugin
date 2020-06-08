@@ -10,10 +10,10 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 @ToString(callSuper = true)
 public final class GitMacheteForkPointCommit extends GitMacheteCommit implements IGitMacheteForkPointCommit {
 
-  @Getter(onMethod_ = {@Override})
+  @Getter
   private final List<String> branchesContainingInReflog;
 
-  @Getter(onMethod_ = {@Override})
+  @Getter
   private final boolean isOverridden;
 
   private GitMacheteForkPointCommit(IGitCoreCommit coreCommit, List<String> branchesContainingInReflog, boolean isOverridden) {

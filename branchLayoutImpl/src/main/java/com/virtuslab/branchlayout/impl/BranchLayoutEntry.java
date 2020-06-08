@@ -16,13 +16,13 @@ import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 @ToString
 @UsesObjectEquals
 public class BranchLayoutEntry implements IBranchLayoutEntry {
-  @Getter(onMethod_ = {@Override})
+  @Getter
   private final String name;
 
   private final @Nullable String customAnnotation;
 
-  @Getter(onMethod_ = {@Override})
-  @With(onMethod_ = {@Override})
+  @Getter
+  @With
   private final List<IBranchLayoutEntry> subentries;
 
   @ToString.Include(name = "subentries") // avoid recursive `toString` calls on subentries

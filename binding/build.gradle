@@ -1,3 +1,4 @@
+lombok()
 reflections()
 
 dependencies {

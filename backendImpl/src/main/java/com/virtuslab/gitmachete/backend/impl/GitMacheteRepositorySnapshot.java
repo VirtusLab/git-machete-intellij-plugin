@@ -18,7 +18,7 @@ import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 @RequiredArgsConstructor
 public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
-  @Getter(onMethod_ = {@Override})
+  @Getter
   private final List<IGitMacheteRootBranch> rootBranches;
 
   private final @Nullable IBranchLayout branchLayout;

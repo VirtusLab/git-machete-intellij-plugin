@@ -20,7 +20,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @CustomLog
-@Getter(onMethod_ = {@Override})
+@Getter
 @ToString(callSuper = true)
 public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
 

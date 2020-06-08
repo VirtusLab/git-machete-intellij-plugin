@@ -16,15 +16,19 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
-          name: Compile production code without delombok
+          name: Compile production code
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
-          command: LOMBOK_PROVIDED_BY=regular-dependency ./gradlew --max-workers=2 compileJava
+          command: ./gradlew --max-workers=2 compileJava
       - run:
           name: Run post-compile checks
           command: ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Run static code analyzer
           command: ./gradlew --warn checkstyleMain
+      - run:
+          name: Check Javadoc correctness
+          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
+          command: ./gradlew --max-workers=2 javadoc
 
       - run:
           name: Compile tests
@@ -67,21 +71,6 @@ jobs:
           root: .
           paths: ['*']
 
-      - run:
-          # See Lombok config in build.gradle for why this step is necessary.
-          # We're running this at the very end so that the recompiled code doesn't end up in the plugin artifact.
-          name: Recompile production code with delombok
-          # Apparently we need to kill the already-running daemons first, otherwise we might get an OOM.
-          # New daemons will be spawned anyway since passing `LOMBOK_PROVIDED_BY=gradle-plugin` changes Gradle configuration.
-          command: |
-            ./gradlew --stop
-            LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew --max-workers=2 compileJava
-      - run:
-          # javadoc can't currently run on non-delomboked code due to `@Getter(onMethod_ = {...})` annotations,
-          # see https://projectlombok.org/features/experimental/onX on the underlying mechanics
-          name: Check Javadoc correctness on delomboked code
-          command: |
-            LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew javadoc
 
   release:
     docker:

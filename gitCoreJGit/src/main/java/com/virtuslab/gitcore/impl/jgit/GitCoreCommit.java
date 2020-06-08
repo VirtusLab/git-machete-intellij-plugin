@@ -10,7 +10,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 
-@Getter(onMethod_ = {@Override})
+@Getter
 public class GitCoreCommit implements IGitCoreCommit {
   private final String shortMessage;
   private final GitCorePersonIdentity author;

@@ -11,10 +11,10 @@ import com.virtuslab.gitmachete.frontend.graph.impl.render.GraphItemColorForGrap
 
 @RequiredArgsConstructor
 public abstract class BaseRenderPart implements IRenderPart {
-  @Getter(onMethod_ = {@Override})
+  @Getter
   protected final @NonNegative int rowIndex;
 
-  @Getter(onMethod_ = {@Override})
+  @Getter
   protected final @NonNegative int positionInRow;
 
   protected final IGraphElement graphElement;

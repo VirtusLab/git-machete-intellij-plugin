@@ -12,7 +12,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-@Getter(onMethod_ = {@Override})
+@Getter
 @ToString
 @UsesObjectEquals
 public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {

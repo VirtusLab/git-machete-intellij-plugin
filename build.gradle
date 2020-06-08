@@ -6,7 +6,6 @@ plugins {
   id 'org.ajoberstar.grgit' version '4.0.2'
 
   id 'com.diffplug.gradle.spotless' version '4.3.0' apply false
-  id 'io.freefair.lombok' version '5.1.0' apply false
   id 'org.checkerframework' version '0.5.0' apply false
   id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
   id 'org.jetbrains.intellij' version '0.4.21' apply false
@@ -76,6 +75,7 @@ allprojects {
 
   ext {
     betterStringsVerson = '0.3'
+    checkerFrameworkVersion = '3.5.0'
     checkstyleToolVersion = '8.33'
 
     // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
@@ -136,8 +136,6 @@ subprojects {
   apply plugin: 'org.checkerframework'
   checkerFramework {
     excludeTests = true
-    // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
-    suppressLombokWarnings = false
     checkers = [
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
@@ -160,37 +158,12 @@ subprojects {
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
     ]
-  }
 
-
-  // Lombok support
-  // Here comes the tricky part: there's a tradeoff...
-  if (System.getenv('LOMBOK_PROVIDED_BY') == 'gradle-plugin') {
-    // Plus:  Checker errors caused by Lombok-generated code are correctly reported
-    // Minus: some compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
-    //        which may differ a lot from the original source
-    apply plugin: 'io.freefair.lombok'
-    lombok {
-      version = lombokVersion
-    }
-    generateLombokConfig.enabled = false
-  } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
-    // Plus:  all compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
-    // Minus: Checker errors caused by Lombok-generated code are always suppressed,
-    //        see https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 for an example;
-    //        the exact mechanics is likely different than in the issue since code generation happens on the fly (via AST transformations),
-    //        but the general problem remains the same
     dependencies {
-      def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-      compileOnly lombokArtifact
-      annotationProcessor lombokArtifact
-      testCompileOnly lombokArtifact
-      testAnnotationProcessor lombokArtifact
+      compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
+      checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
     }
   }
-  // Hopefully that'll be no longer needed if/when the changes requested
-  // either on https://github.com/rzwitserloot/lombok/issues/2433 or on https://github.com/typetools/checker-framework/issues/3356
-  // are incorporated into Lombok or Checker, respectively.
 
 
   apply plugin: 'com.diffplug.gradle.spotless'
@@ -344,6 +317,16 @@ subprojects {
     junit = { ->
       dependencies {
         testImplementation group: 'junit', name: 'junit', version: junitVersion
+      }
+    }
+
+    lombok = { ->
+      def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
+      dependencies {
+        compileOnly lombokArtifact
+        annotationProcessor lombokArtifact
+        testCompileOnly lombokArtifact
+        testAnnotationProcessor lombokArtifact
       }
     }
 
