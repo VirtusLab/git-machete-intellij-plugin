@@ -433,6 +433,8 @@ patchPluginXml {
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   sinceBuild '193' // aka 2019.3 (inclusive)
   untilBuild '201.*' // aka 2020.1.* (inclusive)
+
+  changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 
 apply from: 'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
