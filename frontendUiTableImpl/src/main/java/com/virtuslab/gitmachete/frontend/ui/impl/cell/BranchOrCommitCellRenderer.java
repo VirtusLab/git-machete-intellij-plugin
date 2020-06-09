@@ -49,6 +49,7 @@ import com.virtuslab.gitmachete.frontend.ui.impl.table.GitMacheteGraphTable;
 @UI
 public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<BranchOrCommitCell> {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
+  private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
 
   private final MyComponent myComponent;
 
@@ -156,7 +157,7 @@ public class BranchOrCommitCellRenderer extends TypeSafeTableCellRenderer<Branch
 
         if (commitItem.getCommit().equals(forkPoint)) {
           var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, ColorDefinitions.RED);
-          append(" ➔ fork point ??? ", textAttributes);
+          append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ??? ", textAttributes);
 
           var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "
               + forkPoint.getBranchesWhereFoundInReflog().mkString(", ");

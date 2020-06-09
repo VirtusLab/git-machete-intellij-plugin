@@ -124,7 +124,6 @@ subprojects {
       // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
       options.addStringOption('Xwerror', '-quiet')
       options.addStringOption('Xdoclint:all', '-quiet')
-      options.addStringOption('encoding', 'UTF-8')
     }
   }
 

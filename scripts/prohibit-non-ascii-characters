@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+# Excluding tab (detected in a separate script for a clearer error message).
+# Newline character (\x0A) is also excluded but technically doesn't need to since (git) grep doesn't take newlines into account.
+# -I is passed to skip binary files from grep.
+if git grep -PIn '[\x00-\x08\x0B-\x1F\x1F\x80-\xFF]'; then
+  die 'The above lines contain character(s) outside of 0x20-0x7F range, please tidy up'
+fi

@@ -6,7 +6,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 
 public interface ICommitItem extends IGraphItem {
-  // These methods need to be implemented in frontendGraphApi to avoid problems with Subtyping Checker.
+  // These methods need to be implemented in frontendGraphApi (as opposed to an implementation subproject)
+  // to avoid problems with Subtyping Checker.
   @Override
   default boolean isBranchItem() {
     return false;
@@ -23,5 +24,15 @@ public interface ICommitItem extends IGraphItem {
   }
 
   IGitMacheteCommit getCommit();
+
+  /**
+   * @return a non-root branch containing the given commit in git-machete sense, which is stricter than containing in git sense.
+   *
+   *         <p><b>Branch A "contains" commit X in git sense</b> means that
+   *         there's a path (possibly of zero length) from the commit pointed by A to commit X.</p>
+   *
+   *         <p><b>Branch A "contains" commit X in git-machete sense</b> means that
+   *         A is a non-root branch and X lies between commit pointed by A and A's fork point.</p>
+   */
   IGitMacheteNonRootBranch getContainingBranch();
 }
