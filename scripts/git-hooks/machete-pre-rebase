@@ -13,14 +13,51 @@ if [ $# -eq 3 ]; then
   parse_version_from_git_revision head "$current_branch"
 
   if [[ $head_pre_release ]]; then
-    if [[ $head_pre_release -ne 1 ]]; then
-      target_version="$base_major.$base_minor.$base_patch-$((${base_pre_release:-0} + 1))"
-    elif [[ $head_patch -ne 0 ]]; then
-      target_version="$base_major.$base_minor.$((base_patch + 1))-1"
-    elif [[ $head_minor -ne 0 ]]; then
-      target_version="$base_major.$((base_minor + 1)).0-1"
+    if [[ $base_pre_release ]]; then
+      # Both head and base versions are pre-release. That's the most unintuitive case.
+      # To simplify the things (and still correctly cover 99.9% real-life cases),
+      # we're assuming here that there was no released version between base and head
+      # (i.e. both base and head build upon the same released version).
+
+      if [[ $base_patch -ne 0 && $head_patch -ne 0 ]]; then
+        # Both pre-release versions, if released as-is, would just bump patch.
+        # Hence, head rebased onto base will also bump patch.
+        # We can just take the version from base and bump pre-release, no matter what's in head.
+        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
+
+        # Otherwise, at least one of base and head bumps minor or major,
+        # so head rebased onto base will also bump either minor or major.
+        # Let's now determine which one.
+      elif [[ $base_minor -eq 0 && $base_patch -eq 0 ]]; then
+        # If base bumps major, then the resulting version must also bump major.
+        # We can just take the version from base and bump pre-release, no matter what's in head.
+        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
+
+      elif [[ $head_minor -eq 0 && $head_patch -eq 0 ]]; then
+        # If head bumps major and base does NOT bump major, then the resulting version also bump major.
+        # We have to bump major on the base version (since base only bumps minor or patch).
+        target_version="$((base_major + 1)).0.0-1"
+
+        # Otherwise, neither of base and head bumps major.
+        # Since we excluded patch bump previously, we know that it's minor that will be bumped.
+      elif [[ $base_patch -eq 0 ]]; then
+        # If base bumps minor, then the resulting version must also bump minor.
+        # We can just take the version from base and bump pre-release, no matter what's in head.
+        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
+
+      else
+        # If head bumps minor and base does NOT bump minor, then the resulting version must bump minor.
+        # We have to bump minor on the base version (since base only bumps patch).
+        target_version="$base_major.$((base_minor + 1)).0-1"
+      fi
     else
-      target_version="$((base_major + 1)).0.0-1"
+      if [[ $head_patch -ne 0 ]]; then
+        target_version="$base_major.$base_minor.$((base_patch + 1))-1"
+      elif [[ $head_minor -ne 0 ]]; then
+        target_version="$base_major.$((base_minor + 1)).0-1"
+      else
+        target_version="$((base_major + 1)).0.0-1"
+      fi
     fi
   else
     if [[ $head_patch -ne 0 ]]; then
@@ -40,5 +77,6 @@ if [ $# -eq 3 ]; then
 elif [ $# -eq 1 ]; then
   target_version=$1
 
-  sed -i "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
+  # Using -i='' and not just -i to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.
+  sed -i='' "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
 fi

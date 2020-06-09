@@ -74,7 +74,8 @@ public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
   public IEnhancedLambdaLogger withTimeElapsed() {
     Long start = timerStartMillis.get();
     if (start == null) {
-      throw new IllegalStateException("withTimeElapsed() called without a preceding startTimer() call");
+      throw new IllegalStateException("withTimeElapsed() called " +
+          "without a preceding startTimer() call on thread #${getCurrentThreadId()}");
     }
     long elapsed = System.currentTimeMillis() - start;
     bufferedTimerMessage.set("[thread #${getCurrentThreadId()}: elapsed ${elapsed}ms] ");

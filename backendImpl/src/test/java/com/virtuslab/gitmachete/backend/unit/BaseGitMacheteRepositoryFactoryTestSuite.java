@@ -10,6 +10,7 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
 public class BaseGitMacheteRepositoryFactoryTestSuite {
@@ -29,7 +30,7 @@ public class BaseGitMacheteRepositoryFactoryTestSuite {
     PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteBranches();
 
     return Whitebox
-        .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class)
-        .newInstance(gitCoreRepository, /* statusBranchHookExecutor */ null);
+        .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class, PreRebaseHookExecutor.class)
+        .newInstance(gitCoreRepository, /* statusBranchHookExecutor */ null, /* preRebaseHookExecutor */ null);
   }
 }

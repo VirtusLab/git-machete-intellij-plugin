@@ -206,18 +206,19 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     if (!project.isDisposed()) {
       GuiUtils.invokeLaterIfNeeded(() -> {
-        Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
-        if (gitRepository.isDefined()) {
-          @UI Consumer<Option<IGitMacheteRepository>> doRefreshModel = newGitMacheteRepository -> {
-            this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
-            refreshModel(gitRepository.get());
-          };
-
-          LOG.debug("Queuing repository update onto a non-UI thread");
-          new GitMacheteRepositoryUpdateTask(project, gitRepository.get(), branchLayoutReader, doRefreshModel).queue();
-        } else {
+        var gitRepository = gitRepositorySelectionProvider.getSelectedRepository().getOrNull();
+        if (gitRepository == null) {
           LOG.warn("Selected repository is null");
+          return;
         }
+
+        @UI Consumer<Option<IGitMacheteRepository>> doRefreshModel = newGitMacheteRepository -> {
+          this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
+          refreshModel(gitRepository);
+        };
+
+        LOG.debug("Queuing repository update onto a non-UI thread");
+        new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
       }, NON_MODAL);
     } else {
       LOG.debug("Project is disposed");

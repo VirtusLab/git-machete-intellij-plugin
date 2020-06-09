@@ -176,11 +176,16 @@
     <property name="format" value="\bclass [A-Za-z0-9]*Util\b"/>
     <property name="message" value="Use ...Utils (not ...Util) naming convention"/>
 </module>
+<module name="RequireThis">
+    <property name="checkMethods" value="false"/>
+    <property name="validateOnlyOverlapping" value="true"/>
+</module>
 <module name="RightCurly">
     <property name="id" value="RightCurlySame"/>
     <property name="tokens"
               value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
 </module>
+<module name="SimplifyBooleanExpression"/>
 <module name="StringLiteralEquality"/>
 <module name="SuperClone"/>
 <module name="UnnecessaryParentheses"/>

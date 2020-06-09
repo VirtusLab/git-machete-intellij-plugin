@@ -291,8 +291,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
   private Option<GitCoreRemoteBranch> deriveConfiguredRemoteBranchForLocalBranch(String localBranchShortName) {
     return deriveConfiguredRemoteNameForLocalBranch(localBranchShortName)
         .flatMap(remoteName -> deriveConfiguredRemoteBranchNameForLocalBranch(localBranchShortName)
-            .flatMap(
-                remoteShortBranchName -> Try.of(() -> deriveRemoteBranchByShortName(remoteName, remoteShortBranchName)).get()));
+            .flatMap(remoteShortBranchName -> Try.of(() -> deriveRemoteBranchByShortName(remoteName, remoteShortBranchName))
+                .getOrElse(Option.none())));
   }
 
   private Option<String> deriveConfiguredRemoteNameForLocalBranch(String localBranchShortName) {

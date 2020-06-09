@@ -13,4 +13,6 @@ public interface IGitMacheteRepository {
   Option<IGitMacheteBranch> getCurrentBranchIfManaged();
 
   Option<IGitMacheteBranch> getBranchByName(String branchName);
+
+  Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException;
 }

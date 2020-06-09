@@ -40,8 +40,10 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
 @CustomLog
@@ -65,8 +67,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
                 "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
 
     var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
+    var preRebaseHookExecutor = PreRebaseHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
 
-    var result = new Aux(gitCoreRepository, statusHookExecutor).createGitMacheteRepository(branchLayout);
+    var result = new Aux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor).createGitMacheteRepository(branchLayout);
     LOG.withTimeElapsed().info("Finished");
     return result;
   }
@@ -74,14 +77,21 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
   private static class Aux {
     private final IGitCoreRepository gitCoreRepository;
     private final StatusBranchHookExecutor statusHookExecutor;
+    private final PreRebaseHookExecutor preRebaseHookExecutor;
     private final Map<String, IGitCoreLocalBranch> localBranchByName;
     private final List<String> remoteNames;
     private final Map<String, IGitCoreRemoteBranch> remoteBranchByName;
     private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
 
-    Aux(IGitCoreRepository gitCoreRepository, StatusBranchHookExecutor statusHookExecutor) throws GitMacheteException {
+    Aux(
+        IGitCoreRepository gitCoreRepository,
+        StatusBranchHookExecutor statusHookExecutor,
+        PreRebaseHookExecutor preRebaseHookExecutor) throws GitMacheteException {
+
       this.gitCoreRepository = gitCoreRepository;
       this.statusHookExecutor = statusHookExecutor;
+      this.preRebaseHookExecutor = preRebaseHookExecutor;
+
       try {
         this.localBranchByName = gitCoreRepository.deriveAllLocalBranches()
             .toMap(localBranch -> Tuple.of(localBranch.getShortName(), localBranch));
@@ -95,7 +105,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     IGitMacheteRepository createGitMacheteRepository(IBranchLayout branchLayout) throws GitMacheteException {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
-      var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap);
+      var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
 
       var branchByName = createBranchByNameMap(rootBranches);
 
@@ -112,10 +122,11 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
 
-      return new GitMacheteRepository(List.ofAll(rootBranches), branchLayout, currentBranchIfManaged, branchByName);
+      return new GitMacheteRepository(rootBranches, branchLayout, currentBranchIfManaged, branchByName,
+          preRebaseHookExecutor);
     }
 
-    private Map<String, IGitMacheteBranch> createBranchByNameMap(Seq<GitMacheteRootBranch> rootBranches) {
+    private Map<String, IGitMacheteBranch> createBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
       Map<String, IGitMacheteBranch> branchByName = HashMap.empty();
       Queue<IGitMacheteBranch> queue = Queue.ofAll(rootBranches);
       // BFS over all branches
@@ -128,7 +139,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       return branchByName;
     }
 
-    private GitMacheteRootBranch createGitMacheteRootBranch(
+    private IGitMacheteRootBranch createGitMacheteRootBranch(
         IBranchLayoutEntry entry) throws GitCoreException, GitMacheteException {
 
       var branchName = entry.getName();
@@ -320,7 +331,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = localBranchByName
           .rejectValues(branch::equals)
-          .mapValues(otherLocalBranch -> Try.of(() -> deriveFilteredReflog(otherLocalBranch)).get());
+          .mapValues(otherLocalBranch -> Try.of(() -> deriveFilteredReflog(otherLocalBranch)).getOrElse(List.empty()));
 
       LOG.debug("Getting reflogs of remote branches");
 
@@ -328,7 +339,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteBranchName = remoteBranchByName
           .rejectValues(someRemoteBranch -> someRemoteBranch.equals(remoteTrackingBranch))
-          .mapValues(unrelatedRemoteBranch -> Try.of(() -> deriveFilteredReflog(unrelatedRemoteBranch)).get());
+          .mapValues(unrelRemoteBranch -> Try.of(() -> deriveFilteredReflog(unrelRemoteBranch)).getOrElse(List.empty()));
 
       LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
 

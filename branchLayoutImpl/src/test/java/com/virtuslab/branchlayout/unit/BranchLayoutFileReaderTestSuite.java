@@ -24,7 +24,7 @@ import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BranchLayoutFileUtils.class, Files.class})
-public class BranchLayoutFileReaderTest {
+public class BranchLayoutFileReaderTestSuite {
 
   private final Path path = Path.of("");
 

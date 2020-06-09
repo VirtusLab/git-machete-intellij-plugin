@@ -31,7 +31,7 @@ import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.logger.IntelliJLoggingUtils;
 
 @CustomLog
-public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
+public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgroundable {
 
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
@@ -39,7 +39,7 @@ public final class GitMacheteRepositoryUpdateTask extends Task.Backgroundable {
 
   private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
 
-  public GitMacheteRepositoryUpdateTask(
+  public GitMacheteRepositoryUpdateBackgroundable(
       Project project,
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,

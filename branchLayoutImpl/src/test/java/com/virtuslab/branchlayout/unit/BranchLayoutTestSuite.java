@@ -15,7 +15,7 @@ import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
 import com.virtuslab.branchlayout.impl.IndentSpec;
 import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
 
-public class BranchLayoutTest {
+public class BranchLayoutTestSuite {
 
   private final Path path = Path.of("");
   private final IndentSpec indentSpec = BranchLayoutFileUtils.getDefaultSpec();

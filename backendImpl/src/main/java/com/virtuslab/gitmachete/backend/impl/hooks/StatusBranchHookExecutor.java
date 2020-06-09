@@ -42,20 +42,21 @@ public final class StatusBranchHookExecutor {
   }
 
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
+    var hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.exists()) {
-      LOG.debug("Skipping machete-status-branch hook execution for ${branchName}: " +
-          "${hookFile.getAbsolutePath()} does not exist");
+      LOG.debug(() -> "Skipping machete-status-branch hook execution for ${branchName}: " +
+          "${hookFilePath} does not exist");
       return Option.none();
     } else if (!hookFile.canExecute()) {
-      LOG.debug("Skipping machete-status-branch hook execution for ${branchName}: " +
-          "${hookFile.getAbsolutePath()} cannot be executed");
+      LOG.warn("Skipping machete-status-branch hook execution for ${branchName}: " +
+          "${hookFilePath} cannot be executed");
       return Option.none();
     }
 
-    LOG.startTimer().debug("Executing machete-status-branch hook (${hookFile.getAbsolutePath()}) " +
+    LOG.startTimer().debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
         "for ${branchName} in cwd=${mainDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
-    pb.command(hookFile.getAbsolutePath(), branchName);
+    pb.command(hookFilePath, branchName);
     // According to machete-status-branch hook spec (`git machete help hooks`),
     // the hook should receive `ASCII_ONLY=true` in its environment if only ASCII characters are expected in the output
     // (so that the hook knows not to output any ANSI escape codes etc.).
@@ -71,21 +72,22 @@ public final class StatusBranchHookExecutor {
     int timeoutSeconds = 1;
     boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
     if (!completed) {
-      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
+      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
           "did not complete within ${timeoutSeconds} seconds; ignoring the output");
       return Option.none();
-    } else if (process.exitValue() != 0) {
-      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFile.getAbsolutePath()}) for ${branchName} " +
+    }
+    if (process.exitValue() != 0) {
+      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
           "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
       return Option.none();
     }
 
     // It's quite likely that the hook's output will be terminated with a newline,
     // and we don't want that to be displayed.
-    String strippedOutput = new String(process.getInputStream().readAllBytes()).stripTrailing();
-    LOG.withTimeElapsed().debug("Output of machete-status-branch hook (${hookFile.getAbsolutePath()}) " +
-        "for ${branchName} is '${strippedOutput}'");
-    return Option.some(strippedOutput);
+    String strippedStdout = new String(process.getInputStream().readAllBytes()).stripTrailing();
+    LOG.withTimeElapsed().debug(() -> "Output of machete-status-branch hook (${hookFilePath}) " +
+        "for ${branchName} is '${strippedStdout}'");
+    return Option.some(strippedStdout);
   }
 
   public Option<String> deriveHookOutputFor(String branchName, GitMacheteCommit pointedCommit) {

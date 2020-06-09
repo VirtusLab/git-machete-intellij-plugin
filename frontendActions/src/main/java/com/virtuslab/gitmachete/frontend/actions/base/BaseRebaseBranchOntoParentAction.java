@@ -14,6 +14,7 @@ import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import git4idea.util.GitFreezingProcess;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -21,8 +22,10 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -32,6 +35,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     implements
       IBranchNameProvider,
       IExpectsKeyProject,
+      IExpectsKeyGitMacheteRepository,
       IExpectsKeySelectedVcsRepository {
 
   @Override
@@ -112,41 +116,83 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitMacheteRepository = getGitMacheteRepository(anActionEvent);
 
-    if (gitRepository.isDefined()) {
-      doRebase(project, gitRepository.get(), branchToRebase);
+    if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {
+      doRebase(project, gitRepository.get(), gitMacheteRepository.get(), branchToRebase);
     } else {
-      LOG.warn("Skipping the action because no VCS repository is selected");
+      LOG.warn("Skipping the action because no VCS repository is selected or no Git Machete repository is selected");
     }
   }
 
-  private void doRebase(Project project, GitRepository gitRepository, IGitMacheteNonRootBranch branchToRebase) {
+  private void doRebase(
+      Project project,
+      GitRepository gitRepository,
+      IGitMacheteRepository gitMacheteRepository,
+      IGitMacheteNonRootBranch branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    Try.of(() -> branchToRebase.getParametersForRebaseOntoParent())
-        .onSuccess(gitRebaseParameters -> {
-          LOG.debug(() -> "Queuing '${branchToRebase.getName()}' branch rebase background task");
+    var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
 
-          new Task.Backgroundable(project, "Rebasing") {
-            @Override
-            public void run(ProgressIndicator indicator) {
-              GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
-              LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
-                  "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
-                  "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
+    if (tryGitRebaseParameters.isFailure()) {
+      var e = tryGitRebaseParameters.getCause();
+      // TODO (#172): redirect the user to the manual fork-point
+      var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+      LOG.error(message);
+      VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
+      return;
+    }
 
-              GitRebaseUtils.rebase(project, java.util.List.of(gitRepository), params, indicator);
-            }
+    var gitRebaseParameters = tryGitRebaseParameters.get();
+    LOG.debug(() -> "Queuing machete-pre-rebase hook background task for '${branchToRebase.getName()}' branch");
 
-            // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
-            // changes to commits (eg. commits may get squashed so the graph structure changes).
-          }.queue();
-        }).onFailure(e -> {
-          // TODO (#172): redirect the user to the manual fork-point
-          var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+    new Task.Backgroundable(project, "Running machete-pre-rebase hook") {
+      @Override
+      public void run(ProgressIndicator indicator) {
+
+        var wrapper = new Object() {
+          Try<Option<Integer>> hookResult = Try.success(Option.none());
+        };
+        new GitFreezingProcess(project, myTitle, () -> {
+          LOG.info("Executing machete-pre-rebase hook");
+          wrapper.hookResult = Try
+              .of(() -> gitMacheteRepository.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
+        }).execute();
+        var hookResult = wrapper.hookResult;
+
+        if (hookResult.isFailure()) {
+          var message = "machete-pre-rebase hook refused to rebase (error: ${hookResult.getCause().getMessage()})";
           LOG.error(message);
-          VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
-        });
+          VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
+          return;
+        }
+
+        var maybeExitCode = hookResult.get();
+        if (maybeExitCode.isDefined() && maybeExitCode.get() != 0) {
+          var message = "machete-pre-rebase hook refused to rebase (exit code ${maybeExitCode.get()})";
+          LOG.error(message);
+          VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
+          return;
+        }
+
+        LOG.debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
+
+        new Task.Backgroundable(project, "Rebasing") {
+          @Override
+          public void run(ProgressIndicator indicator) {
+            GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
+            LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
+                "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
+                "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
+
+            GitRebaseUtils.rebase(project, java.util.List.of(gitRepository), params, indicator);
+          }
+        }.queue();
+      }
+
+      // TODO (#95): on success, refresh only sync statuses (not the whole repository). Keep in mind potential
+      // changes to commits (eg. commits may get squashed so the graph structure changes).
+    }.queue();
   }
 
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {

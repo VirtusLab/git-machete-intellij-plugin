@@ -33,4 +33,9 @@ public final class NullRepository implements IGitMacheteRepository {
   public Option<IGitMacheteBranch> getBranchByName(String branchName) {
     return Option.none();
   }
+
+  @Override
+  public Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+    return Option.none();
+  }
 }

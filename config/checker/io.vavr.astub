@@ -88,5 +88,18 @@ interface Option<T> {
 
 
 interface Try<T> {
+  // That's an off-label usage of OptionalChecker which only prevents against calling `get()` on a possible Failure
+  // (but not against calling `getCause()` on a possible Success).
+  @Pure
+  T get(@Present io.vavr.control.Option<T> this);
+
+  @EnsuresQualifierIf(result = false, expression = "this", qualifier = Present.class)
+  @Pure
+  boolean isFailure();
+
+  @EnsuresQualifierIf(result = true, expression = "this", qualifier = Present.class)
+  @Pure
+  boolean isSuccess();
+
   static <T> Try<T> of(CheckedFunction0<? extends @Nullable T> supplier);
 }
