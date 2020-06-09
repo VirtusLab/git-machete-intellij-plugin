@@ -424,11 +424,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     walk.sort(RevSort.TOPO);
 
     ObjectId objectId = gitCoreCommitToObjectId(fromInclusive);
-    try {
-      walk.markStart(walk.parseCommit(objectId));
-    } catch (IOException e) {
-      throw new GitCoreException(e);
-    }
+    Try.run(() -> walk.markStart(walk.parseCommit(objectId)))
+        .getOrElseThrow(e -> new GitCoreException(e));
 
     // There's apparently no way for AliasingChecker to work correctly with generics
     // (in particular, with enhanced `for` loops, which are essentially syntax sugar over Iterator<...>);

@@ -26,8 +26,8 @@ public final class GitMacheteForkPointCommit extends GitMacheteCommit implements
     return new GitMacheteForkPointCommit(overrideCoreCommit, List.empty(), true);
   }
 
-  public static GitMacheteForkPointCommit inferred(IGitCoreCommit coreCommit, List<String> containingBranches) {
-    return new GitMacheteForkPointCommit(coreCommit, containingBranches, false);
+  public static GitMacheteForkPointCommit inferred(IGitCoreCommit coreCommit, List<String> branchesContainingInReflog) {
+    return new GitMacheteForkPointCommit(coreCommit, branchesContainingInReflog, false);
   }
 
   public static GitMacheteForkPointCommit parentFallback(IGitCoreCommit parentCoreCommit) {
