@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import lombok.Data;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Data(staticConstructor = "of")
 public class SyncToRemoteStatus {
@@ -9,13 +10,13 @@ public class SyncToRemoteStatus {
   }
 
   public static SyncToRemoteStatus noRemotes() {
-    return of(Relation.NoRemotes, "");
+    return of(Relation.NoRemotes, null);
   }
 
   public static SyncToRemoteStatus untracked() {
-    return of(Relation.Untracked, "");
+    return of(Relation.Untracked, null);
   }
 
   private final Relation relation;
-  private final String remoteName;
+  private final @Nullable String remoteName;
 }
