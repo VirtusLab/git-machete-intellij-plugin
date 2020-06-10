@@ -25,9 +25,12 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="TEXT"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-<!--        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>-->
-        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectAware"/>
+        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteAutoImportAware"/>
+        <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
         <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.icons.MacheteIconProvider"/>
+
+        <registryKey key="MACHETE.system.in.process" defaultValue="true"
+                     description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>
@@ -148,4 +151,5 @@
             </action>
         </group>
     </actions>
+
 </idea-plugin>
