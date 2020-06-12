@@ -3,5 +3,7 @@ vavr()
 addIntellijToCompileClasspath(withGit4Idea: true)
 
 dependencies {
+  implementation project(":logging")
   implementation project(":frontendIcons")
+  implementation project(":frontendGraphTableProvider")
 }

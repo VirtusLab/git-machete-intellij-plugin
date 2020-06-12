@@ -59,6 +59,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
         typeSafeCase(DataKeys.KEY_BRANCH_LAYOUT_WRITER, branchLayoutWriter),
+        typeSafeCase(DataKeys.KEY_GRAPH_TABLE, graphTable),
         // IntelliJ Platform seems to always invoke `getData` on the UI thread anyway;
         // `getIfOnDispatchThreadOrNull` is more to ensure correctness wrt. `@UIEffect`,
         // and to handle the unlikely case when someone invokes `getData` directly from the our codebase.

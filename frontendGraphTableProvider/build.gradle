@@ -1,0 +1,7 @@
+vavr()
+
+dependencies {
+  api project(":frontendDataKeys")
+}
+
+addIntellijToCompileClasspath(withGit4Idea: true)
