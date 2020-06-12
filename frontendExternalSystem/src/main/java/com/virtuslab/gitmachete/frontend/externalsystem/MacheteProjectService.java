@@ -65,7 +65,7 @@ public final class MacheteProjectService
 
   @Override
   public Function<Pair<Project, String>, MacheteExecutionSettings> getExecutionSettingsProvider() {
-    return pair -> new MacheteExecutionSettings();
+    return pair -> new MacheteExecutionSettings(pair.first);
   }
 
   @Override

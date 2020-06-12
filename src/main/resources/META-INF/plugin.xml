@@ -10,6 +10,7 @@
         as well as at the <a href="https://github.com/VirtusLab/git-machete">git-machete CLI GitHub repository</a>.
     ]]></description>
 
+    <depends>com.intellij.modules.externalSystem</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
@@ -25,9 +26,9 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="TEXT"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteAutoImportAware"/>
+        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalsystem.project.MacheteAutoImportAware"/>
         <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
-        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.icons.MacheteIconProvider"/>
+        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.externalsystem.MacheteIconProvider"/>
 
         <registryKey key="MACHETE.system.in.process" defaultValue="true"
                      description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>

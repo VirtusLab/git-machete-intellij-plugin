@@ -1,7 +1,9 @@
 vavr()
 
-addIntellijToCompileClasspath(withGit4Idea: true)
-
 dependencies {
-  implementation project(":frontendIcons")
+  implementation project(':logging')
+  implementation project(':frontendIcons')
+  implementation project(':frontendUiRootImpl')
 }
+
+addIntellijToCompileClasspath(withGit4Idea: true)

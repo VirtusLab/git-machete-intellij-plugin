@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.externalsystem.project;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware;
 import com.intellij.openapi.project.Project;

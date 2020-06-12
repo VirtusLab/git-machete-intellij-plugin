@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.icons;
+package com.virtuslab.gitmachete.frontend.externalsystem;
 
 import javax.swing.Icon;
 
