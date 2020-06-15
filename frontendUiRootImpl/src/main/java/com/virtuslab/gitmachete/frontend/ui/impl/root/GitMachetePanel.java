@@ -25,7 +25,8 @@ import com.virtuslab.gitmachete.frontend.actionids.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.actionids.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.table.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.table.VcsRootComboBox;
 
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel implements DataProvider {
@@ -40,12 +41,10 @@ public final class GitMachetePanel extends SimpleToolWindowPanel implements Data
     super(/* vertical */ false, /* borderless */ true);
     LOG.debug("Instantiating");
 
-    this.vcsRootComboBox = new VcsRootComboBox(project);
-    this.graphTable = RuntimeBinding
-        .instantiateSoleImplementingClass(IGraphTableFactory.class)
-        .create(project, vcsRootComboBox);
+    var service = project.getService(GraphTableProvider.class);
+    this.vcsRootComboBox = service.getVcsRootComboBox();
+    this.graphTable = service.getGraphTable();
     this.branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
-
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.

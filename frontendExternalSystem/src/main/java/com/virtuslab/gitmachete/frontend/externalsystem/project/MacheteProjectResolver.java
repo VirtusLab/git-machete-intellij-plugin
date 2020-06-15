@@ -39,11 +39,7 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
         LOG.warn("Graph table provider is undefined");
       } else {
         var graphTable = graphTableProvider.get().getGraphTable();
-        if (graphTable.isEmpty()) {
-          LOG.warn("Graph table is undefined");
-        } else {
-          graphTable.get().queueRepositoryUpdateAndModelRefresh();
-        }
+        graphTable.queueRepositoryUpdateAndModelRefresh();
       }
     }, ModalityState.NON_MODAL);
 

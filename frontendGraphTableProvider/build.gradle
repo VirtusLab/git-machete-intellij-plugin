@@ -1,7 +1,11 @@
 vavr()
 
 dependencies {
+  implementation project(':logging')
+  implementation project(":binding")
+
   api project(":frontendDataKeys")
+  api project(':frontendUiApi')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.root;
+package com.virtuslab.gitmachete.frontend.ui.api.table;
 
 import java.awt.BorderLayout;
 

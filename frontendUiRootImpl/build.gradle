@@ -6,6 +6,7 @@ dependencies {
   implementation project(':frontendActionIds')
   implementation project(':frontendDataKeys')
   implementation project(':frontendExternalSystem')
+  implementation project(':frontendGraphTableProvider')
 
   api project(':frontendUiApi')
 }
