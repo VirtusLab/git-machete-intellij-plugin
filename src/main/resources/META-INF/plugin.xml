@@ -19,7 +19,6 @@
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
-        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl"/>
 
         <fileType language="TEXT" fileNames="machete" name="MACHETE_FILE"
                   implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="INSTANCE"/>
@@ -27,7 +26,6 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="TEXT"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-        <projectService serviceImplementation="com.virtuslab.gitmachete.frontend.externalSystem.project.MacheteAutoImportAware"/>
         <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalSystem.MacheteProjectService"/>
         <!-- "externalIconProvider" is available since 2020.1. The following line shall be uncommented after 2019.3 support is dropped. -->
 <!--        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.externalSystem.MacheteIconProvider"/>-->

@@ -18,6 +18,7 @@ import com.intellij.dvcs.MultiMessage;
 import com.intellij.dvcs.MultiRootMessage;
 import com.intellij.internal.statistic.IdeActivity;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -62,6 +63,7 @@ import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 @CustomLog
 @Deprecated
 @RequiredArgsConstructor
+@Service
 public final class GitFetchSupportImpl implements GitFetchSupport {
 
   private final Project project;
