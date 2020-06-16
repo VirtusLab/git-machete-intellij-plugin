@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.externalsystem.settings;
+package com.virtuslab.gitmachete.frontend.externalSystem.settings;
 
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListener;
 import com.intellij.util.messages.Topic;
