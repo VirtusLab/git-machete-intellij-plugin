@@ -2,9 +2,18 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ThrowableComputable;
+import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VirtualFile;
+import git4idea.branch.GitBrancher;
+import git4idea.config.GitConfigUtil;
+import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
@@ -19,6 +28,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
+
+  private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideout.deletelocalbranch";
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -87,10 +98,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
       LOG.info("Writing new branch layout into file");
       branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
-
-      LOG.debug("Refreshing repository state");
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
+
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
       String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
@@ -99,5 +108,56 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
           exceptionMessage == null ? "" : exceptionMessage);
     }
+
+    LOG.debug("Refreshing repository state");
+    deleteIfRequiredAndRefresh(anActionEvent, branchName);
+  }
+
+  private void deleteIfRequiredAndRefresh(AnActionEvent anActionEvent, String branchName) {
+    var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
+
+    boolean isRefreshScheduled = false;
+    if (selectedVcsRepository.isDefined()) {
+      var root = selectedVcsRepository.get().getRoot();
+      var project = getProject(anActionEvent);
+      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigKeyValue(root, project);
+      if (shallDeleteLocalBranch) {
+        var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+            .map(b -> b.equals(branchName))
+            .getOrElse(true);
+        if (slidOutBranchIsCurrent) {
+          LOG.warn("Skipping local branch deletion because it is equal to current branch");
+        }
+
+        var branchesToContainingRepositories = java.util.Collections.<String, java.util.List<? extends GitRepository>>singletonMap(
+            branchName,
+            selectedVcsRepository.toJavaList());
+        GitBrancher.getInstance(project).deleteBranches(branchesToContainingRepositories,
+            () -> getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh());
+        isRefreshScheduled = true;
+      }
+    }
+
+    if (!isRefreshScheduled) {
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+    }
+  }
+
+  private boolean getDeleteLocalBranchOnSlideOutGitConfigKeyValue(VirtualFile root, Project project) {
+    try {
+      ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
+          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
+      var value = ApplicationManager.getApplication().runReadAction(computable);
+      boolean result = false;
+      if (value != null) {
+        Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
+        result = booleanValue != null && booleanValue;
+      }
+      return result;
+    } catch (VcsException e) {
+      // ignore
+    }
+
+    return false;
   }
 }
