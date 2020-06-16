@@ -150,6 +150,7 @@ subprojects {
       '-AshowSuppressWarningKeys',
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
+      '-AskipDefs=MacheteParser|MacheteLexerAdapter|MacheteLexer',
     ]
   }
 

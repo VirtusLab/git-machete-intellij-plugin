@@ -20,11 +20,11 @@
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
 
-        <fileType language="TEXT" fileNames="machete" name="MACHETE_FILE"
+        <fileType language="Machete" fileNames="machete" name="MACHETE_FILE"
                   implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="INSTANCE"/>
-        <lang.fileViewProviderFactory language="TEXT"
+        <lang.fileViewProviderFactory language="Machete"
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
-        <completion.contributor language="TEXT"
+        <completion.contributor language="Machete"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
         <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalSystem.MacheteProjectService"/>
         <!-- "externalIconProvider" is available since 2020.1. The following line shall be uncommented after 2019.3 support is dropped. -->
@@ -32,6 +32,9 @@
 
         <registryKey key="MACHETE.system.in.process" defaultValue="true"
                      description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>
+
+        <lang.parserDefinition language="Machete"
+                               implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteParserDefinition"/>
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>
