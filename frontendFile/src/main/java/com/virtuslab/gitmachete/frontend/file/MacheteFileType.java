@@ -10,7 +10,7 @@ public final class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
 
   private MacheteFileType() {
-    super(PlainTextLanguage.INSTANCE);
+    super(MacheteLanguage.INSTANCE);
   }
 
   @Override

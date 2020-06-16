@@ -5,3 +5,5 @@ dependencies {
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
+
+sourceSets.main.java.srcDirs 'src/main/gen'

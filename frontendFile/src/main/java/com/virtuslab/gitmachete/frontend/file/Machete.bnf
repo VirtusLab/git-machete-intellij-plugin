@@ -1,0 +1,22 @@
+{
+  parserClass="com.virtuslab.gitmachete.frontend.file.MacheteParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Machete"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.virtuslab.gitmachete.frontend.file"
+  psiImplPackage="com.virtuslab.gitmachete.frontend.file.impl"
+
+  elementTypeHolderClass="com.virtuslab.gitmachete.frontend.file.MacheteTypes"
+  elementTypeClass="com.virtuslab.gitmachete.frontend.file.MacheteElementType"
+  tokenTypeClass="com.virtuslab.gitmachete.frontend.file.MacheteTokenType"
+
+  psiImplUtilClass="com.virtuslab.gitmachete.frontend.file.impl.MachetePsiImplUtil"
+}
+
+simpleFile ::= item_*
+
+private item_ ::= (branch|COMMENT|CRLF)
+
+branch ::= INDENTATION* ((PREFIX SEPARATOR NAME) | NAME)
