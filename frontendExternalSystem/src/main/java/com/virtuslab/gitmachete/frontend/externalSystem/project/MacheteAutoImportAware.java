@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.externalsystem.project;
+package com.virtuslab.gitmachete.frontend.externalSystem.project;
 
 import java.io.File;
 import java.util.Objects;

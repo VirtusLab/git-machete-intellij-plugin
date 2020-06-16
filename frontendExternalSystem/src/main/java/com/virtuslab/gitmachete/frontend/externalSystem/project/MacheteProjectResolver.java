@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.externalsystem.project;
+package com.virtuslab.gitmachete.frontend.externalSystem.project;
 
 import java.io.File;
 
@@ -15,8 +15,8 @@ import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService;
-import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteExecutionSettings;
+import com.virtuslab.gitmachete.frontend.externalSystem.MacheteProjectService;
+import com.virtuslab.gitmachete.frontend.externalSystem.settings.MacheteExecutionSettings;
 import com.virtuslab.gitmachete.frontend.ui.api.table.GraphTableProvider;
 
 @CustomLog
