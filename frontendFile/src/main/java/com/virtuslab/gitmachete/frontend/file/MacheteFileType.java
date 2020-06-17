@@ -3,8 +3,9 @@ package com.virtuslab.gitmachete.frontend.file;
 import javax.swing.Icon;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import icons.MacheteIcons;
+
+import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLanguage;
 
 public final class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType INSTANCE = new MacheteFileType();
@@ -20,7 +21,7 @@ public final class MacheteFileType extends LanguageFileType {
 
   @Override
   public String getName() {
-    return "MACHETE_FILE";
+    return "Machete File";
   }
 
   @Override

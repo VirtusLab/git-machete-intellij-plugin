@@ -139,6 +139,8 @@ interface Application {
 @UIPackage package com.intellij.openapi.fileEditor;
 @UIPackage package com.intellij.openapi.fileTypes;
 
+@UI class SyntaxHighlighter {}
+
 @AlwaysSafe
 class LanguageFileType {}
 

@@ -20,7 +20,7 @@
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
 
-        <fileType language="Machete" fileNames="machete" name="MACHETE_FILE"
+        <fileType language="Machete" fileNames="machete" name="Machete File"
                   implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="INSTANCE"/>
         <lang.fileViewProviderFactory language="Machete"
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
@@ -35,7 +35,12 @@
                      description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>
 
         <lang.parserDefinition language="Machete"
-                               implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteParserDefinition"/>
+                               implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
+
+        <lang.syntaxHighlighterFactory language="Machete"
+                                       implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteSyntaxHighlighterFactory"/>
+
+        <colorSettingsPage implementation="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteColorSettingsPane"/>
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>
