@@ -15,6 +15,8 @@ public final class MacheteIcons {
 
   public static final Icon FETCH = IconLoader.getIcon("/download.svg");
 
+  public static final Icon HELP = IconLoader.getIcon("/help.svg");
+
   public static final Icon MACHETE_FILE = IconLoader.getIcon("/macheteFileIcon.svg");
 
   public static final Icon MACHETE_LOAD_CHANGES = IconLoader.getIcon("/macheteLoadChanges.svg");

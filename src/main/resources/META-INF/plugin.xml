@@ -156,7 +156,7 @@
 
             <action id="GitMachete.HelpAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.HelpAction"
-                    icon="AllIcons.Actions.Help">
+                    icon="MacheteIcons.HELP">
                 <!--                <override-text place="GitMacheteToolbar"/>-->
             </action>
         </group>

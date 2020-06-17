@@ -133,7 +133,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
   }
 
   private final class FpCommit extends Commit implements IGitMacheteForkPointCommit {
-    public FpCommit(String msg) {
+    FpCommit(String msg) {
       super(msg);
     }
 
