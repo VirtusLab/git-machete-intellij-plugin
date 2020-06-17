@@ -10,6 +10,6 @@ public class MacheteTokenType extends IElementType {
 
   @Override
   public String toString() {
-    return "MacheteTokenType." + super.toString();
+    return MacheteTokenType.class.getSimpleName() + super.toString();
   }
 }
