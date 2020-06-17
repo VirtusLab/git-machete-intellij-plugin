@@ -77,6 +77,7 @@ if [ $# -eq 3 ]; then
 elif [ $# -eq 1 ]; then
   target_version=$1
 
-  # Using -i='' and not just -i to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.
-  sed -i='' "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
+  # Using -i.bak and not just -i to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.
+  sed -i.bak "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
+  rm -f version.gradle.bak
 fi
