@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.cell;
 
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
@@ -129,11 +130,11 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IGitMacheteForkPointCommit forkPoint = containingBranch.getForkPoint().getOrNull();
 
       if (commitItem.getCommit().equals(forkPoint)) {
-        var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, Colors.RED);
-        append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ? ", textAttributes);
-        var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "
-            + forkPoint.getBranchesContainingInReflog().mkString(", ");
-        append(text, REGULAR_ATTRIBUTES);
+        append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ? ", new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+        append("commit ", REGULAR_ATTRIBUTES);
+        append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
+        append(" has been found in reflog of ", REGULAR_ATTRIBUTES);
+        append(forkPoint.getBranchesContainingInReflog().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
       }
     }
   }
