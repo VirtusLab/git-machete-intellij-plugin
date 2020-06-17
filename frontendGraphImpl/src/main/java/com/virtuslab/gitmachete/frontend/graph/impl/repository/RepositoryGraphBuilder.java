@@ -20,6 +20,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
@@ -41,6 +42,7 @@ import com.virtuslab.gitmachete.frontend.graph.impl.items.BranchItem;
 import com.virtuslab.gitmachete.frontend.graph.impl.items.CommitItem;
 
 @Accessors(fluent = true)
+@CustomLog
 public class RepositoryGraphBuilder {
 
   @Setter
@@ -53,8 +55,13 @@ public class RepositoryGraphBuilder {
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public IRepositoryGraph build() {
+    LOG.startTimer().info("Entering");
+
     Tuple2<List<IGraphItem>, List<List<Integer>>> graphData = deriveGraphItemsAndPositionsOfVisibleEdges();
-    return new RepositoryGraph(graphData._1(), graphData._2());
+    var result = new RepositoryGraph(graphData._1(), graphData._2());
+
+    LOG.withTimeElapsed().info("Finished");
+    return result;
   }
 
   private Tuple2<List<IGraphItem>, List<List<Integer>>> deriveGraphItemsAndPositionsOfVisibleEdges() {

@@ -6,7 +6,7 @@ import com.intellij.util.ui.JBUI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.impl.table.GraphTableModel;
@@ -17,9 +17,9 @@ public final class DemoGraphTable extends JBTable {
 
   @UIEffect
   private static DemoGraphTable deriveInstance() {
-    var repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
+    var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
     var gitMacheteRepository = new DemoGitMacheteRepository();
-    var repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, /* isListingCommits */ true);
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepository, /* isListingCommits */ true);
     var graphTableModel = new GraphTableModel(repositoryGraph);
     return new DemoGraphTable(graphTableModel);
   }

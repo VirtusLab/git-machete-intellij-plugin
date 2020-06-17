@@ -28,10 +28,11 @@ public class ToggleListingCommitsAction extends ToggleAction
     super.update(anActionEvent);
 
     var branchLayout = getBranchLayout(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+
     if (branchLayout.isDefined()) {
       boolean anyChildBranchExists = branchLayout.get().getRootEntries()
           .exists(rootBranch -> rootBranch.getSubentries().nonEmpty());
-      var presentation = anActionEvent.getPresentation();
       if (anyChildBranchExists) {
         presentation.setEnabled(true);
         presentation.setDescription("Toggle listing commits");
@@ -39,6 +40,9 @@ public class ToggleListingCommitsAction extends ToggleAction
         presentation.setEnabled(false);
         presentation.setDescription("Toggle listing commits disabled: no child branches present");
       }
+    } else {
+      presentation.setEnabled(false);
+      presentation.setDescription("Toggle listing commits disabled: no branches present");
     }
   }
 

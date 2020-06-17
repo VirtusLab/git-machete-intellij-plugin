@@ -52,7 +52,8 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
@@ -66,7 +67,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   private final Project project;
 
   private final IBranchLayoutReader branchLayoutReader;
-  private final IRepositoryGraphFactory repositoryGraphFactory;
+  private final IRepositoryGraphCache repositoryGraphCache;
 
   @Getter
   @Setter
@@ -81,11 +82,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
   @UIEffect
   public GitMacheteGraphTable(Project project) {
-    super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
+    super(new GraphTableModel(NullRepositoryGraph.getInstance()));
 
     this.project = project;
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-    this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
+    this.repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
     this.isListingCommits = false;
 
     // InitializationChecker allows us to invoke the below methods because the class is final
@@ -147,13 +148,14 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     IRepositoryGraph repositoryGraph;
     if (gitMacheteRepository == null) {
-      repositoryGraph = IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH;
+      repositoryGraph = NullRepositoryGraph.getInstance();
     } else {
-      repositoryGraph = repositoryGraphFactory.getRepositoryGraph(gitMacheteRepository, isListingCommits);
+      repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepository, isListingCommits);
       if (gitMacheteRepository.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
-            "Provided machete file (${macheteFilePath}) is empty.",
-            "Open machete file", () -> invokeOpenMacheteFileAction());
+            /* upperText */ "Provided machete file (${macheteFilePath}) is empty.",
+            /* lowerText */ "Open machete file",
+            /* onClickRunnableAction */ () -> invokeOpenMacheteFileAction());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
     }

@@ -4,9 +4,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
-import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 
-public class RepositoryGraphFactory implements IRepositoryGraphFactory {
+public class RepositoryGraphCache implements IRepositoryGraphCache {
 
   @MonotonicNonNull
   private IRepositoryGraph repositoryGraphWithCommits = null;

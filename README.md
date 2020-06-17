@@ -18,17 +18,20 @@ gitcore
 gitmachete.backend
 gitmachete.frontend.actions
 gitmachete.frontend.externalsystem
+gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
 
 The standard practice in Java logging is to use fully-qualified name of each class as category;
 in our case, however, we're only ever using the categories provided above.
+FQCN (and method name), however, is always a part of the log message itself.
 
 By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
-The exact location depends on IntelliJ version and OS, check `Help` -> `Show Log in Files` to find out. <br/>
+The exact location depends on a specific IntelliJ installation; check `Help` -> `Show Log in Files` to find out. <br/>
 Tip: use `tail -f` to watch the log file as it grows.
 
 To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`. <br/>
+A relatively small amount of `TRACE`-level logs is generated as well.
 
 
 ## Development
