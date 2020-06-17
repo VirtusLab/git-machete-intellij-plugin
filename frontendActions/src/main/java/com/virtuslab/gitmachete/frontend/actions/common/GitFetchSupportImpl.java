@@ -12,7 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.intellij.dvcs.MultiMessage;
 import com.intellij.dvcs.MultiRootMessage;
@@ -27,6 +26,7 @@ import com.intellij.openapi.progress.util.BackgroundTaskUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
@@ -417,12 +417,10 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     }
 
     private String buildMessage(String failureTitle) {
-      var roots = results.keySet().map(it -> it.getRoot()).collect(Collectors.toList());
+      java.util.List<VirtualFile> roots = results.keySet().map(it -> it.getRoot()).toJavaList();
       var errorMessage = new MultiRootMessage(project, roots, /* rootInPrefix */ true, /* html */ true);
       var prunedRefs = new MultiRootMessage(project, roots, /* rootInPrefix */ false, /* html */ true);
-      var failed = results.toStream()
-          .filter(e -> !e._2().totallySuccessful())
-          .collect(HashMap.collector());
+      Map<GitRepository, RepoResult> failed = results.rejectValues(RepoResult::totallySuccessful);
 
       for (Tuple2<GitRepository, RepoResult> fail : failed) {
         String error = fail._2().error();

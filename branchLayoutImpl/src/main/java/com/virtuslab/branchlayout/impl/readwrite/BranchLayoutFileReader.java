@@ -101,7 +101,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
         .filter(t -> t._1()._2() == upstreamLineIndex)
         .map(t -> createEntry(lines.get(t._2()),
             buildEntriesStructure(lines, lineIndexToUpstreamLineIndex, t._2())))
-        .collect(List.collector());
+        .toList();
   }
 
   /**

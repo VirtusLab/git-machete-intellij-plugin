@@ -222,7 +222,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<IGitCoreLocalBranch> deriveAllLocalBranches() throws GitCoreException {
-    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug(() -> "Entering: this = ${this}");
     LOG.debug("List of local branches:");
     return Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
@@ -244,8 +244,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private List<IGitCoreRemoteBranch> deriveRemoteBranchesForRemote(String remoteName) throws GitCoreException {
-    LOG.debug(() -> "Entering: remoteName = ${remoteName}, repository = ${mainDirectoryPath} (${gitDirectoryPath})");
-    LOG.debug("List of remote branches of '${remoteName}':");
+    LOG.debug(() -> "Entering: this = ${this}, remoteName = ${remoteName}");
+    LOG.debug(() -> "List of remote branches of '${remoteName}':");
     String remoteBranchFullNamePrefix = Constants.R_REMOTES + remoteName + "/";
     return Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(remoteBranchFullNamePrefix))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of remote branches", e))
@@ -323,28 +323,31 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private Option<GitCoreCommitHash> deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
-    LOG.debug(() -> "Entering: repository = ${mainDirectoryPath} (${gitDirectoryPath})");
+    LOG.debug(() -> "Entering: this = ${this}");
 
     return withRevWalk(walk -> {
       walk.setRevFilter(RevFilter.MERGE_BASE);
       walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c1)));
       walk.markStart(walk.parseCommit(gitCoreCommitToObjectId(c2)));
 
-      // Note that we'll get asking for one merge-base here
+      // Note that we're asking for only one merge-base here
       // even if there is more than one (in the rare case of criss-cross histories).
       // This is still okay from the perspective of is-ancestor checks:
       // * if any of c1, c2 is an ancestor of another,
       //   then there is exactly one merge-base - the ancestor,
       // * if neither of c1, c2 is an ancestor of another,
-      //   then none of the (possibly more than one) merge-bases is equal to either of c1/c2 anyway.
+      //   then none of the (possibly more than one) merge-bases is equal to either of c1 or c2 anyway.
       // This might NOT necessarily be OK from the perspective of remote tracking status
       // i.e. the number of commits ahead of/behind remote, but in case of criss-cross histories
       // it's basically impossible to get these numbers correctly in a unambiguous manner.
       @Unique RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is ${mergeBase.getId().getName()}");
-      GitCoreCommitHash mergeBaseHash = mergeBase != null ? GitCoreCommitHash.of(mergeBase.getId()) : null;
-      return Option.of(mergeBaseHash);
+      if (mergeBase != null) {
+        return Option.some(GitCoreCommitHash.of(mergeBase.getId()));
+      } else {
+        return Option.none();
+      }
     });
   }
 

@@ -75,6 +75,7 @@ public class RepositoryGraph implements IRepositoryGraph {
    * @param itemIndex item index
    * @return list of visible edges in a given item index
    */
+  @SuppressWarnings({"lowerbound:return.type.incompatible", "value:return.type.incompatible"})
   public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int itemIndex) {
     assert itemIndex < positionsOfVisibleEdges.size() : "Bad itemIndex: " + itemIndex;
 
@@ -101,6 +102,6 @@ public class RepositoryGraph implements IRepositoryGraph {
           && downNodeIndex < positionsOfVisibleEdges.size() : "upNodeIndex or downNodeIndex has wrong value";
 
       return Tuple.of(new GraphEdge(upNodeIndex, downNodeIndex), pos);
-    }).collect(List.collector());
+    });
   }
 }

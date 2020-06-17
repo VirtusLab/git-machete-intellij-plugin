@@ -8,6 +8,21 @@ import org.checkerframework.checker.fenum.qual.Fenum;
 
 // Meet FenumChecker and its rather unorthodox/off-label usage.
 
+package io.vavr;
+
+// Invocation of `collect` on a Vavr Value (including Array, List, Map, Set etc.) is almost always avoidable,
+// and in many cases indicates that a redundant conversion is being performed (like `collect`-ing a List into another List etc.).
+// Use dedicated methods like `.toList()`, `.toJavaList()`, `.toSet()` etc.
+// You might consider suppressing this error, however, if the Value in question is a Vavr Stream.
+
+interface Value<T> {
+  <R, A> R collect(
+    @Fenum("io.vavr.Value#collect is discouraged, see config/checker/FORBIDDEN-METHODS.astub") Value<T> this,
+    java.util.stream.Collector<? super T, A, R> collector
+  );
+}
+
+
 package io.vavr.collection;
 
 // io.vavr.collection.<X>#peek and java.util.stream.Stream#peek unexpectedly differ in their behaviour.
@@ -17,27 +32,42 @@ package io.vavr.collection;
 // Usage of Java `Stream#peek` is discouraged but not forbidden (since it's pretty useful and alternatives are cumbersome).
 
 // Note that in the below stubs, `@Fenum` is always applied to `this` and not to the `Consumer` param.
-// If only `action` (and not `this`) was `@Fenum(...)` instead, then for some reason `FenumChecker` wouldn't raise an error if a lambda was passed,
-// which is likely >90% of cases for `Consumer`s and similar functional interfaces.
+// If only `action` (and not `this`) was `@Fenum(...)` instead, then for some reason `FenumChecker` wouldn't raise an error
+// if a lambda was passed for `action`, which is likely >90% of cases for `Consumer`s and similar functional interfaces.
 
 class Array<T> {
-  Array<T> peek(@Fenum("Array#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Array<T> this, Consumer<? super T> action);
+  Array<T> peek(
+    @Fenum("io.vavr.collection.Array#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Array<T> this,
+    Consumer<? super T> action
+  );
 }
 
 interface Iterator<T> {
-  Iterator<T> peek(@Fenum("Iterator#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Iterator<T> this, Consumer<? super T> action);
+  Iterator<T> peek(
+    @Fenum("io.vavr.collection.Iterator#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Iterator<T> this,
+    Consumer<? super T> action
+  );
 }
 
 interface List<T> {
-  List<T> peek(@Fenum("List#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") List<T> this, Consumer<? super T> action);
+  List<T> peek(
+    @Fenum("io.vavr.collection.List#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") List<T> this,
+    Consumer<? super T> action
+  );
 }
 
 interface Stream<T> {
-  Stream<T> peek(@Fenum("Stream#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Stream<T> this, Consumer<? super T> action);
+  Stream<T> peek(
+    @Fenum("io.vavr.collection.Stream#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Stream<T> this,
+    Consumer<? super T> action
+  );
 }
 
 interface Traversable<T> {
-  Traversable<T> peek(@Fenum("Traversable#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Traversable<T> this, Consumer<? super T> action);
+  Traversable<T> peek(
+    @Fenum("io.vavr.collection.Traversable#peek is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Traversable<T> this,
+    Consumer<? super T> action
+  );
 }
 
 
@@ -51,5 +81,7 @@ package io.vavr.control;
 // or (obviously) `toString` calls performed under the hood by the methods that aren't a part of our codebase.
 
 interface Option<T> {
-  String toString(@Fenum("Option#toString is forbidden, see config/checker/FORBIDDEN-METHODS.astub") Option<T> this);
+  String toString(
+    @Fenum("io.vavr.control.Option#toString is discouraged, see config/checker/FORBIDDEN-METHODS.astub") Option<T> this
+  );
 }

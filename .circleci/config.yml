@@ -23,10 +23,17 @@ jobs:
 
             apt-get update
             apt-get install -y maven
+
+            git clone https://github.com/PawelLipski/compile-test.git ~/compile-test
+            cd ~/compile-test
+            # https://github.com/jupiter-tools/compile-test/pull/1/files
+            git checkout 771ff275067388fb2b1afb798790415aaf8d925d
+            mvn install
+
             git clone https://github.com/PawelLipski/better-strings.git ~/better-strings
             cd ~/better-strings
             # https://github.com/antkorwin/better-strings/pull/14/files
-            git checkout 7911014a56af52ba32c9b7c29910138fd5d40c2b
+            git checkout 8d419868204fc7810de4d7685e7fd9b0793813f9
             mvn install
       - run:
           name: Compile production code without delombok
