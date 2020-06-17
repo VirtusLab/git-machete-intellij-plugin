@@ -1,0 +1,24 @@
+{
+  parserClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Machete"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.virtuslab.gitmachete.frontend.file.grammar"
+  psiImplPackage="com.virtuslab.gitmachete.frontend.file.grammar.impl"
+
+  elementTypeHolderClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteTypes"
+  elementTypeClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteElementType"
+  tokenTypeClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteTokenType"
+
+  psiImplUtilClass="com.virtuslab.gitmachete.frontend.file.grammar.impl.MachetePsiImplUtil"
+}
+
+simpleFile ::= item_*
+
+// Even if we don't have comments in our machete file this element must be here - language parser definition
+// (in file MacheteParserDefinition) enforces us to define element that represent comments
+private item_ ::= (entry|COMMENT|EOL)
+
+entry ::= INDENTATION? PREFIX? NAME CUSTOM_ANNOTATION?
