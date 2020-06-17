@@ -72,6 +72,11 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 See [Gradle Intellij plugin docs](https://github.com/JetBrains/gradle-intellij-plugin/tree/master/examples/ui-test-example)
 for more details.
 
+In case of spurious cache-related issues with Gradle build, try one of the following:
+* `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
+* remove .gradle/ directory in the project directory
+* remove ~/.gradle/caches/ (or even ~/.gradle/) directory
+
 
 ### Generate plugin zip
 
