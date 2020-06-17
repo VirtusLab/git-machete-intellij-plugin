@@ -130,8 +130,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
       if (commitItem.getCommit().equals(forkPoint)) {
         var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, Colors.RED);
-        append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ??? ", textAttributes);
-
+        append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ? ", textAttributes);
         var text = "commit ${forkPoint.getShortHash()} has been found in reflog of "
             + forkPoint.getBranchesContainingInReflog().mkString(", ");
         append(text, REGULAR_ATTRIBUTES);
