@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.demo;
+package com.virtuslab.gitmachete.frontend.ui.demo;
 
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;

@@ -11,7 +11,7 @@ import com.intellij.util.ui.JBUI;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.ui.impl.demo.DemoGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.demo.DemoGraphTable;
 
 public class HelpAction extends DumbAwareAction {
   @Override

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.demo;
+package com.virtuslab.gitmachete.frontend.ui.demo;
 
 import java.time.Instant;
 
@@ -8,15 +8,19 @@ import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.NotImplementedException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.common.value.qual.ArrayLen;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.BaseGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -24,45 +28,46 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 public class DemoGitMacheteRepository implements IGitMacheteRepository {
 
-  private final List<BaseGitMacheteRootBranch> roots;
+  private final List<IGitMacheteRootBranch> roots;
 
   public DemoGitMacheteRepository() {
     var nullPointedCommit = new Commit("");
+    var fp = new FpCommit("Fork point commit");
     NonRoot[] nonRoots = {
         new NonRoot(/* name */ "allow-ownership-link",
-            /* customAnnotation */ "#Branch is merged to its parent branch",
+            /* customAnnotation */ "#Gray edge: branch is merged to its parent branch",
             nullPointedCommit,
-            getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote),
+            /* fork point */ null,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.empty(),
             SyncToParentStatus.MergedToParent),
         new NonRoot(/* name */ "build-chain",
-            /* customAnnotation */ "#Branch is in sync to its parent branch",
+            /* customAnnotation */ "#Green edge: branch is in sync to its parent branch",
             nullPointedCommit,
-            getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote),
+            /* fork point */ null,
             /* downstreamBranches */ List.empty(),
-            /* commits */ List.empty(),
+            /* commits */ List.of(new Commit("Second commit of build-chain"),
+                new Commit("First commit of build-chain")),
             SyncToParentStatus.InSync),
         new NonRoot(/* name */ "call-ws",
-            /* customAnnotation */ "#Branch is in sync to its parent branch but the fork point is off",
+            /* customAnnotation */ "#Yellow edge: Branch is in sync to its parent branch but the fork point is not equal to parent branch",
             nullPointedCommit,
-            getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote),
+            /* fork point */ fp,
             /* downstreamBranches */ List.empty(),
-            /* commits */ List.empty(),
+            /* commits */ List.of(fp),
             SyncToParentStatus.InSyncButForkPointOff),
         new NonRoot(/* name */ "remove-ff",
-            /* customAnnotation */ "#Branch is out of sync to its parent branch",
+            /* customAnnotation */ "#Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
-            getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote),
+            /* fork point */ null,
             /* downstreamBranches */ List.empty(),
-            /* commits */ List.empty(),
+            /* commits */ List.of(new Commit("Some commit")),
             SyncToParentStatus.OutOfSync)
     };
 
     var root = new Root(/* name */ "develop",
-        /* customAnnotation */ "this is a root branch",
+        /* customAnnotation */ "#This is a root branch, the underline indicates that it is the current branch",
         nullPointedCommit,
-        getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote),
         /* downstreamBranches */ List.of(nonRoots));
 
     for (var nr : nonRoots) {
@@ -82,17 +87,17 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public List<BaseGitMacheteRootBranch> getRootBranches() {
+  public List<IGitMacheteRootBranch> getRootBranches() {
     return roots;
   }
 
   @Override
-  public Option<BaseGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
     return Option.narrow(roots.headOption());
   }
 
   @Override
-  public Option<BaseGitMacheteBranch> getBranchByName(String branchName) {
+  public Option<IGitMacheteBranch> getBranchByName(String branchName) {
     throw new NotImplementedError();
   }
 
@@ -102,18 +107,23 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
   }
 
   @AllArgsConstructor
-  private final class Commit implements IGitMacheteCommit {
+  private class Commit implements IGitMacheteCommit {
 
     private final String msg;
 
     @Override
-    public String getMessage() {
+    public String getShortMessage() {
       return msg;
     }
 
     @Override
-    public String getHash() {
+    public @ArrayLen(40) String getHash() {
       throw new NotImplementedError();
+    }
+
+    @Override
+    public @ArrayLen(7) String getShortHash() {
+      throw new NotImplementedException();
     }
 
     @Override
@@ -122,18 +132,39 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     }
   }
 
+  private final class FpCommit extends Commit implements IGitMacheteForkPointCommit {
+    public FpCommit(String msg) {
+      super(msg);
+    }
+
+    @Override
+    public @ArrayLen(7) String getShortHash() {
+      return "1461ce9";
+    }
+
+    @Override
+    public List<String> getBranchesWhereFoundInReflog() {
+      return List.of("some-other-branch");
+    }
+  }
+
   @Getter
   @AllArgsConstructor
-  private final class Root extends BaseGitMacheteRootBranch {
+  private final class Root implements IGitMacheteRootBranch {
     private final String name;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final SyncToRemoteStatus syncToRemoteStatus;
-    private final List<BaseGitMacheteNonRootBranch> downstreamBranches;
+    private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
+    private final List<IGitMacheteNonRootBranch> downstreamBranches;
 
     @Override
     public Option<String> getCustomAnnotation() {
       return Option.of(customAnnotation);
+    }
+
+    @Override
+    public Option<String> getStatusHookOutput() {
+      return Option.none();
     }
 
     @Override
@@ -144,25 +175,26 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
 
   @Getter
   @RequiredArgsConstructor
-  private final class NonRoot extends BaseGitMacheteNonRootBranch {
+  private final class NonRoot implements IGitMacheteNonRootBranch {
     private final String name;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final SyncToRemoteStatus syncToRemoteStatus;
-    private final List<BaseGitMacheteNonRootBranch> downstreamBranches;
+    private final @Nullable IGitMacheteForkPointCommit forkPoint;
+    private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
+    private final List<IGitMacheteNonRootBranch> downstreamBranches;
 
     private final List<IGitMacheteCommit> commits;
     @MonotonicNonNull
-    private BaseGitMacheteBranch upstreamBranch = null;
+    private IGitMacheteBranch upstreamBranch = null;
     private final SyncToParentStatus syncToParentStatus;
 
     @Override
-    public BaseGitMacheteBranch getUpstreamBranch() {
+    public IGitMacheteBranch getUpstreamBranch() {
       assert upstreamBranch != null : "upstreamBranch hasn't been set yet";
       return upstreamBranch;
     }
 
-    void setUpstreamBranch(BaseGitMacheteBranch givenUpstreamBranch) {
+    void setUpstreamBranch(IGitMacheteBranch givenUpstreamBranch) {
       assert upstreamBranch == null : "upstreamBranch has already been set";
       upstreamBranch = givenUpstreamBranch;
     }
@@ -173,8 +205,13 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     }
 
     @Override
-    public Option<IGitMacheteCommit> getForkPoint() {
+    public Option<String> getStatusHookOutput() {
       return Option.none();
+    }
+
+    @Override
+    public Option<IGitMacheteForkPointCommit> getForkPoint() {
+      return Option.of(forkPoint);
     }
 
     @Override
