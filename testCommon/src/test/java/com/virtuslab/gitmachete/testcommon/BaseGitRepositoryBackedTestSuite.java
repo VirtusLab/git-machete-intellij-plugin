@@ -1,13 +1,18 @@
 package com.virtuslab.gitmachete.testcommon;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 public abstract class BaseGitRepositoryBackedTestSuite {
 
@@ -23,13 +28,11 @@ public abstract class BaseGitRepositoryBackedTestSuite {
   protected final Path repositoryGitDir;
 
   @SneakyThrows
-  protected BaseGitRepositoryBackedTestSuite() {
+  protected BaseGitRepositoryBackedTestSuite(String scriptName) {
     parentDir = Files.createTempDirectory("machete-tests-");
     repositoryMainDir = parentDir.resolve("machete-sandbox");
     repositoryGitDir = repositoryMainDir.resolve(".git");
-  }
 
-  protected void init(String scriptName) {
     copyScriptFromResources("common.sh");
     copyScriptFromResources(scriptName);
     prepareRepoFromScript(scriptName);
@@ -59,4 +62,15 @@ public abstract class BaseGitRepositoryBackedTestSuite {
     Assert.assertTrue(completed);
     Assert.assertEquals(0, process.exitValue());
   }
+
+  @Rule(order = Integer.MIN_VALUE)
+  public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
+    @Override
+    @SneakyThrows
+    protected void succeeded(Description description) {
+      Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+
+    // After a failed test, keep the parent directory intact for further manual inspection.
+  };
 }

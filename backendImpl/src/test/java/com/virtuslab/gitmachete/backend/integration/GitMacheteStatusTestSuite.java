@@ -10,18 +10,13 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
+import static org.junit.runners.Parameterized.Parameters;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -35,86 +30,56 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 
+@RunWith(Parameterized.class)
 public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite {
-  private IGitMacheteRepository gitMacheteRepository = null;
+
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private final IGitMacheteRepository gitMacheteRepository;
+
+  @Parameters(name = "{0} (#{index})")
+  public static String[] getScriptNames() {
+    return new String[]{
+        SETUP_FOR_NO_REMOTES,
+        SETUP_WITH_SINGLE_REMOTE,
+        SETUP_WITH_MULTIPLE_REMOTES,
+        SETUP_FOR_DIVERGED_AND_OLDER_THAN,
+        SETUP_FOR_YELLOW_EDGES,
+        SETUP_FOR_OVERRIDDEN_FORK_POINT,
+    };
+  }
 
   @SneakyThrows
-  protected void init(String scriptName) {
-    super.init(scriptName);
+  public GitMacheteStatusTestSuite(String scriptName) {
+    super(scriptName);
     IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
     gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }
 
   @Test
-  public void statusWithNoRemotes() {
-    init(SETUP_FOR_NO_REMOTES);
-    compareToCli();
-  }
-
-  @Test
-  public void statusWithSingleRemote() {
-    init(SETUP_WITH_SINGLE_REMOTE);
-    compareToCli();
-  }
-
-  @Test
-  public void statusWithMultiRemotes() {
-    init(SETUP_WITH_MULTIPLE_REMOTES);
-    compareToCli();
-  }
-
-  @Test
-  public void statusWithDivergedAndOlderThan() {
-    init(SETUP_FOR_DIVERGED_AND_OLDER_THAN);
-    compareToCli();
-  }
-
-  @Test
-  public void statusWithYellowEdges() {
-    init(SETUP_FOR_YELLOW_EDGES);
-    compareToCli();
-  }
-
-  @Test
-  public void statusWithOverriddenForkPoint() {
-    init(SETUP_FOR_OVERRIDDEN_FORK_POINT);
-    compareToCli();
-  }
-
-  @Rule(order = Integer.MIN_VALUE)
-  public TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
-    @Override
-    @SneakyThrows
-    protected void succeeded(Description description) {
-      Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-    }
-  };
-
-  private void compareToCli() {
-    String ourResult = repositoryStatus();
+  public void hasSameOutputAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatus();
+    String ourStatus = ourStatus();
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
     System.out.println("OUR OUTPUT:");
-    System.out.println(ourResult);
+    System.out.println(ourStatus);
 
-    Assert.assertEquals(gitMacheteCliStatus, ourResult);
+    Assert.assertEquals(gitMacheteCliStatus, ourStatus);
   }
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
     var process = new ProcessBuilder()
-        .command("git", "machete", "status", "-l")
+        .command("git", "machete", "status", "--list-commits")
         .directory(repositoryMainDir.toFile())
         .start();
     return new String(process.getInputStream().readAllBytes());
   }
 
-  private String repositoryStatus() {
+  private String ourStatus() {
     var sb = new StringBuilder();
     var branches = gitMacheteRepository.getRootBranches();
     int lastRootBranchIndex = branches.size() - 1;

@@ -19,6 +19,8 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
 
+  private static final String ORIGIN = "origin";
+
   private final IGitCoreLocalBranch coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranch.class);
   private final IGitCoreRemoteBranch coreRemoteBranch = PowerMockito.mock(IGitCoreRemoteBranch.class);
   private final IGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
@@ -46,7 +48,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_Untracked() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.none()).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -61,7 +63,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_DivergedAndNewerThan() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -87,7 +89,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_DivergedAndOlderThan() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -113,7 +115,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_DivergedAndNewerThan_theSameDates() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -138,7 +140,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_Ahead() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -159,7 +161,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_Behind() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
@@ -180,7 +182,7 @@ public class GitMacheteRepositoryFactory_deriveSyncToRemoteStatusTestSuite exten
   @SneakyThrows
   public void deriveSyncToRemoteStatus_InSync() {
     // given
-    PowerMockito.doReturn(List.of("origin")).when(gitCoreRepository).deriveAllRemoteNames();
+    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 

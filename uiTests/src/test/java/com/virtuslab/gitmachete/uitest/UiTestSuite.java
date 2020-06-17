@@ -17,6 +17,10 @@ public class UiTestSuite extends BaseGitRepositoryBackedTestSuite {
 
   private RemoteRobot remoteRobot;
 
+  public UiTestSuite() {
+    super(SETUP_WITH_SINGLE_REMOTE);
+  }
+
   @SneakyThrows
   private static String loadScript() {
     return new String(
@@ -33,16 +37,14 @@ public class UiTestSuite extends BaseGitRepositoryBackedTestSuite {
   @Test
   @SneakyThrows
   public void openTabAndCountRows() {
-    init(SETUP_WITH_SINGLE_REMOTE);
-
     runJs("configureIde()");
     runJs("closeOpenedProjects()");
-    runJs("openProject('${repositoryMainDir}')");
+    runJs("openProject('" + repositoryMainDir + "')");
 
     int graphTableRowCount = callJs("openTabAndReturnRowCount(soleOpenedProject())");
 
     // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
-    // as set up via `init(SETUP_WITH_SINGLE_REMOTE)`.
+    // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
     Assert.assertEquals(6, graphTableRowCount);
 
     runJs("closeIde()");
