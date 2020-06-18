@@ -151,22 +151,24 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
-      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
+      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getSubentries());
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus,
-          customAnnotation, statusHookOutput);
+      return new GitMacheteRootBranch(branchName, downstreamBranches, pointedCommit, remoteTrackingBranch,
+          syncToRemoteStatus, customAnnotation, statusHookOutput);
     }
 
-    private GitMacheteNonRootBranch createGitMacheteNonRootBranch(
+    private List<GitMacheteNonRootBranch> createGitMacheteNonRootBranch(
         IGitCoreLocalBranch parentCoreLocalBranch,
-        IBranchLayoutEntry entry) throws GitCoreException, GitMacheteException {
+        IBranchLayoutEntry entry) throws GitCoreException {
 
       var branchName = entry.getName();
 
-      IGitCoreLocalBranch coreLocalBranch = localBranchByName.get(branchName)
-          .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
+      IGitCoreLocalBranch coreLocalBranch = localBranchByName.get(branchName).getOrNull();
+      if (coreLocalBranch == null) {
+        return deriveDownstreamBranches(parentCoreLocalBranch, entry.getSubentries());
+      }
 
       IGitCoreCommit corePointedCommit = coreLocalBranch.derivePointedCommit();
 
@@ -174,7 +176,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       var syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, forkPoint);
 
-      // translate IGitCoreCommit list to IGitMacheteCommit list
       List<IGitCoreCommit> commits;
       if (forkPoint == null) {
         // That's a rare case in practice, mostly happens due to reflog expiry.
@@ -191,24 +192,23 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
-      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry);
+      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getSubentries());
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      return new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit, remoteTrackingBranch,
-          syncToRemoteStatus,
-          customAnnotation, statusHookOutput, forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
+      var result = new GitMacheteNonRootBranch(branchName, downstreamBranches, pointedCommit, remoteTrackingBranch,
+          syncToRemoteStatus, customAnnotation, statusHookOutput,
+          forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
+      return List.of(result);
     }
 
     private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
-        throws GitMacheteException {
+        throws GitCoreException {
       IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         return null;
       }
-      IGitCoreCommit coreRemoteBranchPointedCommit = Try.of(() -> coreRemoteBranch.derivePointedCommit())
-          .getOrElseThrow(e -> new GitMacheteException("Cannot get core remote branch pointed commit", e));
-      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranchPointedCommit));
+      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranch.derivePointedCommit()));
     }
 
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(
@@ -374,12 +374,14 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
         IGitCoreLocalBranch parentCoreLocalBranch,
-        IBranchLayoutEntry directUpstreamEntry) throws GitCoreException {
+        List<IBranchLayoutEntry> entries) throws GitCoreException {
 
-      var downstreamBranchTries = directUpstreamEntry.getSubentries().map(entry -> Try.of(
+      var downstreamBranchTries = entries.map(entry -> Try.of(
           () -> createGitMacheteNonRootBranch(parentCoreLocalBranch, entry)));
-      var downstreamBranches = Try.sequence(downstreamBranchTries).getOrElseThrow(GitCoreException::getOrWrap);
-      return List.ofAll(downstreamBranches);
+      var downstreamBranches = Try.sequence(downstreamBranchTries)
+          .getOrElseThrow(GitCoreException::getOrWrap)
+          .flatMap(list -> list);
+      return downstreamBranches.toList();
     }
 
     private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitCoreException {
