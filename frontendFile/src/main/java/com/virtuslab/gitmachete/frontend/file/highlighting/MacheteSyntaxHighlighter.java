@@ -26,7 +26,7 @@ public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
   public static final TextAttributesKey CUSTOM_ANNOTATION = createTextAttributesKey("MACHETE_CUSTOM_ANNOTATION",
       DefaultLanguageHighlighterColors.LINE_COMMENT);
 
-  private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
+  private static final TextAttributesKey[] BAD_CHARACTER_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
   private static final TextAttributesKey[] PREFIX_KEYS = new TextAttributesKey[]{PREFIX};
   private static final TextAttributesKey[] NAME_KEYS = new TextAttributesKey[]{NAME};
   private static final TextAttributesKey[] CUSTOM_ANNOTATION_KEYS = new TextAttributesKey[]{CUSTOM_ANNOTATION};
@@ -43,7 +43,7 @@ public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
         Case($(MacheteGeneratedElementTypes.PREFIX), PREFIX_KEYS),
         Case($(MacheteGeneratedElementTypes.NAME), NAME_KEYS),
         Case($(MacheteGeneratedElementTypes.CUSTOM_ANNOTATION), CUSTOM_ANNOTATION_KEYS),
-        Case($(TokenType.BAD_CHARACTER), BAD_CHAR_KEYS),
+        Case($(TokenType.BAD_CHARACTER), BAD_CHARACTER_KEYS),
         Case($(), EMPTY_KEYS));
   }
 }

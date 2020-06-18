@@ -36,7 +36,7 @@ ANNOTATION=[^\r\n]+
 
 <YYINITIAL> {
     {INDENTATION}                        { return MacheteGeneratedElementTypes.INDENTATION; }
-    {NAME_WITHOUT_SLASH}{SLASH}      { yybegin(AFTER_PREFIX); return MacheteGeneratedElementTypes.PREFIX; }
+    {NAME_WITHOUT_SLASH}{SLASH}          { yybegin(AFTER_PREFIX); return MacheteGeneratedElementTypes.PREFIX; }
     {NAME_WITHOUT_SLASH}                 { yybegin(AFTER_NAME); return MacheteGeneratedElementTypes.NAME; }
     {EOL}                                { return MacheteGeneratedElementTypes.EOL; }
 }
