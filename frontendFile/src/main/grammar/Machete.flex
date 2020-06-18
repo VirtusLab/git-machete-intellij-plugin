@@ -7,7 +7,7 @@ import com.intellij.psi.TokenType;
 
 %%
 
-%class MacheteLexer
+%class MacheteGeneratedLexer
 %implements FlexLexer
 %unicode
 %function advance
@@ -35,24 +35,24 @@ ANNOTATION=[^\r\n]
 %%
 
 <YYINITIAL> {
-    {INDENTATION}+                        { return MacheteTypes.INDENTATION; }
-    {NAME_WITHOUT_SLASH}+{SEPARATOR}      { yybegin(AFTER_PREFIX); return MacheteTypes.PREFIX; }
-    {NAME_WITHOUT_SLASH}+                 { yybegin(AFTER_NAME); return MacheteTypes.NAME; }
-    {EOL}+                                { return MacheteTypes.EOL; }
+    {INDENTATION}+                        { return MacheteGeneratedElementTypes.INDENTATION; }
+    {NAME_WITHOUT_SLASH}+{SEPARATOR}      { yybegin(AFTER_PREFIX); return MacheteGeneratedElementTypes.PREFIX; }
+    {NAME_WITHOUT_SLASH}+                 { yybegin(AFTER_NAME); return MacheteGeneratedElementTypes.NAME; }
+    {EOL}+                                { return MacheteGeneratedElementTypes.EOL; }
 }
 
 <AFTER_PREFIX> {
-    {NAME_WITH_SLASH}+                    { yybegin(AFTER_NAME); return MacheteTypes.NAME; }
+    {NAME_WITH_SLASH}+                    { yybegin(AFTER_NAME); return MacheteGeneratedElementTypes.NAME; }
 }
 
 <AFTER_NAME> {
     {WHITESPACE}+                         { yybegin(CUSTOM_ANNOTATION); return TokenType.WHITE_SPACE; }
-    {EOL}+                                { yybegin(YYINITIAL); return MacheteTypes.EOL; }
+    {EOL}+                                { yybegin(YYINITIAL); return MacheteGeneratedElementTypes.EOL; }
 }
 
 <CUSTOM_ANNOTATION> {
-    {ANNOTATION}+                         { return MacheteTypes.CUSTOM_ANNOTATION; }
-    {EOL}+                                { yybegin(YYINITIAL); return MacheteTypes.EOL; }
+    {ANNOTATION}+                         { return MacheteGeneratedElementTypes.CUSTOM_ANNOTATION; }
+    {EOL}+                                { yybegin(YYINITIAL); return MacheteGeneratedElementTypes.EOL; }
 }
 
 [^]                                       { return TokenType.BAD_CHARACTER; }

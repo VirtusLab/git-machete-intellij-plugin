@@ -14,8 +14,8 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import org.checkerframework.checker.guieffect.qual.UI;
 
+import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLexerAdapter;
-import com.virtuslab.gitmachete.frontend.file.grammar.MacheteTypes;
 
 @UI
 public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
@@ -42,9 +42,9 @@ public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
   @Override
   public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
     return Match(tokenType).of(
-        Case($(MacheteTypes.PREFIX), PREFIX_KEYS),
-        Case($(MacheteTypes.NAME), NAME_KEYS),
-        Case($(MacheteTypes.CUSTOM_ANNOTATION), CUSTOM_ANNOTATION_KEYS),
+        Case($(MacheteGeneratedElementTypes.PREFIX), PREFIX_KEYS),
+        Case($(MacheteGeneratedElementTypes.NAME), NAME_KEYS),
+        Case($(MacheteGeneratedElementTypes.CUSTOM_ANNOTATION), CUSTOM_ANNOTATION_KEYS),
         Case($(TokenType.BAD_CHARACTER), BAD_CHAR_KEYS),
         Case($(), EMPTY_KEYS));
   }

@@ -1,9 +1,45 @@
 vavr()
 
 dependencies {
-   implementation project(':frontendIcons')
+  implementation project(':frontendIcons')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 
-sourceSets.main.java.srcDirs 'src/main/gen'
+
+apply plugin: 'org.jetbrains.grammarkit'
+
+import org.jetbrains.grammarkit.tasks.*
+
+def grammarSourcesRoot = 'src/main/grammar'
+def generatedJavaSourcesRoot = 'build/generated'
+def grammarJavaPackage = 'com.virtuslab.gitmachete.frontend.file.grammar'
+def grammarJavaPackagePath = grammarJavaPackage.replace('.', '/')
+
+sourceSets.main.java.srcDirs += generatedJavaSourcesRoot
+
+task generateMacheteParser(type: GenerateParser) {
+  source = "$grammarSourcesRoot/Machete.bnf"
+  targetRoot = generatedJavaSourcesRoot
+  pathToParser = "/$grammarJavaPackagePath/MacheteGeneratedParser.java"
+  pathToPsiRoot = "/$grammarJavaPackagePath/"
+  purgeOldFiles = false
+}
+
+task generateMacheteLexer(type: GenerateLexer) {
+  dependsOn generateMacheteParser
+
+  source = "$grammarSourcesRoot/Machete.flex"
+  targetDir = "$generatedJavaSourcesRoot/$grammarJavaPackagePath/"
+  targetClass = 'MacheteGeneratedLexer'
+  purgeOldFiles = false
+}
+
+compileJava {
+  dependsOn generateMacheteLexer
+}
+
+checkerFramework {
+  def grammarPackageRegex = grammarJavaPackage.replaceAll('\\.', '\\.') // replace all literal `.` with `\.`
+  extraJavacArgs += "-AskipDefs=^${grammarPackageRegex}\\.MacheteGenerated.*\$"
+}

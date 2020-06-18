@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
-import java.util.Map;
-
 import javax.swing.Icon;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -42,7 +40,7 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
   }
 
   @Override
-  public @Nullable Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
+  public java.util.@Nullable Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
     return null;
   }
 

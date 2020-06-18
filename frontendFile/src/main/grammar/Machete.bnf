@@ -1,18 +1,16 @@
 {
-  parserClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParser"
+  parserClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedParser"
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
-  psiClassPrefix="Machete"
+  psiClassPrefix="MacheteGenerated"
   psiImplClassSuffix="Impl"
   psiPackage="com.virtuslab.gitmachete.frontend.file.grammar"
   psiImplPackage="com.virtuslab.gitmachete.frontend.file.grammar.impl"
 
-  elementTypeHolderClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteTypes"
+  elementTypeHolderClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes"
   elementTypeClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteElementType"
   tokenTypeClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteTokenType"
-
-  psiImplUtilClass="com.virtuslab.gitmachete.frontend.file.grammar.impl.MachetePsiImplUtil"
 }
 
 simpleFile ::= item_*
