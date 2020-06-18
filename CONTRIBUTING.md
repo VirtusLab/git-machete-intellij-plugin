@@ -68,8 +68,8 @@ After a release e.g. `1.0.3`, we might have the following sequence of versions:
 * `1.0.4-2`
 * `1.0.4-3`
 * `1.1.0-1` - coz we've just adding new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
-* `1.1.0-2`
-* `1.1.0` - finally releasing as minor release; as a consequence, `1.0.4` never actually gets released
+* `1.1.0-2` - note that even if a new feature has been added from `1.1.0-1`, the released version is still going to be `1.1.0` (not `1.2.0`)
+* `1.1.0`   - finally releasing as minor release; as a consequence, `1.0.4` never actually gets released
 
 
 ## PRs & releases

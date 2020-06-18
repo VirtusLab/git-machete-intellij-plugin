@@ -39,11 +39,12 @@ RUN rmdir /stripped_repo
 # (package       => needed for command(s))
 # binutils       => strings
 # netcat         => nc
+# procps         => ps
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils netcat xxd unzip \
+  && apt-get install --no-install-recommends -y binutils netcat procps xxd unzip \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*
@@ -66,3 +67,5 @@ RUN set -x \
   <entry key="privacyeap_accepted_version" value="2.1"/>\n\
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
+
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64

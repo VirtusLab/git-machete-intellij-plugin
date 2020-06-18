@@ -64,7 +64,9 @@ jobs:
             command -v nc || {
               apt-get update && apt-get install -y netcat
             }
-
+            command -v ps || {
+              apt-get update && apt-get install -y procps
+            }
             command -v xauth || {
               apt-get update && apt-get install -y xauth
             }
