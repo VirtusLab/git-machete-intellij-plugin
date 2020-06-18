@@ -27,7 +27,7 @@ public final class MacheteSettings
     return project.getService(MacheteSettings.class);
   }
 
-  @Override
+  /** Intentionally missing {@code @Override} as it is deprecated. */
   public void subscribe(ExternalSystemSettingsListener<MacheteProjectSettings> listener) {}
 
   @Override

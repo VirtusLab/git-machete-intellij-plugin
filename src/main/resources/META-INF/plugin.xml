@@ -66,9 +66,9 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.PushSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedBranchAction"
-                    icon="MacheteIcons.PUSH">
+            <action id="GitMachete.ForcePushSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ForcePushSelectedBranchAction"
+                    icon="MacheteIcons.FORCE_PUSH">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
@@ -131,9 +131,9 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.PushCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
-                    icon="MacheteIcons.PUSH">
+            <action id="GitMachete.ForcePushCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.ForcePushCurrentBranchAction"
+                    icon="MacheteIcons.FORCE_PUSH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 

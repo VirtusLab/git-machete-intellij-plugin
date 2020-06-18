@@ -6,6 +6,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 package javax.swing;
 
+class AbstractAction {
+  void putValue(@UnknownInitialization AbstractAction this, String key, Object newValue);
+}
+
 class JComboBox<E> {
   @SafeEffect
   ComboBoxModel<E> getModel();

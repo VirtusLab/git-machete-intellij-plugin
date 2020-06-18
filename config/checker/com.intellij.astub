@@ -46,6 +46,24 @@ class TextDiffViewerUtil {
 
 
 @UIPackage package com.intellij.dvcs.push;
+
+class PushController {
+  @SafeEffect
+  PrePushHandler.Result executeHandlers(ProgressIndicator indicator);
+
+  @SafeEffect
+  void push(boolean force);
+
+  class HandlerException {
+    @SafeEffect
+    String getFailedHandlerName();
+
+    @SafeEffect
+    List<String> getSkippedHandlers();
+  }
+};
+
+@UIPackage package com.intellij.dvcs.push.ui;
 @UIPackage package com.intellij.execution;
 @UIPackage package com.intellij.execution.configurations;
 @UIPackage package com.intellij.execution.dashboard;
@@ -95,6 +113,8 @@ class TextDiffViewerUtil {
 class AnAction {
   @SafeEffect
   AnAction();
+
+  Presentation getTemplatePresentation(@UnknownInitialization AnAction this);
 
   // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default since we're in a `@UIPackage`)
   // since IntelliJ platform indeed always invokes them on the dispatch thread.
@@ -166,6 +186,15 @@ class LanguageFileType {}
 @UIPackage package com.intellij.openapi.options.colors;
 @UIPackage package com.intellij.openapi.paths;
 
+package com.intellij.openapi.progress;
+
+class Task {
+  @UIEffect
+  void onCancel();
+
+  @UIEffect
+  void onThrowable(Throwable error);
+}
 
 package com.intellij.openapi.project;
 
@@ -183,6 +212,15 @@ package com.intellij.openapi.project;
 @UIPackage package com.intellij.openapi.roots.ui.configuration.libraryEditor;
 @UIPackage package com.intellij.openapi.roots.ui.util;
 @UIPackage package com.intellij.openapi.ui;
+
+class DialogWrapper {
+  JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
+  void init(@UnknownInitialization DialogWrapper this);
+  void setOKButtonText(@UnknownInitialization DialogWrapper this, String text);
+  void setOKButtonMnemonic(@UnknownInitialization DialogWrapper this, int c);
+  void setTitle(@UnknownInitialization DialogWrapper this, String title);
+}
+
 @UIPackage package com.intellij.openapi.ui.cellvalidators;
 @UIPackage package com.intellij.openapi.ui.dialogs;
 @UIPackage package com.intellij.openapi.ui.messages;

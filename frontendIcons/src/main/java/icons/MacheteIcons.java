@@ -23,7 +23,7 @@ public final class MacheteIcons {
 
   public static final Icon PULL = IconLoader.getIcon("/incomingChangesOn.svg");
 
-  public static final Icon PUSH = IconLoader.getIcon("/outgoingChangesOn.svg");
+  public static final Icon FORCE_PUSH = IconLoader.getIcon("/outgoingChangesOn.svg");
 
   public static final Icon REBASE = IconLoader.getIcon("/menu-cut.svg");
 
