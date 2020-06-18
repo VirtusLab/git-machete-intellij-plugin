@@ -8,6 +8,7 @@ plugins {
   id 'com.diffplug.gradle.spotless' version '4.3.0' apply false
   id 'io.freefair.lombok' version '5.1.0' apply false
   id 'org.checkerframework' version '0.5.0' apply false
+  id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
   id 'org.jetbrains.intellij' version '0.4.21' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
@@ -149,7 +150,6 @@ subprojects {
       '-AshowSuppressWarningKeys',
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
-      '-AskipDefs=MacheteParser|MacheteLexerAdapter|MacheteLexer',
     ]
   }
 

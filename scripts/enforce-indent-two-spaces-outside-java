@@ -7,8 +7,8 @@ source "$self_dir"/utils.sh
 
 awk_script="$(cat <<'EOF'
 
-  ( /^    / && prev_non_empty !~ /^  / ) || ( /^      / && prev_non_empty !~ /^    / ) {
-    print file ":" NR ": likely four spaces used for indent instead of two"
+  ( /^ {3}/ && prev_non_empty !~ /^ {2}/ ) || ( /^ {5}/ && prev_non_empty !~ /^ {4}/ ) {
+    print file ":" NR ": likely three or four spaces used for indent instead of two"
     exit_code = 1
   }
 
@@ -20,7 +20,7 @@ EOF
 )"
 
 exit_code=0
-for file in $(git ls-files '*.astub' '*.gradle' scripts/ ':!scripts/setup-multiroot-sandbox'); do
+for file in $(git ls-files ':!*.flex' ':!gradlew' ':!*.java' ':!scripts/setup-multiroot-sandbox' ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml'); do
   awk -v "file=$file" "$awk_script" < "$file" || exit_code=1
 done
 exit $exit_code

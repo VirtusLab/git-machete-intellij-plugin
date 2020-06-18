@@ -1,9 +1,17 @@
+
 <module name="NewlineAtEndOfFile"/>
-<!-- to enable @SuppressWarnings -->
-<module name="SuppressWarningsFilter"/>
+
 <!-- Multiline because sometimes assertions are long and spotless wraps them, so we must handle that situations -->
 <module name="RegexpMultiline">
     <property name="format" value="\bassert\b[^:]*;"/>
     <property name="message" value="Assertion without comment/message"/>
     <property name="matchAcrossLines" value="true"/>
 </module>
+
+<module name="SuppressionSingleFilter">
+    <property name="checks" value=".*"/>
+    <property name="files" value="^.*/build/generated/.*\.java$"/>
+</module>
+
+<!-- to enable @SuppressWarnings -->
+<module name="SuppressWarningsFilter"/>
