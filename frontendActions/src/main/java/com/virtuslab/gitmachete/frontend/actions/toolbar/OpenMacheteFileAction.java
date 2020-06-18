@@ -18,17 +18,13 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @CustomLog
-public class OpenMacheteFileAction extends DumbAwareAction
-    implements
-      IExpectsKeyGraphTable,
-      IExpectsKeyProject,
-      IExpectsKeySelectedVcsRepository {
+public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKeyProject {
 
   @Override
   @UIEffect
@@ -37,7 +33,7 @@ public class OpenMacheteFileAction extends DumbAwareAction
 
     // When selected vcs repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    var gitDir = getSelectedVcsRepository(anActionEvent)
+    var gitDir = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository()
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))
@@ -53,7 +49,7 @@ public class OpenMacheteFileAction extends DumbAwareAction
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError( /* message */ "Failed to open machete file"))
         .toOption());
 
-    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+    project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
       LOG.warn("Skipping the action because machete file is undefined");

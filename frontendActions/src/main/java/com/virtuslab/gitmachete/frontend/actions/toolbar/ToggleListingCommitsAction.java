@@ -7,14 +7,15 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
+import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
 
 @CustomLog
 public class ToggleListingCommitsAction extends ToggleAction
     implements
       DumbAware,
-      IExpectsKeyGraphTable,
-      IExpectsKeyGitMacheteRepository {
+      IExpectsKeyGitMacheteRepository,
+      IExpectsKeyProject {
 
   @Override
   @UIEffect
@@ -39,7 +40,8 @@ public class ToggleListingCommitsAction extends ToggleAction
   @Override
   @UIEffect
   public boolean isSelected(AnActionEvent e) {
-    return getGraphTable(e).isListingCommits();
+    var project = getProject(e);
+    return project.getService(GraphTableProvider.class).getGraphTable().isListingCommits();
   }
 
   @Override
@@ -47,7 +49,8 @@ public class ToggleListingCommitsAction extends ToggleAction
   public void setSelected(AnActionEvent e, boolean state) {
     LOG.debug("Triggered with state = ${state}");
 
-    var graphTable = getGraphTable(e);
+    var project = getProject(e);
+    var graphTable = project.getService(GraphTableProvider.class).getGraphTable();
     graphTable.setListingCommits(state);
     graphTable.refreshModel();
   }

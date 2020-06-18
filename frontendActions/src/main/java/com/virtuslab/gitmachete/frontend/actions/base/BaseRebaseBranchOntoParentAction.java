@@ -27,7 +27,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
 @CustomLog
@@ -35,8 +35,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     implements
       IBranchNameProvider,
       IExpectsKeyProject,
-      IExpectsKeyGitMacheteRepository,
-      IExpectsKeySelectedVcsRepository {
+      IExpectsKeyGitMacheteRepository {
 
   @Override
   @UIEffect
@@ -48,7 +47,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       return;
     }
 
-    Option<Repository.State> state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
+    var project = getProject(anActionEvent);
+    var state = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository().map(r -> r.getState());
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
@@ -115,7 +115,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
     var gitMacheteRepository = getGitMacheteRepository(anActionEvent);
 
     if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {

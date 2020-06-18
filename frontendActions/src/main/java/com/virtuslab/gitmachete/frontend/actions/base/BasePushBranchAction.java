@@ -19,14 +19,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyProject,
-      IExpectsKeySelectedVcsRepository {
+      IExpectsKeyProject {
 
   protected final List<SyncToRemoteStatus.Relation> PUSH_ELIGIBLE_STATUSES = List.of(
       SyncToRemoteStatus.Relation.AheadOfRemote,
@@ -84,7 +83,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isDefined()) {

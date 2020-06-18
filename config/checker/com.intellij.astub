@@ -283,7 +283,12 @@ package com.intellij.psi.search.scope.packageSet;
 class CollectionComboBoxModel<T> {
   // This method is annotated as `org.jetbrains.annotations.Nullable` already,
   // but for some reason Checker unsoundly assumes that it's `NonNull` instead.
+  @SafeEffect
   @Nullable T getSelected();
+}
+
+class MutableCollectionComboBoxModel<T> {
+  @SafeEffect T getSelected();
 }
 
 class GuiUtils {

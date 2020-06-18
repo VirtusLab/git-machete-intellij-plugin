@@ -11,10 +11,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
-public class FetchAllRemotesAction extends DumbAwareAction implements IExpectsKeyProject, IExpectsKeySelectedVcsRepository {
+public class FetchAllRemotesAction extends DumbAwareAction implements IExpectsKeyProject {
 
   @Override
   @UIEffect
@@ -36,7 +36,7 @@ public class FetchAllRemotesAction extends DumbAwareAction implements IExpectsKe
     LOG.debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
 
     new Task.Backgroundable(project, "Fetching...", /* canBeCancelled */ true) {
 

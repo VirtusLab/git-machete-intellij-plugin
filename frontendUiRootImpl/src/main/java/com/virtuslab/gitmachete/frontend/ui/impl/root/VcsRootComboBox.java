@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.MutableCollectionComboBoxModel;
@@ -20,6 +21,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -27,6 +29,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChan
 import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 
 @CustomLog
+@Service
 public final class VcsRootComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionProvider {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
@@ -49,6 +52,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
+  @SafeEffect
   public MutableCollectionComboBoxModel<GitRepository> getModel() {
     return (MutableCollectionComboBoxModel<GitRepository>) super.getModel();
   }
@@ -61,7 +65,7 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     LOG.debug("VCS roots:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
-    // `com.intellij.ui.CollectionComboBoxModel.getSelected` must be performed
+    // `com.intellij.ui.MutableCollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
     GitRepository selected = getModel().getSelected();
@@ -89,7 +93,6 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
   }
 
   @Override
-  @UIEffect
   public Option<GitRepository> getSelectedRepository() {
     return Option.of(getModel().getSelected());
   }

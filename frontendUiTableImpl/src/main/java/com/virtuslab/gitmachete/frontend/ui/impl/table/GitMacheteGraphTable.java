@@ -57,6 +57,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProv
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
@@ -80,11 +81,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   private @Nullable String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable(Project project, IGitRepositorySelectionProvider gitRepositorySelectionProvider) {
+  public GitMacheteGraphTable(Project project) {
     super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
     this.project = project;
-    this.gitRepositorySelectionProvider = gitRepositorySelectionProvider;
+    this.gitRepositorySelectionProvider = project.getService(VcsRootComboBoxProvider.class).getVcsRootComboBox();
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
     this.isListingCommits = false;
@@ -113,15 +114,15 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     subscribeToGitRepositoryChanges();
   }
 
-  private void subscribeToVcsRootChanges() {
-    // The method reference is invoked when user changes repository in combo box menu
-    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
-  }
-
   private void subscribeToGitRepositoryChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
     project.getMessageBus().connect().subscribe(topic, listener);
+  }
+
+  private void subscribeToVcsRootChanges() {
+    // The method reference is invoked when user changes repository in combo box menu
+    gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
   @UIEffect
@@ -229,7 +230,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
         // Other keys are handled up the container hierarchy, in GitMachetePanel.
-        typeSafeCase(DataKeys.KEY_GRAPH_TABLE, this),
         typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),

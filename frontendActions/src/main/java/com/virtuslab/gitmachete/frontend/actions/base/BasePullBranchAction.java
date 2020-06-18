@@ -15,18 +15,16 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedVcsRepository;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
-      IExpectsKeyGraphTable,
-      IExpectsKeyProject,
-      IExpectsKeySelectedVcsRepository {
+      IExpectsKeyProject {
 
   private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
 
@@ -82,16 +80,16 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     LOG.debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
-    if (!branchName.isDefined()) {
+    if (branchName.isEmpty()) {
       LOG.warn("Skipping the action because name of branch to pull is undefined");
-    } else if (!gitRepository.isDefined()) {
+    } else if (gitRepository.isEmpty()) {
       LOG.warn("Skipping the action because no VCS repository is selected");
     } else {
       doPull(project, gitRepository.get(), branchName.get());
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+      project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
     }
   }
 

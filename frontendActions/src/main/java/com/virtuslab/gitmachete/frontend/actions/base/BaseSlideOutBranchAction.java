@@ -10,17 +10,16 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGraphTable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.BranchLayoutWriterProvider;
+import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyBranchLayoutWriter,
       IExpectsKeyGitMacheteRepository,
-      IExpectsKeyGraphTable,
       IExpectsKeyProject {
 
   @Override
@@ -72,7 +71,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
     var branchLayout = getBranchLayout(anActionEvent);
-    var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    var branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
     if (branchLayout.isEmpty()) {
       LOG.warn("Skipping the action because branch layout is undefined");
       return;
@@ -86,7 +85,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
 
       LOG.debug("Refreshing repository state");
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+      project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
