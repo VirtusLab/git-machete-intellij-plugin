@@ -35,14 +35,14 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     var fp = new FpCommit("Fork point commit");
     NonRoot[] nonRoots = {
         new NonRoot(/* name */ "allow-ownership-link",
-            /* customAnnotation */ "#Gray edge: branch is merged to its parent branch",
+            /* customAnnotation */ "# Gray edge: branch is merged to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.empty(),
             SyncToParentStatus.MergedToParent),
         new NonRoot(/* name */ "build-chain",
-            /* customAnnotation */ "#Green edge: branch is in sync to its parent branch",
+            /* customAnnotation */ "# Green edge: branch is in sync to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
@@ -50,14 +50,14 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
                 new Commit("First commit of build-chain")),
             SyncToParentStatus.InSync),
         new NonRoot(/* name */ "call-ws",
-            /* customAnnotation */ "#Yellow edge: Branch is in sync to its parent branch but the fork point is not equal to parent branch",
+            /* customAnnotation */ "# Yellow edge: Branch is in sync to its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
             /* fork point */ fp,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.of(fp),
             SyncToParentStatus.InSyncButForkPointOff),
         new NonRoot(/* name */ "remove-ff",
-            /* customAnnotation */ "#Red edge: branch is out of sync to its parent branch",
+            /* customAnnotation */ "# Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
@@ -66,7 +66,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     };
 
     var root = new Root(/* name */ "develop",
-        /* customAnnotation */ "#This is a root branch, the underline indicates that it is the current branch",
+        /* customAnnotation */ "# This is a root branch, the underline indicates that it is the current branch",
         nullPointedCommit,
         /* downstreamBranches */ List.of(nonRoots));
 
@@ -143,8 +143,13 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     }
 
     @Override
-    public List<String> getBranchesWhereFoundInReflog() {
+    public List<String> getBranchesContainingInReflog() {
       return List.of("some-other-branch");
+    }
+
+    @Override
+    public boolean isOverridden() {
+      return false;
     }
   }
 

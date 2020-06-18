@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.frontend.ui.impl.table.GraphTableModel;
 
 public final class DemoGraphTable extends JBTable {
 
-  public static DemoGraphTable INSTANCE = deriveInstance();
+  public static final DemoGraphTable INSTANCE = deriveInstance();
 
   @UIEffect
   private static DemoGraphTable deriveInstance() {
