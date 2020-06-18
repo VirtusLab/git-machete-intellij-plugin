@@ -17,7 +17,7 @@ branchlayout
 gitcore
 gitmachete.backend
 gitmachete.frontend.actions
-gitmachete.frontend.externalsystem`
+gitmachete.frontend.externalsystem
 gitmachete.frontend.ui
 ```
 

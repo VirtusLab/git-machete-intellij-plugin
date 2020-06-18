@@ -102,6 +102,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="^package.*[A-Z]"/>
+    <property name="message" value="Package name must be lowercase"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bjava\.util\.Date\b"/>
     <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
 </module>

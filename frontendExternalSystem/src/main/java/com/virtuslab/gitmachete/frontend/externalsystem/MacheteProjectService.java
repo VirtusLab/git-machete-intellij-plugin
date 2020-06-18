@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.externalSystem;
+package com.virtuslab.gitmachete.frontend.externalsystem;
 
 import java.io.File;
 
@@ -17,14 +17,14 @@ import com.intellij.util.Function;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.externalSystem.project.MacheteAutoImportAware;
-import com.virtuslab.gitmachete.frontend.externalSystem.project.MacheteProjectResolver;
-import com.virtuslab.gitmachete.frontend.externalSystem.project.MacheteTaskManager;
-import com.virtuslab.gitmachete.frontend.externalSystem.settings.IMacheteSettingsListener;
-import com.virtuslab.gitmachete.frontend.externalSystem.settings.MacheteExecutionSettings;
-import com.virtuslab.gitmachete.frontend.externalSystem.settings.MacheteLocalSettings;
-import com.virtuslab.gitmachete.frontend.externalSystem.settings.MacheteProjectSettings;
-import com.virtuslab.gitmachete.frontend.externalSystem.settings.MacheteSettings;
+import com.virtuslab.gitmachete.frontend.externalsystem.project.MacheteAutoImportAware;
+import com.virtuslab.gitmachete.frontend.externalsystem.project.MacheteProjectResolver;
+import com.virtuslab.gitmachete.frontend.externalsystem.project.MacheteTaskManager;
+import com.virtuslab.gitmachete.frontend.externalsystem.settings.IMacheteSettingsListener;
+import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteExecutionSettings;
+import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteLocalSettings;
+import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteProjectSettings;
+import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteSettings;
 
 public final class MacheteProjectService
     implements

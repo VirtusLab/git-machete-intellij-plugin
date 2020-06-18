@@ -24,6 +24,6 @@ public final class MacheteAutoImportAware implements ExternalSystemAutoImportAwa
         .map(Objects::toString)
         .map(path -> path.concat("/.git/machete"))
         .map(File::new)
-        .collect(Collectors.toList());
+        .toJavaList();
   }
 }

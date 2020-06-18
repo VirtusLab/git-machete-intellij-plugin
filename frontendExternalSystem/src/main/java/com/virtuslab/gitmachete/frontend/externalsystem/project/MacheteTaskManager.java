@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.task.ExternalSystemTaskManager;
 
 import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteExecutionSettings;
 
-@SuppressWarnings("regexp")
+@SuppressWarnings("regexp") // needed to use forbidden "Manager" suffix (for consistency with interface name)
 public class MacheteTaskManager implements ExternalSystemTaskManager<MacheteExecutionSettings> {
   @Override
   public boolean cancelTask(ExternalSystemTaskId id, ExternalSystemTaskNotificationListener listener)

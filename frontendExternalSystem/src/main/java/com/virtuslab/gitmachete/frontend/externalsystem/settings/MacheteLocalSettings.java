@@ -1,10 +1,10 @@
-package com.virtuslab.gitmachete.frontend.externalSystem.settings;
+package com.virtuslab.gitmachete.frontend.externalsystem.settings;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalSettings;
 import com.intellij.openapi.project.Project;
 
-import com.virtuslab.gitmachete.frontend.externalSystem.MacheteProjectService;
+import com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService;
 
 @Service
 public final class MacheteLocalSettings extends AbstractExternalSystemLocalSettings<MacheteLocalSettings.MyState> {

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.externalSystem.settings;
+package com.virtuslab.gitmachete.frontend.externalsystem.settings;
 
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings;
 import com.intellij.openapi.project.Project;

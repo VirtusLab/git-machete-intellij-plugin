@@ -56,6 +56,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 
 /**
+ * TODO (#339): remove (if possible) once 2019.3 is dropped
+ *
  * @deprecated This implementation is a workaround to provide features missing in pre-2020.1 versions.
  * The main benefit of it is specific branch update ({@link GitFetchSupportImpl#fetch(GitRepository, GitRemote, String)}).
  * We need this class for {@link FetchAllRemotesAction} and {@link BasePullBranchAction}.

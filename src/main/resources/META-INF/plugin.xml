@@ -27,9 +27,10 @@
         <completion.contributor language="TEXT"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
         <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
-        <!-- "externalIconProvider" is available since 2020.1. The following line shall be uncommented after 2019.3 support is dropped. -->
+        <!-- TODO (#339): "externalIconProvider" is available since 2020.1. The following line shall be uncommented after 2019.3 support is dropped. -->
 <!--        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.externalsystem.MacheteIconProvider"/>-->
 
+        <!-- See javadoc of com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isInProcessMode -->
         <registryKey key="MACHETE.system.in.process" defaultValue="true"
                      description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>
     </extensions>
@@ -41,7 +42,7 @@
             <!-- These actions are used in right-click context menu on branches. -->
             <action id="GitMachete.CheckoutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction">
-                <!-- "override-text" is available since 2020.1. As long as we support previous versions it cannot be used.
+                <!-- TODO (#339): "override-text" is available since 2020.1. As long as we support previous versions it cannot be used.
                     Furthermore, prepending "Git Machete: " to action texts (without defined place) should take place
                       once we introduce override-text here.
                     This will distinguish Git Machete actions in "Find Action..." search dialog.
