@@ -33,6 +33,9 @@ while ! nc -z localhost 8080; do
   sleep 0.5
   tail -n+$((last_line+1)) $log
   last_line=$(wc -l < $log)
+  if ! ps -p $ide_pid >/dev/null 2>&1; then
+    die 'IDE failed to start, aborting'
+  fi
 done
 
 info 'Logs of gradle uiTests:test'
