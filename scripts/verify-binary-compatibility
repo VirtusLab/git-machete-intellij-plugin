@@ -5,7 +5,6 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-export JAVA_HOME=$(which java | xargs readlink --canonicalize | xargs dirname | xargs dirname)
 ./gradlew runPluginVerifier
 if stat -t build/pluginVerifier/reports/*/plugins/*/*/compatibility-problems.txt >/dev/null 2>&1; then
   die 'Compatibility problems detected'
