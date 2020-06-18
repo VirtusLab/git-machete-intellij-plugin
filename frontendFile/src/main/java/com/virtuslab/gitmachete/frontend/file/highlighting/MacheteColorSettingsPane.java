@@ -16,8 +16,10 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
       new AttributesDescriptor("Branch Prefix", MacheteSyntaxHighlighter.PREFIX),
       new AttributesDescriptor("Branch Name", MacheteSyntaxHighlighter.NAME),
       new AttributesDescriptor("Custom Annotation", MacheteSyntaxHighlighter.CUSTOM_ANNOTATION),
-      new AttributesDescriptor("Bad Value", MacheteSyntaxHighlighter.BAD_CHAR)
+      new AttributesDescriptor("Bad Value", MacheteSyntaxHighlighter.BAD_CHARACTER)
   };
+
+  public static final String NL = System.lineSeparator();
 
   @Override
   public Icon getIcon() {
@@ -31,11 +33,11 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
 
   @Override
   public String getDemoText() {
-    return "develop" + System.lineSeparator() +
-        "    allow-ownership-link PR #123" + System.lineSeparator() +
-        "        build-chain PR #124" + System.lineSeparator() +
-        "    call-ws" + System.lineSeparator() +
-        "master" + System.lineSeparator() +
+    return "develop" + NL +
+        "    allow-ownership-link PR #123" + NL +
+        "        build-chain PR #124" + NL +
+        "    call-ws" + NL +
+        "master" + NL +
         "    hotfix/add-trigger  PR #127";
   }
 

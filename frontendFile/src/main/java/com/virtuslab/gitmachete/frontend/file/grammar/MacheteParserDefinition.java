@@ -28,6 +28,8 @@ public class MacheteParserDefinition implements ParserDefinition {
     return WHITE_SPACES;
   }
 
+  // Even if we doesn't support comments this element is part of ParserDefinition interface,
+  // so we need to provide something here
   @Override
   public TokenSet getCommentTokens() {
     return COMMENTS;

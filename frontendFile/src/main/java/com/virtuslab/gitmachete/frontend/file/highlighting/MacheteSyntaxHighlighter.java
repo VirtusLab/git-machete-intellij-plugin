@@ -12,14 +12,12 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import org.checkerframework.checker.guieffect.qual.UI;
 
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLexerAdapter;
 
-@UI
 public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
-  public static final TextAttributesKey BAD_CHAR = createTextAttributesKey("MACHETE_BAD_CHARACTER",
+  public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("MACHETE_BAD_CHARACTER",
       HighlighterColors.BAD_CHARACTER);
   public static final TextAttributesKey PREFIX = createTextAttributesKey("MACHETE_PREFIX",
       DefaultLanguageHighlighterColors.KEYWORD);
@@ -28,7 +26,7 @@ public class MacheteSyntaxHighlighter extends SyntaxHighlighterBase {
   public static final TextAttributesKey CUSTOM_ANNOTATION = createTextAttributesKey("MACHETE_CUSTOM_ANNOTATION",
       DefaultLanguageHighlighterColors.LINE_COMMENT);
 
-  private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHAR};
+  private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
   private static final TextAttributesKey[] PREFIX_KEYS = new TextAttributesKey[]{PREFIX};
   private static final TextAttributesKey[] NAME_KEYS = new TextAttributesKey[]{NAME};
   private static final TextAttributesKey[] CUSTOM_ANNOTATION_KEYS = new TextAttributesKey[]{CUSTOM_ANNOTATION};
