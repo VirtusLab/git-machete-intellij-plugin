@@ -2,8 +2,6 @@ vavr()
 
 dependencies {
   api project(':backendApi')
-  api project(':branchLayoutApi')
-  api project(':frontendUiApi')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

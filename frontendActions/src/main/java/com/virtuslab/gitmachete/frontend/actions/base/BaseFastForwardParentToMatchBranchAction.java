@@ -16,7 +16,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
 @CustomLog
@@ -89,7 +88,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
     var gitMacheteBranch = getNameOfBranchUnderAction(anActionEvent).flatMap(b -> getGitMacheteBranchByName(anActionEvent, b));
 
     if (gitMacheteBranch.isDefined()) {

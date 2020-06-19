@@ -19,8 +19,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @CustomLog
@@ -33,7 +32,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
 
     // When selected vcs repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    var gitDir = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository()
+    var gitDir = getSelectedVcsRepository(anActionEvent)
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))

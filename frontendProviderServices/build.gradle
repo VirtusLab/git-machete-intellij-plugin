@@ -3,10 +3,8 @@ vavr()
 dependencies {
   implementation project(':logging')
   implementation project(':binding')
-  implementation project(':frontendDefs')
-  implementation project(':frontendDataKeys')
-  implementation project(':frontendProviderServices')
 
+  api project(':branchLayoutApi')
   api project(':frontendUiApi')
 }
 

@@ -16,8 +16,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -80,7 +79,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     LOG.debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isEmpty()) {

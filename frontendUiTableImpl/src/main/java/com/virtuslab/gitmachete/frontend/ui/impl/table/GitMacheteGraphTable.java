@@ -53,11 +53,11 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.VcsRootComboBoxProvider;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog

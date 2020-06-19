@@ -15,7 +15,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -62,7 +61,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     }
 
     var project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");

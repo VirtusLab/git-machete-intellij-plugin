@@ -5,7 +5,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import lombok.CustomLog;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public class RefreshStatusAction extends DumbAwareAction implements IExpectsKeyProject {

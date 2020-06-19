@@ -27,7 +27,6 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
 @CustomLog
@@ -48,7 +47,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     }
 
     var project = getProject(anActionEvent);
-    var state = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository().map(r -> r.getState());
+    var state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
@@ -115,7 +114,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
     var gitMacheteRepository = getGitMacheteRepository(anActionEvent);
 
     if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {

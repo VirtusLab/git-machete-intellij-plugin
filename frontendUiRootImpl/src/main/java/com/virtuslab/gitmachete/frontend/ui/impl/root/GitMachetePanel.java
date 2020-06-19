@@ -15,8 +15,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.BaseVcsRootComboBox;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel {
@@ -36,7 +37,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     // This class is final, so the instance is `@Initialized` at this point.
 
     setToolbar(createGitMacheteVerticalToolbar().getComponent());
-    add(VcsRootComboBox.createShrinkingWrapper(vcsRootComboBox), BorderLayout.NORTH);
+    add(BaseVcsRootComboBox.createShrinkingWrapper(vcsRootComboBox), BorderLayout.NORTH);
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
   }
 

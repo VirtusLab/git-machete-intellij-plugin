@@ -1,16 +1,8 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.root;
-
-import java.awt.BorderLayout;
-
-import javax.swing.Box;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+package com.virtuslab.gitmachete.frontend.ui.impl.vcsrootcombobox;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.MutableCollectionComboBoxModel;
@@ -25,12 +17,11 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.root.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.BaseVcsRootComboBox;
+import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.IGitRepositorySelectionChangeObserver;
 
 @CustomLog
-@Service
-public final class VcsRootComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionProvider {
+public final class VcsRootComboBox extends BaseVcsRootComboBox {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
@@ -108,11 +99,4 @@ public final class VcsRootComboBox extends JComboBox<GitRepository> implements I
     observers.add(observer);
   }
 
-  @UIEffect
-  public static JComponent createShrinkingWrapper(JComponent component) {
-    final JPanel wrapper = new JPanel(new BorderLayout());
-    wrapper.add(component, BorderLayout.WEST);
-    wrapper.add(Box.createHorizontalGlue(), BorderLayout.CENTER);
-    return wrapper;
-  }
 }

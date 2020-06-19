@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.api.root;
+package com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox;
 
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;

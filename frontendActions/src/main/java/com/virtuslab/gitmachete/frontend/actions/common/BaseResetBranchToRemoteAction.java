@@ -29,7 +29,6 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryRe
 import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
@@ -86,7 +85,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     LOG.debug("Performing");
 
     Project project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var macheteRepository = getGitMacheteRepository(anActionEvent);
 

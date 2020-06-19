@@ -288,7 +288,8 @@ class CollectionComboBoxModel<T> {
 }
 
 class MutableCollectionComboBoxModel<T> {
-  @SafeEffect T getSelected();
+  @SafeEffect
+  T getSelected();
 }
 
 class GuiUtils {

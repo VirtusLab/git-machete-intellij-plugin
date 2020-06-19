@@ -11,8 +11,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.BranchLayoutWriterProvider;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
 @CustomLog

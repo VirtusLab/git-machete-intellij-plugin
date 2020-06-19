@@ -19,7 +19,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.VcsRootComboBoxProvider;
 
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -83,7 +82,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = project.getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    var gitRepository = getSelectedVcsRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isDefined()) {

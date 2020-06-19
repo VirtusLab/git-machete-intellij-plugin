@@ -8,7 +8,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public class ToggleListingCommitsAction extends ToggleAction

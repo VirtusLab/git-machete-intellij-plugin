@@ -9,7 +9,7 @@ dependencies {
   implementation project(':frontendUiApi')
   implementation project(':frontendDataKeys')
   implementation project(':frontendVfsUtils')
-  implementation project(':frontendUiRootImpl')
+  implementation project(':frontendProviderServices')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

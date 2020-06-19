@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice;
+package com.virtuslab.gitmachete.frontend.ui.providerservice;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
