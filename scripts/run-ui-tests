@@ -9,23 +9,33 @@ source "$self_dir"/utils.sh
 intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
 
 ide_log=build/idea-sandbox/system/log/idea.log
-ide_log_last_line=$(cat $ide_log | wc -l || echo 0)
+ide_log_last_line=$(cat $ide_log 2>/dev/null | wc -l || true)  # will be 0 if $ide_log doesn't exist yet
 
 # If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.
 # --auto-servernum is deprecated in favor of --auto-display,
 # but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
 command=${CI:+xvfb-run --auto-servernum}
-gradle_run_ide_log=~/gradlew-runIdeForUiTests.gradle_run_ide_log
+gradle_run_ide_log=~/gradlew-runIdeForUiTests.log
 $command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests >$gradle_run_ide_log 2>&1 &
+
 # $! expands to the PID of the last process executed in the background
 ide_pid=$!
+function is_ide_running() {
+  ps -p $ide_pid >/dev/null 2>&1
+}
 
 # The test will gracefully close the IDE instance if successful,
 # but we still need to kill the IDE instance in case that test was not successful AND the IDE is still running.
-function finish {
-  if ps -p $ide_pid >/dev/null 2>&1; then
+function finish() {
+  if is_ide_running; then
     kill $ide_pid
   fi
+  # Let's wait until IDE process is terminated to avoid any risk of race conditions
+  # when another UI test is to be run right after this script completes.
+  while is_ide_running; do
+    sleep 0.5
+    echo 'Waiting for IDE process to shut down...'
+  done
 }
 trap finish EXIT
 
@@ -36,7 +46,7 @@ while ! nc -z localhost 8080; do
   sleep 0.5
   tail -n+$((gradle_run_ide_log_last_line+1)) $gradle_run_ide_log
   gradle_run_ide_log_last_line=$(wc -l < $gradle_run_ide_log)
-  if ! ps -p $ide_pid >/dev/null 2>&1; then
+  if ! is_ide_running; then
     die 'IDE failed to start, aborting'
   fi
 done
