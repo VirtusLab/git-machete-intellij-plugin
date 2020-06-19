@@ -15,7 +15,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService;
 import com.virtuslab.gitmachete.frontend.externalsystem.settings.MacheteExecutionSettings;
-import com.virtuslab.gitmachete.frontend.ui.impl.root.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public class MacheteProjectResolver implements ExternalSystemProjectResolver<MacheteExecutionSettings> {
@@ -28,7 +28,6 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
       @Nullable MacheteExecutionSettings settings,
       ExternalSystemTaskNotificationListener listener)
       throws ExternalSystemException, IllegalArgumentException, IllegalStateException {
-    LOG.info("Performing");
 
     var graphTableProvider = Option.of(settings)
         .map(s -> s.getProject().getService(GraphTableProvider.class));

@@ -27,9 +27,7 @@ public final class MacheteSettings
     return project.getService(MacheteSettings.class);
   }
 
-  public void subscribe(ExternalSystemSettingsListener<MacheteProjectSettings> listener) {
-
-  }
+  public void subscribe(ExternalSystemSettingsListener<MacheteProjectSettings> listener) {}
 
   @Override
   public void subscribe(ExternalSystemSettingsListener<MacheteProjectSettings> listener, Disposable parentDisposable) {
@@ -37,14 +35,10 @@ public final class MacheteSettings
   }
 
   @Override
-  protected void copyExtraSettingsFrom(MacheteSettings settings) {
-
-  }
+  protected void copyExtraSettingsFrom(MacheteSettings settings) {}
 
   @Override
-  protected void checkSettings(MacheteProjectSettings old, MacheteProjectSettings current) {
-
-  }
+  protected void checkSettings(MacheteProjectSettings old, MacheteProjectSettings current) {}
 
   @RequiredArgsConstructor
   private static class MyState implements State<MacheteProjectSettings> {
@@ -56,8 +50,6 @@ public final class MacheteSettings
     }
 
     @Override
-    public void setLinkedExternalProjectsSettings(java.util.Set settings) {
-
-    }
+    public void setLinkedExternalProjectsSettings(java.util.Set settings) {}
   }
 }
