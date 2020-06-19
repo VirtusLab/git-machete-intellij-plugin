@@ -154,9 +154,9 @@ subprojects {
       '-AinvariantArrays',
       '-Alint=cast:redundant,cast:unsafe',
       '-ArequirePrefixInWarningSuppressions',
-      '-AshowSuppressWarningKeys',
+      '-AshowSuppressWarningStrings',
       "-Astubs=$rootDir/config/checker/",
-      '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
+      '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier',
     ]
 
     dependencies {
