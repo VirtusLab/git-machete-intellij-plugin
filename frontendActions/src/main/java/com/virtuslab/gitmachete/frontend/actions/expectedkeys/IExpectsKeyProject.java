@@ -5,7 +5,11 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.ui.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedVcsRepositoryProvider;
 
 public interface IExpectsKeyProject {
   default Project getProject(AnActionEvent anActionEvent) {
@@ -14,7 +18,15 @@ public interface IExpectsKeyProject {
     return project;
   }
 
+  default IBranchLayoutWriter getBranchLayoutWriter(AnActionEvent anActionEvent) {
+    return getProject(anActionEvent).getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
+  }
+
+  default BaseGraphTable getGraphTable(AnActionEvent anActionEvent) {
+    return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
+  }
+
   default Option<GitRepository> getSelectedVcsRepository(AnActionEvent anActionEvent) {
-    return getProject(anActionEvent).getService(VcsRootComboBoxProvider.class).getSelectedVcsRepository();
+    return getProject(anActionEvent).getService(SelectedVcsRepositoryProvider.class).getSelectedVcsRepository();
   }
 }

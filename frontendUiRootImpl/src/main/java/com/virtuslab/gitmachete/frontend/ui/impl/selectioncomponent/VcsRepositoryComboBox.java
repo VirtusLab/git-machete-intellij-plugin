@@ -1,4 +1,7 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.vcsrootcombobox;
+package com.virtuslab.gitmachete.frontend.ui.impl.selectioncomponent;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
@@ -17,18 +20,18 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.BaseVcsRootComboBox;
-import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.IGitRepositorySelectionChangeObserver;
+import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.IGitRepositorySelectionChangeObserver;
+import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.ISelectionComponent;
 
 @CustomLog
-public final class VcsRootComboBox extends BaseVcsRootComboBox {
+public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implements ISelectionComponent {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
   private final Project project;
 
   @UIEffect
-  public VcsRootComboBox(Project project) {
+  public VcsRepositoryComboBox(Project project) {
     super(new MutableCollectionComboBoxModel<>());
     this.project = project;
 
@@ -37,7 +40,7 @@ public final class VcsRootComboBox extends BaseVcsRootComboBox {
 
     project.getMessageBus().connect()
         .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
-          LOG.debug("VCS repository roots mappings changed");
+          LOG.debug("VCS repository getGraphTable(anActionEvent) mappings changed");
           GuiUtils.invokeLaterIfNeeded(() -> updateRepositories(), ModalityState.NON_MODAL);
         });
   }
@@ -69,16 +72,16 @@ public final class VcsRootComboBox extends BaseVcsRootComboBox {
     boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
       // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
-      LOG.debug("No VCS roots found");
+      LOG.debug("No VCS repositories found");
       if (selected != null) {
         setSelectedItem(null);
       }
     } else if (selectedItemUpdateRequired) {
-      LOG.debug("Selecting first VCS root");
+      LOG.debug("Selecting first VCS repository");
       setSelectedItem(repositories.get(0));
     } else {
-      LOG.debug("Selecting previously selected VCS root");
-      // VcsRootComboBox#setSelectedItem is omitted to avoid unnecessary observers call
+      LOG.debug("Selecting previously selected VCS repository");
+      // VcsRepositoryComboBox#setSelectedItem is omitted to avoid unnecessary observers call
       getModel().setSelectedItem(selected);
     }
   }
@@ -99,4 +102,8 @@ public final class VcsRootComboBox extends BaseVcsRootComboBox {
     observers.add(observer);
   }
 
+  @Override
+  public JComponent getComponent() {
+    return this;
+  }
 }

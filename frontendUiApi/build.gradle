@@ -1,7 +1,3 @@
 vavr()
 
-dependencies {
-  api project(':branchLayoutApi')
-}
-
 addIntellijToCompileClasspath(withGit4Idea: true)

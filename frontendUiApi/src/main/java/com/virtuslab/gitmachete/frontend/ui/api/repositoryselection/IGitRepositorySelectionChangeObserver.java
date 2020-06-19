@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox;
+package com.virtuslab.gitmachete.frontend.ui.api.repositoryselection;
 
 @FunctionalInterface
 public interface IGitRepositorySelectionChangeObserver {

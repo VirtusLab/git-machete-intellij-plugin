@@ -53,11 +53,11 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.api.vcsrootcombobox.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.VcsRootComboBoxProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedVcsRepositoryProvider;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
@@ -85,7 +85,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
     this.project = project;
-    this.gitRepositorySelectionProvider = project.getService(VcsRootComboBoxProvider.class).getVcsRootComboBox();
+    this.gitRepositorySelectionProvider = project.getService(SelectedVcsRepositoryProvider.class)
+        .getGitRepositorySelectionProvider();
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
     this.isListingCommits = false;
@@ -110,7 +111,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     addMouseListener(new GitMacheteGraphTableMouseAdapter());
 
-    subscribeToVcsRootChanges();
+    subscribeToVcsRepositoryChange();
     subscribeToGitRepositoryChanges();
   }
 
@@ -120,8 +121,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
-  private void subscribeToVcsRootChanges() {
-    // The method reference is invoked when user changes repository in combo box menu
+  private void subscribeToVcsRepositoryChange() {
+    // The method reference is invoked when user changes repository in selection component menu
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 

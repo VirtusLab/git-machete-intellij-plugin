@@ -19,7 +19,6 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @CustomLog
@@ -48,7 +47,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError( /* message */ "Failed to open machete file"))
         .toOption());
 
-    project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
+    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
       LOG.warn("Skipping the action because machete file is undefined");

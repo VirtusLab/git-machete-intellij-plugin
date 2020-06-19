@@ -46,7 +46,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       return;
     }
 
-    var project = getProject(anActionEvent);
     var state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
 
     if (state.isEmpty()) {

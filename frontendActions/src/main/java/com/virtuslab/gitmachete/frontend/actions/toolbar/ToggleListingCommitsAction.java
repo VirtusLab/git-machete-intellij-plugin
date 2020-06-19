@@ -8,7 +8,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public class ToggleListingCommitsAction extends ToggleAction
@@ -19,14 +18,14 @@ public class ToggleListingCommitsAction extends ToggleAction
 
   @Override
   @UIEffect
-  public void update(AnActionEvent e) {
-    super.update(e);
+  public void update(AnActionEvent anActionEvent) {
+    super.update(anActionEvent);
 
-    var branchLayout = getBranchLayout(e);
+    var branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isDefined()) {
       boolean anyChildBranchExists = branchLayout.get().getRootEntries()
           .exists(rootBranch -> rootBranch.getSubentries().nonEmpty());
-      var presentation = e.getPresentation();
+      var presentation = anActionEvent.getPresentation();
       if (anyChildBranchExists) {
         presentation.setEnabled(true);
         presentation.setDescription("Toggle listing commits");
@@ -39,18 +38,16 @@ public class ToggleListingCommitsAction extends ToggleAction
 
   @Override
   @UIEffect
-  public boolean isSelected(AnActionEvent e) {
-    var project = getProject(e);
-    return project.getService(GraphTableProvider.class).getGraphTable().isListingCommits();
+  public boolean isSelected(AnActionEvent anActionEvent) {
+    return getGraphTable(anActionEvent).isListingCommits();
   }
 
   @Override
   @UIEffect
-  public void setSelected(AnActionEvent e, boolean state) {
+  public void setSelected(AnActionEvent anActionEvent, boolean state) {
     LOG.debug("Triggered with state = ${state}");
 
-    var project = getProject(e);
-    var graphTable = project.getService(GraphTableProvider.class).getGraphTable();
+    var graphTable = getGraphTable(anActionEvent);
     graphTable.setListingCommits(state);
     graphTable.refreshModel();
   }

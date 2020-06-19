@@ -16,7 +16,6 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -88,7 +87,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       LOG.warn("Skipping the action because no VCS repository is selected");
     } else {
       doPull(project, gitRepository.get(), branchName.get());
-      project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }
   }
 

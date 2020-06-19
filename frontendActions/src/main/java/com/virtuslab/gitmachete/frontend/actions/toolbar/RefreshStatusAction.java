@@ -5,15 +5,13 @@ import com.intellij.openapi.project.DumbAwareAction;
 import lombok.CustomLog;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 
 @CustomLog
 public class RefreshStatusAction extends DumbAwareAction implements IExpectsKeyProject {
 
   @Override
-  public void actionPerformed(AnActionEvent e) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
-    var project = getProject(e);
-    project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
+    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 }
