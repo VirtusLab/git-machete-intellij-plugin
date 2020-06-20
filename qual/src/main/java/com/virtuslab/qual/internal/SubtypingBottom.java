@@ -1,6 +1,8 @@
 package com.virtuslab.qual.internal;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.checkerframework.framework.qual.SubtypeOf;
@@ -14,10 +16,9 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphN
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
 
+@Retention(RetentionPolicy.CLASS)
 // There needs to be single subtyping hierarchy with single bottom and top annotation,
 // otherwise Subtyping Checker would raise an error about multiple top/bottom types.
-@Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
-@TargetLocations({TypeUseLocation.EXPLICIT_LOWER_BOUND, TypeUseLocation.EXPLICIT_UPPER_BOUND})
 @SubtypeOf({
     // Despite having a unified type hierarchy, we're actually doing 3 completely independent checks here.
     ConfirmedRootBranch.class,
@@ -27,4 +28,6 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
     ConfirmedBranchItem.class,
     ConfirmedCommitItem.class,
 })
+@Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
+@TargetLocations({TypeUseLocation.EXPLICIT_LOWER_BOUND, TypeUseLocation.EXPLICIT_UPPER_BOUND})
 public @interface SubtypingBottom {}

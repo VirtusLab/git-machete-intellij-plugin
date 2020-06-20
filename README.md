@@ -62,6 +62,15 @@ Currently, very generous maximum heap size options are applied for Gradle's Java
 To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
 
 
+Local (non-CI) builds by default do not run most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
+To make local builds more aligned with CI builds (at the expense of ~2x slower compilation from scratch), set `RUN_ALL_CHECKERS` environment variable to `true`.
+
+In case of spurious cache-related issues with Gradle build, try one of the following:
+* `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
+* remove .gradle/ directory in the project directory
+* remove ~/.gradle/caches/ (or even the entire ~/.gradle/) directory
+
+
 ### Run & debug
 
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
@@ -79,15 +88,10 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 See [Gradle Intellij plugin docs](https://github.com/JetBrains/gradle-intellij-plugin/tree/master/examples/ui-test-example)
 for more details.
 
-In case of spurious cache-related issues with Gradle build, try one of the following:
-* `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
-* remove .gradle/ directory in the project directory
-* remove ~/.gradle/caches/ (or even ~/.gradle/) directory
-
 
 ### Generate plugin zip
 
-To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).
+To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).<br/>
 The resulting file will be available under `build/distributions/`.
 
 

@@ -98,6 +98,9 @@ allprojects {
     slf4jLambdaApiVersion = '0.1'
     slf4jVersion = '1.7.30'
     vavrVersion = '0.10.3'
+
+    runAllCheckers = System.getenv('CI') == 'true' || System.getenv('RUN_ALL_CHECKERS') == 'true'
+    useDelombok = System.getenv('GRADLE_COMPILE_JAVA_DELOMBOK') == 'true'
   }
 }
 
@@ -138,7 +141,7 @@ subprojects {
     checkers = [
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
-    if (System.getenv('CI') == 'true' || System.getenv('RUN_ALL_CHECKERS') == 'true') {
+    if (runAllCheckers) {
       // The experience shows that the below checkers are just rarely failing (if ever, in case of Regex), as compared to GuiEffect/Nullness.
       // Hence, they're only applied in CI, or locally only if a dedicated variable is present in the env.
       checkers += [
@@ -300,20 +303,23 @@ subprojects {
     }
 
     applyAliasingChecker = { ->
-      checkerFramework {
-        checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
+      if (runAllCheckers) {
+        checkerFramework {
+          checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
+        }
       }
     }
 
     applySubtypingChecker = { ->
-      dependencies {
-        implementation project(':qual')
-        checkerFramework project(':qual')
-      }
-      checkerFramework {
-        checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
-        def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
-        extraJavacArgs += "-AqualDirs=${qualClassDir}"
+      if (runAllCheckers) {
+        dependencies {
+          checkerFramework project(':qual')
+        }
+        checkerFramework {
+          checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
+          def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
+          extraJavacArgs += "-ASubtypingChecker_qualDirs=${qualClassDir}"
+        }
       }
     }
 
@@ -411,8 +417,12 @@ subprojects {
 
 // This is necessary to make sure that `buildPlugin` task puts jars of all subprojects into the final zip.
 subprojects.each { subproject ->
-  dependencies {
-    implementation(subproject)
+  // There is no production code in the below modules,
+  // no need to include their near-empty jars (which would contain only META-INF/MANIFEST.MF).
+  if (!(subproject.name in ['testCommon', 'uiTests'])) {
+    dependencies {
+      implementation(subproject)
+    }
   }
 }
 

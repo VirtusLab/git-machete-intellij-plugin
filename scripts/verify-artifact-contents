@@ -19,8 +19,16 @@ jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intell
 
 gradle_projects=$(cat settings.gradle | grep -Po "(?<=^include ').*(?=')" | sort)
 for project in $gradle_projects; do
-  expected_jar="$project-$plugin_version"
-  grep -qEx "$expected_jar(-.*|\+.*|)\.jar" <<< "$jars_in_plugin_zip" || fail "$expected_jar*.jar is expected but missing from $plugin_zip"
+  jar_prefix="$project-$plugin_version"
+  if [[ -d $project/src/main ]]; then
+    if ! grep -qEx "$jar_prefix(-.*|\+.*|)\.jar" <<< "$jars_in_plugin_zip"; then
+      fail "$jar_prefix*.jar is expected but missing from $plugin_zip"
+    fi
+  else
+    if grep -q "^$jar_prefix" <<< "$jars_in_plugin_zip"; then
+      fail "$jar_prefix*.jar is present in $plugin_zip even though $project does not contain any production code ($project/src/main not found)"
+    fi
+  fi
 done
 
 expected_libraries=(org.eclipse.jgit reflections slf4j-lambda-core vavr vavr-match)

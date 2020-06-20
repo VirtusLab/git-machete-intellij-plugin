@@ -16,6 +16,8 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
 
 @CustomLog
 public final class StatusBranchHookExecutor {
+  private static final int EXECUTION_TIMEOUT_SECONDS = 1;
+
   // sun.nio.fs.UnixPath has a reasonable equals/hashCode.
   private static final java.util.Map<Tuple2<Path, Path>, StatusBranchHookExecutor> instanceByMainDirAndGitDirCache = new ConcurrentHashMap<>();
 
@@ -69,11 +71,10 @@ public final class StatusBranchHookExecutor {
     pb.directory(mainDirectory);
 
     Process process = pb.start();
-    int timeoutSeconds = 1;
-    boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+    boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     if (!completed) {
       LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
-          "did not complete within ${timeoutSeconds} seconds; ignoring the output");
+          "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
       return Option.none();
     }
     if (process.exitValue() != 0) {

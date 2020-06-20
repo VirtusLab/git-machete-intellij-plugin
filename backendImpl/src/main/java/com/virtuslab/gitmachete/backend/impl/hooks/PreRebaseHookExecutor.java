@@ -13,6 +13,8 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 
 @CustomLog
 public final class PreRebaseHookExecutor {
+  private static final int EXECUTION_TIMEOUT_SECONDS = 10;
+
   private final File mainDirectory;
   private final File hookFile;
 
@@ -62,12 +64,11 @@ public final class PreRebaseHookExecutor {
     Process process;
     try {
       process = pb.start();
-      int timeoutSeconds = 10;
-      boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+      boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
       if (!completed) {
         var message = "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
-            "did not complete within ${timeoutSeconds} seconds; aborting the rebase";
+            "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
         LOG.withTimeElapsed().error(message);
         throw new GitMacheteException(message);
       }
