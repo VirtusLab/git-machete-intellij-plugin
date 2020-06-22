@@ -106,7 +106,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
@@ -114,7 +114,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       if (branch.get().isNonRootBranch()) {
         doRebase(anActionEvent, branch.get().asNonRootBranch());
       } else {
-        LOG.warn("Skipping the action because branch is a root branch: branch='${branch}'");
+        log().warn("Skipping the action because branch is a root branch: branch='${branch}'");
       }
     }
   }
@@ -134,7 +134,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       GitRepository gitRepository,
       IGitMacheteRepository gitMacheteRepository,
       IGitMacheteNonRootBranch branchToRebase) {
-    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
+    log().debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
     var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
 
@@ -142,13 +142,13 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       var e = tryGitRebaseParameters.getCause();
       // TODO (#172): redirect the user to the manual fork-point
       var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
-      LOG.error(message);
+      log().error(message);
       VcsNotifier.getInstance(project).notifyError("Rebase failed", message);
       return;
     }
 
     var gitRebaseParameters = tryGitRebaseParameters.get();
-    LOG.debug(() -> "Queuing machete-pre-rebase hook background task for '${branchToRebase.getName()}' branch");
+    log().debug(() -> "Queuing machete-pre-rebase hook background task for '${branchToRebase.getName()}' branch");
 
     new Task.Backgroundable(project, "Running machete-pre-rebase hook") {
       @Override
@@ -158,7 +158,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           Try<Option<Integer>> hookResult = Try.success(Option.none());
         };
         new GitFreezingProcess(project, myTitle, () -> {
-          LOG.info("Executing machete-pre-rebase hook");
+          log().info("Executing machete-pre-rebase hook");
           wrapper.hookResult = Try
               .of(() -> gitMacheteRepository.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
         }).execute();
@@ -166,7 +166,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
         if (hookResult.isFailure()) {
           var message = "machete-pre-rebase hook refused to rebase (error: ${hookResult.getCause().getMessage()})";
-          LOG.error(message);
+          log().error(message);
           VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
           return;
         }
@@ -174,18 +174,18 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         var maybeExitCode = hookResult.get();
         if (maybeExitCode.isDefined() && maybeExitCode.get() != 0) {
           var message = "machete-pre-rebase hook refused to rebase (exit code ${maybeExitCode.get()})";
-          LOG.error(message);
+          log().error(message);
           VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
           return;
         }
 
-        LOG.debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
+        log().debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
 
         new Task.Backgroundable(project, "Rebasing") {
           @Override
           public void run(ProgressIndicator indicator) {
             GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
-            LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
+            log().info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
                 "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                 "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
 

@@ -110,7 +110,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
           /* currentRepo */ null,
           GitPushSource.create(localBranch)).show();
     } else {
-      LOG.warn("Skipping the action because provided branch ${branchName} was not found in repository");
+      log().warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
   }
 }

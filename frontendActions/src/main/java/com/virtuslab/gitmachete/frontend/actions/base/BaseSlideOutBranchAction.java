@@ -57,7 +57,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
@@ -65,14 +65,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       if (branch.get().isNonRootBranch()) {
         doSlideOut(anActionEvent, branch.get().asNonRootBranch());
       } else {
-        LOG.warn("Skipping the action because the branch is a root branch: branch='${branch}'");
+        log().warn("Skipping the action because the branch is a root branch: branch='${branch}'");
       }
     }
   }
 
   @UIEffect
   private void doSlideOut(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToSlideOut) {
-    LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
+    log().debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
     var branchLayout = getBranchLayout(anActionEvent);
@@ -82,20 +82,20 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     }
 
     try {
-      LOG.info("Sliding out '${branchName}' branch in memory");
+      log().info("Sliding out '${branchName}' branch in memory");
       var newBranchLayout = branchLayout.get().slideOut(branchName);
 
-      LOG.info("Writing new branch layout into file");
+      log().info("Writing new branch layout into file");
       branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
 
-      LOG.debug("Refreshing repository state");
+      log().debug("Refreshing repository state");
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
       String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
-      LOG.error(errorMessage);
+      log().error(errorMessage);
       VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
           exceptionMessage == null ? "" : exceptionMessage);
     }

@@ -44,7 +44,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
         .map(GitVfsUtils::getGitDirectory);
 
     if (gitDir.isEmpty()) {
-      LOG.warn("Skipping the action because Git repository directory is undefined");
+      log().warn("Skipping the action because Git repository directory is undefined");
       return;
     }
 
@@ -56,7 +56,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
-      LOG.warn("Skipping the action because machete file is undefined");
+      log().warn("Skipping the action because machete file is undefined");
     } else {
       try {
         doOpenFile(project, macheteFile.get());

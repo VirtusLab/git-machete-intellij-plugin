@@ -8,7 +8,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
-public interface IExpectsKeyGitMacheteRepository extends IExpectsKeyLogger {
+public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default Option<IGitMacheteRepository> getGitMacheteRepository(AnActionEvent anActionEvent) {
     var gitMacheteRepository = Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
     if (gitMacheteRepository.isEmpty()) {

@@ -14,12 +14,18 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeyProject,
       IExpectsKeySelectedBranchName {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect
@@ -62,7 +68,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
-      LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
+      log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
       new Task.Backgroundable(project, "Checking out") {
         @Override
         public void run(ProgressIndicator indicator) {
@@ -75,7 +81,6 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
   public static void doCheckout(String branchNameToCheckout, GitRepository gitRepository, Project project,
       ProgressIndicator indicator) {
-    LOG.info("Checking out branch '${branchNameToCheckout}'");
     GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
     new GitBranchWorker(project, Git.getInstance(), uiHandler)
         .checkout(branchNameToCheckout, /* detach */ false, java.util.List.of(gitRepository));

@@ -110,10 +110,10 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var parentTrackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getUpstreamBranch().getName());
 
     if (trackingInfo == null) {
-      LOG.warn("No branch tracking info for branch ${gitMacheteNonRootBranch.getName()}");
+      log().warn("No branch tracking info for branch ${gitMacheteNonRootBranch.getName()}");
       return;
     } else if (parentTrackingInfo == null) {
-      LOG.warn("No branch tracking info for parent branch ${gitMacheteNonRootBranch.getUpstreamBranch().getName()}");
+      log().warn("No branch tracking info for parent branch ${gitMacheteNonRootBranch.getUpstreamBranch().getName()}");
       return;
     }
 

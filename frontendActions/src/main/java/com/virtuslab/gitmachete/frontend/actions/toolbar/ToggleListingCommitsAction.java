@@ -51,7 +51,7 @@ public class ToggleListingCommitsAction extends ToggleAction
   @Override
   @UIEffect
   public void setSelected(AnActionEvent anActionEvent, boolean state) {
-    LOG.debug("Triggered with state = ${state}");
+    log().debug("Triggered with state = ${state}");
 
     var graphTable = getGraphTable(anActionEvent);
     graphTable.setListingCommits(state);

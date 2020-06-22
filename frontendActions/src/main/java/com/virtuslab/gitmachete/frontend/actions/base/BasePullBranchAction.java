@@ -80,7 +80,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
@@ -96,7 +96,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var trackingInfo = gitRepository.getBranchTrackInfo(branchName);
 
     if (trackingInfo == null) {
-      LOG.warn("No branch tracking info for branch ${branchName}");
+      log().warn("No branch tracking info for branch ${branchName}");
       return;
     }
 

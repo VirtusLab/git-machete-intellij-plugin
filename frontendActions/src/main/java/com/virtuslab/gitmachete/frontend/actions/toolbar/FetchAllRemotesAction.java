@@ -38,7 +38,7 @@ public class FetchAllRemotesAction extends DumbAwareAction implements IExpectsKe
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);

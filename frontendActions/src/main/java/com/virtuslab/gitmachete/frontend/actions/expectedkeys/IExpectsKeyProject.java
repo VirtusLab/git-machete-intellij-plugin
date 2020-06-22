@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterPr
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
-public interface IExpectsKeyProject extends IExpectsKeyLogger {
+public interface IExpectsKeyProject extends IWithLogger {
   default Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
