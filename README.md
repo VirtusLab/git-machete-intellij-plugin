@@ -52,7 +52,7 @@ For running `./gradlew` from command line, make sure that `java` and `javac` are
 
 [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of gradle plugin to manually generate grammar and lexer code from `.bnf` and `.flex` files.
 
-When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on machete file
+When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on machete file.
 
 ### Build
 

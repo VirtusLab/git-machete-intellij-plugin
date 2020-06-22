@@ -9,7 +9,6 @@ import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
 import icons.MacheteIcons;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.Nls;
 
 public class MacheteColorSettingsPane implements ColorSettingsPage {
   private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
@@ -57,7 +56,7 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
   }
 
   @Override
-  public @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {
+  public String getDisplayName() {
     return "Machete";
   }
 }
