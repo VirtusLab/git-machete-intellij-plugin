@@ -11,7 +11,6 @@ importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.ui.GuiUtils);
 
-importClass(com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider);
 
 // Do not run in EDT.
 function sleep() {
@@ -73,13 +72,16 @@ function openTabAndReturnRowCount(project) {
     toolWindow.activate(function () {});
   });
 
+  let graphTable;
   GuiUtils.runOrInvokeAndWait(function () {
     const contentManager = toolWindow.getContentManager();
     const tab = contentManager.findContent('Git Machete');
     contentManager.setSelectedContent(tab);
+    const panel = tab.getComponent();
+    graphTable = panel.getGraphTable();
+    graphTable.queueRepositoryUpdateAndModelRefresh();
   });
-  const graphTable = project.getService(GraphTableProvider).getGraphTable();
-  graphTable.queueRepositoryUpdateAndModelRefresh();
+
   let graphTableRowCount;
   do {
     graphTableRowCount = graphTable.getModel().getRowCount();

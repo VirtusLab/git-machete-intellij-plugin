@@ -24,13 +24,16 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositor
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel {
 
+  private final Project project;
+
   @UIEffect
   public GitMachetePanel(Project project) {
     super(/* vertical */ false, /* borderless */ true);
     LOG.debug("Instantiating");
+    this.project = project;
 
     var selectionComponent = project.getService(SelectedGitRepositoryProvider.class).getSelectionComponent();
-    var graphTable = project.getService(GraphTableProvider.class).getGraphTable();
+    var graphTable = getGraphTable();
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
@@ -38,6 +41,10 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     setToolbar(createGitMacheteVerticalToolbar(graphTable).getComponent());
     add(createShrinkingWrapper(selectionComponent), BorderLayout.NORTH);
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
+  }
+
+  public BaseGraphTable getGraphTable() {
+    return project.getService(GraphTableProvider.class).getGraphTable();
   }
 
   @UIEffect
