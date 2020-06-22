@@ -42,7 +42,7 @@ public class HelpAction extends DumbAwareAction {
 
     @Override
     protected JComponent createCenterPanel() {
-      var panel = JBUI.Panels.simplePanel(0, 2);
+      var panel = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2);
       panel.addToCenter(ScrollPaneFactory.createScrollPane(DemoGraphTable.INSTANCE));
       panel.setPreferredSize(new JBDimension(CENTER_PANEL_WIDTH, CENTER_PANEL_HEIGHT));
       return panel;
