@@ -10,9 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 public abstract class BaseGitRepositoryBackedTestSuite {
 
@@ -63,14 +60,13 @@ public abstract class BaseGitRepositoryBackedTestSuite {
     Assert.assertEquals(0, process.exitValue());
   }
 
-  @Rule(order = Integer.MIN_VALUE)
-  public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
-    @Override
-    @SneakyThrows
-    protected void succeeded(Description description) {
-      Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-    }
-
-    // After a failed test, keep the parent directory intact for further manual inspection.
-  };
+  /**
+   * Be careful with this method since it might lead to race conditions when the test is finished but another process
+   * (e.g. an IDE in case of UI tests) is still working and modifying the contents of {@code parentDir}.
+   * Hence, this method is not marked as {@link org.junit.Before} by default.
+   */
+  @SneakyThrows
+  protected void cleanUpParentDir() {
+    Files.walk(parentDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+  }
 }

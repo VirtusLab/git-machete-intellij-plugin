@@ -14,7 +14,10 @@ import static org.junit.runners.Parameterized.Parameters;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -69,6 +72,16 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
 
     Assert.assertEquals(gitMacheteCliStatus, ourStatus);
   }
+
+  @Rule(order = Integer.MIN_VALUE)
+  public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
+    @Override
+    protected void succeeded(Description description) {
+      cleanUpParentDir();
+    }
+
+    // After a failed test, keep the parent directory intact for further manual inspection.
+  };
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
