@@ -46,7 +46,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       return;
     }
 
-    var state = getSelectedVcsRepository(anActionEvent).map(r -> r.getState());
+    var state = getSelectedGitRepository(anActionEvent).map(r -> r.getState());
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
@@ -113,13 +113,13 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteRepository = getGitMacheteRepository(anActionEvent);
 
     if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {
       doRebase(project, gitRepository.get(), gitMacheteRepository.get(), branchToRebase);
     } else {
-      LOG.warn("Skipping the action because no VCS repository is selected or no Git Machete repository is selected");
+      LOG.warn("Skipping the action because no Git repository is selected");
     }
   }
 

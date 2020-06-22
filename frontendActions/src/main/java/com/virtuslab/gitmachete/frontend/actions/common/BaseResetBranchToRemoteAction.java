@@ -85,7 +85,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     LOG.debug("Performing");
 
     Project project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var macheteRepository = getGitMacheteRepository(anActionEvent);
 
@@ -97,9 +97,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     }
 
     if (gitRepository.isEmpty()) {
-      LOG.warn("Skipping the action because no VCS repository is selected");
+      LOG.warn("Skipping the action because no Git repository is selected");
       VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
-          "Skipping the action because no VCS repository is selected");
+          "Skipping the action because no Git repository is selected");
       return;
     }
 

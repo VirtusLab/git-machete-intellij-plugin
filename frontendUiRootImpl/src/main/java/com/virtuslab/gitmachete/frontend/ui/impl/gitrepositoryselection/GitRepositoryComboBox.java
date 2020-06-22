@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.selectioncomponent;
+package com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -20,18 +20,18 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.ISelectionComponent;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponent;
 
 @CustomLog
-public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implements ISelectionComponent {
+public final class GitRepositoryComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionComponent {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
   private final Project project;
 
   @UIEffect
-  public VcsRepositoryComboBox(Project project) {
+  public GitRepositoryComboBox(Project project) {
     super(new MutableCollectionComboBoxModel<>());
     this.project = project;
 
@@ -40,7 +40,7 @@ public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implem
 
     project.getMessageBus().connect()
         .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
-          LOG.debug("VCS repository getGraphTable(anActionEvent) mappings changed");
+          LOG.debug("Git repository mappings changed");
           GuiUtils.invokeLaterIfNeeded(() -> updateRepositories(), ModalityState.NON_MODAL);
         });
   }
@@ -56,7 +56,7 @@ public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implem
     // A bit of a shortcut: we're accessing filesystem even though we are on UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
-    LOG.debug("VCS roots:");
+    LOG.debug("Git repositories:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
     // `com.intellij.ui.MutableCollectionComboBoxModel.getSelected` must be performed
@@ -72,22 +72,22 @@ public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implem
     boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
       // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
-      LOG.debug("No VCS repositories found");
+      LOG.debug("No Git repositories found");
       if (selected != null) {
         setSelectedItem(null);
       }
     } else if (selectedItemUpdateRequired) {
-      LOG.debug("Selecting first VCS repository");
+      LOG.debug("Selecting first Git repository");
       setSelectedItem(repositories.get(0));
     } else {
-      LOG.debug("Selecting previously selected VCS repository");
-      // VcsRepositoryComboBox#setSelectedItem is omitted to avoid unnecessary observers call
+      LOG.debug("Selecting previously selected Git repository");
+      // GitRepositoryComboBox#setSelectedItem is omitted to avoid unnecessary observers call
       getModel().setSelectedItem(selected);
     }
   }
 
   @Override
-  public Option<GitRepository> getSelectedRepository() {
+  public Option<GitRepository> getSelectedGitRepository() {
     return Option.of(getModel().getSelected());
   }
 
@@ -103,7 +103,7 @@ public final class VcsRepositoryComboBox extends JComboBox<GitRepository> implem
   }
 
   @Override
-  public JComponent getComponent() {
+  public JComponent getSelectionComponent() {
     return this;
   }
 }

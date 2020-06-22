@@ -78,13 +78,13 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     LOG.debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isEmpty()) {
       LOG.warn("Skipping the action because name of branch to pull is undefined");
     } else if (gitRepository.isEmpty()) {
-      LOG.warn("Skipping the action because no VCS repository is selected");
+      LOG.warn("Skipping the action because no Git repository is selected");
     } else {
       doPull(project, gitRepository.get(), branchName.get());
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();

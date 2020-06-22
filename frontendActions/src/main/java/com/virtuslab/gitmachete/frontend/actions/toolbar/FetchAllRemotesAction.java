@@ -35,7 +35,7 @@ public class FetchAllRemotesAction extends DumbAwareAction implements IExpectsKe
     LOG.debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
     new Task.Backgroundable(project, "Fetching...", /* canBeCancelled */ true) {
 

@@ -61,7 +61,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     }
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       LOG.debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
@@ -73,7 +73,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
     } else {
-      LOG.warn("Skipping the action because no VCS repository is selected");
+      LOG.warn("Skipping the action because no Git repository is selected");
     }
   }
 

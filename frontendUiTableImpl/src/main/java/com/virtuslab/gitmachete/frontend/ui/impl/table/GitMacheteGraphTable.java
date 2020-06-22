@@ -53,11 +53,11 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
-import com.virtuslab.gitmachete.frontend.ui.api.repositoryselection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedVcsRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
@@ -85,7 +85,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     super(new GraphTableModel(IRepositoryGraphFactory.NULL_REPOSITORY_GRAPH));
 
     this.project = project;
-    this.gitRepositorySelectionProvider = project.getService(SelectedVcsRepositoryProvider.class)
+    this.gitRepositorySelectionProvider = project.getService(SelectedGitRepositoryProvider.class)
         .getGitRepositorySelectionProvider();
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     this.repositoryGraphFactory = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphFactory.class);
@@ -111,17 +111,17 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     addMouseListener(new GitMacheteGraphTableMouseAdapter());
 
-    subscribeToVcsRepositoryChange();
-    subscribeToGitRepositoryChanges();
+    subscribeToGitRepositoryFilesChanges();
+    subscribeToSelectedGitRepositoryChange();
   }
 
-  private void subscribeToGitRepositoryChanges() {
+  private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
     project.getMessageBus().connect().subscribe(topic, listener);
   }
 
-  private void subscribeToVcsRepositoryChange() {
+  private void subscribeToSelectedGitRepositoryChange() {
     // The method reference is invoked when user changes repository in selection component menu
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
@@ -180,7 +180,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @Override
   @UIEffect
   public void refreshModel() {
-    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedRepository();
+    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
       refreshModel(gitRepository.get());
     } else {
@@ -208,7 +208,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     if (!project.isDisposed()) {
       GuiUtils.invokeLaterIfNeeded(() -> {
-        var gitRepository = gitRepositorySelectionProvider.getSelectedRepository().getOrNull();
+        var gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository == null) {
           LOG.warn("Selected repository is null");
           return;

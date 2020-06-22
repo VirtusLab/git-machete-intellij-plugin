@@ -88,7 +88,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteBranch = getNameOfBranchUnderAction(anActionEvent).flatMap(b -> getGitMacheteBranchByName(anActionEvent, b));
 
     if (gitMacheteBranch.isDefined()) {
@@ -96,7 +96,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
         assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to fast forward is a root";
         doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
       } else {
-        LOG.warn("Skipping the action because no VCS repository is selected");
+        LOG.warn("Skipping the action because no Git repository is selected");
       }
     } else {
       LOG.warn("Skipping the action because machete branch to fast forward is undefined");

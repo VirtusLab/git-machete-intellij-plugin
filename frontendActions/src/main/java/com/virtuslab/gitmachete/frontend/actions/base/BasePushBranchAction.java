@@ -82,14 +82,14 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedVcsRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
     if (branchName.isDefined()) {
       if (gitRepository.isDefined()) {
         doPush(project, gitRepository.get(), branchName.get());
       } else {
-        LOG.warn("Skipping the action because no VCS repository is selected");
+        LOG.warn("Skipping the action because no Git repository is selected");
       }
     } else {
       LOG.warn("Skipping the action because name of branch to push is undefined");

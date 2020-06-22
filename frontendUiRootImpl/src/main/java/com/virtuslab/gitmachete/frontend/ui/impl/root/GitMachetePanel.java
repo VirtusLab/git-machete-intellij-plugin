@@ -20,7 +20,7 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedVcsRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel {
@@ -33,7 +33,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     super(/* vertical */ false, /* borderless */ true);
     LOG.debug("Instantiating");
 
-    var selectionComponent = project.getService(SelectedVcsRepositoryProvider.class).getSelectionComponent();
+    var selectionComponent = project.getService(SelectedGitRepositoryProvider.class).getSelectionComponent();
     this.graphTable = project.getService(GraphTableProvider.class).getGraphTable();
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
