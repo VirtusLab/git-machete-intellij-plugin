@@ -13,28 +13,27 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
-import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel {
 
-  @Getter
-  private final BaseGraphTable graphTable;
+  private final Project project;
 
   @UIEffect
   public GitMachetePanel(Project project) {
     super(/* vertical */ false, /* borderless */ true);
     LOG.debug("Instantiating");
 
+    this.project = project;
+
     var selectionComponent = project.getService(SelectedGitRepositoryProvider.class).getSelectionComponent();
-    this.graphTable = project.getService(GraphTableProvider.class).getGraphTable();
+    var graphTable = project.getService(GraphTableProvider.class).getGraphTable();
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
@@ -50,6 +49,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
     var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
         /* horizontal */ false);
+    var graphTable = project.getService(GraphTableProvider.class).getGraphTable();
     toolbar.setTargetComponent(graphTable);
     return toolbar;
   }

@@ -9,18 +9,18 @@ import io.vavr.control.Option;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponent;
-import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProviderFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 
 @Service
-public final class SelectedGitRepositoryProvider implements IGitRepositorySelectionComponent {
+public final class SelectedGitRepositoryProvider implements IGitRepositorySelectionComponentProvider {
 
-  private final IGitRepositorySelectionComponent selectionComponent;
+  private final IGitRepositorySelectionComponentProvider selectionComponent;
 
   public SelectedGitRepositoryProvider(Project project) {
     this.selectionComponent = RuntimeBinding
-        .instantiateSoleImplementingClass(IGitRepositorySelectionComponentFactory.class)
+        .instantiateSoleImplementingClass(IGitRepositorySelectionComponentProviderFactory.class)
         .create(project);
   }
 
