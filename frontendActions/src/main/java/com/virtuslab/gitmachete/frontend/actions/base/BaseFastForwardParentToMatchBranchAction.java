@@ -58,7 +58,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
         presentation.setDescription("Root branch '${branchName.get()}' cannot be fast-forwarded");
-      } else { //contextmenu
+      } else { // contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
       }

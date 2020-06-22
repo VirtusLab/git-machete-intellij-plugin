@@ -24,8 +24,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 @ToString(callSuper = true)
 public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
 
-  @MonotonicNonNull
-  private IGitMacheteBranch upstreamBranch = null;
+  private @MonotonicNonNull IGitMacheteBranch upstreamBranch = null;
   private final @Nullable IGitMacheteForkPointCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
   private final SyncToParentStatus syncToParentStatus;

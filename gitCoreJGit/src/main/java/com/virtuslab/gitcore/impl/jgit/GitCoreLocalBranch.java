@@ -4,7 +4,6 @@ import io.vavr.Lazy;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import lombok.CustomLog;
 import org.eclipse.jgit.annotations.Nullable;
 
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -12,7 +11,6 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
-@CustomLog
 public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
 
   private @Nullable final IGitCoreRemoteBranch remoteBranch;

@@ -28,13 +28,18 @@ function is_ide_running() {
 # but we still need to kill the IDE instance in case that test was not successful AND the IDE is still running.
 function finish() {
   if is_ide_running; then
-    kill $ide_pid
+    kill -TERM $ide_pid || true  # ignoring exit code in case the process just terminated between `is_ide_running` and `kill`
   fi
   # Let's wait until IDE process is terminated to avoid any risk of race conditions
   # when another UI test is to be run right after this script completes.
+  local count=0
   while is_ide_running; do
-    sleep 0.5
+    # Rather unlikely, IDE process tends to shut down quickly on receiving SIGTERM.
+    if [[ $((count++)) -eq 10 ]]; then
+      kill -KILL $ide_pid || true
+    fi
     echo 'Waiting for IDE process to shut down...'
+    sleep 1.0
   done
 }
 trap finish EXIT

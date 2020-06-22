@@ -8,12 +8,9 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCa
 
 public class RepositoryGraphCache implements IRepositoryGraphCache {
 
-  @MonotonicNonNull
-  private IRepositoryGraph repositoryGraphWithCommits = null;
-  @MonotonicNonNull
-  private IRepositoryGraph repositoryGraphWithoutCommits = null;
-  @MonotonicNonNull
-  private IGitMacheteRepository repository = null;
+  private @MonotonicNonNull IRepositoryGraph repositoryGraphWithCommits = null;
+  private @MonotonicNonNull IRepositoryGraph repositoryGraphWithoutCommits = null;
+  private @MonotonicNonNull IGitMacheteRepository repository = null;
 
   @Override
   @SuppressWarnings("regexp") // to allow `synchronized`

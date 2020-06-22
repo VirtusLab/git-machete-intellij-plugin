@@ -8,6 +8,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.I
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.vavr.Tuple;
@@ -20,6 +21,7 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -78,10 +80,12 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     private final IGitCoreRepository gitCoreRepository;
     private final StatusBranchHookExecutor statusHookExecutor;
     private final PreRebaseHookExecutor preRebaseHookExecutor;
+    private final List<IGitCoreLocalBranch> localBranches;
     private final Map<String, IGitCoreLocalBranch> localBranchByName;
     private final List<String> remoteNames;
-    private final Map<String, IGitCoreRemoteBranch> remoteBranchByName;
+
     private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
+    private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<String>> branchesContainingGivenCommitReflogInCommit;
 
     Aux(
         IGitCoreRepository gitCoreRepository,
@@ -93,11 +97,9 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       this.preRebaseHookExecutor = preRebaseHookExecutor;
 
       try {
-        this.localBranchByName = gitCoreRepository.deriveAllLocalBranches()
-            .toMap(localBranch -> Tuple.of(localBranch.getShortName(), localBranch));
+        this.localBranches = gitCoreRepository.deriveAllLocalBranches();
+        this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getShortName(), localBranch));
         this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
-        this.remoteBranchByName = gitCoreRepository.deriveAllRemoteBranches()
-            .toMap(remoteBranch -> Tuple.of(remoteBranch.getShortName(), remoteBranch));
       } catch (GitCoreException e) {
         throw new GitMacheteException(e);
       }
@@ -122,8 +124,43 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
 
-      return new GitMacheteRepository(rootBranches, branchLayout, currentBranchIfManaged, branchByName,
-          preRebaseHookExecutor);
+      return new GitMacheteRepository(rootBranches, branchLayout, currentBranchIfManaged, branchByName, preRebaseHookExecutor);
+    }
+
+    private Map<IGitCoreCommitHash, Seq<String>> deriveBranchesContainingGivenCommitInReflog() {
+      if (branchesContainingGivenCommitReflogInCommit != null) {
+        return branchesContainingGivenCommitReflogInCommit;
+      }
+
+      LOG.debug("Getting reflogs of local branches");
+
+      Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = localBranches
+          .toMap(
+              /* keyMapper */ localBranch -> localBranch.getShortName(),
+              /* valueMapper */ localBranch -> Try.of(() -> deriveFilteredReflog(localBranch)).getOrElse(List.empty()));
+
+      LOG.debug("Getting reflogs of remote branches");
+
+      List<IGitCoreRemoteBranch> remoteTrackingBranches = localBranches
+          .flatMap(localBranch -> localBranch.getRemoteTrackingBranch().toList());
+
+      Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranchName = remoteTrackingBranches
+          .toMap(
+              /* keyMapper */ remoteBranch -> remoteBranch.getShortName(),
+              /* valueMapper */ remoteBranch -> Try.of(() -> deriveFilteredReflog(remoteBranch)).getOrElse(List.empty()));
+
+      LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
+
+      Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
+          .merge(filteredReflogByRemoteTrackingBranchName);
+
+      Seq<Tuple2<IGitCoreCommitHash, String>> objectIdAndBranchNamePairs = filteredReflogsByBranchName
+          .flatMap(bnAres -> bnAres._2.map(re -> Tuple.of(re.getNewCommitHash(), bnAres._1)));
+
+      branchesContainingGivenCommitReflogInCommit = objectIdAndBranchNamePairs
+          .groupBy(oidAbn -> oidAbn._1)
+          .mapValues(oidAbns -> oidAbns.map(oidAbn -> oidAbn._2));
+      return branchesContainingGivenCommitReflogInCommit;
     }
 
     private Map<String, IGitMacheteBranch> createBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
@@ -327,42 +364,18 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
         throws GitCoreException {
       LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
-      LOG.debug("Getting reflogs of local branches");
+      String remoteTrackingBranchShortName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getShortName()).getOrNull();
 
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = localBranchByName
-          .rejectValues(branch::equals)
-          .mapValues(otherLocalBranch -> Try.of(() -> deriveFilteredReflog(otherLocalBranch)).getOrElse(List.empty()));
+      Function<IGitCoreCommitHash, Seq<String>> getRelevantContainingBranches = commitHash -> deriveBranchesContainingGivenCommitInReflog()
+          .getOrElse(commitHash, List.empty())
+          .reject(branchName -> branchName.equals(branch.getShortName()) || branchName.equals(remoteTrackingBranchShortName));
 
-      LOG.debug("Getting reflogs of remote branches");
-
-      IGitCoreRemoteBranch remoteTrackingBranch = branch.getRemoteTrackingBranch().getOrNull();
-
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteBranchName = remoteBranchByName
-          .rejectValues(someRemoteBranch -> someRemoteBranch.equals(remoteTrackingBranch))
-          .mapValues(unrelRemoteBranch -> Try.of(() -> deriveFilteredReflog(unrelRemoteBranch)).getOrElse(List.empty()));
-
-      LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
-
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
-          .merge(filteredReflogByRemoteBranchName);
-
-      Seq<Tuple2<IGitCoreCommitHash, String>> objectIdAndBranchNamePairs = filteredReflogsByBranchName
-          .flatMap(bnAres -> bnAres._2.map(re -> Tuple.of(re.getNewCommitHash(), bnAres._1)));
-      Map<IGitCoreCommitHash, Seq<String>> branchesContainingInReflogByCommit = objectIdAndBranchNamePairs
-          .groupBy(oidAbn -> oidAbn._1)
-          .mapValues(oidAbns -> oidAbns.map(oidAbn -> oidAbn._2));
-
-      LOG.debug("Start walking through logs");
-
-      IGitCoreCommit forkPoint = gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(), commitHash -> {
-        Seq<String> containingBranches = branchesContainingInReflogByCommit.getOrElse(commitHash, List.empty());
-        return containingBranches.nonEmpty();
-      }).getOrNull();
+      IGitCoreCommit forkPoint = gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(),
+          commitHash -> getRelevantContainingBranches.apply(commitHash).nonEmpty()).getOrNull();
 
       if (forkPoint != null) {
         // We now know that this list is non-empty.
-        List<String> containingBranches = branchesContainingInReflogByCommit.getOrElse(forkPoint.getHash(), List.empty())
-            .toList();
+        List<String> containingBranches = getRelevantContainingBranches.apply(forkPoint.getHash()).toList();
         LOG.debug(() -> "Commit ${forkPoint} found in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
             "returning as fork point for branch '${branch.getFullName()}'");
         return GitMacheteForkPointCommit.inferred(forkPoint, containingBranches);
@@ -469,7 +482,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           + Try.of(() -> branch.derivePointedCommit().getHash().getHashString()).getOrElse("");
 
       // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
-      // for cases like branch rename just after branch creation
+      // for cases like branch rename just after branch creation.
       Predicate<IGitCoreReflogEntry> isEntryExcluded = e -> {
         // For debug logging only
         String newIdHash = e.getNewCommitHash().getHashString();

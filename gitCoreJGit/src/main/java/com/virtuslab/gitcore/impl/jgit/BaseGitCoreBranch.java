@@ -3,7 +3,6 @@ package com.virtuslab.gitcore.impl.jgit;
 import io.vavr.Lazy;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
-import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -12,7 +11,6 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
-@CustomLog
 @RequiredArgsConstructor
 public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
