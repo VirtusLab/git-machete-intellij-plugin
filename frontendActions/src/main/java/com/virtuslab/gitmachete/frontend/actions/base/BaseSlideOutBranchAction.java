@@ -11,6 +11,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -18,6 +19,11 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect
@@ -55,10 +61,12 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
-    if (branch.isDefined() && branch.get().isNonRootBranch()) {
-      doSlideOut(anActionEvent, branch.get().asNonRootBranch());
-    } else {
-      LOG.warn("Skipping the action because the branch is undefined or is a root branch: branch='${branch}'");
+    if (branch.isDefined()) {
+      if (branch.get().isNonRootBranch()) {
+        doSlideOut(anActionEvent, branch.get().asNonRootBranch());
+      } else {
+        LOG.warn("Skipping the action because the branch is a root branch: branch='${branch}'");
+      }
     }
   }
 
@@ -70,7 +78,6 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     var branchLayout = getBranchLayout(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     if (branchLayout.isEmpty()) {
-      LOG.warn("Skipping the action because branch layout is undefined");
       return;
     }
 

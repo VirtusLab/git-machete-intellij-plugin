@@ -8,7 +8,6 @@ import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -41,7 +40,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    Option<String> currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
+    var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
 
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
@@ -56,7 +55,6 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   public void actionPerformed(AnActionEvent anActionEvent) {
     var selectedBranchName = getSelectedBranchName(anActionEvent);
     if (selectedBranchName.isEmpty()) {
-      LOG.warn("Skipping the action because selected branch is undefined");
       return;
     }
 
@@ -72,8 +70,6 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
-    } else {
-      LOG.warn("Skipping the action because no Git repository is selected");
     }
   }
 

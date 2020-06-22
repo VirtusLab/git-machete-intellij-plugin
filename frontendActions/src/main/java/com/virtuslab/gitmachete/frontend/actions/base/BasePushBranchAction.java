@@ -12,19 +12,24 @@ import git4idea.GitLocalBranch;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   protected final List<SyncToRemoteStatus.Relation> PUSH_ELIGIBLE_STATUSES = List.of(
       SyncToRemoteStatus.Relation.AheadOfRemote,
@@ -50,7 +55,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
       return;
     }
 
-    Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteBranchByName(anActionEvent, branchName.get())
+    var syncToRemoteStatus = getGitMacheteBranchByName(anActionEvent, branchName.get())
         .map(branch -> branch.getSyncToRemoteStatus());
 
     if (syncToRemoteStatus.isEmpty()) {
@@ -85,14 +90,8 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
-    if (branchName.isDefined()) {
-      if (gitRepository.isDefined()) {
-        doPush(project, gitRepository.get(), branchName.get());
-      } else {
-        LOG.warn("Skipping the action because no Git repository is selected");
-      }
-    } else {
-      LOG.warn("Skipping the action because name of branch to push is undefined");
+    if (branchName.isDefined() && gitRepository.isDefined()) {
+      doPush(project, gitRepository.get(), branchName.get());
     }
   }
 

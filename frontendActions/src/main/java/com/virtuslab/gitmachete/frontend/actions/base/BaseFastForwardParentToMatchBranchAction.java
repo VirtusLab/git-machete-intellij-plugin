@@ -17,12 +17,18 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect
@@ -91,15 +97,9 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteBranch = getNameOfBranchUnderAction(anActionEvent).flatMap(b -> getGitMacheteBranchByName(anActionEvent, b));
 
-    if (gitMacheteBranch.isDefined()) {
-      if (gitRepository.isDefined()) {
-        assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to fast forward is a root";
-        doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
-      } else {
-        LOG.warn("Skipping the action because no Git repository is selected");
-      }
-    } else {
-      LOG.warn("Skipping the action because machete branch to fast forward is undefined");
+    if (gitMacheteBranch.isDefined() && gitRepository.isDefined()) {
+      assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to fast forward is a root";
+      doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
     }
   }
 

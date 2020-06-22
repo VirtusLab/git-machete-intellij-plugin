@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterPr
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
-public interface IExpectsKeyProject {
+public interface IExpectsKeyProject extends IExpectsKeyLogger {
   default Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
@@ -27,6 +27,11 @@ public interface IExpectsKeyProject {
   }
 
   default Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
-    return getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class).getSelectedGitRepository();
+    var selectedGitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
+        .getSelectedGitRepository();
+    if (selectedGitRepository.isEmpty()) {
+      log().warn("No Git repository is selected");
+    }
+    return selectedGitRepository;
   }
 }

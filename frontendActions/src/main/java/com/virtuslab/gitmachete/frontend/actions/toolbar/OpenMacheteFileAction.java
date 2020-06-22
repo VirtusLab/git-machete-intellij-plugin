@@ -20,9 +20,15 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect
@@ -38,7 +44,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
         .map(GitVfsUtils::getGitDirectory);
 
     if (gitDir.isEmpty()) {
-      LOG.warn("Skipping the action because Git repository is undefined");
+      LOG.warn("Skipping the action because Git repository directory is undefined");
       return;
     }
 

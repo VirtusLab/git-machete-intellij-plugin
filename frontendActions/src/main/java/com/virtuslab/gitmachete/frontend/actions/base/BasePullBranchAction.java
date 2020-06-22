@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -16,6 +15,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -23,6 +23,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
 
@@ -44,7 +49,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       return;
     }
 
-    Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
+    var syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
         .flatMap(repo -> repo.getBranchByName(branchName.get()))
         .map(branch -> branch.getSyncToRemoteStatus());
 
@@ -81,11 +86,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
 
-    if (branchName.isEmpty()) {
-      LOG.warn("Skipping the action because name of branch to pull is undefined");
-    } else if (gitRepository.isEmpty()) {
-      LOG.warn("Skipping the action because no Git repository is selected");
-    } else {
+    if (branchName.isDefined() && gitRepository.isDefined()) {
       doPull(project, gitRepository.get(), branchName.get());
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }

@@ -5,8 +5,12 @@ import io.vavr.control.Option;
 
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
-public interface IExpectsKeySelectedBranchName {
+public interface IExpectsKeySelectedBranchName extends IExpectsKeyLogger {
   default Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
-    return Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
+    var selectedBranchName = Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
+    if (selectedBranchName.isEmpty()) {
+      log().warn("Selected branch is undefined");
+    }
+    return selectedBranchName;
   }
 }

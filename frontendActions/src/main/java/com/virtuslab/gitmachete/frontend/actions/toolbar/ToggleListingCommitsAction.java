@@ -8,6 +8,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class ToggleListingCommitsAction extends ToggleAction
@@ -15,6 +16,11 @@ public class ToggleListingCommitsAction extends ToggleAction
       DumbAware,
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect

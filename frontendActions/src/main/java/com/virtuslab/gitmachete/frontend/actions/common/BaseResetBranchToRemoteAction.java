@@ -29,12 +29,18 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryRe
 import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   private static final String VCS_NOTIFIER_TITLE = "Resetting";
   private static final String TASK_TITLE = "Resetting...";
@@ -90,21 +96,18 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     var macheteRepository = getGitMacheteRepository(anActionEvent);
 
     if (branchName.isEmpty()) {
-      LOG.warn("Skipping the action because name of branch to reset is undefined");
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
           "Internal error occurred. For more information see IDE log file");
       return;
     }
 
     if (gitRepository.isEmpty()) {
-      LOG.warn("Skipping the action because no Git repository is selected");
       VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
           "Skipping the action because no Git repository is selected");
       return;
     }
 
     if (macheteRepository.isEmpty()) {
-      LOG.error("Skipping the action because can't get Git Machete repository");
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
           "Internal error occurred. For more information see IDE log file");
       return;
@@ -140,7 +143,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           resetHandler.endOptions();
 
           // Check if branch to reset is not current branch - if isn't then checkout
-          Option<String> currentBranchOption = getCurrentBranchNameIfManaged(anActionEvent);
+          var currentBranchOption = getCurrentBranchNameIfManaged(anActionEvent);
           if (currentBranchOption.isEmpty() || !currentBranchOption.get().equals(branchName)) {
             LOG.debug(() -> "Checkout to branch '${branchName}' is needed");
             // Checking out given branch

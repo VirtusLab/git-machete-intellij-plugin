@@ -28,6 +28,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
@@ -35,6 +36,11 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       IBranchNameProvider,
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
 
   @Override
   @UIEffect
@@ -104,10 +110,12 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
-    if (branch.isDefined() && branch.get().isNonRootBranch()) {
-      doRebase(anActionEvent, branch.get().asNonRootBranch());
-    } else {
-      LOG.warn("Skipping the action because branch is undefined or is a root branch: branch='${branch}'");
+    if (branch.isDefined()) {
+      if (branch.get().isNonRootBranch()) {
+        doRebase(anActionEvent, branch.get().asNonRootBranch());
+      } else {
+        LOG.warn("Skipping the action because branch is a root branch: branch='${branch}'");
+      }
     }
   }
 
@@ -118,8 +126,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
     if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {
       doRebase(project, gitRepository.get(), gitMacheteRepository.get(), branchToRebase);
-    } else {
-      LOG.warn("Skipping the action because no Git repository is selected");
     }
   }
 
