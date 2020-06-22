@@ -97,7 +97,12 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Option<IGitMacheteBranch> getBranchByName(String branchName) {
+  public List<IGitMacheteBranch> getManagedBranches() {
+    throw new NotImplementedError();
+  }
+
+  @Override
+  public Option<IGitMacheteBranch> getManagedBranchByName(String branchName) {
     throw new NotImplementedError();
   }
 

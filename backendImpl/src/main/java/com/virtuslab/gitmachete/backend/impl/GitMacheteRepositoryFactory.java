@@ -18,6 +18,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -62,72 +63,63 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       throws GitMacheteException {
     LOG.startTimer().debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
 
-    IGitCoreRepository gitCoreRepository = Try
-        .of(() -> gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath))
-        .getOrElseThrow(
-            e -> new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
-                "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e));
-
+    var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
     var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
     var preRebaseHookExecutor = PreRebaseHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
 
-    var result = new Aux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor).createGitMacheteRepository(branchLayout);
-    LOG.withTimeElapsed().info("Finished");
-    return result;
+    try {
+      var aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+      var result = aux.createGitMacheteRepository(branchLayout);
+      LOG.withTimeElapsed().info("Finished");
+      return result;
+    } catch (GitCoreException e) {
+      throw new GitMacheteException(e);
+    }
   }
 
-  private static class Aux {
-    private final IGitCoreRepository gitCoreRepository;
-    private final StatusBranchHookExecutor statusHookExecutor;
-    private final PreRebaseHookExecutor preRebaseHookExecutor;
-    private final List<IGitCoreLocalBranch> localBranches;
-    private final Map<String, IGitCoreLocalBranch> localBranchByName;
-    private final List<String> remoteNames;
+  @Override
+  public Option<String> inferUpstreamForLocalBranch(
+      Path mainDirectoryPath,
+      Path gitDirectoryPath,
+      Set<String> managedBranchNames,
+      String localBranchName) throws GitMacheteException {
+    LOG.startTimer().debug(() -> "Entering: localBranchName = ${localBranchName}");
+
+    var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
+    try {
+      var aux = new InferUpstreamForLocalBranchAux(gitCoreRepository);
+      var result = aux.inferUpstreamForLocalBranch(managedBranchNames, localBranchName);
+      LOG.withTimeElapsed().info("Finished");
+      return result;
+    } catch (GitCoreException e) {
+      throw new GitMacheteException(e);
+    }
+  }
+
+  private IGitCoreRepository createGitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+    try {
+      return gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath);
+    } catch (GitCoreException e) {
+      throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
+          "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e);
+    }
+  }
+
+  private static class BaseAux {
+    protected final IGitCoreRepository gitCoreRepository;
+    protected final List<IGitCoreLocalBranch> localBranches;
+    protected final Map<String, IGitCoreLocalBranch> localBranchByName;
 
     private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
     private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<String>> branchesContainingGivenCommitInReflog;
 
-    Aux(
-        IGitCoreRepository gitCoreRepository,
-        StatusBranchHookExecutor statusHookExecutor,
-        PreRebaseHookExecutor preRebaseHookExecutor) throws GitMacheteException {
-
+    BaseAux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
       this.gitCoreRepository = gitCoreRepository;
-      this.statusHookExecutor = statusHookExecutor;
-      this.preRebaseHookExecutor = preRebaseHookExecutor;
-
-      try {
-        this.localBranches = gitCoreRepository.deriveAllLocalBranches();
-        this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getName(), localBranch));
-        this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
-      } catch (GitCoreException e) {
-        throw new GitMacheteException(e);
-      }
+      this.localBranches = gitCoreRepository.deriveAllLocalBranches();
+      this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getName(), localBranch));
     }
 
-    IGitMacheteRepository createGitMacheteRepository(IBranchLayout branchLayout) throws GitMacheteException {
-      var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
-      var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
-
-      var branchByName = createBranchByNameMap(rootBranches);
-
-      Option<IGitCoreLocalBranch> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
-          .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
-      LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
-          ? coreCurrentBranch.get().getName()
-          : "<none> (detached HEAD)"));
-
-      IGitMacheteBranch currentBranchIfManaged = coreCurrentBranch
-          .flatMap(cb -> branchByName.get(cb.getName()))
-          .getOrNull();
-      LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
-          ? currentBranchIfManaged.getName()
-          : "<none> (unmanaged branch or detached HEAD)"));
-
-      return new GitMacheteRepository(rootBranches, branchLayout, currentBranchIfManaged, branchByName, preRebaseHookExecutor);
-    }
-
-    private Map<IGitCoreCommitHash, Seq<String>> deriveBranchesContainingGivenCommitInReflog() {
+    protected Map<IGitCoreCommitHash, Seq<String>> deriveBranchesContainingGivenCommitInReflog() {
       if (branchesContainingGivenCommitInReflog != null) {
         return branchesContainingGivenCommitInReflog;
       }
@@ -173,6 +165,111 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           .sorted().mkString(System.lineSeparator()));
       branchesContainingGivenCommitInReflog = result;
       return result;
+    }
+
+    /**
+     * @return reflog entries, excluding branch creation and branch reset events irrelevant for fork point/upstream inference,
+     * ordered from the latest to the oldest
+     */
+    protected List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranch branch) throws GitCoreException {
+      if (filteredReflogByBranch.containsKey(branch)) {
+        return filteredReflogByBranch.get(branch);
+      }
+
+      LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
+
+      List<IGitCoreReflogEntry> reflogEntries = branch.deriveReflog();
+      reflogEntries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
+
+      IGitCoreCommitHash entryToExcludeNewId;
+      if (reflogEntries.size() > 0) {
+        var firstEntry = reflogEntries.get(reflogEntries.size() - 1);
+        String createdFromPrefix = "branch: Created from";
+        if (firstEntry.getComment().startsWith(createdFromPrefix)) {
+          entryToExcludeNewId = firstEntry.getNewCommitHash();
+          LOG.trace(() -> "All entries with the same hash as first entry (${firstEntry.getNewCommitHash().toString()}) " +
+              "will be excluded because first entry comment starts with '${createdFromPrefix}'");
+        } else {
+          entryToExcludeNewId = null;
+        }
+      } else {
+        entryToExcludeNewId = null;
+      }
+
+      String rebaseComment = "rebase finished: " + branch.getFullName() + " onto "
+          + Try.of(() -> branch.derivePointedCommit().getHash().getHashString()).getOrElse("");
+
+      // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
+      // for cases like branch rename just after branch creation.
+      Predicate<IGitCoreReflogEntry> isEntryExcluded = e -> {
+        // For debug logging only
+        String newIdHash = e.getNewCommitHash().getHashString();
+
+        if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
+          LOG.trace(() -> "Exclude ${e} because it has the same hash as first entry");
+        } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
+          LOG.trace(() -> "Exclude ${e} because its old and new IDs are the same");
+        } else if (e.getComment().startsWith("branch: Created from")) {
+          LOG.trace(() -> "Exclude ${e} because its comment starts with 'branch: Created from'");
+        } else if (e.getComment().equals("branch: Reset to " + branch.getName())) {
+          LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to ${branch.getName()}'");
+        } else if (e.getComment().equals("branch: Reset to HEAD")) {
+          LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to HEAD'");
+        } else if (e.getComment().startsWith("reset: moving to ")) {
+          LOG.trace(() -> "Exclude ${e} because its comment starts with 'reset: moving to '");
+        } else if (e.getComment().equals(rebaseComment)) {
+          LOG.trace(() -> "Exclude ${e} because its comment is '${rebaseComment}'");
+        } else {
+          return false;
+        }
+
+        return true;
+      };
+
+      var result = reflogEntries.reject(isEntryExcluded);
+      LOG.debug(() -> "Filtered reflog of ${branch.getFullName()}:");
+      LOG.debug(() -> result.mkString(System.lineSeparator()));
+      filteredReflogByBranch.put(branch, result);
+      return result;
+    }
+  }
+
+  private static class CreateGitMacheteRepositoryAux extends BaseAux {
+    private final StatusBranchHookExecutor statusHookExecutor;
+    private final PreRebaseHookExecutor preRebaseHookExecutor;
+    private final List<String> remoteNames;
+
+    CreateGitMacheteRepositoryAux(
+        IGitCoreRepository gitCoreRepository,
+        StatusBranchHookExecutor statusHookExecutor,
+        PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
+      super(gitCoreRepository);
+
+      this.statusHookExecutor = statusHookExecutor;
+      this.preRebaseHookExecutor = preRebaseHookExecutor;
+      this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
+    }
+
+    IGitMacheteRepository createGitMacheteRepository(IBranchLayout branchLayout) throws GitMacheteException {
+      var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
+      var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
+
+      var branchByName = createBranchByNameMap(rootBranches);
+
+      Option<IGitCoreLocalBranch> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
+          .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
+      LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
+          ? coreCurrentBranch.get().getName()
+          : "<none> (detached HEAD)"));
+
+      IGitMacheteBranch currentBranchIfManaged = coreCurrentBranch
+          .flatMap(cb -> branchByName.get(cb.getName()))
+          .getOrNull();
+      LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
+          ? currentBranchIfManaged.getName()
+          : "<none> (unmanaged branch or detached HEAD)"));
+
+      return new GitMacheteRepository(rootBranches, branchLayout, currentBranchIfManaged, branchByName, preRebaseHookExecutor);
     }
 
     private Map<String, IGitMacheteBranch> createBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
@@ -382,7 +479,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
           .getOrElse(commitHash, List.empty())
           .reject(branchName -> branchName.equals(branch.getName()) || branchName.equals(remoteTrackingBranchName));
 
-      IGitCoreCommit forkPoint = gitCoreRepository.findFirstAncestor(branch.derivePointedCommit(),
+      IGitCoreCommit forkPoint = gitCoreRepository.findFirstSatisfyingAncestor(branch.derivePointedCommit(),
           commitHash -> getRelevantContainingBranches.apply(commitHash).nonEmpty()).getOrNull();
 
       if (forkPoint != null) {
@@ -461,72 +558,6 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       return syncToRemoteStatus;
     }
 
-    /**
-     * @return reflog entries, excluding branch creation and branch reset events irrelevant for fork point/upstream inference,
-     * ordered from the latest to the oldest
-     */
-    private List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranch branch) throws GitCoreException {
-      if (filteredReflogByBranch.containsKey(branch)) {
-        return filteredReflogByBranch.get(branch);
-      }
-
-      LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
-
-      List<IGitCoreReflogEntry> reflogEntries = branch.deriveReflog();
-      reflogEntries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
-
-      IGitCoreCommitHash entryToExcludeNewId;
-      if (reflogEntries.size() > 0) {
-        var firstEntry = reflogEntries.get(reflogEntries.size() - 1);
-        String createdFromPrefix = "branch: Created from";
-        if (firstEntry.getComment().startsWith(createdFromPrefix)) {
-          entryToExcludeNewId = firstEntry.getNewCommitHash();
-          LOG.trace(() -> "All entries with the same hash as first entry (${firstEntry.getNewCommitHash().toString()}) " +
-              "will be excluded because first entry comment starts with '${createdFromPrefix}'");
-        } else {
-          entryToExcludeNewId = null;
-        }
-      } else {
-        entryToExcludeNewId = null;
-      }
-
-      String rebaseComment = "rebase finished: " + branch.getFullName() + " onto "
-          + Try.of(() -> branch.derivePointedCommit().getHash().getHashString()).getOrElse("");
-
-      // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
-      // for cases like branch rename just after branch creation.
-      Predicate<IGitCoreReflogEntry> isEntryExcluded = e -> {
-        // For debug logging only
-        String newIdHash = e.getNewCommitHash().getHashString();
-
-        if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
-          LOG.trace(() -> "Exclude ${e} because it has the same hash as first entry");
-        } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
-          LOG.trace(() -> "Exclude ${e} because its old and new IDs are the same");
-        } else if (e.getComment().startsWith("branch: Created from")) {
-          LOG.trace(() -> "Exclude ${e} because its comment starts with 'branch: Created from'");
-        } else if (e.getComment().equals("branch: Reset to " + branch.getName())) {
-          LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to ${branch.getName()}'");
-        } else if (e.getComment().equals("branch: Reset to HEAD")) {
-          LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to HEAD'");
-        } else if (e.getComment().startsWith("reset: moving to ")) {
-          LOG.trace(() -> "Exclude ${e} because its comment starts with 'reset: moving to '");
-        } else if (e.getComment().equals(rebaseComment)) {
-          LOG.trace(() -> "Exclude ${e} because its comment is '${rebaseComment}'");
-        } else {
-          return false;
-        }
-
-        return true;
-      };
-
-      var result = reflogEntries.reject(isEntryExcluded);
-      LOG.debug(() -> "Filtered reflog of ${branch.getFullName()}:");
-      LOG.debug(() -> result.mkString(System.lineSeparator()));
-      filteredReflogByBranch.put(branch, result);
-      return result;
-    }
-
     private boolean hasJustBeenCreated(IGitCoreLocalBranch branch) throws GitCoreException {
       List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
       return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
@@ -591,6 +622,48 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
             return SyncToParentStatus.OutOfSync;
           }
         }
+      }
+    }
+  }
+
+  private static class InferUpstreamForLocalBranchAux extends BaseAux {
+
+    InferUpstreamForLocalBranchAux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
+      super(gitCoreRepository);
+    }
+
+    Option<String> inferUpstreamForLocalBranch(
+        Set<String> managedBranchNames,
+        String localBranchName) throws GitCoreException {
+      var branch = localBranchByName.get(localBranchName).getOrNull();
+      if (branch == null) {
+        return Option.none();
+      }
+
+      String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
+
+      Function<IGitCoreCommitHash, Seq<String>> getRelevantContainingBranches = commitHash -> deriveBranchesContainingGivenCommitInReflog()
+          .getOrElse(commitHash, List.empty())
+          .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
+              && !candidateBranchName.equals(remoteTrackingBranchName)
+              // We demand that the candidate branch is already managed.
+              && managedBranchNames.contains(candidateBranchName));
+
+      IGitCoreCommit upstreamIndicator = gitCoreRepository.findFirstSatisfyingAncestor(branch.derivePointedCommit(),
+          commitHash -> getRelevantContainingBranches.apply(commitHash).nonEmpty()).getOrNull();
+
+      if (upstreamIndicator != null) {
+        List<String> containingBranches = getRelevantContainingBranches.apply(upstreamIndicator.getHash()).toList();
+        assert containingBranches.nonEmpty() : "containingBranches is empty";
+        String firstUpstreamBranchName = containingBranches.head();
+
+        LOG.debug(() -> "Commit ${upstreamIndicator} found in filtered reflog(s) " +
+            "of managed branch(es) ${containingBranches.mkString(\", \")}; " +
+            "returning ${firstUpstreamBranchName} as the inferred upstream for branch '${localBranchName}'");
+        return Option.some(firstUpstreamBranchName);
+      } else {
+        LOG.debug(() -> "Could not infer upstream for branch '${branch.getFullName()}'");
+        return Option.none();
       }
     }
   }

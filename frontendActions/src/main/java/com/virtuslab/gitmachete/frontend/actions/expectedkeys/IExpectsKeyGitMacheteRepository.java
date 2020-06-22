@@ -48,7 +48,8 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
-    var gitMacheteBranch = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
+    var gitMacheteBranch = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent)
+        .flatMap(r -> r.getManagedBranchByName(branchName));
     if (gitMacheteBranch.isEmpty()) {
       log().warn(branchName + " Git Machete branch is undefined");
     }

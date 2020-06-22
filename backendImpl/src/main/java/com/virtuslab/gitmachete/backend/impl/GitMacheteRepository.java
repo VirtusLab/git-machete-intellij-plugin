@@ -24,7 +24,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private final @Nullable IGitMacheteBranch currentBranchIfManaged;
 
-  private final Map<String, IGitMacheteBranch> branchByName;
+  private final Map<String, IGitMacheteBranch> managedBranchByName;
 
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 
@@ -39,8 +39,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Option<IGitMacheteBranch> getBranchByName(String branchName) {
-    return branchByName.get(branchName);
+  public List<IGitMacheteBranch> getManagedBranches() {
+    return managedBranchByName.values().toList();
+  }
+
+  @Override
+  public Option<IGitMacheteBranch> getManagedBranchByName(String branchName) {
+    return managedBranchByName.get(branchName);
   }
 
   @Override

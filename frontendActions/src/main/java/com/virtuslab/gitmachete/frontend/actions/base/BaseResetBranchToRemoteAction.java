@@ -123,7 +123,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
-          Option<IGitMacheteBranch> branchOption = macheteRepository.getBranchByName(branchName);
+          Option<IGitMacheteBranch> branchOption = macheteRepository.getManagedBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
           Option<IGitMacheteRemoteBranch> remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {

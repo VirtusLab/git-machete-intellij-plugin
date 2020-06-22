@@ -417,7 +417,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   @SuppressWarnings("aliasing:enhancedfor.type.incompatible")
-  public Option<IGitCoreCommit> findFirstAncestor(
+  public Option<IGitCoreCommit> findFirstSatisfyingAncestor(
       IGitCoreCommit fromInclusive,
       Predicate<IGitCoreCommitHash> predicate) throws GitCoreException {
     RevWalk walk = new RevWalk(jgitRepo);

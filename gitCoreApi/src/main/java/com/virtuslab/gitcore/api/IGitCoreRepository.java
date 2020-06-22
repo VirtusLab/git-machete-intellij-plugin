@@ -24,7 +24,7 @@ public interface IGitCoreRepository {
 
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
-  Option<IGitCoreCommit> findFirstAncestor(
+  Option<IGitCoreCommit> findFirstSatisfyingAncestor(
       IGitCoreCommit fromInclusive,
       Predicate<IGitCoreCommitHash> predicate) throws GitCoreException;
 

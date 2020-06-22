@@ -19,7 +19,7 @@ public class BaseGitMacheteRepositoryFactoryTestSuite {
 
   @SneakyThrows
   private static Class<?> getAuxClass() {
-    return Whitebox.getInnerClassType(GitMacheteRepositoryFactory.class, "Aux");
+    return Whitebox.getInnerClassType(GitMacheteRepositoryFactory.class, "CreateGitMacheteRepositoryAux");
   }
 
   protected final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);
