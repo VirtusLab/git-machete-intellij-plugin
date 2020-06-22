@@ -66,6 +66,13 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <!-- Sometimes the assertion expression spans over more than one line, so we must include newlines in the regex. -->
+    <property name="format" value="\bassert\b([^:]|\n)*;"/>
+    <property name="message" value="Assertion without comment/message"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\b(class|interface) [A-Za-z0-9]*Manager\b"/>
     <property name="message" value="Classes called '...Manager' are an indicator of poor design; likely a redesign (and not just a rename) is needed"/>
 </module>
