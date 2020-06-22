@@ -53,6 +53,7 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
@@ -111,6 +112,10 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     subscribeToSelectedGitRepositoryChange();
   }
 
+  private IGitRepositorySelectionProvider getGitRepositorySelectionProvider() {
+    return project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
+  }
+
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
@@ -119,8 +124,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
   private void subscribeToSelectedGitRepositoryChange() {
     // The method reference is invoked when user changes repository in selection component menu
-    var gitRepositorySelectionProvider = project.getService(SelectedGitRepositoryProvider.class)
-        .getGitRepositorySelectionProvider();
+    var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
@@ -178,8 +182,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @Override
   @UIEffect
   public void refreshModel() {
-    var gitRepositorySelectionProvider = project.getService(SelectedGitRepositoryProvider.class)
-        .getGitRepositorySelectionProvider();
+    var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
       refreshModel(gitRepository.get());
@@ -208,8 +211,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     if (!project.isDisposed()) {
       GuiUtils.invokeLaterIfNeeded(() -> {
-        var gitRepositorySelectionProvider = project.getService(SelectedGitRepositoryProvider.class)
-            .getGitRepositorySelectionProvider();
+        var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
         var gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository == null) {
           LOG.warn("Selected repository is null");
