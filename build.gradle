@@ -6,6 +6,7 @@ plugins {
   id 'org.ajoberstar.grgit' version '4.0.2'
 
   id 'com.diffplug.gradle.spotless' version '4.3.0' apply false
+  id 'io.freefair.lombok' version '5.1.0' apply false
   id 'org.checkerframework' version '0.5.0' apply false
   id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
   id 'org.jetbrains.intellij' version '0.4.21' apply false
@@ -238,6 +239,19 @@ subprojects {
   checkstyleMain.finalizedBy(violations)
 
 
+  if (useDelombok) {
+    apply plugin: 'io.freefair.lombok'
+    lombok {
+      version = lombokVersion
+      generateLombokConfig.enabled = false
+    }
+    checkerFramework {
+      // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
+      suppressLombokWarnings = false
+    }
+  }
+
+
   ext {
     addIntellijToCompileClasspath = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
@@ -321,12 +335,14 @@ subprojects {
     }
 
     lombok = { ->
-      def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-      dependencies {
-        compileOnly lombokArtifact
-        annotationProcessor lombokArtifact
-        testCompileOnly lombokArtifact
-        testAnnotationProcessor lombokArtifact
+      if (!useDelombok) {
+        dependencies {
+          def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
+          compileOnly lombokArtifact
+          annotationProcessor lombokArtifact
+          testCompileOnly lombokArtifact
+          testAnnotationProcessor lombokArtifact
+        }
       }
     }
 

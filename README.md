@@ -75,6 +75,9 @@ To build the project, run `./gradlew build`.
 Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
 To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
 
+By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to {subproject}/build/delombok/...<br/>
+To enable Delombok, set `GRADLE_COMPILE_JAVA_DELOMBOK` environment variable to `true` (e.g. `GRADLE_COMPILE_JAVA_DELOMBOK=true ./gradlew build`).
+
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
 To make local builds more aligned with CI builds (at the expense of ~2x slower compilation from scratch), set `RUN_ALL_CHECKERS` environment variable to `true`.
 
