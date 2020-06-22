@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,6 +30,14 @@ public class HelpAction extends DumbAwareAction {
       super(/* canBeParent */ false);
       init();
       setTitle("Git Machete Help");
+    }
+
+    @Override
+    protected Action[] createActions() {
+      Action helpAction = getHelpAction();
+      return helpAction == myHelpAction && getHelpId() == null
+          ? new Action[]{getOKAction()}
+          : new Action[]{getOKAction(), helpAction};
     }
 
     @Override
