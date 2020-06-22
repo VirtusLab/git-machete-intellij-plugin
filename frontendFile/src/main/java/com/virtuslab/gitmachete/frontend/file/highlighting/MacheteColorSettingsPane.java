@@ -37,7 +37,7 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
         "        build-chain PR #124" + NL +
         "    call-ws" + NL +
         "master" + NL +
-        "    hotfix/add-trigger  PR #127";
+        "    hotfix/add-trigger PR #127";
   }
 
   @Override
