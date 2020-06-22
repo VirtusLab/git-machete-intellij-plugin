@@ -27,6 +27,7 @@ public final class MacheteSettings
     return project.getService(MacheteSettings.class);
   }
 
+  @Override
   public void subscribe(ExternalSystemSettingsListener<MacheteProjectSettings> listener) {}
 
   @Override
