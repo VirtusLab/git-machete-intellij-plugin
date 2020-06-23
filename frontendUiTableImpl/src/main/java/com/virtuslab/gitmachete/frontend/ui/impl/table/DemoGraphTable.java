@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.demo;
+package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
@@ -9,7 +9,6 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
-import com.virtuslab.gitmachete.frontend.ui.impl.table.GraphTableModel;
 
 public final class DemoGraphTable extends JBTable {
 

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.demo;
+package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import java.time.Instant;
 
