@@ -13,7 +13,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY));
   }
 
-  default Option<IGitMacheteRepository> getGitMacheteRepositoryLoggingOnEmpty(AnActionEvent anActionEvent) {
+  default Option<IGitMacheteRepository> getGitMacheteRepositoryWithLoggingOnEmpty(AnActionEvent anActionEvent) {
     var gitMacheteRepository = getGitMacheteRepository(anActionEvent);
     if (gitMacheteRepository.isEmpty()) {
       log().warn("Git Machete repository is undefined");
@@ -22,7 +22,8 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
-    var branchLayout = getGitMacheteRepositoryLoggingOnEmpty(anActionEvent).flatMap(repository -> repository.getBranchLayout());
+    var branchLayout = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent)
+        .flatMap(repository -> repository.getBranchLayout());
     if (branchLayout.isEmpty()) {
       log().warn("Branch layout is undefined");
     }
@@ -30,7 +31,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
-    var gitMacheteBranch = getGitMacheteRepositoryLoggingOnEmpty(anActionEvent)
+    var gitMacheteBranch = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent)
         .flatMap(repository -> repository.getCurrentBranchIfManaged());
     if (gitMacheteBranch.isEmpty()) {
       log().warn("Current Git Machete branch is undefined");
@@ -47,7 +48,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
-    var gitMacheteBranch = getGitMacheteRepositoryLoggingOnEmpty(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
+    var gitMacheteBranch = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent).flatMap(r -> r.getBranchByName(branchName));
     if (gitMacheteBranch.isEmpty()) {
       log().warn(branchName + " Git Machete branch is undefined");
     }

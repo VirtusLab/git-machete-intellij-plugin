@@ -91,7 +91,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     Project project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var macheteRepository = getGitMacheteRepositoryLoggingOnEmpty(anActionEvent);
+    var macheteRepository = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent);
 
     if (branchName.isEmpty()) {
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
