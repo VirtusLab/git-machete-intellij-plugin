@@ -24,12 +24,6 @@ jobs:
             apt-get update
             apt-get install -y maven
 
-            git clone https://github.com/PawelLipski/compile-test.git ~/compile-test
-            cd ~/compile-test
-            # https://github.com/jupiter-tools/compile-test/pull/1/files
-            git checkout 771ff275067388fb2b1afb798790415aaf8d925d
-            mvn install
-
             git clone https://github.com/PawelLipski/better-strings.git ~/better-strings
             cd ~/better-strings
             # https://github.com/antkorwin/better-strings/pull/14/files
