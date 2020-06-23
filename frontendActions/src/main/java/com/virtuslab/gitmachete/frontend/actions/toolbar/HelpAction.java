@@ -14,11 +14,12 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IDemoGraphTableFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IDemoGraphTableProvider;
 
 public class HelpAction extends DumbAwareAction {
 
-  private final JBTable demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableFactory.class).create();
+  private final JBTable demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class)
+      .getInstance();
 
   @Override
   @UIEffect
