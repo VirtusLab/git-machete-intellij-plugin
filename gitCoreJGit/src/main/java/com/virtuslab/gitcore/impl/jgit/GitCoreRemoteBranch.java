@@ -24,6 +24,11 @@ public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRe
   }
 
   @Override
+  public String getName() {
+    return BranchFullNameUtils.getRemoteBranchName(remoteName, shortName);
+  }
+
+  @Override
   public String getFullName() {
     return BranchFullNameUtils.getRemoteBranchFullName(remoteName, shortName);
   }

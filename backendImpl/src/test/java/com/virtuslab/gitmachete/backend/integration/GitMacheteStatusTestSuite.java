@@ -12,6 +12,7 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import io.vavr.collection.Set;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -127,7 +128,14 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
         sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
-        sb.append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "));
+        Set<String> branchesContainingInReflog = forkPoint.getBranchesContainingInReflog().toSet();
+        // This is a hack necessary to keep consistent with CLI, which skips remote branch from the fork point hint
+        // in case a corresponding local branch is already present.
+        // In the IntelliJ plugin, we list both local and its remote tracking branch
+        // if both contain the given commit in their reflogs.
+        Set<String> withoutBothLocalAndItsRemoteTracking = branchesContainingInReflog
+            .reject(b -> b.startsWith("origin/") && branchesContainingInReflog.contains(b.substring("origin/".length())));
+        sb.append(withoutBothLocalAndItsRemoteTracking.toList().sorted().mkString(", "));
       }
       sb.append(System.lineSeparator());
     }

@@ -25,6 +25,11 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
   }
 
   @Override
+  public String getName() {
+    return shortName;
+  }
+
+  @Override
   public String getFullName() {
     return BranchFullNameUtils.getLocalBranchFullName(shortName);
   }

@@ -28,7 +28,7 @@ public class GitCoreCommit implements IGitCoreCommit {
 
   @Override
   public String toString() {
-    return hash.getShortHashString() + ": " + shortMessage;
+    return hash.getShortHashString() + ": '" + shortMessage + "'";
   }
 
   @Override

@@ -3,7 +3,6 @@ package com.virtuslab.gitcore.impl.jgit;
 import io.vavr.Lazy;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -14,7 +13,9 @@ import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 @RequiredArgsConstructor
 public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
-  @Getter(onMethod_ = {@Override})
+  /**
+   * {@code X} part of {@code refs/heads/X} or {@code refs/heads/[remote-name]/X}
+   */
   protected final String shortName;
 
   private final Lazy<Either<GitCoreException, GitCoreCommit>> pointedCommit;

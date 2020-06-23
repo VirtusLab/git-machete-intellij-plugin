@@ -7,13 +7,19 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The only criterion for equality of any instances of any class implementing this interface is equality of
- * {@code derivePointedCommit} and {@code getFullName}
+ * {@code getFullName} and {@code derivePointedCommit}
  */
 public interface IGitCoreBranch {
   boolean isLocal();
 
-  String getShortName();
+  /**
+   * @return {@code X} part of {@code refs/heads/X} or {@code [remote-name]/X} part of {@code refs/heads/[remote-name]/X}
+   */
+  String getName();
 
+  /**
+   * @return {@code refs/heads/X} or {@code refs/remotes/[remote-name]/X}
+   */
   String getFullName();
 
   IGitCoreCommit derivePointedCommit() throws GitCoreException;

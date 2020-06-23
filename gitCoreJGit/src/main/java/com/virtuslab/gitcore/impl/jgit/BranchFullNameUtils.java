@@ -2,14 +2,18 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import org.eclipse.jgit.lib.Constants;
 
-public final class BranchFullNameUtils {
+final class BranchFullNameUtils {
   private BranchFullNameUtils() {}
 
-  public static String getLocalBranchFullName(String localBranchShortName) {
-    return Constants.R_HEADS + localBranchShortName;
+  static String getLocalBranchFullName(String localBranchName) {
+    return Constants.R_HEADS + localBranchName;
   }
 
-  public static String getRemoteBranchFullName(String remoteName, String remoteBranchShortName) {
-    return Constants.R_REMOTES + remoteName + "/" + remoteBranchShortName;
+  static String getRemoteBranchName(String remoteName, String remoteBranchShortName) {
+    return remoteName + "/" + remoteBranchShortName;
+  }
+
+  static String getRemoteBranchFullName(String remoteName, String remoteBranchShortName) {
+    return Constants.R_REMOTES + getRemoteBranchName(remoteName, remoteBranchShortName);
   }
 }
