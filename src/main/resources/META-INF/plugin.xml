@@ -40,6 +40,8 @@
                                        implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteSyntaxHighlighterFactory"/>
 
         <colorSettingsPage implementation="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteColorSettingsPane"/>
+
+        <annotator language="Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
     </extensions>
 
     <resource-bundle>actions.ResourceBundle</resource-bundle>

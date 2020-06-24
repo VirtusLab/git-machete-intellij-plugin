@@ -8,25 +8,20 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
-import git4idea.repo.GitRepositoryManager;
-import io.vavr.collection.List;
 
 public class MacheteCompletionContributor extends CompletionContributor {
 
   @Override
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
-    var project = file.getProject();
 
-    var gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
-        .find(r -> file.getVirtualFile().getPath().startsWith(r.getRoot().getPath()));
+    var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
 
-    if (gitRepository.isEmpty()) {
+    if (branchNamesOption.isEmpty()) {
       return;
     }
 
-    var branchNames = List.ofAll(gitRepository.get().getInfo().getLocalBranchesWithHashes().keySet())
-        .map(localBranch -> localBranch.getName());
+    var branchNames = branchNamesOption.get();
 
     /**
      * {@link CompletionResultSet#stopHere} marks the result set as stopped.

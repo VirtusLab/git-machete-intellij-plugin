@@ -19,4 +19,6 @@ simpleFile ::= item_*
 // (in file MacheteParserDefinition) enforces us to define element that represent comments
 private item_ ::= (entry|COMMENT|EOL)
 
-entry ::= INDENTATION? PREFIX? NAME CUSTOM_ANNOTATION?
+entry ::= INDENTATION? branch CUSTOM_ANNOTATION?
+
+branch ::= PREFIX? NAME
