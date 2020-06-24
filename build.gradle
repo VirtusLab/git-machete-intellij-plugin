@@ -82,7 +82,7 @@ allprojects {
     intellijVersions = [
       earliestSupported: '2020.1',
       // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
-      // inBetweenForCompatibilityChecks: [ '2020.1' ],
+      inBetweenForCompatibilityChecks: [],
       current: '2020.1.2',
     ]
     intellijVersions.buildTarget = intellijVersions.current
