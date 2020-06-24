@@ -17,9 +17,11 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   pr_num=${CI_PULL_REQUEST##*/}
   base_branch=$(hub pr show --format=%B "$pr_num")
 
+  # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
     head_notes=$(change_notes_from_git_revision HEAD)
-    # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads)
+    # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads);
+    # thus, origin/master should be available.
     master_notes=$(change_notes_from_git_revision origin/master)
 
     if [[ "$head_notes" == "$master_notes" ]]; then

@@ -7,27 +7,18 @@ source "$self_dir"/utils.sh
 
 parse_version_from_current_wd head
 
-if [[ ${CI_PULL_REQUEST-} ]]; then
-  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
-  pr_num=${CI_PULL_REQUEST##*/}
-  base_branch=$(hub pr show --format=%B "$pr_num")
-  if [[ $base_branch == master ]]; then
-    [[ -z $head_pre_release ]] || \
-      die 'Pre-release version is not allowed on a PR to master'
-  elif [[ ${CIRCLE_BRANCH-} == backport/* ]]; then
-    [[ -z $head_pre_release ]] || \
-      die 'Pre-release version is not allowed on a backport-to-develop PR'
-  else
-    [[ $head_pre_release ]] || \
-      die "A non-backport PR to $base_branch (!= master) must have a pre-release version (a.b.c-d, not a.b.c)"
-  fi
+if [[ ${CIRCLE_BRANCH-} ]]; then
+  cb=$CIRCLE_BRANCH
+else
+  cb=$(git symbolic-ref --short HEAD)
+fi
 
-elif [[ ${CIRCLE_BRANCH-} ]]; then
-  if [[ $CIRCLE_BRANCH == master || $CIRCLE_BRANCH == release/* || $CIRCLE_BRANCH == hotfix/* || $CIRCLE_BRANCH == backport/* ]]; then
-    [[ -z $head_pre_release ]] || \
-      die 'Pre-release version is not allowed on master/release/hotfix/backport branch tip'
-  else
-    [[ $head_pre_release ]] || \
-      die 'Non-{master/release/hotfix/backport} branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
-  fi
+if [[ $cb == master || $cb == release/* || $cb == hotfix/* || $cb == backport/* ]]; then
+  [[ -z $head_pre_release ]] || \
+    die 'Pre-release version is not allowed on master/release/hotfix/backport branch tip'
+elif [[ $cb != develop ]]; then
+  # Tip of develop can legitimately have either a pre-release version (when a regular PR has been merged)
+  # or a release version (when a backport PR has been merged).
+  [[ $head_pre_release ]] || \
+    die 'Non-{develop/master/release/hotfix/backport} branch tip must have a pre-release version (a.b.c-d, not a.b.c)'
 fi

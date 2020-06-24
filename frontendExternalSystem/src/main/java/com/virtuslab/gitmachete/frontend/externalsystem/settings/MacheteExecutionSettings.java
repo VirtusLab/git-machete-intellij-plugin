@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@ToString(callSuper = false)
 public class MacheteExecutionSettings extends ExternalSystemExecutionSettings {
   private final Project project;
 }

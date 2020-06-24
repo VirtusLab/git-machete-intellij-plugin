@@ -5,12 +5,13 @@ set -e
 # `$-` yields the list of the options of the current shell; we'll only interested in whether `x` is present
 x_option=${-//[^x]/}
 
-./scripts/enforce-change-notes-updated-on-release-pr
+# pass -x option if this script is run with -x option itself
+bash ${x_option:+-x} ./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
 ./scripts/enforce-issue-number-for-todos
 ./scripts/enforce-newline-at-eof
-bash ${x_option:+-x} ./scripts/enforce-pre-release-version-correct-use  # pass -x option if this script is run with -x option itself
+bash ${x_option:+-x} ./scripts/enforce-pre-release-version-correct-use
 ./scripts/enforce-to-string-call-super-in-subclasses
 bash ${x_option:+-x} ./scripts/enforce-version-bump
 
