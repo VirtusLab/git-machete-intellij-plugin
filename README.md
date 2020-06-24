@@ -39,7 +39,7 @@ A relatively small amount of `TRACE`-level logs is generated as well.
 ### Prerequisites
 
 * git
-* IntelliJ 2019.3+ Community Edition/Ultimate
+* IntelliJ 2020.1 Community Edition/Ultimate
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
   * Enable annotation processing (for Lombok):
