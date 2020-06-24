@@ -80,7 +80,7 @@ newb hotfix/add-trigger
   push
   git commit --amend -m 'HOTFIX Add the trigger (amended)'
 
-machete_file='
+cat >.git/machete <<EOF
 develop
     allow-ownership-link PR #123
         build-chain PR #124
@@ -152,7 +152,7 @@ newb hotfix/remove-trigger
   push
   git commit --amend -m 'HOTFIX Remove the trigger (amended)'
 
-machete_file='
+cat >.git/machete <<EOF
 develop
     forbid-ownership-link PR #123
         send-a-pigeon-for-ws
