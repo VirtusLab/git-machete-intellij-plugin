@@ -245,10 +245,6 @@ subprojects {
       version = lombokVersion
       generateLombokConfig.enabled = false
     }
-    checkerFramework {
-      // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
-      suppressLombokWarnings = false
-    }
   }
 
 
@@ -335,6 +331,7 @@ subprojects {
     }
 
     lombok = { ->
+      // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
       if (!useDelombok) {
         dependencies {
           def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
