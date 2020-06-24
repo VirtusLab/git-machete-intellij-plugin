@@ -41,9 +41,9 @@ public final class BranchLayoutFileUtils {
         ? TAB
         : SPACE;
     return Stream.ofAll(line.toCharArray())
-            .takeWhile(c -> c != expectedIndentationCharacter)
-            .headOption()
-            .map(c -> c != unexpectedIndentationCharacter)
-            .getOrElse(true);
+        .takeWhile(c -> c != expectedIndentationCharacter)
+        .headOption()
+        .map(c -> c != unexpectedIndentationCharacter)
+        .getOrElse(true);
   }
 }
