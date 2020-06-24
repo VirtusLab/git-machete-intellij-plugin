@@ -29,7 +29,8 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     return LOG;
   }
 
-  private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote);
+  private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote,
+      SyncToRemoteStatus.Relation.InSyncToRemote);
 
   @Override
   @UIEffect
