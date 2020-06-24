@@ -31,16 +31,16 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
-    var gitMacheteBranch = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent)
+    return getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent)
         .flatMap(repository -> repository.getCurrentBranchIfManaged());
-    if (gitMacheteBranch.isEmpty()) {
-      log().warn("Current Git Machete branch is undefined");
-    }
-    return gitMacheteBranch;
   }
 
   default Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
-    var currentBranchName = getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
+    return getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
+  }
+
+  default Option<String> getCurrentBranchNameIfManagedWithLoggingOnEmpty(AnActionEvent anActionEvent) {
+    var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
     if (currentBranchName.isEmpty()) {
       log().warn("Current Git Machete branch name is undefined");
     }

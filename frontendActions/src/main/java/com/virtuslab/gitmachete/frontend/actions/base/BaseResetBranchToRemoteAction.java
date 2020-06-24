@@ -123,7 +123,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           resetHandler.endOptions();
 
           // Check if branch to reset is not current branch - if isn't then checkout
-          var currentBranchOption = getCurrentBranchNameIfManaged(anActionEvent);
+          var currentBranchOption = getCurrentBranchNameIfManagedWithLoggingOnEmpty(anActionEvent);
           if (currentBranchOption.isEmpty() || !currentBranchOption.get().equals(branchName)) {
             log().debug(() -> "Checkout to branch '${branchName}' is needed");
             // Checking out given branch
