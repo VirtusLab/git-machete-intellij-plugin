@@ -55,7 +55,7 @@ allprojects {
   }
 
   ext {
-    betterStringsVerson = '0.3'
+    betterStringsVerson = '0.4'
     checkerFrameworkVersion = '3.5.0'
     checkstyleToolVersion = '8.33'
 
@@ -139,7 +139,6 @@ subprojects {
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier',
     ]
-
     dependencies {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
       checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
@@ -163,10 +162,20 @@ subprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
+  repositories {
+    mavenLocal()
+  }
+
   dependencies {
     def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
     annotationProcessor(betterStringsArtifact)
     testAnnotationProcessor(betterStringsArtifact)
+  }
+
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      options.compilerArgs += '-AcallToStringExplicitlyInInterpolations'
+    }
   }
 
 
