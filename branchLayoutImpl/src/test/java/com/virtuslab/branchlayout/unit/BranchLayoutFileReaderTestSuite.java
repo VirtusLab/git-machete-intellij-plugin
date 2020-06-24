@@ -134,4 +134,18 @@ public class BranchLayoutFileReaderTestSuite {
     int i = exception.getErrorLine().get();
     assertEquals(5, i);
   }
+
+  @Test
+  public void read_givenFileWithDifferentIndentCharacters_throwsException() {
+    // given
+    List<String> linesToReturn = List.of("A", " B", "\tC");
+    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+
+    // when
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
+
+    // then
+    int i = exception.getErrorLine().get();
+    assertEquals(3, i);
+  }
 }

@@ -1,7 +1,7 @@
 package com.virtuslab.branchlayout.impl.readwrite;
 
-import static com.virtuslab.branchlayout.impl.IndentSpec.SPACE_INDENT_CHARACTER;
-import static com.virtuslab.branchlayout.impl.IndentSpec.TAB_INDENT_CHARACTER;
+import static com.virtuslab.branchlayout.impl.IndentSpec.SPACE;
+import static com.virtuslab.branchlayout.impl.IndentSpec.TAB;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,8 +63,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     LOG.debug(() -> "${lines.length()} line(s) found");
 
     var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
-        .find(line -> line.startsWith(String.valueOf(SPACE_INDENT_CHARACTER))
-            || line.startsWith(String.valueOf(TAB_INDENT_CHARACTER)));
+        .find(line -> line.startsWith(String.valueOf(SPACE))
+            || line.startsWith(String.valueOf(TAB)));
     char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
     int indentWidth = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
 
@@ -146,7 +146,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       int firstNonEmptyLineIndex = lines.indexOf(linesWithoutBlank.head());
       assert firstNonEmptyLineIndex >= 0 : "Non-empty line not found";
       throw new BranchLayoutException(firstNonEmptyLineIndex + 1,
-          "The initial line of branch layout file (${path.toAbsolutePath()}) could not be indented");
+          "The initial line of branch layout file (${path.toAbsolutePath()}) must not be indented");
     }
 
     Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(linesWithoutBlank.size(),

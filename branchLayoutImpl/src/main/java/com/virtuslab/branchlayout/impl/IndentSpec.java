@@ -5,8 +5,8 @@ import org.checkerframework.checker.index.qual.Positive;
 
 @Data
 public class IndentSpec {
-  public static final char TAB_INDENT_CHARACTER = '\t';
-  public static final char SPACE_INDENT_CHARACTER = ' ';
+  public static final char TAB = '\t';
+  public static final char SPACE = ' ';
 
   private final char indentCharacter;
 
