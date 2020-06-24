@@ -37,6 +37,7 @@ public class BranchLayoutFileReaderTestSuite {
     PowerMockito.when(BranchLayoutFileUtils.getDefaultSpec()).thenReturn(indentSpec);
     PowerMockito.when(BranchLayoutFileUtils.readFileLines(any())).thenReturn(linesToReturn);
     PowerMockito.when(BranchLayoutFileUtils.getIndentWidth(anyString(), anyChar())).thenCallRealMethod();
+    PowerMockito.when(BranchLayoutFileUtils.hasProperIndentationCharacter(anyString(), anyChar())).thenCallRealMethod();
 
     PowerMockito.mockStatic(Files.class);
     PowerMockito.when(Files.isRegularFile(any())).thenReturn(false);

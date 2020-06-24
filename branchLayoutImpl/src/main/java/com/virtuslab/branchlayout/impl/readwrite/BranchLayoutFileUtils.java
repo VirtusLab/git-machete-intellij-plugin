@@ -37,8 +37,7 @@ public final class BranchLayoutFileUtils {
 
   public static boolean hasProperIndentationCharacter(String line, char expectedIndentationCharacter) {
     char unexpectedIndentationCharacter = expectedIndentationCharacter == SPACE_INDENT_CHARACTER
-        ? TAB_INDENT_CHARACTER
-        : SPACE_INDENT_CHARACTER;
+        ? TAB_INDENT_CHARACTER : SPACE_INDENT_CHARACTER;
     for (int i = 0; i < line.length(); i++) {
       char currentCharacter = line.charAt(i);
       if (currentCharacter != expectedIndentationCharacter) {
