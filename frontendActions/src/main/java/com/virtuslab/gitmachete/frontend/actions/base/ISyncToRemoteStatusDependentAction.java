@@ -17,7 +17,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     return getActionName();
   }
 
-  List<SyncToRemoteStatus.Relation> getEligibleStatuses();
+  List<SyncToRemoteStatus.Relation> getEligibleRelations();
 
   @UIEffect
   default void syncToRemoteStatusDependentActionUpdate(AnActionEvent anActionEvent) {
@@ -45,9 +45,9 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     }
 
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-    var isEnabled = getEligibleStatuses().contains(relation);
+    var isRelationEligible = getEligibleRelations().contains(relation);
 
-    if (isEnabled) {
+    if (isRelationEligible) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
         presentation.setText(getActionName() + " Current Branch");

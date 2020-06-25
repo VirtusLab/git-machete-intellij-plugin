@@ -38,7 +38,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
   }
 
   @Override
-  public List<SyncToRemoteStatus.Relation> getEligibleStatuses() {
+  public List<SyncToRemoteStatus.Relation> getEligibleRelations() {
     return List.of(
         SyncToRemoteStatus.Relation.BehindRemote,
         SyncToRemoteStatus.Relation.InSyncToRemote);
