@@ -118,6 +118,8 @@ public class MacheteAnnotator implements Annotator {
 
     var indentationText = indentationNodeOption.get().getText();
 
+    @SuppressWarnings("index")
+    // Indentation text is never empty (otherwise element does not exist)
     char indentationChar = indentationText.charAt(0);
     int indentationWidth = indentationText.length();
 
