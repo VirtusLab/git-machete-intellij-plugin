@@ -114,8 +114,6 @@ class AnAction {
   @SafeEffect
   AnAction();
 
-  Presentation getTemplatePresentation(@UnknownInitialization AnAction this);
-
   // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default since we're in a `@UIPackage`)
   // since IntelliJ platform indeed always invokes them on the dispatch thread.
 }
@@ -214,7 +212,12 @@ package com.intellij.openapi.project;
 @UIPackage package com.intellij.openapi.ui;
 
 class DialogWrapper {
+  // Needed to create GitForcePushDialog and VcsPushDialogAdapterHolder "together".
+  // GitForcePushDialog must be passed (via the adapter) to the push controller
+  // that is being created within dialog's constructor.
   JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
+
+  // All of the ones below are being called from GitForcePushDialog (DialogWrapper) constructor
   void init(@UnknownInitialization DialogWrapper this);
   void setOKButtonText(@UnknownInitialization DialogWrapper this, String text);
   void setOKButtonMnemonic(@UnknownInitialization DialogWrapper this, int c);

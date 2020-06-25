@@ -7,6 +7,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 package javax.swing;
 
 class AbstractAction {
+  // called from GitForcePushDialog (Dialog wrapper) constructor
   void putValue(@UnknownInitialization AbstractAction this, String key, Object newValue);
 }
 

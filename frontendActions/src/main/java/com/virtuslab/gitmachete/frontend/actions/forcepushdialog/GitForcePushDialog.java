@@ -18,7 +18,6 @@ import com.intellij.dvcs.push.PushSource;
 import com.intellij.dvcs.push.PushSupport;
 import com.intellij.dvcs.push.PushTarget;
 import com.intellij.dvcs.push.VcsPushOptionValue;
-import com.intellij.dvcs.push.ui.PushActionBase;
 import com.intellij.dvcs.push.ui.PushLog;
 import com.intellij.dvcs.push.ui.VcsPushUi;
 import com.intellij.dvcs.repo.Repository;
@@ -29,7 +28,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.OptionAction;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.util.ui.JBDimension;
@@ -37,7 +35,6 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import net.miginfocom.swing.MigLayout;
-import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -63,11 +60,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
     super(project, /* canBeParent */ true,
         (Registry.is("ide.perProjectModality")) ? IdeModalityType.PROJECT : IdeModalityType.IDE);
     this.project = project;
-    var realAction = new PushActionImpl();
-    var textWithMnemonic = realAction.getTemplatePresentation().getTextWithMnemonic();
-    // setText(...) from PushActionImpl constructor guarantees that the text with mnemonic is not null
-    assert textWithMnemonic != null : "Text with mnemonic is null";
-    this.pushAction = new PushAction(new PushActionWrapper(realAction, textWithMnemonic));
+    this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
     var dialog = new VcsPushDialogAdapterHolder(project, selectedRepositories, currentRepo, /* gitForcePushDialog */ this)
@@ -303,72 +296,23 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
     return null;
   }
 
-  private static final class PushAction extends AbstractAction {
-    private final PushActionWrapper pushActionWrapper;
+  private final class PushSwingAction extends AbstractAction {
 
     @UIEffect
-    private PushAction(PushActionWrapper pushActionWrapper) {
-      super(pushActionWrapper.getName());
-      this.pushActionWrapper = pushActionWrapper;
+    private PushSwingAction() {
+      super("Force _Push");
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      pushActionWrapper.actionPerformed(e);
+      push(/* forcePush */ true);
     }
 
     @Override
     @UIEffect
     public void setEnabled(boolean isEnabled) {
       super.setEnabled(isEnabled);
-    }
-  }
-
-  private class PushActionImpl extends PushActionBase {
-    @UIEffect
-    PushActionImpl() {
-      getTemplatePresentation().setText("Force Push");
-    }
-
-    @Override
-    @UIEffect
-    protected boolean isEnabled(VcsPushUi dialog) {
-      return dialog.canPush();
-    }
-
-    @Override
-    protected @Nullable String getDescription(VcsPushUi dialog, boolean enabled) {
-      return null;
-    }
-
-    @Override
-    @UIEffect
-    public void actionPerformed(Project projekt, VcsPushUi dialog) {
-      push(/* forcePush */ true);
-    }
-  }
-
-  @UI
-  private class PushActionWrapper extends AbstractAction {
-    private final PushActionImpl realAction;
-
-    private final String name;
-
-    PushActionWrapper(PushActionImpl realAction, String name) {
-      super(name);
-      this.realAction = realAction;
-      this.name = name;
-      putValue(OptionAction.AN_ACTION, realAction);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      realAction.actionPerformed(project, GitForcePushDialog.this);
-    }
-
-    String getName() {
-      return name;
     }
   }
 }
