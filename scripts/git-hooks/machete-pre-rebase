@@ -72,6 +72,9 @@ if [ $# -eq 3 ]; then
   if [[ $head_version != "$target_version" ]]; then
     echo "Rewriting the commits: setting version in version.gradle to $target_version..."
     self_path="$(cd "$(dirname "$0")" &>/dev/null; pwd -P)"/"$(basename "$0")"
+    # This is necessary to make sure that git does not wait for any interactive input
+    # in case the hook is not run from a terminal (e.g. via the IDEA plugin).
+    export FILTER_BRANCH_SQUELCH_WARNING=1
     git filter-branch -f --tree-filter "$self_path $target_version" "$fork_point".."$current_branch"
   fi
 elif [ $# -eq 1 ]; then
