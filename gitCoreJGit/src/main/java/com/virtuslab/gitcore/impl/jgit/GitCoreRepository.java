@@ -8,7 +8,6 @@ import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_REMOTE;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.function.Predicate;
 
 import io.vavr.CheckedFunction1;
 import io.vavr.Lazy;
@@ -16,6 +15,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -40,7 +40,6 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
-import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
@@ -416,25 +415,14 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  @SuppressWarnings("aliasing:enhancedfor.type.incompatible")
-  public Option<IGitCoreCommit> findFirstSatisfyingAncestor(
-      IGitCoreCommit fromInclusive,
-      Predicate<IGitCoreCommitHash> predicate) throws GitCoreException {
+  public Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException {
     RevWalk walk = new RevWalk(jgitRepo);
     walk.sort(RevSort.TOPO);
 
-    ObjectId objectId = gitCoreCommitToObjectId(fromInclusive);
+    ObjectId objectId = gitCoreCommitToObjectId(commitInclusive);
     Try.run(() -> walk.markStart(walk.parseCommit(objectId)))
         .getOrElseThrow(e -> new GitCoreException(e));
 
-    // There's apparently no way for AliasingChecker to work correctly with generics
-    // (in particular, with enhanced `for` loops, which are essentially syntax sugar over Iterator<...>);
-    // hence we need to suppress `aliasing:enhancedfor.type.incompatible` here.
-    for (@Unique RevCommit commit : walk) {
-      if (predicate.test(GitCoreCommitHash.of(commit.getId()))) {
-        return Option.some(new GitCoreCommit(commit));
-      }
-    }
-    return Option.none();
+    return Stream.ofAll(walk).map(GitCoreCommit::new);
   }
 }

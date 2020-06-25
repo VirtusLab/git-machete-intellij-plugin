@@ -8,7 +8,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.I
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.vavr.Tuple;
@@ -475,16 +474,20 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
 
-      Function<IGitCoreCommitHash, Seq<String>> getRelevantContainingBranches = commitHash -> deriveBranchesContainingGivenCommitInReflog()
-          .getOrElse(commitHash, List.empty())
-          .reject(branchName -> branchName.equals(branch.getName()) || branchName.equals(remoteTrackingBranchName));
+      var forkPointAndContainingBranches = gitCoreRepository
+          .ancestorsOf(branch.derivePointedCommit())
+          .map(commit -> {
+            var containingBranches = deriveBranchesContainingGivenCommitInReflog()
+                .getOrElse(commit.getHash(), List.empty())
+                .reject(branchName -> branchName.equals(branch.getName()) || branchName.equals(remoteTrackingBranchName));
+            return Tuple.of(commit, containingBranches);
+          })
+          .find(commitAndContainingBranches -> commitAndContainingBranches._2.nonEmpty())
+          .getOrNull();
 
-      IGitCoreCommit forkPoint = gitCoreRepository.findFirstSatisfyingAncestor(branch.derivePointedCommit(),
-          commitHash -> getRelevantContainingBranches.apply(commitHash).nonEmpty()).getOrNull();
-
-      if (forkPoint != null) {
-        // We now know that this list is non-empty.
-        List<String> containingBranches = getRelevantContainingBranches.apply(forkPoint.getHash()).toList();
+      if (forkPointAndContainingBranches != null) {
+        var forkPoint = forkPointAndContainingBranches._1;
+        var containingBranches = forkPointAndContainingBranches._2.toList();
         LOG.debug(() -> "Commit ${forkPoint} found in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
             "returning as fork point for branch '${branch.getFullName()}'");
         return GitMacheteForkPointCommit.inferred(forkPoint, containingBranches);
@@ -642,25 +645,30 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
       String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
 
-      Function<IGitCoreCommitHash, Seq<String>> getRelevantContainingBranches = commitHash -> deriveBranchesContainingGivenCommitInReflog()
-          .getOrElse(commitHash, List.empty())
-          .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
-              && !candidateBranchName.equals(remoteTrackingBranchName)
-              // We demand that the candidate branch is already managed.
-              && managedBranchNames.contains(candidateBranchName));
+      var commitAndContainingBranches = gitCoreRepository
+          .ancestorsOf(branch.derivePointedCommit())
+          .map(commit -> {
+            var containingManagedBranches = deriveBranchesContainingGivenCommitInReflog()
+                .getOrElse(commit.getHash(), List.empty())
+                .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
+                    && !candidateBranchName.equals(remoteTrackingBranchName)
+            // We demand that the candidate branch is already managed.
+                    && managedBranchNames.contains(candidateBranchName));
+            return Tuple.of(commit, containingManagedBranches);
+          })
+          .find(ccbs -> ccbs._2.nonEmpty())
+          .getOrNull();
 
-      IGitCoreCommit upstreamIndicator = gitCoreRepository.findFirstSatisfyingAncestor(branch.derivePointedCommit(),
-          commitHash -> getRelevantContainingBranches.apply(commitHash).nonEmpty()).getOrNull();
-
-      if (upstreamIndicator != null) {
-        List<String> containingBranches = getRelevantContainingBranches.apply(upstreamIndicator.getHash()).toList();
+      if (commitAndContainingBranches != null) {
+        var commit = commitAndContainingBranches._1;
+        var containingBranches = commitAndContainingBranches._2.toList();
         assert containingBranches.nonEmpty() : "containingBranches is empty";
-        String firstUpstreamBranchName = containingBranches.head();
 
-        LOG.debug(() -> "Commit ${upstreamIndicator} found in filtered reflog(s) " +
+        String firstContainingBranchName = containingBranches.head();
+        LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
             "of managed branch(es) ${containingBranches.mkString(\", \")}; " +
-            "returning ${firstUpstreamBranchName} as the inferred upstream for branch '${localBranchName}'");
-        return Option.some(firstUpstreamBranchName);
+            "returning ${firstContainingBranchName} as the inferred upstream for branch '${localBranchName}'");
+        return Option.some(firstContainingBranchName);
       } else {
         LOG.debug(() -> "Could not infer upstream for branch '${branch.getFullName()}'");
         return Option.none();

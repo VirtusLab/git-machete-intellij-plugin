@@ -1,8 +1,7 @@
 package com.virtuslab.gitcore.api;
 
-import java.util.function.Predicate;
-
 import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 public interface IGitCoreRepository {
@@ -24,9 +23,7 @@ public interface IGitCoreRepository {
 
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
-  Option<IGitCoreCommit> findFirstSatisfyingAncestor(
-      IGitCoreCommit fromInclusive,
-      Predicate<IGitCoreCommitHash> predicate) throws GitCoreException;
+  Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
 
   List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive) throws GitCoreException;
 }
