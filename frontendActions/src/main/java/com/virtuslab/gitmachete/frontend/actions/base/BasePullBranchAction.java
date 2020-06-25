@@ -1,9 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.SyncToRemoteStatusDescriptionProvider.syncToRemoteStatusRelationToReadableBranchDescription;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
@@ -22,60 +19,36 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
-      IExpectsKeyProject {
+      IExpectsKeyProject,
+      ISyncToRemoteStatusDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
   }
 
-  private final List<SyncToRemoteStatus.Relation> PULL_ELIGIBLE_STATUSES = List.of(SyncToRemoteStatus.Relation.BehindRemote,
-      SyncToRemoteStatus.Relation.InSyncToRemote);
+  @Override
+  public String getActionName() {
+    return "Pull";
+  }
+
+  @Override
+  public String getDescriptionActionName() {
+    return "Pull (fast-forward only)";
+  }
+
+  @Override
+  public List<SyncToRemoteStatus.Relation> getEligibleStatuses() {
+    return List.of(
+        SyncToRemoteStatus.Relation.BehindRemote,
+        SyncToRemoteStatus.Relation.InSyncToRemote);
+  }
 
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-
-    Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
-      return;
-    }
-
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-
-    if (branchName.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Pull disabled due to undefined branch name");
-      return;
-    }
-
-    var syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getBranchByName(branchName.get()))
-        .map(branch -> branch.getSyncToRemoteStatus());
-
-    if (syncToRemoteStatus.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Pull disabled due to undefined sync to remote status");
-      return;
-    }
-
-    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-    boolean isEnabled = PULL_ELIGIBLE_STATUSES.contains(relation);
-
-    if (isEnabled) {
-
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Pull Current Branch");
-      }
-
-      presentation.setDescription("Pull (fast-forward only) branch '${branchName.get()}'");
-
-    } else {
-      presentation.setEnabled(false);
-      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
-      presentation.setDescription("Pull disabled because ${descriptionSpec}");
-    }
+    syncToRemoteStatusDependentActionUpdate(anActionEvent);
   }
 
   @Override

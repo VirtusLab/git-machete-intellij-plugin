@@ -1,12 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.SyncToRemoteStatusDescriptionProvider.syncToRemoteStatusRelationToReadableBranchDescription;
-
 import java.util.Collections;
 
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
 import git4idea.push.GitPushSource;
@@ -24,62 +21,33 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyProject {
+      IExpectsKeyProject,
+      ISyncToRemoteStatusDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
   }
 
-  protected final List<SyncToRemoteStatus.Relation> PUSH_ELIGIBLE_STATUSES = List.of(
-      SyncToRemoteStatus.Relation.AheadOfRemote,
-      SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
-      SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote,
-      SyncToRemoteStatus.Relation.Untracked);
+  @Override
+  public String getActionName() {
+    return "Push";
+  }
+
+  @Override
+  public List<SyncToRemoteStatus.Relation> getEligibleStatuses() {
+    return List.of(
+        SyncToRemoteStatus.Relation.AheadOfRemote,
+        SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
+        SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote,
+        SyncToRemoteStatus.Relation.Untracked);
+  }
 
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-
-    Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
-      return;
-    }
-
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-
-    if (branchName.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Push disabled due to undefined branch name");
-      return;
-    }
-
-    var syncToRemoteStatus = getGitMacheteBranchByName(anActionEvent, branchName.get())
-        .map(branch -> branch.getSyncToRemoteStatus());
-
-    if (syncToRemoteStatus.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Push disabled due to undefined sync to remote status");
-      return;
-    }
-
-    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-    boolean isEnabled = PUSH_ELIGIBLE_STATUSES.contains(relation);
-
-    if (isEnabled) {
-
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Push Current Branch");
-      }
-
-      presentation.setDescription("Push branch '${branchName.get()}' using push dialog");
-
-    } else {
-      presentation.setEnabled(false);
-      String descriptionSpec = syncToRemoteStatusRelationToReadableBranchDescription(relation);
-      presentation.setDescription("Push disabled because ${descriptionSpec}");
-    }
+    syncToRemoteStatusDependentActionUpdate(anActionEvent);
   }
 
   @Override

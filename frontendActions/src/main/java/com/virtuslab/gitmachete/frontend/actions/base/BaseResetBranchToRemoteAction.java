@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -16,6 +15,7 @@ import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -33,7 +33,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyProject {
+      IExpectsKeyProject,
+      ISyncToRemoteStatusDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -44,43 +45,24 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   private static final String TASK_TITLE = "Resetting...";
 
   @Override
+  public String getActionName() {
+    return "Reset";
+  }
+
+  @Override
+  public List<SyncToRemoteStatus.Relation> getEligibleStatuses() {
+    return List.of(
+        SyncToRemoteStatus.Relation.AheadOfRemote,
+        SyncToRemoteStatus.Relation.BehindRemote,
+        SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
+        SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote);
+  }
+
+  @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-
-    Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
-      return;
-    }
-
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-
-    if (branchName.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Reset disabled due to undefined branch");
-      return;
-    }
-
-    String branchNameString = branchName.get();
-
-    Option<SyncToRemoteStatus> syncToRemoteStatus = getGitMacheteRepository(anActionEvent)
-        .flatMap(repo -> repo.getBranchByName(branchNameString))
-        .map(IGitMacheteBranch::getSyncToRemoteStatus);
-
-    if (syncToRemoteStatus.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription("Reset disabled due to undefined sync to remote status");
-      return;
-    }
-
-    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
-
-    if (relation != SyncToRemoteStatus.Relation.Untracked) {
-      presentation.setDescription("Reset branch '${branchNameString}' to its remote tracking branch");
-    } else {
-      presentation.setEnabled(false);
-      presentation.setDescription("Reset disabled because branch '${branchNameString}' is untracked");
-    }
+    syncToRemoteStatusDependentActionUpdate(anActionEvent);
   }
 
   @Override
