@@ -24,7 +24,7 @@ public class MacheteAnnotator implements Annotator {
     var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
 
     if (branchNamesOption.isEmpty()) {
-      // We can probably do something more useful here (some kind of message, etc.)
+      // TODO (#372): We can probably do something more useful here (some kind of message, etc.)
       return;
     }
 
@@ -33,7 +33,7 @@ public class MacheteAnnotator implements Annotator {
     var processedBranchName = branch.getText();
 
     if (!branchNames.contains(processedBranchName)) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "Can't find '${processedBranchName}' branch in git repository")
+      holder.newAnnotation(HighlightSeverity.ERROR, "Can't find local branch '${processedBranchName}' in git repository")
           .range(branch).create();
     }
   }
