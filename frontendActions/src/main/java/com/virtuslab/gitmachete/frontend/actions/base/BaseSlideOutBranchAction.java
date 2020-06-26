@@ -129,9 +129,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           LOG.warn("Skipping local branch deletion because it is equal to current branch");
         }
 
-        var branchesToContainingRepositories = java.util.Collections.<String, java.util.List<? extends GitRepository>>singletonMap(
-            branchName,
-            selectedVcsRepository.toJavaList());
+        java.util.Map<String, java.util.List<? extends GitRepository>> branchesToContainingRepositories = java.util.Collections
+            .singletonMap(branchName, selectedVcsRepository.toJavaList());
         GitBrancher.getInstance(project).deleteBranches(branchesToContainingRepositories,
             () -> getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh());
         isRefreshScheduled = true;
