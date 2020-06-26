@@ -29,7 +29,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
 
-  private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideout.deletelocalbranch";
+  private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -155,7 +155,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       }
       return result;
     } catch (VcsException e) {
-      // ignore
+      LOG.info(
+          "Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed: key may not exist");
     }
 
     return false;
