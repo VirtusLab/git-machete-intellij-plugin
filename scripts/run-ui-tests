@@ -11,6 +11,10 @@ intellij_version=${1-} # can be skipped; the same IntelliJ version that the plug
 ide_log=build/idea-sandbox/system/log/idea.log
 ide_log_last_line=$(cat $ide_log 2>/dev/null | wc -l || true)  # will be 0 if $ide_log doesn't exist yet
 
+function ide_logs_from_this_run() {
+  tail -n+$((ide_log_last_line+1)) $ide_log
+}
+
 # If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.
 # --auto-servernum is deprecated in favor of --auto-display,
 # but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
@@ -59,6 +63,12 @@ done
 info 'Logs of gradle uiTests:test'
 ./gradlew -PenableUiTests --info uiTests:test || {
   info 'Logs of IDE under test'
-  tail -n+$((ide_log_last_line+1)) $ide_log
+  ide_logs_from_this_run
   die 'UI tests failed; inspect Gradle and IDE logs above'
 }
+
+if ide_logs_from_this_run | grep -q ' ERROR - '; then
+  info 'Logs of IDE under test'
+  ide_logs_from_this_run
+  die 'UI tests passed, but IDE logs contain errors; inspect Gradle and IDE logs above'
+fi
