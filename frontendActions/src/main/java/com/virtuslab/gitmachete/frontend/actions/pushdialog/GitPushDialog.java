@@ -19,6 +19,7 @@ import com.intellij.dvcs.push.PushSupport;
 import com.intellij.dvcs.push.PushTarget;
 import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.ui.PushLog;
+import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.dvcs.push.ui.VcsPushUi;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -60,19 +61,17 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
       boolean isForcePushRequired) {
     super(project, /* canBeParent */ true,
         Registry.is("ide.perProjectModality") ? IdeModalityType.PROJECT : IdeModalityType.IDE);
-    this.project = project;
     this.isForcePushRequired = isForcePushRequired;
+    this.project = project;
     this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
     // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
     // The second and the third one have higher priority of loading its commits.
     // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
-    var dialog = new VcsPushDialogAdapterHolder(project,
+    var dialog = new MyVcsPushDialog(project,
         selectedRepositories.asJava(),
-        /* currentRepo */ null,
-        /* gitPushDialog */ this)
-            .getVcsPushDialog();
+        /* currentRepo */ null);
 
     this.pushController = new PushController(project,
         dialog,
@@ -87,6 +86,42 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     setOKButtonMnemonic('P');
     setTitle("Push Commits");
     init();
+  }
+
+  private final class MyVcsPushDialog extends VcsPushDialog {
+
+    @UIEffect
+    MyVcsPushDialog(
+        Project project, java.util.List<? extends Repository> selectedRepositories,
+        @Nullable Repository currentRepo) {
+      super(project, selectedRepositories, currentRepo);
+    }
+
+    @Override
+    @UIEffect
+    public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
+      return GitPushDialog.this.getAdditionalOptionValue(support);
+    }
+
+    @Override
+    @UIEffect
+    public void enableOkActions(boolean value) {
+      if (pushAction != null) {
+        pushAction.setEnabled(value);
+      }
+    }
+
+    @Override
+    @UIEffect
+    public void updateOkActions() {
+      GitPushDialog.this.updateOkActions();
+    }
+
+    @Override
+    @UIEffect
+    public JRootPane getRootPane(@UnknownInitialization MyVcsPushDialog this) {
+      return GitPushDialog.this.getRootPane();
+    }
   }
 
   @Override
@@ -289,13 +324,6 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   public void updateOkActions(@UnknownInitialization GitPushDialog this) {
     if (pushAction != null) {
       pushAction.setEnabled(canPush());
-    }
-  }
-
-  @UIEffect
-  public void enableOkActions(@UnknownInitialization GitPushDialog this, boolean value) {
-    if (pushAction != null) {
-      pushAction.setEnabled(value);
     }
   }
 
