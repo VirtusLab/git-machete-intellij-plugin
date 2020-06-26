@@ -34,6 +34,7 @@ import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -49,43 +50,53 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   private final PushLog listPanel;
   private final PushController pushController;
   private final Action pushAction;
+  private final boolean isForcePushRequired;
 
   @UIEffect
   public GitPushDialog(
       Project project,
-      java.util.Collection<? extends Repository> allRepos,
-      java.util.List<? extends Repository> selectedRepositories,
-      @Nullable Repository currentRepo,
-      @Nullable PushSource pushSource) {
+      List<? extends Repository> selectedRepositories,
+      PushSource pushSource,
+      boolean isForcePushRequired) {
     super(project, /* canBeParent */ true,
-        (Registry.is("ide.perProjectModality")) ? IdeModalityType.PROJECT : IdeModalityType.IDE);
+        Registry.is("ide.perProjectModality") ? IdeModalityType.PROJECT : IdeModalityType.IDE);
     this.project = project;
+    this.isForcePushRequired = isForcePushRequired;
     this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
-    var dialog = new VcsPushDialogAdapterHolder(project, selectedRepositories, currentRepo, /* gitPushDialog */ this)
-        .getVcsPushDialog();
+    // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
+    // The second and the third one have higher priority of loading its commits.
+    // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
+    var dialog = new VcsPushDialogAdapterHolder(project,
+        selectedRepositories.asJava(),
+        /* currentRepo */ null,
+        /* gitPushDialog */ this)
+            .getVcsPushDialog();
 
-    this.pushController = new PushController(project, dialog, allRepos, selectedRepositories, currentRepo, pushSource);
+    this.pushController = new PushController(project,
+        dialog,
+        /* allRepositories */ selectedRepositories.asJava(),
+        selectedRepositories.asJava(), /* currentRepo */ null,
+        pushSource);
+
     this.listPanel = pushController.getPushPanelLog();
 
     updateOkActions();
-    setOKButtonText("Force Push");
+    setOKButtonText(getPushActionName());
     setOKButtonMnemonic('P');
     setTitle("Push Commits");
     init();
   }
 
-  @Nullable
   @Override
-  protected Border createContentPaneBorder() {
+  protected @Nullable Border createContentPaneBorder() {
     return null;
   }
 
-  @Nullable
   @Override
   @UIEffect
-  protected JPanel createSouthAdditionalPanel() {
+  protected @Nullable JPanel createSouthAdditionalPanel() {
     return createSouthOptionsPanel();
   }
 
@@ -134,10 +145,9 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     return super.getRootPane();
   }
 
-  @Nullable
   @Override
   @UIEffect
-  protected ValidationInfo doValidate() {
+  protected @Nullable ValidationInfo doValidate() {
     updateOkActions();
     return null;
   }
@@ -150,7 +160,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   @Override
   @UIEffect
   protected void doOKAction() {
-    push(/* forcePush */ true);
+    push(isForcePushRequired);
   }
 
   @Override
@@ -171,10 +181,9 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     return pushController.getSelectedPushSpecs();
   }
 
-  @Nullable
   @Override
   @UIEffect
-  public JComponent getPreferredFocusedComponent() {
+  public @Nullable JComponent getPreferredFocusedComponent() {
     return listPanel.getPreferredFocusedComponent();
   }
 
@@ -260,8 +269,8 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
       private void suggestToSkipOrPush(String message) {
         if (Messages.showOkCancelDialog(project,
             message,
-            /* title */ "Force Push",
-            /* okText */ "Force Push Anyway",
+            /* title */ "Push",
+            /* okText */ "Push Anyway",
             /* cancelText */ "Cancel",
             UIUtil.getWarningIcon()) == Messages.OK) {
           result.set(PrePushHandler.Result.OK);
@@ -291,22 +300,25 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   @Override
-  @Nullable
-  public VcsPushOptionValue getAdditionalOptionValue(@UnknownInitialization GitPushDialog this, PushSupport support) {
+  public @Nullable VcsPushOptionValue getAdditionalOptionValue(@UnknownInitialization GitPushDialog this, PushSupport support) {
     return null;
+  }
+
+  private String getPushActionName(@UnknownInitialization GitPushDialog this) {
+    return isForcePushRequired ? "Force _Push" : "Push";
   }
 
   private final class PushSwingAction extends AbstractAction {
 
     @UIEffect
     private PushSwingAction() {
-      super("Force _Push");
+      super(getPushActionName());
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      push(/* forcePush */ true);
+      push(/* forcePush */ isForcePushRequired);
     }
 
     @Override

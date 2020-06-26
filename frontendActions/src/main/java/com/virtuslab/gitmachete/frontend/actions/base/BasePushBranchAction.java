@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import java.util.Collections;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -37,7 +38,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   @Override
   public List<SyncToRemoteStatus.Relation> getEligibleRelations() {
     return List.of(
-        SyncToRemoteStatus.Relation.AheadOfRemote,
+        AheadOfRemote,
         SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
         SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote,
         SyncToRemoteStatus.Relation.Untracked);
@@ -57,26 +58,25 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var relation = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
+        .map(b -> b.getSyncToRemoteStatus())
+        .map(strs -> strs.getRelation());
 
-    if (branchName.isDefined() && gitRepository.isDefined()) {
-      doPush(project, gitRepository.get(), branchName.get());
+    if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
+      boolean isForcePushRequired = !List.of(Untracked, AheadOfRemote).contains(relation.get());
+      doPush(project, gitRepository.get(), branchName.get(), isForcePushRequired);
     }
   }
 
   @UIEffect
-  private void doPush(Project project, GitRepository preselectedRepository, String branchName) {
+  private void doPush(Project project,
+      GitRepository preselectedRepository,
+      String branchName,
+      boolean isForcePushRequired) {
     @Nullable GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
 
     if (localBranch != null) {
-      java.util.List<GitRepository> selectedRepositories = Collections.singletonList(preselectedRepository);
-      // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
-      // The second and the third one have higher priority of loading its commits.
-      // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
-      new GitPushDialog(project,
-          /* allRepositories */ selectedRepositories,
-          /* preselectedRepositories */ selectedRepositories,
-          /* currentRepo */ null,
-          GitPushSource.create(localBranch)).show();
+      new GitPushDialog(project, List.of(preselectedRepository), GitPushSource.create(localBranch), isForcePushRequired).show();
     } else {
       log().warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
