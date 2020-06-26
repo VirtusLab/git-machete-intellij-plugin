@@ -14,11 +14,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.forcepushdialog.GitForcePushDialog;
+import com.virtuslab.gitmachete.frontend.actions.pushdialog.GitPushDialog;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public abstract class BaseForcePushBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyProject,
@@ -72,7 +72,7 @@ public abstract class BaseForcePushBranchAction extends BaseGitMacheteRepository
       // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
       // The second and the third one have higher priority of loading its commits.
       // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
-      new GitForcePushDialog(project,
+      new GitPushDialog(project,
           /* allRepositories */ selectedRepositories,
           /* preselectedRepositories */ selectedRepositories,
           /* currentRepo */ null,

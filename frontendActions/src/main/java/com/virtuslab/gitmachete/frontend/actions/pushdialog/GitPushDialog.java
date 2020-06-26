@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.forcepushdialog;
+package com.virtuslab.gitmachete.frontend.actions.pushdialog;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -39,7 +39,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
+public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   private static final String DIMENSION_KEY = "Vcs.Push.Dialog.v2";
 
   private static final int CENTER_PANEL_HEIGHT = 450;
@@ -51,7 +51,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
   private final Action pushAction;
 
   @UIEffect
-  public GitForcePushDialog(
+  public GitPushDialog(
       Project project,
       java.util.Collection<? extends Repository> allRepos,
       java.util.List<? extends Repository> selectedRepositories,
@@ -63,7 +63,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
     this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
-    var dialog = new VcsPushDialogAdapterHolder(project, selectedRepositories, currentRepo, /* gitForcePushDialog */ this)
+    var dialog = new VcsPushDialogAdapterHolder(project, selectedRepositories, currentRepo, /* gitPushDialog */ this)
         .getVcsPushDialog();
 
     this.pushController = new PushController(project, dialog, allRepos, selectedRepositories, currentRepo, pushSource);
@@ -72,7 +72,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
     updateOkActions();
     setOKButtonText("Force Push");
     setOKButtonMnemonic('P');
-    setTitle("Force Push Commits");
+    setTitle("Push Commits");
     init();
   }
 
@@ -130,7 +130,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public JRootPane getRootPane(@UnknownInitialization GitForcePushDialog this) {
+  public JRootPane getRootPane(@UnknownInitialization GitPushDialog this) {
     return super.getRootPane();
   }
 
@@ -161,7 +161,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public boolean canPush(@UnknownInitialization GitForcePushDialog this) {
+  public boolean canPush(@UnknownInitialization GitPushDialog this) {
     return pushController != null && pushController.isPushAllowed();
   }
 
@@ -187,7 +187,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
   @UIEffect
   public void push(boolean forcePush) {
     executeAfterRunningPrePushHandlers(
-        new Task.Backgroundable(project, /* title */ "Force Pushing...", /* canBeCancelled */ true) {
+        new Task.Backgroundable(project, /* title */ "Pushing...", /* canBeCancelled */ true) {
           @Override
           public void run(ProgressIndicator indicator) {
             pushController.push(forcePush);
@@ -277,14 +277,14 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   @UIEffect
-  public void updateOkActions(@UnknownInitialization GitForcePushDialog this) {
+  public void updateOkActions(@UnknownInitialization GitPushDialog this) {
     if (pushAction != null) {
       pushAction.setEnabled(canPush());
     }
   }
 
   @UIEffect
-  public void enableOkActions(@UnknownInitialization GitForcePushDialog this, boolean value) {
+  public void enableOkActions(@UnknownInitialization GitPushDialog this, boolean value) {
     if (pushAction != null) {
       pushAction.setEnabled(value);
     }
@@ -292,7 +292,7 @@ public class GitForcePushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @Nullable
-  public VcsPushOptionValue getAdditionalOptionValue(@UnknownInitialization GitForcePushDialog this, PushSupport support) {
+  public VcsPushOptionValue getAdditionalOptionValue(@UnknownInitialization GitPushDialog this, PushSupport support) {
     return null;
   }
 
