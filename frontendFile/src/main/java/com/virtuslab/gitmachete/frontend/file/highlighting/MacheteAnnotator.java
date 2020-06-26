@@ -48,7 +48,7 @@ public class MacheteAnnotator implements Annotator {
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
     PsiElement parent = element.getParent();
-    assert parent != null : "Element has not parent";
+    assert parent != null : "Element has no parent";
 
     if (parent instanceof MacheteFile) {
       return;
@@ -78,8 +78,11 @@ public class MacheteAnnotator implements Annotator {
 
     var thisIndentationText = element.getText();
 
-    if (thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter).count() > 0) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "Indentation character does not match the first indented line")
+    var wrongIndentChar = thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter).findFirst();
+    if (wrongIndentChar.isPresent()) {
+      holder.newAnnotation(HighlightSeverity.ERROR,
+          "Indentation character (${indentCharToName((char)wrongIndentChar.getAsInt())}) "
+              + "does not match the indentation character in first indented line (${indentCharToName(indentationParameters.indentationCharacter)})")
           .range(element).create();
       return;
     }
@@ -94,7 +97,7 @@ public class MacheteAnnotator implements Annotator {
     thisLevel = thisIndentationText.length() / indentationParameters.indentationWidth;
 
     if (hasPrevLevelCorrectWidth && thisLevel > prevLevel + 1) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "Indentation level does not math")
+      holder.newAnnotation(HighlightSeverity.ERROR, "Too much indent on this line")
           .range(element).create();
     }
   }
@@ -163,6 +166,16 @@ public class MacheteAnnotator implements Annotator {
     }
 
     return Option.of((MacheteGeneratedEntry) prevSiblingMacheteGeneratedEntry);
+  }
+
+  private String indentCharToName(char indentChar) {
+    if (indentChar == ' ') {
+      return "SPACE";
+    } else if (indentChar == '\t') {
+      return "TAB";
+    } else {
+      return "ASCII " + (int) indentChar;
+    }
   }
 
   @Data
