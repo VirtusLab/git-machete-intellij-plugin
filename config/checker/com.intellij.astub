@@ -210,20 +210,6 @@ package com.intellij.openapi.project;
 @UIPackage package com.intellij.openapi.roots.ui.configuration.libraryEditor;
 @UIPackage package com.intellij.openapi.roots.ui.util;
 @UIPackage package com.intellij.openapi.ui;
-
-class DialogWrapper {
-  // Needed to create GitForcePushDialog and VcsPushDialogAdapterHolder "together".
-  // GitForcePushDialog must be passed (via the adapter) to the push controller
-  // that is being created within dialog's constructor.
-  JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
-
-  // All of the ones below are being called from GitForcePushDialog (DialogWrapper) constructor
-  void init(@UnknownInitialization DialogWrapper this);
-  void setOKButtonText(@UnknownInitialization DialogWrapper this, String text);
-  void setOKButtonMnemonic(@UnknownInitialization DialogWrapper this, int c);
-  void setTitle(@UnknownInitialization DialogWrapper this, String title);
-}
-
 @UIPackage package com.intellij.openapi.ui.cellvalidators;
 @UIPackage package com.intellij.openapi.ui.dialogs;
 @UIPackage package com.intellij.openapi.ui.messages;

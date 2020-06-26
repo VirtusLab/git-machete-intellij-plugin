@@ -76,14 +76,14 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     this.pushController = new PushController(project,
         dialog,
         /* allRepositories */ selectedRepositories.asJava(),
-        selectedRepositories.asJava(), /* currentRepo */ null,
+        selectedRepositories.asJava(),
+        /* currentRepo */ null,
         pushSource);
 
     this.listPanel = pushController.getPushPanelLog();
 
     updateOkActions();
     setOKButtonText(getPushActionName());
-    setOKButtonMnemonic('P');
     setTitle("Push Commits");
     init();
   }
@@ -92,7 +92,8 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
     @UIEffect
     MyVcsPushDialog(
-        Project project, java.util.List<? extends Repository> selectedRepositories,
+        Project project,
+        java.util.List<? extends Repository> selectedRepositories,
         @Nullable Repository currentRepo) {
       super(project, selectedRepositories, currentRepo);
     }
@@ -333,7 +334,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   private String getPushActionName(@UnknownInitialization GitPushDialog this) {
-    return isForcePushRequired ? "Force _Push" : "Push";
+    return isForcePushRequired ? "Force _Push" : "_Push";
   }
 
   private final class PushSwingAction extends AbstractAction {

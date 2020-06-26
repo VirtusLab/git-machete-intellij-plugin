@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,9 +41,9 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public List<SyncToRemoteStatus.Relation> getEligibleRelations() {
     return List.of(
         AheadOfRemote,
-        SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote,
-        SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote,
-        SyncToRemoteStatus.Relation.Untracked);
+        DivergedFromAndNewerThanRemote,
+        DivergedFromAndOlderThanRemote,
+        Untracked);
   }
 
   @Override
@@ -63,7 +65,8 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
         .map(strs -> strs.getRelation());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
-      boolean isForcePushRequired = !List.of(Untracked, AheadOfRemote).contains(relation.get());
+      boolean isForcePushRequired = List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)
+          .contains(relation.get());
       doPush(project, gitRepository.get(), branchName.get(), isForcePushRequired);
     }
   }
