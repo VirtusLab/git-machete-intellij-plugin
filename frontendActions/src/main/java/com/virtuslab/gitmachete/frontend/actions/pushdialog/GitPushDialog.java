@@ -38,10 +38,9 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class GitPushDialog extends DialogWrapper implements VcsPushUi {
+public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   private static final String DIMENSION_KEY = "Vcs.Push.Dialog.v2";
 
   private static final int CENTER_PANEL_HEIGHT = 450;
@@ -82,6 +81,8 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
     this.listPanel = pushController.getPushPanelLog();
 
+    // Note: since the class is final, `this` is already @Initialized at this point.
+
     updateOkActions();
     setOKButtonText(getPushActionName());
     setTitle("Push Commits");
@@ -107,9 +108,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     @Override
     @UIEffect
     public void enableOkActions(boolean value) {
-      if (pushAction != null) {
-        pushAction.setEnabled(value);
-      }
+      pushAction.setEnabled(value);
     }
 
     @Override
@@ -120,7 +119,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
     @Override
     @UIEffect
-    public JRootPane getRootPane(@UnknownInitialization MyVcsPushDialog this) {
+    public JRootPane getRootPane(MyVcsPushDialog this) {
       return GitPushDialog.this.getRootPane();
     }
   }
@@ -132,7 +131,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  protected @Nullable JPanel createSouthAdditionalPanel() {
+  protected JPanel createSouthAdditionalPanel() {
     return createSouthOptionsPanel();
   }
 
@@ -177,7 +176,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public JRootPane getRootPane(@UnknownInitialization GitPushDialog this) {
+  public JRootPane getRootPane(GitPushDialog this) {
     return super.getRootPane();
   }
 
@@ -207,8 +206,8 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public boolean canPush(@UnknownInitialization GitPushDialog this) {
-    return pushController != null && pushController.isPushAllowed();
+  public boolean canPush(GitPushDialog this) {
+    return pushController.isPushAllowed();
   }
 
   @Override
@@ -286,7 +285,7 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
           String suggestionMessageQuestion = skippedHandlers.isEmpty()
               ? "Would you like to push anyway or cancel the push completely?"
-              : "Would you like to skip all remaining pre-push steps and push, or cancel the push completely?";
+              : "Would you like to skip all remaining pre-push steps and push anyway, or cancel the push completely?";
 
           suggestToSkipOrPush(suggestionMessageProblem + System.lineSeparator() + suggestionMessageQuestion);
         } else {
@@ -322,18 +321,16 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   @UIEffect
-  public void updateOkActions(@UnknownInitialization GitPushDialog this) {
-    if (pushAction != null) {
-      pushAction.setEnabled(canPush());
-    }
+  public void updateOkActions(GitPushDialog this) {
+    pushAction.setEnabled(canPush());
   }
 
   @Override
-  public @Nullable VcsPushOptionValue getAdditionalOptionValue(@UnknownInitialization GitPushDialog this, PushSupport support) {
+  public @Nullable VcsPushOptionValue getAdditionalOptionValue(GitPushDialog this, PushSupport support) {
     return null;
   }
 
-  private String getPushActionName(@UnknownInitialization GitPushDialog this) {
+  private String getPushActionName(GitPushDialog this) {
     return isForcePushRequired ? "Force _Push" : "_Push";
   }
 
@@ -348,12 +345,6 @@ public class GitPushDialog extends DialogWrapper implements VcsPushUi {
     @UIEffect
     public void actionPerformed(ActionEvent e) {
       push(/* forcePush */ isForcePushRequired);
-    }
-
-    @Override
-    @UIEffect
-    public void setEnabled(boolean isEnabled) {
-      super.setEnabled(isEnabled);
     }
   }
 }
