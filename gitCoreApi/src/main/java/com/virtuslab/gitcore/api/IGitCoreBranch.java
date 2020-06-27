@@ -27,6 +27,7 @@ public interface IGitCoreBranch {
   List<IGitCoreReflogEntry> deriveReflog() throws GitCoreException;
 
   @EnsuresNonNullIf(expression = "#2", result = true)
+  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
   static boolean defaultEquals(IGitCoreBranch self, @Nullable Object other) {
     if (self == other) {
       return true;

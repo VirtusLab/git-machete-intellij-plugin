@@ -13,7 +13,8 @@ public class RepositoryGraphCache implements IRepositoryGraphCache {
   private @MonotonicNonNull IGitMacheteRepository repository = null;
 
   @Override
-  @SuppressWarnings("regexp") // to allow `synchronized`
+  // to allow for `synchronized` and for `givenRepository != this.repository`
+  @SuppressWarnings({"regexp", "interning:not.interned"})
   public synchronized IRepositoryGraph getRepositoryGraph(IGitMacheteRepository givenRepository, boolean isListingCommits) {
     if (givenRepository != this.repository || repositoryGraphWithCommits == null
         || repositoryGraphWithoutCommits == null) {

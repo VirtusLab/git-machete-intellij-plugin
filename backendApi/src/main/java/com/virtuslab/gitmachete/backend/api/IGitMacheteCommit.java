@@ -21,6 +21,7 @@ public interface IGitMacheteCommit {
   Instant getCommitTime();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
+  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
   static boolean defaultEquals(IGitMacheteCommit self, @Nullable Object other) {
     if (self == other) {
       return true;

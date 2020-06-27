@@ -5,12 +5,14 @@ import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @RequiredArgsConstructor
 @ToString
+@UsesObjectEquals
 public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Getter(onMethod_ = {@Override})
   private final String name;
@@ -28,15 +30,5 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
-  }
-
-  @Override
-  public final boolean equals(@Nullable Object other) {
-    return this == other;
-  }
-
-  @Override
-  public final int hashCode() {
-    return super.hashCode();
   }
 }

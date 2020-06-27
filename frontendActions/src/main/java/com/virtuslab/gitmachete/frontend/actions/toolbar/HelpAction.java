@@ -46,6 +46,7 @@ public class HelpAction extends DumbAwareAction {
     }
 
     @Override
+    @SuppressWarnings("interning:not.interned") // to allow for `helpAction == myHelpAction`
     protected Action[] createActions() {
       Action helpAction = getHelpAction();
       return helpAction == myHelpAction && getHelpId() == null

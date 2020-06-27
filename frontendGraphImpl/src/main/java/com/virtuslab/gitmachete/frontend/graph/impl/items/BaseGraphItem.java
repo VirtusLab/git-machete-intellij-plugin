@@ -5,6 +5,7 @@ import lombok.ToString;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
+import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -13,6 +14,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 
 @Getter(onMethod_ = {@Override})
 @ToString
+@UsesObjectEquals
 public abstract class BaseGraphItem implements IGraphItem {
 
   private final GraphItemColor color;
@@ -52,15 +54,5 @@ public abstract class BaseGraphItem implements IGraphItem {
   public void setNextSiblingItemIndex(@Positive int i) {
     assert nextSiblingItemIndex == null : "nextSiblingItemIndex has already been set";
     nextSiblingItemIndex = i;
-  }
-
-  @Override
-  public final boolean equals(@Nullable Object other) {
-    return this == other;
-  }
-
-  @Override
-  public final int hashCode() {
-    return super.hashCode();
   }
 }

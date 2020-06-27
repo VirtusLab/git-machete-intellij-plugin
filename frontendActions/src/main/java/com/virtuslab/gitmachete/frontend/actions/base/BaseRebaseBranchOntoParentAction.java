@@ -88,7 +88,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           presentation.setEnabledAndVisible(false);
         }
 
-      } else if (branch.get().asNonRootBranch().getSyncToParentStatus().equals(SyncToParentStatus.MergedToParent)) {
+      } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
         presentation.setDescription("Can't rebase merged branch '${branch.get().getName()}'");
 

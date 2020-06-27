@@ -142,13 +142,13 @@ subprojects {
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
     if (runAllCheckers) {
-      // The experience shows that the below checkers are just rarely failing (if ever, in case of Regex), as compared to GuiEffect/Nullness.
+      // The experience shows that the below checkers are just rarely failing, as compared to GuiEffect/Nullness.
       // Hence, they're only applied in CI, or locally only if a dedicated variable is present in the env.
       checkers += [
         'org.checkerframework.checker.fenum.FenumChecker',
         'org.checkerframework.checker.index.IndexChecker',
+        'org.checkerframework.checker.interning.InterningChecker',
         'org.checkerframework.checker.optional.OptionalChecker',
-        'org.checkerframework.checker.regex.RegexChecker',
       ]
     }
     extraJavacArgs = [

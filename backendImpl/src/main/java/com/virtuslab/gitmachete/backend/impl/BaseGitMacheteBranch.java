@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.ToString;
+import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
@@ -13,6 +14,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @Getter(onMethod_ = {@Override})
 @ToString
+@UsesObjectEquals
 public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
@@ -57,15 +59,5 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   @Override
   public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
     return Option.of(remoteTrackingBranch);
-  }
-
-  @Override
-  public final boolean equals(@Nullable Object other) {
-    return this == other;
-  }
-
-  @Override
-  public final int hashCode() {
-    return super.hashCode();
   }
 }

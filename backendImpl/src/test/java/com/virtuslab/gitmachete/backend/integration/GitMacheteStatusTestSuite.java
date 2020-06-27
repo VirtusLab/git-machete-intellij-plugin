@@ -161,7 +161,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
-    if (currBranch.isDefined() && currBranch.get().equals(branch))
+    if (currBranch.isDefined() && currBranch.get() == branch)
       sb.append(" *");
 
     var customAnnotation = branch.getCustomAnnotation();
