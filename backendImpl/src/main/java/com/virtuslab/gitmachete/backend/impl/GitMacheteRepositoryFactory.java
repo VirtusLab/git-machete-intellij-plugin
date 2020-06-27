@@ -18,13 +18,20 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
+import io.vavr.collection.SortedMap;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.With;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -86,8 +93,26 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
     try {
-      var aux = new InferUpstreamForLocalBranchAux(gitCoreRepository);
+      var aux = new Aux(gitCoreRepository);
       var result = aux.inferUpstreamForLocalBranch(managedBranchNames, localBranchName);
+      LOG.withTimeElapsed().info("Finished");
+      return result;
+    } catch (GitCoreException e) {
+      throw new GitMacheteException(e);
+    }
+  }
+
+  @Override
+  public IGitMacheteRepository discover(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+    LOG.startTimer().debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}");
+
+    var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
+    var statusHookExecutor = StatusBranchHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
+    var preRebaseHookExecutor = PreRebaseHookExecutor.of(mainDirectoryPath, gitDirectoryPath);
+
+    try {
+      var aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+      var result = aux.discoverGitMacheteRepository();
       LOG.withTimeElapsed().info("Finished");
       return result;
     } catch (GitCoreException e) {
@@ -104,7 +129,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     }
   }
 
-  private static class BaseAux {
+  private static class Aux {
     protected final IGitCoreRepository gitCoreRepository;
     protected final List<IGitCoreLocalBranch> localBranches;
     protected final Map<String, IGitCoreLocalBranch> localBranchByName;
@@ -112,7 +137,7 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
     private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<String>> branchesContainingGivenCommitInReflog;
 
-    BaseAux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
+    Aux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
       this.gitCoreRepository = gitCoreRepository;
       this.localBranches = gitCoreRepository.deriveAllLocalBranches();
       this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getName(), localBranch));
@@ -231,9 +256,50 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       filteredReflogByBranch.put(branch, result);
       return result;
     }
+
+    Option<String> inferUpstreamForLocalBranch(
+        Set<String> eligibleBranchNames,
+        String localBranchName) throws GitCoreException {
+
+      var branch = localBranchByName.get(localBranchName).getOrNull();
+      if (branch == null) {
+        return Option.none();
+      }
+
+      String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
+
+      var commitAndContainingBranches = gitCoreRepository
+          .ancestorsOf(branch.derivePointedCommit())
+          .map(commit -> {
+            var containingManagedBranches = deriveBranchesContainingGivenCommitInReflog()
+                .getOrElse(commit.getHash(), List.empty())
+                .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
+                    && !candidateBranchName.equals(remoteTrackingBranchName)
+                    && eligibleBranchNames.contains(candidateBranchName));
+            return Tuple.of(commit, containingManagedBranches);
+          })
+          .find(ccbs -> ccbs._2.nonEmpty())
+          .getOrNull();
+
+      if (commitAndContainingBranches != null) {
+        var commit = commitAndContainingBranches._1;
+        var containingBranches = commitAndContainingBranches._2.toList();
+        assert containingBranches.nonEmpty() : "containingBranches is empty";
+
+        String firstContainingBranchName = containingBranches.head();
+        LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
+            "of managed branch(es) ${containingBranches.mkString(\", \")}; " +
+            "returning ${firstContainingBranchName} as the inferred upstream for branch '${localBranchName}'");
+        return Option.some(firstContainingBranchName);
+      } else {
+        LOG.debug(() -> "Could not infer upstream for branch '${branch.getFullName()}'");
+        return Option.none();
+      }
+    }
   }
 
-  private static class CreateGitMacheteRepositoryAux extends BaseAux {
+  private static class CreateGitMacheteRepositoryAux extends Aux {
+
     private final StatusBranchHookExecutor statusHookExecutor;
     private final PreRebaseHookExecutor preRebaseHookExecutor;
     private final List<String> remoteNames;
@@ -629,50 +695,87 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
     }
   }
 
-  private static class InferUpstreamForLocalBranchAux extends BaseAux {
+  private static class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryAux {
 
-    InferUpstreamForLocalBranchAux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
-      super(gitCoreRepository);
+    DiscoverGitMacheteRepositoryAux(
+        IGitCoreRepository gitCoreRepository,
+        StatusBranchHookExecutor statusHookExecutor,
+        PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
+      super(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
     }
 
-    Option<String> inferUpstreamForLocalBranch(
-        Set<String> managedBranchNames,
-        String localBranchName) throws GitCoreException {
-      var branch = localBranchByName.get(localBranchName).getOrNull();
-      if (branch == null) {
-        return Option.none();
+    @AllArgsConstructor // needed for @With
+    @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withSubentries` method
+    @UsesObjectEquals
+    private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
+      @Getter
+      private final String name;
+
+      @Getter
+      @With
+      private List<IBranchLayoutEntry> subentries;
+
+      private @NotOnlyInitialized MyBranchLayoutEntry root;
+
+      MyBranchLayoutEntry(String name) {
+        this.name = name;
+        this.subentries = List.empty();
+        this.root = this;
       }
 
-      String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
+      void attachUnder(MyBranchLayoutEntry newRoot) {
+        root = newRoot;
+      }
 
-      var commitAndContainingBranches = gitCoreRepository
-          .ancestorsOf(branch.derivePointedCommit())
-          .map(commit -> {
-            var containingManagedBranches = deriveBranchesContainingGivenCommitInReflog()
-                .getOrElse(commit.getHash(), List.empty())
-                .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
-                    && !candidateBranchName.equals(remoteTrackingBranchName)
-            // We demand that the candidate branch is already managed.
-                    && managedBranchNames.contains(candidateBranchName));
-            return Tuple.of(commit, containingManagedBranches);
-          })
-          .find(ccbs -> ccbs._2.nonEmpty())
-          .getOrNull();
+      void appendSubentry(MyBranchLayoutEntry newSubentry) {
+        subentries = subentries.append(newSubentry);
+      }
 
-      if (commitAndContainingBranches != null) {
-        var commit = commitAndContainingBranches._1;
-        var containingBranches = commitAndContainingBranches._2.toList();
-        assert containingBranches.nonEmpty() : "containingBranches is empty";
+      MyBranchLayoutEntry getRoot() {
+        // Path compression to reduce the lookup time,
+        // see https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Find
+        if (root != this && root.root != root) {
+          root = root.getRoot();
+        }
+        return root;
+      }
 
-        String firstContainingBranchName = containingBranches.head();
-        LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
-            "of managed branch(es) ${containingBranches.mkString(\", \")}; " +
-            "returning ${firstContainingBranchName} as the inferred upstream for branch '${localBranchName}'");
-        return Option.some(firstContainingBranchName);
-      } else {
-        LOG.debug(() -> "Could not infer upstream for branch '${branch.getFullName()}'");
+      @Override
+      public Option<String> getCustomAnnotation() {
         return Option.none();
       }
     }
+
+    IGitMacheteRepository discoverGitMacheteRepository() throws GitMacheteException, GitCoreException {
+      SortedMap<String, MyBranchLayoutEntry> entryByBranchName = localBranches.map(lb -> lb.getName())
+          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
+      List<IBranchLayoutEntry> roots = List.empty();
+
+      for (var branchEntry : entryByBranchName.values()) {
+        Seq<String> upstreamCandidates = entryByBranchName.values().filter(e -> e.getRoot() != branchEntry)
+            .map(e -> e.getName());
+        LOG.info(() -> "Upstream candidates for ${branchEntry.getName()} are ${upstreamCandidates.mkString(\", \")}");
+
+        String upstreamName = inferUpstreamForLocalBranch(
+            upstreamCandidates.toSet(),
+            branchEntry.getName()).getOrNull();
+
+        if (upstreamName != null) {
+          LOG.info(() -> "Upstream inferred for ${branchEntry.getName()} is ${upstreamName}");
+
+          var upstreamEntry = entryByBranchName.get(upstreamName).getOrNull();
+          if (upstreamEntry != null) {
+            branchEntry.attachUnder(upstreamEntry);
+            upstreamEntry.appendSubentry(branchEntry);
+          }
+        } else {
+          LOG.info(() -> "No upstream inferred for ${branchEntry.getName()}; attaching as new root");
+
+          roots = roots.append(branchEntry);
+        }
+      }
+      return createGitMacheteRepository(new BranchLayout(roots));
+    }
+
   }
 }

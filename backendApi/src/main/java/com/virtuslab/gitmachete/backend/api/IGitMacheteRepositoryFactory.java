@@ -19,4 +19,8 @@ public interface IGitMacheteRepositoryFactory {
       Path gitDirectoryPath,
       Set<String> managedBranchNames,
       String localBranchName) throws GitMacheteException;
+
+  IGitMacheteRepository discover(
+      Path mainDirectoryPath,
+      Path gitDirectoryPath) throws GitMacheteException;
 }

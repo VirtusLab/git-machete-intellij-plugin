@@ -2,7 +2,9 @@
 
 status_branch_hook=$(cat <<'EOF'
 #!/usr/bin/env bash
-git log -1 --format=%cd  # commit timestamp of the branch tip
+branch=$1
+file_count=$(git ls-tree $branch | wc -l)
+echo "<$file_count files>"
 EOF
 )
 

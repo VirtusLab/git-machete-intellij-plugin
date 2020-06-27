@@ -4,7 +4,6 @@ jobs:
     docker:
       - image: gitmachete/intellij-plugin-ci
     working_directory: ~/git-machete-intellij-plugin
-
     steps:
       - checkout
       - run:
@@ -85,9 +84,9 @@ jobs:
             LOMBOK_PROVIDED_BY=gradle-plugin ./gradlew javadoc
 
   release:
-    working_directory: ~/git-machete-intellij-plugin
     docker:
       - image: gitmachete/intellij-plugin-ci
+    working_directory: ~/git-machete-intellij-plugin
     steps:
       # No checkout, just attaching the workspace from the build job.
       - attach_workspace:

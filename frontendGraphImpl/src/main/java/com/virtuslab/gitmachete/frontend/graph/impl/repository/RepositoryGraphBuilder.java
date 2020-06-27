@@ -55,12 +55,12 @@ public class RepositoryGraphBuilder {
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public IRepositoryGraph build() {
-    LOG.startTimer().info("Entering");
+    LOG.startTimer().debug("Entering");
 
     Tuple2<List<IGraphItem>, List<List<Integer>>> graphData = deriveGraphItemsAndPositionsOfVisibleEdges();
     var result = new RepositoryGraph(graphData._1(), graphData._2());
 
-    LOG.withTimeElapsed().info("Finished");
+    LOG.withTimeElapsed().debug("Finished");
     return result;
   }
 

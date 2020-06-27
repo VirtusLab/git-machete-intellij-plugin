@@ -41,7 +41,8 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
-  private final IGitMacheteRepository gitMacheteRepository;
+
+  private IGitMacheteRepository gitMacheteRepository;
 
   @Parameters(name = "{0} (#{index})")
   public static String[] getScriptNames() {
@@ -55,24 +56,43 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     };
   }
 
-  @SneakyThrows
   public GitMacheteStatusTestSuite(String scriptName) {
     super(scriptName);
-    IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
-    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
   }
 
-  @Test
-  public void hasSameOutputAsCli() {
+  //@Test
+  @SneakyThrows
+  public void yieldsSameStatusAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatus();
-    String ourStatus = ourStatus();
+
+    IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
+    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
+    String ourStatus = ourGitMacheteRepositoryAsString();
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
+    System.out.println();
     System.out.println("OUR OUTPUT:");
     System.out.println(ourStatus);
 
     Assert.assertEquals(gitMacheteCliStatus, ourStatus);
+  }
+
+  @Test
+  @SneakyThrows
+  public void discoversSameLayoutAsCli() {
+    String gitMacheteCliDiscoverOutput = gitMacheteCliDiscover();
+
+    gitMacheteRepository = gitMacheteRepositoryFactory.discover(repositoryMainDir, repositoryGitDir);
+    String ourDiscoverOutput = ourGitMacheteRepositoryAsString();
+
+    System.out.println("CLI OUTPUT:");
+    System.out.println(gitMacheteCliDiscoverOutput);
+    System.out.println();
+    System.out.println("OUR OUTPUT:");
+    System.out.println(ourDiscoverOutput);
+
+    Assert.assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
   }
 
   @Rule(order = Integer.MIN_VALUE)
@@ -94,7 +114,22 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     return new String(process.getInputStream().readAllBytes());
   }
 
-  private String ourStatus() {
+  @SneakyThrows
+  private String gitMacheteCliDiscover() {
+    var process = new ProcessBuilder()
+        .command("git", "machete", "discover", "--list-commits", "--yes")
+        .directory(repositoryMainDir.toFile())
+        .start();
+
+    return new String(process.getInputStream().readAllBytes())
+        .lines()
+        .collect(List.collector())
+        .drop(2) // Let's skip the informational output at the beginning and at the end.
+        .dropRight(2)
+        .mkString(System.lineSeparator());
+  }
+
+  private String ourGitMacheteRepositoryAsString() {
     var sb = new StringBuilder();
     var branches = gitMacheteRepository.getRootBranches();
     int lastRootBranchIndex = branches.size() - 1;
