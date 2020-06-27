@@ -1,9 +1,9 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/git-machete-intellij-plugin
     docker:
       - image: gitmachete/intellij-plugin-ci
+    working_directory: ~/git-machete-intellij-plugin
 
     steps:
       - checkout
