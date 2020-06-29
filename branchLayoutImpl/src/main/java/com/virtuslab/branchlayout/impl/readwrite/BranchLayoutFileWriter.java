@@ -14,24 +14,20 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
-import com.virtuslab.branchlayout.impl.BranchLayout;
-import com.virtuslab.branchlayout.impl.IndentSpec;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 
 @CustomLog
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
   @Override
-  public void write(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
-    LOG.debug(() -> "Entering: branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
-
-    var path = ((BranchLayout) branchLayout).getPath();
-    var indentSpec = ((BranchLayout) branchLayout).getIndentSpec();
+  public void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
+    LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
+    var indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
 
     var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
-    if (backupOldFile) {
+    if (backupOldFile && path.toFile().isFile()) {
       Path parentDir = path.getParent();
       assert parentDir != null : "Can't get parent directory of branch layout file";
       Path backupPath = parentDir.resolve(path.getFileName() + "~");

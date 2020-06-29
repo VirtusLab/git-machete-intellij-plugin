@@ -1,5 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
+
+import java.nio.file.Path;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
@@ -86,18 +90,20 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
-    var branchLayout = getBranchLayout(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    if (branchLayout.isEmpty()) {
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    if (branchLayout == null || gitRepository == null) {
       return;
     }
 
     try {
       LOG.info("Sliding out '${branchName}' branch in memory");
-      var newBranchLayout = branchLayout.get().slideOut(branchName);
+      var newBranchLayout = branchLayout.slideOut(branchName);
 
-      LOG.info("Writing new branch layout into file");
-      branchLayoutWriter.write(newBranchLayout, /* backupOldLayout */ true);
+      Path macheteFilePath = getMacheteFilePath(gitRepository);
+      LOG.info("Writing new branch layout into ${macheteFilePath}");
+      branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
       VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
 
     } catch (BranchLayoutException e) {

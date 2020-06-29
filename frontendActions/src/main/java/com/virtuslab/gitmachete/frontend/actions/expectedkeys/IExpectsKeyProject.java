@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;

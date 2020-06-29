@@ -16,11 +16,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.impl.BranchLayout;
-import com.virtuslab.branchlayout.impl.IndentSpec;
 import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileReader;
 import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
+import com.virtuslab.branchlayout.impl.readwrite.IndentSpec;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BranchLayoutFileUtils.class, Files.class})

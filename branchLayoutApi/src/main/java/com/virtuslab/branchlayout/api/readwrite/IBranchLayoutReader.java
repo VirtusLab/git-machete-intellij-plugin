@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.api.manager;
+package com.virtuslab.branchlayout.api.readwrite;
 
 import java.nio.file.Path;
 

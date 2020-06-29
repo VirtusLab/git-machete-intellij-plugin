@@ -11,5 +11,7 @@ public interface IBranchLayoutEntry {
 
   List<IBranchLayoutEntry> getSubentries();
 
+  IBranchLayoutEntry withSubentries(List<IBranchLayoutEntry> newSubentry);
+
   Option<String> getCustomAnnotation();
 }

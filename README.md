@@ -12,6 +12,7 @@ This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.co
 
 ![](demo-workflow.gif)
 
+
 ## Logging
 
 SLF4J logging in this plugin has the following categories:
@@ -55,9 +56,17 @@ Consider increasing maximum heap size for the IDE (the default value is 2048 MB)
 
 For running `./gradlew` from command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-[Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of gradle plugin to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+For running tests of `backendImpl` (which are included in `./gradlew test`, which is in turn itself included in `./gradlew build`),
+install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) in version 2.14.1.
 
-When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on machete file.
+#### Optional
+
+[Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
+to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+
+When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer)
+can be helpful to see parsing result on machete file.
+
 
 ### Build
 
@@ -66,8 +75,7 @@ To build the project, run `./gradlew build`.
 Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
 To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
 
-
-Local (non-CI) builds by default do not run most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
+Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
 To make local builds more aligned with CI builds (at the expense of ~2x slower compilation from scratch), set `RUN_ALL_CHECKERS` environment variable to `true`.
 
 In case of spurious cache-related issues with Gradle build, try one of the following:
