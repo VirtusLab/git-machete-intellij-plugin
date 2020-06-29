@@ -37,9 +37,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
@@ -67,7 +64,20 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
-    var dialog = new MyVcsPushDialog(/* dialog */ this, project, selectedRepositories.asJava(), pushSource);
+    var dialog = new MyVcsPushDialog(project, selectedRepositories.asJava(), pushSource) {
+      @Override
+      @UIEffect
+      public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
+        return GitPushDialog.this.getAdditionalOptionValue(support);
+      }
+
+      @Override
+      @UIEffect
+      public JRootPane getRootPane() {
+        return GitPushDialog.this.getRootPane();
+      }
+    };
+
     this.pushController = dialog.getPushController();
     this.listPanel = pushController.getPushPanelLog();
 
@@ -79,44 +89,24 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     init();
   }
 
-  private static final class MyVcsPushDialog extends VcsPushDialog {
-
-    private final @NotOnlyInitialized GitPushDialog dialog;
+  private static class MyVcsPushDialog extends VcsPushDialog {
 
     @UIEffect
-    MyVcsPushDialog(
-        @UnderInitialization GitPushDialog dialog,
-        Project project,
-        java.util.List<? extends Repository> selectedRepositories,
-        PushSource pushSource) {
+    MyVcsPushDialog(Project project, java.util.List<? extends Repository> selectedRepositories, PushSource pushSource) {
       // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
       // The second and the third one have higher priority of loading its commits.
       // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
       super(project, selectedRepositories, selectedRepositories, /* currentRepo */ null, pushSource);
-      this.dialog = dialog;
     }
 
-    public PushController getPushController(@UnknownInitialization(VcsPushDialog.class) MyVcsPushDialog this) {
+    public PushController getPushController() {
       return myController;
     }
 
     @Override
     @UIEffect
-    @SuppressWarnings("nullness:method.invocation.invalid")
-    public void updateOkActions(@UnknownInitialization(VcsPushDialog.class) MyVcsPushDialog this) {
+    public void updateOkActions() {
       super.updateOkActions();
-    }
-
-    @Override
-    @UIEffect
-    public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
-      return dialog.getAdditionalOptionValue(support);
-    }
-
-    @Override
-    @UIEffect
-    public JRootPane getRootPane() {
-      return dialog.getRootPane();
     }
   }
 
