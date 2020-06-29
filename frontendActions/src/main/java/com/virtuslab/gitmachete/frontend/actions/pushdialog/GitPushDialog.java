@@ -29,7 +29,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
@@ -65,25 +64,13 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     this.pushAction = new PushSwingAction();
     this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
-    // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
-    // The second and the third one have higher priority of loading its commits.
-    // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
-    var dialog = new MyVcsPushDialog(project,
-        selectedRepositories.asJava(),
-        /* currentRepo */ null);
-
-    this.pushController = new PushController(project,
-        dialog,
-        /* allRepositories */ selectedRepositories.asJava(),
-        selectedRepositories.asJava(),
-        /* currentRepo */ null,
-        pushSource);
-
+    var dialog = new MyVcsPushDialog(project, /* allRepositories */ selectedRepositories.asJava(), pushSource);
+    this.pushController = dialog.getPushController();
     this.listPanel = pushController.getPushPanelLog();
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
-    updateOkActions();
+    dialog.updateOkActions();
     setOKButtonText(getPushActionName());
     setTitle("Push Commits");
     init();
@@ -92,29 +79,21 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   private final class MyVcsPushDialog extends VcsPushDialog {
 
     @UIEffect
-    MyVcsPushDialog(
-        Project project,
-        java.util.List<? extends Repository> selectedRepositories,
-        @Nullable Repository currentRepo) {
-      super(project, selectedRepositories, currentRepo);
+    MyVcsPushDialog(Project project, java.util.List<? extends Repository> selectedRepositories, PushSource pushSource) {
+      // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
+      // The second and the third one have higher priority of loading its commits.
+      // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
+      super(project, selectedRepositories, selectedRepositories, /* currentRepo */ null, pushSource);
+    }
+
+    public PushController getPushController() {
+      return myController;
     }
 
     @Override
     @UIEffect
     public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
       return GitPushDialog.this.getAdditionalOptionValue(support);
-    }
-
-    @Override
-    @UIEffect
-    public void enableOkActions(boolean value) {
-      pushAction.setEnabled(value);
-    }
-
-    @Override
-    @UIEffect
-    public void updateOkActions() {
-      GitPushDialog.this.updateOkActions();
     }
 
     @Override
@@ -178,18 +157,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   @UIEffect
   public JRootPane getRootPane(GitPushDialog this) {
     return super.getRootPane();
-  }
-
-  @Override
-  @UIEffect
-  protected @Nullable ValidationInfo doValidate() {
-    updateOkActions();
-    return null;
-  }
-
-  @Override
-  protected boolean postponeValidation() {
-    return false;
   }
 
   @Override
@@ -318,11 +285,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     PrePushHandler.Result resultValue = result.get();
     assert resultValue != null : "Result value is null";
     return resultValue;
-  }
-
-  @UIEffect
-  public void updateOkActions(GitPushDialog this) {
-    pushAction.setEnabled(canPush());
   }
 
   @Override
