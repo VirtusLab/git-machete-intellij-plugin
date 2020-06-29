@@ -16,6 +16,7 @@ bash ${x_option:+-x} ./scripts/enforce-pre-release-version-correct-use
 bash ${x_option:+-x} ./scripts/enforce-version-bump
 
 ./scripts/prohibit-class-name-hardcode-in-strings
+./scripts/prohibit-inner-classes
 ./scripts/prohibit-non-ascii-characters
 ./scripts/prohibit-tab-character
 ./scripts/prohibit-trailing-whitespace

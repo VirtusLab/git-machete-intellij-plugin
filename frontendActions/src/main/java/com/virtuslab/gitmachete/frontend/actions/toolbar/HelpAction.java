@@ -18,22 +18,29 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.IDemoGraphTableProvider;
 
 public class HelpAction extends DumbAwareAction {
 
-  private final JBTable demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class)
-      .getInstance();
+  private final JBTable demoGraphTable;
+
+  public HelpAction() {
+    this.demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class).getInstance();
+  }
 
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent e) {
-    new HelpDialog().show();
+    new HelpDialog(demoGraphTable).show();
   }
 
   @UI
-  private final class HelpDialog extends DialogWrapper {
+  private static final class HelpDialog extends DialogWrapper {
     private static final int CENTER_PANEL_HEIGHT = 250;
     private static final int CENTER_PANEL_WIDTH = 800;
+    private final JBTable demoGraphTable;
 
-    protected HelpDialog() {
+    HelpDialog(JBTable demoGraphTable) {
       super(/* canBeParent */ false);
+      this.demoGraphTable = demoGraphTable;
+
+      // Note: since the class is final, `this` is already @Initialized at this point.
       init();
       setTitle("Git Machete Help");
     }

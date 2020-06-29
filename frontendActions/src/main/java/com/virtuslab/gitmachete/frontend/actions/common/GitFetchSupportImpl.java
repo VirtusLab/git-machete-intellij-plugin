@@ -295,21 +295,21 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   }
 
   @AllArgsConstructor
-  private class RemoteRefCoordinates {
+  private static class RemoteRefCoordinates {
     private final GitRepository repository;
     private final GitRemote remote;
     private final @Nullable String refspec;
   }
 
   @AllArgsConstructor
-  private class FetchTask {
+  private static class FetchTask {
     private final GitRepository repository;
     private final GitRemote remote;
     private final Future<SingleRemoteResult> future;
   }
 
   @AllArgsConstructor
-  private class RepoResult {
+  private static class RepoResult {
     Map<GitRemote, SingleRemoteResult> results;
 
     boolean totallySuccessful() {
@@ -351,7 +351,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
   }
 
   @AllArgsConstructor
-  private class SingleRemoteResult {
+  private static class SingleRemoteResult {
     private final GitRepository repository;
     private final GitRemote remote;
     private final @Nullable String error;
@@ -362,7 +362,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     }
   }
 
-  public final class FetchResultImpl implements GitFetchResult {
+  public static final class FetchResultImpl implements GitFetchResult {
     private final Project project;
     private final VcsNotifier vcsNotifier;
     private final Map<GitRepository, RepoResult> results;

@@ -179,7 +179,7 @@ public class MacheteAnnotator implements Annotator {
   }
 
   @Data
-  private class IndentationParameters {
+  private static class IndentationParameters {
     private final char indentationCharacter;
     private final int indentationWidth;
   }

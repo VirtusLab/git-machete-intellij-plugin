@@ -107,7 +107,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
 
-    addMouseListener(new GitMacheteGraphTableMouseAdapter());
+    addMouseListener(new GitMacheteGraphTableMouseAdapter( /* outer */ this));
 
     subscribeToGitRepositoryFilesChanges();
     subscribeToSelectedGitRepositoryChange();
@@ -243,38 +243,42 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         Case($(), (Object) null));
   }
 
-  private class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
+  private static class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
+    private final GitMacheteGraphTable outer;
+
     @UIEffect
-    GitMacheteGraphTableMouseAdapter() {}
+    GitMacheteGraphTableMouseAdapter(GitMacheteGraphTable outer) {
+      this.outer = outer;
+    }
 
     @Override
     @UIEffect
     public void mouseClicked(MouseEvent e) {
       Point point = e.getPoint();
-      int row = rowAtPoint(point);
-      int col = columnAtPoint(point);
+      int row = outer.rowAtPoint(point);
+      int col = outer.columnAtPoint(point);
 
       // check if we click on one of branches
       if (row < 0 || col < 0) {
         return;
       }
 
-      BranchOrCommitCell cell = (BranchOrCommitCell) getModel().getValueAt(row, col);
+      BranchOrCommitCell cell = (BranchOrCommitCell) outer.getModel().getValueAt(row, col);
       IGraphItem graphItem = cell.getGraphItem();
       if (!graphItem.isBranchItem()) {
         return;
       }
 
-      selectedBranchName = graphItem.asBranchItem().getBranch().getName();
+      outer.selectedBranchName = graphItem.asBranchItem().getBranch().getName();
 
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
         var actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
-        actionPopupMenu.getComponent().show(GitMacheteGraphTable.this, (int) point.getX(), (int) point.getY());
+        actionPopupMenu.getComponent().show(outer, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        DataContext dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
+        DataContext dataContext = DataManager.getInstance().getDataContext(outer);
         var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }

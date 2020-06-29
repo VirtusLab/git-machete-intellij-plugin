@@ -107,7 +107,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
   }
 
   @AllArgsConstructor
-  private class Commit implements IGitMacheteCommit {
+  private static class Commit implements IGitMacheteCommit {
 
     private final String msg;
 
@@ -132,7 +132,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     }
   }
 
-  private final class FpCommit extends Commit implements IGitMacheteForkPointCommit {
+  private static final class FpCommit extends Commit implements IGitMacheteForkPointCommit {
     FpCommit(String msg) {
       super(msg);
     }
@@ -155,7 +155,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
 
   @Getter
   @AllArgsConstructor
-  private final class Root implements IGitMacheteRootBranch {
+  private static final class Root implements IGitMacheteRootBranch {
     private final String name;
     private final String customAnnotation;
     private final Commit pointedCommit;
@@ -180,7 +180,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
 
   @Getter
   @RequiredArgsConstructor
-  private final class NonRoot implements IGitMacheteNonRootBranch {
+  private static final class NonRoot implements IGitMacheteNonRootBranch {
     private final String name;
     private final String customAnnotation;
     private final Commit pointedCommit;

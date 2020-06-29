@@ -30,7 +30,7 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
 
   @Override
   public List<BaseRenderPart> getRenderParts(@NonNegative int rowIndex) {
-    RenderPartBuilder builder = new RenderPartBuilder(rowIndex);
+    RenderPartBuilder builder = new RenderPartBuilder(rowIndex, itemColorForElementProvider);
     collectParts(rowIndex, builder);
     return builder.build();
   }
@@ -69,10 +69,11 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
   }
 
   @RequiredArgsConstructor
-  private final class RenderPartBuilder {
+  private static final class RenderPartBuilder {
     private final java.util.List<BaseRenderPart> edges = new SmartList<>();
     private final java.util.List<BaseRenderPart> nodes = new SmartList<>();
     private final @NonNegative int rowIndex;
+    private final GraphItemColorForGraphElementProvider itemColorForElementProvider;
 
     void consumeNode(GraphNode node, @NonNegative int position) {
       nodes.add(new NodeRenderPart(rowIndex, position, node, itemColorForElementProvider));
