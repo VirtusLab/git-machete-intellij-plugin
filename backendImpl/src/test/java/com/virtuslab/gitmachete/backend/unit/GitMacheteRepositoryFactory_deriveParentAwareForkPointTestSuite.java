@@ -25,8 +25,8 @@ public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTestSuite ext
 
     PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue(any(), any(), any());
 
-    GitMacheteForkPointCommit forkPoint = (GitMacheteForkPointCommit) Whitebox
-        .invokeMethod(aux(childBranch, parentBranch), "deriveParentAwareForkPoint", childBranch, parentBranch);
+    GitMacheteForkPointCommit forkPoint = Whitebox.invokeMethod(
+        aux(childBranch, parentBranch), "deriveParentAwareForkPoint", childBranch, parentBranch);
     if (forkPoint != null)
       return Option.some(Whitebox.invokeMethod(forkPoint, "getCoreCommit"));
     else
