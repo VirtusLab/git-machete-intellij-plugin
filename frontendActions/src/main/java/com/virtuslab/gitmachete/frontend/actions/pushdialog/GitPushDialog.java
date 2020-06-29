@@ -55,8 +55,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   private final boolean isForcePushRequired;
 
   @UIEffect
-  // Needed for the method MyVcsPushDialog#getPushController which can be run safely
-  // because the push controller is fully created within VcsPushDialog constructor.
   public GitPushDialog(
       Project project,
       List<? extends Repository> selectedRepositories,

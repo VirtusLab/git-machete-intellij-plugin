@@ -42,7 +42,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
             /* commits */ List.empty(),
             SyncToParentStatus.MergedToParent),
         new NonRoot(/* name */ "build-chain",
-            /* customAnnotation */ "# Green edge: branch is in sync to its parent branch",
+            /* customAnnotation */ "# Green edge: branch is in sync with its parent branch",
             nullPointedCommit,
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
@@ -50,7 +50,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
                 new Commit("First commit of build-chain")),
             SyncToParentStatus.InSync),
         new NonRoot(/* name */ "call-ws",
-            /* customAnnotation */ "# Yellow edge: Branch is in sync to its parent branch but the fork point is NOT equal to parent branch",
+            /* customAnnotation */ "# Yellow edge: Branch is in sync with its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
             /* fork point */ fp,
             /* downstreamBranches */ List.empty(),
@@ -66,7 +66,7 @@ public class DemoGitMacheteRepository implements IGitMacheteRepository {
     };
 
     var root = new Root(/* name */ "develop",
-        /* customAnnotation */ "# This is a root branch, the underline indicates that it is the current branch",
+        /* customAnnotation */ "# This is a root branch, the underline indicates that it is the currently checked out branch",
         nullPointedCommit,
         /* downstreamBranches */ List.of(nonRoots));
 

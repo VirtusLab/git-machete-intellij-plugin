@@ -80,7 +80,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     } else {
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
-          Case($(SyncToParentStatus.InSyncButForkPointOff), "in sync to its parent but fork point is off"),
+          Case($(SyncToParentStatus.InSyncButForkPointOff), "in sync with its parent but fork point is off"),
           Case($(SyncToParentStatus.MergedToParent), "merged into parent"),
           Case($(SyncToParentStatus.OutOfSync), "out of sync to its parent"),
           Case($(), "in unknown status '${syncToParentStatus.toString()}' to its parent"));

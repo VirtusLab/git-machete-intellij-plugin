@@ -16,7 +16,7 @@ public final class SyncToRemoteStatusDescriptionProvider {
         Case($(Relation.BehindRemote), "behind its remote"),
         Case($(Relation.DivergedFromAndNewerThanRemote), "diverged from (& newer than) its remote"),
         Case($(Relation.DivergedFromAndOlderThanRemote), "diverged from (& older than) its remote"),
-        Case($(Relation.InSyncToRemote), "in sync to its remote"),
+        Case($(Relation.InSyncToRemote), "in sync with its remote"),
         Case($(Relation.Untracked), "untracked"),
         Case($(), "in unknown status '${relation.toString()}' to its remote"));
     return "the branch is ${desc}";
