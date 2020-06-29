@@ -37,6 +37,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -56,7 +57,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   @UIEffect
   // Needed for the method MyVcsPushDialog#getPushController which can be run safely
   // because the push controller is fully created within VcsPushDialog constructor.
-  @SuppressWarnings("nullness:method.invocation.invalid")
   public GitPushDialog(
       Project project,
       List<? extends Repository> selectedRepositories,
@@ -83,7 +83,7 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   private static final class MyVcsPushDialog extends VcsPushDialog {
 
-    private final @UnknownInitialization GitPushDialog dialog;
+    private final @NotOnlyInitialized GitPushDialog dialog;
 
     @UIEffect
     MyVcsPushDialog(
@@ -98,8 +98,15 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
       this.dialog = dialog;
     }
 
-    public PushController getPushController() {
+    public PushController getPushController(@UnknownInitialization(VcsPushDialog.class) MyVcsPushDialog this) {
       return myController;
+    }
+
+    @Override
+    @UIEffect
+    @SuppressWarnings("nullness:method.invocation.invalid")
+    public void updateOkActions(@UnknownInitialization(VcsPushDialog.class) MyVcsPushDialog this) {
+      super.updateOkActions();
     }
 
     @Override
@@ -110,7 +117,7 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
     @Override
     @UIEffect
-    public JRootPane getRootPane(MyVcsPushDialog this) {
+    public JRootPane getRootPane() {
       return dialog.getRootPane();
     }
   }
@@ -167,7 +174,7 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public JRootPane getRootPane(GitPushDialog this) {
+  public JRootPane getRootPane() {
     return super.getRootPane();
   }
 
@@ -185,7 +192,7 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public boolean canPush(GitPushDialog this) {
+  public boolean canPush() {
     return pushController.isPushAllowed();
   }
 
@@ -300,11 +307,11 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   @Override
-  public @Nullable VcsPushOptionValue getAdditionalOptionValue(GitPushDialog this, PushSupport support) {
+  public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
     return null;
   }
 
-  private String getPushActionName(GitPushDialog this) {
+  private String getPushActionName() {
     return isForcePushRequired ? "Force _Push" : "_Push";
   }
 
