@@ -471,6 +471,8 @@ File resolveIdeaCommunity(String version) {
 }
 
 runIde {
+  maxHeapSize = '2G'
+
   // gradle-intellij-plugin doesn't have native support for building and running against different IntelliJ versions,
   // hence a little workaround is needed; see https://github.com/JetBrains/gradle-intellij-plugin/issues/450 for details
   if (intellijVersions.runIdeTarget != intellijVersions.buildTarget) {
@@ -479,6 +481,8 @@ runIde {
 }
 
 runIdeForUiTests {
+  maxHeapSize = '2G'
+
   if (intellijVersions.runIdeTarget != intellijVersions.buildTarget) {
     ideDirectory resolveIdeaCommunity(intellijVersions.runIdeTarget)
   }
