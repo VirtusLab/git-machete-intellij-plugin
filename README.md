@@ -6,6 +6,7 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete) into a
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
+![](demo-workflow.gif)
 
 ## Logging
 
