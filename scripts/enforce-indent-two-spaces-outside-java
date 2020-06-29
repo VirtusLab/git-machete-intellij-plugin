@@ -20,7 +20,7 @@ EOF
 )"
 
 exit_code=0
-for file in $(git ls-files ':!*.flex' ':!gradlew' ':!*.java' ':!scripts/setup-multiroot-sandbox' ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml'); do
+for file in $(git ls-files ':!*.flex' ':!gradlew' ':!*.java' ':!scripts/setup-multiroot-sandbox' ':!*.svg' ':!verifier.gradle' ':!testCommon/src/test/resources/*.sh' ':!*.xml'); do
   awk -v "file=$file" "$awk_script" < "$file" || exit_code=1
 done
 exit $exit_code

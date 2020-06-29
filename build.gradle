@@ -449,7 +449,7 @@ patchPluginXml {
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 
-apply from: 'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
+apply from: 'verifier.gradle'
 
 runPluginVerifier {
   pluginFileName = "${intellij.pluginName}-${version}"
