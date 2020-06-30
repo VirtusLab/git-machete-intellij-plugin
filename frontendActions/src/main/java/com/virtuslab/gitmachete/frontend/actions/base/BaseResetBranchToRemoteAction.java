@@ -47,7 +47,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
   @Override
   public String getActionName() {
-    return "Reset";
+    return "Reset to Remote";
   }
 
   @Override
@@ -70,7 +70,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.get())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
-        anActionEvent.getPresentation().setText("Re_set Branch to Remote");
+        anActionEvent.getPresentation().setText("Re_set to Remote");
       }
     }
   }
