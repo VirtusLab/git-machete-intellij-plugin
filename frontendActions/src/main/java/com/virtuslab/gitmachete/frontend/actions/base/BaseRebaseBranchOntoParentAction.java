@@ -97,6 +97,12 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         IGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
         presentation.setDescription("Rebase '${branch.get().getName()}' onto '${upstream.getName()}'");
       }
+
+      var isRebasingCurrent = branch.isDefined() && getCurrentBranchNameIfManaged(anActionEvent)
+          .map(bn -> bn.equals(branch.get().getName())).getOrElse(false);
+      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
+        presentation.setText("_Rebase Branch onto Parent");
+      }
     }
   }
 

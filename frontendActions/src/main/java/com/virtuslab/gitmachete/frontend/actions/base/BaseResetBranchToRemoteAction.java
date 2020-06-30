@@ -27,6 +27,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -63,6 +64,15 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
+
+    var branch = getNameOfBranchUnderAction(anActionEvent);
+    if (branch.isDefined()) {
+      var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+          .map(bn -> bn.equals(branch.get())).getOrElse(false);
+      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
+        anActionEvent.getPresentation().setText("Re_set Branch to Remote");
+      }
+    }
   }
 
   @Override
