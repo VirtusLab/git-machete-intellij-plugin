@@ -29,10 +29,10 @@ public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements 
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
-    // This is a hack necessary to create an immutable cyclic structure (children pointing at the parent & parent
-    // pointing at the children).
+    // This is a hack necessary to create an immutable cyclic structure
+    // (children pointing at the parent & parent pointing at the children).
     // This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
-    // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepository).
+    // upstream data somewhere outside of GitMacheteBranch (e.g. in GitMacheteRepositorySnapshot).
     for (GitMacheteNonRootBranch branch : downstreamBranches) {
       branch.setUpstreamBranch(this);
     }

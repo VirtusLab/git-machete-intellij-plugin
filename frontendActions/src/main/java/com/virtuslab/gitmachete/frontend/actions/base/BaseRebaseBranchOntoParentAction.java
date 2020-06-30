@@ -22,7 +22,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -125,17 +125,17 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
-    var gitMacheteRepository = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent);
+    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
 
-    if (gitRepository.isDefined() && gitMacheteRepository.isDefined()) {
-      doRebase(project, gitRepository.get(), gitMacheteRepository.get(), branchToRebase);
+    if (gitRepository.isDefined() && gitMacheteRepositorySnapshot.isDefined()) {
+      doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot.get(), branchToRebase);
     }
   }
 
   private void doRebase(
       Project project,
       GitRepository gitRepository,
-      IGitMacheteRepository gitMacheteRepository,
+      IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       IGitMacheteNonRootBranch branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
@@ -163,7 +163,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         new GitFreezingProcess(project, myTitle, () -> {
           LOG.info("Executing machete-pre-rebase hook");
           wrapper.hookResult = Try
-              .of(() -> gitMacheteRepository.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
+              .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
         }).execute();
         var hookResult = wrapper.hookResult;
 

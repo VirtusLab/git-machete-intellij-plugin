@@ -9,17 +9,17 @@ import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreBranch;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
-public class BaseGitMacheteRepositoryFactoryTestSuite {
+public class BaseGitMacheteRepositoryTestSuite {
 
   private static final Class<?> AUX_CLASS = getAuxClass();
 
   @SneakyThrows
   private static Class<?> getAuxClass() {
-    return Whitebox.getInnerClassType(GitMacheteRepositoryFactory.class, "CreateGitMacheteRepositoryAux");
+    return Whitebox.getInnerClassType(GitMacheteRepository.class, "CreateGitMacheteRepositoryAux");
   }
 
   protected final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);

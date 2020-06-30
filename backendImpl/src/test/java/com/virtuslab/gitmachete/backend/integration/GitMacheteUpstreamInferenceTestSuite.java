@@ -12,19 +12,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 
 @RunWith(Parameterized.class)
 public class GitMacheteUpstreamInferenceTestSuite extends BaseGitRepositoryBackedTestSuite {
 
-  private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
-  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
   private final IGitMacheteRepository gitMacheteRepository;
+  private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
+
   private final String forBranch;
   private final String expectedUpstream;
 
@@ -45,16 +45,18 @@ public class GitMacheteUpstreamInferenceTestSuite extends BaseGitRepositoryBacke
     this.forBranch = forBranch;
     this.expectedUpstream = expectedUpstream;
 
-    IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
-    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
+    var branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    var branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
+
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
+    gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
   }
 
   @Test
   @SneakyThrows
   public void upstreamIsCorrectlyInferred() {
-    var managedBranchNames = gitMacheteRepository.getManagedBranches().map(b -> b.getName()).toSet();
-    var result = gitMacheteRepositoryFactory.inferUpstreamForLocalBranch(
-        repositoryMainDir, repositoryGitDir, managedBranchNames, forBranch);
+    var managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
+    var result = gitMacheteRepository.inferUpstreamForLocalBranch(managedBranchNames, forBranch);
     Assert.assertTrue(result.isDefined());
     Assert.assertEquals(expectedUpstream, result.get());
   }

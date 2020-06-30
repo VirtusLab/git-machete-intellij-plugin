@@ -8,7 +8,7 @@ echo "<$file_count files>"
 EOF
 )
 
-# All functions defined here are guaranteed to preserve the original working directory.
+# All functions defined here are guaranteed to preserve the original current working directory.
 
 newrepo() {
   if (( $# < 1 )); then

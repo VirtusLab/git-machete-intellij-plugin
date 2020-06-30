@@ -5,12 +5,12 @@ import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 
-public final class NullRepository implements IGitMacheteRepository {
-  private static final NullRepository instance = new NullRepository();
+public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
+  private static final NullGitMacheteRepositorySnapshot instance = new NullGitMacheteRepositorySnapshot();
 
-  private NullRepository() {}
+  private NullGitMacheteRepositorySnapshot() {}
 
-  public static IGitMacheteRepository getInstance() {
+  public static IGitMacheteRepositorySnapshot getInstance() {
     return instance;
   }
 

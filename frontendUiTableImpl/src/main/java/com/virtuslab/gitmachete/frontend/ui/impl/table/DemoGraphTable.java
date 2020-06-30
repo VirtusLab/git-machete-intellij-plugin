@@ -17,8 +17,8 @@ public final class DemoGraphTable extends JBTable {
   @UIEffect
   private static DemoGraphTable deriveInstance() {
     var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var gitMacheteRepository = new DemoGitMacheteRepository();
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepository, /* isListingCommits */ true);
+    var gitMacheteRepositorySnapshot = new DemoGitMacheteRepositorySnapshot();
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, /* isListingCommits */ true);
     var graphTableModel = new GraphTableModel(repositoryGraph);
     return new DemoGraphTable(graphTableModel);
   }

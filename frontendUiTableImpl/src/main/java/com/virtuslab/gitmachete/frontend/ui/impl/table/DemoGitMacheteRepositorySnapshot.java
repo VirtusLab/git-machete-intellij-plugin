@@ -19,18 +19,18 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class DemoGitMacheteRepository implements IGitMacheteRepository {
+public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
   private final List<IGitMacheteRootBranch> roots;
 
-  public DemoGitMacheteRepository() {
+  public DemoGitMacheteRepositorySnapshot() {
     var nullPointedCommit = new Commit("");
     var fp = new FpCommit("Fork point commit");
     NonRoot[] nonRoots = {

@@ -18,11 +18,7 @@ public final class PreRebaseHookExecutor {
   private final File mainDirectory;
   private final File hookFile;
 
-  public static PreRebaseHookExecutor of(Path mainDirectoryPath, Path gitDirectoryPath) {
-    return new PreRebaseHookExecutor(mainDirectoryPath, gitDirectoryPath);
-  }
-
-  private PreRebaseHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
+  public PreRebaseHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
     this.mainDirectory = mainDirectoryPath.toFile();
     // TODO (#289): first take `git config core.hooksPath` into account; possibly JGit has a helper for that
     this.hookFile = gitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase").toFile();

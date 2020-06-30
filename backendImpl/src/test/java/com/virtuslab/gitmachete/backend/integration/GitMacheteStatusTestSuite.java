@@ -32,10 +32,11 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryFactory;
+import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 
 @RunWith(Parameterized.class)
@@ -43,11 +44,11 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
 
   public static final String CLI_REFERENCE_VERSION = "2.14.0";
 
-  private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
-
-  private IGitMacheteRepository gitMacheteRepository;
+  private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
+  private final IGitMacheteRepository gitMacheteRepository;
+  private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @BeforeClass
   @SneakyThrows
@@ -78,8 +79,10 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     };
   }
 
+  @SneakyThrows
   public GitMacheteStatusTestSuite(String scriptName) {
     super(scriptName);
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
   }
 
   @Test
@@ -88,8 +91,8 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     String gitMacheteCliStatus = gitMacheteCliStatus();
 
     IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
-    gitMacheteRepository = gitMacheteRepositoryFactory.create(repositoryMainDir, repositoryGitDir, branchLayout);
-    String ourStatus = ourGitMacheteRepositoryAsString();
+    gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
+    String ourStatus = ourGitMacheteRepositorySnapshotAsString();
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
@@ -105,8 +108,8 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   public void discoversSameLayoutAsCli() {
     String gitMacheteCliDiscoverOutput = gitMacheteCliDiscover();
 
-    gitMacheteRepository = gitMacheteRepositoryFactory.discover(repositoryMainDir, repositoryGitDir);
-    String ourDiscoverOutput = ourGitMacheteRepositoryAsString();
+    gitMacheteRepositorySnapshot = gitMacheteRepository.discoverLayoutAndCreateSnapshot();
+    String ourDiscoverOutput = ourGitMacheteRepositorySnapshotAsString();
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliDiscoverOutput);
@@ -151,9 +154,9 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
         .mkString(System.lineSeparator());
   }
 
-  private String ourGitMacheteRepositoryAsString() {
+  private String ourGitMacheteRepositorySnapshotAsString() {
     var sb = new StringBuilder();
-    var branches = gitMacheteRepository.getRootBranches();
+    var branches = gitMacheteRepositorySnapshot.getRootBranches();
     int lastRootBranchIndex = branches.size() - 1;
     for (int currentRootBranch = 0; currentRootBranch <= lastRootBranchIndex; currentRootBranch++) {
       var b = branches.get(currentRootBranch);
@@ -223,7 +226,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   private void printCommonParts(IGitMacheteBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
     sb.append(branch.getName());
 
-    var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
+    var currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
     if (currBranch.isDefined() && currBranch.get() == branch)
       sb.append(" *");
 

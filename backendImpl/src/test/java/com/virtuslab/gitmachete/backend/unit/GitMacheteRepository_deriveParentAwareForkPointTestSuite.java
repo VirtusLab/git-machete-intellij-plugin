@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
 
-public class GitMacheteRepositoryFactory_deriveParentAwareForkPointTestSuite extends BaseGitMacheteRepositoryFactoryTestSuite {
+public class GitMacheteRepository_deriveParentAwareForkPointTestSuite extends BaseGitMacheteRepositoryTestSuite {
 
   @SneakyThrows
   private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(

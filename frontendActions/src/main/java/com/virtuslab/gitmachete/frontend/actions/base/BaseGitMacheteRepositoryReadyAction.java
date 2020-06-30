@@ -14,7 +14,7 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends DumbAwareActio
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    boolean isEnabled = getGitMacheteRepository(anActionEvent).isDefined();
+    boolean isEnabled = getGitMacheteRepositorySnapshot(anActionEvent).isDefined();
     anActionEvent.getPresentation().setEnabled(isEnabled);
 
     if (!isEnabled) {
