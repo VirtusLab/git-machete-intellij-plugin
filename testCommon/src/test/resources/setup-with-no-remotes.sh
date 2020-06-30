@@ -23,7 +23,7 @@ newrepo machete-sandbox
   newb call-ws
     cmt Call web service
     cmt 1st round of fixes
-  newb drop-constraint # not added to definition file
+  newb drop-constraint
     cmt Drop unneeded SQL constraints
   git checkout call-ws
     cmt 2nd round of fixes
@@ -35,6 +35,7 @@ newrepo machete-sandbox
       allow-ownership-link PR #123
           build-chain PR #124
       call-ws
+          drop-constraint
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
 )

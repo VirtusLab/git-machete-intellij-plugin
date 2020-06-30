@@ -12,6 +12,7 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.SneakyThrows;
 import org.junit.Assert;
@@ -109,14 +110,17 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
 
   private void printRootBranch(IGitMacheteRootBranch branch, StringBuilder sb) {
     sb.append("  ");
-    printCommonParts(branch, /* level */ 0, sb);
+    printCommonParts(branch, /* path */ List.empty(), sb);
   }
 
-  private void printNonRootBranch(IGitMacheteNonRootBranch branch, int level, StringBuilder sb) {
+  private void printNonRootBranch(IGitMacheteNonRootBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
+    String prefix = path.init()
+        .map(anc -> anc == anc.getUpstreamBranch().getDownstreamBranches().last() ? "  " : "| ")
+        .mkString();
+
     sb.append("  ");
-
-    sb.append("| ".repeat(level));
-
+    sb.append(prefix);
+    sb.append("| ");
     sb.append(System.lineSeparator());
 
     var commits = branch.getCommits().reverse();
@@ -124,7 +128,9 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
 
     for (var c : commits) {
       sb.append("  ");
-      sb.append("| ".repeat(level));
+      sb.append(prefix);
+      sb.append("| ");
+
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
         sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
@@ -141,7 +147,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     }
 
     sb.append("  ");
-    sb.append("| ".repeat(level - 1));
+    sb.append(prefix);
 
     var parentStatus = branch.getSyncToParentStatus();
     if (parentStatus == SyncToParentStatus.InSync)
@@ -154,10 +160,10 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
       sb.append("m");
     sb.append("-");
 
-    printCommonParts(branch, level, sb);
+    printCommonParts(branch, path, sb);
   }
 
-  private void printCommonParts(IGitMacheteBranch branch, int level, StringBuilder sb) {
+  private void printCommonParts(IGitMacheteBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepository.getCurrentBranchIfManaged();
@@ -190,8 +196,8 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     }
     sb.append(System.lineSeparator());
 
-    for (var b : branch.getDownstreamBranches()) {
-      printNonRootBranch(b, /* level */ level + 1, sb);
+    for (var downstreamBranch : branch.getDownstreamBranches()) {
+      printNonRootBranch(downstreamBranch, path.append(downstreamBranch), sb);
     }
   }
 }
