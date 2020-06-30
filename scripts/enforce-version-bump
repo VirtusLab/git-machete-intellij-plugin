@@ -24,12 +24,12 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads)
   base_revision="origin/$(hub pr show --format=%B "$pr_num")"
 
-elif [[ ${CIRCLE_BRANCH-} == develop || ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
-  # Develop, hotfix or release build on CI, let's compare to master.
+elif [[ ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
+  # Release or hotfix build on CI, let's compare to master.
   base_revision=origin/master
 
-elif [[ ${CIRCLE_BRANCH-} == master ]]; then
-  # Master build on CI, no version check needed.
+elif [[ ${CIRCLE_BRANCH-} == master || ${CIRCLE_BRANCH-} == develop ]]; then
+  # Master or develop build on CI, no version check needed.
   exit 0
 
 elif [[ ${CIRCLE_BRANCH-} ]]; then  # including backport/*

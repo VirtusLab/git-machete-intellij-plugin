@@ -37,9 +37,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.initialization.qual.Initialized;
-import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
@@ -65,30 +63,25 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     this.isForcePushRequired = isForcePushRequired;
     this.project = project;
 
-    @SuppressWarnings("nullness:assignment.type.incompatible") @Initialized MyVcsPushDialog dialog = new MyVcsPushDialog(this,
-        project, selectedRepositories.asJava(), pushSource);
+    MyVcsPushDialog dialog = new MyVcsPushDialog(project, selectedRepositories.asJava(), pushSource);
     this.pushController = dialog.getPushController();
     this.listPanel = pushController.getPushPanelLog();
 
-    @SuppressWarnings("nullness:assignment.type.incompatible") @Initialized Action action = new PushSwingAction(this,
-        isForcePushRequired);
-    this.pushAction = action;
+    this.pushAction = new PushSwingAction();
+    this.pushAction.putValue(DEFAULT_ACTION, Boolean.TRUE);
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
     dialog.updateOkActions();
-    setOKButtonText(getPushActionName(isForcePushRequired));
+    setOKButtonText(getPushActionName());
     setTitle("Push Commits");
     init();
   }
 
-  private static class MyVcsPushDialog extends VcsPushDialog {
-
-    private final @NotOnlyInitialized GitPushDialog outer;
+  private class MyVcsPushDialog extends VcsPushDialog {
 
     @UIEffect
     MyVcsPushDialog(
-        @UnderInitialization GitPushDialog outer,
         Project project,
         java.util.List<? extends Repository> selectedRepositories,
         PushSource pushSource) {
@@ -96,7 +89,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
       // The second and the third one have higher priority of loading its commits.
       // From our perspective, we always have single (pre-selected) repository so we do not care about the priority.
       super(project, selectedRepositories, selectedRepositories, /* currentRepo */ null, pushSource);
-      this.outer = outer;
     }
 
     public PushController getPushController() {
@@ -112,13 +104,13 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     @Override
     @UIEffect
     public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
-      return outer.getAdditionalOptionValue(support);
+      return GitPushDialog.this.getAdditionalOptionValue(support);
     }
 
     @Override
     @UIEffect
-    public JRootPane getRootPane() {
-      return outer.getRootPane();
+    public @Nullable JRootPane getRootPane(@UnknownInitialization MyVcsPushDialog this) {
+      return GitPushDialog.this.getRootPane();
     }
   }
 
@@ -174,14 +166,14 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
 
   @Override
   @UIEffect
-  public JRootPane getRootPane() {
+  public @Nullable JRootPane getRootPane(@UnknownInitialization GitPushDialog this) {
     return super.getRootPane();
   }
 
   @Override
   @UIEffect
   protected void doOKAction() {
-    push(isForcePushRequired);
+    push();
   }
 
   @Override
@@ -223,6 +215,11 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
             pushController.push(forcePush);
           }
         });
+  }
+
+  @UIEffect
+  private void push() {
+    push(isForcePushRequired);
   }
 
   @Override
@@ -311,28 +308,21 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     return null;
   }
 
-  private static String getPushActionName(boolean isForcePushRequired) {
+  private String getPushActionName() {
     return isForcePushRequired ? "Force _Push" : "_Push";
   }
 
-  private static final class PushSwingAction extends AbstractAction {
-
-    private final @NotOnlyInitialized VcsPushUi vcsPushUi;
-    private final boolean isForcePushRequired;
+  private class PushSwingAction extends AbstractAction {
 
     @UIEffect
-    private PushSwingAction(@UnderInitialization VcsPushUi vcsPushUi, boolean isForcePushRequired) {
-      super(getPushActionName(isForcePushRequired));
-      this.vcsPushUi = vcsPushUi;
-      this.isForcePushRequired = isForcePushRequired;
-
-      putValue(DEFAULT_ACTION, Boolean.TRUE);
+    PushSwingAction() {
+      super(getPushActionName());
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      vcsPushUi.push(/* forcePush */ isForcePushRequired);
+      push();
     }
   }
 }

@@ -117,7 +117,7 @@ jobs:
           command: |
             source scripts/utils.sh
             version=$(extract_version_from_current_wd)
-            branch=backport/$version
+            branch=backport/v$version
             git checkout -b "$branch"
             git push origin "$branch"
             hub pull-request \
@@ -127,7 +127,7 @@ jobs:
               --labels=backport
       - deploy:
           name: Publish plugin to Jetbrains Marketplace
-          command: ./gradlew publishPlugin
+          command: ./gradlew --max-workers=2 publishPlugin
 
 
 workflows:

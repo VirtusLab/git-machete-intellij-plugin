@@ -210,6 +210,13 @@ package com.intellij.openapi.project;
 @UIPackage package com.intellij.openapi.roots.ui.configuration.libraryEditor;
 @UIPackage package com.intellij.openapi.roots.ui.util;
 @UIPackage package com.intellij.openapi.ui;
+
+class DialogWrapper {
+  // `this` in the below method is @UnknownInitialization since this methods is called from DialogWrapper's c'tor
+  @Nullable javax.swing.JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
+}
+
+
 @UIPackage package com.intellij.openapi.ui.cellvalidators;
 @UIPackage package com.intellij.openapi.ui.dialogs;
 @UIPackage package com.intellij.openapi.ui.messages;
