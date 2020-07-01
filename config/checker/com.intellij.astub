@@ -9,6 +9,11 @@ import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @UIPackage package com.intellij.application.options;
+
+@AlwaysSafe
+class CodeStyle {}
+
+
 @UIPackage package com.intellij.build;
 @UIPackage package com.intellij.codeHighlighting;
 @UIPackage package com.intellij.codeInsight.daemon;

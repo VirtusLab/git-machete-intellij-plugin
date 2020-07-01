@@ -1,11 +1,14 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import io.vavr.control.Option;
 import lombok.Data;
 
@@ -65,6 +68,14 @@ public class MacheteAnnotator implements Annotator {
     boolean hasPrevLevelCorrectWidth;
 
     IndentationParameters indentationParameters = findIndentationParameters(element);
+
+    // Potentially unrelated - it's responsible to change default TAB key behavior
+    // (insert real TAB or insert some number of spaces) depending on detected file indentation.
+    // In case of space insertion indent width (size) is also set
+    CodeStyleSettings codeStyleSettings = CodeStyle.getSettings(element.getContainingFile());
+    CommonCodeStyleSettings.IndentOptions indentOptions = codeStyleSettings.getIndentOptions();
+    indentOptions.USE_TAB_CHARACTER = indentationParameters.getIndentationCharacter() == '\t';
+    indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
 
     var prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
     if (prevIndentationNodeOption.isEmpty()) {
