@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 /**
  * An immutable snapshot of an {@link IGitMacheteRepository} for some specific moment in time.
@@ -20,5 +21,6 @@ public interface IGitMacheteRepositorySnapshot {
 
   Option<IGitMacheteBranch> getManagedBranchByName(String branchName);
 
-  Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException;
+  Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
+      throws GitMacheteException;
 }

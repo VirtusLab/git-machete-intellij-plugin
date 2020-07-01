@@ -25,6 +25,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -36,6 +37,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       IBranchNameProvider,
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository {
+  private static final String NL = System.lineSeparator();
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -158,7 +160,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       public void run(ProgressIndicator indicator) {
 
         var wrapper = new Object() {
-          Try<Option<Integer>> hookResult = Try.success(Option.none());
+          Try<Option<IExecutionResult>> hookResult = Try.success(Option.none());
         };
         new GitFreezingProcess(project, myTitle, () -> {
           LOG.info("Executing machete-pre-rebase hook");
@@ -168,17 +170,25 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         var hookResult = wrapper.hookResult;
 
         if (hookResult.isFailure()) {
-          var message = "machete-pre-rebase hook refused to rebase (error: ${hookResult.getCause().getMessage()})";
+          var message = "machete-pre-rebase hook refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
           VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
           return;
         }
 
-        var maybeExitCode = hookResult.get();
-        if (maybeExitCode.isDefined() && maybeExitCode.get() != 0) {
-          var message = "machete-pre-rebase hook refused to rebase (exit code ${maybeExitCode.get()})";
+        var maybeExecutionResult = hookResult.get();
+        if (maybeExecutionResult.isDefined() && maybeExecutionResult.get().getExitCode() != 0) {
+          var message = "machete-pre-rebase hook refused to rebase (exit code ${maybeExecutionResult.get().getExitCode()})";
           LOG.error(message);
-          VcsNotifier.getInstance(project).notifyError("Rebase aborted", message);
+          var executionResult = maybeExecutionResult.get();
+          var stdoutOption = executionResult.getStdout();
+          var stderrOption = executionResult.getStderr();
+          VcsNotifier.getInstance(project).notifyError(
+              "Rebase aborted", message
+                  + (stdoutOption.isDefined() && !stdoutOption.get().isBlank() ? NL + "stdout:" + NL + stdoutOption.get() : "")
+                  + (stderrOption.isDefined() && !stderrOption.get().isBlank()
+                      ? NL + "stderr:" + NL + stderrOption.get()
+                      : ""));
           return;
         }
 

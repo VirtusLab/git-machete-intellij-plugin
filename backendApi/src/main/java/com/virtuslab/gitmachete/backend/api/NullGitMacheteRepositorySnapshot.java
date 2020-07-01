@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
   private static final NullGitMacheteRepositorySnapshot instance = new NullGitMacheteRepositorySnapshot();
@@ -40,7 +41,7 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
     return Option.none();
   }
 }

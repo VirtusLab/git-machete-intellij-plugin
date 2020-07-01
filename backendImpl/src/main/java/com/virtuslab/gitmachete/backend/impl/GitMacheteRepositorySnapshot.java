@@ -13,6 +13,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   }
 
   @Override
-  public Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
+  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException {
     return preRebaseHookExecutor.executeHookFor(gitRebaseParameters);
   }

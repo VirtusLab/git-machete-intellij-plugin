@@ -25,6 +25,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
@@ -107,7 +108,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
     return Option.none();
   }
 
