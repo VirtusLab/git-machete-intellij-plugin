@@ -29,7 +29,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
-    return "Pull";
+    return "P_ull";
   }
 
   @Override

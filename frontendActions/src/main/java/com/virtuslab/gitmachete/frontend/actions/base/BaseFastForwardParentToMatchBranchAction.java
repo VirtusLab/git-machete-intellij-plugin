@@ -71,7 +71,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (syncToParentStatus == SyncToParentStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Fast Forward Parent To Match Current Branch");
+        presentation.setText("_Fast Forward Parent To Match Current Branch");
       }
 
       var parentName = gitMacheteNonRoot.getUpstreamBranch().getName();

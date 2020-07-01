@@ -34,6 +34,11 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
+    return "_Push";
+  }
+
+  @Override
+  public String getDescriptionActionName() {
     return "Push";
   }
 

@@ -444,7 +444,8 @@ patchPluginXml {
   sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupported)
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  untilBuild '202.*'
+  untilBuild intellijVersionToBuildNumber(intellijVersions.current) + '.*'
+
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 

@@ -47,7 +47,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
   @Override
   public String getActionName() {
-    return "Reset to Remote";
+    return "Re_set to Remote";
   }
 
   @Override
