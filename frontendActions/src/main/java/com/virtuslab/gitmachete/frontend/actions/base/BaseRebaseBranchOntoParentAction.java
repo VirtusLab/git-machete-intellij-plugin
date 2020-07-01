@@ -185,10 +185,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           var stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(
               "Rebase aborted", message
-                  + (stdoutOption.isDefined() && !stdoutOption.get().isBlank() ? NL + "stdout:" + NL + stdoutOption.get() : "")
-                  + (stderrOption.isDefined() && !stderrOption.get().isBlank()
-                      ? NL + "stderr:" + NL + stderrOption.get()
-                      : ""));
+                  + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
+                  + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
         }
 
