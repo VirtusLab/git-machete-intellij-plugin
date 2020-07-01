@@ -12,10 +12,13 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import java.util.concurrent.TimeUnit;
+
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.SneakyThrows;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -38,11 +41,30 @@ import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
 @RunWith(Parameterized.class)
 public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite {
 
+  public static final String CLI_REFERENCE_VERSION = "2.14.0";
+
   private final GitMacheteRepositoryFactory gitMacheteRepositoryFactory = new GitMacheteRepositoryFactory();
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
 
   private IGitMacheteRepository gitMacheteRepository;
+
+  @BeforeClass
+  @SneakyThrows
+  public static void verifyCliVersion() {
+    var process = new ProcessBuilder().command("git", "machete", "--version").start();
+    process.waitFor(1, TimeUnit.SECONDS);
+    var exitValue = process.exitValue();
+    if (exitValue != 0) {
+      Assert.fail("git-machete CLI is not installed");
+    }
+    var version = new String(process.getInputStream().readAllBytes())
+        .stripTrailing()
+        .replace("git-machete version ", "");
+    if (!version.equals(CLI_REFERENCE_VERSION)) {
+      Assert.fail("git-machete is expected in version ${CLI_REFERENCE_VERSION}, found ${version}");
+    }
+  }
 
   @Parameters(name = "{0} (#{index})")
   public static String[] getScriptNames() {
@@ -60,7 +82,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
     super(scriptName);
   }
 
-  //@Test
+  @Test
   @SneakyThrows
   public void yieldsSameStatusAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatus();

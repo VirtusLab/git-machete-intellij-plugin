@@ -24,6 +24,7 @@ import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.With;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
@@ -706,16 +707,28 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
 
     @AllArgsConstructor // needed for @With
     @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withSubentries` method
+    @ToString(callSuper = false)
     @UsesObjectEquals
     private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
       @Getter
+      @ToString.Include
       private final String name;
 
       @Getter
       @With
       private List<IBranchLayoutEntry> subentries;
 
+      @ToString.Include(name = "subentries") // avoid recursive `toString` calls on subentries
+      private List<String> getSubentryNames() {
+        return subentries.map(e -> e.getName());
+      }
+
       private @NotOnlyInitialized MyBranchLayoutEntry root;
+
+      @ToString.Include(name = "root") // avoid recursive `toString` call on root to avoid stack overflow
+      private String getRootName() {
+        return root.getName();
+      }
 
       MyBranchLayoutEntry(String name) {
         this.name = name;
@@ -746,36 +759,44 @@ public class GitMacheteRepositoryFactory implements IGitMacheteRepositoryFactory
       }
     }
 
-    IGitMacheteRepository discoverGitMacheteRepository() throws GitMacheteException, GitCoreException {
+    IGitMacheteRepository discoverGitMacheteRepository() throws GitMacheteException {
       SortedMap<String, MyBranchLayoutEntry> entryByBranchName = localBranches.map(lb -> lb.getName())
           .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
       List<IBranchLayoutEntry> roots = List.empty();
 
       for (var branchEntry : entryByBranchName.values()) {
-        Seq<String> upstreamCandidates = entryByBranchName.values().filter(e -> e.getRoot() != branchEntry)
+        Seq<String> upstreamCandidates = entryByBranchName.values()
+            .filter(e -> e.getRoot() != branchEntry)
             .map(e -> e.getName());
-        LOG.info(() -> "Upstream candidates for ${branchEntry.getName()} are ${upstreamCandidates.mkString(\", \")}");
+        LOG.debug(() -> "Upstream candidates for ${branchEntry.getName()} are ${upstreamCandidates.mkString(\", \")}");
 
-        String upstreamName = inferUpstreamForLocalBranch(
-            upstreamCandidates.toSet(),
-            branchEntry.getName()).getOrNull();
+        String upstreamName;
+        try {
+          upstreamName = inferUpstreamForLocalBranch(upstreamCandidates.toSet(), branchEntry.getName()).getOrNull();
+        } catch (GitCoreException e) {
+          throw new GitMacheteException(e);
+        }
 
         if (upstreamName != null) {
-          LOG.info(() -> "Upstream inferred for ${branchEntry.getName()} is ${upstreamName}");
+          LOG.debug(() -> "Upstream inferred for ${branchEntry.getName()} is ${upstreamName}");
 
           var upstreamEntry = entryByBranchName.get(upstreamName).getOrNull();
+          // Generally we expect an entry for upstreamName to always be present.
           if (upstreamEntry != null) {
             branchEntry.attachUnder(upstreamEntry);
             upstreamEntry.appendSubentry(branchEntry);
           }
         } else {
-          LOG.info(() -> "No upstream inferred for ${branchEntry.getName()}; attaching as new root");
+          LOG.debug(() -> "No upstream inferred for ${branchEntry.getName()}; attaching as new root");
 
           roots = roots.append(branchEntry);
         }
       }
+
+      var NL = System.lineSeparator();
+      LOG.debug(() -> "Final discovered entries: " + NL + entryByBranchName.values().mkString(NL));
+
       return createGitMacheteRepository(new BranchLayout(roots));
     }
-
   }
 }

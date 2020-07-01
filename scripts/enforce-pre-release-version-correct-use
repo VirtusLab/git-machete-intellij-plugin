@@ -10,7 +10,7 @@ parse_version_from_current_wd head
 if [[ ${CIRCLE_BRANCH-} ]]; then
   cb=$CIRCLE_BRANCH
 else
-  cb=$(git symbolic-ref --short HEAD)
+  cb=$(git symbolic-ref --short HEAD 2>/dev/null || true)  # just an empty string in case of detached HEAD
 fi
 
 if [[ $cb == master || $cb == release/* || $cb == hotfix/* || $cb == backport/* ]]; then
