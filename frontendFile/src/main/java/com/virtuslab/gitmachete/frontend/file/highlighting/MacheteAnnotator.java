@@ -69,9 +69,11 @@ public class MacheteAnnotator implements Annotator {
 
     IndentationParameters indentationParameters = findIndentationParameters(element);
 
-    // Potentially unrelated - it's responsible to change default TAB key behavior
+    // Potentially unrelated - it's responsible of changing default TAB key behavior
     // (insert real TAB or insert some number of spaces) depending on detected file indentation.
     // In case of space insertion indent width (size) is also set
+    // This is not the best place for this action (because it is unnecessarily invoked on every
+    // indentation element processing) but for now we can't find better place
     CodeStyleSettings codeStyleSettings = CodeStyle.getSettings(element.getContainingFile());
     CommonCodeStyleSettings.IndentOptions indentOptions = codeStyleSettings.getIndentOptions();
     indentOptions.USE_TAB_CHARACTER = indentationParameters.getIndentationCharacter() == '\t';

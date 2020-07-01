@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.base;
+package com.virtuslab.gitmachete.frontend.actions.vcsmenu;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -26,7 +26,7 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject(e));
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
     if (toolWindow == null) {
-      LOG.debug(() -> "VCS tool window does not exist");
+      LOG.debug("VCS tool window does not exist");
       return;
     }
 

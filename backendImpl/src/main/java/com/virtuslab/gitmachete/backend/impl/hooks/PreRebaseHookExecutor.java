@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -60,8 +61,8 @@ public final class PreRebaseHookExecutor {
     pb.directory(mainDirectory);
 
     Process process;
-    String strippedStdout = null;
-    String strippedStderr = null;
+    @Nullable String strippedStdout = null;
+    @Nullable String strippedStderr = null;
     try {
       process = pb.start();
       boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);

@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 import io.vavr.control.Option;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
@@ -10,8 +11,8 @@ import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 @RequiredArgsConstructor(staticName = "of")
 public class ExecutionResult implements IExecutionResult {
   private final int exitCode;
-  private final String stdout;
-  private final String stderr;
+  private final @Nullable String stdout;
+  private final @Nullable String stderr;
 
   @Override
   public Option<String> getStdout() {
