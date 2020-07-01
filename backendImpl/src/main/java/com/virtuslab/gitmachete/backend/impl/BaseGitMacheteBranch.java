@@ -46,6 +46,18 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
     this.statusHookOutput = statusHookOutput;
   }
 
+  /**
+   * This is a hack necessary to create an immutable cyclic structure
+   * (children pointing at the parent and the parent pointing at the children).
+   * This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
+   * upstream data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
+   */
+  protected void setUpstreamForDownstreamBranches() {
+    for (GitMacheteNonRootBranch branch : downstreamBranches) {
+      branch.setUpstreamBranch(this);
+    }
+  }
+
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
