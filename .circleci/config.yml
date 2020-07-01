@@ -67,9 +67,14 @@ jobs:
       - store_test_results:
           path: uiTests/build/test-results/
 
-      - persist_to_workspace:
-          root: .
-          paths: ['*']
+      - when:
+          # No point persisting the project directory to workspace if the `release` job is not going to be executed.
+          condition:
+            equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - persist_to_workspace:
+                root: .
+                paths: ['*']
 
 
   release:

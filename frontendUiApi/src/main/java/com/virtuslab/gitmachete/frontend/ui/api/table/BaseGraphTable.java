@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.api.table;
 import javax.swing.table.AbstractTableModel;
 
 import com.intellij.ui.table.JBTable;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 public abstract class BaseGraphTable extends JBTable {
@@ -28,6 +29,12 @@ public abstract class BaseGraphTable extends JBTable {
   /**
    * Queues repository update as a background task, which in turn itself queues model refresh onto the UI thread.
    * As opposed to {@link BaseGraphTable#refreshModel}, does not need to be called from UI thread (i.e. is not {@link UIEffect}).
+   *
+   * @param doOnUIThreadWhenReady an action to execute on UI thread after the model is refreshed.
    */
-  public abstract void queueRepositoryUpdateAndModelRefresh();
+  public abstract void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady);
+
+  public final void queueRepositoryUpdateAndModelRefresh() {
+    queueRepositoryUpdateAndModelRefresh(() -> {});
+  }
 }

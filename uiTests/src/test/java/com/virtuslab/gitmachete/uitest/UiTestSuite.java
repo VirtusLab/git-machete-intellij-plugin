@@ -1,10 +1,12 @@
 package com.virtuslab.gitmachete.uitest;
 
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import com.intellij.remoterobot.RemoteRobot;
 import lombok.SneakyThrows;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,13 +42,21 @@ public class UiTestSuite extends BaseGitRepositoryBackedTestSuite {
     runJs("configureIde()");
     runJs("closeOpenedProjects()");
     runJs("openProject('" + repositoryMainDir + "')");
+    runJs("openTab(soleOpenedProject())");
 
-    int graphTableRowCount = callJs("openTabAndReturnRowCount(soleOpenedProject())");
-
+    int branchRowsCount = callJs("refreshModelAndGetRowCount(soleOpenedProject())");
     // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
     // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
-    Assert.assertEquals(6, graphTableRowCount);
+    Assert.assertEquals(6, branchRowsCount);
 
+    runJs("toggleListingCommits(soleOpenedProject())");
+    int branchAndCommitRowsCount = callJs("refreshModelAndGetRowCount(soleOpenedProject())");
+    // 6 branch rows + 7 commit rows
+    Assert.assertEquals(13, branchAndCommitRowsCount);
+  }
+
+  @After
+  public void closeIde() {
     runJs("closeIde()");
   }
 
@@ -54,7 +64,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedTestSuite {
     remoteRobot.runJs(script + statement, /* runInEdt */ false);
   }
 
-  private <T> T callJs(String expression) {
+  private <T extends Serializable> T callJs(String expression) {
     return remoteRobot.callJs(script + expression, /* runInEdt */ false);
   }
 }

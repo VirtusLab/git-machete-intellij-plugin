@@ -217,7 +217,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @Override
-  public void queueRepositoryUpdateAndModelRefresh() {
+  public void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady) {
     LOG.debug("Entering");
 
     if (!project.isDisposed()) {
@@ -232,6 +232,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepository -> {
           this.gitMacheteRepositorySnapshot = newGitMacheteRepository.getOrNull();
           refreshModel(gitRepository);
+          doOnUIThreadWhenReady.run();
         };
 
         setTextForEmptyTable("Loading...");
