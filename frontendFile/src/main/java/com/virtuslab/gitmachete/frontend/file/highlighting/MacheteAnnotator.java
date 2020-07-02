@@ -54,8 +54,10 @@ public class MacheteAnnotator implements Annotator {
     PsiFile file = macheteEntry.getContainingFile();
     var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
 
-    if (branchNamesOption.isEmpty() && !cantGetBranchesMessageWasShown) {
-      GuiUtils.invokeLaterIfNeeded(() -> showCantGetBranchesMessage(file), NON_MODAL);
+    if (branchNamesOption.isEmpty()) {
+      if (!cantGetBranchesMessageWasShown) {
+        GuiUtils.invokeLaterIfNeeded(() -> showCantGetBranchesMessage(file), NON_MODAL);
+      }
       return;
     }
     cantGetBranchesMessageWasShown = false;
