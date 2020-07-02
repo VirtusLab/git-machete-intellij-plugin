@@ -205,7 +205,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
   @UIEffect
   private void setTextForEmptyTable(String upperText) {
-    setTextForEmptyTable(upperText, null, null);
+    setTextForEmptyTable(upperText, /* lowerText */ null, /* onClickRunnable */ null);
   }
 
   @UIEffect
