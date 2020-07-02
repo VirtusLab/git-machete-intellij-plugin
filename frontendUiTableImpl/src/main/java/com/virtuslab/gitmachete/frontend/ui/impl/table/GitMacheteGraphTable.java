@@ -199,7 +199,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     var statusText = getEmptyText().setText(upperText);
     if (lowerText != null) {
       statusText.appendSecondaryText(lowerText, attrs,
-          /* listener */ (onClickRunnable != null ? __ -> onClickRunnable.run() : null));
+          /* listener */ onClickRunnable != null ? __ -> onClickRunnable.run() : null);
     }
   }
 
