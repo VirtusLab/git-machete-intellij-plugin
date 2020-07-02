@@ -77,7 +77,11 @@ public class MacheteAnnotator implements Annotator {
     CodeStyleSettings codeStyleSettings = CodeStyle.getSettings(element.getContainingFile());
     CommonCodeStyleSettings.IndentOptions indentOptions = codeStyleSettings.getIndentOptions();
     indentOptions.USE_TAB_CHARACTER = indentationParameters.getIndentationCharacter() == '\t';
-    indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
+    if (indentOptions.USE_TAB_CHARACTER) {
+      indentOptions.INDENT_SIZE = indentOptions.TAB_SIZE;
+    } else {
+      indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
+    }
 
     var prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
     if (prevIndentationNodeOption.isEmpty()) {
