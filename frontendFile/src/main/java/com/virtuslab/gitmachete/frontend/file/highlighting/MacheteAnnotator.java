@@ -1,16 +1,23 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
+import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+
 import com.intellij.application.options.CodeStyle;
+import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.ui.GuiUtils;
 import io.vavr.control.Option;
 import lombok.Data;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
@@ -19,6 +26,8 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTyp
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
 
 public class MacheteAnnotator implements Annotator {
+  private boolean cantGetBranchesMessageWasShown = false;
+
   @Override
   public void annotate(PsiElement element, AnnotationHolder holder) {
     if (element instanceof MacheteGeneratedEntry) {
@@ -28,16 +37,28 @@ public class MacheteAnnotator implements Annotator {
     }
   }
 
+  @UIEffect
+  private void showCantGetBranchesMessage(PsiFile file) {
+    Editor currentEditor = FileEditorManager.getInstance(file.getProject()).getSelectedTextEditor();
+    if (currentEditor == null) {
+      return;
+    }
+    HintManager.getInstance().showErrorHint(currentEditor,
+        "We can't get project branches, so we can't checking it names", HintManager.ABOVE);
+    cantGetBranchesMessageWasShown = true;
+  }
+
   private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
     var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
 
-    if (branchNamesOption.isEmpty()) {
-      // TODO (#372): We can probably do something more useful here (some kind of message, etc.)
+    if (branchNamesOption.isEmpty() && !cantGetBranchesMessageWasShown) {
+      GuiUtils.invokeLaterIfNeeded(() -> showCantGetBranchesMessage(file), NON_MODAL);
       return;
     }
+    cantGetBranchesMessageWasShown = false;
 
     var branchNames = branchNamesOption.get();
 
