@@ -5,28 +5,28 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/common.sh
 
-newrepo machete-sandbox
+create_repo machete-sandbox
 (
   cd machete-sandbox
-  newb root
-    cmt Root
-  newb develop
-    cmt Develop commit
-  newb allow-ownership-link
-    cmt Allow ownership links
-  newb build-chain
-    cmt Build arbitrarily long chains
+  create_branch root
+    commit Root
+  create_branch develop
+    commit Develop commit
+  create_branch allow-ownership-link
+    commit Allow ownership links
+  create_branch build-chain
+    commit Build arbitrarily long chains
   git checkout allow-ownership-link
-    cmt 1st round of fixes
+    commit 1st round of fixes
   git checkout develop
-    cmt Other develop commit
-  newb call-ws
-    cmt Call web service
-    cmt 1st round of fixes
-  newb drop-constraint
-    cmt Drop unneeded SQL constraints
+    commit Other develop commit
+  create_branch call-ws
+    commit Call web service
+    commit 1st round of fixes
+  create_branch drop-constraint
+    commit Drop unneeded SQL constraints
   git checkout call-ws
-    cmt 2nd round of fixes
+    commit 2nd round of fixes
 
   git branch -d root
 
