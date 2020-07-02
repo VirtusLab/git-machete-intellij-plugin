@@ -194,9 +194,18 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  private void setTextForEmptyTable(String upperText, String lowerText, @UI Runnable onClickRunnableAction) {
+  private void setTextForEmptyTable(String upperText, @Nullable String lowerText, @Nullable @UI Runnable onClickRunnable) {
     var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ __ -> onClickRunnableAction.run());
+    var statusText = getEmptyText().setText(upperText);
+    if (lowerText != null) {
+      statusText.appendSecondaryText(lowerText, attrs,
+          /* listener */ (onClickRunnable != null ? __ -> onClickRunnable.run() : null));
+    }
+  }
+
+  @UIEffect
+  private void setTextForEmptyTable(String upperText) {
+    setTextForEmptyTable(upperText, null, null);
   }
 
   @UIEffect
@@ -224,6 +233,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
           this.gitMacheteRepositorySnapshot = newGitMacheteRepository.getOrNull();
           refreshModel(gitRepository);
         };
+
+        setTextForEmptyTable("Loading...");
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();

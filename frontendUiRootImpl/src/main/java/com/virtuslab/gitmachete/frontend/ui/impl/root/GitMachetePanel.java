@@ -41,10 +41,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     setToolbar(createGitMacheteVerticalToolbar(graphTable).getComponent());
     add(createShrinkingWrapper(selectionComponent), BorderLayout.NORTH);
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
-
-    // Default panel text - displayed when panel has no content,
-    // in practice - during git machete repository first instantiation
-    getEmptyText().setText("Loading...");
   }
 
   public BaseGraphTable getGraphTable() {
