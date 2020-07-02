@@ -120,6 +120,7 @@ jobs:
               --labels=backport
       - deploy:
           name: Publish plugin to Jetbrains Marketplace
+          # TODO (#391): prevent partial recompilation of the project in the `release` job
           command: ./gradlew --max-workers=2 publishPlugin
 
 

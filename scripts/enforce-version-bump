@@ -6,7 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 function current_branch() {
-  git symbolic-ref --quiet --short HEAD 2>/dev/null
+  git symbolic-ref --quiet --short HEAD 2>/dev/null || true  # no output in case of a detached HEAD
 }
 
 function local_base_revision_fallback() {
@@ -18,6 +18,8 @@ function local_base_revision_fallback() {
   fi
 }
 
+allow_equal_version=true
+
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
@@ -25,8 +27,9 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
   base_revision="origin/$(hub pr show --format=%B "$pr_num")"
 
 elif [[ ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
-  # Release or hotfix build on CI, let's compare to master.
+  # Release or hotfix build on CI, let's compare to master and require a higher version (not just equal or higher).
   base_revision=origin/master
+  allow_equal_version=false
 
 elif [[ ${CIRCLE_BRANCH-} == master || ${CIRCLE_BRANCH-} == develop ]]; then
   # Master or develop build on CI, no version check needed.
@@ -36,9 +39,9 @@ elif [[ ${CIRCLE_BRANCH-} ]]; then  # including backport/*
   # Non-PR, non-master/develop, non-release/hotfix branch build on CI, let's compare to develop.
   base_revision=origin/develop
 
-elif git machete show up &>/dev/null; then
+elif command -v git-machete &>/dev/null; then
   # A local run.
-  base_revision=$(git machete show up 2>/dev/null)
+  base_revision=$(git machete show up 2>/dev/null || local_base_revision_fallback)
 
 elif command -v hub &>/dev/null; then
   # A local run.
@@ -60,27 +63,16 @@ base_desc="$base_revision (commit $base_commit_short_hash)"
 parse_version_from_current_wd head
 parse_version_from_git_revision base "$base_commit_short_hash"
 
-[[ $head_major -gt $base_major ]] && exit 0
-[[ $head_major -eq $base_major ]] || \
+(( $head_major > $base_major )) && exit 0
+(( $head_major == $base_major )) || \
   die "Major version $head_major must not be lower than $base_major in $base_desc"
 
-[[ $head_minor -gt $base_minor ]] && exit 0
-[[ $head_minor -eq $base_minor ]] || \
+(( $head_minor > $base_minor )) && exit 0
+(( $head_minor == $base_minor )) || \
   die "Minor version $head_minor must not be lower than $base_minor in $base_desc"
 
-[[ $head_patch -gt $base_patch ]] && exit 0
-[[ $head_patch -eq $base_patch ]] || \
+(( $head_patch > $base_patch )) && exit 0
+(( $head_patch == $base_patch )) || \
   die "Patch version $head_patch must not be lower than $base_patch in $base_desc"
-
-# According to semver spec, a missing pre-release version is considered higher than any defined pre-release version (1.2.3 is higher than 1.2.3-rc999).
-head_pre_release_cmp=${head_pre_release:-999999}
-base_pre_release_cmp=${base_pre_release:-999999}
-[[ $head_pre_release_cmp -gt $base_pre_release_cmp ]] && exit 0
-
-if [[ $head_pre_release -eq $base_pre_release ]]; then
-  die "Version must not be identical as in $base_desc"
-elif ! [[ $base_pre_release ]]; then
-  die "Unreleased version $head_version cannot follow a released version $base_version in $base_desc"
-else
-  die "Pre-release version $head_pre_release must not be lower than $base_pre_release in $base_desc"
-fi
+eval $allow_equal_version || \
+  die "Patch version $head_patch must be higher than $base_patch in $base_desc"

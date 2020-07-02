@@ -49,7 +49,7 @@ docker push gitmachete/intellij-plugin-ci
 
 ## Versioning
 
-We follow [Semantic versioning](semver.org):
+We follow [Semantic versioning](semver.org) for the plugin releases:
 
 * MAJOR version must be bumped for each plugin release that stops supporting any IDEA build (typically when `sinceBuild` is increased). <br/>
   This does not apply to 0->1 major version transition, which is going to happen when the plugin's compatibility range is considered stable.
@@ -57,43 +57,41 @@ We follow [Semantic versioning](semver.org):
   or starts supporting a new quarterly (`year.number`) IDEA build (typically when `untilBuild` is increased).
 * PATCH version must be bumped for each plugin release that adds no new user-facing features
   and doesn't change the range of supported IDEA builds.
-* Pre-release version (`d` in `a.b.c-d`) must be bumped for each PR merged to `develop` (see PRs & releases below). <br/>
-  Released plugin versions must **never** have a pre-release version indicator (must be of the form `a.b.c`). <br/>
-  Non-released plugin versions must **always** have a pre-release version indicator.
 
 ### Sample sequence of versions between releases
 
-After a release e.g. `1.0.3`, we might have the following sequence of versions:
-* `1.0.4-1` - note that pre-release identifiers start with one, not zero
-* `1.0.4-2`
-* `1.0.4-3`
-* `1.1.0-1` - coz we've just adding new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
-* `1.1.0-2` - note that even if a new feature has been added from `1.1.0-1`, the released version is still going to be `1.1.0` (not `1.2.0`)
-* `1.1.0`   - finally releasing as minor release; as a consequence, `1.0.4` never actually gets released
+After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `PROSPECTIVE_RELEASE_VERSION`
+in [version.gradle](version.gradle) in the following way:
+1. `1.0.4` (bugfix PR)  - the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
+1. `1.0.4` (bugfix PR)  - even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
+1. `1.1.0` (feature PR) - since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
+1. `1.1.0` (bugfix PR)  - even if a new feature has been added on the PR, the released version is still going to be `1.1.0` (not `1.2.0`)
+1. `2.0.0` (breaking change PR)
+1. `2.0.0` (feature PR) - again, still `2.0.0` and not e.g. `2.1.0`
+1. `2.0.0` (bugfix PR)
+1. `2.0.0` (release PR) - finally releasing as major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
 
 
 ## PRs & releases
 
-Each PR must bump the version (see [version.gradle](version.gradle)) comparing to its base.
-
-Each regular (non-hotfix, non-release, non-backport) PR is ultimately merged to `develop` and must have a non-empty pre-release version. <br/>
+Each regular (non-hotfix, non-release, non-backport) PR is ultimately merged to `develop`. <br/>
 Stacked PRs (Y -> X -> `develop`) must never be merged until their base is finally changed to `develop`.
 They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
 To create a release:
-* create a branch `release/<version>` out of the current develop
-* remove pre-release suffix from `PLUGIN_VERSION` in [version.gradle](version.gradle)
+* create a branch `release/v<version>` out of the current develop
 * fill up `<change-notes>` in [plugin.xml](src/main/resources/META-INF/plugin.xml) with the updated change notes
-* open PR from `release/<version>` to `master`
+  and commit the changes with the `Release v<version>` message
+* open PR from `release/v<version>` to `master`
 
 Once the release PR is merged, `master` is built. <br/>
 After a manual approval, the `master` build:
 * pushes a tag (`v<version>`) back to the repository
-* opens a backport PR from `backport/<version>` branch (created on fly from `master`) to `develop`
+* opens a backport PR from `backport/v<version>` branch (created on the fly from `master`) to `develop`
 * **publishes the plugin to JetBrains marketplace**
 
 Backport PRs are recognized by the `backport/*` branch name.
-They must have `develop` as its base, and version must not be pre-release.
+They must have `develop` as its base.
 
 TBD: flow for hotfix PRs (PRs to `master` but NOT from `develop`) and their corresponding backport PRs.
 They are likely going to require us to allow either of:
