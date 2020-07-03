@@ -8,5 +8,7 @@ public interface IBranchLayout {
 
   Option<IBranchLayoutEntry> findEntryByName(String branchName);
 
+  IBranchLayout slideIn(String aboveBranchName, String branchName) throws BranchLayoutException;
+
   IBranchLayout slideOut(String branchName) throws BranchLayoutException;
 }
