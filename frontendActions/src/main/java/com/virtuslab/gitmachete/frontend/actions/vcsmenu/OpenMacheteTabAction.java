@@ -26,7 +26,7 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
     LOG.debug("Performing");
 
     // Getting project from event and assigning it to variable is needed to avoid exception
-    // according to sharing data context between Swing events (esp. with #2 VcsNotifier call - inside lambda)
+    // because the data context is shared between Swing events (esp. with #2 VcsNotifier call - inside lambda)
     Project project = getProject(e);
 
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject(e));
