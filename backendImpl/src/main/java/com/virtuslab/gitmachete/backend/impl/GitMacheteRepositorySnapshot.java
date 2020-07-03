@@ -28,6 +28,9 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   private final Map<String, IGitMacheteBranch> managedBranchByName;
 
+  @Getter
+  private final List<String> notCreatedBranchNames;
+
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 
   @Override

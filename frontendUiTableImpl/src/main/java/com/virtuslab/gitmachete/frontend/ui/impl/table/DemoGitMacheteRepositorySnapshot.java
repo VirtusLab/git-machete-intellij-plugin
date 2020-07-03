@@ -108,6 +108,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
+  public List<String> getNotCreatedBranchNames() {
+    return List.empty();
+  }
+
+  @Override
   public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
     return Option.none();
   }
