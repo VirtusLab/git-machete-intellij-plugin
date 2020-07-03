@@ -44,7 +44,7 @@ public class MacheteAnnotator implements Annotator {
       return;
     }
     HintManager.getInstance().showErrorHint(currentEditor,
-        "We can't get project branches, so we can't checking it names", HintManager.ABOVE);
+        "We can't get project branches, so we can't complete their names", HintManager.ABOVE);
     cantGetBranchesMessageWasShown = true;
   }
 
