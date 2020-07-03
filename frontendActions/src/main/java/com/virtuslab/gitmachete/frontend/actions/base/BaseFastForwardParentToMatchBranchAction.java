@@ -35,6 +35,10 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
+    if (!canBeUpdated()) {
+      return;
+    }
+
     Presentation presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;

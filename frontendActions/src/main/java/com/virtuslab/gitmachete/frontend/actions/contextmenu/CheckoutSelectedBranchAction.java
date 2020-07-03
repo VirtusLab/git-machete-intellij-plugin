@@ -32,6 +32,10 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
+    if (!canBeUpdated()) {
+      return;
+    }
+
     var presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;

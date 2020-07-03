@@ -68,6 +68,11 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
+
+    if (!canBeUpdated()) {
+      return;
+    }
+
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
     var branch = getNameOfBranchUnderAction(anActionEvent);

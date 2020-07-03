@@ -2,13 +2,13 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 
-public abstract class BaseGitMacheteRepositoryReadyAction extends DumbAwareAction implements IExpectsKeyGitMacheteRepository {
-
+public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectKeyAvailabilityAssuranceAction
+    implements
+      IExpectsKeyGitMacheteRepository {
   @Override
   @UIEffect
   public void update(AnActionEvent anActionEvent) {

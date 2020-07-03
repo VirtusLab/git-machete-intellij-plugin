@@ -45,6 +45,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
+    if (!canBeUpdated()) {
+      return;
+    }
+
     Presentation presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;

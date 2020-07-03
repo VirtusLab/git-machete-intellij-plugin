@@ -18,6 +18,10 @@ public interface IExpectsKeyProject extends IWithLogger {
     return project;
   }
 
+  default Option<Project> tryGetProject(AnActionEvent anActionEvent) {
+    return Option.of(anActionEvent.getProject());
+  }
+
   default IBranchLayoutWriter getBranchLayoutWriter(AnActionEvent anActionEvent) {
     return getProject(anActionEvent).getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
   }

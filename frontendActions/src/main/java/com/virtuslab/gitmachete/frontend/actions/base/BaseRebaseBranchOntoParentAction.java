@@ -49,6 +49,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
+    if (!canBeUpdated()) {
+      return;
+    }
+
     var presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;

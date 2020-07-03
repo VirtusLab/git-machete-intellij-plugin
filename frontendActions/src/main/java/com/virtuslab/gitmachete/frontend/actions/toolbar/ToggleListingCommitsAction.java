@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
 import lombok.CustomLog;
@@ -27,8 +28,13 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
-    boolean selected = isSelected(anActionEvent);
+
+    if (!canBeUpdated()) {
+      return;
+    }
+
     var presentation = anActionEvent.getPresentation();
+    boolean selected = isSelected(presentation);
     Toggleable.setSelected(presentation, selected);
     if (!presentation.isEnabledAndVisible()) {
       return;
@@ -62,7 +68,13 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
   @UIEffect
   public boolean isSelected(AnActionEvent anActionEvent) {
-    return getGraphTable(anActionEvent).isListingCommits();
+    var presentation = anActionEvent.getPresentation();
+    return Toggleable.isSelected(presentation);
+  }
+
+  @UIEffect
+  public boolean isSelected(Presentation presentation) {
+    return Toggleable.isSelected(presentation);
   }
 
   @UIEffect

@@ -55,6 +55,11 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   @UIEffect
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
+
+    if (!canBeUpdated()) {
+      return;
+    }
+
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
   }
 
