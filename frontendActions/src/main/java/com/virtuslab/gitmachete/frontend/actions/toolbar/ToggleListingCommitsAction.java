@@ -40,9 +40,21 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     if (branchLayout.isDefined()) {
       boolean anyChildBranchExists = branchLayout.get().getRootEntries()
           .exists(rootBranch -> rootBranch.getChildren().nonEmpty());
+
       if (anyChildBranchExists) {
-        presentation.setEnabled(true);
-        presentation.setDescription("Toggle listing commits");
+        boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
+            .map(repo -> repo.getRootBranches()
+                .flatMap(root -> root.getDownstreamBranches())
+                .exists(b -> b.getCommits().nonEmpty()))
+            .getOrElse(false);
+
+        if (anyCommitExists) {
+          presentation.setEnabled(true);
+          presentation.setDescription("Toggle listing commits");
+        } else {
+          presentation.setEnabled(false);
+          presentation.setDescription("Toggle listing commits disabled: no commits present");
+        }
       } else {
         presentation.setEnabled(false);
         presentation.setDescription("Toggle listing commits disabled: no child branches present");
