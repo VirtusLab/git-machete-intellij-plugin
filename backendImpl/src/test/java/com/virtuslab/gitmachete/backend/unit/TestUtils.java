@@ -26,8 +26,8 @@ public class TestUtils {
   @SneakyThrows
   static IGitCoreLocalBranch createGitCoreLocalBranch(IGitCoreCommit pointedCommit, IGitCoreReflogEntry... reflogEntries) {
     IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
-    PowerMockito.doReturn(pointedCommit).when(mock).derivePointedCommit();
-    PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).deriveReflog();
+    PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
+    PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflog();
     PowerMockito.doReturn(Option.none()).when(mock).getRemoteTrackingBranch();
     return mock;
   }

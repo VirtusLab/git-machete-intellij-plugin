@@ -30,7 +30,8 @@ Other coding conventions include:
 
 * Don't write nullary lambdas in `receiver::method` notation, use explicit `() -> receiver.method()` notation instead. <br/>
   `::` notation is confusing when applied to parameterless lambdas, as it suggests a unary lambda.
-
+* Use `get...` method names for pure methods that only return the value without doing any heavy workload like accessing git repository.
+  Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
 
 ## Check dependency updates
 

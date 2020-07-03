@@ -19,8 +19,6 @@ public interface IGitCoreRepository {
 
   List<String> deriveAllRemoteNames() throws GitCoreException;
 
-  List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException;
-
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
   Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;

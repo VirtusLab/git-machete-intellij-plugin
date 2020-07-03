@@ -27,7 +27,6 @@ public class BaseGitMacheteRepositoryTestSuite {
   @SneakyThrows
   protected Object aux(IGitCoreBranch... localCoreBranches) {
     PowerMockito.doReturn(List.ofAll(Arrays.stream(localCoreBranches))).when(gitCoreRepository).deriveAllLocalBranches();
-    PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteBranches();
 
     return Whitebox
         .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class, PreRebaseHookExecutor.class)

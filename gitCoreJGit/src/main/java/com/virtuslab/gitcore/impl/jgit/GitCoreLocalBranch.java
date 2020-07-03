@@ -1,12 +1,9 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import io.vavr.Lazy;
 import io.vavr.collection.List;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.eclipse.jgit.annotations.Nullable;
 
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
@@ -17,8 +14,8 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
 
   public GitCoreLocalBranch(
       String shortBranchName,
-      Lazy<Either<GitCoreException, GitCoreCommit>> pointedCommit,
-      Lazy<Either<GitCoreException, List<IGitCoreReflogEntry>>> reflog,
+      GitCoreCommit pointedCommit,
+      List<IGitCoreReflogEntry> reflog,
       @Nullable IGitCoreRemoteBranch remoteBranch) {
     super(shortBranchName, pointedCommit, reflog);
     this.remoteBranch = remoteBranch;

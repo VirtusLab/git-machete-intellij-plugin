@@ -1,11 +1,8 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import io.vavr.Lazy;
 import io.vavr.collection.List;
-import io.vavr.control.Either;
 import lombok.Getter;
 
-import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
 
@@ -16,8 +13,8 @@ public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRe
 
   public GitCoreRemoteBranch(
       String shortName,
-      Lazy<Either<GitCoreException, GitCoreCommit>> pointedCommit,
-      Lazy<Either<GitCoreException, List<IGitCoreReflogEntry>>> reflog,
+      GitCoreCommit pointedCommit,
+      List<IGitCoreReflogEntry> reflog,
       String remoteName) {
     super(shortName, pointedCommit, reflog);
     this.remoteName = remoteName;

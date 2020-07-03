@@ -67,8 +67,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(1, 1);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
@@ -93,8 +93,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(1, 2);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
@@ -119,8 +119,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(2, 1);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
@@ -144,8 +144,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(3, 0);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
@@ -165,8 +165,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(0, 3);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
@@ -186,8 +186,8 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends Base
 
     PowerMockito.doReturn(Option.some(coreRemoteBranch)).when(coreLocalBranch).getRemoteTrackingBranch();
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).derivePointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).derivePointedCommit();
+    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
+    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
     var relativeCommitCount = GitCoreRelativeCommitCount.of(0, 0);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);

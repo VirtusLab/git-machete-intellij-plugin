@@ -177,7 +177,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
 
-      List<IGitCoreReflogEntry> reflogEntries = branch.deriveReflog();
+      List<IGitCoreReflogEntry> reflogEntries = branch.getReflog();
       reflogEntries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
 
       IGitCoreCommitHash entryToExcludeNewId;
@@ -196,7 +196,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       String rebaseComment = "rebase finished: " + branch.getFullName() + " onto "
-          + Try.of(() -> branch.derivePointedCommit().getHash().getHashString()).getOrElse("");
+          + Try.of(() -> branch.getPointedCommit().getHash().getHashString()).getOrElse("");
 
       // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
       // for cases like branch rename just after branch creation.
@@ -244,7 +244,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
 
       var commitAndContainingBranches = gitCoreRepository
-          .ancestorsOf(branch.derivePointedCommit())
+          .ancestorsOf(branch.getPointedCommit())
           .map(commit -> {
             var containingManagedBranches = deriveBranchesContainingGivenCommitInReflog()
                 .getOrElse(commit.getHash(), List.empty())
@@ -333,7 +333,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       IGitCoreLocalBranch coreLocalBranch = localBranchByName.get(branchName)
           .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
-      IGitCoreCommit corePointedCommit = coreLocalBranch.derivePointedCommit();
+      IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
 
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
@@ -357,7 +357,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return deriveDownstreamBranches(parentCoreLocalBranch, entry.getSubentries());
       }
 
-      IGitCoreCommit corePointedCommit = coreLocalBranch.derivePointedCommit();
+      IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
 
       GitMacheteForkPointCommit forkPoint = deriveParentAwareForkPoint(coreLocalBranch, parentCoreLocalBranch);
 
@@ -370,7 +370,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
         // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
         // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
-        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.derivePointedCommit());
+        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
       } else {
         // We're handling the cases of green, gray and red edges here.
         commits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
@@ -395,7 +395,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       if (coreRemoteBranch == null) {
         return null;
       }
-      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranch.derivePointedCommit()));
+      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranch.getPointedCommit()));
     }
 
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(
@@ -410,8 +410,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           : deriveParentAgnosticInferredForkPoint(coreLocalBranch);
 
       var parentAgnosticForkPointString = parentAgnosticForkPoint != null ? parentAgnosticForkPoint.toString() : "empty";
-      var parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
-      var pointedCommit = coreLocalBranch.derivePointedCommit();
+      var parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
+      var pointedCommit = coreLocalBranch.getPointedCommit();
 
       LOG.debug(() -> "parentAgnosticForkPoint = ${parentAgnosticForkPointString}, " +
           "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}, " +
@@ -493,7 +493,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       // Now we know that the override config is consistent, but it still doesn't mean
       // that it actually applies to the given branch AT THIS POINT (it could e.g. have applied earlier but now no longer applies).
-      var branchCommit = coreLocalBranch.derivePointedCommit();
+      var branchCommit = coreLocalBranch.getPointedCommit();
       if (!gitCoreRepository.isAncestor(whileDescendantOf, branchCommit)) {
         LOG.debug(() -> "Branch ${branchName} (${branchCommit}) is NOT a descendant of " +
             "<whileDescendantOf> (${whileDescendantOf}), ignoring outdated fork point override");
@@ -517,7 +517,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
 
       var forkPointAndContainingBranches = gitCoreRepository
-          .ancestorsOf(branch.derivePointedCommit())
+          .ancestorsOf(branch.getPointedCommit())
           .map(commit -> {
             var containingBranches = deriveBranchesContainingGivenCommitInReflog()
                 .getOrElse(commit.getHash(), List.empty())
@@ -567,7 +567,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       GitCoreRelativeCommitCount relativeCommitCount = gitCoreRepository
-          .deriveRelativeCommitCount(coreLocalBranch.derivePointedCommit(), coreRemoteBranch.derivePointedCommit())
+          .deriveRelativeCommitCount(coreLocalBranch.getPointedCommit(), coreRemoteBranch.getPointedCommit())
           .getOrNull();
       if (relativeCommitCount == null) {
         LOG.debug(() -> "Relative commit count for '${localBranchName}' could not be determined");
@@ -578,8 +578,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       SyncToRemoteStatus syncToRemoteStatus;
 
       if (relativeCommitCount.getAhead() > 0 && relativeCommitCount.getBehind() > 0) {
-        Instant localBranchCommitDate = coreLocalBranch.derivePointedCommit().getCommitTime();
-        Instant remoteBranchCommitDate = coreRemoteBranch.derivePointedCommit().getCommitTime();
+        Instant localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitTime();
+        Instant remoteBranchCommitDate = coreRemoteBranch.getPointedCommit().getCommitTime();
         // In case when commit dates are equal we assume that our relation is `DivergedFromAndNewerThanRemote`
         if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
           syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, remoteName);
@@ -618,8 +618,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}', " +
           "forkPoint = ${forkPoint})");
 
-      IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.derivePointedCommit();
-      IGitCoreCommit pointedCommit = coreLocalBranch.derivePointedCommit();
+      IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
+      IGitCoreCommit pointedCommit = coreLocalBranch.getPointedCommit();
 
       LOG.debug(() -> "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}; " +
           "pointedCommit = ${pointedCommit.getHash().getHashString()}");

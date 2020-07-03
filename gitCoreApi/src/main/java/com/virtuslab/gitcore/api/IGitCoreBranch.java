@@ -22,9 +22,9 @@ public interface IGitCoreBranch {
    */
   String getFullName();
 
-  IGitCoreCommit derivePointedCommit() throws GitCoreException;
+  IGitCoreCommit getPointedCommit();
 
-  List<IGitCoreReflogEntry> deriveReflog() throws GitCoreException;
+  List<IGitCoreReflogEntry> getReflog();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
   @SuppressWarnings("interning:not.interned") // to allow for `self == other`
@@ -36,11 +36,11 @@ public interface IGitCoreBranch {
     } else {
       var o = (IGitCoreBranch) other;
       return self.getFullName().equals(o.getFullName())
-          && Try.of(() -> self.derivePointedCommit().equals(o.derivePointedCommit())).getOrElse(false);
+          && Try.of(() -> self.getPointedCommit().equals(o.getPointedCommit())).getOrElse(false);
     }
   }
 
   static int defaultHashCode(IGitCoreBranch self) {
-    return self.getFullName().hashCode() * 37 + Try.of(() -> self.derivePointedCommit().hashCode()).getOrElse(0);
+    return self.getFullName().hashCode() * 37 + Try.of(() -> self.getPointedCommit().hashCode()).getOrElse(0);
   }
 }
