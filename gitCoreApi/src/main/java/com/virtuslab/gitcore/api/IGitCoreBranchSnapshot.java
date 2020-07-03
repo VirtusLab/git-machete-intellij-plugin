@@ -6,10 +6,13 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
+ * An immutable snapshot of a git branch for some specific moment in time.
+ * Each {@code get...} method is guaranteed to return the same value each time it's called on a given object.
+ *
  * The only criterion for equality of any instances of any class implementing this interface is equality of
  * {@code getFullName} and {@code derivePointedCommit}
  */
-public interface IGitCoreBranch {
+public interface IGitCoreBranchSnapshot {
   boolean isLocal();
 
   /**
@@ -28,19 +31,19 @@ public interface IGitCoreBranch {
 
   @EnsuresNonNullIf(expression = "#2", result = true)
   @SuppressWarnings("interning:not.interned") // to allow for `self == other`
-  static boolean defaultEquals(IGitCoreBranch self, @Nullable Object other) {
+  static boolean defaultEquals(IGitCoreBranchSnapshot self, @Nullable Object other) {
     if (self == other) {
       return true;
-    } else if (!(other instanceof IGitCoreBranch)) {
+    } else if (!(other instanceof IGitCoreBranchSnapshot)) {
       return false;
     } else {
-      var o = (IGitCoreBranch) other;
+      var o = (IGitCoreBranchSnapshot) other;
       return self.getFullName().equals(o.getFullName())
           && Try.of(() -> self.getPointedCommit().equals(o.getPointedCommit())).getOrElse(false);
     }
   }
 
-  static int defaultHashCode(IGitCoreBranch self) {
+  static int defaultHashCode(IGitCoreBranchSnapshot self) {
     return self.getFullName().hashCode() * 37 + Try.of(() -> self.getPointedCommit().hashCode()).getOrElse(0);
   }
 }

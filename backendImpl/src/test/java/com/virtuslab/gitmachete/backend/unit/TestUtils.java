@@ -13,7 +13,7 @@ import org.powermock.api.mockito.PowerMockito;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
@@ -24,8 +24,9 @@ public class TestUtils {
   }
 
   @SneakyThrows
-  static IGitCoreLocalBranch createGitCoreLocalBranch(IGitCoreCommit pointedCommit, IGitCoreReflogEntry... reflogEntries) {
-    IGitCoreLocalBranch mock = PowerMockito.mock(IGitCoreLocalBranch.class);
+  static IGitCoreLocalBranchSnapshot createGitCoreLocalBranch(IGitCoreCommit pointedCommit,
+      IGitCoreReflogEntry... reflogEntries) {
+    IGitCoreLocalBranchSnapshot mock = PowerMockito.mock(IGitCoreLocalBranchSnapshot.class);
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
     PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflog();
     PowerMockito.doReturn(Option.none()).when(mock).getRemoteTrackingBranch();

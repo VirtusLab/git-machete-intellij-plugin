@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
 @RequiredArgsConstructor
-public abstract class BaseGitCoreBranch implements IGitCoreBranch {
+public abstract class BaseGitCoreBranchSnapshot implements IGitCoreBranchSnapshot {
 
   /**
    * {@code X} part of {@code refs/heads/X} or {@code refs/heads/[remote-name]/X}
@@ -26,11 +26,11 @@ public abstract class BaseGitCoreBranch implements IGitCoreBranch {
 
   @Override
   public final boolean equals(@Nullable Object other) {
-    return IGitCoreBranch.defaultEquals(this, other);
+    return IGitCoreBranchSnapshot.defaultEquals(this, other);
   }
 
   @Override
   public final int hashCode() {
-    return IGitCoreBranch.defaultHashCode(this);
+    return IGitCoreBranchSnapshot.defaultHashCode(this);
   }
 }

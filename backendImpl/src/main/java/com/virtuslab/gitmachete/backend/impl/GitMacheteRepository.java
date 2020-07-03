@@ -36,12 +36,12 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
-import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
-import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
@@ -106,10 +106,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   private static class Aux {
     protected final IGitCoreRepository gitCoreRepository;
-    protected final List<IGitCoreLocalBranch> localBranches;
-    protected final Map<String, IGitCoreLocalBranch> localBranchByName;
+    protected final List<IGitCoreLocalBranchSnapshot> localBranches;
+    protected final Map<String, IGitCoreLocalBranchSnapshot> localBranchByName;
 
-    private final java.util.Map<IGitCoreBranch, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
+    private final java.util.Map<IGitCoreBranchSnapshot, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
     private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<String>> branchesContainingGivenCommitInReflog;
 
     Aux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
@@ -132,7 +132,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       LOG.debug("Getting reflogs of remote branches");
 
-      List<IGitCoreRemoteBranch> remoteTrackingBranches = localBranches
+      List<IGitCoreRemoteBranchSnapshot> remoteTrackingBranches = localBranches
           .flatMap(localBranch -> localBranch.getRemoteTrackingBranch().toList());
 
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranchName = remoteTrackingBranches
@@ -170,7 +170,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
      * @return reflog entries, excluding branch creation and branch reset events irrelevant for fork point/upstream inference,
      * ordered from the latest to the oldest
      */
-    protected List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranch branch) throws GitCoreException {
+    protected List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranchSnapshot branch) throws GitCoreException {
       if (filteredReflogByBranch.containsKey(branch)) {
         return filteredReflogByBranch.get(branch);
       }
@@ -296,7 +296,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       var branchByName = createBranchByNameMap(rootBranches);
 
-      Option<IGitCoreLocalBranch> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
+      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
           .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
       LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
           ? coreCurrentBranch.get().getName()
@@ -330,7 +330,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         IBranchLayoutEntry entry) throws GitCoreException, GitMacheteException {
 
       var branchName = entry.getName();
-      IGitCoreLocalBranch coreLocalBranch = localBranchByName.get(branchName)
+      IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName)
           .getOrElseThrow(() -> new GitMacheteException("Branch '${branchName}' not found in the repository"));
 
       IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
@@ -347,12 +347,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     private List<GitMacheteNonRootBranch> createGitMacheteNonRootBranch(
-        IGitCoreLocalBranch parentCoreLocalBranch,
+        IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         IBranchLayoutEntry entry) throws GitCoreException {
 
       var branchName = entry.getName();
 
-      IGitCoreLocalBranch coreLocalBranch = localBranchByName.get(branchName).getOrNull();
+      IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
       if (coreLocalBranch == null) {
         return deriveDownstreamBranches(parentCoreLocalBranch, entry.getSubentries());
       }
@@ -389,9 +389,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return List.of(result);
     }
 
-    private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(IGitCoreLocalBranch coreLocalBranch)
+    private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(
+        IGitCoreLocalBranchSnapshot coreLocalBranch)
         throws GitCoreException {
-      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         return null;
       }
@@ -399,8 +400,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(
-        IGitCoreLocalBranch coreLocalBranch,
-        IGitCoreLocalBranch parentCoreLocalBranch) throws GitCoreException {
+        IGitCoreLocalBranchSnapshot coreLocalBranch,
+        IGitCoreLocalBranchSnapshot parentCoreLocalBranch) throws GitCoreException {
       LOG.startTimer().debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}'");
 
@@ -455,7 +456,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return parentAgnosticForkPoint;
     }
 
-    private @Nullable IGitCoreCommit deriveParentAgnosticOverriddenForkPoint(IGitCoreLocalBranch coreLocalBranch)
+    private @Nullable IGitCoreCommit deriveParentAgnosticOverriddenForkPoint(IGitCoreLocalBranchSnapshot coreLocalBranch)
         throws GitCoreException {
       String section = "machete";
       String subsectionPrefix = "overrideForkPoint";
@@ -510,7 +511,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return to;
     }
 
-    private @Nullable GitMacheteForkPointCommit deriveParentAgnosticInferredForkPoint(IGitCoreLocalBranch branch)
+    private @Nullable GitMacheteForkPointCommit deriveParentAgnosticInferredForkPoint(IGitCoreLocalBranchSnapshot branch)
         throws GitCoreException {
       LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
@@ -540,7 +541,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     private List<GitMacheteNonRootBranch> deriveDownstreamBranches(
-        IGitCoreLocalBranch parentCoreLocalBranch,
+        IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         List<IBranchLayoutEntry> entries) throws GitCoreException {
 
       var downstreamBranchTries = entries.map(entry -> Try.of(
@@ -551,7 +552,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return downstreamBranches.toList();
     }
 
-    private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranch coreLocalBranch) throws GitCoreException {
+    private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
       String localBranchName = coreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
 
@@ -560,7 +561,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return SyncToRemoteStatus.noRemotes();
       }
 
-      IGitCoreRemoteBranch coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${localBranchName}' is untracked");
         return SyncToRemoteStatus.untracked();
@@ -603,14 +604,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return syncToRemoteStatus;
     }
 
-    private boolean hasJustBeenCreated(IGitCoreLocalBranch branch) throws GitCoreException {
+    private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) throws GitCoreException {
       List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
       return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
     }
 
     private SyncToParentStatus deriveSyncToParentStatus(
-        IGitCoreLocalBranch coreLocalBranch,
-        IGitCoreLocalBranch parentCoreLocalBranch,
+        IGitCoreLocalBranchSnapshot coreLocalBranch,
+        IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         @Nullable GitMacheteForkPointCommit forkPoint)
         throws GitCoreException {
       var branchName = coreLocalBranch.getName();

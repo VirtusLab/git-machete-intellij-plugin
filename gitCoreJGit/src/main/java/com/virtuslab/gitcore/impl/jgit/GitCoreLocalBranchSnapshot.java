@@ -4,19 +4,19 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.eclipse.jgit.annotations.Nullable;
 
-import com.virtuslab.gitcore.api.IGitCoreLocalBranch;
+import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
-import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 
-public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLocalBranch {
+public class GitCoreLocalBranchSnapshot extends BaseGitCoreBranchSnapshot implements IGitCoreLocalBranchSnapshot {
 
-  private @Nullable final IGitCoreRemoteBranch remoteBranch;
+  private @Nullable final IGitCoreRemoteBranchSnapshot remoteBranch;
 
-  public GitCoreLocalBranch(
+  public GitCoreLocalBranchSnapshot(
       String shortBranchName,
       GitCoreCommit pointedCommit,
       List<IGitCoreReflogEntry> reflog,
-      @Nullable IGitCoreRemoteBranch remoteBranch) {
+      @Nullable IGitCoreRemoteBranchSnapshot remoteBranch) {
     super(shortBranchName, pointedCommit, reflog);
     this.remoteBranch = remoteBranch;
   }
@@ -37,7 +37,7 @@ public class GitCoreLocalBranch extends BaseGitCoreBranch implements IGitCoreLoc
   }
 
   @Override
-  public Option<IGitCoreRemoteBranch> getRemoteTrackingBranch() {
+  public Option<IGitCoreRemoteBranchSnapshot> getRemoteTrackingBranch() {
     return Option.of(remoteBranch);
   }
 }

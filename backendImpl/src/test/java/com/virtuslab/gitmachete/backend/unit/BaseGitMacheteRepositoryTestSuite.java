@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
-import com.virtuslab.gitcore.api.IGitCoreBranch;
+import com.virtuslab.gitcore.api.IGitCoreBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
@@ -25,7 +25,7 @@ public class BaseGitMacheteRepositoryTestSuite {
   protected final IGitCoreRepository gitCoreRepository = PowerMockito.mock(IGitCoreRepository.class);
 
   @SneakyThrows
-  protected Object aux(IGitCoreBranch... localCoreBranches) {
+  protected Object aux(IGitCoreBranchSnapshot... localCoreBranches) {
     PowerMockito.doReturn(List.ofAll(Arrays.stream(localCoreBranches))).when(gitCoreRepository).deriveAllLocalBranches();
 
     return Whitebox

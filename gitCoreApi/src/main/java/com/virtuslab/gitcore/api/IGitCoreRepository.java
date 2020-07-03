@@ -9,9 +9,9 @@ public interface IGitCoreRepository {
 
   Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;
 
-  List<IGitCoreLocalBranch> deriveAllLocalBranches() throws GitCoreException;
+  List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException;
 
-  Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
+  Option<IGitCoreLocalBranchSnapshot> deriveCurrentBranch() throws GitCoreException;
 
   Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
       IGitCoreCommit fromPerspectiveOf,

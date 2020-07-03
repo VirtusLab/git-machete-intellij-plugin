@@ -4,14 +4,14 @@ import io.vavr.collection.List;
 import lombok.Getter;
 
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
-import com.virtuslab.gitcore.api.IGitCoreRemoteBranch;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 
-public class GitCoreRemoteBranch extends BaseGitCoreBranch implements IGitCoreRemoteBranch {
+public class GitCoreRemoteBranchSnapshot extends BaseGitCoreBranchSnapshot implements IGitCoreRemoteBranchSnapshot {
 
   @Getter
   private final String remoteName;
 
-  public GitCoreRemoteBranch(
+  public GitCoreRemoteBranchSnapshot(
       String shortName,
       GitCoreCommit pointedCommit,
       List<IGitCoreReflogEntry> reflog,
