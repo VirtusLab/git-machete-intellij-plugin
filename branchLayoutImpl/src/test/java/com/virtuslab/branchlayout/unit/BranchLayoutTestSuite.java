@@ -67,9 +67,9 @@ public class BranchLayoutTestSuite {
     // then
     assertEquals(result.getRootEntries().size(), 1);
     assertEquals(result.getRootEntries().get(0).getName(), rootName);
-    var subentries = result.getRootEntries().get(0).getSubentries();
-    assertEquals(subentries.size(), 2);
-    assertEquals(subentries.get(0).getName(), childName0);
-    assertEquals(subentries.get(1).getName(), childName1);
+    var children = result.getRootEntries().get(0).getChildren();
+    assertEquals(children.size(), 2);
+    assertEquals(children.get(0).getName(), childName0);
+    assertEquals(children.get(1).getName(), childName1);
   }
 }

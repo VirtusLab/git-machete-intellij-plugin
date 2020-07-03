@@ -22,7 +22,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   private static List<IBranchLayoutEntry> collectEntriesRecursively(IBranchLayoutEntry entry) {
-    return entry.getSubentries().flatMap(BranchLayout::collectEntriesRecursively).prepend(entry);
+    return entry.getChildren().flatMap(BranchLayout::collectEntriesRecursively).prepend(entry);
   }
 
   @Override
@@ -44,11 +44,11 @@ public class BranchLayout implements IBranchLayout {
 
   @SuppressWarnings("interning:not.interned") // to allow for `entry == entryToSlideOut`
   private List<IBranchLayoutEntry> slideOut(IBranchLayoutEntry entry, IBranchLayoutEntry entryToSlideOut) {
-    var subentries = entry.getSubentries();
+    var children = entry.getChildren();
     if (entry == entryToSlideOut) {
-      return subentries;
+      return children;
     } else {
-      return List.of(entry.withSubentries(subentries.flatMap(subentry -> slideOut(subentry, entryToSlideOut))));
+      return List.of(entry.withChildren(children.flatMap(child -> slideOut(child, entryToSlideOut))));
     }
   }
 }

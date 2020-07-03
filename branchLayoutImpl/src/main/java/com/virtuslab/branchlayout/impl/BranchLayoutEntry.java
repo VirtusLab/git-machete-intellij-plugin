@@ -12,7 +12,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @AllArgsConstructor
-@SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withSubentries` method
+@SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
 @ToString
 @UsesObjectEquals
 public class BranchLayoutEntry implements IBranchLayoutEntry {
@@ -23,11 +23,11 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
 
   @Getter
   @With
-  private final List<IBranchLayoutEntry> subentries;
+  private final List<IBranchLayoutEntry> children;
 
-  @ToString.Include(name = "subentries") // avoid recursive `toString` calls on subentries
-  private List<String> getSubentryNames() {
-    return subentries.map(e -> e.getName());
+  @ToString.Include(name = "children") // avoid recursive `toString` calls on children
+  private List<String> getChildNames() {
+    return children.map(e -> e.getName());
   }
 
   @Override

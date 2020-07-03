@@ -25,7 +25,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
     LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
     var indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
 
-    var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
+    var lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
     if (backupOldFile && path.toFile().isFile()) {
       Path parentDir = path.getParent();
@@ -44,8 +44,11 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         .getOrElseThrow(e -> new BranchLayoutException("Unable to write new branch layout file to ${path}", e));
   }
 
-  private List<String> printBranchesOntoStringList(List<IBranchLayoutEntry> entries, IndentSpec indentSpec,
+  private List<String> printEntriesOntoStringList(
+      List<IBranchLayoutEntry> entries,
+      IndentSpec indentSpec,
       @NonNegative int level) {
+
     List<String> stringList = List.empty();
     for (var entry : entries) {
       var sb = new StringBuilder();
@@ -56,8 +59,8 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         sb.append(" ").append(customAnnotation.get());
       }
 
-      List<String> resultForSubentries = printBranchesOntoStringList(entry.getSubentries(), indentSpec, level + 1);
-      stringList = stringList.append(sb.toString()).appendAll(resultForSubentries);
+      List<String> resultForChildren = printEntriesOntoStringList(entry.getChildren(), indentSpec, level + 1);
+      stringList = stringList.append(sb.toString()).appendAll(resultForChildren);
     }
     return stringList;
   }

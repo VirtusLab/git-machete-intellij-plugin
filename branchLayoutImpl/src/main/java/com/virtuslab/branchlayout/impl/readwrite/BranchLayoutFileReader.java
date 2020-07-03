@@ -36,11 +36,11 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     List<IBranchLayoutEntry> roots = List.empty();
     if (!linesWithoutBlank.isEmpty()) {
-      Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = parseToArrayRepresentation(path, indentSpec,
+      Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndParentLineIndex = parseToArrayRepresentation(path, indentSpec,
           lines);
-      LOG.debug(() -> "lineIndexToIndentLevelAndUpstreamLineIndex = ${lineIndexToIndentLevelAndUpstreamLineIndex}");
+      LOG.debug(() -> "lineIndexToIndentLevelAndParentLineIndex = ${lineIndexToIndentLevelAndParentLineIndex}");
 
-      roots = buildEntriesStructure(linesWithoutBlank, lineIndexToIndentLevelAndUpstreamLineIndex, /* upstreamLineIndex */ -1);
+      roots = buildEntriesStructure(linesWithoutBlank, lineIndexToIndentLevelAndParentLineIndex, /* parentLineIndex */ -1);
     } else {
       LOG.debug("Branch layout file is empty");
     }
@@ -51,33 +51,33 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   /**
    * @param lines
    *          list of lines read from branch layout file
-   * @param lineIndexToUpstreamLineIndex
+   * @param lineIndexToParentLineIndex
    *          as it says ({@code lines} metadata containing structure, see {@link #parseToArrayRepresentation})
-   * @param upstreamLineIndex
-   *          index of line whose subentries are to be built
+   * @param parentLineIndex
+   *          index of the line whose children are to be built
    *
-   * @return list of entries with recursively built lists of subentries
+   * @return list of entries with recursively built lists of children
    */
   @SuppressWarnings("index:argument.type.incompatible")
   private List<IBranchLayoutEntry> buildEntriesStructure(
       List<String> lines,
-      Array<Tuple2<Integer, Integer>> lineIndexToUpstreamLineIndex,
-      @GTENegativeOne int upstreamLineIndex) {
+      Array<Tuple2<Integer, Integer>> lineIndexToParentLineIndex,
+      @GTENegativeOne int parentLineIndex) {
 
-    return lineIndexToUpstreamLineIndex
+    return lineIndexToParentLineIndex
         .zipWithIndex()
-        .filter(t -> t._1()._2() == upstreamLineIndex)
+        .filter(t -> t._1()._2() == parentLineIndex)
         .map(t -> createEntry(lines.get(t._2()),
-            buildEntriesStructure(lines, lineIndexToUpstreamLineIndex, t._2())))
+            buildEntriesStructure(lines, lineIndexToParentLineIndex, t._2())))
         .toList();
   }
 
   /**
    * Parses line to {@link BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
-   * entry with the specified {@code subentries}.
+   * entry with the specified {@code children}.
    */
-  private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> subentries) {
-    LOG.debug(() -> "Entering: line = '${line}', subentries = ${subentries}");
+  private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> children) {
+    LOG.debug(() -> "Entering: line = '${line}', children = ${children}");
 
     String trimmedLine = line.trim();
     String branchName;
@@ -91,13 +91,13 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       customAnnotation = null;
     }
 
-    var result = new BranchLayoutEntry(branchName, customAnnotation, subentries);
+    var result = new BranchLayoutEntry(branchName, customAnnotation, children);
     LOG.debug(() -> "Created ${result}");
     return result;
   }
 
   /**
-   * @return an array containing the indent level and upstream entry describing line index which indices correspond to
+   * @return an array containing the indent level and parent entry describing line index which indices correspond to
    *         provided {@code lines} indices. It may be understood as a helper metadata needed to build entries structure
    */
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
@@ -113,9 +113,9 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
           "The initial line of branch layout file (${path.toAbsolutePath()}) must not be indented");
     }
 
-    Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndUpstreamLineIndex = Array.fill(linesWithoutBlank.size(),
+    Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndParentLineIndex = Array.fill(linesWithoutBlank.size(),
         new Tuple2<>(-1, -1));
-    Array<Integer> levelToPresentUpstream = Array.fill(linesWithoutBlank.size(), -1);
+    Array<Integer> levelToPresentParent = Array.fill(linesWithoutBlank.size(), -1);
 
     int previousLevel = 0;
     int lineIndex = 0;
@@ -142,20 +142,20 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
             "One of branches in branch layout file (${path.toAbsolutePath()}) has incorrect level in relation to its parent branch");
       }
 
-      @SuppressWarnings("index:argument.type.incompatible") Integer upstreamLineIndex = level <= 0
+      @SuppressWarnings("index:argument.type.incompatible") Integer parentLineIndex = level <= 0
           ? -1
-          : levelToPresentUpstream.get(level - 1);
-      Tuple2<Integer, Integer> levelAndUpstreamLineIndex = new Tuple2<>(level, upstreamLineIndex);
+          : levelToPresentParent.get(level - 1);
+      Tuple2<Integer, Integer> levelAndParentLineIndex = new Tuple2<>(level, parentLineIndex);
 
-      lineIndexToIndentLevelAndUpstreamLineIndex = lineIndexToIndentLevelAndUpstreamLineIndex.update(lineIndex,
-          levelAndUpstreamLineIndex);
-      levelToPresentUpstream = levelToPresentUpstream.update(level, lineIndex);
+      lineIndexToIndentLevelAndParentLineIndex = lineIndexToIndentLevelAndParentLineIndex.update(lineIndex,
+          levelAndParentLineIndex);
+      levelToPresentParent = levelToPresentParent.update(level, lineIndex);
 
       previousLevel = level;
       lineIndex++;
     }
 
-    return lineIndexToIndentLevelAndUpstreamLineIndex;
+    return lineIndexToIndentLevelAndParentLineIndex;
   }
 
   private @NonNegative int getIndentLevel(Path path, IndentSpec indentSpec, @NonNegative int indent,

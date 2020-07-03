@@ -338,7 +338,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
-      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getSubentries());
+      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getChildren());
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
@@ -354,7 +354,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
       if (coreLocalBranch == null) {
-        return deriveDownstreamBranches(parentCoreLocalBranch, entry.getSubentries());
+        return deriveDownstreamBranches(parentCoreLocalBranch, entry.getChildren());
       }
 
       IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
@@ -379,7 +379,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var pointedCommit = new GitMacheteCommit(corePointedCommit);
       var syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
       var customAnnotation = entry.getCustomAnnotation().getOrNull();
-      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getSubentries());
+      var downstreamBranches = deriveDownstreamBranches(coreLocalBranch, entry.getChildren());
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
@@ -682,7 +682,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @AllArgsConstructor // needed for @With
-    @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withSubentries` method
+    @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
     @ToString(callSuper = false)
     @UsesObjectEquals
     private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
@@ -691,22 +691,22 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       @Getter
       @With
-      private List<IBranchLayoutEntry> subentries;
+      private List<IBranchLayoutEntry> children;
 
       private @NotOnlyInitialized MyBranchLayoutEntry root;
 
       MyBranchLayoutEntry(String name) {
         this.name = name;
-        this.subentries = List.empty();
+        this.children = List.empty();
         this.root = this;
       }
 
-      void attachUnder(MyBranchLayoutEntry newRoot) {
-        root = newRoot;
+      void attachUnder(MyBranchLayoutEntry newParent) {
+        root = newParent.root;
       }
 
-      void appendSubentry(MyBranchLayoutEntry newSubentry) {
-        subentries = subentries.append(newSubentry);
+      void appendChild(MyBranchLayoutEntry newChild) {
+        children = children.append(newChild);
       }
 
       MyBranchLayoutEntry getRoot() {
@@ -718,9 +718,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return root;
       }
 
-      @ToString.Include(name = "subentries") // avoid recursive `toString` calls on subentries
-      private List<String> getSubentryNames() {
-        return subentries.map(e -> e.getName());
+      @ToString.Include(name = "children") // avoid recursive `toString` calls on children
+      private List<String> getChildNames() {
+        return children.map(e -> e.getName());
       }
 
       @ToString.Include(name = "root") // avoid recursive `toString` call on root to avoid stack overflow
@@ -759,7 +759,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           // Generally we expect an entry for upstreamName to always be present.
           if (upstreamEntry != null) {
             branchEntry.attachUnder(upstreamEntry);
-            upstreamEntry.appendSubentry(branchEntry);
+            upstreamEntry.appendChild(branchEntry);
           }
         } else {
           LOG.debug(() -> "No upstream inferred for ${branchEntry.getName()}; attaching as new root");

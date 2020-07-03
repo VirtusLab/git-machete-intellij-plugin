@@ -115,14 +115,14 @@ public class BranchLayoutFileReaderTestSuite {
     // when
     BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
-    System.out.println(exception);
+    System.out.println(exception.getMessage());
     // then
     int i = exception.getErrorLine().get();
     assertEquals(4, i);
   }
 
   @Test
-  public void read_givenFileWithSubentryIndentGreaterThanOneToParent_throwsException() {
+  public void read_givenFileWithChildIndentGreaterThanOneToParent_throwsException() {
     // given
     List<String> linesToReturn = List.of(" ", "A", "", "  B", "      C");
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 2);
