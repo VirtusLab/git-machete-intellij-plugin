@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.unit;
 
-import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreCommit;
-import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreLocalBranch;
+import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
+import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 import static org.mockito.ArgumentMatchers.any;
 
 import io.vavr.collection.Stream;
@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
 
-public class GitMacheteRepository_deriveParentAwareForkPointTestSuite extends BaseGitMacheteRepositoryTestSuite {
+public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   @SneakyThrows
   private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(

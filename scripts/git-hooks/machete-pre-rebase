@@ -2,9 +2,10 @@
 
 set -e -o pipefail -u
 
-source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+# As per git hook spec, we can rely on this script being executed in the main repository dir.
+source scripts/utils.sh
 
-if [ $# -eq 3 ]; then
+if (( $# == 3 )); then
   new_base=$1
   fork_point=$2
   current_branch=$3
@@ -22,7 +23,7 @@ if [ $# -eq 3 ]; then
     do_rewrite=false
   elif (( $base_patch > $head_patch )); then
     do_rewrite=true
-  else  # $base_patch < $head_patch
+  else  # $base_patch <= $head_patch
     do_rewrite=false
   fi
 
@@ -34,7 +35,7 @@ if [ $# -eq 3 ]; then
     export FILTER_BRANCH_SQUELCH_WARNING=1
     git filter-branch -f --tree-filter "$self_path $base_version" "$fork_point".."$current_branch"
   fi
-elif [ $# -eq 1 ]; then
+elif (( $# == 1 )); then
   target_version=$1
 
   # Using `-i.bak` and not just `-i` to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.

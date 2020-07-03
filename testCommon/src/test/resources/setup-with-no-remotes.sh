@@ -8,6 +8,8 @@ source "$self_dir"/common.sh
 create_repo machete-sandbox
 (
   cd machete-sandbox
+  # Let's add more than 10 branches so that some of them (the least recently checked out ones)
+  # should be skipped from the discovered layout
   create_branch root
     commit Root
   create_branch develop
@@ -27,8 +29,20 @@ create_repo machete-sandbox
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes
-
-  git branch -d root
+  create_branch evict-deps
+    commit Evict conflicting dependencies
+  create_branch fix/component-labels
+    commit Fix component labels
+  create_branch global-context
+    commit Introduce global context
+  create_branch interop-scala-python
+    commit Enable Scala/Python interoperability
+  create_branch java-11-enforce
+    commit Enforce the use of Java 11
+  git checkout allow-ownership-link
+  create_branch kill-process
+    commit Kill the process after 10 seconds
+  git checkout develop
 
   machete_file='
   develop

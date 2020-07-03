@@ -7,12 +7,11 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.D
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureCliVersionIs;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
-
-import java.util.concurrent.TimeUnit;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
@@ -37,12 +36,10 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
+import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
 @RunWith(Parameterized.class)
-public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite {
-
-  public static final String CLI_REFERENCE_VERSION = "2.14.0";
+public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
       .instantiateSoleImplementingClass(IBranchLayoutReader.class);
@@ -51,20 +48,8 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @BeforeClass
-  @SneakyThrows
-  public static void verifyCliVersion() {
-    var process = new ProcessBuilder().command("git", "machete", "--version").start();
-    process.waitFor(1, TimeUnit.SECONDS);
-    var exitValue = process.exitValue();
-    if (exitValue != 0) {
-      Assert.fail("git-machete CLI is not installed");
-    }
-    var version = new String(process.getInputStream().readAllBytes())
-        .stripTrailing()
-        .replace("git-machete version ", "");
-    if (!version.equals(CLI_REFERENCE_VERSION)) {
-      Assert.fail("git-machete is expected in version ${CLI_REFERENCE_VERSION}, found ${version}");
-    }
+  public static void ensureExpectedCliVersion() {
+    ensureCliVersionIs("2.14.0");
   }
 
   @Parameters(name = "{0} (#{index})")
@@ -80,7 +65,7 @@ public class GitMacheteStatusTestSuite extends BaseGitRepositoryBackedTestSuite 
   }
 
   @SneakyThrows
-  public GitMacheteStatusTestSuite(String scriptName) {
+  public StatusAndDiscoverIntegrationTestSuite(String scriptName) {
     super(scriptName);
     gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
   }

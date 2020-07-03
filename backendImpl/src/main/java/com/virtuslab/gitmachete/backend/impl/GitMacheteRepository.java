@@ -159,7 +159,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           .mapValues(pairsOfCommitHashAndBranchName -> pairsOfCommitHashAndBranchName
               .map(commitHashAndBranchName -> commitHashAndBranchName._2));
 
-      LOG.debug(() -> "Derived the map of branches containing given commit in reflog:");
+      LOG.debug("Derived the map of branches containing given commit in reflog:");
       LOG.debug(() -> result.toList().map(kv -> kv._1 + " -> " + kv._2.mkString(", "))
           .sorted().mkString(System.lineSeparator()));
       branchesContainingGivenCommitInReflog = result;

@@ -17,7 +17,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class GitMacheteRepository_deriveSyncToRemoteStatusTestSuite extends BaseGitMacheteRepositoryTestSuite {
+public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   private static final String ORIGIN = "origin";
 

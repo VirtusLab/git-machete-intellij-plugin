@@ -33,7 +33,7 @@ create_repo machete-sandbox
     commit 1st round of fixes
     push remote1
     git branch --unset-upstream  # let's remove tracking config
-  create_branch drop-constraint # not added to definition file
+  create_branch drop-constraint  # not added to definition file
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes

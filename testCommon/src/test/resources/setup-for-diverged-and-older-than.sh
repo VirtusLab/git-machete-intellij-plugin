@@ -31,10 +31,12 @@ create_repo machete-sandbox
     commit Call web service
     commit 1st round of fixes
     push
-  create_branch drop-constraint # not added to definition file
-    commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes
+  git checkout develop
+    # call-ws is merged to develop, and would have no downstream branches in the discovered layout,
+    # so it should be skipped from the discovered layout
+    git merge --ff-only call-ws
 
   git checkout root
   create_branch master

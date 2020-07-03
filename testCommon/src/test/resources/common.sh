@@ -61,7 +61,7 @@ function commit() {
   fi
 
   local b=$(git symbolic-ref --short HEAD)
-  local f=${b/\//-}-$(sed 's/ /-/g' <<< "$@").txt
+  local f=${b//\//-}-$(sed 's/[ /]/-/g' <<< "$@").txt
   touch $f
   git add $f
   git commit -m "$*"

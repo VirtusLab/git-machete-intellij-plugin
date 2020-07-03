@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.backend.integration;
 
+import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureCliVersionIs;
 import static org.junit.runners.Parameterized.Parameters;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -16,10 +18,10 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
+import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
 @RunWith(Parameterized.class)
-public class GitMacheteUpstreamInferenceTestSuite extends BaseGitRepositoryBackedTestSuite {
+public class UpstreamInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
   private final IGitMacheteRepository gitMacheteRepository;
@@ -27,6 +29,11 @@ public class GitMacheteUpstreamInferenceTestSuite extends BaseGitRepositoryBacke
 
   private final String forBranch;
   private final String expectedUpstream;
+
+  @BeforeClass
+  public static void ensureExpectedCliVersion() {
+    ensureCliVersionIs("2.14.0");
+  }
 
   @Parameters(name = "{0}: inferred upstream of {1} should be {2} (#{index})")
   public static String[][] getTestData() {
@@ -40,7 +47,7 @@ public class GitMacheteUpstreamInferenceTestSuite extends BaseGitRepositoryBacke
   }
 
   @SneakyThrows
-  public GitMacheteUpstreamInferenceTestSuite(String scriptName, String forBranch, String expectedUpstream) {
+  public UpstreamInferenceIntegrationTestSuite(String scriptName, String forBranch, String expectedUpstream) {
     super(scriptName);
     this.forBranch = forBranch;
     this.expectedUpstream = expectedUpstream;

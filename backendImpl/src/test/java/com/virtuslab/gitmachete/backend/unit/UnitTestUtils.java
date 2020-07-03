@@ -17,7 +17,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
-public class TestUtils {
+class UnitTestUtils {
 
   static TestGitCoreCommit createGitCoreCommit() {
     return new TestGitCoreCommit();

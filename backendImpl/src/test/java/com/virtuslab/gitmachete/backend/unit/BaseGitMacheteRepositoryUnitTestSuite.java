@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepository;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
-public class BaseGitMacheteRepositoryTestSuite {
+public class BaseGitMacheteRepositoryUnitTestSuite {
 
   private static final Class<?> AUX_CLASS = getAuxClass();
 

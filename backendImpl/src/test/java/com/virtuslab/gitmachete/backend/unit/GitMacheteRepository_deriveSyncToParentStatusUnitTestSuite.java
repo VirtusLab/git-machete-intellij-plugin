@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.backend.unit;
 
-import static com.virtuslab.gitmachete.backend.unit.TestUtils.TestGitCoreReflogEntry;
-import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreCommit;
-import static com.virtuslab.gitmachete.backend.unit.TestUtils.createGitCoreLocalBranch;
+import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.TestGitCoreReflogEntry;
+import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
+import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
 
-public class GitMacheteRepository_deriveSyncToParentStatusTestSuite extends BaseGitMacheteRepositoryTestSuite {
+public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   private static final IGitCoreCommit MISSING_FORK_POINT = createGitCoreCommit();
 

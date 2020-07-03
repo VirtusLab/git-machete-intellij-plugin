@@ -32,6 +32,9 @@ Other coding conventions include:
   `::` notation is confusing when applied to parameterless lambdas, as it suggests a unary lambda.
 * Use `get...` method names for pure methods that only return the value without doing any heavy workload like accessing git repository.
   Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
+* Non-obvious method params that have values like `false`, `true`, `0`, `1`, `null`, `""` should be preceded with a `/* comment */ `
+  containing the name of the param.
+
 
 ## Check dependency updates
 

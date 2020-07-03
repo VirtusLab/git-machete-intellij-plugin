@@ -11,9 +11,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedTestSuite;
+import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
-public class UiTestSuite extends BaseGitRepositoryBackedTestSuite {
+public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   private final static String script = loadScript();
 
