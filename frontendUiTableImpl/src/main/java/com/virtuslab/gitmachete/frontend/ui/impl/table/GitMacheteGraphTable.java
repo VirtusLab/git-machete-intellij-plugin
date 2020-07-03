@@ -1,8 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.intellij.codeInsight.hint.HintManager.HIDE_BY_ANY_KEY;
-import static com.intellij.codeInsight.hint.HintManager.HIDE_BY_SCROLLING;
-import static com.intellij.codeInsight.hint.HintManager.HIDE_BY_TEXT_CHANGE;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
@@ -14,24 +11,6 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import com.intellij.codeInsight.hint.HintManager;
-import com.intellij.codeInsight.hint.HintUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
-import com.intellij.ui.Gray;
-import com.intellij.ui.HintHint;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.LightweightHint;
-import com.intellij.ui.awt.RelativePoint;
-import io.vavr.collection.List;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -39,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import com.intellij.ide.DataManager;
@@ -52,6 +30,7 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.SimpleTextAttributes;
@@ -59,6 +38,7 @@ import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -152,7 +132,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  @SuppressWarnings("nullness")
   private void refreshModel(GitRepository gitRepository, List<String> notCreatedBranchNames) {
     // TODO (#176): When machete file is absent or empty,
     // propose using branch layout automatically detected by discover functionality
@@ -193,31 +172,9 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     }
 
     if (!notCreatedBranchNames.isEmpty()) {
-      /*JComponent label = HintUtil.createErrorLabel("Omitted branches: " + String.join(", ", notCreatedBranchNames));
-      LightweightHint hint = new LightweightHint(label);
-      Point p = new Point(200, 200);
-      HintHint hintInfo = new HintHint(this, p);
-      hintInfo.setAwtTooltip(true).setHighlighterType(true);
-      hintInfo.initStyleFrom(hint.getComponent());
-      hintInfo.setBorderColor(new JBColor(Color.gray, Gray._140));
-      hintInfo.setFont(hintInfo.getTextFont().deriveFont(Font.PLAIN));
-      hintInfo.setPreferredPosition(Balloon.Position.above);
-      hint.setCancelOnClickOutside(false);
-      hint.setCancelOnOtherWindowOpen(false);
-      hint.setForceLightweightPopup(false);
-      hintInfo.setShowImmediately(true);
-      hint.show(getRootPane().getLayeredPane(), 200, 200, null, hintInfo);
-      HintManager.getInstance().showHint(label, RelativePoint.getCenterOf(this), HIDE_BY_ANY_KEY | HIDE_BY_TEXT_CHANGE | HIDE_BY_SCROLLING, 0);
-      NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Machete Messages", NotificationDisplayType.BALLOON, true);
-      NotificationGroup NOTIFICATION_GROUP = NotificationGroup.toolWindowGroup("Git Machete Messages", ChangesViewContentManager.TOOLWINDOW_ID, true, PluginId.getId("com.virtuslab.git-machete"));
-      NotificationGroup NOTIFICATION_GROUP2 = NotificationGroup.toolWindowGroup("Vcs Messages", ChangesViewContentManager.TOOLWINDOW_ID);
-      Notification notification = NOTIFICATION_GROUP.createNotification("TITLE", "content", NotificationType.WARNING, null);
-      Notification notification2 = NOTIFICATION_GROUP2.createNotification("content2", NotificationType.ERROR);
-      notification2.notify(project);*/
-
-      VcsNotifier.getInstance(project).notifyError("dfsdfs", "sdfsdf");
-      VcsNotifier.getInstance(project).notifyWarning("Some of branches was omitted", String.join(", ", notCreatedBranchNames));
-      /* notification.notify(project); */
+      // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
+      VcsNotifier.getInstance(project).notifyWarning("Some of branches does not exist as a local branch, so was omitted",
+          String.join(", ", notCreatedBranchNames));
     }
 
     repaint();
@@ -282,7 +239,10 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
         @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepository -> {
           this.gitMacheteRepositorySnapshot = newGitMacheteRepository.getOrNull();
-          refreshModel(gitRepository, this.gitMacheteRepositorySnapshot != null ? this.gitMacheteRepositorySnapshot.getNotCreatedBranchNames() : List.empty());
+          refreshModel(gitRepository,
+              this.gitMacheteRepositorySnapshot != null
+                  ? this.gitMacheteRepositorySnapshot.getNotCreatedBranchNames()
+                  : List.empty());
           doOnUIThreadWhenReady.run();
         };
 

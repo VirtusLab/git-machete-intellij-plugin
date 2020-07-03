@@ -394,7 +394,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           remoteTrackingBranch,
           syncToRemoteStatus, customAnnotation, statusHookOutput,
           forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
-      return new GitMacheteNonRootBranchCreationResult(result);
+      return new GitMacheteNonRootBranchCreationResult(result, downstreamBranches.getNotCreatedBranchNames());
     }
 
     private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(
@@ -797,17 +797,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return new GitMacheteNonRootBranchCreationResult();
     }
 
-    public GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult, String notCreatedBranch) {
+    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult, String notCreatedBranch) {
       createdBranches = prevResult.getCreatedBranches();
       notCreatedBranchNames = prevResult.getNotCreatedBranchNames().append(notCreatedBranch);
     }
 
-    public GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranch createdBranch) {
+    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranch createdBranch, List<String> notCreatedBranchNames) {
       createdBranches = List.of(createdBranch);
-      notCreatedBranchNames = List.empty();
+      this.notCreatedBranchNames = notCreatedBranchNames;
     }
 
-    public GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult1,
+    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult1,
         GitMacheteNonRootBranchCreationResult prevResult2) {
       createdBranches = prevResult1.getCreatedBranches().appendAll(prevResult2.getCreatedBranches());
       notCreatedBranchNames = prevResult1.getNotCreatedBranchNames().appendAll(prevResult2.getNotCreatedBranchNames());
