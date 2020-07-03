@@ -7,7 +7,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.D
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
-import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureCliVersionIs;
+import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -48,8 +48,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @BeforeClass
-  public static void ensureExpectedCliVersion() {
-    ensureCliVersionIs("2.14.0");
+  public static void doEnsureExpectedCliVersion() {
+    ensureExpectedCliVersion();
   }
 
   @Parameters(name = "{0} (#{index})")

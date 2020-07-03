@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.backend.integration;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
@@ -8,7 +9,13 @@ import org.junit.Assert;
 class IntegrationTestUtils {
 
   @SneakyThrows
-  static void ensureCliVersionIs(String cliReferenceVersion) {
+  static void ensureExpectedCliVersion() {
+    Properties prop = new Properties();
+    try (var inputStream = IntegrationTestUtils.class.getResourceAsStream("/reference-cli-version.properties")) {
+      prop.load(inputStream);
+    }
+    String cliReferenceVersion = prop.getProperty("referenceCliVersion");
+
     var process = new ProcessBuilder().command("git", "machete", "--version").start();
     process.waitFor(1, TimeUnit.SECONDS);
     var exitValue = process.exitValue();

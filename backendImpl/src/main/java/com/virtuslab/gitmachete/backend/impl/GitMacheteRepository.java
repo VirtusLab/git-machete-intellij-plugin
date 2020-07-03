@@ -69,6 +69,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private final StatusBranchHookExecutor statusHookExecutor;
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 
+  private static final int NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER = 10;
+
   @Override
   public IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException {
     LOG.startTimer().debug("Entering");
@@ -103,7 +105,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     try {
       var aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      var result = aux.discoverGitMacheteRepository();
+      var result = aux.discoverGitMacheteRepository(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
       LOG.withTimeElapsed().info("Finished");
       return result;
     } catch (GitCoreException e) {
@@ -135,7 +137,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = localBranches
           .toMap(
               /* keyMapper */ localBranch -> localBranch.getName(),
-              /* valueMapper */ localBranch -> Try.of(() -> deriveFilteredReflog(localBranch)).getOrElse(List.empty()));
+              /* valueMapper */ this::deriveFilteredReflog);
 
       LOG.debug("Getting reflogs of remote branches");
 
@@ -145,7 +147,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranchName = remoteTrackingBranches
           .toMap(
               /* keyMapper */ remoteBranch -> remoteBranch.getName(),
-              /* valueMapper */ remoteBranch -> Try.of(() -> deriveFilteredReflog(remoteBranch)).getOrElse(List.empty()));
+              /* valueMapper */ this::deriveFilteredReflog);
 
       LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
 
@@ -177,14 +179,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
      * @return reflog entries, excluding branch creation and branch reset events irrelevant for fork point/upstream inference,
      * ordered from the latest to the oldest
      */
-    protected List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranchSnapshot branch) throws GitCoreException {
+    protected List<IGitCoreReflogEntry> deriveFilteredReflog(IGitCoreBranchSnapshot branch) {
       if (filteredReflogByBranch.containsKey(branch)) {
         return filteredReflogByBranch.get(branch);
       }
 
       LOG.trace(() -> "Entering: branch = '${branch.getFullName()}'; original list of entries:");
 
-      List<IGitCoreReflogEntry> reflogEntries = branch.getReflog();
+      List<IGitCoreReflogEntry> reflogEntries = branch.getReflogFromMostRecent();
       reflogEntries.forEach(entry -> LOG.trace(() -> "* ${entry}"));
 
       IGitCoreCommitHash entryToExcludeNewId;
@@ -411,8 +413,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(
-        IGitCoreLocalBranchSnapshot coreLocalBranch)
-        throws GitCoreException {
+        IGitCoreLocalBranchSnapshot coreLocalBranch) {
+
       IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         return null;
@@ -624,16 +626,16 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return syncToRemoteStatus;
     }
 
-    private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) throws GitCoreException {
+    private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) {
       List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
       return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
     }
 
-    private SyncToParentStatus deriveSyncToParentStatus(
+    protected SyncToParentStatus deriveSyncToParentStatus(
         IGitCoreLocalBranchSnapshot coreLocalBranch,
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
-        @Nullable GitMacheteForkPointCommit forkPoint)
-        throws GitCoreException {
+        @Nullable GitMacheteForkPointCommit forkPoint) throws GitCoreException {
+
       var branchName = coreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${branchName}', " +
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}', " +
@@ -713,20 +715,29 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       @With
       private List<IBranchLayoutEntry> children;
 
+      @Getter
+      private @Nullable MyBranchLayoutEntry parent;
+
       private @NotOnlyInitialized MyBranchLayoutEntry root;
 
       MyBranchLayoutEntry(String name) {
         this.name = name;
         this.children = List.empty();
+        this.parent = null;
         this.root = this;
       }
 
       void attachUnder(MyBranchLayoutEntry newParent) {
+        parent = newParent;
         root = newParent.root;
       }
 
       void appendChild(MyBranchLayoutEntry newChild) {
         children = children.append(newChild);
+      }
+
+      void removeChild(MyBranchLayoutEntry child) {
+        children = children.remove(child);
       }
 
       MyBranchLayoutEntry getRoot() {
@@ -743,7 +754,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return children.map(e -> e.getName());
       }
 
-      @ToString.Include(name = "root") // avoid recursive `toString` call on root to avoid stack overflow
+      @ToString.Include(name = "parent") // avoid recursive `toString` call on parent
+      private @Nullable String getParentName() {
+        return parent != null ? parent.name : null;
+      }
+
+      @ToString.Include(name = "root") // avoid recursive `toString` call on root
       private String getRootName() {
         return root.name;
       }
@@ -754,32 +770,77 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
-    IGitMacheteRepositorySnapshot discoverGitMacheteRepository() throws GitMacheteException {
-      SortedMap<String, MyBranchLayoutEntry> entryByBranchName = localBranches.map(lb -> lb.getName())
-          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
-      List<IBranchLayoutEntry> roots = List.empty();
+    private Map<String, Instant> deriveLastCheckoutTimestampByBranchName() throws GitCoreException {
+      java.util.Map<String, Instant> result = new java.util.HashMap<>();
 
-      for (var branchEntry : entryByBranchName.values()) {
-        Seq<String> upstreamCandidates = entryByBranchName.values()
+      for (var reflogEntry : gitCoreRepository.deriveHead().getReflogFromMostRecent()) {
+        var checkoutEntry = reflogEntry.parseCheckout().getOrNull();
+        if (checkoutEntry != null) {
+          var timestamp = reflogEntry.getTimestamp();
+          // `putIfAbsent` since we only care about the most recent occurrence of the given branch being checked out,
+          // and we iterate over the reflog starting from the latest entries.
+          result.putIfAbsent(checkoutEntry.getFromBranchName(), timestamp);
+          result.putIfAbsent(checkoutEntry.getToBranchName(), timestamp);
+        }
+      }
+      return HashMap.ofAll(result);
+    }
+
+    IGitMacheteRepositorySnapshot discoverGitMacheteRepository(int mostRecentlyCheckedOutBranchesCount)
+        throws GitCoreException, GitMacheteException {
+
+      List<String> localBranchNames = localBranches.map(lb -> lb.getName());
+      var branchNamesFixedRootPartition = localBranchNames.partition(Predicate.isEqual("master"));
+      List<String> fixedRootBranchNames = branchNamesFixedRootPartition._1;
+      List<String> nonFixedRootBranchNames = branchNamesFixedRootPartition._2;
+      List<String> freshNonFixedRootBranchNames;
+
+      // Let's only leave at most the given number of most recently checked out ("fresh") branches.
+      if (nonFixedRootBranchNames.size() <= mostRecentlyCheckedOutBranchesCount) {
+        freshNonFixedRootBranchNames = nonFixedRootBranchNames;
+      } else {
+        Map<String, Instant> lastCheckoutTimestampByBranchName = deriveLastCheckoutTimestampByBranchName();
+
+        var freshAndStaleNonFixedRootBranchNames = nonFixedRootBranchNames
+            .sortBy(branchName -> lastCheckoutTimestampByBranchName.getOrElse(branchName, Instant.MIN))
+            .reverse()
+            .splitAt(mostRecentlyCheckedOutBranchesCount);
+        freshNonFixedRootBranchNames = freshAndStaleNonFixedRootBranchNames._1;
+
+        LOG.debug(() -> "Skipping stale branches from the discovered layout: "
+            + freshAndStaleNonFixedRootBranchNames._2.mkString(", "));
+      }
+
+      // Let's use SortedMaps to ensure a deterministic result.
+      SortedMap<String, MyBranchLayoutEntry> entryByFixedRootBranchNames = fixedRootBranchNames
+          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
+      SortedMap<String, MyBranchLayoutEntry> entryByFreshNonFixedRootBranch = freshNonFixedRootBranchNames
+          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
+      SortedMap<String, MyBranchLayoutEntry> entryByIncludedBranchName = entryByFixedRootBranchNames
+          .merge(entryByFreshNonFixedRootBranch);
+      LOG.debug(() -> "Branches included in the discovered layout: " + entryByIncludedBranchName.keySet().mkString(", "));
+
+      // `roots` may be an empty list in the rare case there's no `master` branch in the repository.
+      List<MyBranchLayoutEntry> roots = entryByFixedRootBranchNames.values().toList();
+
+      // Skipping the upstream inference for fixed roots (currently just `master`) and for the stale non-fixed-root branches.
+      for (var branchEntry : entryByFreshNonFixedRootBranch.values()) {
+        // Note that stale non-fixed-root branches are never considered as candidates for an upstream.
+        Seq<String> upstreamCandidateNames = entryByIncludedBranchName.values()
             .filter(e -> e.getRoot() != branchEntry)
             .map(e -> e.getName());
-        LOG.debug(() -> "Upstream candidates for ${branchEntry.getName()} are " + upstreamCandidates.mkString(", "));
+        LOG.debug(() -> "Upstream candidate(s) for ${branchEntry.getName()}: " + upstreamCandidateNames.mkString(", "));
 
-        String upstreamName;
-        try {
-          upstreamName = inferUpstreamForLocalBranch(upstreamCandidates.toSet(), branchEntry.getName()).getOrNull();
-        } catch (GitCoreException e) {
-          throw new GitMacheteException(e);
-        }
+        String upstreamName = inferUpstreamForLocalBranch(upstreamCandidateNames.toSet(), branchEntry.getName()).getOrNull();
 
         if (upstreamName != null) {
           LOG.debug(() -> "Upstream inferred for ${branchEntry.getName()} is ${upstreamName}");
 
-          var upstreamEntry = entryByBranchName.get(upstreamName).getOrNull();
+          var parentEntry = entryByIncludedBranchName.get(upstreamName).getOrNull();
           // Generally we expect an entry for upstreamName to always be present.
-          if (upstreamEntry != null) {
-            branchEntry.attachUnder(upstreamEntry);
-            upstreamEntry.appendChild(branchEntry);
+          if (parentEntry != null) {
+            branchEntry.attachUnder(parentEntry);
+            parentEntry.appendChild(branchEntry);
           }
         } else {
           LOG.debug(() -> "No upstream inferred for ${branchEntry.getName()}; attaching as new root");
@@ -789,9 +850,41 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       var NL = System.lineSeparator();
-      LOG.debug(() -> "Final discovered entries: " + NL + entryByBranchName.values().mkString(NL));
+      LOG.debug(() -> "Final discovered entries: " + NL + entryByIncludedBranchName.values().mkString(NL));
 
-      return createGitMacheteRepository(new BranchLayout(roots));
+      // Post-process the discovered layout to remove the branches that would both:
+      // 1. have no downstream AND
+      // 2. be merged to their respective upstreams.
+      for (var branchEntry : entryByFreshNonFixedRootBranch.values()) {
+        if (branchEntry.getChildren().nonEmpty()) {
+          continue;
+        }
+
+        var parentEntry = branchEntry.getParent();
+        if (parentEntry == null) {
+          // This will happen for the roots of the discovered layout.
+          continue;
+        }
+        var branch = localBranchByName.get(branchEntry.getName()).getOrNull();
+        var upstreamBranch = localBranchByName.get(parentEntry.getName()).getOrNull();
+        if (branch == null || upstreamBranch == null) {
+          // This should never happen.
+          continue;
+        }
+
+        // A little hack wrt. fork point: we only want to distinct between a branch merged or not merged to the upstream,
+        // and fork point does not affect this specific distinction.
+        // It's in fact only useful for distinguishing between `InSync` and `InSyncButForkPointOff`,
+        // but here we don't care if the former is returned instead of the latter.
+        SyncToParentStatus syncStatus = deriveSyncToParentStatus(branch, upstreamBranch, /* forkPoint */ null);
+        if (syncStatus == SyncToParentStatus.MergedToParent) {
+          LOG.debug(() -> "Removing entry for ${branchEntry.getName()} " +
+              "since it's merged to its parent ${parentEntry.getName()} and would have no downstreams");
+          parentEntry.removeChild(branchEntry);
+        }
+      }
+
+      return createGitMacheteRepository(new BranchLayout(List.narrow(roots)));
     }
 
   }

@@ -20,7 +20,7 @@ public abstract class BaseGitCoreBranchSnapshot implements IGitCoreBranchSnapsho
   private final GitCoreCommit pointedCommit;
 
   @Getter
-  private final List<IGitCoreReflogEntry> reflog;
+  private final List<IGitCoreReflogEntry> reflogFromMostRecent;
 
   public abstract String getBranchTypeString(boolean capitalized);
 

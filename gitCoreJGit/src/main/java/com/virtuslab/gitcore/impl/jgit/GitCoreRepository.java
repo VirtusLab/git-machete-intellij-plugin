@@ -178,7 +178,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       return reflogReader
           .getReverseEntries()
           .stream()
-          .map(GitCoreReflogEntry::of)
+          .map(GitCoreReflogEntry::new)
           .collect(List.collector());
     } catch (IOException e) {
       throw new GitCoreException(e);
@@ -266,7 +266,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
           return new GitCoreLocalBranchSnapshot(localBranchName, pointedCommit, reflog, remoteBranch);
         }))
         .collect(List.collector());
-    return List.narrow(Try.sequence(result).getOrElseThrow(GitCoreException::getOrWrap).toList());
+    return List.narrow(Try.sequence(result).getOrElseThrow(GitCoreException::getOrWrap).toList().sortBy(b -> b.getName()));
   }
 
   @Override

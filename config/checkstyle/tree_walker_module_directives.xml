@@ -24,7 +24,7 @@
 <module name="IllegalCatch"/>
 <module name="IllegalImport">
     <!-- Avoid mutable collections; if really needed, qualify their class names explicitly. -->
-    <property name="illegalClasses" value="java.util.Deque, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.Vector"/>
+    <property name="illegalClasses" value="java.util.Deque, java.util.HashMap, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.TreeMap, java.util.Vector"/>
     <!-- Use string interpolation instead (com.antkorwin:better-strings). -->
     <property name="illegalClasses" value="java.text.MessageFormat"/>
     <!-- Use io.vavr.control.Option instead. -->
@@ -47,6 +47,8 @@
 <module name="MissingSwitchDefault"/>
 <module name="MultipleStringLiterals">
     <property name="allowedDuplicates" value="3"/>
+    <!-- Allow for more than 3 occurrences of "" or ", " string in the given file -->
+    <property name="ignoreStringsRegexp" value="^(&quot;&quot;|&quot;, &quot;)$"/>
 </module>
 <module name="MultipleVariableDeclarations"/>
 <module name="ModifiedControlVariable"/>
@@ -111,6 +113,12 @@
     <property name="ignoreComments" value="true"/>
     <property name="format" value="\bjava\.util\.Date\b"/>
     <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bLocalDateTime\b"/>
+    <property name="message" value="Local date-times are inherently unsafe since they give an impression of referring to a specific instant while in fact they don't. Use ZonedDateTime or Instant instead"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>

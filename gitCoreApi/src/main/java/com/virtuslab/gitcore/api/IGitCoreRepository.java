@@ -9,6 +9,10 @@ public interface IGitCoreRepository {
 
   Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;
 
+  /**
+   * @return snapshots of all local branches in the repository, sorted by name
+   * @throws GitCoreException when reading git repository data fails
+   */
   List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException;
 
   IGitCoreHeadSnapshot deriveHead() throws GitCoreException;

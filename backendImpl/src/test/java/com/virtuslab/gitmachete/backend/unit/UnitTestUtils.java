@@ -11,6 +11,7 @@ import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.powermock.api.mockito.PowerMockito;
 
+import com.virtuslab.gitcore.api.IGitCoreCheckoutEntry;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
@@ -28,7 +29,7 @@ class UnitTestUtils {
       IGitCoreReflogEntry... reflogEntries) {
     IGitCoreLocalBranchSnapshot mock = PowerMockito.mock(IGitCoreLocalBranchSnapshot.class);
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
-    PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflog();
+    PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflogFromMostRecent();
     PowerMockito.doReturn(Option.none()).when(mock).getRemoteTrackingBranch();
     return mock;
   }
@@ -66,6 +67,11 @@ class UnitTestUtils {
     }
 
     @Override
+    public Instant getTimestamp() {
+      return Instant.now();
+    }
+
+    @Override
     public Option<IGitCoreCommitHash> getOldCommitHash() {
       return Option.some(new TestGitCoreCommitHash());
     }
@@ -73,6 +79,11 @@ class UnitTestUtils {
     @Override
     public IGitCoreCommitHash getNewCommitHash() {
       return new TestGitCoreCommitHash();
+    }
+
+    @Override
+    public Option<IGitCoreCheckoutEntry> parseCheckout() {
+      return Option.none();
     }
   }
 

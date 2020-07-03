@@ -1,6 +1,6 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
-    <property name="format" value="\bjava\.util\.(Deque|List|Map|Queue|Set|Stack|Vector)\b"/>
+    <property name="format" value="\bjava\.util\.(Deque|HashMap|List|Map|Queue|Set|Stack|TreeMap|Vector)\b"/>
     <property name="message" value="Usage of the prohibited mutable Java collections; use immutable Vavr counterparts instead"/>
 </module>

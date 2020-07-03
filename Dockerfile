@@ -8,9 +8,7 @@ RUN set -x \
   && mkdir -p /usr/share/man/man1 \
   && apt-get update \
   `# installing JDK and not just JRE to provide javadoc executable` \
-  && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 python3-pip \
-  && pip3 install git-machete==2.14.0 \
-  && apt-get purge --autoremove -y python3-pip \
+  && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 \
   && rm -rf /var/lib/apt/lists/*
 
 ARG hub_version=2.14.2
@@ -21,6 +19,14 @@ RUN set -x \
   && tar --directory=/usr/local/bin/ --strip-components=2 -xvzf hub.tgz hub-linux-amd64-${hub_version}/bin/hub \
   && rm hub.tgz \
   && hub --version
+
+RUN set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y python3-pip \
+  && cli_version=$(cut -d'=' -f2 backendImpl/src/test/resources/reference-cli-version.properties)
+  && pip3 install git-machete==$cli_version \
+  && apt-get purge --autoremove -y python3-pip \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create gradle cache.
 # `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs

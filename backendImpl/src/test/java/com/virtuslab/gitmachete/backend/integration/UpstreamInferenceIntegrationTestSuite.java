@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureCliVersionIs;
+import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
 import static org.junit.runners.Parameterized.Parameters;
 
 import lombok.SneakyThrows;
@@ -31,8 +31,8 @@ public class UpstreamInferenceIntegrationTestSuite extends BaseGitRepositoryBack
   private final String expectedUpstream;
 
   @BeforeClass
-  public static void ensureExpectedCliVersion() {
-    ensureCliVersionIs("2.14.0");
+  public static void doEnsureExpectedCliVersion() {
+    ensureExpectedCliVersion();
   }
 
   @Parameters(name = "{0}: inferred upstream of {1} should be {2} (#{index})")

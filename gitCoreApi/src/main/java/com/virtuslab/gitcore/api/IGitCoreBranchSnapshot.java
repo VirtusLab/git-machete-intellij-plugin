@@ -27,7 +27,7 @@ public interface IGitCoreBranchSnapshot {
 
   IGitCoreCommit getPointedCommit();
 
-  List<IGitCoreReflogEntry> getReflog();
+  List<IGitCoreReflogEntry> getReflogFromMostRecent();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
   @SuppressWarnings("interning:not.interned") // to allow for `self == other`

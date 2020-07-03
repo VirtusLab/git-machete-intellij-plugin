@@ -13,5 +13,5 @@ public interface IGitCoreHeadSnapshot {
    */
   Option<IGitCoreLocalBranchSnapshot> getTargetBranch();
 
-  List<IGitCoreReflogEntry> getReflog();
+  List<IGitCoreReflogEntry> getReflogFromMostRecent();
 }

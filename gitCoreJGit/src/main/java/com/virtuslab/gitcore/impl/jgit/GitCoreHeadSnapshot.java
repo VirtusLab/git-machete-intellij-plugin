@@ -19,7 +19,7 @@ public class GitCoreHeadSnapshot implements IGitCoreHeadSnapshot {
   private final @Nullable IGitCoreLocalBranchSnapshot targetBranch;
 
   @Getter
-  private final List<IGitCoreReflogEntry> reflog;
+  private final List<IGitCoreReflogEntry> reflogFromMostRecent;
 
   @Override
   public Option<IGitCoreLocalBranchSnapshot> getTargetBranch() {

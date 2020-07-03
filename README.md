@@ -56,8 +56,9 @@ Consider increasing maximum heap size for the IDE (the default value is 2048 MB)
 
 For running `./gradlew` from command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-For running tests of `backendImpl` (which are included in `./gradlew test`, which is in turn itself included in `./gradlew build`),
-install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) in version **2.14.0**.
+For running tests of `backendImpl` (which are included under `./gradlew test`, which is in turn itself included under `./gradlew build`),
+install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
+in the version present in [backendImpl/src/test/resources/reference-cli-version.properties](backendImpl/src/test/resources/reference-cli-version.properties).
 
 #### Optional
 
