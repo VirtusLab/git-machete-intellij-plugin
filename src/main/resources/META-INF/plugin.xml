@@ -113,45 +113,23 @@
 
             <separator/>
 
-            <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
-                    icon="MacheteIcons.REBASE">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
             <action id="GitMachete.FetchAllRemotesAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction"
                     icon="MacheteIcons.FETCH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.PullCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchAction"
-                    icon="MacheteIcons.PULL">
+            <separator/>
+
+            <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
+                    icon="MacheteIcons.REBASE">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.PushCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentBranchAction"
                     icon="MacheteIcons.PUSH">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
-            <action id="GitMachete.ResetCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentBranchToRemoteAction"
-                    icon="MacheteIcons.RESET">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
-            <action id="GitMachete.FastForwardParentToMatchCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardParentToMatchCurrentBranchAction"
-                    icon="MacheteIcons.FAST_FORWARD">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
-            <action id="GitMachete.SlideOutCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
-                    icon="MacheteIcons.SLIDE_OUT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
