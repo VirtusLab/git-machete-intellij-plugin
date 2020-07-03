@@ -11,7 +11,7 @@ public interface IGitCoreRepository {
 
   List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException;
 
-  Option<IGitCoreLocalBranchSnapshot> deriveCurrentBranch() throws GitCoreException;
+  IGitCoreHeadSnapshot deriveHead() throws GitCoreException;
 
   Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
       IGitCoreCommit fromPerspectiveOf,

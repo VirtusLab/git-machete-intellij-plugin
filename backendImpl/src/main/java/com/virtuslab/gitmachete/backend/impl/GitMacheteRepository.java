@@ -294,26 +294,26 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       var rootBranches = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
 
-      var branchByName = createBranchByNameMap(rootBranches);
+      var managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
-      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveCurrentBranch())
+      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveHead().getTargetBranch())
           .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
       LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
           ? coreCurrentBranch.get().getName()
           : "<none> (detached HEAD)"));
 
       IGitMacheteBranch currentBranchIfManaged = coreCurrentBranch
-          .flatMap(cb -> branchByName.get(cb.getName()))
+          .flatMap(cb -> managedBranchByName.get(cb.getName()))
           .getOrNull();
       LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
 
-      return new GitMacheteRepositorySnapshot(rootBranches, branchLayout, currentBranchIfManaged, branchByName,
+      return new GitMacheteRepositorySnapshot(rootBranches, branchLayout, currentBranchIfManaged, managedBranchByName,
           preRebaseHookExecutor);
     }
 
-    private Map<String, IGitMacheteBranch> createBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
+    private Map<String, IGitMacheteBranch> createManagedBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
       Map<String, IGitMacheteBranch> branchByName = HashMap.empty();
       Queue<IGitMacheteBranch> queue = Queue.ofAll(rootBranches);
       // BFS over all branches

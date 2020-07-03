@@ -38,6 +38,7 @@ import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
+import com.virtuslab.gitcore.api.IGitCoreHeadSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
@@ -124,7 +125,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<IGitCoreLocalBranchSnapshot> deriveCurrentBranch() throws GitCoreException {
+  public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
     Ref ref;
     try {
       ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
@@ -134,18 +135,22 @@ public final class GitCoreRepository implements IGitCoreRepository {
     if (ref == null) {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
+    var reflog = deriveReflogByRefFullName(Constants.HEAD);
+    IGitCoreLocalBranchSnapshot targetBranch;
     if (ref.isSymbolic()) {
       String currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
-      return deriveLocalBranchByName(currentBranchName);
+      targetBranch = deriveLocalBranchByName(currentBranchName).getOrNull();
+    } else {
+      targetBranch = null;
     }
-    return Option.none();
+    return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 
-  private List<IGitCoreReflogEntry> deriveReflogByBranchFullName(String branchFullName) throws GitCoreException {
+  private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName) throws GitCoreException {
     try {
-      ReflogReader reflogReader = jgitRepo.getReflogReader(branchFullName);
+      ReflogReader reflogReader = jgitRepo.getReflogReader(refFullName);
       if (reflogReader == null) {
-        throw new GitCoreNoSuchRevisionException("Branch '${branchFullName}' does not exist in this repository");
+        throw new GitCoreNoSuchRevisionException("Ref '${refFullName}' does not exist in this repository");
       }
       return reflogReader
           .getReverseEntries()
@@ -192,7 +197,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     var localBranch = new GitCoreLocalBranchSnapshot(
         localBranchName,
         convertExistingRevisionToGitCoreCommit(localBranchFullName),
-        deriveReflogByBranchFullName(localBranchFullName),
+        deriveReflogByRefFullName(localBranchFullName),
         remoteBranch);
 
     return Option.some(localBranch);
@@ -209,7 +214,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     var remoteBranch = new GitCoreRemoteBranchSnapshot(
         remoteBranchName,
         convertExistingRevisionToGitCoreCommit(remoteBranchFullName),
-        deriveReflogByBranchFullName(remoteBranchFullName),
+        deriveReflogByRefFullName(remoteBranchFullName),
         remoteName);
     return Option.some(remoteBranch);
   }
@@ -232,7 +237,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
             throw new GitCoreException("Cannot access git object id corresponding to ${localBranchFullName}");
           }
           var pointedCommit = convertObjectIdToGitCoreCommit(objectId);
-          var reflog = deriveReflogByBranchFullName(localBranchFullName);
+          var reflog = deriveReflogByRefFullName(localBranchFullName);
           var remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName).getOrNull();
 
           return new GitCoreLocalBranchSnapshot(localBranchName, pointedCommit, reflog, remoteBranch);
