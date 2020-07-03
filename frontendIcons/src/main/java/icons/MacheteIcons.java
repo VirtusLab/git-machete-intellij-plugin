@@ -35,5 +35,7 @@ public final class MacheteIcons {
 
   public static final Icon TOGGLE_LISTING_COMMITS = IconLoader.getIcon("/showHiddens.svg");
 
+  public static final Icon SLIDE_IN = IconLoader.getIcon("/branch.svg");
+
   public static final Icon SLIDE_OUT = IconLoader.getIcon("/gc.svg");
 }

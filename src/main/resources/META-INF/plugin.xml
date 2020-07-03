@@ -84,6 +84,12 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.SlideInNewBranchBelowSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideInNewBranchBelowSelectedBranchAction"
+                    icon="MacheteIcons.SLIDE_IN">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.SlideOutSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedBranchAction"
                     icon="MacheteIcons.SLIDE_OUT">
