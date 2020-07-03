@@ -16,6 +16,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.pushdialog.GitPushDialog;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -34,12 +35,12 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
-    return "_Push";
+    return GitMacheteBundle.message("action.push.action-name");
   }
 
   @Override
   public String getDescriptionActionName() {
-    return "Push";
+    return GitMacheteBundle.message("action.push.description-action-name");
   }
 
   @Override

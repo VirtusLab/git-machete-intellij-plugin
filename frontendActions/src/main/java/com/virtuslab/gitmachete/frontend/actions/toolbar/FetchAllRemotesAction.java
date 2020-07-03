@@ -10,6 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectKeyAvailabilityAssuranceAction;
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -28,9 +29,9 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Fetch is already running...");
+      presentation.setDescription(GitMacheteBundle.message("action.fetch.description.disabled.aleardy-running"));
     } else {
-      presentation.setDescription("Fetch all remotes");
+      presentation.setDescription(GitMacheteBundle.message("action.fetch.description"));
     }
   }
 
@@ -41,7 +42,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    new Task.Backgroundable(project, "Fetching...", /* canBeCancelled */ true) {
+    new Task.Backgroundable(project, GitMacheteBundle.message("action.fetch.task.title"), /* canBeCancelled */ true) {
 
       @Nullable
       GitFetchResult result = null;

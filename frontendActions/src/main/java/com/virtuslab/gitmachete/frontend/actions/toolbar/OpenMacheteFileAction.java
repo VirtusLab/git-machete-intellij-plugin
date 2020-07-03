@@ -18,6 +18,7 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -50,7 +51,8 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
 
     var macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
-        .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError( /* message */ "Failed to open machete file"))
+        .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(
+            /* message */ GitMacheteBundle.message("action.open-git-machete-file.notification.fail.cannot-open")))
         .toOption());
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
@@ -62,7 +64,8 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
         doOpenFile(project, macheteFile.get());
       } catch (DirNamedMacheteExistsException e) {
         VcsNotifier.getInstance(project)
-            .notifyWeakError(/* message */ "Cannot create file 'machete': Directory with the same name exists");
+            .notifyWeakError(
+                /* message */ GitMacheteBundle.message("action.open-git-machete-file.notification.fail.same-name-dir-exists"));
       }
     }
   }

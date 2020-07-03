@@ -12,6 +12,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -42,7 +43,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Checkout disabled due to undefined selected branch");
+      presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Checkout"));
       return;
     }
 
@@ -50,10 +51,11 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
-      presentation.setDescription("Branch '${selectedBranchName.get()}' is currently checked out");
+      presentation.setDescription(
+          GitMacheteBundle.message("action.checkout.description.disabled.currently-checked-out", selectedBranchName.get()));
 
     } else {
-      presentation.setDescription("Checkout branch '${selectedBranchName.get()}'");
+      presentation.setDescription(GitMacheteBundle.message("action.checkout.description", selectedBranchName.get()));
     }
   }
 
@@ -69,7 +71,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
     if (gitRepository.isDefined()) {
       log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
-      new Task.Backgroundable(project, "Checking out") {
+      new Task.Backgroundable(project, GitMacheteBundle.message("action.checkout.task.title")) {
         @Override
         public void run(ProgressIndicator indicator) {
           doCheckout(selectedBranchName.get(), gitRepository.get(), project, indicator);

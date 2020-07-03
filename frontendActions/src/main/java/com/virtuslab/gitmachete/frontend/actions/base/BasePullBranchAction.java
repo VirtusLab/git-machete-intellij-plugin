@@ -10,6 +10,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -29,12 +30,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
-    return "P_ull";
+    return GitMacheteBundle.message("action.pull.action-name");
   }
 
   @Override
   public String getDescriptionActionName() {
-    return "Pull (fast-forward only)";
+    return GitMacheteBundle.message("action.pull.description-action-name");
   }
 
   @Override
@@ -86,10 +87,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     // This is because the fetch from local remotes to local heads must behave fast-forward-like.
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
-    new FetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(), /* taskTitle */ "Pulling...")
-        .queue();
+    new FetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(),
+        /* taskTitle */ GitMacheteBundle.message("action.pull.task.title"))
+            .queue();
 
     // Remote set to '.' (dot) is just the local repository.
-    new FetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT, /* taskTitle */ "Pulling...").queue();
+    new FetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT,
+        /* taskTitle */ GitMacheteBundle.message("action.pull.task.title")).queue();
   }
 }

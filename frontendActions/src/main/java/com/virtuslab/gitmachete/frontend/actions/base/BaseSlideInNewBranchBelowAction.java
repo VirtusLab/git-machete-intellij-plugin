@@ -20,6 +20,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -30,8 +31,6 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository,
       IBranchNameProvider {
-
-  private static final String NEW_BRANCH_DIALOG_TITLE = "Slide In New Branch";
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -53,12 +52,14 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
 
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Slide in disabled due to undefined parent branch");
+      presentation.setDescription(GitMacheteBundle.message("action.slide-in.description.disabled.no-parent"));
     } else {
-      presentation.setDescription("Slide in new branch below '${branch.get().getName()}'");
+      // it is supposed to be defined since "branch" is defined
+      assert branchName.isDefined() : "Branch name is undefined";
+      presentation.setDescription(GitMacheteBundle.message("action.slide-in.description", branchName.get()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Slide _In New Branch Below Current Branch");
+        presentation.setText(GitMacheteBundle.message("action.slide-in.text"));
       }
     }
   }
@@ -78,13 +79,13 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
     }
 
     var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), gitMacheteParentBranch.get().getName(),
-        NEW_BRANCH_DIALOG_TITLE);
+        GitMacheteBundle.message("action.slide-in.dialog.title"));
     if (branchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from dialog");
       return;
     }
 
-    new Task.Backgroundable(project, "Sliding In") {
+    new Task.Backgroundable(project, GitMacheteBundle.message("action.slide-in.task.title")) {
 
       @Override
       public void run(ProgressIndicator indicator) {
@@ -93,13 +94,15 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
 
         var newBranchLayout = Try.of(() -> branchLayout.get().slideIn(gitMacheteParentBranch.get().getName(), branchName))
             .onFailure(
-                t -> notifier.notifyError(/* title */ "Slide in of new branch '${branchName}' failed", getMessageOrEmpty(t)))
+                t -> notifier.notifyError(/* title */ GitMacheteBundle.message("action.slide-in.notification.fail", branchName),
+                    getMessageOrEmpty(t)))
             .toOption();
 
         newBranchLayout.map(nbl -> Try.of(() -> {
           branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true);
           return "ok";
-        }).onFailure(t -> notifier.notifyError(/* title */ "New branch layout write failed", getMessageOrEmpty(t))));
+        }).onFailure(t -> notifier.notifyError(/* title */ GitMacheteBundle.message("branch-layout.write.notification.fail"),
+            getMessageOrEmpty(t))));
       }
     }.queue();
   }

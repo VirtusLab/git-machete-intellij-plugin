@@ -10,6 +10,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -29,12 +30,16 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
     // because the data context is shared between Swing events (esp. with #2 VcsNotifier call - inside lambda)
     Project project = getProject(e);
 
-    ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject(e));
+    ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
+
+    Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
+        GitMacheteBundle.message("action.open-git-machete-tab.notification.fail.title"),
+        GitMacheteBundle.message("action.open-git-machete-tab.notification.fail.message.no-git"));
+
     if (toolWindow == null) {
       LOG.debug("VCS tool window does not exist");
-      VcsNotifier.getInstance(getProject(e)).notifyWarning(
-          "Could not open Git Machete tab", "Ensure that Git VCS is available");
+      warnNoGit.run();
       return;
     }
 
@@ -44,8 +49,7 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
 
       if (tab == null) {
         LOG.debug("Machete tab does not exist");
-        VcsNotifier.getInstance(project).notifyWarning(
-            "Could not open Git Machete tab", "Ensure that Git VCS is available");
+        warnNoGit.run();
         return;
       }
 

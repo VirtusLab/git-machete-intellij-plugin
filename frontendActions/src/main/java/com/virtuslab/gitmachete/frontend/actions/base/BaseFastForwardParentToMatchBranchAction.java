@@ -15,6 +15,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -43,21 +44,23 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Fast forward disabled due to undefined branch name");
+      presentation
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.branch.name", "Fast forward"));
       return;
     }
 
     var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName.get());
     if (gitMacheteBranch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Fast forward disabled due to undefined machete branch");
+      presentation
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Fast forward"));
       return;
     }
 
     if (gitMacheteBranch.get().isRootBranch()) {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Root branch '${branchName.get()}' cannot be fast-forwarded");
+        presentation.setDescription(GitMacheteBundle.message("action.fast-forward.description.root.branch", branchName.get()));
       } else { // contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -71,21 +74,23 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (syncToParentStatus == SyncToParentStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("_Fast Forward Parent To Match Current Branch");
+        presentation.setText(GitMacheteBundle.message("action.fast-forward.text.current-branch"));
       }
 
       var parentName = gitMacheteNonRoot.getUpstreamBranch().getName();
-      presentation.setDescription("Fast forward branch '${parentName}' to match '${branchName.get()}'");
+      presentation.setDescription(GitMacheteBundle.message("action.fast-forward.description", parentName, branchName.get()));
 
     } else {
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
-          Case($(SyncToParentStatus.InSyncButForkPointOff), "in sync with its parent but fork point is off"),
-          Case($(SyncToParentStatus.MergedToParent), "merged into parent"),
-          Case($(SyncToParentStatus.OutOfSync), "out of sync to its parent"),
-          Case($(), "in unknown status '${syncToParentStatus.toString()}' to its parent"));
+          Case($(SyncToParentStatus.InSyncButForkPointOff),
+              GitMacheteBundle.message("synctoparentstatus.insyncbutforkpointoff")),
+          Case($(SyncToParentStatus.MergedToParent), GitMacheteBundle.message("synctoparentstatus.mergedtoparent")),
+          Case($(SyncToParentStatus.OutOfSync), GitMacheteBundle.message("synctoparentstatus.outofsync")),
+          Case($(), GitMacheteBundle.message("synctoparentstatus.unknown", syncToParentStatus.toString())));
 
-      presentation.setDescription("Fast forward disabled because the branch is ${desc}");
+      presentation
+          .setDescription(GitMacheteBundle.message("action.description.disabled.branch.status", "Fast forward", desc));
     }
   }
 
@@ -122,6 +127,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var refspecChildParent = "${localFullName}:${parentLocalFullName}";
 
     // Remote set to '.' (dot) is just the local repository.
-    new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT, "Fast Forwarding...").queue();
+    new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT,
+        GitMacheteBundle.message("action.fast-forward.task.title")).queue();
   }
 }

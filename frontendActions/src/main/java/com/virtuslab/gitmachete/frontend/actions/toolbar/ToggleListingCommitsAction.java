@@ -8,6 +8,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -50,18 +51,20 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
         if (anyCommitExists) {
           presentation.setEnabled(true);
-          presentation.setDescription("Toggle listing commits");
+          presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description"));
         } else {
           presentation.setEnabled(false);
-          presentation.setDescription("Toggle listing commits disabled: no commits present");
+          presentation
+              .setDescription(GitMacheteBundle.message("action.toggle-listing_commits.description.disabled.no-commits"));
         }
       } else {
         presentation.setEnabled(false);
-        presentation.setDescription("Toggle listing commits disabled: no child branches present");
+        presentation
+            .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-child-branches"));
       }
     } else {
       presentation.setEnabled(false);
-      presentation.setDescription("Toggle listing commits disabled: no branches present");
+      presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-branches"));
     }
   }
 

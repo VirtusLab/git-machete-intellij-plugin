@@ -16,15 +16,13 @@ import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -37,22 +35,26 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
+  private static final String VCS_NOTIFIER_TITLE = GitMacheteBundle.message("action.reset.notification.title");
+
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
   }
 
-  private static final String VCS_NOTIFIER_TITLE = "Resetting";
-  private static final String TASK_TITLE = "Resetting...";
-
   @Override
   public String getActionName() {
-    return "Re_set to Remote";
+    return GitMacheteBundle.message("action.reset.action-name");
   }
 
   @Override
   public String getDescriptionActionName() {
-    return "Reset to remote";
+    return GitMacheteBundle.message("action.reset.description-action-name");
+  }
+
+  @Override
+  public String getEnabledDescriptionBundleKey() {
+    return "action.reset.description.enabled";
   }
 
   @Override
@@ -76,7 +78,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.get())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
-        anActionEvent.getPresentation().setText("Re_set to Remote");
+        anActionEvent.getPresentation().setText(() -> getActionName());
       }
     }
   }
@@ -115,24 +117,26 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
       IGitMacheteRepositorySnapshot macheteRepository, AnActionEvent anActionEvent) {
 
-    new Task.Backgroundable(project, TASK_TITLE, /* canBeCancelled */ true) {
+    new Task.Backgroundable(project, GitMacheteBundle.message("action.reset.task.title"), /* canBeCancelled */ true) {
 
       @Override
       public void run(ProgressIndicator indicator) {
         log().debug(() -> "Resetting '${branchName}' branch");
-        try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project, TASK_TITLE)) {
+        try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
+            GitMacheteBundle.message("action.reset.task.title"))) {
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
-          Option<IGitMacheteBranch> branchOption = macheteRepository.getManagedBranchByName(branchName);
+          var branchOption = macheteRepository.getManagedBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
-          Option<IGitMacheteRemoteBranch> remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
+          var remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {
             resetHandler.addParameters(remoteTrackingBranchOption.get().getPointedCommit().getHash());
           } else {
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             log().warn(message);
-            VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
+            VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
+                message);
             return;
           }
 
@@ -168,13 +172,15 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           if (!result.success()) {
             log().error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
+            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
+                result.getErrorOutputAsHtmlString());
             return;
           }
         }
 
         // If we are here this means that all went good
-        VcsNotifier.getInstance(project).notifySuccess("Branch '${branchName}' reset to remote");
+        VcsNotifier.getInstance(project)
+            .notifySuccess(GitMacheteBundle.message("action.reset.notification.success", branchName));
         log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
       }
     }.queue();

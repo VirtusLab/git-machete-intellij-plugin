@@ -21,6 +21,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -55,17 +56,19 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription("Slide out disabled due to undefined branch");
+      presentation
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Slide out"));
     } else if (branch.get().isNonRootBranch()) {
-      presentation.setDescription("Slide out '${branch.get().getName()}'");
+      presentation.setDescription(GitMacheteBundle.message("action.slide-out.description", branch.get().getName()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText("Slide Out Current Branch");
+        presentation.setText(GitMacheteBundle.message("action.text.current-branch", "Slide _Out"));
       }
     } else {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription("Root branch '${branch.get().getName()}' cannot be slid out");
+        presentation
+            .setDescription(GitMacheteBundle.message("action.slide-out.description.root.branch", branch.get().getName()));
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -108,14 +111,15 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       Path macheteFilePath = getMacheteFilePath(gitRepository);
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
-      VcsNotifier.getInstance(project).notifySuccess("Branch <b>${branchName}</b> slid out");
+      VcsNotifier.getInstance(project)
+          .notifySuccess(GitMacheteBundle.message("action.slide-out.notification.success", branchName));
 
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
       String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
-      VcsNotifier.getInstance(project).notifyError("Slide out of <b>${branchName}</b> failed",
+      VcsNotifier.getInstance(project).notifyError(GitMacheteBundle.message("action.slide-out.notification.fail", branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
 
