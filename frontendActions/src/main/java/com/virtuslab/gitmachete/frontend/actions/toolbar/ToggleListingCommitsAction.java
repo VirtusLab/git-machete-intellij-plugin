@@ -29,7 +29,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (!canBeUpdated()) {
+    if (!canBeUpdated(anActionEvent)) {
       return;
     }
 

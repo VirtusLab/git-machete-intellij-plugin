@@ -26,7 +26,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (!canBeUpdated()) {
+    if (!canBeUpdated(anActionEvent)) {
       return;
     }
 

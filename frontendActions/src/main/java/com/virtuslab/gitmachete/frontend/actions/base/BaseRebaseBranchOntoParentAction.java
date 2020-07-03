@@ -49,7 +49,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (!canBeUpdated()) {
+    if (!canBeUpdated(anActionEvent)) {
       return;
     }
 

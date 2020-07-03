@@ -69,7 +69,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (!canBeUpdated()) {
+    if (!canBeUpdated(anActionEvent)) {
       return;
     }
 

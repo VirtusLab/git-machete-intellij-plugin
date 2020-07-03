@@ -32,7 +32,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
-    if (!canBeUpdated()) {
+    if (!canBeUpdated(anActionEvent)) {
       return;
     }
 
