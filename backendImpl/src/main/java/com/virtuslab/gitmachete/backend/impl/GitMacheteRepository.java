@@ -5,6 +5,9 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.B
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 
 import java.time.Instant;
 import java.util.function.Predicate;
@@ -38,6 +41,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
+import com.virtuslab.gitcore.api.GitCoreRepositoryState;
 import com.virtuslab.gitcore.api.IGitCoreBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
@@ -51,6 +55,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
@@ -313,8 +318,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
 
+      var ongoingOperation = Match(gitCoreRepository.deriveRepositoryState()).of(
+          Case($(GitCoreRepositoryState.CHERRY_PICK), OngoingRepositoryOperation.CHERRY_PICK),
+          Case($(GitCoreRepositoryState.MERGING), OngoingRepositoryOperation.MERGING),
+          Case($(GitCoreRepositoryState.REBASING), OngoingRepositoryOperation.REBASING),
+          Case($(GitCoreRepositoryState.REVERTING), OngoingRepositoryOperation.REVERTING),
+          Case($(), OngoingRepositoryOperation.NO_OPERATION));
+
       return new GitMacheteRepositorySnapshot(rootBranches, branchLayout, currentBranchIfManaged, managedBranchByName,
-          skippedBranchNames, preRebaseHookExecutor);
+          skippedBranchNames, preRebaseHookExecutor, ongoingOperation);
     }
 
     private Map<String, IGitMacheteBranch> createManagedBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {

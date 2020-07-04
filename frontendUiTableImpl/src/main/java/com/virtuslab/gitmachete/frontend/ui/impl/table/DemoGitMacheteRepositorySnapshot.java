@@ -23,6 +23,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
@@ -115,6 +116,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   @Override
   public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
     return Option.none();
+  }
+
+  @Override
+  public OngoingRepositoryOperation getOngoingRepositoryOperation() {
+    return OngoingRepositoryOperation.NO_OPERATION;
   }
 
   @AllArgsConstructor

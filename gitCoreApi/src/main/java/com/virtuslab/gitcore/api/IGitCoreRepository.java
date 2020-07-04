@@ -24,4 +24,6 @@ public interface IGitCoreRepository {
   Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
 
   List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive) throws GitCoreException;
+
+  GitCoreRepositoryState deriveRepositoryState();
 }

@@ -2,11 +2,16 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getLocalBranchFullName;
 import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getRemoteBranchFullName;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.isIn;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_BRANCH_SECTION;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_MERGE;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_REMOTE;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.vavr.CheckedFunction1;
@@ -27,6 +32,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -37,6 +43,7 @@ import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreNoSuchRevisionException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
+import com.virtuslab.gitcore.api.GitCoreRepositoryState;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreHeadSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
@@ -132,17 +139,39 @@ public final class GitCoreRepository implements IGitCoreRepository {
     } catch (IOException e) {
       throw new GitCoreException("Cannot get current branch", e);
     }
+
     if (ref == null) {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
     var reflog = deriveReflogByRefFullName(Constants.HEAD);
     IGitCoreLocalBranchSnapshot targetBranch;
+
+    String currentBranchName = null;
+
     if (ref.isSymbolic()) {
-      String currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
+      currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
+    } else {
+      Path headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name");
+      if (!headNamePath.toFile().isFile()) {
+        headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-merge").resolve("head-name");
+      }
+      java.util.List<String> headNameFileLines;
+      try {
+        headNameFileLines = Files.readAllLines(headNamePath);
+      } catch (IOException e) {
+        throw new GitCoreException("Error occurred while getting current branch ref", e);
+      }
+      if (!headNameFileLines.isEmpty()) {
+        currentBranchName = Repository.shortenRefName(headNameFileLines.get(0));
+      }
+    }
+
+    if (currentBranchName != null) {
       targetBranch = deriveLocalBranchByName(currentBranchName).getOrNull();
     } else {
       targetBranch = null;
     }
+
     return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 
@@ -382,6 +411,18 @@ public final class GitCoreRepository implements IGitCoreRepository {
           .map(GitCoreCommit::new)
           .collect(List.collector());
     });
+  }
+
+  @Override
+  public GitCoreRepositoryState deriveRepositoryState() {
+    return Match(jgitRepo.getRepositoryState()).of(
+        Case($(isIn(RepositoryState.CHERRY_PICKING, RepositoryState.CHERRY_PICKING_RESOLVED)),
+            GitCoreRepositoryState.CHERRY_PICK),
+        Case($(isIn(RepositoryState.MERGING, RepositoryState.MERGING_RESOLVED)), GitCoreRepositoryState.MERGING),
+        Case($(isIn(RepositoryState.REBASING, RepositoryState.REBASING_INTERACTIVE, RepositoryState.REBASING_MERGE,
+            RepositoryState.REBASING_REBASING)), GitCoreRepositoryState.REBASING),
+        Case($(isIn(RepositoryState.REVERTING, RepositoryState.REVERTING_RESOLVED)), GitCoreRepositoryState.REVERTING),
+        Case($(), GitCoreRepositoryState.NORMAL));
   }
 
   @Override

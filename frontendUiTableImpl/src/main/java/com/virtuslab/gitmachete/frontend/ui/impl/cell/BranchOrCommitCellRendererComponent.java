@@ -44,6 +44,7 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
@@ -52,6 +53,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
+import com.virtuslab.gitmachete.frontend.ui.impl.table.GitMacheteGraphTable;
 
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
@@ -60,7 +62,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = RuntimeBinding
       .instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
 
-  private final JTable graphTable;
+  private final GitMacheteGraphTable graphTable;
   private final BufferedImage graphImage;
 
   @UIEffect
@@ -72,7 +74,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       int row,
       int column) {
 
-    this.graphTable = table;
+    assert table instanceof GitMacheteGraphTable : "Table variable is not instance of ${GitMacheteGraphTable.class.getSimpleName()}";
+    this.graphTable = (GitMacheteGraphTable) table;
 
     assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();
     var cell = (BranchOrCommitCell) value;
@@ -102,6 +105,23 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     int textPadding = calculateTextPadding(graphTable, maxGraphNodePositionInRow);
     appendTextPadding(textPadding);
+
+    if (graphItem.isBranchItem() && graphItem.asBranchItem().isCurrentBranch()) {
+      var gitMacheteRepositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
+      if (gitMacheteRepositorySnapshot != null) {
+        var ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
+        if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
+          var ongoingOperationName = Match(ongoingRepositoryOperation).of(
+              Case($(OngoingRepositoryOperation.CHERRY_PICK), "CHERRY-PICK"),
+              Case($(OngoingRepositoryOperation.MERGING), "MERGING"),
+              Case($(OngoingRepositoryOperation.REBASING), "REBASING"),
+              Case($(OngoingRepositoryOperation.REVERTING), "REVERTING"),
+              Case($(), ""));
+          SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
+          append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
+        }
+      }
+    }
 
     SimpleTextAttributes attributes = graphItem.getAttributes();
     append(cell.getText(), attributes);

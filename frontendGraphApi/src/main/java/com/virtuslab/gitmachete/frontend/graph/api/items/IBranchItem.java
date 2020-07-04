@@ -11,6 +11,8 @@ public interface IBranchItem extends IGraphItem {
 
   SyncToRemoteStatus getSyncToRemoteStatus();
 
+  boolean isCurrentBranch();
+
   // These methods need to be implemented in frontendGraphApi to avoid problems with Subtyping Checker.
   @Override
   default boolean isBranchItem() {

@@ -77,6 +77,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   private boolean isListingCommits;
 
   @UIEffect
+  @Getter
   private @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @UIEffect

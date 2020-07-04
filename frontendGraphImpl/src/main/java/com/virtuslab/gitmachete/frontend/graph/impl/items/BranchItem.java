@@ -19,6 +19,7 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
   private final IGitMacheteBranch branch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
+  private final boolean isCurrentBranch;
 
   @Getter(AccessLevel.NONE)
   private final boolean hasChildItem;
@@ -35,6 +36,7 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
     this.branch = branch;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
+    this.isCurrentBranch = isCurrentBranch;
     this.hasChildItem = hasChildItem;
   }
 

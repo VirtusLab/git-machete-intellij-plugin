@@ -25,4 +25,6 @@ public interface IGitMacheteRepositorySnapshot {
 
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
+
+  OngoingRepositoryOperation getOngoingRepositoryOperation();
 }

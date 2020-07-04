@@ -49,4 +49,9 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
     return Option.none();
   }
+
+  @Override
+  public OngoingRepositoryOperation getOngoingRepositoryOperation() {
+    return OngoingRepositoryOperation.NO_OPERATION;
+  }
 }
