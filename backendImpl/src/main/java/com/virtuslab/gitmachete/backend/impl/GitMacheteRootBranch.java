@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @CustomLog
-@ToString(callSuper = true)
+@ToString
 public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements IGitMacheteRootBranch {
 
   public GitMacheteRootBranch(

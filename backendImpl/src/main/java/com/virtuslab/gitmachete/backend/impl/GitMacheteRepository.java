@@ -705,7 +705,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     @AllArgsConstructor // needed for @With
     @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
-    @ToString(callSuper = false)
+    @ToString
     @UsesObjectEquals
     private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
       @Getter

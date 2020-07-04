@@ -326,6 +326,7 @@ subprojects {
 
     lombok = { ->
       // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
+      // Applying Lombok plugin conditionally from within this `ext` block turned out to be troublesome.
       if (!useDelombok) {
         dependencies {
           def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]

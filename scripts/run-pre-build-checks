@@ -13,7 +13,6 @@ bash ${x_option:+-x} ./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-issue-number-for-todos
 ./scripts/enforce-newline-at-eof
 ./scripts/enforce-settings-gradle-match-directories
-./scripts/enforce-to-string-call-super-in-subclasses
 ./scripts/enforce-unique-key-shortcuts-for-action-texts
 bash ${x_option:+-x} ./scripts/enforce-version-bump
 

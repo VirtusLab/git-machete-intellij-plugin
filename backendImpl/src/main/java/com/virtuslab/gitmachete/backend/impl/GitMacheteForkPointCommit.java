@@ -7,7 +7,7 @@ import lombok.ToString;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
 
-@ToString(callSuper = true)
+@ToString
 public final class GitMacheteForkPointCommit extends GitMacheteCommit implements IGitMacheteForkPointCommit {
 
   @Getter
