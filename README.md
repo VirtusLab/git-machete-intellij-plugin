@@ -74,13 +74,16 @@ can be helpful to see parsing result on machete file.
 To build the project, run `./gradlew build`.
 
 Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
-To overwrite them, use `GRADLE_COMPILE_JAVA_JVM_ARGS` environment variable (e.g. `GRADLE_COMPILE_JAVA_JVM_ARGS=-Xmx2g ./gradlew build`).
+To overwrite them, use `compileJavaJvmArgs` Gradle project property
+(e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
+or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew compileJava`).
 
 By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to {subproject}/build/delombok/...<br/>
-To enable Delombok, set `GRADLE_COMPILE_JAVA_DELOMBOK` environment variable to `true` (e.g. `GRADLE_COMPILE_JAVA_DELOMBOK=true ./gradlew build`).
+To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
 
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
-To make local builds more aligned with CI builds (at the expense of ~2x slower compilation from scratch), set `RUN_ALL_CHECKERS` environment variable to `true`.
+To make local builds more aligned with CI builds (at the expense of ~2x slower compilation from scratch),
+set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
 
 In case of spurious cache-related issues with Gradle build, try one of the following:
 * `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`

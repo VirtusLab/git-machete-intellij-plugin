@@ -14,6 +14,41 @@ plugins {
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
 }
 
+ext {
+  // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
+  intellijVersions = [
+    earliestSupported: '2020.1',
+    // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
+    inBetweenForCompatibilityChecks: [],
+    current: '2020.1.2',
+  ]
+  intellijVersions.buildTarget = intellijVersions.current
+  intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
+
+  betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
+  checkerFrameworkVersion = '3.5.0'
+  checkstyleToolVersion = '8.33'
+  jgitVersion = '5.8.0.202006091008-r'
+  junitVersion = '4.13'
+  kotlinStdlibVersion = '1.3.72'
+  lombokVersion = '1.18.12'
+  powerMockVersion = '2.0.7'
+  reflectionsVersion = '0.9.12'
+  remoteRobotVersion = '0.9.35'
+  slf4jLambdaApiVersion = '0.1'
+  slf4jVersion = '1.7.30'
+  vavrVersion = '0.10.3'
+
+  ciBranch = System.getenv('CIRCLE_BRANCH')
+  isCI = System.getenv('CI') == 'true'
+  jetbrainsMarketplaceToken = System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
+
+  // This values can't be named in the same way as their corresponding properties to avoid a name clash.
+  jvmArgsForJavaCompilation = project.properties.get('compileJavaJvmArgs')?.tokenize(' ')
+  shouldRunAllCheckers = isCI || project.hasProperty('runAllCheckers')
+  shouldUseDelombok = project.hasProperty('useDelombok')
+}
+
 task resolveDependencies {
   doLast {
     project.rootProject.allprojects.each { subProject ->
@@ -31,7 +66,7 @@ task resolveDependencies {
   }
 }
 
-if (System.getenv('CI') == 'true') {
+if (isCI) {
   gradle.startParameter.configureOnDemand = false
   gradle.startParameter.logLevel = LogLevel.INFO
   gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
@@ -54,36 +89,6 @@ allprojects {
     jcenter()
     mavenCentral()
   }
-
-  ext {
-    betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
-    checkerFrameworkVersion = '3.5.0'
-    checkstyleToolVersion = '8.33'
-
-    // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
-    intellijVersions = [
-      earliestSupported: '2020.1',
-      // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
-      inBetweenForCompatibilityChecks: [],
-      current: '2020.1.2',
-    ]
-    intellijVersions.buildTarget = intellijVersions.current
-    intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
-
-    jgitVersion = '5.8.0.202006091008-r'
-    junitVersion = '4.13'
-    kotlinStdlibVersion = '1.3.72'
-    lombokVersion = '1.18.12'
-    powerMockVersion = '2.0.7'
-    reflectionsVersion = '0.9.12'
-    remoteRobotVersion = '0.9.35'
-    slf4jLambdaApiVersion = '0.1'
-    slf4jVersion = '1.7.30'
-    vavrVersion = '0.10.3'
-
-    runAllCheckers = System.getenv('CI') == 'true' || System.getenv('RUN_ALL_CHECKERS') == 'true'
-    useDelombok = System.getenv('GRADLE_COMPILE_JAVA_DELOMBOK') == 'true'
-  }
 }
 
 subprojects {
@@ -96,10 +101,7 @@ subprojects {
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
-      if (System.getenv('CI') != 'true') {
-        def jvmArgsEnvVar = System.getenv('GRADLE_COMPILE_JAVA_JVM_ARGS')
-        options.forkOptions.jvmArgs += jvmArgsEnvVar ? jvmArgsEnvVar.tokenize(' ') : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError']
-      }
+      options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
     }
 
     tasks.withType(Javadoc) {
@@ -121,9 +123,9 @@ subprojects {
     checkers = [
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
-    if (runAllCheckers) {
+    if (shouldRunAllCheckers) {
       // The experience shows that the below checkers are just rarely failing, as compared to GuiEffect/Nullness.
-      // Hence, they're only applied in CI, or locally only if a dedicated variable is present in the env.
+      // Hence, they're only applied in CI, or locally only if a dedicated Gradle project property is set.
       checkers += [
         'org.checkerframework.checker.fenum.FenumChecker',
         'org.checkerframework.checker.index.IndexChecker',
@@ -171,9 +173,9 @@ subprojects {
   }
 
   dependencies {
-    def betterStringsArtifact = [ group: 'com.github.PawelLipski', name: 'better-strings', version: betterStringsRevision ]
-    annotationProcessor(betterStringsArtifact)
-    testAnnotationProcessor(betterStringsArtifact)
+    def betterStringsCoords = [ group: 'com.github.PawelLipski', name: 'better-strings', version: betterStringsRevision ]
+    annotationProcessor(betterStringsCoords)
+    testAnnotationProcessor(betterStringsCoords)
   }
 
   gradle.projectsEvaluated {
@@ -233,7 +235,7 @@ subprojects {
   checkstyleMain.finalizedBy(violations)
 
 
-  if (useDelombok) {
+  if (shouldUseDelombok) {
     apply plugin: 'io.freefair.lombok'
     lombok {
       version = lombokVersion
@@ -281,7 +283,7 @@ subprojects {
     }
 
     applyAliasingChecker = { ->
-      if (runAllCheckers) {
+      if (shouldRunAllCheckers) {
         checkerFramework {
           checkers += 'org.checkerframework.common.aliasing.AliasingChecker'
         }
@@ -289,7 +291,7 @@ subprojects {
     }
 
     applySubtypingChecker = { ->
-      if (runAllCheckers) {
+      if (shouldRunAllCheckers) {
         dependencies {
           checkerFramework project(':qual')
         }
@@ -327,13 +329,13 @@ subprojects {
     lombok = { ->
       // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
       // Applying Lombok plugin conditionally from within this `ext` block turned out to be troublesome.
-      if (!useDelombok) {
+      if (!shouldUseDelombok) {
         dependencies {
-          def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-          compileOnly lombokArtifact
-          annotationProcessor lombokArtifact
-          testCompileOnly lombokArtifact
-          testAnnotationProcessor lombokArtifact
+          def lombokCoords = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
+          compileOnly lombokCoords
+          annotationProcessor lombokCoords
+          testCompileOnly lombokCoords
+          testAnnotationProcessor lombokCoords
         }
       }
     }
@@ -407,11 +409,11 @@ subprojects {
 
 // Root project config
 
-// This is necessary to make sure that `buildPlugin` task puts jars of all subprojects into the final zip.
+// This is necessary to make sure that `buildPlugin` task puts jars of all relevant subprojects into the final zip.
 subprojects.each { subproject ->
-  // There is no production code in the below modules,
-  // no need to include their near-empty jars (which would contain only META-INF/MANIFEST.MF).
-  if (!(subproject.name in ['testCommon', 'uiTests'])) {
+  // No need to include near-empty (only with META-INF/MANIFEST.MF) jars
+  // for subprojects that don't have any production code.
+  if (!subproject.sourceSets.main.allSource.srcDirs.findAll { file(it).exists() }.isEmpty()) {
     dependencies {
       implementation(subproject)
     }
@@ -424,7 +426,6 @@ group 'com.virtuslab'
 apply plugin: 'org.ajoberstar.grgit'
 apply from: 'version.gradle'
 
-def ciBranch = System.getenv('CIRCLE_BRANCH')
 if (ciBranch == 'master') {
   version PROSPECTIVE_RELEASE_VERSION  // more precisely, "soon-to-happen-in-this-pipeline release version" in case of master builds
 
@@ -511,5 +512,5 @@ runIdeForUiTests {
 downloadRobotServerPlugin.version = remoteRobotVersion
 
 publishPlugin {
-  token System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
+  token jetbrainsMarketplaceToken
 }
