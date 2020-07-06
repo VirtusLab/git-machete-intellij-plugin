@@ -10,7 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Each {@code get...} method is guaranteed to return the same value each time it's called on a given object.
  *
  * The only criterion for equality of any instances of any class implementing this interface is equality of
- * {@code getFullName} and {@code derivePointedCommit}
+ * {@link #getFullName} and {@link #getPointedCommit}
  */
 public interface IGitCoreBranchSnapshot {
   boolean isLocal();

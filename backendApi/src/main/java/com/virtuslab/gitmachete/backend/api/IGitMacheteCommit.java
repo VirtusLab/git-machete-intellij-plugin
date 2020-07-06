@@ -7,7 +7,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
 /**
- * The only criterion for equality of any instances of any class implementing this interface is equality of {@code getHash}
+ * The only criterion for equality of any instances of any class implementing this interface is equality of {@link #getHash}
  */
 public interface IGitMacheteCommit {
   String getShortMessage();

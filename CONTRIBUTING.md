@@ -30,7 +30,7 @@ Other coding conventions include:
 
 * Don't write nullary lambdas in `receiver::method` notation, use explicit `() -> receiver.method()` notation instead. <br/>
   `::` notation is confusing when applied to parameterless lambdas, as it suggests a unary lambda.
-* Use `get...` method names for pure methods that only return the value without doing any heavy workload like accessing git repository.
+* Use `get...` method names for pure methods that only return the value without doing any heavy workload like accessing git repository. <br/>
   Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
 * Non-obvious method params that have values like `false`, `true`, `0`, `1`, `null`, `""` should be preceded with a `/* comment */ `
   containing the name of the param.
@@ -97,9 +97,10 @@ After a manual approval, the `master` build:
 Backport PRs are recognized by the `backport/*` branch name.
 They must have `develop` as its base.
 
-TBD: flow for hotfix PRs (PRs to `master` but NOT from `develop`) and their corresponding backport PRs.
-They are likely going to require us to allow either of:
-* non-linear history on `master`
-  (during a release, `develop` gets merged to the hotfixed `master` instead of `master` getting FFed to match `develop`) OR
-* rebasing the `develop` history since the latest release over the hotfixed `master`
-  (so that `develop` commit remains a descendant of hotfixed `master`, and thus `master` can be FFed to match `develop` during a release)
+Hotfix PRs are PRs to `master` but NOT from `develop` commit.
+They always introduce a non-linear history on `develop` since after a hotfix PR is merged,
+a backport PR from hotfixed `master` to `develop` is opened, and it cannot be fast-forward merged.
+The alternative that would preserve linear history is to rebase the `develop` history
+since the latest release over the hotfixed `master`.
+This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
+which is rather unacceptable.

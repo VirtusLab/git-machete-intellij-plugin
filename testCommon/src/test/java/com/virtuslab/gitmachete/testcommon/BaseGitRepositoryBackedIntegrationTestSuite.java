@@ -62,7 +62,7 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
 
   /**
    * Be careful with this method since it might lead to race conditions when the test is finished but another process
-   * (e.g. an IDE in case of UI tests) is still working and modifying the contents of {@code parentDir}.
+   * (e.g. an IDE in case of UI tests) is still working and modifying the contents of {@link #parentDir}.
    * Hence, this method is not marked as {@link org.junit.Before} by default.
    */
   @SneakyThrows
