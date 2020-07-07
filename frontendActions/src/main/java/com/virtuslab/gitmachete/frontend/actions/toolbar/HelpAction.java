@@ -48,7 +48,7 @@ public class HelpAction extends DumbAwareAction {
     @Override
     protected JComponent createCenterPanel() {
       var panel = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2);
-      var demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class).getInstance();
+      var demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class).deriveInstance();
       panel.addToCenter(ScrollPaneFactory.createScrollPane(demoGraphTable));
       panel.setPreferredSize(new JBDimension(CENTER_PANEL_WIDTH, CENTER_PANEL_HEIGHT));
       return panel;

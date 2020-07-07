@@ -5,5 +5,5 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 public interface IDemoGraphTableProvider {
   @UIEffect
-  JBTable getInstance();
+  JBTable deriveInstance();
 }
