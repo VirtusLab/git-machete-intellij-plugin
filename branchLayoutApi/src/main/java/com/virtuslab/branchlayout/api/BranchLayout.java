@@ -4,11 +4,8 @@ import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.With;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 @UsesObjectEquals
 public class BranchLayout implements IBranchLayout {
@@ -64,11 +61,11 @@ public class BranchLayout implements IBranchLayout {
     if (parentEntry == null) {
       throw new BranchLayoutException("Parent branch entry '${parentBranchName}' does not exists");
     }
-    var entryToSlideIn = new SlidInEntry(newBranchName, null, List.empty());
+    var entryToSlideIn = new BranchLayoutEntry(newBranchName, null, List.empty());
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
   }
 
-  @SuppressWarnings("interning:not.interned") // to allow for `entry == entryToSlideOut`
+  @SuppressWarnings("interning:not.interned") // to allow for `entry == entryToSlideIn`
   private List<IBranchLayoutEntry> slideIn(
       IBranchLayoutEntry entry,
       IBranchLayoutEntry entryToSlideIn,
@@ -78,24 +75,6 @@ public class BranchLayout implements IBranchLayout {
       return List.of(entry.withChildren(entry.getChildren().append(entryToSlideIn)));
     } else {
       return List.of(entry.withChildren(children.flatMap(child -> slideIn(child, entryToSlideIn, parent))));
-    }
-  }
-
-  @AllArgsConstructor
-  @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
-  private static final class SlidInEntry implements IBranchLayoutEntry {
-    @Getter
-    private final String name;
-
-    private final @Nullable String customAnnotation;
-
-    @Getter
-    @With
-    private final List<IBranchLayoutEntry> children;
-
-    @Override
-    public Option<String> getCustomAnnotation() {
-      return Option.of(customAnnotation);
     }
   }
 }

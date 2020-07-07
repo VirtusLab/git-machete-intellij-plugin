@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.impl;
+package com.virtuslab.branchlayout.api;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
@@ -8,8 +8,6 @@ import lombok.ToString;
 import lombok.With;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 @AllArgsConstructor
 @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method

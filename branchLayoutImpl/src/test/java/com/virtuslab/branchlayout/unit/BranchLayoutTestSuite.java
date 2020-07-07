@@ -6,10 +6,10 @@ import io.vavr.collection.List;
 import org.junit.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.branchlayout.impl.BranchLayoutEntry;
 
 public class BranchLayoutTestSuite {
 
