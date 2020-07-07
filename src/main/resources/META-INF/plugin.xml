@@ -35,6 +35,8 @@
         <colorSettingsPage implementation="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteColorSettingsPane"/>
 
         <annotator language="Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
+
+        <errorHandler implementation="com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorHandler"/>
     </extensions>
 
     <resource-bundle>GitMacheteBundle</resource-bundle>
