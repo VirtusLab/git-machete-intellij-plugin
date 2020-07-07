@@ -56,16 +56,15 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideIn(String aboveBranchName, String branchName) throws BranchLayoutException {
-    var entry = findEntryByName(branchName).getOrNull();
-    if (entry != null) {
-      throw new BranchLayoutException("Child branch entry '${branchName}' already exists");
+  public IBranchLayout slideIn(String parentBranchName, String newBranchName) throws BranchLayoutException {
+    if (findEntryByName(newBranchName).isDefined()) {
+      throw new BranchLayoutException("Child branch entry '${newBranchName}' already exists");
     }
-    var parentEntry = findEntryByName(aboveBranchName).getOrNull();
+    var parentEntry = findEntryByName(parentBranchName).getOrNull();
     if (parentEntry == null) {
-      throw new BranchLayoutException("Parent branch entry '${aboveBranchName}' does not exists");
+      throw new BranchLayoutException("Parent branch entry '${parentBranchName}' does not exists");
     }
-    var entryToSlideIn = new SlidInEntry(branchName, null, List.empty());
+    var entryToSlideIn = new SlidInEntry(newBranchName, null, List.empty());
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
   }
 
