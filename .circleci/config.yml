@@ -16,17 +16,6 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
-          name: '[TEMP] Publish better-strings annotation processor locally'
-          command: |
-            apt-get update
-            apt-get install -y maven
-
-            git clone https://github.com/PawelLipski/better-strings.git ~/better-strings
-            cd ~/better-strings
-            # https://github.com/antkorwin/better-strings/pull/14/files
-            git checkout 8d419868204fc7810de4d7685e7fd9b0793813f9
-            mvn install
-      - run:
           name: Compile production code
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
           command: ./gradlew --max-workers=2 compileJava

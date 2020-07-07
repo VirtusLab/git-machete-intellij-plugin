@@ -55,7 +55,7 @@ allprojects {
   }
 
   ext {
-    betterStringsVerson = '0.4'
+    betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
     checkerFrameworkVersion = '3.5.0'
     checkstyleToolVersion = '8.33'
 
@@ -163,11 +163,11 @@ subprojects {
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
   repositories {
-    mavenLocal()
+    maven { url "https://jitpack.io" }
   }
 
   dependencies {
-    def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
+    def betterStringsArtifact = [ group: 'com.github.PawelLipski', name: 'better-strings', version: betterStringsRevision ]
     annotationProcessor(betterStringsArtifact)
     testAnnotationProcessor(betterStringsArtifact)
   }
