@@ -50,12 +50,13 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
 
-    if (branch.isEmpty()) {
+    if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(GitMacheteBundle.message("action.slide-in.description.disabled.no-parent"));
+    } else if (branch.isEmpty()) {
+      presentation.setEnabled(false);
+      presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Slide In"));
     } else {
-      // it is supposed to be defined since "branch" is defined
-      assert branchName.isDefined() : "Branch name is undefined";
       presentation.setDescription(GitMacheteBundle.message("action.slide-in.description", branchName.get()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
@@ -70,7 +71,6 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteParentBranch = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
-    var hash = gitMacheteParentBranch.map(b -> b.getPointedCommit()).map(c -> c.getHash());
     var branchLayout = getBranchLayout(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
@@ -98,11 +98,9 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
                     getMessageOrEmpty(t)))
             .toOption();
 
-        newBranchLayout.map(nbl -> Try.of(() -> {
-          branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true);
-          return "ok";
-        }).onFailure(t -> notifier.notifyError(/* title */ GitMacheteBundle.message("branch-layout.write.notification.fail"),
-            getMessageOrEmpty(t))));
+        newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
+            .onFailure(t -> notifier.notifyError(/* title */ GitMacheteBundle.message("branch-layout.write.notification.fail"),
+                getMessageOrEmpty(t))));
       }
     }.queue();
   }
