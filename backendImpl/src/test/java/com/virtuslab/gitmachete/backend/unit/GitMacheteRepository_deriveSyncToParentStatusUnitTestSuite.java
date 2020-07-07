@@ -38,8 +38,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(commit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        MISSING_FORK_POINT);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -53,8 +52,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(commit, new TestGitCoreReflogEntry());
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        MISSING_FORK_POINT);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
@@ -71,8 +69,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     PowerMockito.doReturn(true).when(gitCoreRepository).isAncestor(parentCommit, childCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        parentCommit);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, parentCommit);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
@@ -90,8 +87,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     PowerMockito.doReturn(true).when(gitCoreRepository).isAncestor(parentCommit, childCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        forkPointCommit);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit);
 
     // then
     Assert.assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
@@ -109,8 +105,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     PowerMockito.doReturn(true).when(gitCoreRepository).isAncestor(childCommit, parentCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        MISSING_FORK_POINT);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
@@ -128,8 +123,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     PowerMockito.doReturn(false).when(gitCoreRepository).isAncestor(childCommit, parentCommit);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch,
-        MISSING_FORK_POINT);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
     Assert.assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);

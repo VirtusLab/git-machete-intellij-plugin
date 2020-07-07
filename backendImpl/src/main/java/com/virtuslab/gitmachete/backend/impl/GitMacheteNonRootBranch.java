@@ -45,8 +45,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
-        statusHookOutput);
+    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;

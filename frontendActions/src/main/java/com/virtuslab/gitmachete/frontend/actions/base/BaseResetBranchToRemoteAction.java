@@ -178,8 +178,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           if (!result.success()) {
             log().error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-                result.getErrorOutputAsHtmlString());
+            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
             return;
           }
         }

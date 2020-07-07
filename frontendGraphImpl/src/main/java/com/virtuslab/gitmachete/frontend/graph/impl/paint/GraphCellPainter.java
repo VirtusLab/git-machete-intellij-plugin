@@ -34,8 +34,7 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private BasicStroke getOrdinaryStroke() {
-    return new BasicStroke(PaintParameters.getLineThickness(getRowHeight()), BasicStroke.CAP_ROUND,
-        BasicStroke.JOIN_BEVEL);
+    return new BasicStroke(PaintParameters.getLineThickness(getRowHeight()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
   }
 
   @UIEffect

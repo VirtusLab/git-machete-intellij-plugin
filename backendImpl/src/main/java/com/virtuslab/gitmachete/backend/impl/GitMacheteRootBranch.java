@@ -22,8 +22,7 @@ public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements 
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
-    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
-        statusHookOutput);
+    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     LOG.debug("Creating ${this}");
 

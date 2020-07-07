@@ -375,8 +375,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
       if (coreLocalBranch == null) {
-        NonRootCreatedAndSkippedBranches childResult = deriveChildBranches(parentCoreLocalBranch,
-            entry.getChildren());
+        NonRootCreatedAndSkippedBranches childResult = deriveChildBranches(parentCoreLocalBranch, entry.getChildren());
         return childResult.withExtraSkippedBranch(branchName);
       }
 

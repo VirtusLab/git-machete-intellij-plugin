@@ -78,7 +78,8 @@ public class RepositoryGraphBuilder {
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, childBranches, currentBranchIndex,
           /* indentLevel */ 0);
     }
-    return Tuple.of(List.ofAll(graphItems),
+    return Tuple.of(
+        List.ofAll(graphItems),
         positionsOfVisibleEdges.stream().map(List::ofAll).collect(List.collector()));
   }
 
