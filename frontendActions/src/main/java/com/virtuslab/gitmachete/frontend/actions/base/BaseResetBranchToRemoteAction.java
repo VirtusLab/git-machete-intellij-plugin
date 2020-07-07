@@ -135,8 +135,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           } else {
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             log().warn(message);
-            VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
-                message);
+            VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
             return;
           }
 

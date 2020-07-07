@@ -55,7 +55,7 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       presentation.setDescription(GitMacheteBundle.message("action.slide-in.description.disabled.no-parent"));
     } else if (branch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Slide In"));
+      presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Slide In"));
     } else {
       presentation.setDescription(GitMacheteBundle.message("action.slide-in.description", branchName.get()));
 

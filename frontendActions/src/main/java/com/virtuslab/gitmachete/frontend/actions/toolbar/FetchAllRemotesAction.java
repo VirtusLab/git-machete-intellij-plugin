@@ -29,7 +29,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.fetch.description.disabled.aleardy-running"));
+      presentation.setDescription(GitMacheteBundle.message("action.fetch.description.disabled.already-running"));
     } else {
       presentation.setDescription(GitMacheteBundle.message("action.fetch.description"));
     }

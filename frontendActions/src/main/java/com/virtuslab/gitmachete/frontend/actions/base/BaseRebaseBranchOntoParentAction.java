@@ -59,21 +59,26 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.rebase.description.disabled.git4idea.unknown-state"));
+      presentation.setDescription(GitMacheteBundle.message("action.rebase.description.disabled.repository.unknown-state"));
 
     } else if (state.get() != Repository.State.NORMAL) {
 
       var stateName = Match(state.get()).of(
-          Case($(Repository.State.GRAFTING), GitMacheteBundle.message("git4idea.repository.state.ongoing.cherry-pick")),
-          Case($(Repository.State.DETACHED), GitMacheteBundle.message("git4idea.repository.state.detached-head")),
-          Case($(Repository.State.MERGING), GitMacheteBundle.message("git4idea.repository.state.ongoing.merge")),
-          Case($(Repository.State.REBASING), GitMacheteBundle.message("git4idea.repository.state.ongoing.rebase")),
-          Case($(Repository.State.REVERTING), GitMacheteBundle.message("git4idea.repository.state.ongoing.revert")),
+          Case($(Repository.State.GRAFTING),
+              GitMacheteBundle.message("action.description.repository.state.ongoing.cherry-pick")),
+          Case($(Repository.State.DETACHED),
+              GitMacheteBundle.message("action.description.repository.state.detached-head")),
+          Case($(Repository.State.MERGING),
+              GitMacheteBundle.message("action.description.repository.state.ongoing.merge")),
+          Case($(Repository.State.REBASING),
+              GitMacheteBundle.message("action.description.repository.state.ongoing.rebase")),
+          Case($(Repository.State.REVERTING),
+              GitMacheteBundle.message("action.description.repository.state.ongoing.revert")),
           Case($(), ": " + state.get().name().toLowerCase()));
 
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.rebase.description.disabled.git4idea.repository.status", stateName));
+          .setDescription(GitMacheteBundle.message("action.rebase.description.disabled.repository.status", stateName));
     } else {
 
       var branchName = getNameOfBranchUnderAction(anActionEvent);
@@ -81,7 +86,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       if (branch.isEmpty()) {
         presentation.setEnabled(false);
-        presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Rebase"));
+        presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Rebase"));
       } else if (branch.get().isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {

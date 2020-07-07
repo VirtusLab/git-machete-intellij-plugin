@@ -39,7 +39,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          GitMacheteBundle.message("action.description.disabled.undefined.branch.name", getDescriptionActionName()));
+          GitMacheteBundle.message("action.description.disabled.undefined.branch-name", getDescriptionActionName()));
       return;
     }
 
@@ -47,7 +47,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (gitMacheteBranchByName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", getDescriptionActionName()));
+          GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", getDescriptionActionName()));
       return;
     }
     var syncToRemoteStatus = gitMacheteBranchByName.map(branch -> branch.getSyncToRemoteStatus());
@@ -76,18 +76,18 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
 
       var desc = Match(relation).of(
           Case($(SyncToRemoteStatus.Relation.AheadOfRemote),
-              GitMacheteBundle.message("synctoremotestatus.relation.aheadofremote")),
+              GitMacheteBundle.message("sync-to-remote-status.relation.ahead-of-remote")),
           Case($(SyncToRemoteStatus.Relation.BehindRemote),
-              GitMacheteBundle.message("synctoremotestatus.relation.behindremote")),
+              GitMacheteBundle.message("sync-to-remote-status.relation.behind-remote")),
           Case($(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote),
-              GitMacheteBundle.message("synctoremotestatus.relation.divergedfrom.andnewerthanremote")),
+              GitMacheteBundle.message("sync-to-remote-status.relation.diverged-from.and-newer-than-remote")),
           Case($(SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote),
-              GitMacheteBundle.message("synctoremotestatus.relation.divergedfrom.andolderthanremote")),
+              GitMacheteBundle.message("sync-to-remote-status.relation.diverged-from.and-older-than-remote")),
           Case($(SyncToRemoteStatus.Relation.InSyncToRemote),
-              GitMacheteBundle.message("synctoremotestatus.relation.insynctoremote")),
+              GitMacheteBundle.message("sync-to-remote-status.relation.in-sync-to-remote")),
           Case($(SyncToRemoteStatus.Relation.Untracked),
-              GitMacheteBundle.message("synctoremotestatus.relation.untracked")),
-          Case($(), GitMacheteBundle.message("synctoremotestatus.relation.unknown", relation.toString())));
+              GitMacheteBundle.message("sync-to-remote-status.relation.untracked")),
+          Case($(), GitMacheteBundle.message("sync-to-remote-status.relation.unknown", relation.toString())));
       presentation.setDescription(
           GitMacheteBundle.message("action.description.disabled.branch.status", getDescriptionActionName(), desc));
     }

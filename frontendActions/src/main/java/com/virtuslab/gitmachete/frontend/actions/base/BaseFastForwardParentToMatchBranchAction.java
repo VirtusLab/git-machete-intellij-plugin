@@ -45,7 +45,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.branch.name", "Fast forward"));
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.branch-name", "Fast forward"));
       return;
     }
 
@@ -53,7 +53,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (gitMacheteBranch.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Fast forward"));
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Fast forward"));
       return;
     }
 
@@ -84,10 +84,10 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
           Case($(SyncToParentStatus.InSyncButForkPointOff),
-              GitMacheteBundle.message("synctoparentstatus.insyncbutforkpointoff")),
-          Case($(SyncToParentStatus.MergedToParent), GitMacheteBundle.message("synctoparentstatus.mergedtoparent")),
-          Case($(SyncToParentStatus.OutOfSync), GitMacheteBundle.message("synctoparentstatus.outofsync")),
-          Case($(), GitMacheteBundle.message("synctoparentstatus.unknown", syncToParentStatus.toString())));
+              GitMacheteBundle.message("sync-to-parent-status.in-sync-but-fork-point-off")),
+          Case($(SyncToParentStatus.MergedToParent), GitMacheteBundle.message("sync-to-parent-status.merged-to-parent")),
+          Case($(SyncToParentStatus.OutOfSync), GitMacheteBundle.message("sync-to-parent-status.out-of-sync")),
+          Case($(), GitMacheteBundle.message("sync-to-parent-status.unknown", syncToParentStatus.toString())));
 
       presentation
           .setDescription(GitMacheteBundle.message("action.description.disabled.branch.status", "Fast forward", desc));

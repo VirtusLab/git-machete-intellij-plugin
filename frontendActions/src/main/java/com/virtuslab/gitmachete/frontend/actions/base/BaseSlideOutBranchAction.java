@@ -57,7 +57,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete.branch", "Slide out"));
+          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Slide out"));
     } else if (branch.get().isNonRootBranch()) {
       presentation.setDescription(GitMacheteBundle.message("action.slide-out.description", branch.get().getName()));
 

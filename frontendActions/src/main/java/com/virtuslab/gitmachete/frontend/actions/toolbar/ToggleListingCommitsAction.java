@@ -66,7 +66,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     } else {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.toggle-listing_commits.description.disabled.no-commits"));
+          .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-commits"));
     }
 
   }
