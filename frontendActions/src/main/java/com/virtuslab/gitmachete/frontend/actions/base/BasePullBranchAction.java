@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
@@ -7,10 +9,10 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -29,13 +31,13 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
   }
 
   @Override
-  public String getActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.action-name");
+  public @I18nFormat({}) String getActionName() {
+    return getString("action.GitMachete.BasePullBranchAction.action-name");
   }
 
   @Override
-  public String getDescriptionActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.description-action-name");
+  public @I18nFormat({}) String getDescriptionActionName() {
+    return getString("action.GitMachete.BasePullBranchAction.description-action-name");
   }
 
   @Override
@@ -88,11 +90,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
     new FetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(),
-        /* taskTitle */ GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.task-title"))
+        /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title"))
             .queue();
 
     // Remote set to '.' (dot) is just the local repository.
     new FetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT,
-        /* taskTitle */ GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.task-title")).queue();
+        /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title")).queue();
   }
 }

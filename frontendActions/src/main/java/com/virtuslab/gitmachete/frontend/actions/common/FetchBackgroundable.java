@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+import static java.text.MessageFormat.format;
+
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -34,14 +37,13 @@ public class FetchBackgroundable extends Task.Backgroundable {
     try {
       fetchResult.ourThrowExceptionIfFailed();
     } catch (VcsException e) {
-      fetchResult
-          .showNotificationIfFailed(GitMacheteBundle.message("GitMachete.FetchBackgroundable.notification.fail", refspec));
+      fetchResult.showNotificationIfFailed(format(getString("GitMachete.FetchBackgroundable.notification.fail"), refspec));
     }
   }
 
   @Override
   public void onSuccess() {
     VcsNotifier.getInstance(project)
-        .notifySuccess(GitMacheteBundle.message("GitMachete.FetchBackgroundable.notification.success", refspec));
+        .notifySuccess(format(getString("GitMachete.FetchBackgroundable.notification.success"), refspec));
   }
 }

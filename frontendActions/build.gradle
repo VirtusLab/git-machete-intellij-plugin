@@ -6,6 +6,7 @@ dependencies {
   implementation project(':binding')
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')
+  implementation project(':frontendResourceBundles')
   implementation project(':frontendDefs')
   implementation project(':frontendUiApi')
   implementation project(':frontendDataKeys')
@@ -16,6 +17,20 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 applySubtypingChecker()
+
+checkerFramework {
+  checkers += [
+    'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
+  ]
+  extraJavacArgs += [
+    '-Abundlenames=GitMacheteBundle',
+  ]
+}
+
+// Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
+dependencies {
+  checkerFramework project(':frontendResourceBundles')
+}
 
 apply plugin: 'org.jetbrains.kotlin.jvm'
 compileKotlin {

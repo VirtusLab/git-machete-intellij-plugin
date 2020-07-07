@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.vcsmenu;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -10,7 +12,6 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -34,8 +35,8 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
 
     Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
-        GitMacheteBundle.message("action.GitMachete.OpenMacheteTabAction.notification.fail.title"),
-        GitMacheteBundle.message("action.GitMachete.OpenMacheteTabAction.notification.fail.message.no-git"));
+        getString("action.GitMachete.OpenMacheteTabAction.notification.fail.title"),
+        getString("action.GitMachete.OpenMacheteTabAction.notification.fail.message.no-git"));
 
     if (toolWindow == null) {
       LOG.debug("VCS tool window does not exist");

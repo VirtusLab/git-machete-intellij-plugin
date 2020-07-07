@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+
 import java.util.Collections;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -18,7 +20,6 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -52,7 +53,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
     var macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(
-            /* message */ GitMacheteBundle.message("action.GitMachete.OpenMacheteFileAction.notification.fail.cannot-open")))
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.cannot-open")))
         .toOption());
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
@@ -63,10 +64,8 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
       try {
         doOpenFile(project, macheteFile.get());
       } catch (DirNamedMacheteExistsException e) {
-        VcsNotifier.getInstance(project)
-            .notifyWeakError(
-                /* message */ GitMacheteBundle
-                    .message("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"));
+        VcsNotifier.getInstance(project).notifyWeakError(
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"));
       }
     }
   }

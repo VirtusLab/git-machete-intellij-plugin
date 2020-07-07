@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.A
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -13,10 +14,10 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -34,13 +35,13 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   }
 
   @Override
-  public String getActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BasePushBranchAction.action-name");
+  public @I18nFormat({}) String getActionName() {
+    return getString("action.GitMachete.BasePushBranchAction.action-name");
   }
 
   @Override
-  public String getDescriptionActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BasePushBranchAction.description-action-name");
+  public @I18nFormat({}) String getDescriptionActionName() {
+    return getString("action.GitMachete.BasePushBranchAction.description-action-name");
   }
 
   @Override

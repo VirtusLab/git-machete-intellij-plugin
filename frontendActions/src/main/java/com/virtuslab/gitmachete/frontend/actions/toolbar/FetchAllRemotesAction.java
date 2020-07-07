@@ -1,16 +1,17 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectKeyAvailabilityAssuranceAction;
 import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -29,10 +30,9 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
-      presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
+      presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
-      presentation.setDescription(GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.description"));
+      presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description"));
     }
   }
 
@@ -43,11 +43,9 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.task-title"), /*
-                                                                                                                      * canBeCancelled
-                                                                                                                      */ true) {
-
-      @Nullable
+    new Task.Backgroundable(project, getString("action.GitMachete.FetchAllRemotesAction.task-title"),
+        /* canBeCancelled */ true) {
+      @MonotonicNonNull
       GitFetchResult result = null;
 
       @Override

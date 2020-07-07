@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
+import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
 
@@ -21,7 +23,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -57,21 +58,19 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(
-              GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Slide out"));
+          .setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Slide out"));
     } else if (branch.get().isNonRootBranch()) {
-      presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.description", branch.get().getName()));
+      presentation
+          .setDescription(format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.get().getName()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchBelowAction.text.current-branch"));
+        presentation.setText(getString("action.GitMachete.BaseSlideOutBranchBelowAction.text.current-branch"));
       }
     } else {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation
-            .setDescription(GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.description.root.branch",
-                branch.get().getName()));
+        presentation.setDescription(
+            format(getString("action.GitMachete.BaseSlideOutBranchAction.description.root.branch"), branch.get().getName()));
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -115,8 +114,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
       VcsNotifier.getInstance(project)
-          .notifySuccess(
-              GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.notification.success", branchName));
+          .notifySuccess(format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.success"), branchName));
 
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
@@ -124,7 +122,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError(
-          GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.notification.fail", branchName),
+          format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.fail"), branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
 

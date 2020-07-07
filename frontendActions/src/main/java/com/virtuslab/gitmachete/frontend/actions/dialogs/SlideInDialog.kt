@@ -7,7 +7,7 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.CellBuilder
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.panel
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.message
+import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString
 import kotlin.apply
 import kotlin.text.isEmpty
 import kotlin.text.trim
@@ -19,9 +19,9 @@ class SlideInDialog constructor(project: Project, private val parentName: String
   private var branchName = ""
 
   init {
-    title = message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
+    title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
-        message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
+        getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
     setOKButtonMnemonic('I'.toInt())
     init()
   }
@@ -31,12 +31,12 @@ class SlideInDialog constructor(project: Project, private val parentName: String
   override fun createCenterPanel() =
       panel {
         row(
-            message(
+            getString(
                 "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")) {
           label(parentName, bold = true)
         }
         row {
-          label(message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label"))
+          label(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label"))
         }
         row {
           textField(::branchName, { branchName = it })

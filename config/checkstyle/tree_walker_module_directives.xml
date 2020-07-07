@@ -25,8 +25,6 @@
 <module name="IllegalImport">
     <!-- Avoid mutable collections; if really needed, qualify their class names explicitly. -->
     <property name="illegalClasses" value="java.util.Deque, java.util.HashMap, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.TreeMap, java.util.Vector"/>
-    <!-- Use string interpolation instead (com.antkorwin:better-strings). -->
-    <property name="illegalClasses" value="java.text.MessageFormat"/>
     <!-- Use io.vavr.control.Option instead. -->
     <property name="illegalClasses" value="java.util.Optional"/>
     <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->

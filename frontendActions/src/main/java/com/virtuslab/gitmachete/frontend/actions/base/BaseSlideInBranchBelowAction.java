@@ -1,8 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
+import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
 
@@ -21,7 +23,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -55,17 +56,17 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Slide In"));
+          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Slide In"));
     } else {
       presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.description", branchName.get()));
+          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.description"), branchName.get()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.text.current-branch"));
+        presentation.setText(getString("action.GitMachete.BaseSlideInBranchBelowAction.text.current-branch"));
       }
     }
   }
@@ -91,12 +92,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     }
 
     if (parentName.equals(slideInDialogBranchName)) {
+      // @formatter:off
       notifier.notifyError(
-          /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
-              slideInDialogBranchName),
-          /* message */ GitMacheteBundle
-              .message(
-                  "action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
+          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"), slideInDialogBranchName),
+          /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
+      // @formatter:on
       return;
     }
 
@@ -109,9 +109,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
             ? createNewBranchDialogBranchName
             : "no name provided";
         notifier.notifyWeakError(
-            GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.mismatched-names",
-                slideInDialogBranchName,
-                createNewBranchDialogBranchName));
+            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.mismatched-names"),
+                slideInDialogBranchName, createNewBranchDialogBranchName));
         return;
       }
     }
@@ -129,7 +128,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
       @Override
       public void run(ProgressIndicator indicator) {
@@ -143,15 +142,14 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
             .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
-                    /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
+                    /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
                         slideInDialogBranchName),
                     getMessageOrEmpty(t)))
             .toOption();
 
         newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
             .onFailure(t -> notifier.notifyError(
-                /* title */ GitMacheteBundle
-                    .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.branch-layout-write"),
+                /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.branch-layout-write"),
                 getMessageOrEmpty(t))));
       }
     }.queue();
@@ -166,7 +164,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     var repositories = java.util.Collections.singletonList(gitRepository);
     var gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
-        /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title",
+        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title"),
             startPoint),
         initialName,
         /* showCheckOutOption */ true,

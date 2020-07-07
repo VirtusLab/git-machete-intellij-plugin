@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+import static java.text.MessageFormat.format;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -12,7 +15,6 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -43,8 +45,8 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Checkout"));
+      presentation
+          .setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Checkout"));
       return;
     }
 
@@ -53,12 +55,12 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out",
+          format(getString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out"),
               selectedBranchName.get()));
 
     } else {
-      presentation.setDescription(GitMacheteBundle.message("action.GitMachete.CheckoutSelectedBranchAction.description.precise",
-          selectedBranchName.get()));
+      presentation.setDescription(
+          format(getString("action.GitMachete.CheckoutSelectedBranchAction.description.precise"), selectedBranchName.get()));
     }
   }
 
@@ -74,7 +76,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
     if (gitRepository.isDefined()) {
       log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
-      new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.CheckoutSelectedBranchAction.task-title")) {
+      new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedBranchAction.task-title")) {
         @Override
         public void run(ProgressIndicator indicator) {
           doCheckout(selectedBranchName.get(), gitRepository.get(), project, indicator);

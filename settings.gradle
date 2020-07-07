@@ -1,4 +1,5 @@
 rootProject.name = 'git-machete-intellij-plugin'
+// Note: please keep the projects in a topological order
 include 'logging'
 include 'binding'
 include 'qual'
@@ -9,6 +10,7 @@ include 'branchLayoutApi'
 include 'branchLayoutImpl'
 include 'backendApi'
 include 'backendImpl'
+include 'frontendResourceBundles'
 include 'frontendDefs'
 include 'frontendDataKeys'
 include 'frontendIcons'

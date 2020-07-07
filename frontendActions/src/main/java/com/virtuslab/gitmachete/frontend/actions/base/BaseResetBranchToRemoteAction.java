@@ -1,5 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+import static java.text.MessageFormat.format;
+import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
+
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.AccessToken;
@@ -18,11 +22,11 @@ import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -35,8 +39,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
-  private static final String VCS_NOTIFIER_TITLE = GitMacheteBundle
-      .message("action.GitMachete.BaseResetBranchToRemoteAction.notification.title");
+  private static final String VCS_NOTIFIER_TITLE = getString(
+      "action.GitMachete.BaseResetBranchToRemoteAction.notification.title");
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -44,18 +48,18 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   @Override
-  public String getActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BaseResetBranchToRemoteAction.action-name");
+  public @I18nFormat({}) String getActionName() {
+    return getString("action.GitMachete.BaseResetBranchToRemoteAction.action-name");
   }
 
   @Override
-  public String getDescriptionActionName() {
-    return GitMacheteBundle.message("action.GitMachete.BaseResetBranchToRemoteAction.description-action-name");
+  public @I18nFormat({}) String getDescriptionActionName() {
+    return getString("action.GitMachete.BaseResetBranchToRemoteAction.description-action-name");
   }
 
   @Override
-  public String getEnabledDescriptionBundleKey() {
-    return "action.GitMachete.BaseResetBranchToRemoteAction.description.enabled";
+  public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
+    return getString("action.GitMachete.BaseResetBranchToRemoteAction.description.enabled");
   }
 
   @Override
@@ -118,14 +122,15 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
       IGitMacheteRepositorySnapshot macheteRepository, AnActionEvent anActionEvent) {
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
+    new Task.Backgroundable(project,
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
         /* canBeCancelled */ true) {
 
       @Override
       public void run(ProgressIndicator indicator) {
         log().debug(() -> "Resetting '${branchName}' branch");
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
-            GitMacheteBundle.message("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
+            getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
@@ -180,9 +185,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         }
 
         // If we are here this means that all went good
-        VcsNotifier.getInstance(project)
-            .notifySuccess(
-                GitMacheteBundle.message("action.GitMachete.BaseResetBranchToRemoteAction.notification.success", branchName));
+        VcsNotifier.getInstance(project).notifySuccess(
+            format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
         log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
       }
     }.queue();

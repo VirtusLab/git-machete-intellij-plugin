@@ -1,8 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
+import static java.text.MessageFormat.format;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -15,7 +17,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -44,26 +45,25 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation
-          .setDescription(
-              GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.branch-name", "Fast forward"));
+      presentation.setDescription(
+          format(getString("action.GitMachete.description.disabled.undefined.branch-name"), "Fast forward"));
       return;
     }
 
     var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName.get());
     if (gitMacheteBranch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation
-          .setDescription(
-              GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Fast forward"));
+      presentation.setDescription(
+          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Fast forward"));
       return;
     }
 
     if (gitMacheteBranch.get().isRootBranch()) {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription(GitMacheteBundle.message(
-            "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.root-branch", branchName.get()));
+        presentation.setDescription(
+            format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.root-branch"),
+                branchName.get()));
       } else { // contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -77,33 +77,29 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (syncToParentStatus == SyncToParentStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(
-            GitMacheteBundle.message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.text.current-branch"));
+        presentation.setText(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.text.current-branch"));
       }
 
       var parentName = gitMacheteNonRoot.getParentBranch().getName();
-      presentation.setDescription(GitMacheteBundle
-          .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description", parentName, branchName.get()));
+      presentation
+          .setDescription(format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description"),
+              parentName, branchName.get()));
 
     } else {
+      // @formatter:off
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
           Case($(SyncToParentStatus.InSyncButForkPointOff),
-              GitMacheteBundle.message(
-                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
+              getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
           Case($(SyncToParentStatus.MergedToParent),
-              GitMacheteBundle.message(
-                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.merged-to-parent")),
+              getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.merged-to-parent")),
           Case($(SyncToParentStatus.OutOfSync),
-              GitMacheteBundle.message(
-                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.out-of-sync")),
+              getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.out-of-sync")),
           Case($(),
-              GitMacheteBundle.message(
-                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.unknown",
-                  syncToParentStatus.toString())));
-
-      presentation.setDescription(GitMacheteBundle
-          .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.branch-status", desc));
+              format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
+      // @formatter:on
+      presentation.setDescription(format(
+          getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.branch-status"), desc));
     }
   }
 
@@ -141,6 +137,6 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
     // Remote set to '.' (dot) is just the local repository.
     new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT,
-        GitMacheteBundle.message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
+        getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
   }
 }

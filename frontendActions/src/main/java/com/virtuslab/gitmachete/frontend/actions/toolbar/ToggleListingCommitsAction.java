@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
@@ -8,7 +10,6 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -40,8 +41,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     var branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(
-          GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
+      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
@@ -50,9 +50,8 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
     if (noChildBranchExists) {
       presentation.setEnabled(false);
-      presentation
-          .setDescription(
-              GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-child-branches"));
+      presentation.setDescription(
+          getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-child-branches"));
       return;
     }
 
@@ -64,12 +63,10 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
     if (anyCommitExists) {
       presentation.setEnabled(true);
-      presentation.setDescription(GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description"));
+      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description"));
     } else {
       presentation.setEnabled(false);
-      presentation
-          .setDescription(
-              GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-commits"));
+      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-commits"));
     }
 
   }
