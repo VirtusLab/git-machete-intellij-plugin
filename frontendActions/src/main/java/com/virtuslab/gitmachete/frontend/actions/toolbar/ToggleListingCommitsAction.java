@@ -38,34 +38,37 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     }
 
     var branchLayout = getBranchLayout(anActionEvent);
-    if (branchLayout.isDefined()) {
-      boolean anyChildBranchExists = branchLayout.get().getRootEntries()
-          .exists(rootBranch -> rootBranch.getChildren().nonEmpty());
-
-      if (anyChildBranchExists) {
-        boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
-            .map(repo -> repo.getRootBranches()
-                .flatMap(root -> root.getDownstreamBranches())
-                .exists(b -> b.getCommits().nonEmpty()))
-            .getOrElse(false);
-
-        if (anyCommitExists) {
-          presentation.setEnabled(true);
-          presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description"));
-        } else {
-          presentation.setEnabled(false);
-          presentation
-              .setDescription(GitMacheteBundle.message("action.toggle-listing_commits.description.disabled.no-commits"));
-        }
-      } else {
-        presentation.setEnabled(false);
-        presentation
-            .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-child-branches"));
-      }
-    } else {
+    if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-branches"));
+      return;
     }
+
+    boolean noChildBranchExists = branchLayout.get().getRootEntries()
+        .exists(rootBranch -> rootBranch.getChildren().isEmpty());
+
+    if (noChildBranchExists) {
+      presentation.setEnabled(false);
+      presentation
+          .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-child-branches"));
+      return;
+    }
+
+    boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
+        .map(repo -> repo.getRootBranches()
+            .flatMap(root -> root.getDownstreamBranches())
+            .exists(b -> b.getCommits().nonEmpty()))
+        .getOrElse(false);
+
+    if (anyCommitExists) {
+      presentation.setEnabled(true);
+      presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description"));
+    } else {
+      presentation.setEnabled(false);
+      presentation
+          .setDescription(GitMacheteBundle.message("action.toggle-listing_commits.description.disabled.no-commits"));
+    }
+
   }
 
   @Override
