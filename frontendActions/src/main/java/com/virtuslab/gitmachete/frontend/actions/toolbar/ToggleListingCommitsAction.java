@@ -69,7 +69,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @UIEffect
-  public boolean isSelected(Presentation presentation) {
+  private boolean isSelected(Presentation presentation) {
     return Toggleable.isSelected(presentation);
   }
 
