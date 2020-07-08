@@ -25,11 +25,11 @@ public interface IGitMacheteNonRootBranch extends IGitMacheteBranch {
 
   IGitMacheteBranch getUpstreamBranch();
 
-  SyncToParentStatus getSyncToParentStatus();
+  SyncToUpstreamStatus getSyncToUpstreamStatus();
 
   Option<IGitMacheteForkPointCommit> getForkPoint();
 
-  IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
+  IGitRebaseParameters getParametersForRebaseOntoUpstream() throws GitMacheteMissingForkPointException;
 
-  IGitMergeParameters getParametersForMergeIntoParent();
+  IGitMergeParameters getParametersForMergeIntoUpstream();
 }

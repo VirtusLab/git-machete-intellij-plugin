@@ -48,7 +48,7 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
 
   /**
    * This is a hack necessary to create an immutable cyclic structure
-   * (children pointing at the parent and the parent pointing at the children).
+   * (downstreams pointing at the upstream and the upstream pointing at the downstreams).
    * This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
    * upstream data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
    */

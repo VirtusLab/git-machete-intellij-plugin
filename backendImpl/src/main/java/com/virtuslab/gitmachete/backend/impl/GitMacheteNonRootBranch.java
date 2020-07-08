@@ -16,8 +16,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 
 @CustomLog
 @Getter
@@ -27,7 +27,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   private @MonotonicNonNull IGitMacheteBranch upstreamBranch = null;
   private final @Nullable IGitMacheteForkPointCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
-  private final SyncToParentStatus syncToParentStatus;
+  private final SyncToUpstreamStatus syncToUpstreamStatus;
 
   @ToString.Include(name = "upstreamBranch") // avoid recursive `toString` call on upstream branch to avoid stack overflow
   private @Nullable String getUpstreamBranchName() {
@@ -44,13 +44,13 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       @Nullable String statusHookOutput,
       @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
-      SyncToParentStatus syncToParentStatus) {
+      SyncToUpstreamStatus syncToUpstreamStatus) {
     super(name, downstreamBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
         statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;
-    this.syncToParentStatus = syncToParentStatus;
+    this.syncToUpstreamStatus = syncToUpstreamStatus;
 
     LOG.debug("Creating ${this}");
 
@@ -75,7 +75,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException {
+  public IGitRebaseParameters getParametersForRebaseOntoUpstream() throws GitMacheteMissingForkPointException {
     LOG.debug(() -> "Entering: branch = '${getName()}'");
     if (forkPoint == null) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${getName()}'");
@@ -90,7 +90,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public IGitMergeParameters getParametersForMergeIntoParent() {
+  public IGitMergeParameters getParametersForMergeIntoUpstream() {
     LOG.debug(() -> "Entering: branch = '${getName()}'");
     LOG.debug(() -> "Inferred merge parameters: currentBranch = ${getName()}, " +
         "branchToMergeInto = ${getUpstreamBranch().getName()}");

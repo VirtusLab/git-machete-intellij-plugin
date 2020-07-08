@@ -24,7 +24,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -107,7 +107,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           presentation.setEnabledAndVisible(false);
         }
 
-      } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
+      } else if (branch.get().asNonRootBranch().getSyncToUpstreamStatus() == SyncToUpstreamStatus.MergedToUpstream) {
         presentation.setEnabled(false);
         presentation
             .setDescription(GitMacheteBundle.message(
@@ -162,7 +162,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       IGitMacheteNonRootBranch branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
+    var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoUpstream());
 
     if (tryGitRebaseParameters.isFailure()) {
       var e = tryGitRebaseParameters.getCause();

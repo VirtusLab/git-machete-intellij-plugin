@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.repository;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSync;
-import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButForkPointOff;
-import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.MergedToParent;
-import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.OutOfSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus.InSyncButForkPointOff;
+import static com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus.MergedToUpstream;
+import static com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus.OutOfSync;
 import static com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor.GRAY;
 import static com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor.GREEN;
 import static com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor.RED;
@@ -32,8 +32,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IBranchGetCommitsStrategy;
@@ -137,14 +137,14 @@ public class RepositoryGraphBuilder {
     graphItems.add(branchItem);
   }
 
-  private static final Map<SyncToParentStatus, GraphItemColor> ITEM_COLORS = HashMap.of(
-      MergedToParent, GRAY,
+  private static final Map<SyncToUpstreamStatus, GraphItemColor> ITEM_COLORS = HashMap.of(
+      MergedToUpstream, GRAY,
       InSyncButForkPointOff, YELLOW,
       OutOfSync, RED,
       InSync, GREEN);
 
-  private static GraphItemColor getGraphItemColor(SyncToParentStatus syncToParentStatus) {
-    return ITEM_COLORS.getOrElse(syncToParentStatus, TRANSPARENT);
+  private static GraphItemColor getGraphItemColor(SyncToUpstreamStatus syncToUpstreamStatus) {
+    return ITEM_COLORS.getOrElse(syncToUpstreamStatus, TRANSPARENT);
   }
 
   private void buildCommitsAndNonRootBranch(
@@ -154,8 +154,8 @@ public class RepositoryGraphBuilder {
       @NonNegative int indentLevel) {
     List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
-    var syncToParentStatus = branch.getSyncToParentStatus();
-    GraphItemColor graphItemColor = getGraphItemColor(syncToParentStatus);
+    var syncToUpstreamStatus = branch.getSyncToUpstreamStatus();
+    GraphItemColor graphItemColor = getGraphItemColor(syncToUpstreamStatus);
     int branchItemIndex = graphItems.size() + commits.size();
     // We are building some non root branch here so some root branch item has been added already.
     assert branchItemIndex > 0 : "Branch node index is not greater than 0 but should be";

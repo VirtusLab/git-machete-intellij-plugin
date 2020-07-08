@@ -24,8 +24,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
@@ -42,7 +42,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.empty(),
-            SyncToParentStatus.MergedToParent),
+            SyncToUpstreamStatus.MergedToUpstream),
         new NonRoot(/* name */ "build-chain",
             /* customAnnotation */ "# Green edge: branch is in sync with its parent branch",
             nullPointedCommit,
@@ -50,21 +50,21 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* downstreamBranches */ List.empty(),
             /* commits */ List.of(new Commit("Second commit of build-chain"),
                 new Commit("First commit of build-chain")),
-            SyncToParentStatus.InSync),
+            SyncToUpstreamStatus.InSync),
         new NonRoot(/* name */ "call-ws",
             /* customAnnotation */ "# Yellow edge: Branch is in sync with its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
             /* fork point */ fp,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.of(fp),
-            SyncToParentStatus.InSyncButForkPointOff),
+            SyncToUpstreamStatus.InSyncButForkPointOff),
         new NonRoot(/* name */ "remove-ff",
             /* customAnnotation */ "# Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
             /* downstreamBranches */ List.empty(),
             /* commits */ List.of(new Commit("Some commit")),
-            SyncToParentStatus.OutOfSync)
+            SyncToUpstreamStatus.OutOfSync)
     };
 
     var root = new Root(/* name */ "develop",
@@ -208,7 +208,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final List<IGitMacheteCommit> commits;
     @MonotonicNonNull
     private IGitMacheteBranch upstreamBranch = null;
-    private final SyncToParentStatus syncToParentStatus;
+    private final SyncToUpstreamStatus syncToUpstreamStatus;
 
     @Override
     public IGitMacheteBranch getUpstreamBranch() {
@@ -237,12 +237,12 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public IGitRebaseParameters getParametersForRebaseOntoParent() {
+    public IGitRebaseParameters getParametersForRebaseOntoUpstream() {
       throw new NotImplementedError();
     }
 
     @Override
-    public IGitMergeParameters getParametersForMergeIntoParent() {
+    public IGitMergeParameters getParametersForMergeIntoUpstream() {
       throw new NotImplementedError();
     }
 

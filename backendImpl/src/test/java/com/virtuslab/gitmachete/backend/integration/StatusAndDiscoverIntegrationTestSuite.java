@@ -33,8 +33,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
@@ -194,14 +194,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append("  ");
     sb.append(prefix);
 
-    var parentStatus = branch.getSyncToParentStatus();
-    if (parentStatus == SyncToParentStatus.InSync)
+    var upstreamStatus = branch.getSyncToUpstreamStatus();
+    if (upstreamStatus == SyncToUpstreamStatus.InSync)
       sb.append("o");
-    else if (parentStatus == SyncToParentStatus.OutOfSync)
+    else if (upstreamStatus == SyncToUpstreamStatus.OutOfSync)
       sb.append("x");
-    else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
+    else if (upstreamStatus == SyncToUpstreamStatus.InSyncButForkPointOff)
       sb.append("?");
-    else if (parentStatus == SyncToParentStatus.MergedToParent)
+    else if (upstreamStatus == SyncToUpstreamStatus.MergedToUpstream)
       sb.append("m");
     sb.append("-");
 

@@ -13,7 +13,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -72,9 +72,9 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     }
 
     var gitMacheteNonRoot = gitMacheteBranch.get().asNonRootBranch();
-    var syncToParentStatus = gitMacheteNonRoot.getSyncToParentStatus();
+    var syncToUpstreamStatus = gitMacheteNonRoot.getSyncToUpstreamStatus();
 
-    if (syncToParentStatus == SyncToParentStatus.InSync) {
+    if (syncToUpstreamStatus == SyncToUpstreamStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
         presentation.setText(
@@ -87,24 +87,23 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
     } else {
       presentation.setEnabled(false);
-      var desc = Match(syncToParentStatus).of(
-          Case($(SyncToParentStatus.InSyncButForkPointOff),
+      var desc = Match(syncToUpstreamStatus).of(
+          Case($(SyncToUpstreamStatus.InSyncButForkPointOff),
               GitMacheteBundle.message(
                   "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
-          Case($(SyncToParentStatus.MergedToParent),
+          Case($(SyncToUpstreamStatus.MergedToUpstream),
               GitMacheteBundle.message(
                   "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.merged-to-parent")),
-          Case($(SyncToParentStatus.OutOfSync),
+          Case($(SyncToUpstreamStatus.OutOfSync),
               GitMacheteBundle.message(
                   "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.out-of-sync")),
           Case($(),
               GitMacheteBundle.message(
                   "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.unknown",
-                  syncToParentStatus.toString())));
+                  syncToUpstreamStatus.toString())));
 
-      presentation
-          .setDescription(GitMacheteBundle
-              .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.branch-status", desc));
+      presentation.setDescription(GitMacheteBundle
+          .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.branch-status", desc));
     }
   }
 
