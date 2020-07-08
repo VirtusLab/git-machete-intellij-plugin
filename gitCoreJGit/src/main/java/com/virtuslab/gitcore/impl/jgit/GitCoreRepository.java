@@ -25,6 +25,7 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -151,18 +152,24 @@ public final class GitCoreRepository implements IGitCoreRepository {
     if (ref.isSymbolic()) {
       currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
     } else {
-      Path headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name");
+      @Nullable Path headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name");
       if (!headNamePath.toFile().isFile()) {
         headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-merge").resolve("head-name");
+        if (!headNamePath.toFile().isFile()) {
+          headNamePath = null;
+        }
       }
-      java.util.List<String> headNameFileLines;
-      try {
-        headNameFileLines = Files.readAllLines(headNamePath);
-      } catch (IOException e) {
-        throw new GitCoreException("Error occurred while getting current branch ref", e);
-      }
-      if (!headNameFileLines.isEmpty()) {
-        currentBranchName = Repository.shortenRefName(headNameFileLines.get(0));
+
+      if (headNamePath != null) {
+        java.util.List<String> headNameFileLines;
+        try {
+          headNameFileLines = Files.readAllLines(headNamePath);
+        } catch (IOException e) {
+          throw new GitCoreException("Error occurred while getting current branch ref", e);
+        }
+        if (!headNameFileLines.isEmpty()) {
+          currentBranchName = Repository.shortenRefName(headNameFileLines.get(0));
+        }
       }
     }
 
@@ -416,13 +423,21 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   public GitCoreRepositoryState deriveRepositoryState() {
     return Match(jgitRepo.getRepositoryState()).of(
+    // @formatter:off
         Case($(isIn(RepositoryState.CHERRY_PICKING, RepositoryState.CHERRY_PICKING_RESOLVED)),
             GitCoreRepositoryState.CHERRY_PICK),
-        Case($(isIn(RepositoryState.MERGING, RepositoryState.MERGING_RESOLVED)), GitCoreRepositoryState.MERGING),
-        Case($(isIn(RepositoryState.REBASING, RepositoryState.REBASING_INTERACTIVE, RepositoryState.REBASING_MERGE,
-            RepositoryState.REBASING_REBASING)), GitCoreRepositoryState.REBASING),
-        Case($(isIn(RepositoryState.REVERTING, RepositoryState.REVERTING_RESOLVED)), GitCoreRepositoryState.REVERTING),
+        Case($(isIn(RepositoryState.MERGING, RepositoryState.MERGING_RESOLVED)),
+            GitCoreRepositoryState.MERGING),
+        Case($(isIn(RepositoryState.REBASING, RepositoryState.REBASING_INTERACTIVE, RepositoryState.REBASING_MERGE, RepositoryState.REBASING_REBASING)),
+            GitCoreRepositoryState.REBASING),
+        Case($(isIn(RepositoryState.REVERTING, RepositoryState.REVERTING_RESOLVED)),
+            GitCoreRepositoryState.REVERTING),
+        Case($(RepositoryState.APPLY),
+            GitCoreRepositoryState.APPLY),
+        Case($(RepositoryState.BISECTING),
+            GitCoreRepositoryState.BISECTING),
         Case($(), GitCoreRepositoryState.NORMAL));
+    // @formatter:on
   }
 
   @Override

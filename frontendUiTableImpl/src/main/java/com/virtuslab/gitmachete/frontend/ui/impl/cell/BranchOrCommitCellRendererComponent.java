@@ -112,10 +112,12 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         var ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
         if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
           var ongoingOperationName = Match(ongoingRepositoryOperation).of(
-              Case($(OngoingRepositoryOperation.CHERRY_PICK), "CHERRY-PICK"),
+              Case($(OngoingRepositoryOperation.CHERRY_PICKING), "CHERRY-PICKING"),
               Case($(OngoingRepositoryOperation.MERGING), "MERGING"),
               Case($(OngoingRepositoryOperation.REBASING), "REBASING"),
               Case($(OngoingRepositoryOperation.REVERTING), "REVERTING"),
+              Case($(OngoingRepositoryOperation.APPLY), "APPLY"),
+              Case($(OngoingRepositoryOperation.BISECTING), "BISECTING"),
               Case($(), ""));
           SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);

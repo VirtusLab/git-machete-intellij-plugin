@@ -319,10 +319,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           : "<none> (unmanaged branch or detached HEAD)"));
 
       var ongoingOperation = Match(gitCoreRepository.deriveRepositoryState()).of(
-          Case($(GitCoreRepositoryState.CHERRY_PICK), OngoingRepositoryOperation.CHERRY_PICK),
+          Case($(GitCoreRepositoryState.CHERRY_PICK), OngoingRepositoryOperation.CHERRY_PICKING),
           Case($(GitCoreRepositoryState.MERGING), OngoingRepositoryOperation.MERGING),
           Case($(GitCoreRepositoryState.REBASING), OngoingRepositoryOperation.REBASING),
           Case($(GitCoreRepositoryState.REVERTING), OngoingRepositoryOperation.REVERTING),
+          Case($(GitCoreRepositoryState.APPLY), OngoingRepositoryOperation.APPLY),
+          Case($(GitCoreRepositoryState.BISECTING), OngoingRepositoryOperation.BISECTING),
           Case($(), OngoingRepositoryOperation.NO_OPERATION));
 
       return new GitMacheteRepositorySnapshot(rootBranches, branchLayout, currentBranchIfManaged, managedBranchByName,
