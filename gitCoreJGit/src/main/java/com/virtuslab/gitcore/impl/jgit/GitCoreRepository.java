@@ -134,51 +134,42 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
-    Ref ref;
-    try {
-      ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
-    } catch (IOException e) {
-      throw new GitCoreException("Cannot get current branch", e);
-    }
+    Ref ref = Try.of(() -> jgitRepo.getRefDatabase().findRef(Constants.HEAD))
+        .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
 
     if (ref == null) {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
-    var reflog = deriveReflogByRefFullName(Constants.HEAD);
-    IGitCoreLocalBranchSnapshot targetBranch;
 
-    String currentBranchName = null;
+    var reflog = deriveReflogByRefFullName(Constants.HEAD);
+
+    Option<String> currentBranchName = Option.none();
 
     if (ref.isSymbolic()) {
-      currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
+      currentBranchName = Option.of(Repository.shortenRefName(ref.getTarget().getName()));
     } else {
-      @Nullable Path headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name");
-      if (!headNamePath.toFile().isFile()) {
-        headNamePath = jgitRepo.getDirectory().toPath().resolve("rebase-merge").resolve("head-name");
-        if (!headNamePath.toFile().isFile()) {
-          headNamePath = null;
-        }
-      }
+      // To allow map to null
+      @SuppressWarnings("nullness") Option<Path> headNamePath = Option
+          .of(jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name"))
+          .map(path -> path.toFile().isFile()
+              ? path
+              : jgitRepo.getDirectory().toPath().resolve("rebase-merge").resolve("head-name"))
+          .map(path -> path.toFile().isFile() ? path : null)
+          .flatMap(Option::of);
 
-      if (headNamePath != null) {
-        java.util.List<String> headNameFileLines;
-        try {
-          headNameFileLines = Files.readAllLines(headNamePath);
-        } catch (IOException e) {
-          throw new GitCoreException("Error occurred while getting current branch ref", e);
-        }
-        if (!headNameFileLines.isEmpty()) {
-          currentBranchName = Repository.shortenRefName(headNameFileLines.get(0));
-        }
+      if (headNamePath.isDefined()) {
+        currentBranchName = Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
+            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current branch ref", e))
+            .headOption()
+            .map(Repository::shortenRefName);
       }
     }
 
-    if (currentBranchName != null) {
-      targetBranch = deriveLocalBranchByName(currentBranchName).getOrNull();
-    } else {
-      targetBranch = null;
-    }
-
+    @Nullable IGitCoreLocalBranchSnapshot targetBranch = currentBranchName
+        .map(CheckedFunction1.liftTry(this::deriveLocalBranchByName))
+        .getOrElse(Try.success(Option.none()))
+        .getOrElseThrow(e -> (GitCoreException) e)
+        .getOrNull();
     return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 
