@@ -293,10 +293,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     IGitMacheteRepositorySnapshot createGitMacheteRepository(IBranchLayout branchLayout) throws GitMacheteException {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
-      var rootBranchesCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap);
-      var rootBranches = rootBranchesCreationResults.map(creationResult -> creationResult.getCreatedRootBranch()).toList();
-      var notCreatedBranches = rootBranchesCreationResults.flatMap(creationResult -> creationResult.getNotCreatedBranchNames())
-          .toList();
+      var rootBranchesCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
+      var rootBranches = rootBranchesCreationResults.map(creationResult -> creationResult.getCreatedRootBranch());
+      var skippedBranches = rootBranchesCreationResults.flatMap(creationResult -> creationResult.getNotCreatedBranchNames());
 
       var managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
@@ -314,7 +313,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           : "<none> (unmanaged branch or detached HEAD)"));
 
       return new GitMacheteRepositorySnapshot(rootBranches, branchLayout, currentBranchIfManaged, managedBranchByName,
-          notCreatedBranches, preRebaseHookExecutor);
+          skippedBranches, preRebaseHookExecutor);
     }
 
     private Map<String, IGitMacheteBranch> createManagedBranchByNameMap(List<IGitMacheteRootBranch> rootBranches) {
@@ -348,10 +347,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       GitMacheteRootBranch createdRootBranch = new GitMacheteRootBranch(branchName, downstreamBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
-      return new GitMacheteRootBranchCreationResult(createdRootBranch, downstreamBranches.getNotCreatedBranchNames());
+      return GitMacheteRootBranchCreationResult.of(createdRootBranch, downstreamBranches.getSkippedBranchNames());
     }
 
-    private GitMacheteNonRootBranchCreationResult createGitMacheteNonRootBranch(
+    private GitMacheteNonRootBranchesCreationResult createGitMacheteNonRootBranch(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         IBranchLayoutEntry entry) throws GitCoreException {
 
@@ -359,9 +358,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
       if (coreLocalBranch == null) {
-        GitMacheteNonRootBranchCreationResult downstreamResult = deriveDownstreamBranches(parentCoreLocalBranch,
+        GitMacheteNonRootBranchesCreationResult downstreamResult = deriveDownstreamBranches(parentCoreLocalBranch,
             entry.getChildren());
-        return new GitMacheteNonRootBranchCreationResult(downstreamResult, branchName);
+        return downstreamResult.withExtraSkippedBranch(branchName);
       }
 
       IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
@@ -391,10 +390,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
       var result = new GitMacheteNonRootBranch(branchName, downstreamBranches.getCreatedBranches(), pointedCommit,
-          remoteTrackingBranch,
-          syncToRemoteStatus, customAnnotation, statusHookOutput,
-          forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
-      return new GitMacheteNonRootBranchCreationResult(result, downstreamBranches.getNotCreatedBranchNames());
+          remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint,
+          commits.map(GitMacheteCommit::new), syncToParentStatus);
+      return GitMacheteNonRootBranchesCreationResult.of(result, downstreamBranches.getSkippedBranchNames());
     }
 
     private @Nullable IGitMacheteRemoteBranch getRemoteTrackingBranchForCoreLocalBranch(
@@ -548,7 +546,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
-    private GitMacheteNonRootBranchCreationResult deriveDownstreamBranches(
+    private GitMacheteNonRootBranchesCreationResult deriveDownstreamBranches(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         List<IBranchLayoutEntry> entries) throws GitCoreException {
 
@@ -556,7 +554,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           () -> createGitMacheteNonRootBranch(parentCoreLocalBranch, entry)));
       return Try.sequence(downstreamBranchTries)
           .getOrElseThrow(GitCoreException::getOrWrap)
-          .fold(GitMacheteNonRootBranchCreationResult.empty(), GitMacheteNonRootBranchCreationResult::new);
+          .fold(GitMacheteNonRootBranchesCreationResult.empty(), GitMacheteNonRootBranchesCreationResult::merge);
     }
 
     private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
@@ -784,38 +782,52 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Getter
-  private static class GitMacheteNonRootBranchCreationResult {
+  private static final class GitMacheteNonRootBranchesCreationResult {
     private final List<GitMacheteNonRootBranch> createdBranches;
-    private final List<String> notCreatedBranchNames;
+    private final List<String> skippedBranchNames;
 
-    private GitMacheteNonRootBranchCreationResult() {
-      createdBranches = List.empty();
-      notCreatedBranchNames = List.empty();
+    private GitMacheteNonRootBranchesCreationResult() {
+      this.createdBranches = List.empty();
+      this.skippedBranchNames = List.empty();
     }
 
-    public static GitMacheteNonRootBranchCreationResult empty() {
-      return new GitMacheteNonRootBranchCreationResult();
+    static GitMacheteNonRootBranchesCreationResult empty() {
+      return new GitMacheteNonRootBranchesCreationResult();
     }
 
-    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult, String notCreatedBranch) {
-      createdBranches = prevResult.getCreatedBranches();
-      notCreatedBranchNames = prevResult.getNotCreatedBranchNames().append(notCreatedBranch);
+    private GitMacheteNonRootBranchesCreationResult(GitMacheteNonRootBranchesCreationResult prevResult, String skippedBranch) {
+      this.createdBranches = prevResult.getCreatedBranches();
+      this.skippedBranchNames = prevResult.getSkippedBranchNames().append(skippedBranch);
     }
 
-    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranch createdBranch, List<String> notCreatedBranchNames) {
-      createdBranches = List.of(createdBranch);
-      this.notCreatedBranchNames = notCreatedBranchNames;
+    private GitMacheteNonRootBranchesCreationResult(GitMacheteNonRootBranch createdBranch, List<String> skippedBranchNames) {
+      this.createdBranches = List.of(createdBranch);
+      this.skippedBranchNames = skippedBranchNames;
     }
 
-    GitMacheteNonRootBranchCreationResult(GitMacheteNonRootBranchCreationResult prevResult1,
-        GitMacheteNonRootBranchCreationResult prevResult2) {
-      createdBranches = prevResult1.getCreatedBranches().appendAll(prevResult2.getCreatedBranches());
-      notCreatedBranchNames = prevResult1.getNotCreatedBranchNames().appendAll(prevResult2.getNotCreatedBranchNames());
+    private GitMacheteNonRootBranchesCreationResult(GitMacheteNonRootBranchesCreationResult prevResult1,
+        GitMacheteNonRootBranchesCreationResult prevResult2) {
+      this.createdBranches = prevResult1.getCreatedBranches().appendAll(prevResult2.getCreatedBranches());
+      this.skippedBranchNames = prevResult1.getSkippedBranchNames().appendAll(prevResult2.getSkippedBranchNames());
+    }
+
+    GitMacheteNonRootBranchesCreationResult withExtraSkippedBranch(String skippedBranch) {
+      return new GitMacheteNonRootBranchesCreationResult(this, skippedBranch);
+    }
+
+    static GitMacheteNonRootBranchesCreationResult of(GitMacheteNonRootBranch createdBranch, List<String> skippedBranchNames) {
+      return new GitMacheteNonRootBranchesCreationResult(createdBranch, skippedBranchNames);
+    }
+
+    static GitMacheteNonRootBranchesCreationResult merge(GitMacheteNonRootBranchesCreationResult prevResult1,
+        GitMacheteNonRootBranchesCreationResult prevResult2) {
+      return new GitMacheteNonRootBranchesCreationResult(prevResult1, prevResult2);
     }
   }
 
   @Data
-  private static class GitMacheteRootBranchCreationResult {
+  @RequiredArgsConstructor(staticName = "of")
+  private static final class GitMacheteRootBranchCreationResult {
     private final IGitMacheteRootBranch createdRootBranch;
     private final List<String> notCreatedBranchNames;
   }

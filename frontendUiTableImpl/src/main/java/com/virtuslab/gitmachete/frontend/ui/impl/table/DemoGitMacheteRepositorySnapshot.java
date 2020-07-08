@@ -108,7 +108,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public List<String> getNotCreatedBranchNames() {
+  public List<String> getSkippedBranchNames() {
     return List.empty();
   }
 

@@ -21,7 +21,7 @@ public interface IGitMacheteRepositorySnapshot {
 
   Option<IGitMacheteBranch> getManagedBranchByName(String branchName);
 
-  List<String> getNotCreatedBranchNames();
+  List<String> getSkippedBranchNames();
 
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
