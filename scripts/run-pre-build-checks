@@ -6,6 +6,7 @@ set -e
 x_option=${-//[^x]/}
 
 # pass -x option if this script is run with -x option itself
+./scripts/enforce-call-super-for-overrided-onupdate
 bash ${x_option:+-x} ./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
