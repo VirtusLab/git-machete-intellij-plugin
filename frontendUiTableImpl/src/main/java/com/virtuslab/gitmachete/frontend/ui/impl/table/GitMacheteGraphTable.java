@@ -132,7 +132,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  private void refreshModel(GitRepository gitRepository, List<String> notCreatedBranchNames) {
+  private void refreshModel(GitRepository gitRepository, List<String> skippedBranchNames) {
     // TODO (#176): When machete file is absent or empty,
     // propose using branch layout automatically detected by discover functionality
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
@@ -171,11 +171,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
-    if (notCreatedBranchNames.nonEmpty()) {
+    if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
           "The following branches defined by machete file do not belong to the local repository",
-          String.join(", ", notCreatedBranchNames));
+          String.join(", ", skippedBranchNames));
     }
 
     repaint();
