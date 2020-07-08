@@ -16,6 +16,8 @@ public final class DemoGraphTable extends JBTable {
 
   @UIEffect
   public static DemoGraphTable deriveInstance() {
+    // We can keep the data - graph table model,
+    // but wee need to reinstantiate the UI - demo graph table.
     return new DemoGraphTable(GRAPH_TABLE_MODEL);
   }
 
