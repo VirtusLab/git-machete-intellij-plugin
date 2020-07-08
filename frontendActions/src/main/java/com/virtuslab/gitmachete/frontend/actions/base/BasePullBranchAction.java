@@ -30,12 +30,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
-    return GitMacheteBundle.message("action.pull.action-name");
+    return GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.action-name");
   }
 
   @Override
   public String getDescriptionActionName() {
-    return GitMacheteBundle.message("action.pull.description-action-name");
+    return GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.description-action-name");
   }
 
   @Override
@@ -88,11 +88,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var refspecRemoteLocal = "${remoteFullName}:${localFullName}";
 
     new FetchBackgroundable(project, gitRepository, refspecLocalRemote, trackingInfo.getRemote(),
-        /* taskTitle */ GitMacheteBundle.message("action.pull.task.title"))
+        /* taskTitle */ GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.task-title"))
             .queue();
 
     // Remote set to '.' (dot) is just the local repository.
     new FetchBackgroundable(project, gitRepository, refspecRemoteLocal, GitRemote.DOT,
-        /* taskTitle */ GitMacheteBundle.message("action.pull.task.title")).queue();
+        /* taskTitle */ GitMacheteBundle.message("action.GitMachete.BasePullBranchAction.task-title")).queue();
   }
 }

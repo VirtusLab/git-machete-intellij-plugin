@@ -44,7 +44,7 @@
         <annotator language="Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
     </extensions>
 
-    <resource-bundle>actions.ResourceBundle</resource-bundle>
+    <resource-bundle>GitMacheteBundle</resource-bundle>
 
     <actions>
         <group id="GitMachete.ContextMenu">

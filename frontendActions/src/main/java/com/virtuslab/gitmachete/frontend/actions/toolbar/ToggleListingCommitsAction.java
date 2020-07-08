@@ -40,7 +40,8 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     var branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-branches"));
+      presentation.setDescription(
+          GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
@@ -50,7 +51,8 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     if (noChildBranchExists) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-child-branches"));
+          .setDescription(
+              GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-child-branches"));
       return;
     }
 
@@ -62,11 +64,12 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
     if (anyCommitExists) {
       presentation.setEnabled(true);
-      presentation.setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description"));
+      presentation.setDescription(GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description"));
     } else {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.toggle-listing-commits.description.disabled.no-commits"));
+          .setDescription(
+              GitMacheteBundle.message("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-commits"));
     }
 
   }

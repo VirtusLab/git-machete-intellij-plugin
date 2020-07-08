@@ -29,9 +29,10 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.fetch.description.disabled.already-running"));
+      presentation.setDescription(
+          GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
-      presentation.setDescription(GitMacheteBundle.message("action.fetch.description"));
+      presentation.setDescription(GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.description"));
     }
   }
 
@@ -42,7 +43,9 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.fetch.task.title"), /* canBeCancelled */ true) {
+    new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.task-title"), /*
+                                                                                                                      * canBeCancelled
+                                                                                                                      */ true) {
 
       @Nullable
       GitFetchResult result = null;

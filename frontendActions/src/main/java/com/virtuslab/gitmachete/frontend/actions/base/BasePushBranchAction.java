@@ -35,12 +35,12 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public String getActionName() {
-    return GitMacheteBundle.message("action.push.action-name");
+    return GitMacheteBundle.message("action.GitMachete.BasePushBranchAction.action-name");
   }
 
   @Override
   public String getDescriptionActionName() {
-    return GitMacheteBundle.message("action.push.description-action-name");
+    return GitMacheteBundle.message("action.GitMachete.BasePushBranchAction.description-action-name");
   }
 
   @Override

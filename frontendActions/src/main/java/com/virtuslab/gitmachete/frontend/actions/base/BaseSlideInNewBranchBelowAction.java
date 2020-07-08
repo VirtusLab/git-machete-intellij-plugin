@@ -52,15 +52,18 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
 
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.slide-in.description.disabled.no-parent"));
+      presentation.setDescription(
+          GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Slide In"));
+      presentation.setDescription(
+          GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Slide In"));
     } else {
-      presentation.setDescription(GitMacheteBundle.message("action.slide-in.description", branchName.get()));
+      presentation.setDescription(
+          GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.description", branchName.get()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(GitMacheteBundle.message("action.slide-in.text"));
+        presentation.setText(GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.text.current-branch"));
       }
     }
   }
@@ -79,13 +82,13 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
     }
 
     var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), gitMacheteParentBranch.get().getName(),
-        GitMacheteBundle.message("action.slide-in.dialog.title"));
+        GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.title"));
     if (branchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from dialog");
       return;
     }
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.slide-in.task.title")) {
+    new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
       @Override
       public void run(ProgressIndicator indicator) {
@@ -94,12 +97,16 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
 
         var newBranchLayout = Try.of(() -> branchLayout.get().slideIn(gitMacheteParentBranch.get().getName(), branchName))
             .onFailure(
-                t -> notifier.notifyError(/* title */ GitMacheteBundle.message("action.slide-in.notification.fail", branchName),
+                t -> notifier.notifyError(
+                    /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
+                        branchName),
                     getMessageOrEmpty(t)))
             .toOption();
 
         newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
-            .onFailure(t -> notifier.notifyError(/* title */ GitMacheteBundle.message("branch-layout.write.notification.fail"),
+            .onFailure(t -> notifier.notifyError(
+                /* title */ GitMacheteBundle
+                    .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.branch-layout-write"),
                 getMessageOrEmpty(t))));
       }
     }.queue();

@@ -18,7 +18,8 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectKey
 
     if (!isEnabled) {
       anActionEvent.getPresentation()
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.git-machete-repository"));
+          .setDescription(GitMacheteBundle.message(
+              "action.GitMachete.BaseGitMacheteRepositoryReadyAction.description.disabled.undefined.git-machete-repository"));
     }
   }
 

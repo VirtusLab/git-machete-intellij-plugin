@@ -59,26 +59,33 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(GitMacheteBundle.message("action.rebase.description.disabled.repository.unknown-state"));
+      presentation.setDescription(GitMacheteBundle
+          .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.unknown-state"));
 
     } else if (state.get() != Repository.State.NORMAL) {
 
       var stateName = Match(state.get()).of(
           Case($(Repository.State.GRAFTING),
-              GitMacheteBundle.message("action.description.repository.state.ongoing.cherry-pick")),
+              GitMacheteBundle.message(
+                  "action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.cherry-pick")),
           Case($(Repository.State.DETACHED),
-              GitMacheteBundle.message("action.description.repository.state.detached-head")),
+              GitMacheteBundle
+                  .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.detached-head")),
           Case($(Repository.State.MERGING),
-              GitMacheteBundle.message("action.description.repository.state.ongoing.merge")),
+              GitMacheteBundle
+                  .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.merge")),
           Case($(Repository.State.REBASING),
-              GitMacheteBundle.message("action.description.repository.state.ongoing.rebase")),
+              GitMacheteBundle
+                  .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.rebase")),
           Case($(Repository.State.REVERTING),
-              GitMacheteBundle.message("action.description.repository.state.ongoing.revert")),
+              GitMacheteBundle
+                  .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.revert")),
           Case($(), ": " + state.get().name().toLowerCase()));
 
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.rebase.description.disabled.repository.status", stateName));
+          .setDescription(GitMacheteBundle
+              .message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status", stateName));
     } else {
 
       var branchName = getNameOfBranchUnderAction(anActionEvent);
@@ -86,13 +93,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       if (branch.isEmpty()) {
         presentation.setEnabled(false);
-        presentation.setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Rebase"));
+        presentation.setDescription(
+            GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Rebase"));
       } else if (branch.get().isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
-              GitMacheteBundle.message("action.rebase.description.disabled.root.branch", branch.get().getName()));
+              GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch",
+                  branch.get().getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
@@ -101,19 +110,21 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
         presentation
-            .setDescription(GitMacheteBundle.message("action.rebase.description.disabled.merged", branch.get().getName()));
+            .setDescription(GitMacheteBundle.message(
+                "action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged", branch.get().getName()));
 
       } else if (branch.get().isNonRootBranch()) {
         var nonRootBranch = branch.get().asNonRootBranch();
         IGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
         presentation
-            .setDescription(GitMacheteBundle.message("action.rebase.description", branch.get().getName(), upstream.getName()));
+            .setDescription(GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.description",
+                branch.get().getName(), upstream.getName()));
       }
 
       var isRebasingCurrent = branch.isDefined() && getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.get().getName())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
-        presentation.setText(GitMacheteBundle.message("action.rebase.text"));
+        presentation.setText(GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
       }
     }
   }
@@ -158,14 +169,16 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       // TODO (#172): redirect the user to the manual fork-point
       var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
-      VcsNotifier.getInstance(project).notifyError(GitMacheteBundle.message("action.rebase.notification.fail"), message);
+      VcsNotifier.getInstance(project).notifyError(
+          GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.fail"), message);
       return;
     }
 
     var gitRebaseParameters = tryGitRebaseParameters.get();
     LOG.debug(() -> "Queuing machete-pre-rebase hook background task for '${branchToRebase.getName()}' branch");
 
-    new Task.Backgroundable(project, GitMacheteBundle.message("action.rebase.hook.task.title")) {
+    new Task.Backgroundable(project,
+        GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.hook.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
 
@@ -182,7 +195,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         if (hookResult.isFailure()) {
           var message = "machete-pre-rebase hook refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
-          VcsNotifier.getInstance(project).notifyError(GitMacheteBundle.message("action.rebase.notification.abort"), message);
+          VcsNotifier.getInstance(project).notifyError(
+              GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.abort"), message);
           return;
         }
 
@@ -194,7 +208,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           var stdoutOption = executionResult.getStdout();
           var stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(
-              GitMacheteBundle.message("action.rebase.notification.abort"), message
+              GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.abort"), message
                   + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
                   + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
@@ -202,7 +216,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
         LOG.debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
 
-        new Task.Backgroundable(project, GitMacheteBundle.message("action.rebase.task.title")) {
+        new Task.Backgroundable(project,
+            GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.task-title")) {
           @Override
           public void run(ProgressIndicator indicator) {
             GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);

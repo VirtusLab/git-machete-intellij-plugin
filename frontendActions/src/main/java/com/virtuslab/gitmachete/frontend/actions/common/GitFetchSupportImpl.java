@@ -226,7 +226,7 @@ public final class GitFetchSupportImpl implements GitFetchSupport {
     var prevText = "";
     if (indicator != null) {
       prevText = indicator.getText();
-      indicator.setText(GitMacheteBundle.message("action.fetch.task.title"));
+      indicator.setText(GitMacheteBundle.message("action.GitMachete.FetchAllRemotesAction.task-title"));
     }
     try {
       return operation.get();

@@ -34,8 +34,8 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
 
     Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
-        GitMacheteBundle.message("action.open-git-machete-tab.notification.fail.title"),
-        GitMacheteBundle.message("action.open-git-machete-tab.notification.fail.message.no-git"));
+        GitMacheteBundle.message("action.GitMachete.OpenMacheteTabAction.notification.fail.title"),
+        GitMacheteBundle.message("action.GitMachete.OpenMacheteTabAction.notification.fail.message.no-git"));
 
     if (toolWindow == null) {
       LOG.debug("VCS tool window does not exist");

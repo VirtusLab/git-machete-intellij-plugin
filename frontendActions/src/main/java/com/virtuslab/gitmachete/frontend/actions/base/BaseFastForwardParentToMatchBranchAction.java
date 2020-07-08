@@ -45,7 +45,8 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.branch-name", "Fast forward"));
+          .setDescription(
+              GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.branch-name", "Fast forward"));
       return;
     }
 
@@ -53,14 +54,16 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (gitMacheteBranch.isEmpty()) {
       presentation.setEnabled(false);
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.undefined.machete-branch", "Fast forward"));
+          .setDescription(
+              GitMacheteBundle.message("action.GitMachete.description.disabled.undefined.machete-branch", "Fast forward"));
       return;
     }
 
     if (gitMacheteBranch.get().isRootBranch()) {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
-        presentation.setDescription(GitMacheteBundle.message("action.fast-forward.description.root.branch", branchName.get()));
+        presentation.setDescription(GitMacheteBundle.message(
+            "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.root-branch", branchName.get()));
       } else { // contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -74,23 +77,34 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     if (syncToParentStatus == SyncToParentStatus.InSync) {
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(GitMacheteBundle.message("action.fast-forward.text.current-branch"));
+        presentation.setText(
+            GitMacheteBundle.message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.text.current-branch"));
       }
 
       var parentName = gitMacheteNonRoot.getUpstreamBranch().getName();
-      presentation.setDescription(GitMacheteBundle.message("action.fast-forward.description", parentName, branchName.get()));
+      presentation.setDescription(GitMacheteBundle
+          .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description", parentName, branchName.get()));
 
     } else {
       presentation.setEnabled(false);
       var desc = Match(syncToParentStatus).of(
           Case($(SyncToParentStatus.InSyncButForkPointOff),
-              GitMacheteBundle.message("sync-to-parent-status.in-sync-but-fork-point-off")),
-          Case($(SyncToParentStatus.MergedToParent), GitMacheteBundle.message("sync-to-parent-status.merged-to-parent")),
-          Case($(SyncToParentStatus.OutOfSync), GitMacheteBundle.message("sync-to-parent-status.out-of-sync")),
-          Case($(), GitMacheteBundle.message("sync-to-parent-status.unknown", syncToParentStatus.toString())));
+              GitMacheteBundle.message(
+                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
+          Case($(SyncToParentStatus.MergedToParent),
+              GitMacheteBundle.message(
+                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.merged-to-parent")),
+          Case($(SyncToParentStatus.OutOfSync),
+              GitMacheteBundle.message(
+                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.out-of-sync")),
+          Case($(),
+              GitMacheteBundle.message(
+                  "action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.sync-to-parent-status.unknown",
+                  syncToParentStatus.toString())));
 
       presentation
-          .setDescription(GitMacheteBundle.message("action.description.disabled.branch.status", "Fast forward", desc));
+          .setDescription(GitMacheteBundle
+              .message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description.disabled.branch-status", desc));
     }
   }
 
@@ -128,6 +142,6 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
     // Remote set to '.' (dot) is just the local repository.
     new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT,
-        GitMacheteBundle.message("action.fast-forward.task.title")).queue();
+        GitMacheteBundle.message("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
   }
 }

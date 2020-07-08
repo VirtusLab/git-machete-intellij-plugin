@@ -6,7 +6,7 @@ import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.PropertyKey;
 
 public final class GitMacheteBundle extends DynamicBundle {
-  public static final String BUNDLE = "actions.messages.GitMacheteBundle";
+  public static final String BUNDLE = "GitMacheteBundle";
   private static final GitMacheteBundle INSTANCE = new GitMacheteBundle();
 
   private GitMacheteBundle() {
