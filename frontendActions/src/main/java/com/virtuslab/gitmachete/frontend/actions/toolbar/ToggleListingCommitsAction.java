@@ -26,12 +26,8 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
   @Override
   @UIEffect
-  public void update(AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
-
-    if (!canBeUpdated(anActionEvent)) {
-      return;
-    }
+  public void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
     boolean selected = isSelected(presentation);
@@ -67,7 +63,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @UIEffect
-  public boolean isSelected(AnActionEvent anActionEvent) {
+  private boolean isSelected(AnActionEvent anActionEvent) {
     var presentation = anActionEvent.getPresentation();
     return Toggleable.isSelected(presentation);
   }

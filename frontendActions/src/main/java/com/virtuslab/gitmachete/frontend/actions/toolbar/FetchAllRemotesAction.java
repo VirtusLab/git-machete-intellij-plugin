@@ -23,13 +23,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
 
   @Override
   @UIEffect
-  public void update(AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
-
-    if (!canBeUpdated(anActionEvent)) {
-      return;
-    }
-
+  public void onUpdate(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {

@@ -11,9 +11,7 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectKey
       IExpectsKeyGitMacheteRepository {
   @Override
   @UIEffect
-  public void update(AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
-
+  public void onUpdate(AnActionEvent anActionEvent) {
     boolean isEnabled = getGitMacheteRepositorySnapshot(anActionEvent).isDefined();
     anActionEvent.getPresentation().setEnabled(isEnabled);
 
