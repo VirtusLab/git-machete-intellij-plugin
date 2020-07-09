@@ -4,6 +4,6 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 # Negative lookahead (?!...), requires Perl syntax (-P): find fixmes/todos NOT followed by issue number
-if git --no-pager grep -PIin '(\*|//|#|<!--)\s*(fixme|todo)(?! \(#[0-9]+\): )'; then
+if git grep -PIin '(\*|//|#|<!--)\s*(fixme|todo)(?! \(#[0-9]+\): )'; then
   die "Use 'TODO|FIXME (#<issue-number>): ' format for the above TODOs and FIXMEs"
 fi

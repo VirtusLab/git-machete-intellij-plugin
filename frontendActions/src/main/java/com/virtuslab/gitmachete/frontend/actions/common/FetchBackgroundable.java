@@ -37,13 +37,13 @@ public class FetchBackgroundable extends Task.Backgroundable {
     try {
       fetchResult.ourThrowExceptionIfFailed();
     } catch (VcsException e) {
-      fetchResult.showNotificationIfFailed(format(getString("GitMachete.FetchBackgroundable.notification.fail"), refspec));
+      fetchResult.showNotificationIfFailed(format(getString("action.GitMachete.FetchBackgroundable.notification.fail"), refspec));
     }
   }
 
   @Override
   public void onSuccess() {
     VcsNotifier.getInstance(project)
-        .notifySuccess(format(getString("GitMachete.FetchBackgroundable.notification.success"), refspec));
+        .notifySuccess(format(getString("action.GitMachete.FetchBackgroundable.notification.success"), refspec));
   }
 }

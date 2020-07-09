@@ -2,6 +2,9 @@
 
 set -e
 
+# We don't want `less` to open for `git grep` results in the below scripts when running locally.
+export GIT_PAGER=cat
+
 # `$-` yields the list of the options of the current shell; we'll only interested in whether `x` is present
 x_option=${-//[^x]/}
 
