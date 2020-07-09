@@ -89,18 +89,27 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       return;
     }
 
+    if (parentName.equals(branchName)) {
+      VcsNotifier.getInstance(project).notifyError(
+          /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
+              branchName),
+          /* message */ GitMacheteBundle
+              .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.branch-name-equals-parent"));
+      return;
+    }
+
     var entryAlreadyExistsBelowGivenParent = branchLayout.get().findEntryByName(parentName)
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
         .map(names -> names.contains(branchName))
         .getOrElse(false);
 
-    var entryAlreadyExistsBelowOtherParent = branchLayout.get().findEntryByName(branchName).isDefined();
-
     if (entryAlreadyExistsBelowGivenParent) {
       log().debug("Skipping action: Branch layout entry already exists below given parent");
       return;
     }
+
+    var entryAlreadyExistsBelowOtherParent = branchLayout.get().findEntryByName(branchName).isDefined();
 
     new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
