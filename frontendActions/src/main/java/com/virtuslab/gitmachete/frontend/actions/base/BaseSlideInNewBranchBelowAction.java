@@ -81,10 +81,24 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       return;
     }
 
-    var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), gitMacheteParentBranch.get().getName(),
+    var parentName = gitMacheteParentBranch.get().getName();
+    var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), parentName,
         GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.title"));
     if (branchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from dialog");
+      return;
+    }
+
+    var entryAlreadyExistsBelowGivenParent = branchLayout.get().findEntryByName(parentName)
+        .map(entry -> entry.getChildren())
+        .map(children -> children.map(e -> e.getName()))
+        .map(names -> names.contains(branchName))
+        .getOrElse(false);
+
+    var entryAlreadyExistsBelowOtherParent = branchLayout.get().findEntryByName(branchName).isDefined();
+
+    if (entryAlreadyExistsBelowGivenParent) {
+      log().debug("Skipping action: Branch layout entry already exists below given parent");
       return;
     }
 
@@ -95,7 +109,10 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository.get());
         var notifier = VcsNotifier.getInstance(project);
 
-        var newBranchLayout = Try.of(() -> branchLayout.get().slideIn(gitMacheteParentBranch.get().getName(), branchName))
+        var newBranchLayout = Try
+            .of(() -> entryAlreadyExistsBelowOtherParent
+                ? branchLayout.get().slideOut(branchName).slideIn(parentName, branchName)
+                : branchLayout.get().slideIn(parentName, branchName))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
