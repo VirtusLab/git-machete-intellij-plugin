@@ -6,12 +6,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
+import git4idea.fetch.GitFetchSupport;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectKeyAvailabilityAssuranceAction;
-import com.virtuslab.gitmachete.frontend.actions.common.GitFetchSupportImpl;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -28,7 +28,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
   public void onUpdate(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var presentation = anActionEvent.getPresentation();
-    if (GitFetchSupportImpl.fetchSupport(project).isFetchRunning()) {
+    if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
@@ -49,7 +49,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
 
       @Override
       public void run(ProgressIndicator indicator) {
-        result = GitFetchSupportImpl.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
+        result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
       }
 
       @Override

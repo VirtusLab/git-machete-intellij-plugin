@@ -6,8 +6,8 @@ import static java.text.MessageFormat.format;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 
@@ -32,14 +32,9 @@ public class FetchBackgroundable extends Task.Backgroundable {
 
   @Override
   public void run(ProgressIndicator indicator) {
-    var fetchSupport = GitFetchSupportImpl.fetchSupport(project);
+    var fetchSupport = GitFetchSupport.fetchSupport(project);
     var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
-    try {
-      fetchResult.ourThrowExceptionIfFailed();
-    } catch (VcsException e) {
-      fetchResult.showNotificationIfFailed(
-          format(getString("action.GitMachete.FetchBackgroundable.notification.fail"), refspec));
-    }
+    fetchResult.showNotificationIfFailed(format(getString("action.GitMachete.FetchBackgroundable.notification.fail"), refspec));
   }
 
   @Override
