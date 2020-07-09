@@ -54,6 +54,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 /**
  * This implementation is a workaround to provide features missing now.

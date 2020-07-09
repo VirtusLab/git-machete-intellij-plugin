@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.resourcebundles;
 
 import java.util.ResourceBundle;
 

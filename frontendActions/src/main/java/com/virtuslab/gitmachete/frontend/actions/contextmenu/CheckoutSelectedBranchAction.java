@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static java.text.MessageFormat.format;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
