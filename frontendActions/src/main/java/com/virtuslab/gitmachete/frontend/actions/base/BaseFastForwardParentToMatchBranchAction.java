@@ -81,8 +81,8 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
       }
 
       var parentName = gitMacheteNonRoot.getParentBranch().getName();
-      presentation
-          .setDescription(format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description"),
+      presentation.setDescription(
+          format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description"),
               parentName, branchName.get()));
 
     } else {

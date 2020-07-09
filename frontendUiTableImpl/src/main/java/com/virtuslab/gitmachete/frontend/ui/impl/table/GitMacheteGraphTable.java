@@ -175,7 +175,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
-          "The following branches defined by machete file do not belong to the local repository",
+          "The following branches defined by machete file do not belong to the local repository:",
           String.join(", ", skippedBranchNames));
     }
 

@@ -43,10 +43,9 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    new Task.Backgroundable(project, getString("action.GitMachete.FetchAllRemotesAction.task-title"),
-        /* canBeCancelled */ true) {
-      @MonotonicNonNull
-      GitFetchResult result = null;
+    String title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
+    new Task.Backgroundable(project, title, /* canBeCancelled */ true) {
+      private @MonotonicNonNull GitFetchResult result = null;
 
       @Override
       public void run(ProgressIndicator indicator) {

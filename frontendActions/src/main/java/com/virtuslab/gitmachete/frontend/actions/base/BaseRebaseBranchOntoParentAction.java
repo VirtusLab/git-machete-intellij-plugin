@@ -88,16 +88,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       if (branch.isEmpty()) {
         presentation.setEnabled(false);
-        presentation
-            .setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Rebase"));
+        presentation.setDescription(
+            format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Rebase"));
       } else if (branch.get().isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
-          presentation
-              .setDescription(
-                  format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch"),
-                      branch.get().getName()));
+          presentation.setDescription(
+              format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch"),
+                  branch.get().getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
@@ -105,8 +104,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
-        presentation
-            .setDescription(format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged"),
+        presentation.setDescription(
+            format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged"),
                 branch.get().getName()));
 
       } else if (branch.get().isNonRootBranch()) {

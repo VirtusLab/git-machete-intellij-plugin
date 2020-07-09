@@ -7,7 +7,7 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.CellBuilder
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.panel
-import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle.getString
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import kotlin.apply
 import kotlin.text.isEmpty
 import kotlin.text.trim
