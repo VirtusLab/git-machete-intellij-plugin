@@ -18,11 +18,12 @@ create_repo machete-sandbox
     commit Develop commit
   create_branch allow-ownership-link
     commit Allow ownership links
+    commit 1st round of fixes
     push
   create_branch build-chain
     commit Build arbitrarily long chains
   git checkout allow-ownership-link
-    commit 1st round of fixes
+    git reset --keep HEAD~1
   git checkout develop
     commit Other develop commit
     push
