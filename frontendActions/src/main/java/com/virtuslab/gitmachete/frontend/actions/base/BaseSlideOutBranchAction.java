@@ -2,7 +2,8 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
@@ -10,7 +11,6 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
-import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -110,13 +110,22 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     }
 
     LOG.debug("Refreshing repository state");
-    deleteIfRequiredAndRefresh(anActionEvent, branchName);
+    new Task.Backgroundable(project, "Deleting branch if required...") {
+      @Override
+      public void run(ProgressIndicator indicator) {
+        deleteBranchIfRequired(anActionEvent, branchName);
+      }
+
+      @Override
+      public void onFinished() {
+        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+      }
+    }.queue();
   }
 
-  private void deleteIfRequiredAndRefresh(AnActionEvent anActionEvent, String branchName) {
+  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
 
-    boolean isRefreshScheduled = false;
     if (selectedVcsRepository.isDefined()) {
       var root = selectedVcsRepository.get().getRoot();
       var project = getProject(anActionEvent);
@@ -126,19 +135,12 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
             .map(b -> b.equals(branchName))
             .getOrElse(true);
         if (slidOutBranchIsCurrent) {
-          LOG.warn("Skipping local branch deletion because it is equal to current branch");
+          LOG.debug("Skipping local branch deletion because it is equal to current branch");
+          return;
         }
 
-        java.util.Map<String, java.util.List<? extends GitRepository>> branchesToContainingRepositories = java.util.Collections
-            .singletonMap(branchName, selectedVcsRepository.toJavaList());
-        GitBrancher.getInstance(project).deleteBranches(branchesToContainingRepositories,
-            () -> getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh());
-        isRefreshScheduled = true;
+        GitBrancher.getInstance(project).deleteBranch(branchName, selectedVcsRepository.toJavaList());
       }
-    }
-
-    if (!isRefreshScheduled) {
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }
   }
 
@@ -146,7 +148,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     try {
       ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
           DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
-      var value = ApplicationManager.getApplication().runReadAction(computable);
+      var value = computable.compute();
       boolean result = false;
       if (value != null) {
         Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
