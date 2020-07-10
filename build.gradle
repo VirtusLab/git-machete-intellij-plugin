@@ -28,6 +28,7 @@ ext {
   betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
   checkerFrameworkVersion = '3.5.0'
   checkstyleToolVersion = '8.33'
+  jetbrainsAnnotationsVersion = '16.0.2'
   jgitVersion = '5.8.0.202006091008-r'
   junitVersion = '4.13'
   kotlinStdlibVersion = '1.3.72'
@@ -300,6 +301,12 @@ subprojects {
           def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
           extraJavacArgs += "-ASubtypingChecker_qualDirs=${qualClassDir}"
         }
+      }
+    }
+
+    jetbrainsAnnotations = { ->
+      dependencies {
+        implementation group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
       }
     }
 

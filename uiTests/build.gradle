@@ -1,6 +1,8 @@
+jetbrainsAnnotations()
 junit()
 lombok()
 remoteRobot()
+vavr()
 
 dependencies {
   testImplementation project(':testCommon').sourceSets.test.output
