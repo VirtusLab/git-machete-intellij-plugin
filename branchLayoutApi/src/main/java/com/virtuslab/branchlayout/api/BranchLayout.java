@@ -37,7 +37,7 @@ public class BranchLayout implements IBranchLayout {
       throw new BranchLayoutException("Branch entry '${branchName}' does not exist");
     }
     if (rootEntries.contains(entryToSlideOut)) {
-      throw new BranchLayoutException("Cannot slide out root branch entry ${entryToSlideOut}");
+      throw new BranchLayoutException("Cannot slide out root branch entry ${branchName}");
     }
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
   }
@@ -53,20 +53,49 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideIn(String parentBranchName, String newBranchName) throws BranchLayoutException {
-    if (findEntryByName(newBranchName).isDefined()) {
-      throw new BranchLayoutException("Child branch entry '${newBranchName}' already exists");
-    }
+  public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn) throws BranchLayoutException {
     var parentEntry = findEntryByName(parentBranchName).getOrNull();
     if (parentEntry == null) {
       throw new BranchLayoutException("Parent branch entry '${parentBranchName}' does not exists");
     }
-    var entryToSlideIn = new BranchLayoutEntry(newBranchName, null, List.empty());
-    return new BranchLayout(rootEntries.flatMap(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
+    var entry = findEntryByName(entryToSlideIn.getName());
+    var entryAlreadyExists = entry.isDefined();
+
+    if (entry.map(e -> isDescendant(e, parentEntry)).getOrElse(false)) {
+      throw new BranchLayoutException(
+          "Entry '${parentEntry.getName()}' is an descendant of entry '${entryToSlideIn.getName()}'");
+    }
+
+    var newRootEntries = entryAlreadyExists
+        ? removeEntry(/* branchLayout */ this, entryToSlideIn.getName())
+        : rootEntries;
+    return new BranchLayout(newRootEntries.flatMap(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
   }
 
-  @SuppressWarnings("interning:not.interned") // to allow for `entry == entryToSlideIn`
-  private List<IBranchLayoutEntry> slideIn(
+  private static boolean isDescendant(IBranchLayoutEntry presumedAncestor, IBranchLayoutEntry presumedDescendant) {
+    if (presumedAncestor.getChildren().contains(presumedDescendant)) {
+      return true;
+    } else {
+      return presumedAncestor.getChildren().exists(e -> isDescendant(e, presumedDescendant));
+    }
+  }
+
+  private static List<IBranchLayoutEntry> removeEntry(IBranchLayout branchLayout, String branchName) {
+    var rootEntries = branchLayout.getRootEntries();
+    if (rootEntries.map(e -> e.getName()).exists(name -> name.equals(branchName))) {
+      return rootEntries.reject(e -> e.getName().equals(branchName));
+    } else {
+      return removeEntry(rootEntries, branchName);
+    }
+  }
+
+  private static List<IBranchLayoutEntry> removeEntry(List<IBranchLayoutEntry> entries, String branchName) {
+    return entries.reject(e -> e.getName().equals(branchName))
+        .map(e -> e.withChildren(removeEntry(e.getChildren(), branchName)));
+  }
+
+  @SuppressWarnings("interning:not.interned") // to allow for `entry == parent`
+  private static List<IBranchLayoutEntry> slideIn(
       IBranchLayoutEntry entry,
       IBranchLayoutEntry entryToSlideIn,
       IBranchLayoutEntry parent) {

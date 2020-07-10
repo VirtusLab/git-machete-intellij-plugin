@@ -20,13 +20,14 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository,
@@ -74,16 +75,16 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteParentBranch = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
-    var branchLayout = getBranchLayout(anActionEvent);
+    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
-    if (selectedVcsRepository.isEmpty() || gitMacheteParentBranch.isEmpty() || branchLayout.isEmpty()) {
+    if (selectedVcsRepository.isEmpty() || gitMacheteParentBranch.isEmpty() || branchLayout == null) {
       return;
     }
 
     var parentName = gitMacheteParentBranch.get().getName();
     var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), parentName,
-        GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.title"));
+        GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.title", parentName));
     if (branchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from dialog");
       return;
@@ -98,7 +99,9 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       return;
     }
 
-    var entryAlreadyExistsBelowGivenParent = branchLayout.get().findEntryByName(parentName)
+    // TODO (#430): expose getParent from branch layout api
+    var parentEntry = branchLayout.findEntryByName(parentName);
+    var entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
         .map(names -> names.contains(branchName))
@@ -109,7 +112,8 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
       return;
     }
 
-    var entryAlreadyExistsBelowOtherParent = branchLayout.get().findEntryByName(branchName).isDefined();
+    var entryToSlideIn = branchLayout.findEntryByName(branchName)
+        .getOrElse(new BranchLayoutEntry(branchName, /* customAnnotation */ null, List.empty()));
 
     new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
@@ -119,9 +123,7 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
         var notifier = VcsNotifier.getInstance(project);
 
         var newBranchLayout = Try
-            .of(() -> entryAlreadyExistsBelowOtherParent
-                ? branchLayout.get().slideOut(branchName).slideIn(parentName, branchName)
-                : branchLayout.get().slideIn(parentName, branchName))
+            .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
@@ -145,13 +147,15 @@ public abstract class BaseSlideInNewBranchBelowAction extends BaseGitMacheteRepo
   @Nullable
   String createOrCheckoutNewBranch(Project project, GitRepository gitRepository, String startPoint, String title) {
     var repositories = List.of(gitRepository).asJava();
-    var options = new GitNewBranchDialog(project,
+    var gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
         title,
         /* initialName */ null,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
-        /* localConflictsAllowed */ true).showAndGetOptions();
+        /* localConflictsAllowed */ true);
+
+    var options = gitNewBranchDialog.showAndGetOptions();
     if (options == null) {
       return null;
     }
