@@ -69,7 +69,7 @@ public class BranchLayout implements IBranchLayout {
     var newRootEntries = entryAlreadyExists
         ? removeEntry(/* branchLayout */ this, entryToSlideIn.getName())
         : rootEntries;
-    return new BranchLayout(newRootEntries.flatMap(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
+    return new BranchLayout(newRootEntries.map(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
   }
 
   private static boolean isDescendant(IBranchLayoutEntry presumedAncestor, IBranchLayoutEntry presumedDescendant) {
@@ -95,15 +95,15 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @SuppressWarnings("interning:not.interned") // to allow for `entry == parent`
-  private static List<IBranchLayoutEntry> slideIn(
+  private static IBranchLayoutEntry slideIn(
       IBranchLayoutEntry entry,
       IBranchLayoutEntry entryToSlideIn,
       IBranchLayoutEntry parent) {
     var children = entry.getChildren();
-    if (entry == parent) {
-      return List.of(entry.withChildren(entry.getChildren().append(entryToSlideIn)));
+    if (entry.getName().equals(parent.getName())) {
+      return entry.withChildren(children.append(entryToSlideIn));
     } else {
-      return List.of(entry.withChildren(children.flatMap(child -> slideIn(child, entryToSlideIn, parent))));
+      return entry.withChildren(children.map(child -> slideIn(child, entryToSlideIn, parent)));
     }
   }
 }
