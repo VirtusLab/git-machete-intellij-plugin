@@ -1,15 +1,15 @@
 # Overview through Slide In use cases
 
 It turned out that the sliding-in feature is more complex than it had appeared in the first place.
-This paper is an overview through the use cases.
+This document is an overview through the use cases.
 It should help to implement and understand the feature.
 
-## Slide In New Branch Dialog
+## Slide In Branch Dialog
 
-The picture below shows the **Slide In New Branch Dialog**.
+The picture below shows the **Slide In Branch Dialog**.
 This is a regular **Create New Branch Dialog** with a changed title.
 
-![Slide In New Branch Dialog](slide-in-new-branch-dialog.png "Slide In New Branch Dialog")
+![Slide In Branch Dialog](slide-in-branch-dialog.png "Slide In Branch Dialog")
 
 Note the checkbox options:
 - Checkout branch
@@ -17,48 +17,42 @@ Note the checkbox options:
 
 ## Use cases
 
-| UC ID | Branch entry exists | Local branch exists | Estimated frequency |
+| UC ID | Local branch exists | Branch entry exists | Estimated frequency |
 | :---: | :---: | :---: | :---: |
 | 1 | false | false | ~ 75% |
-| 2 | false | true | ~ 25% |
-| 3 | true | true | < 1% |
-| 4 | true | false | < 1% |
+| 2 | false | true  | < 1%  |
+| 3 | true  | false | ~ 25% |
+| 4 | true  | true  | < 1%  |
 
 ## Slide In - Logic
 
-- When the **entry does not exist**, it must be added (slid in) under the given branch.
+This specification covers all of the cases.
+
+- When the **entry does not exist**, it must be added under the given branch.
 - When the **entry exists under the given parent**, branch layout must not be affected.
-- When the **entry exists under other parent**, it must be first removed (slid out),
-and then added (slid in) under the given parent.
+- When the **entry exists under other parent or is root**, it must be reattached under the given parent.
 
-## Slide In - New Branches
-
-This section applies to **UC1** and **UC4**.
+**IMPORTANT NOTE:**
+Sliding in an entry under itself (directly and indirectly, as a deeper child node) must not be allowed.
 
 
-Use case **UC1** seems to be the most common.
-They are simply added in the way specified by the [slide in logic](#slide-in---logic).
+### Zoom In On "Overwrite existing branch"
+
+This section applies to **UC3** and **UC4**.
+
+The same logic slide in logic adopts but overwriting itself requires a description.
+The enabled overwrite checkbox is required for branches that already exist within a local repository.
+Without it the overwrite (aka "New Branch Creation") is disabled (gray out "Create" button).
 
 
+| Branch State | Overwrite Result |
+| --- | :---: |
+| **Working tree changed** (uncommitted changes) | Fail |
+| Branch contains **some commits** | Fail |
+| Branch contains **no commits** | Success |
 
-## Slide In - With "Overwrite existing branch"
+![Checkout Failed Notification](checkout-failed.png "Checkout Failed Notification")
 
-This section applies to **UC2** and **UC3**.
-
-
-**Overwriting a parent branch must not affect the branch layout**.
-
-
-The other cases are described below.
-
-| Branch State | Checkout | Branch Layout |
-| --- | --- | --- |
-| **Working tree changed** | no checkout | branch entry **added*** under given parent |
-| Branch contains **some commits** | no checkout | branch entry **added*** under given parent |
-| Branch contains **no commits** | checkbox dependent | branch entry **added*** under given parent |
-
-\* added in terms of [slide in logic](#slide-in---logic)
-
-## Additional notes
-
-Slide In a branch under its own entry must not be allowed.
+**IMPORTANT NOTE:**
+The failure of the overwrite does not mean the failure of the slide in.
+Even though the notification like above may appear when the specified circumstances are met the branch slide will take place.
