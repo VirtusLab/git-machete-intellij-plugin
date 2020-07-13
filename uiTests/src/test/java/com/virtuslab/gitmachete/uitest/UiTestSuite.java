@@ -55,7 +55,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   // i.e. the value of `ide.soleOpenedProject()`) between the invocations.
 
   @Test
-  public void openTabAndCountRows() {
+  public void ensureCorrectGraphTableRowCounts() {
     runJs("ide.soleOpenedProject().openTab()");
 
     int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
@@ -74,7 +74,9 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     runJs("ide.soleOpenedProject().openTab()");
 
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
+    runJs("ide.awaitNoBackgroundTask()");
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
+    runJs("ide.awaitNoBackgroundTask()");
 
     ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
