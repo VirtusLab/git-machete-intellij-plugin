@@ -7,7 +7,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -18,27 +17,19 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.IDemoGraphTableProvider;
 
 public class HelpAction extends DumbAwareAction {
 
-  private final JBTable demoGraphTable;
-
-  public HelpAction() {
-    this.demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class).getInstance();
-  }
-
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent e) {
-    new HelpDialog(demoGraphTable).show();
+    new HelpDialog().show();
   }
 
   @UI
   private static final class HelpDialog extends DialogWrapper {
     private static final int CENTER_PANEL_HEIGHT = 250;
     private static final int CENTER_PANEL_WIDTH = 800;
-    private final JBTable demoGraphTable;
 
-    HelpDialog(JBTable demoGraphTable) {
+    HelpDialog() {
       super(/* canBeParent */ false);
-      this.demoGraphTable = demoGraphTable;
 
       // Note: since the class is final, `this` is already @Initialized at this point.
       init();
@@ -46,6 +37,7 @@ public class HelpAction extends DumbAwareAction {
     }
 
     @Override
+    @SuppressWarnings("interning:not.interned") // to allow for `helpAction == myHelpAction`
     protected Action[] createActions() {
       Action helpAction = getHelpAction();
       return helpAction == myHelpAction && getHelpId() == null
@@ -56,6 +48,7 @@ public class HelpAction extends DumbAwareAction {
     @Override
     protected JComponent createCenterPanel() {
       var panel = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2);
+      var demoGraphTable = RuntimeBinding.instantiateSoleImplementingClass(IDemoGraphTableProvider.class).deriveInstance();
       panel.addToCenter(ScrollPaneFactory.createScrollPane(demoGraphTable));
       panel.setPreferredSize(new JBDimension(CENTER_PANEL_WIDTH, CENTER_PANEL_HEIGHT));
       return panel;

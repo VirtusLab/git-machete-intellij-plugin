@@ -23,10 +23,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -46,7 +47,12 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
   @Override
   public String getActionName() {
-    return "Reset";
+    return "Re_set to Remote";
+  }
+
+  @Override
+  public String getDescriptionActionName() {
+    return "Reset to remote";
   }
 
   @Override
@@ -63,6 +69,15 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   public void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
+
+    var branch = getNameOfBranchUnderAction(anActionEvent);
+    if (branch.isDefined()) {
+      var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+          .map(bn -> bn.equals(branch.get())).getOrElse(false);
+      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
+        anActionEvent.getPresentation().setText("Re_set to Remote");
+      }
+    }
   }
 
   @Override
@@ -73,7 +88,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     Project project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var macheteRepository = getGitMacheteRepositoryWithLoggingOnEmpty(anActionEvent);
+    var macheteRepository = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
 
     if (branchName.isEmpty()) {
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
@@ -97,7 +112,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
-      IGitMacheteRepository macheteRepository, AnActionEvent anActionEvent) {
+      IGitMacheteRepositorySnapshot macheteRepository, AnActionEvent anActionEvent) {
 
     new Task.Backgroundable(project, TASK_TITLE, /* canBeCancelled */ true) {
 
@@ -108,7 +123,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
-          Option<IGitMacheteBranch> branchOption = macheteRepository.getBranchByName(branchName);
+          Option<IGitMacheteBranch> branchOption = macheteRepository.getManagedBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
           Option<IGitMacheteRemoteBranch> remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {
@@ -129,8 +144,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
             // Checking out given branch
             CheckoutSelectedBranchAction.doCheckout(branchName, gitRepository, project, indicator);
 
-            // Check again if we are in branch to reset to be sure that checkout was successful
-            // This time we are using git4idea because GitMacheteRepository is immutable and it would return previous branch
+            // Check again if we are in branch to reset to be sure that checkout was successful.
+            // This time we are using git4idea because GitMacheteRepositorySnapshot is immutable
+            // and it would return previous branch.
             @Nullable GitLocalBranch localBranch = gitRepository.getCurrentBranch();
             if (localBranch == null || !localBranch.getName().equals(branchName)) {
               log().error("Checkout to branch ${branchName} failed");

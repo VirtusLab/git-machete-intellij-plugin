@@ -1,7 +1,7 @@
 package com.virtuslab.branchlayout.impl.readwrite;
 
-import static com.virtuslab.branchlayout.impl.IndentSpec.SPACE;
-import static com.virtuslab.branchlayout.impl.IndentSpec.TAB;
+import static com.virtuslab.branchlayout.impl.readwrite.IndentSpec.SPACE;
+import static com.virtuslab.branchlayout.impl.readwrite.IndentSpec.TAB;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,12 +9,13 @@ import java.nio.file.Path;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
+import lombok.CustomLog;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.impl.IndentSpec;
 
+@CustomLog
 public final class BranchLayoutFileUtils {
   private BranchLayoutFileUtils() {}
 
@@ -29,6 +30,39 @@ public final class BranchLayoutFileUtils {
 
   public static @NonNegative int getIndentWidth(String line, char indentCharacter) {
     return (int) line.chars().takeWhile(c -> c == indentCharacter).count();
+  }
+
+  public static IndentSpec deriveIndentSpec(Path path) {
+    LOG.debug("Entering: branch layout file path: ${path}");
+
+    List<String> lines = Try.of(() -> BranchLayoutFileUtils.readFileLines(path))
+        .getOrElse(() -> {
+          LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling back to default indent definition.");
+          return List.empty();
+        });
+
+    LOG.debug(() -> "${lines.length()} line(s) found");
+
+    var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
+        .find(line -> line.startsWith(String.valueOf(SPACE))
+            || line.startsWith(String.valueOf(TAB)));
+    char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
+    int indentWidth = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
+
+    // Redundant non-emptiness check to satisfy IndexChecker
+    if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
+      indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
+      indentWidth = BranchLayoutFileUtils.getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
+      // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
+      assert indentWidth > 0 : "indent width is ${indentWidth} <= 0";
+    }
+    IndentSpec indentSpec = new IndentSpec(indentCharacter, indentWidth);
+
+    LOG.debug(() -> "Indent character is ${indentSpec.getIndentCharacter() == '\\t' ? \"TAB\" :" +
+        " indentSpec.getIndentCharacter() == ' ' ? \"SPACE\" : \"'\" + indentSpec.getIndentCharacter() + \"'\"}");
+    LOG.debug(() -> "Indent width is ${indentSpec.getIndentWidth()}");
+
+    return indentSpec;
   }
 
   public static List<String> readFileLines(Path path) throws BranchLayoutException {

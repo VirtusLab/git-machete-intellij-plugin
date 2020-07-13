@@ -12,15 +12,21 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer
 
 public final class DemoGraphTable extends JBTable {
 
-  public static final DemoGraphTable INSTANCE = deriveInstance();
+  private static final GraphTableModel GRAPH_TABLE_MODEL = deriveGraphTableModel();
 
   @UIEffect
-  private static DemoGraphTable deriveInstance() {
+  public static DemoGraphTable deriveInstance() {
+    // We can keep the data - graph table model,
+    // but wee need to reinstantiate the UI - demo graph table.
+    return new DemoGraphTable(GRAPH_TABLE_MODEL);
+  }
+
+  @UIEffect
+  private static GraphTableModel deriveGraphTableModel() {
     var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var gitMacheteRepository = new DemoGitMacheteRepository();
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepository, /* isListingCommits */ true);
-    var graphTableModel = new GraphTableModel(repositoryGraph);
-    return new DemoGraphTable(graphTableModel);
+    var gitMacheteRepositorySnapshot = new DemoGitMacheteRepositorySnapshot();
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, /* isListingCommits */ true);
+    return new GraphTableModel(repositoryGraph);
   }
 
   @UIEffect

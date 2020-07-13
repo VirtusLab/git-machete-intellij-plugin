@@ -3,11 +3,11 @@ plugins {
   id 'org.gradle.java-library'
 
   id 'com.github.ben-manes.versions' version '0.28.0'
-  id 'org.ajoberstar.grgit' version '4.0.2'
 
   id 'com.diffplug.gradle.spotless' version '4.3.0' apply false
   id 'io.freefair.lombok' version '5.1.0' apply false
-  id 'org.checkerframework' version '0.5.0' apply false
+  id 'org.ajoberstar.grgit' version '4.0.2' apply false
+  id 'org.checkerframework' version '0.5.5' apply false
   id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
   id 'org.jetbrains.intellij' version '0.4.21' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.40' apply false
@@ -49,33 +49,14 @@ dependencyUpdates {
 }
 
 allprojects {
-  group 'com.virtuslab'
-
-  apply from: "$rootDir/version.gradle"
-  def ciBranch = System.getenv('CIRCLE_BRANCH')
-  if (ciBranch == 'master') {
-    version PLUGIN_VERSION
-  } else if (!file("$rootDir/.git").exists()) {
-    // To make sure it's safe for Docker image builds where .git folder is unavailable
-    version "${PLUGIN_VERSION}-SNAPSHOT"
-  } else {
-    def maybeSnapshot = ciBranch == 'develop' ? '' : '-SNAPSHOT'
-
-    def git = org.ajoberstar.grgit.Grgit.open(currentDir: rootDir)
-    def shortCommitHash = git.head().abbreviatedId
-    def maybeDirty = git.status().clean ? '' : '-dirty'
-    git.close()
-
-    version "${PLUGIN_VERSION}${maybeSnapshot}+git.${shortCommitHash}${maybeDirty}"
-  }
-
   repositories {
     jcenter()
     mavenCentral()
   }
 
   ext {
-    betterStringsVerson = '0.3'
+    betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
+    checkerFrameworkVersion = '3.5.0'
     checkstyleToolVersion = '8.33'
 
     // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
@@ -88,7 +69,7 @@ allprojects {
     intellijVersions.buildTarget = intellijVersions.current
     intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
 
-    jgitVersion = '5.7.0.202003110725-r'
+    jgitVersion = '5.8.0.202006091008-r'
     junitVersion = '4.13'
     kotlinStdlibVersion = '1.3.21'
     lombokVersion = '1.18.12'
@@ -136,19 +117,17 @@ subprojects {
   apply plugin: 'org.checkerframework'
   checkerFramework {
     excludeTests = true
-    // See https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 (and the associated PR #86) for why this flag is needed
-    suppressLombokWarnings = false
     checkers = [
       'org.checkerframework.checker.nullness.NullnessChecker',
     ]
     if (runAllCheckers) {
-      // The experience shows that the below checkers are just rarely failing (if ever, in case of Regex), as compared to GuiEffect/Nullness.
+      // The experience shows that the below checkers are just rarely failing, as compared to GuiEffect/Nullness.
       // Hence, they're only applied in CI, or locally only if a dedicated variable is present in the env.
       checkers += [
         'org.checkerframework.checker.fenum.FenumChecker',
         'org.checkerframework.checker.index.IndexChecker',
+        'org.checkerframework.checker.interning.InterningChecker',
         'org.checkerframework.checker.optional.OptionalChecker',
-        'org.checkerframework.checker.regex.RegexChecker',
       ]
     }
     extraJavacArgs = [
@@ -156,41 +135,15 @@ subprojects {
       '-AinvariantArrays',
       '-Alint=cast:redundant,cast:unsafe',
       '-ArequirePrefixInWarningSuppressions',
-      '-AshowSuppressWarningKeys',
+      '-AshowSuppressWarningsStrings',
       "-Astubs=$rootDir/config/checker/",
-      '-AsuppressWarnings=all:type.anno.before.decl.anno,all:type.anno.before.modifier',
+      '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier',
     ]
-  }
-
-
-  // Lombok support
-  // Here comes the tricky part: there's a tradeoff...
-  if (System.getenv('LOMBOK_PROVIDED_BY') == 'gradle-plugin') {
-    // Plus:  Checker errors caused by Lombok-generated code are correctly reported
-    // Minus: some compilation errors (esp. from Checker) and stack traces refer to line numbers from the delomboked source code,
-    //        which may differ a lot from the original source
-    apply plugin: 'io.freefair.lombok'
-    lombok {
-      version = lombokVersion
-    }
-    generateLombokConfig.enabled = false
-  } else { // For clarity, use 'regular-dependency' for `LOMBOK_PROVIDED_BY`, or skip it completely.
-    // Plus:  all compilation errors (esp. from Checker) and stack traces refer to line numbers from the original source code
-    // Minus: Checker errors caused by Lombok-generated code are always suppressed,
-    //        see https://github.com/kelloggm/checkerframework-gradle-plugin/issues/85 for an example;
-    //        the exact mechanics is likely different than in the issue since code generation happens on the fly (via AST transformations),
-    //        but the general problem remains the same
     dependencies {
-      def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-      compileOnly lombokArtifact
-      annotationProcessor lombokArtifact
-      testCompileOnly lombokArtifact
-      testAnnotationProcessor lombokArtifact
+      compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
+      checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
     }
   }
-  // Hopefully that'll be no longer needed if/when the changes requested
-  // either on https://github.com/rzwitserloot/lombok/issues/2433 or on https://github.com/typetools/checker-framework/issues/3356
-  // are incorporated into Lombok or Checker, respectively.
 
 
   apply plugin: 'com.diffplug.gradle.spotless'
@@ -200,6 +153,7 @@ subprojects {
       // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
       eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
       removeUnusedImports()
+      targetExclude 'build/generated/**/*.*'
     }
   }
 
@@ -208,10 +162,20 @@ subprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
+  repositories {
+    maven { url "https://jitpack.io" }
+  }
+
   dependencies {
-    def betterStringsArtifact = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVerson ]
+    def betterStringsArtifact = [ group: 'com.github.PawelLipski', name: 'better-strings', version: betterStringsRevision ]
     annotationProcessor(betterStringsArtifact)
     testAnnotationProcessor(betterStringsArtifact)
+  }
+
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      options.compilerArgs += '-AcallToStringExplicitlyInInterpolations'
+    }
   }
 
 
@@ -263,6 +227,15 @@ subprojects {
 
   // Run violations task after each checkstyleMain run
   checkstyleMain.finalizedBy(violations)
+
+
+  if (useDelombok) {
+    apply plugin: 'io.freefair.lombok'
+    lombok {
+      version = lombokVersion
+      generateLombokConfig.enabled = false
+    }
+  }
 
 
   ext {
@@ -347,6 +320,19 @@ subprojects {
       }
     }
 
+    lombok = { ->
+      // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
+      if (!useDelombok) {
+        dependencies {
+          def lombokArtifact = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
+          compileOnly lombokArtifact
+          annotationProcessor lombokArtifact
+          testCompileOnly lombokArtifact
+          testAnnotationProcessor lombokArtifact
+        }
+      }
+    }
+
     powerMock = { ->
       dependencies {
         testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
@@ -427,6 +413,35 @@ subprojects.each { subproject ->
   }
 }
 
+
+group 'com.virtuslab'
+
+apply plugin: 'org.ajoberstar.grgit'
+apply from: 'version.gradle'
+
+def ciBranch = System.getenv('CIRCLE_BRANCH')
+if (ciBranch == 'master') {
+  version PROSPECTIVE_RELEASE_VERSION  // more precisely, "soon-to-happen-in-this-pipeline release version" in case of master builds
+
+} else if (!file('.git').exists()) {
+  // To make sure it's safe for Docker image builds where .git folder is unavailable
+  version "${PROSPECTIVE_RELEASE_VERSION}-SNAPSHOT"
+
+} else {
+  def maybeSnapshot = ciBranch == 'develop' ? '' : '-SNAPSHOT'
+
+  def git = org.ajoberstar.grgit.Grgit.open(currentDir: projectDir)
+  def lastTag = git.tag.list().sort { it.dateTime }.last()
+  def commitsSinceLastTag = grgit.log(includes: ['HEAD'], excludes: [lastTag.fullName])
+  def maybeCommitCount = commitsSinceLastTag.empty ? '' : '-' + commitsSinceLastTag.size()
+  def shortCommitHash = git.head().abbreviatedId
+  def maybeDirty = git.status().clean ? '' : '-dirty'
+  git.close()
+
+  version "${PROSPECTIVE_RELEASE_VERSION}${maybeCommitCount}${maybeSnapshot}+git.${shortCommitHash}${maybeDirty}"
+}
+
+
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
@@ -449,7 +464,7 @@ patchPluginXml {
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 
-apply from: 'verifier.gradle'
+apply from: 'plugin-verifier.gradle'
 
 runPluginVerifier {
   pluginFileName = "${intellij.pluginName}-${version}"

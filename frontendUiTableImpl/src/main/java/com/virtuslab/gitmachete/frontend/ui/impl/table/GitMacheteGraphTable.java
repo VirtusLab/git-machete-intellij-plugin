@@ -46,8 +46,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -75,7 +75,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   private boolean isListingCommits;
 
   @UIEffect
-  private @Nullable IGitMacheteRepository gitMacheteRepository;
+  private @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @UIEffect
   private @Nullable String selectedBranchName;
@@ -147,11 +147,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
         "isListingCommits = ${isListingCommits}");
 
     IRepositoryGraph repositoryGraph;
-    if (gitMacheteRepository == null) {
+    if (gitMacheteRepositorySnapshot == null) {
       repositoryGraph = NullRepositoryGraph.getInstance();
     } else {
-      repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepository, isListingCommits);
-      if (gitMacheteRepository.getRootBranches().isEmpty()) {
+      repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
+      if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
             /* upperText */ "Provided machete file (${macheteFilePath}) is empty.",
             /* lowerText */ "Open machete file",
@@ -194,9 +194,18 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @UIEffect
-  private void setTextForEmptyTable(String upperText, String lowerText, @UI Runnable onClickRunnableAction) {
+  private void setTextForEmptyTable(String upperText, @Nullable String lowerText, @Nullable @UI Runnable onClickRunnable) {
     var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
-    getEmptyText().setText(upperText).appendSecondaryText(lowerText, attrs, /* listener */ __ -> onClickRunnableAction.run());
+    var statusText = getEmptyText().setText(upperText);
+    if (lowerText != null) {
+      statusText.appendSecondaryText(lowerText, attrs,
+          /* listener */ onClickRunnable != null ? __ -> onClickRunnable.run() : null);
+    }
+  }
+
+  @UIEffect
+  private void setTextForEmptyTable(String upperText) {
+    setTextForEmptyTable(upperText, /* lowerText */ null, /* onClickRunnable */ null);
   }
 
   @UIEffect
@@ -208,7 +217,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   @Override
-  public void queueRepositoryUpdateAndModelRefresh() {
+  public void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady) {
     LOG.debug("Entering");
 
     if (!project.isDisposed()) {
@@ -220,10 +229,13 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
           return;
         }
 
-        @UI Consumer<Option<IGitMacheteRepository>> doRefreshModel = newGitMacheteRepository -> {
-          this.gitMacheteRepository = newGitMacheteRepository.getOrNull();
+        @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepository -> {
+          this.gitMacheteRepositorySnapshot = newGitMacheteRepository.getOrNull();
           refreshModel(gitRepository);
+          doOnUIThreadWhenReady.run();
         };
+
+        setTextForEmptyTable("Loading...");
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
@@ -236,8 +248,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @Override
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
-        // Other keys are handled up the container hierarchy, in GitMachetePanel.
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY, gitMacheteRepository),
+        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
         typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));

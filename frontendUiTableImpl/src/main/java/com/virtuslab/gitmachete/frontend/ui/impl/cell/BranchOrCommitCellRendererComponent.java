@@ -134,7 +134,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         append("commit ", REGULAR_ATTRIBUTES);
         append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
         append(" has been found in reflog of ", REGULAR_ATTRIBUTES);
-        append(forkPoint.getBranchesContainingInReflog().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
       }
     }
   }

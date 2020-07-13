@@ -10,19 +10,17 @@ import lombok.CustomLog;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 @CustomLog
 public final class PreRebaseHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 10;
+  private static final String NL = System.lineSeparator();
 
   private final File mainDirectory;
   private final File hookFile;
 
-  public static PreRebaseHookExecutor of(Path mainDirectoryPath, Path gitDirectoryPath) {
-    return new PreRebaseHookExecutor(mainDirectoryPath, gitDirectoryPath);
-  }
-
-  private PreRebaseHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
+  public PreRebaseHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
     this.mainDirectory = mainDirectoryPath.toFile();
     // TODO (#289): first take `git config core.hooksPath` into account; possibly JGit has a helper for that
     this.hookFile = gitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase").toFile();
@@ -34,7 +32,7 @@ public final class PreRebaseHookExecutor {
    *         or {@link Option.None} when the hook has not been executed (because it's absent or non-executable)
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
-  public Option<Integer> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
+  public Option<IExecutionResult> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
     var hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.exists()) {
       LOG.debug(() -> "Skipping machete-pre-rebase hook execution for ${gitRebaseParameters}: " +
@@ -62,29 +60,38 @@ public final class PreRebaseHookExecutor {
     pb.directory(mainDirectory);
 
     Process process;
+    String strippedStdout = null;
+    String strippedStderr = null;
     try {
       process = pb.start();
       boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+      strippedStdout = new String(process.getInputStream().readAllBytes()).stripTrailing();
+      strippedStderr = new String(process.getErrorStream().readAllBytes()).stripTrailing();
 
       if (!completed) {
         var message = "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
         LOG.withTimeElapsed().error(message);
-        throw new GitMacheteException(message);
+        throw new GitMacheteException(message
+            + (!strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+            + (!strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""));
       }
 
-      String strippedStdout = new String(process.getInputStream().readAllBytes()).stripTrailing();
-      String strippedStderr = new String(process.getErrorStream().readAllBytes()).stripTrailing();
-      LOG.debug(() -> "Stdout of machete-pre-rebase hook is '${strippedStdout}'");
-      LOG.debug(() -> "Stderr of machete-pre-rebase hook is '${strippedStderr}'");
+      // Can't use lambda because `strippedStdout` and `strippedStderr` are not effectively final
+      LOG.debug("Stdout of machete-pre-rebase hook is '${strippedStdout}'");
+      LOG.debug("Stderr of machete-pre-rebase hook is '${strippedStderr}'");
     } catch (IOException | InterruptedException e) {
-      LOG.withTimeElapsed().error("An error occurred while running machete-pre-rebase hook (${hookFilePath})" +
-          "for ${gitRebaseParameters}; aborting the rebase", e);
-      throw new GitMacheteException(e);
+      var message = "An error occurred while running machete-pre-rebase hook (${hookFilePath})" +
+          "for ${gitRebaseParameters}; aborting the rebase";
+      LOG.withTimeElapsed().error(message, e);
+      throw new GitMacheteException(message
+          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
 
     LOG.withTimeElapsed().info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
         "returned with ${process.exitValue()} exit code");
-    return Option.some(process.exitValue());
+    return Option.some(ExecutionResult.of(process.exitValue(), strippedStdout, strippedStderr));
   }
 }

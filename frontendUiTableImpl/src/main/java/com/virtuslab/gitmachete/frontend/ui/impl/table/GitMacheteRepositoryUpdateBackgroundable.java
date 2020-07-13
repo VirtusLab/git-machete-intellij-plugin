@@ -24,9 +24,9 @@ import org.checkerframework.checker.index.qual.Positive;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutReader;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryFactory;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.logger.IntelliJLoggingUtils;
 
@@ -35,15 +35,15 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
-  private final @UI Consumer<Option<IGitMacheteRepository>> doOnUIThreadWhenDone;
+  private final @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doOnUIThreadWhenDone;
 
-  private final IGitMacheteRepositoryFactory gitMacheteRepositoryFactory;
+  private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
   public GitMacheteRepositoryUpdateBackgroundable(
       Project project,
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
-      @UI Consumer<Option<IGitMacheteRepository>> doOnUIThreadWhenDone) {
+      @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doOnUIThreadWhenDone) {
     // Quasi-title capitalization intended since we always write "Git Machete" with initial caps.
     super(project, "Updating Git Machete repository");
 
@@ -51,7 +51,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     this.branchLayoutReader = branchLayoutReader;
     this.doOnUIThreadWhenDone = doOnUIThreadWhenDone;
 
-    this.gitMacheteRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryFactory.class);
+    this.gitMacheteRepositoryCache = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class);
   }
 
   @Override
@@ -61,33 +61,33 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     // and `doOnUIThreadWhenDone` can only start once repository update is complete.
 
     // Thus, we synchronously run repository update first...
-    Option<IGitMacheteRepository> gitMacheteRepository = updateRepository();
+    Option<IGitMacheteRepositorySnapshot> gitMacheteRepositorySnapshot = updateRepositorySnapshot();
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    GuiUtils.invokeLaterIfNeeded(() -> doOnUIThreadWhenDone.accept(gitMacheteRepository), NON_MODAL);
+    GuiUtils.invokeLaterIfNeeded(() -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot), NON_MODAL);
   }
 
   /**
-   * Updates repository which is the base of graph table model. The change will be seen after
+   * Updates the repository snapshot which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTable#refreshModel()} completes.
    *
    * This method is heavyweight and must never be invoked on UI thread.
    */
-  private Option<IGitMacheteRepository> updateRepository() {
+  private Option<IGitMacheteRepositorySnapshot> updateRepositorySnapshot() {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
     Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}" +
-        "isMacheteFilePresent = ${isMacheteFilePresent}");
+    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}, " +
+        "macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
-      LOG.debug("Machete file is present. Trying to create a ${IGitMacheteRepository.class.getSimpleName()} instance");
+      LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
       return Try.of(() -> {
         IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
-        return gitMacheteRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath, branchLayout);
+        return gitMacheteRepositoryCache.getInstance(mainDirectoryPath, gitDirectoryPath).createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).toOption();
     } else {
       LOG.debug("Machete file is absent");

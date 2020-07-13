@@ -2,7 +2,8 @@
 
 set -e -o pipefail -u
 
-source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+# As per git hook spec, we can rely on this script being executed in the main repository dir.
+source scripts/utils.sh
 
 [[ ${1-} ]] || die "usage: $(basename "$0") <branch-name>"
 branch=$1

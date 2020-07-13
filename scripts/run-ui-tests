@@ -9,6 +9,8 @@ source "$self_dir"/utils.sh
 intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
 
 ide_log=build/idea-sandbox/system/log/idea.log
+# idea.log is not automatically cleared before each `runIde(forUiTests)`
+# and we don't want to print the potential logs from the previous runs.
 ide_log_last_line=$(cat $ide_log 2>/dev/null | wc -l || true)  # will be 0 if $ide_log doesn't exist yet
 
 function ide_logs_from_this_run() {
@@ -20,7 +22,7 @@ function ide_logs_from_this_run() {
 # but unfortunately xvfb-run available for Debian Buster (base of our CI image) doesn't support the latter.
 command=${CI:+xvfb-run --auto-servernum}
 gradle_run_ide_log=~/gradlew-runIdeForUiTests.log
-$command ./gradlew -PintellijVersionForRunIde=$intellij_version runIdeForUiTests >$gradle_run_ide_log 2>&1 &
+$command ./gradlew -PintellijVersionForRunIde=$intellij_version --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M runIdeForUiTests >$gradle_run_ide_log 2>&1 &
 
 # $! expands to the PID of the last process executed in the background
 ide_pid=$!
@@ -28,8 +30,7 @@ function is_ide_running() {
   ps -p $ide_pid >/dev/null 2>&1
 }
 
-# The test will gracefully close the IDE instance if successful,
-# but we still need to kill the IDE instance in case that test was not successful AND the IDE is still running.
+# Let's make sure the IDE process is terminated in case gracefully closing the IDE in @After failed for whatever reason.
 function finish() {
   if is_ide_running; then
     kill -TERM $ide_pid || true  # ignoring exit code in case the process just terminated between `is_ide_running` and `kill`
@@ -61,7 +62,7 @@ while ! nc -z localhost 8080; do
 done
 
 info 'Logs of gradle uiTests:test'
-./gradlew -PenableUiTests --info uiTests:test || {
+./gradlew -PenableUiTests --info --max-workers=1 -Dorg.gradle.jvmargs=-Xmx256M uiTests:test || {
   info 'Logs of IDE under test'
   ide_logs_from_this_run
   die 'UI tests failed; inspect Gradle and IDE logs above'

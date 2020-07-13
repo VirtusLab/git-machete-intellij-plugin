@@ -3,8 +3,12 @@ importClass(java.lang.Runnable);
 importClass(java.lang.System);
 importClass(java.lang.Thread);
 
+importClass(com.intellij.ide.DataManager);
 importClass(com.intellij.ide.GeneralSettings);
 importClass(com.intellij.ide.impl.ProjectUtil);
+importClass(com.intellij.openapi.actionSystem.ActionManager);
+importClass(com.intellij.openapi.actionSystem.AnActionEvent);
+importClass(com.intellij.openapi.actionSystem.Presentation);
 importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.wm.ToolWindowId);
@@ -14,7 +18,7 @@ importClass(com.intellij.ui.GuiUtils);
 
 // Do not run in EDT.
 function sleep() {
-  Thread.sleep(1000);
+  Thread.sleep(500);
 }
 
 // Do not run in EDT.
@@ -38,7 +42,7 @@ function soleOpenedProject() {
 function closeOpenedProjects() {
   ProjectUtil.getOpenProjects().forEach(function (project) {
     GuiUtils.runOrInvokeAndWait(function () {
-      System.out.println("project to close = " + project.toString());
+      System.out.println('project to close = ' + project.toString());
       ProjectUtil.closeAndDispose(project);
     });
   });
@@ -56,13 +60,11 @@ function closeIde() {
 }
 
 // Do not run in EDT.
-function openTabAndReturnRowCount(project) {
-
+function openTab(project) {
   const toolWindowManager = ToolWindowManager.getInstance(project);
   let toolWindow;
   do {
     toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
-    System.out.println("tool window present = " + (toolWindow != null));
     sleep();
   } while (toolWindow == null);
 
@@ -72,21 +74,50 @@ function openTabAndReturnRowCount(project) {
     toolWindow.activate(function () {});
   });
 
-  let graphTable;
   GuiUtils.runOrInvokeAndWait(function () {
     const contentManager = toolWindow.getContentManager();
     const tab = contentManager.findContent('Git Machete');
     contentManager.setSelectedContent(tab);
-    const panel = tab.getComponent();
-    graphTable = panel.getGraphTable();
-    graphTable.queueRepositoryUpdateAndModelRefresh();
   });
+}
 
-  let graphTableRowCount;
+function _getGraphTable(project) {
+  const toolWindowManager = ToolWindowManager.getInstance(project);
+  const toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
+  const contentManager = toolWindow.getContentManager();
+  const tab = contentManager.findContent('Git Machete');
+  const panel = tab.getComponent();
+  return panel.getGraphTable();
+}
+
+function _refreshModelAndWaitUntilDone(graphTable) {
+  let refreshDone = false;
+  graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ function() {
+    refreshDone = true;
+  });
   do {
-    graphTableRowCount = graphTable.getModel().getRowCount();
-    System.out.println("graph table row count = " + graphTableRowCount);
     sleep();
-  } while (graphTableRowCount === 0);
-  return graphTableRowCount;
+  } while (!refreshDone);
+}
+
+// Do not run in EDT.
+// Assumes that Git Machete tab is opened.
+function refreshModelAndGetRowCount(project) {
+  const graphTable = _getGraphTable(project);
+  _refreshModelAndWaitUntilDone(graphTable);
+  return graphTable.getModel().getRowCount();
+}
+
+// Do not run in EDT.
+function toggleListingCommits(project) {
+  const actionManager = ActionManager.getInstance();
+  const action = actionManager.getAction('GitMachete.ToggleListingCommitsAction');
+
+  const graphTable = _getGraphTable(project);
+  const dataContext = DataManager.getInstance().getDataContext(graphTable);
+  const actionEvent = AnActionEvent.createFromDataContext('GitMacheteContextMenu', new Presentation(), dataContext);
+
+  GuiUtils.runOrInvokeAndWait(function () {
+    action.actionPerformed(actionEvent);
+  });
 }

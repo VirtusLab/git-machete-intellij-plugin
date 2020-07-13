@@ -5,22 +5,22 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/common.sh
 
-newrepo machete-sandbox-remote --bare
+create_repo machete-sandbox-remote --bare
 
-newrepo machete-sandbox
+create_repo machete-sandbox
 (
   cd machete-sandbox
   git remote add origin ../machete-sandbox-remote
 
-  newb root
-    cmt Root
-  newb develop
-    cmt Develop commit
+  create_branch root
+    commit Root
+  create_branch develop
+    commit Develop commit
     push
-  newb allow-ownership-link # not added to definition file
-    cmt Allow ownership links
-  newb build-chain
-    cmt Build arbitrarily long chains
+  create_branch allow-ownership-link # not added to definition file
+    commit Allow ownership links
+  create_branch build-chain
+    commit Build arbitrarily long chains
     push
 
   git branch -d root

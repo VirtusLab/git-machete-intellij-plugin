@@ -1,13 +1,23 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
+import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+
+import com.intellij.application.options.CodeStyle;
+import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.ui.GuiUtils;
 import io.vavr.control.Option;
 import lombok.Data;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
@@ -16,6 +26,8 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTyp
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
 
 public class MacheteAnnotator implements Annotator {
+  private boolean cantGetBranchesMessageWasShown = false;
+
   @Override
   public void annotate(PsiElement element, AnnotationHolder holder) {
     if (element instanceof MacheteGeneratedEntry) {
@@ -25,6 +37,17 @@ public class MacheteAnnotator implements Annotator {
     }
   }
 
+  @UIEffect
+  private void showCantGetBranchesMessage(PsiFile file) {
+    Editor currentEditor = FileEditorManager.getInstance(file.getProject()).getSelectedTextEditor();
+    if (currentEditor == null) {
+      return;
+    }
+    HintManager.getInstance().showErrorHint(currentEditor,
+        "We can't get project branches, so we can't checking it names", HintManager.ABOVE);
+    cantGetBranchesMessageWasShown = true;
+  }
+
   private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
@@ -32,9 +55,12 @@ public class MacheteAnnotator implements Annotator {
     var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
 
     if (branchNamesOption.isEmpty()) {
-      // TODO (#372): We can probably do something more useful here (some kind of message, etc.)
+      if (!cantGetBranchesMessageWasShown) {
+        GuiUtils.invokeLaterIfNeeded(() -> showCantGetBranchesMessage(file), NON_MODAL);
+      }
       return;
     }
+    cantGetBranchesMessageWasShown = false;
 
     var branchNames = branchNamesOption.get();
 
@@ -65,6 +91,20 @@ public class MacheteAnnotator implements Annotator {
     boolean hasPrevLevelCorrectWidth;
 
     IndentationParameters indentationParameters = findIndentationParameters(element);
+
+    // Potentially unrelated - it's responsible of changing default TAB key behavior
+    // (insert real TAB or insert some number of spaces) depending on detected file indentation.
+    // In case of space insertion indent width (size) is also set
+    // This is not the best place for this action (because it is unnecessarily invoked on every
+    // indentation element processing) but for now we can't find better place
+    CodeStyleSettings codeStyleSettings = CodeStyle.getSettings(element.getContainingFile());
+    CommonCodeStyleSettings.IndentOptions indentOptions = codeStyleSettings.getIndentOptions();
+    indentOptions.USE_TAB_CHARACTER = indentationParameters.getIndentationCharacter() == '\t';
+    if (indentOptions.USE_TAB_CHARACTER) {
+      indentOptions.INDENT_SIZE = indentOptions.TAB_SIZE;
+    } else {
+      indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
+    }
 
     var prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
     if (prevIndentationNodeOption.isEmpty()) {

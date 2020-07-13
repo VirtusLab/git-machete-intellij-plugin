@@ -18,26 +18,16 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
 public final class StatusBranchHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 1;
 
-  // sun.nio.fs.UnixPath has a reasonable equals/hashCode.
-  private static final java.util.Map<Tuple2<Path, Path>, StatusBranchHookExecutor> instanceByMainDirAndGitDirCache = new ConcurrentHashMap<>();
-
   private final File mainDirectory;
   private final File hookFile;
 
   // We're cheating a bit here: we're assuming that the hook's output is fixed for a given (branch-name, commit-hash) pair.
   // machete-status-branch hook spec doesn't impose any requirements like that, but:
-  // 1. it's pretty unlikely that any practically useful hook won't conform to this assumption
-  // 2. this kind of caching is pretty useful wrt. performance, esp. given that executors themselves are also cached
-  //    for a given (main-dir, git-dir) pair.
+  // 1. it's pretty unlikely that any practically useful hook won't conform to this assumption,
+  // 2. this kind of caching is pretty useful wrt. performance.
   private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
 
-  public static StatusBranchHookExecutor of(Path mainDirectoryPath, Path gitDirectoryPath) {
-    return instanceByMainDirAndGitDirCache.computeIfAbsent(
-        /* key */ Tuple.of(mainDirectoryPath, gitDirectoryPath),
-        /* mappingFunction */ k -> new StatusBranchHookExecutor(k._1, k._2));
-  }
-
-  private StatusBranchHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
+  public StatusBranchHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
     this.mainDirectory = mainDirectoryPath.toFile();
     // TODO (#289): first take `git config core.hooksPath` into account; possibly JGit has a helper for that
     this.hookFile = gitDirectoryPath.resolve("hooks").resolve("machete-status-branch").toFile();

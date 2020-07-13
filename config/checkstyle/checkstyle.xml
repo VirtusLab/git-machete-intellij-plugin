@@ -7,11 +7,10 @@
         <!ENTITY treeWalkerModuleDirectives SYSTEM "tree_walker_module_directives.xml">
         ]>
 
-<!-- Examples from this file: https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml -->
-
 <!-- List of directives: https://checkstyle.sourceforge.io/version/4.4/availablechecks.html -->
 
-<!-- DTD ENTITY-ies are used to allow decouple config file to smaller parts that can be reimported in submodule-specific configuration file -->
+<!-- DTD entities are used to allow for splitting config file to smaller parts
+     that can be reimported in submodule-specific configuration files. -->
 
 <module name="Checker">
     &checkerModuleDirectives;

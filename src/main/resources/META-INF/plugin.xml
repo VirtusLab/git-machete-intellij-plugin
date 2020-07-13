@@ -163,6 +163,15 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
         </group>
+
+        <action id="GitMachete.OpenMacheteTabAction"
+                class="com.virtuslab.gitmachete.frontend.actions.vcsmenu.OpenMacheteTabAction"
+                icon="MacheteIcons.MACHETE_FILE">
+            <!-- In future IntelliJ releases this group-id will probably be `Git.MainMenu`
+                 We can consider `VcsGroups` that seems to be more stable and place this action in VCS menu -->
+            <add-to-group group-id="GitRepositoryActions" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
+        </action>
     </actions>
 
 </idea-plugin>

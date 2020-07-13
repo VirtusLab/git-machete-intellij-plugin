@@ -60,7 +60,7 @@ function parse_version() {
   local version=$2
 
   declare -g "$var_prefix"_version="$version"
-  IFS=.- read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch ${var_prefix}_pre_release <<< "$version"
+  IFS=.- read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch <<< "$version"
 }
 
 function parse_version_from_current_wd() {

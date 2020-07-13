@@ -4,11 +4,11 @@ set -e
 
 sandboxDir=machete-sandbox
 
-newb() {
+create_branch() {
   git checkout -b $1
 }
 
-cmt() {
+commit() {
   b=$(git symbolic-ref --short HEAD)
   f=${b/\//-}-${1}-${2}.txt
   touch $f
@@ -16,7 +16,7 @@ cmt() {
   git commit -m "$*"
 }
 
-newrepo() {
+create_repo() {
   dir=$sandboxDir/$1
   mkdir ~/$dir
   cd ~/$dir
@@ -45,38 +45,38 @@ init() {
 init
 
 newremote filter-service
-newrepo filter-service
+create_repo filter-service
 git remote add origin ~/$sandboxDir/filter-service-remote
 
-newb root
-  cmt Root
-newb develop
-  cmt Develop commit
-newb allow-ownership-link
-  cmt Allow ownership links
+create_branch root
+  commit Root
+create_branch develop
+  commit Develop commit
+create_branch allow-ownership-link
+  commit Allow ownership links
   push
-newb build-chain
-  cmt Build arbitrarily long chains
+create_branch build-chain
+  commit Build arbitrarily long chains
 git checkout allow-ownership-link
-  cmt 1st round of fixes
+  commit 1st round of fixes
 git checkout develop
-  cmt Other develop commit
+  commit Other develop commit
   push
-newb call-ws
-  cmt Call web service
-  cmt 1st round of fixes
+create_branch call-ws
+  commit Call web service
+  commit 1st round of fixes
   push
-newb drop-constraint # not added to definition file
-  cmt Drop unneeded SQL constraints
+create_branch drop-constraint # not added to definition file
+  commit Drop unneeded SQL constraints
 git checkout call-ws
-  cmt 2nd round of fixes
+  commit 2nd round of fixes
 
 git checkout root
-newb master
-  cmt Master commit
+create_branch master
+  commit Master commit
   push
-newb hotfix/add-trigger
-  cmt HOTFIX Add the trigger
+create_branch hotfix/add-trigger
+  commit HOTFIX Add the trigger
   push
   git commit --amend -m 'HOTFIX Add the trigger (amended)'
 
@@ -98,57 +98,57 @@ echo
 echo
 
 newremote generator-service
-newrepo generator-service
+create_repo generator-service
 git remote add origin ~/$sandboxDir/generator-service-remote
 
-newb root
-  cmt Root
-newb develop
-  cmt 'Develop commit (probably empty)'
-newb forbid-ownership-link
-  cmt Forbid ownership links
+create_branch root
+  commit Root
+create_branch develop
+  commit 'Develop commit (probably empty)'
+create_branch forbid-ownership-link
+  commit Forbid ownership links
   push
-newb destroy-chain
-  cmt Destroy arbitrarily long chains
+create_branch destroy-chain
+  commit Destroy arbitrarily long chains
 git checkout forbid-ownership-link
-  cmt n-th round of fixes
+  commit n-th round of fixes
 git checkout develop
-  cmt Other develop commit - this one too
+  commit Other develop commit - this one too
   push
-newb send-a-pigeon-for-ws
-  cmt Send a pigeon for web service
-  cmt 1st round of bugs
-  push
-git checkout forbid-ownership-link
-newb toggle-rain
-  cmt toggle
-  cmt toggle 2
-  push
-  cmt toggle 3
-newb make-coffee
-  cmt Get water
-  cmt Search for help
+create_branch send-a-pigeon-for-ws
+  commit Send a pigeon for web service
+  commit 1st round of bugs
   push
 git checkout forbid-ownership-link
-newb go-home
-  cmt run
-  cmt ide
+create_branch toggle-rain
+  commit toggle
+  commit toggle 2
+  push
+  commit toggle 3
+create_branch make-coffee
+  commit Get water
+  commit Search for help
   push
 git checkout forbid-ownership-link
-newb add-constraint # not added to definition file
-  cmt Add unneeded SQL constraints
+create_branch go-home
+  commit run
+  commit ide
+  push
+git checkout forbid-ownership-link
+create_branch add-constraint # not added to definition file
+  commit Add unneeded SQL constraints
 git checkout send-a-pigeon-for-ws
-  cmt 2nd round of bugs
+  commit 2nd round of bugs
 
 git checkout root
-newb master
-  cmt 'Master of puppets!!111111oneoneone commit'
+create_branch master
+  commit 'Master of puppets!!111111oneoneone commit'
   push
-newb coldfix/knor
-  cmt pudliszki
+create_branch coldfix/knor
+  commit pudliszki
   push
-newb hotfix/remove-trigger
-  cmt HOTFIX Remove the trigger
+create_branch hotfix/remove-trigger
+  commit HOTFIX Remove the trigger
   push
   git commit --amend -m 'HOTFIX Remove the trigger (amended)'
 

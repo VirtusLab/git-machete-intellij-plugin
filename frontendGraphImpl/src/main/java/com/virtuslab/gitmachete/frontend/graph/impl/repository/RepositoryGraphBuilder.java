@@ -29,9 +29,9 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
-import com.virtuslab.gitmachete.backend.api.NullRepository;
+import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
@@ -46,7 +46,7 @@ import com.virtuslab.gitmachete.frontend.graph.impl.items.CommitItem;
 public class RepositoryGraphBuilder {
 
   @Setter
-  private IGitMacheteRepository repository = NullRepository.getInstance();
+  private IGitMacheteRepositorySnapshot repository = NullGitMacheteRepositorySnapshot.getInstance();
 
   @Setter
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
@@ -55,12 +55,12 @@ public class RepositoryGraphBuilder {
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public IRepositoryGraph build() {
-    LOG.startTimer().info("Entering");
+    LOG.startTimer().debug("Entering");
 
     Tuple2<List<IGraphItem>, List<List<Integer>>> graphData = deriveGraphItemsAndPositionsOfVisibleEdges();
     var result = new RepositoryGraph(graphData._1(), graphData._2());
 
-    LOG.withTimeElapsed().info("Finished");
+    LOG.withTimeElapsed().debug("Finished");
     return result;
   }
 

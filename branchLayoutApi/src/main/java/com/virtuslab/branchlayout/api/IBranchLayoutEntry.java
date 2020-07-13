@@ -9,7 +9,9 @@ import io.vavr.control.Option;
 public interface IBranchLayoutEntry {
   String getName();
 
-  List<IBranchLayoutEntry> getSubentries();
+  List<IBranchLayoutEntry> getChildren();
+
+  IBranchLayoutEntry withChildren(List<IBranchLayoutEntry> newChildren);
 
   Option<String> getCustomAnnotation();
 }

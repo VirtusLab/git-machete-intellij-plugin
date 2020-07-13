@@ -37,7 +37,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     var branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isDefined()) {
       boolean anyChildBranchExists = branchLayout.get().getRootEntries()
-          .exists(rootBranch -> rootBranch.getSubentries().nonEmpty());
+          .exists(rootBranch -> rootBranch.getChildren().nonEmpty());
       if (anyChildBranchExists) {
         presentation.setEnabled(true);
         presentation.setDescription("Toggle listing commits");

@@ -2,9 +2,10 @@
 
 set -e -o pipefail -u
 
-source "$(git rev-parse --show-toplevel)"/scripts/utils.sh
+# As per git hook spec, we can rely on this script being executed in the main repository dir.
+source scripts/utils.sh
 
-if [ $# -eq 3 ]; then
+if (( $# == 3 )); then
   new_base=$1
   fork_point=$2
   current_branch=$3
@@ -12,75 +13,32 @@ if [ $# -eq 3 ]; then
   parse_version_from_git_revision base "$new_base"
   parse_version_from_git_revision head "$current_branch"
 
-  if [[ $head_pre_release ]]; then
-    if [[ $base_pre_release ]]; then
-      # Both head and base versions are pre-release. That's the most unintuitive case.
-      # To simplify the things (and still correctly cover 99.9% real-life cases),
-      # we're assuming here that there was no released version between base and head
-      # (i.e. both base and head build upon the same released version).
-
-      if [[ $base_patch -ne 0 && $head_patch -ne 0 ]]; then
-        # Both pre-release versions, if released as-is, would just bump patch.
-        # Hence, head rebased onto base will also bump patch.
-        # We can just take the version from base and bump pre-release, no matter what's in head.
-        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
-
-        # Otherwise, at least one of base and head bumps minor or major,
-        # so head rebased onto base will also bump either minor or major.
-        # Let's now determine which one.
-      elif [[ $base_minor -eq 0 && $base_patch -eq 0 ]]; then
-        # If base bumps major, then the resulting version must also bump major.
-        # We can just take the version from base and bump pre-release, no matter what's in head.
-        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
-
-      elif [[ $head_minor -eq 0 && $head_patch -eq 0 ]]; then
-        # If head bumps major and base does NOT bump major, then the resulting version also bump major.
-        # We have to bump major on the base version (since base only bumps minor or patch).
-        target_version="$((base_major + 1)).0.0-1"
-
-        # Otherwise, neither of base and head bumps major.
-        # Since we excluded patch bump previously, we know that it's minor that will be bumped.
-      elif [[ $base_patch -eq 0 ]]; then
-        # If base bumps minor, then the resulting version must also bump minor.
-        # We can just take the version from base and bump pre-release, no matter what's in head.
-        target_version="$base_major.$base_minor.$base_patch-$((base_pre_release + 1))"
-
-      else
-        # If head bumps minor and base does NOT bump minor, then the resulting version must bump minor.
-        # We have to bump minor on the base version (since base only bumps patch).
-        target_version="$base_major.$((base_minor + 1)).0-1"
-      fi
-    else
-      if [[ $head_patch -ne 0 ]]; then
-        target_version="$base_major.$base_minor.$((base_patch + 1))-1"
-      elif [[ $head_minor -ne 0 ]]; then
-        target_version="$base_major.$((base_minor + 1)).0-1"
-      else
-        target_version="$((base_major + 1)).0.0-1"
-      fi
-    fi
-  else
-    if [[ $head_patch -ne 0 ]]; then
-      target_version="$base_major.$base_minor.$((base_patch + 1))"
-    elif [[ $head_minor -ne 0 ]]; then
-      target_version="$base_major.$((base_minor + 1)).0"
-    else
-      target_version="$((base_major + 1)).0.0"
-    fi
+  if   (( $base_major > $head_major )); then
+    do_rewrite=true
+  elif (( $base_major < $head_major )); then
+    do_rewrite=false
+  elif (( $base_minor > $head_minor )); then
+    do_rewrite=true
+  elif (( $base_minor < $head_minor )); then
+    do_rewrite=false
+  elif (( $base_patch > $head_patch )); then
+    do_rewrite=true
+  else  # $base_patch <= $head_patch
+    do_rewrite=false
   fi
 
-  if [[ $head_version != "$target_version" ]]; then
-    echo "Rewriting the commits: setting version in version.gradle to $target_version..."
+  if eval $do_rewrite; then
+    echo "Rewriting the commits: setting version in version.gradle to $base_version..."
     self_path="$(cd "$(dirname "$0")" &>/dev/null; pwd -P)"/"$(basename "$0")"
     # This is necessary to make sure that git does not wait for any interactive input
     # in case the hook is not run from a terminal (e.g. via the IDEA plugin).
     export FILTER_BRANCH_SQUELCH_WARNING=1
-    git filter-branch -f --tree-filter "$self_path $target_version" "$fork_point".."$current_branch"
+    git filter-branch -f --tree-filter "$self_path $base_version" "$fork_point".."$current_branch"
   fi
-elif [ $# -eq 1 ]; then
+elif (( $# == 1 )); then
   target_version=$1
 
-  # Using -i.bak and not just -i to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.
-  sed -i.bak "/^\s*PLUGIN_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
+  # Using `-i.bak` and not just `-i` to retain compatibility with both Linux (GNU) sed and OS X (BSD) sed.
+  sed -i.bak "/^\s*[A-Z_]*_VERSION = '.*'\$/  s/'.*'/'$target_version'/" version.gradle
   rm -f version.gradle.bak
 fi

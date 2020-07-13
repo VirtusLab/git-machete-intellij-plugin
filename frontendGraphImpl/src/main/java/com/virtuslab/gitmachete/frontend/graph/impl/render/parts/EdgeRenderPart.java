@@ -10,7 +10,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IEdgeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.INodeRenderPart;
 import com.virtuslab.gitmachete.frontend.graph.impl.render.GraphItemColorForGraphElementProvider;
 
-@Getter(onMethod_ = {@Override})
+@Getter
 public final class EdgeRenderPart extends BaseRenderPart implements IEdgeRenderPart {
 
   private final Type type;

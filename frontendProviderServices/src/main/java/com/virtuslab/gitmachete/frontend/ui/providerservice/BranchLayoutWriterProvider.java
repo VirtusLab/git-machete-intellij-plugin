@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 
 @Service
 public final class BranchLayoutWriterProvider {

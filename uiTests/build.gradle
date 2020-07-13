@@ -1,4 +1,5 @@
 junit()
+lombok()
 remoteRobot()
 
 dependencies {

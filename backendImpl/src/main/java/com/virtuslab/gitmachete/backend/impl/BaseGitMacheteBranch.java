@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.ToString;
+import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
@@ -11,8 +12,9 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-@Getter(onMethod_ = {@Override})
+@Getter
 @ToString
+@UsesObjectEquals
 public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final String name;
   private final List<GitMacheteNonRootBranch> downstreamBranches;
@@ -44,6 +46,18 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
     this.statusHookOutput = statusHookOutput;
   }
 
+  /**
+   * This is a hack necessary to create an immutable cyclic structure
+   * (children pointing at the parent and the parent pointing at the children).
+   * This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
+   * upstream data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
+   */
+  protected void setUpstreamForDownstreamBranches() {
+    for (GitMacheteNonRootBranch branch : downstreamBranches) {
+      branch.setUpstreamBranch(this);
+    }
+  }
+
   @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
@@ -57,15 +71,5 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   @Override
   public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
     return Option.of(remoteTrackingBranch);
-  }
-
-  @Override
-  public final boolean equals(@Nullable Object other) {
-    return this == other;
-  }
-
-  @Override
-  public final int hashCode() {
-    return super.hashCode();
   }
 }

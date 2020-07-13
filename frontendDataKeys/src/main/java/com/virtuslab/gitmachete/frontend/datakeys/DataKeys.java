@@ -7,13 +7,13 @@ import static io.vavr.API.Match;
 import com.intellij.openapi.actionSystem.DataKey;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 public final class DataKeys {
   private DataKeys() {}
 
-  public static final DataKey<@Nullable IGitMacheteRepository> KEY_GIT_MACHETE_REPOSITORY = DataKey
-      .create("GIT_MACHETE_REPOSITORY");
+  public static final DataKey<@Nullable IGitMacheteRepositorySnapshot> KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT = DataKey
+      .create("GIT_MACHETE_REPOSITORY_SNAPSHOT");
   public static final DataKey<@Nullable String> KEY_SELECTED_BRANCH_NAME = DataKey.create("SELECTED_BRANCH_NAME");
 
   // Note: this method isn't currently fully null-safe, it's possible to pass {@code null} as {@code value}

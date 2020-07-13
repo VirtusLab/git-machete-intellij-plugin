@@ -1,18 +1,16 @@
 package com.virtuslab.gitmachete.backend.api;
 
-import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 
 public interface IGitMacheteRepository {
-  Option<IBranchLayout> getBranchLayout();
+  IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException;
 
-  List<IGitMacheteRootBranch> getRootBranches();
+  Option<String> inferUpstreamForLocalBranch(
+      Set<String> eligibleBranchNames,
+      String localBranchName) throws GitMacheteException;
 
-  Option<IGitMacheteBranch> getCurrentBranchIfManaged();
-
-  Option<IGitMacheteBranch> getBranchByName(String branchName);
-
-  Option<Integer> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException;
+  IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot() throws GitMacheteException;
 }

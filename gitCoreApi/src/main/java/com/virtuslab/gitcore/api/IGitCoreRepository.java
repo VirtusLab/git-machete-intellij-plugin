@@ -1,8 +1,7 @@
 package com.virtuslab.gitcore.api;
 
-import java.util.function.Predicate;
-
 import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 public interface IGitCoreRepository {
@@ -10,9 +9,9 @@ public interface IGitCoreRepository {
 
   Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;
 
-  List<IGitCoreLocalBranch> deriveAllLocalBranches() throws GitCoreException;
+  List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException;
 
-  Option<IGitCoreLocalBranch> deriveCurrentBranch() throws GitCoreException;
+  IGitCoreHeadSnapshot deriveHead() throws GitCoreException;
 
   Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
       IGitCoreCommit fromPerspectiveOf,
@@ -20,13 +19,9 @@ public interface IGitCoreRepository {
 
   List<String> deriveAllRemoteNames() throws GitCoreException;
 
-  List<IGitCoreRemoteBranch> deriveAllRemoteBranches() throws GitCoreException;
-
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
-  Option<IGitCoreCommit> findFirstAncestor(
-      IGitCoreCommit fromInclusive,
-      Predicate<IGitCoreCommitHash> predicate) throws GitCoreException;
+  Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
 
   List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive) throws GitCoreException;
 }

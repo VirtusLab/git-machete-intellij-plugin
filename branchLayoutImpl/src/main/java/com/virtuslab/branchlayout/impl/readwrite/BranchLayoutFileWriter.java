@@ -14,24 +14,20 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
-import com.virtuslab.branchlayout.api.manager.IBranchLayoutWriter;
-import com.virtuslab.branchlayout.impl.BranchLayout;
-import com.virtuslab.branchlayout.impl.IndentSpec;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 
 @CustomLog
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
   @Override
-  public void write(IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
-    LOG.debug(() -> "Entering: branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
+  public void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
+    LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
+    var indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
 
-    var path = ((BranchLayout) branchLayout).getPath();
-    var indentSpec = ((BranchLayout) branchLayout).getIndentSpec();
+    var lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
-    var lines = printBranchesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
-
-    if (backupOldFile) {
+    if (backupOldFile && path.toFile().isFile()) {
       Path parentDir = path.getParent();
       assert parentDir != null : "Can't get parent directory of branch layout file";
       Path backupPath = parentDir.resolve(path.getFileName() + "~");
@@ -48,8 +44,11 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         .getOrElseThrow(e -> new BranchLayoutException("Unable to write new branch layout file to ${path}", e));
   }
 
-  private List<String> printBranchesOntoStringList(List<IBranchLayoutEntry> entries, IndentSpec indentSpec,
+  private List<String> printEntriesOntoStringList(
+      List<IBranchLayoutEntry> entries,
+      IndentSpec indentSpec,
       @NonNegative int level) {
+
     List<String> stringList = List.empty();
     for (var entry : entries) {
       var sb = new StringBuilder();
@@ -60,8 +59,8 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         sb.append(" ").append(customAnnotation.get());
       }
 
-      List<String> resultForSubentries = printBranchesOntoStringList(entry.getSubentries(), indentSpec, level + 1);
-      stringList = stringList.append(sb.toString()).appendAll(resultForSubentries);
+      List<String> resultForChildren = printEntriesOntoStringList(entry.getChildren(), indentSpec, level + 1);
+      stringList = stringList.append(sb.toString()).appendAll(resultForChildren);
     }
     return stringList;
   }

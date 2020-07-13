@@ -16,11 +16,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.impl.BranchLayout;
-import com.virtuslab.branchlayout.impl.IndentSpec;
 import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileReader;
 import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
+import com.virtuslab.branchlayout.impl.readwrite.IndentSpec;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BranchLayoutFileUtils.class, Files.class})
@@ -115,14 +115,14 @@ public class BranchLayoutFileReaderTestSuite {
     // when
     BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
-    System.out.println(exception);
+    System.out.println(exception.getMessage());
     // then
     int i = exception.getErrorLine().get();
     assertEquals(4, i);
   }
 
   @Test
-  public void read_givenFileWithSubentryIndentGreaterThanOneToParent_throwsException() {
+  public void read_givenFileWithChildIndentGreaterThanOneToParent_throwsException() {
     // given
     List<String> linesToReturn = List.of(" ", "A", "", "  B", "      C");
     BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 2);
