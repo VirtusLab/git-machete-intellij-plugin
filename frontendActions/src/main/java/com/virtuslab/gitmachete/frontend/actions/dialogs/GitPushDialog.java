@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.pushdialog;
+package com.virtuslab.gitmachete.frontend.actions.dialogs;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;

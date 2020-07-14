@@ -22,6 +22,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -70,33 +71,46 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   }
 
   @Override
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
+    var selectedVcsRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var gitMacheteParentBranch = getNameOfBranchUnderAction(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn)).getOrNull();
     var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    var notifier = VcsNotifier.getInstance(project);
 
-    if (selectedVcsRepository.isEmpty() || gitMacheteParentBranch.isEmpty() || branchLayout == null) {
+    if (selectedVcsRepository == null || gitMacheteParentBranch == null || branchLayout == null) {
       return;
     }
 
-    var parentName = gitMacheteParentBranch.get().getName();
-    var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository.get(), parentName,
-        GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.title", parentName));
-    if (branchName == null) {
-      log().debug("Name of branch to slide in is null: most likely the action has been canceled from dialog");
+    var parentName = gitMacheteParentBranch.getName();
+    var entryName = new SlideInDialog(project, parentName).showAndGetEntryName();
+    if (entryName == null) {
+      log().debug("Name of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
     }
 
-    if (parentName.equals(branchName)) {
-      VcsNotifier.getInstance(project).notifyError(
+    if (parentName.equals(entryName)) {
+      notifier.notifyError(
           /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
-              branchName),
+              entryName),
           /* message */ GitMacheteBundle
               .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.branch-name-equals-parent"));
       return;
+    }
+
+    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(entryName);
+    if (localBranch == null) {
+      var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository, parentName, entryName);
+      if (!entryName.equals(branchName)) {
+        branchName = branchName != null ? branchName : "no name provided";
+        notifier.notifyWeakError(
+            GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.notification.fail.mismatched-names", entryName,
+                branchName));
+        return;
+      }
     }
 
     // TODO (#430): expose getParent from branch layout api
@@ -104,7 +118,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     var entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
-        .map(names -> names.contains(branchName))
+        .map(names -> names.contains(entryName))
         .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent) {
@@ -112,22 +126,21 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var entryToSlideIn = branchLayout.findEntryByName(branchName)
-        .getOrElse(new BranchLayoutEntry(branchName, /* customAnnotation */ null, List.empty()));
-
     new Task.Backgroundable(project, GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
       @Override
       public void run(ProgressIndicator indicator) {
-        Path macheteFilePath = getMacheteFilePath(selectedVcsRepository.get());
-        var notifier = VcsNotifier.getInstance(project);
+        Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
+
+        var entryToSlideIn = branchLayout.findEntryByName(entryName)
+                .getOrElse(new BranchLayoutEntry(entryName, /* customAnnotation */ null, /* children */ List.empty()));
 
         var newBranchLayout = Try
             .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
-                        branchName),
+                        entryName),
                     getMessageOrEmpty(t)))
             .toOption();
 
@@ -145,19 +158,28 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   }
 
   @Nullable
-  String createOrCheckoutNewBranch(Project project, GitRepository gitRepository, String startPoint, String title) {
+  String createOrCheckoutNewBranch(Project project, GitRepository gitRepository, String startPoint, String initialName) {
     var repositories = List.of(gitRepository).asJava();
     var gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
-        title,
-        /* initialName */ null,
+        /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title",
+            startPoint),
+        initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
         /* localConflictsAllowed */ true);
 
     var options = gitNewBranchDialog.showAndGetOptions();
+
     if (options == null) {
+      log().debug(
+          "Name of branch to slide in is null: most likely the action has been canceled from create-new-branch dialog");
       return null;
+    }
+
+    var branchName = options.getName();
+    if (!initialName.equals(branchName)) {
+      return branchName;
     }
 
     if (options.shouldCheckout()) {
