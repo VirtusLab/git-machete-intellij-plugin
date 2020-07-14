@@ -86,29 +86,33 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     }
 
     var parentName = gitMacheteParentBranch.getName();
-    var entryName = new SlideInDialog(project, parentName).showAndGetEntryName();
-    if (entryName == null) {
+    var slideInDialogBranchName = new SlideInDialog(project, parentName).showAndGetBranchName();
+    if (slideInDialogBranchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
     }
 
-    if (parentName.equals(entryName)) {
+    if (parentName.equals(slideInDialogBranchName)) {
       notifier.notifyError(
           /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
-              entryName),
+              slideInDialogBranchName),
           /* message */ GitMacheteBundle
               .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.branch-name-equals-parent"));
       return;
     }
 
-    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(entryName);
+    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(slideInDialogBranchName);
     if (localBranch == null) {
-      var branchName = createOrCheckoutNewBranch(project, selectedVcsRepository, parentName, entryName);
-      if (!entryName.equals(branchName)) {
-        branchName = branchName != null ? branchName : "no name provided";
+      var createNewBranchDialogBranchName = createOrCheckoutNewBranch(project, selectedVcsRepository, parentName,
+          slideInDialogBranchName);
+      if (!slideInDialogBranchName.equals(createNewBranchDialogBranchName)) {
+        createNewBranchDialogBranchName = createNewBranchDialogBranchName != null
+            ? createNewBranchDialogBranchName
+            : "no name provided";
         notifier.notifyWeakError(
-            GitMacheteBundle.message("action.GitMachete.BaseSlideOutBranchAction.notification.fail.mismatched-names", entryName,
-                branchName));
+            GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.mismatched-names",
+                slideInDialogBranchName,
+                createNewBranchDialogBranchName));
         return;
       }
     }
@@ -118,7 +122,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     var entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
-        .map(names -> names.contains(entryName))
+        .map(names -> names.contains(slideInDialogBranchName))
         .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent) {
@@ -132,15 +136,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       public void run(ProgressIndicator indicator) {
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
 
-        var entryToSlideIn = branchLayout.findEntryByName(entryName)
-                .getOrElse(new BranchLayoutEntry(entryName, /* customAnnotation */ null, /* children */ List.empty()));
+        var entryToSlideIn = branchLayout.findEntryByName(slideInDialogBranchName)
+                .getOrElse(new BranchLayoutEntry(slideInDialogBranchName, /* customAnnotation */ null, /* children */ List.empty()));
 
         var newBranchLayout = Try
             .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
-                        entryName),
+                        slideInDialogBranchName),
                     getMessageOrEmpty(t)))
             .toOption();
 

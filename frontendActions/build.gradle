@@ -16,3 +16,9 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 applySubtypingChecker()
+
+apply plugin: 'kotlin'
+compileKotlin {
+  destinationDir = compileJava.destinationDir
+  kotlinOptions.jvmTarget = "1.8"
+}
