@@ -787,9 +787,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private static final class NonRootCreatedAndSkippedBranches {
     private final List<GitMacheteNonRootBranch> createdBranches;
     private final List<String> skippedBranchNames;
+    private static final NonRootCreatedAndSkippedBranches EMPTY = new NonRootCreatedAndSkippedBranches(List.empty(),
+        List.empty());
 
     static NonRootCreatedAndSkippedBranches empty() {
-      return new NonRootCreatedAndSkippedBranches(List.empty(), List.empty());
+      return EMPTY;
     }
 
     NonRootCreatedAndSkippedBranches withExtraSkippedBranch(String skippedBranch) {
