@@ -53,7 +53,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
-import com.virtuslab.gitmachete.frontend.ui.impl.table.GitMacheteGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnapshotProvider;
 
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
@@ -62,7 +62,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = RuntimeBinding
       .instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
 
-  private final GitMacheteGraphTable graphTable;
+  private final JTable graphTable;
   private final BufferedImage graphImage;
 
   @UIEffect
@@ -74,8 +74,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       int row,
       int column) {
 
-    assert table instanceof GitMacheteGraphTable : "Table variable is not instance of ${GitMacheteGraphTable.class.getSimpleName()}";
-    this.graphTable = (GitMacheteGraphTable) table;
+    this.graphTable = table;
+
+    assert table instanceof IGitMacheteRepositorySnapshotProvider : "Table variable is not instance of ${IGitMacheteRepositorySnapshotProvider.class.getSimpleName()}";
+    var gitMacheteRepositorySnapshot = ((IGitMacheteRepositorySnapshotProvider) graphTable).getGitMacheteRepositorySnapshot();
 
     assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();
     var cell = (BranchOrCommitCell) value;
@@ -107,7 +109,6 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     appendTextPadding(textPadding);
 
     if (graphItem.isBranchItem() && graphItem.asBranchItem().isCurrentBranch()) {
-      var gitMacheteRepositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
       if (gitMacheteRepositorySnapshot != null) {
         var ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
         if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {

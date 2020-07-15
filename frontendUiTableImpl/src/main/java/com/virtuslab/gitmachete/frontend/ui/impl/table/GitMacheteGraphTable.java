@@ -64,7 +64,7 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositor
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
-public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider {
+public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider, IGitMacheteRepositorySnapshotProvider {
 
   private final Project project;
 

@@ -5,6 +5,6 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-if git --no-pager grep -En --perl-regexp '^ *// ?(@((?!formatter).)*|.*\{|.*\);)$' -- '*.java'; then
+if git --no-pager grep -n --perl-regexp '^ *// ?(@((?!formatter).)*|.*\{|.*\);)$' -- '*.java'; then
   die 'The above lines likely contain commented-out code, please tidy up'
 fi

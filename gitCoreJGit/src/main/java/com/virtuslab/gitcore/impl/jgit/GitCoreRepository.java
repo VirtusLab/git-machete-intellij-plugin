@@ -25,7 +25,6 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -143,33 +142,30 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
     var reflog = deriveReflogByRefFullName(Constants.HEAD);
 
-    Option<String> currentBranchName = Option.none();
+    String currentBranchName = null;
 
     if (ref.isSymbolic()) {
-      currentBranchName = Option.of(Repository.shortenRefName(ref.getTarget().getName()));
+      currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
     } else {
-      // To allow map to null
-      @SuppressWarnings("nullness") Option<Path> headNamePath = Option
-          .of(jgitRepo.getDirectory().toPath().resolve("rebase-apply").resolve("head-name"))
-          .map(path -> path.toFile().isFile()
-              ? path
-              : jgitRepo.getDirectory().toPath().resolve("rebase-merge").resolve("head-name"))
-          .map(path -> path.toFile().isFile() ? path : null)
-          .flatMap(Option::of);
+      Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
+          .map(dir -> jgitRepo.getDirectory().toPath().resolve(dir).resolve("head-name"))
+          .find(path -> path.toFile().isFile());
 
       if (headNamePath.isDefined()) {
         currentBranchName = Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
             .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current branch ref", e))
             .headOption()
-            .map(Repository::shortenRefName);
+            .map(Repository::shortenRefName)
+            .getOrNull();
       }
     }
 
-    @Nullable IGitCoreLocalBranchSnapshot targetBranch = currentBranchName
-        .map(CheckedFunction1.liftTry(this::deriveLocalBranchByName))
-        .getOrElse(Try.success(Option.none()))
-        .getOrElseThrow(e -> (GitCoreException) e)
-        .getOrNull();
+    IGitCoreLocalBranchSnapshot targetBranch;
+    if (currentBranchName != null) {
+      targetBranch = deriveLocalBranchByName(currentBranchName).getOrNull();
+    } else {
+      targetBranch = null;
+    }
     return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 

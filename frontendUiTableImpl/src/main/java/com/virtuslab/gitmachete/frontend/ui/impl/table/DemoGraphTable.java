@@ -3,16 +3,22 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import lombok.Getter;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 
-public final class DemoGraphTable extends JBTable {
+public final class DemoGraphTable extends JBTable implements IGitMacheteRepositorySnapshotProvider {
 
   private static final GraphTableModel GRAPH_TABLE_MODEL = deriveGraphTableModel();
+
+  @Getter
+  private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
 
   @UIEffect
   public static DemoGraphTable deriveInstance() {
