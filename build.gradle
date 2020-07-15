@@ -25,7 +25,7 @@ ext {
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
 
-  betterStringsRevision = '8d419868204fc7810de4d7685e7fd9b0793813f9'
+  betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.5.0'
   checkstyleToolVersion = '8.33'
   jetbrainsAnnotationsVersion = '16.0.2'
@@ -169,12 +169,8 @@ subprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
-  repositories {
-    maven { url "https://jitpack.io" }
-  }
-
   dependencies {
-    def betterStringsCoords = [ group: 'com.github.PawelLipski', name: 'better-strings', version: betterStringsRevision ]
+    def betterStringsCoords = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVersion ]
     annotationProcessor(betterStringsCoords)
     testAnnotationProcessor(betterStringsCoords)
   }
