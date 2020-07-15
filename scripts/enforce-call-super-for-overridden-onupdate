@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+if git grep --files-with-matches "void onUpdate" ':!scripts/' | grep --invert-match "BaseProjectKeyAvailabilityAssuranceAction.java" | xargs git grep --files-without-match 'extends BaseProjectKeyAvailabilityAssuranceAction\|super.onUpdate'
+then
+  die "You must call 'super.onUpdate' if you override 'onUpdate' method and this class does not directly extend 'BaseProjectKeyAvailabilityAssuranceAction'!"
+fi
