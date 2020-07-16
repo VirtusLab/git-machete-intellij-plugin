@@ -13,9 +13,10 @@ import kotlin.text.isEmpty
 import kotlin.text.trim
 
 class SlideInDialog constructor(project: Project,
-                                private var parentName: String)
+                                private val parentName: String)
   : DialogWrapper(project, true) {
 
+  // this field is only ever meant to be written on UI thread
   private var branchName = ""
 
   init {
