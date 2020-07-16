@@ -117,7 +117,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
               Case($(OngoingRepositoryOperation.MERGING), "MERGING"),
               Case($(OngoingRepositoryOperation.REBASING), "REBASING"),
               Case($(OngoingRepositoryOperation.REVERTING), "REVERTING"),
-              Case($(OngoingRepositoryOperation.APPLY), "APPLY"),
+              Case($(OngoingRepositoryOperation.APPLYING), "APPLYING"),
               Case($(OngoingRepositoryOperation.BISECTING), "BISECTING"),
               Case($(), ""));
           SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;

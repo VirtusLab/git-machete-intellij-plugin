@@ -323,7 +323,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           Case($(GitCoreRepositoryState.MERGING), OngoingRepositoryOperation.MERGING),
           Case($(GitCoreRepositoryState.REBASING), OngoingRepositoryOperation.REBASING),
           Case($(GitCoreRepositoryState.REVERTING), OngoingRepositoryOperation.REVERTING),
-          Case($(GitCoreRepositoryState.APPLY), OngoingRepositoryOperation.APPLY),
+          Case($(GitCoreRepositoryState.APPLYING), OngoingRepositoryOperation.APPLYING),
           Case($(GitCoreRepositoryState.BISECTING), OngoingRepositoryOperation.BISECTING),
           Case($(), OngoingRepositoryOperation.NO_OPERATION));
 

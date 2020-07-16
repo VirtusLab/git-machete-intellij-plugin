@@ -420,7 +420,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         Case($(isIn(RepositoryState.REVERTING, RepositoryState.REVERTING_RESOLVED)),
             GitCoreRepositoryState.REVERTING),
         Case($(RepositoryState.APPLY),
-            GitCoreRepositoryState.APPLY),
+            GitCoreRepositoryState.APPLYING),
         Case($(RepositoryState.BISECTING),
             GitCoreRepositoryState.BISECTING),
         Case($(), GitCoreRepositoryState.NORMAL));
