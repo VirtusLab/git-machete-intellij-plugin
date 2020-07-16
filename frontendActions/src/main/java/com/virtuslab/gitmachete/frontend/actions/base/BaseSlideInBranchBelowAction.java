@@ -137,7 +137,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
 
         var entryToSlideIn = branchLayout.findEntryByName(slideInDialogBranchName)
-                .getOrElse(new BranchLayoutEntry(slideInDialogBranchName, /* customAnnotation */ null, /* children */ List.empty()));
+            .getOrElse(
+                new BranchLayoutEntry(slideInDialogBranchName, /* customAnnotation */ null, /* children */ List.empty()));
 
         var newBranchLayout = Try
             .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
