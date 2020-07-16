@@ -7,7 +7,7 @@ source "$self_dir"/utils.sh
 
 found=0
 # Java sources can be skipped since Spotless takes care of them.
-for file in $(git grep -Il '' -- ':!*.java'); do
+for file in $(git grep -Il '' -- ':!*.java' ':!*.kt'); do
   last_two_characters=$(tail -c2 $file | xxd -p)
   if [[ $last_two_characters == 0a0a ]]; then
     echo "$file (more than one newline character at EOF)"
