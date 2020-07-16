@@ -43,8 +43,8 @@ public class MacheteAnnotator implements Annotator {
     if (currentEditor == null) {
       return;
     }
-    HintManager.getInstance().showErrorHint(currentEditor,
-        "Project branches cannot be retrieved, so they will not be checked", HintManager.ABOVE);
+    HintManager.getInstance().showInformationHint(currentEditor,
+        "Local branches cannot be retrieved, so they will not be checked", HintManager.ABOVE);
     cantGetBranchesMessageWasShown = true;
   }
 
