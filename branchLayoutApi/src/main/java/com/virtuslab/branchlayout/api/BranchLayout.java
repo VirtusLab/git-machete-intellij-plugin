@@ -94,7 +94,6 @@ public class BranchLayout implements IBranchLayout {
         .map(e -> e.withChildren(removeEntry(e.getChildren(), branchName)));
   }
 
-  @SuppressWarnings("interning:not.interned") // to allow for `entry == parent`
   private static IBranchLayoutEntry slideIn(
       IBranchLayoutEntry entry,
       IBranchLayoutEntry entryToSlideIn,
