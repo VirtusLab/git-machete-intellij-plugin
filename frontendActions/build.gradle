@@ -19,5 +19,5 @@ applySubtypingChecker()
 
 apply plugin: 'org.jetbrains.kotlin.jvm'
 compileKotlin {
-  kotlinOptions.jvmTarget = "11"
+  kotlinOptions.jvmTarget = sourceCompatibility.toString() // from java-library plugin
 }

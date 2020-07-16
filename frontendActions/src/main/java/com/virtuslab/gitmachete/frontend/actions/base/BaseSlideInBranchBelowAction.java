@@ -97,7 +97,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail",
               slideInDialogBranchName),
           /* message */ GitMacheteBundle
-              .message("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.branch-name-equals-parent"));
+              .message(
+                  "action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       return;
     }
 
@@ -164,7 +165,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
   @Nullable
   String createOrCheckoutNewBranch(Project project, GitRepository gitRepository, String startPoint, String initialName) {
-    var repositories = List.of(gitRepository).asJava();
+    var repositories = java.util.Collections.singletonList(gitRepository);
     var gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
         /* title */ GitMacheteBundle.message("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title",

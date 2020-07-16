@@ -1,6 +1,5 @@
 # Overview through Slide In use cases
 
-It turned out that the sliding-in feature is more complex than it had appeared in the first place.
 This document is an overview through the use cases.
 It should help to implement and understand the feature.
 
