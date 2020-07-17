@@ -43,17 +43,13 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
-import git4idea.commands.GitSimpleEventDetector;
 import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
 import git4idea.i18n.GitBundle;
-import git4idea.merge.GitConflictResolver;
-import git4idea.merge.GitMerger;
 import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
-import git4idea.update.HashRange;
 import git4idea.util.GitUIUtil;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
@@ -128,57 +124,6 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     }
   }
 
-  private void doPull(Project project, GitRepository gitRepository, String branchName) {
-    var firstRemote = Option.ofOptional(gitRepository.getRemotes().stream().findFirst()).getOrNull();
-    if (firstRemote == null) {
-      LOG.error("Selected remote can't be null here.");
-      return;
-    }
-    var remoteBranchName = "${firstRemote.getName()}/${branchName}";
-
-    var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
-
-    handler.setUrls(firstRemote.getUrls());
-    handler.addParameters("--ff-only");
-    handler.addParameters(firstRemote.getName());
-    handler.addParameters(branchName);
-
-    var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
-    var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
-    var mergeConflict = new GitSimpleEventDetector(GitSimpleEventDetector.Event.MERGE_CONFLICT);
-
-    handler.addLineListener(localChangesDetector);
-    handler.addLineListener(untrackedFilesDetector);
-    handler.addLineListener(mergeConflict);
-
-    Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
-
-    GitUpdatedRanges updatedRanges = null;
-    var currentBranch = gitRepository.getCurrentBranch();
-    if (currentBranch != null) {
-      String selectedBranch = StringUtil.trimStart(remoteBranchName, "remotes/");
-      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(selectedBranch);
-      if (targetBranch != null) {
-        GitBranchPair refPair = new GitBranchPair(currentBranch, targetBranch);
-        updatedRanges = GitUpdatedRanges.calcInitialPositions(project, singletonMap(gitRepository, refPair));
-      } else {
-        LOG.warn("Couldn't find the branch with name [" + selectedBranch + "]");
-      }
-    }
-
-    String beforeRevision = gitRepository.getCurrentRevision();
-    try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, "Pull")) {
-      GitCommandResult result = Git.getInstance().runCommand(() -> handler);
-
-      if (beforeRevision != null) {
-        GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
-        handleResult(result, project, mergeConflict, localChangesDetector, untrackedFilesDetector, gitRepository, currentRev,
-            beforeLabel,
-            updatedRanges);
-      }
-    }
-  }
-
   private void doFetch(Project project, GitRepository gitRepository, String branchName) {
     var trackingInfo = gitRepository.getBranchTrackInfo(branchName);
 
@@ -207,9 +152,70 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title")).queue();
   }
 
-  private void handleResult(GitCommandResult result,
+  private void doPull(Project project, GitRepository gitRepository, String branchName) {
+    var firstRemote = Option.ofOptional(gitRepository.getRemotes().stream().findFirst()).getOrNull();
+    if (firstRemote == null) {
+      LOG.error("Selected remote can't be null here.");
+      return;
+    }
+    var remoteBranchName = "${firstRemote.getName()}/${branchName}";
+
+    var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
+
+    handler.setUrls(firstRemote.getUrls());
+    handler.addParameters("--ff-only");
+    handler.addParameters(firstRemote.getName());
+    handler.addParameters(branchName);
+
+    var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
+    var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
+
+    handler.addLineListener(localChangesDetector);
+    handler.addLineListener(untrackedFilesDetector);
+
+    Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, /* name */ "Before update");
+
+    GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(project, gitRepository, remoteBranchName);
+
+    String beforeRevision = gitRepository.getCurrentRevision();
+    try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, "Pull")) {
+      GitCommandResult result = Git.getInstance().runCommand(() -> handler);
+
+      if (beforeRevision != null) {
+        GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
+        handleResult(result,
+            project,
+            localChangesDetector,
+            untrackedFilesDetector,
+            gitRepository,
+            currentRev,
+            beforeLabel,
+            updatedRanges);
+      }
+    }
+  }
+
+  @Nullable
+  private static GitUpdatedRanges deriveGitUpdatedRanges(Project project, GitRepository gitRepository,
+      String remoteBranchName) {
+    GitUpdatedRanges updatedRanges = null;
+    var currentBranch = gitRepository.getCurrentBranch();
+    if (currentBranch != null) {
+      String selectedBranch = StringUtil.trimStart(remoteBranchName, /* prefix */ "remotes/");
+      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(selectedBranch);
+      if (targetBranch != null) {
+        GitBranchPair refPair = new GitBranchPair(currentBranch, targetBranch);
+        updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
+            java.util.Collections.singletonMap(gitRepository, refPair));
+      } else {
+        LOG.warn("Couldn't find the branch with name [" + selectedBranch + "]");
+      }
+    }
+    return updatedRanges;
+  }
+
+  private static void handleResult(GitCommandResult result,
       Project project,
-      GitSimpleEventDetector mergeConflictDetector,
       GitLocalChangesWouldBeOverwrittenDetector localChangesDetector,
       GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector,
       GitRepository repository,
@@ -218,23 +224,14 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       @Nullable GitUpdatedRanges updatedRanges) {
     VirtualFile root = repository.getRoot();
 
-    if (mergeConflictDetector.hasHappened()) {
-      GitMerger merger = new GitMerger(project);
-      new GitConflictResolver(project, singletonList(root), new GitConflictResolver.Params(project)) {
-        @Override
-        protected boolean proceedAfterAllMerged() throws VcsException {
-          merger.mergeCommit(root);
-          return true;
-        }
-      }.merge();
-    }
-
-    if (result.success() || mergeConflictDetector.hasHappened()) {
-      VfsUtil.markDirtyAndRefresh(false, true, false, root);
+    final var OPERATION_NAME = "Pull";
+    if (result.success()) {
+      VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, root);
       repository.update();
       if (updatedRanges != null &&
-          AbstractCommonUpdateAction.showsCustomNotification(singletonList(GitVcs.getInstance(project)))) {
-        Map<GitRepository, HashRange> ranges = updatedRanges.calcCurrentPositions();
+          AbstractCommonUpdateAction
+              .showsCustomNotification(java.util.Collections.singletonList(GitVcs.getInstance(project)))) {
+        var ranges = updatedRanges.calcCurrentPositions();
         GitUpdateInfoAsLog.NotificationData notificationData = new GitUpdateInfoAsLog(project, ranges)
             .calculateDataAndCreateLogTab();
 
@@ -243,36 +240,50 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           String title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
               notificationData.getReceivedCommitsCount());
           String content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
-          notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title, content, INFORMATION, null);
+          notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
+              content,
+              INFORMATION,
+              /* listener */ null);
           notification.addAction(NotificationAction.createSimple(GitBundle.messagePointer(
               "action.NotificationAction.GitMergeAction.text.view.commits"),
               notificationData.getViewCommitAction()));
+
         } else {
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
               VcsBundle.message("message.text.all.files.are.up.to.date"),
-              "", INFORMATION, null);
+              /* content */ "", INFORMATION, /* listener */ null);
         }
         VcsNotifier.getInstance(project).notify(notification);
+
       } else {
-        showUpdates(project, root, currentRev, beforeLabel, "Pull");
+        showUpdates(project, root, currentRev, beforeLabel);
       }
+
     } else if (localChangesDetector.wasMessageDetected()) {
-      LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project, repository.getRoot(), "Pull",
+      LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
+          repository.getRoot(),
+          OPERATION_NAME,
           localChangesDetector.getRelativeFilePaths());
+
     } else if (untrackedFilesDetector.wasMessageDetected()) {
-      GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(project, root, untrackedFilesDetector.getRelativeFilePaths(),
-          "Pull", null);
+      GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(project,
+          root,
+          untrackedFilesDetector.getRelativeFilePaths(),
+          OPERATION_NAME,
+          /* description */ null);
+
     } else {
-      GitUIUtil.notifyError(project, "Git Pull Failed", result.getErrorOutputAsJoinedString(), true, null);
+      GitUIUtil.notifyError(project,
+          /* title */ "Git Pull Failed",
+          result.getErrorOutputAsJoinedString(),
+          /* important */ true,
+          /* error */ null);
       repository.update();
     }
   }
 
-  private static void showUpdates(Project project,
-      VirtualFile root,
-      GitRevisionNumber currentRev,
-      Label beforeLabel,
-      String actionName) {
+  private static void showUpdates(Project project, VirtualFile root, GitRevisionNumber currentRev, Label beforeLabel) {
+    final var OPERATION_NAME = "Pull";
     try {
       UpdatedFiles files = UpdatedFiles.create();
       MergeChangeCollector collector = new MergeChangeCollector(project, root, currentRev);
@@ -280,15 +291,15 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       GuiUtils.invokeLaterIfNeeded(() -> {
         ProjectLevelVcsManagerEx manager = (ProjectLevelVcsManagerEx) ProjectLevelVcsManager.getInstance(project);
-        UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, ActionInfo.UPDATE, false);
+        UpdateInfoTree tree = manager.showUpdateProjectInfo(files, OPERATION_NAME, ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
           tree.setBefore(beforeLabel);
-          tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
+          tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));
           ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
         }
       }, ModalityState.defaultModalityState());
     } catch (VcsException e) {
-      GitVcs.getInstance(project).showErrors(singletonList(e), actionName);
+      GitVcs.getInstance(project).showErrors(java.util.Collections.singletonList(e), OPERATION_NAME);
     }
   }
 }
