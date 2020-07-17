@@ -75,17 +75,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var gitMacheteParentBranch = getNameOfBranchUnderAction(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn)).getOrNull();
+    var parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     var notifier = VcsNotifier.getInstance(project);
 
-    if (selectedVcsRepository == null || gitMacheteParentBranch == null || branchLayout == null) {
+    if (selectedVcsRepository == null || parentName == null || branchLayout == null) {
       return;
     }
 
-    var parentName = gitMacheteParentBranch.getName();
     var slideInDialogBranchName = new SlideInDialog(project, parentName).showAndGetBranchName();
     if (slideInDialogBranchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from slide-in dialog");

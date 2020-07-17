@@ -61,7 +61,7 @@ public class BranchLayout implements IBranchLayout {
     var entry = findEntryByName(entryToSlideIn.getName());
     var entryAlreadyExists = entry.isDefined();
 
-    if (entry.map(e -> isDescendant(e, parentEntry)).getOrElse(false)) {
+    if (entry.map(e -> isDescendant(/* presumedAncestor */ e, /* presumedDescendant */ parentEntry)).getOrElse(false)) {
       throw new BranchLayoutException(
           "Entry '${parentEntry.getName()}' is a descendant of entry '${entryToSlideIn.getName()}'");
     }
