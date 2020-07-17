@@ -136,7 +136,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   }
 
   /**
-   * This method must NOT be called on UI thread.
+   * This method must NOT be called on the UI thread.
    */
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
@@ -163,7 +163,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   }
 
   /**
-   * This method must NOT be called on UI thread.
+   * This method must NOT be called on the UI thread.
    */
   private boolean getDeleteLocalBranchOnSlideOutGitConfigKeyValue(VirtualFile root, Project project) {
     try {

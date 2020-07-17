@@ -15,7 +15,7 @@ importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.ui.GuiUtils);
 
-// Do not run any of the methods in the UI thread.
+// Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
 
   this.openTab = function () {
@@ -26,8 +26,8 @@ function Project(underlyingProject) {
       sleep();
     } while (toolWindow == null);
 
-    // The test is (obviously) not run on UI thread,
-    // so `runOrInvokeAndWait` really means `enqueue onto UI thread and wait until complete`.
+    // The test is (obviously) not run on the UI thread,
+    // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
     GuiUtils.runOrInvokeAndWait(function () {
       toolWindow.activate(function () {});
       const contentManager = toolWindow.getContentManager();

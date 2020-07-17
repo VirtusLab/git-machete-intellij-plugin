@@ -141,7 +141,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       return;
     }
 
-    // A bit of a shortcut: we're accessing filesystem even though we're on UI thread here;
+    // A bit of a shortcut: we're accessing filesystem even though we're on the UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);

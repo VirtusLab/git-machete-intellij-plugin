@@ -71,7 +71,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    * Updates the repository snapshot which is the base of graph table model. The change will be seen after
    * {@link GitMacheteGraphTable#refreshModel()} completes.
    *
-   * This method is heavyweight and must never be invoked on UI thread.
+   * This method is heavyweight and must never be invoked on the UI thread.
    */
   private Option<IGitMacheteRepositorySnapshot> updateRepositorySnapshot() {
     Path mainDirectoryPath = getMainDirectoryPath(gitRepository);

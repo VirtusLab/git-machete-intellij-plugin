@@ -12,7 +12,7 @@ importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.progress.ProgressManager);
 importClass(com.intellij.ui.GuiUtils);
 
-// Do not run any of the methods in the UI thread.
+// Do not run any of the methods on the UI thread.
 function Ide() {
   this.configure = function (enableDebugLog) {
     const settings = GeneralSettings.getInstance();

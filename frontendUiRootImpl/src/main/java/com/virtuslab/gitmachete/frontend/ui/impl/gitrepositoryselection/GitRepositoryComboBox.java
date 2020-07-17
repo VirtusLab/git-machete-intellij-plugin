@@ -53,7 +53,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
 
   @UIEffect
   private void updateRepositories() {
-    // A bit of a shortcut: we're accessing filesystem even though we are on UI thread here;
+    // A bit of a shortcut: we're accessing filesystem even though we are on the UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
     LOG.debug("Git repositories:");
