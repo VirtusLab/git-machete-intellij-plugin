@@ -19,6 +19,8 @@ import com.intellij.notification.NotificationAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
@@ -161,38 +163,42 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var remoteBranchName = "${firstRemote.getName()}/${branchName}";
 
     var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
-
     handler.setUrls(firstRemote.getUrls());
     handler.addParameters("--ff-only");
     handler.addParameters(firstRemote.getName());
     handler.addParameters(branchName);
 
-    var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
-    var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
+    new Task.Backgroundable(project, /* title */ "Pulling...", /* canBeCancelled */true) {
+      @Override
+      public void run(ProgressIndicator indicator) {
+        var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
+        var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
 
-    handler.addLineListener(localChangesDetector);
-    handler.addLineListener(untrackedFilesDetector);
+        handler.addLineListener(localChangesDetector);
+        handler.addLineListener(untrackedFilesDetector);
 
-    Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, /* name */ "Before update");
+        Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, /* name */ "Before update");
 
-    GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(project, gitRepository, remoteBranchName);
+        GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(project, gitRepository, remoteBranchName);
 
-    String beforeRevision = gitRepository.getCurrentRevision();
-    try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, "Pull")) {
-      GitCommandResult result = Git.getInstance().runCommand(() -> handler);
+        String beforeRevision = gitRepository.getCurrentRevision();
+        try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, /* activityName */ "Pull")) {
+          GitCommandResult result = Git.getInstance().runCommand(() -> handler);
 
-      if (beforeRevision != null) {
-        GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
-        handleResult(result,
-            project,
-            localChangesDetector,
-            untrackedFilesDetector,
-            gitRepository,
-            currentRev,
-            beforeLabel,
-            updatedRanges);
+          if (beforeRevision != null) {
+            GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
+            handleResult(result,
+                project,
+                localChangesDetector,
+                untrackedFilesDetector,
+                gitRepository,
+                currentRev,
+                beforeLabel,
+                updatedRanges);
+          }
+        }
       }
-    }
+    }.queue();
   }
 
   @Nullable
