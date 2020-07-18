@@ -1,7 +1,18 @@
-# syntax=docker/dockerfile:experimental
 
-# Explicit `docker.io` is necessary here when building with DOCKER_BUILDKIT=1
-FROM docker.io/debian:buster-slim
+FROM openjdk:11-jdk-slim-buster AS gradle-cache
+
+WORKDIR repo/
+
+COPY gradle.properties gradlew  ./
+COPY gradle/ gradle/
+RUN ./gradlew --no-daemon --no-build-cache --info
+
+COPY . .
+RUN ./gradlew --no-daemon --no-build-cache --info compileTestJava
+
+
+# Not using openjdk:11-jdk-slim-buster due to https://github.com/AdoptOpenJDK/openjdk-docker/issues/75
+FROM debian:buster-slim
 
 RUN set -x \
   `# workaround for error in debian-slim during openjdk installation` \
@@ -20,39 +31,14 @@ RUN set -x \
   && rm hub.tgz \
   && hub --version
 
+COPY --from=gradle-cache repo/backendImpl/src/test/resources/reference-cli-version.properties /tmp/reference-cli-version.properties
+
 RUN set -x \
   && apt-get update \
   && apt-get install --no-install-recommends -y python3-pip \
-  && cli_version=$(cut -d'=' -f2 backendImpl/src/test/resources/reference-cli-version.properties)
+  && cli_version=$(cut -d'=' -f2 /tmp/reference-cli-version.properties) \
   && pip3 install git-machete==$cli_version \
   && apt-get purge --autoremove -y python3-pip \
-  && rm -rf /var/lib/apt/lists/*
-
-# Create gradle cache.
-# `rw` option doesn't allow to make any changes on original dir but rather create something like overlayfs
-# We need this to allow `./gradlew` to write in `./.gradle` directory (even though this directory won't make it to the final image anyway).
-WORKDIR /stripped_repo
-RUN --mount=type=bind,rw,source=.,target=.  set -x \
-  `# no-daemon so that no data about the daemon active during the image build makes it to the final image under ~/.gradle/daemon/` \
-  && find . \
-  && ./gradlew --no-daemon --info resolveDependencies \
-  && rm -v /root/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/*.*/*/ideaIC-*.zip
-WORKDIR /root
-RUN rmdir /stripped_repo
-
-# Secondary packages needed in just one (or few) steps of the pipeline;
-# subject to frequent change, thus moved towards the end of the pipeline.
-# (package       => needed for command(s))
-# binutils       => strings
-# netcat         => nc
-# procps         => ps
-# xxd            => xxd
-# unzip          => zipinfo
-RUN set -x \
-  && apt-get update \
-  && apt-get install --no-install-recommends -y binutils netcat procps xxd unzip \
-  `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
-  && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*
 
 # Disable IntelliJ data sharing
@@ -74,4 +60,19 @@ RUN set -x \
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
 
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+# Secondary packages needed in just one (or few) steps of the pipeline;
+# subject to frequent change, thus moved towards the end of the Dockerfile.
+# (package       => needed for command(s))
+# binutils       => strings
+# netcat         => nc
+# procps         => ps
+# xxd            => xxd
+# unzip          => zipinfo
+RUN set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y binutils netcat procps xxd unzip \
+  `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
+  && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=gradle-cache /root/.gradle/ /root/.gradle/

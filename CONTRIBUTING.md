@@ -46,7 +46,7 @@ Other coding conventions include:
 To push the rebuilt image, you need a write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
 
 ```
-DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t gitmachete/intellij-plugin-ci .
+docker build -t gitmachete/intellij-plugin-ci .
 docker push gitmachete/intellij-plugin-ci
 ```
 

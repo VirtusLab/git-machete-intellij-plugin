@@ -50,23 +50,6 @@ ext {
   shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
-task resolveDependencies {
-  doLast {
-    project.rootProject.allprojects.each { subProject ->
-      subProject.buildscript.configurations.each { configuration ->
-        if (configuration.canBeResolved) {
-          configuration.resolve()
-        }
-      }
-      subProject.configurations.each { configuration ->
-        if (configuration.canBeResolved) {
-          configuration.resolve()
-        }
-      }
-    }
-  }
-}
-
 if (isCI) {
   gradle.startParameter.configureOnDemand = false
   gradle.startParameter.logLevel = LogLevel.INFO
