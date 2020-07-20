@@ -17,28 +17,28 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 @UsesObjectEquals
 public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final String name;
-  private final List<GitMacheteNonRootBranch> downstreamBranches;
+  private final List<GitMacheteNonRootBranch> childBranches;
   private final IGitMacheteCommit pointedCommit;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable IGitMacheteRemoteBranch remoteTrackingBranch;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 
-  @ToString.Include(name = "downstreamBranches") // avoid recursive `toString` calls on downstream branches
-  private List<String> getDownstreamBranchNames() {
-    return downstreamBranches.map(e -> e.getName());
+  @ToString.Include(name = "childBranches") // avoid recursive `toString` calls on child branches
+  private List<String> getChildBranchNames() {
+    return childBranches.map(e -> e.getName());
   }
 
   protected BaseGitMacheteBranch(
       String name,
-      List<GitMacheteNonRootBranch> downstreamBranches,
+      List<GitMacheteNonRootBranch> childBranches,
       IGitMacheteCommit pointedCommit,
       @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
     this.name = name;
-    this.downstreamBranches = downstreamBranches;
+    this.childBranches = childBranches;
     this.pointedCommit = pointedCommit;
     this.syncToRemoteStatus = syncToRemoteStatus;
     this.remoteTrackingBranch = remoteTrackingBranch;
@@ -48,13 +48,13 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
 
   /**
    * This is a hack necessary to create an immutable cyclic structure
-   * (downstreams pointing at the upstream and the upstream pointing at the downstreams).
+   * (children pointing at the parent and the parent pointing at the children).
    * This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
-   * upstream data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
+   * parent data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
    */
-  protected void setUpstreamForDownstreamBranches() {
-    for (GitMacheteNonRootBranch branch : downstreamBranches) {
-      branch.setUpstreamBranch(this);
+  protected void setParentForChildBranches() {
+    for (GitMacheteNonRootBranch branch : childBranches) {
+      branch.setParentBranch(this);
     }
   }
 

@@ -16,27 +16,27 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 
 @CustomLog
 @Getter
 @ToString
 public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
 
-  private @MonotonicNonNull IGitMacheteBranch upstreamBranch = null;
+  private @MonotonicNonNull IGitMacheteBranch parentBranch = null;
   private final @Nullable IGitMacheteForkPointCommit forkPoint;
   private final List<IGitMacheteCommit> commits;
-  private final SyncToUpstreamStatus syncToUpstreamStatus;
+  private final SyncToParentStatus syncToParentStatus;
 
-  @ToString.Include(name = "upstreamBranch") // avoid recursive `toString` call on upstream branch to avoid stack overflow
-  private @Nullable String getUpstreamBranchName() {
-    return upstreamBranch != null ? upstreamBranch.getName() : null;
+  @ToString.Include(name = "parentBranch") // avoid recursive `toString` call on parent branch to avoid stack overflow
+  private @Nullable String getParentBranchName() {
+    return parentBranch != null ? parentBranch.getName() : null;
   }
 
   public GitMacheteNonRootBranch(
       String name,
-      List<GitMacheteNonRootBranch> downstreamBranches,
+      List<GitMacheteNonRootBranch> childBranches,
       IGitMacheteCommit pointedCommit,
       @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
@@ -44,29 +44,29 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
       @Nullable String statusHookOutput,
       @Nullable IGitMacheteForkPointCommit forkPoint,
       List<IGitMacheteCommit> commits,
-      SyncToUpstreamStatus syncToUpstreamStatus) {
-    super(name, downstreamBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+      SyncToParentStatus syncToParentStatus) {
+    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
         statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;
-    this.syncToUpstreamStatus = syncToUpstreamStatus;
+    this.syncToParentStatus = syncToParentStatus;
 
     LOG.debug("Creating ${this}");
 
     // Note: since the class is final, `this` is already @Initialized at this point.
-    setUpstreamForDownstreamBranches();
+    setParentForChildBranches();
   }
 
   @Override
-  public IGitMacheteBranch getUpstreamBranch() {
-    assert upstreamBranch != null : "upstreamBranch hasn't been set yet";
-    return upstreamBranch;
+  public IGitMacheteBranch getParentBranch() {
+    assert parentBranch != null : "parentBranch hasn't been set yet";
+    return parentBranch;
   }
 
-  void setUpstreamBranch(IGitMacheteBranch givenUpstreamBranch) {
-    assert upstreamBranch == null : "upstreamBranch has already been set";
-    upstreamBranch = givenUpstreamBranch;
+  void setParentBranch(IGitMacheteBranch givenParentBranch) {
+    assert parentBranch == null : "parentBranch has already been set";
+    parentBranch = givenParentBranch;
   }
 
   @Override
@@ -75,12 +75,12 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public IGitRebaseParameters getParametersForRebaseOntoUpstream() throws GitMacheteMissingForkPointException {
+  public IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException {
     LOG.debug(() -> "Entering: branch = '${getName()}'");
     if (forkPoint == null) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${getName()}'");
     }
-    var newBaseBranch = getUpstreamBranch();
+    var newBaseBranch = getParentBranch();
 
     LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
         "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
@@ -90,11 +90,11 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   }
 
   @Override
-  public IGitMergeParameters getParametersForMergeIntoUpstream() {
+  public IGitMergeParameters getParametersForMergeIntoParent() {
     LOG.debug(() -> "Entering: branch = '${getName()}'");
     LOG.debug(() -> "Inferred merge parameters: currentBranch = ${getName()}, " +
-        "branchToMergeInto = ${getUpstreamBranch().getName()}");
+        "branchToMergeInto = ${getParentBranch().getName()}");
 
-    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getUpstreamBranch());
+    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getParentBranch());
   }
 }

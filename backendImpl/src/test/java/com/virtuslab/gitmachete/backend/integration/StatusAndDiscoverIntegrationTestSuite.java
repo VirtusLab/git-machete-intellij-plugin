@@ -33,8 +33,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
@@ -160,7 +160,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
   private void printNonRootBranch(IGitMacheteNonRootBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
     String prefix = path.init()
-        .map(anc -> anc == anc.getUpstreamBranch().getDownstreamBranches().last() ? "  " : "| ")
+        .map(anc -> anc == anc.getParentBranch().getChildBranches().last() ? "  " : "| ")
         .mkString();
 
     sb.append("  ");
@@ -194,14 +194,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append("  ");
     sb.append(prefix);
 
-    var upstreamStatus = branch.getSyncToUpstreamStatus();
-    if (upstreamStatus == SyncToUpstreamStatus.InSync)
+    var parentStatus = branch.getSyncToParentStatus();
+    if (parentStatus == SyncToParentStatus.InSync)
       sb.append("o");
-    else if (upstreamStatus == SyncToUpstreamStatus.OutOfSync)
+    else if (parentStatus == SyncToParentStatus.OutOfSync)
       sb.append("x");
-    else if (upstreamStatus == SyncToUpstreamStatus.InSyncButForkPointOff)
+    else if (parentStatus == SyncToParentStatus.InSyncButForkPointOff)
       sb.append("?");
-    else if (upstreamStatus == SyncToUpstreamStatus.MergedToUpstream)
+    else if (parentStatus == SyncToParentStatus.MergedToParent)
       sb.append("m");
     sb.append("-");
 
@@ -241,8 +241,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     }
     sb.append(System.lineSeparator());
 
-    for (var downstreamBranch : branch.getDownstreamBranches()) {
-      printNonRootBranch(downstreamBranch, path.append(downstreamBranch), sb);
+    for (var childBranch : branch.getChildBranches()) {
+      printNonRootBranch(childBranch, path.append(childBranch), sb);
     }
   }
 }

@@ -32,7 +32,7 @@ public interface IGitMacheteBranch {
 
   IGitMacheteCommit getPointedCommit();
 
-  List<? extends IGitMacheteNonRootBranch> getDownstreamBranches();
+  List<? extends IGitMacheteNonRootBranch> getChildBranches();
 
   SyncToRemoteStatus getSyncToRemoteStatus();
 

@@ -21,24 +21,24 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
 @RunWith(Parameterized.class)
-public class UpstreamInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
+public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
   private final IGitMacheteRepository gitMacheteRepository;
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   private final String forBranch;
-  private final String expectedUpstream;
+  private final String expectedParent;
 
   @BeforeClass
   public static void doEnsureExpectedCliVersion() {
     ensureExpectedCliVersion();
   }
 
-  @Parameters(name = "{0}: inferred upstream of {1} should be {2} (#{index})")
+  @Parameters(name = "{0}: inferred parent of {1} should be {2} (#{index})")
   public static String[][] getTestData() {
     return new String[][]{
-        // script name, for branch, expected upstream
+        // script name, for branch, expected parent
         {SETUP_FOR_OVERRIDDEN_FORK_POINT, "allow-ownership-link", "develop"},
         {SETUP_FOR_YELLOW_EDGES, "allow-ownership-link", "develop"},
         {SETUP_FOR_YELLOW_EDGES, "drop-constraint", "call-ws"},
@@ -47,10 +47,10 @@ public class UpstreamInferenceIntegrationTestSuite extends BaseGitRepositoryBack
   }
 
   @SneakyThrows
-  public UpstreamInferenceIntegrationTestSuite(String scriptName, String forBranch, String expectedUpstream) {
+  public ParentInferenceIntegrationTestSuite(String scriptName, String forBranch, String expectedParent) {
     super(scriptName);
     this.forBranch = forBranch;
-    this.expectedUpstream = expectedUpstream;
+    this.expectedParent = expectedParent;
 
     var branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     var branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
@@ -61,11 +61,11 @@ public class UpstreamInferenceIntegrationTestSuite extends BaseGitRepositoryBack
 
   @Test
   @SneakyThrows
-  public void upstreamIsCorrectlyInferred() {
+  public void parentIsCorrectlyInferred() {
     var managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
-    var result = gitMacheteRepository.inferUpstreamForLocalBranch(managedBranchNames, forBranch);
+    var result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
     Assert.assertTrue(result.isDefined());
-    Assert.assertEquals(expectedUpstream, result.get());
+    Assert.assertEquals(expectedParent, result.get());
   }
 
   @Rule(order = Integer.MIN_VALUE)

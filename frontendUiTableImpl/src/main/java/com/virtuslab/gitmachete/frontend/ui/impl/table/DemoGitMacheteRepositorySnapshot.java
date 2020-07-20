@@ -24,8 +24,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 
 public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
@@ -40,40 +40,40 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* customAnnotation */ "# Gray edge: branch is merged to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
-            /* downstreamBranches */ List.empty(),
+            /* childBranches */ List.empty(),
             /* commits */ List.empty(),
-            SyncToUpstreamStatus.MergedToUpstream),
+            SyncToParentStatus.MergedToParent),
         new NonRoot(/* name */ "build-chain",
             /* customAnnotation */ "# Green edge: branch is in sync with its parent branch",
             nullPointedCommit,
             /* fork point */ null,
-            /* downstreamBranches */ List.empty(),
+            /* childBranches */ List.empty(),
             /* commits */ List.of(new Commit("Second commit of build-chain"),
                 new Commit("First commit of build-chain")),
-            SyncToUpstreamStatus.InSync),
+            SyncToParentStatus.InSync),
         new NonRoot(/* name */ "call-ws",
             /* customAnnotation */ "# Yellow edge: Branch is in sync with its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
             /* fork point */ fp,
-            /* downstreamBranches */ List.empty(),
+            /* childBranches */ List.empty(),
             /* commits */ List.of(fp),
-            SyncToUpstreamStatus.InSyncButForkPointOff),
+            SyncToParentStatus.InSyncButForkPointOff),
         new NonRoot(/* name */ "remove-ff",
             /* customAnnotation */ "# Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
-            /* downstreamBranches */ List.empty(),
+            /* childBranches */ List.empty(),
             /* commits */ List.of(new Commit("Some commit")),
-            SyncToUpstreamStatus.OutOfSync)
+            SyncToParentStatus.OutOfSync)
     };
 
     var root = new Root(/* name */ "develop",
         /* customAnnotation */ "# This is a root branch, the underline indicates that it is the currently checked out branch",
         nullPointedCommit,
-        /* downstreamBranches */ List.of(nonRoots));
+        /* childBranches */ List.of(nonRoots));
 
     for (var nr : nonRoots) {
-      nr.setUpstreamBranch(root);
+      nr.setParentBranch(root);
     }
 
     this.roots = List.of(root);
@@ -177,7 +177,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
-    private final List<IGitMacheteNonRootBranch> downstreamBranches;
+    private final List<IGitMacheteNonRootBranch> childBranches;
 
     @Override
     public Option<String> getCustomAnnotation() {
@@ -203,22 +203,22 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final Commit pointedCommit;
     private final @Nullable IGitMacheteForkPointCommit forkPoint;
     private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
-    private final List<IGitMacheteNonRootBranch> downstreamBranches;
+    private final List<IGitMacheteNonRootBranch> childBranches;
 
     private final List<IGitMacheteCommit> commits;
     @MonotonicNonNull
-    private IGitMacheteBranch upstreamBranch = null;
-    private final SyncToUpstreamStatus syncToUpstreamStatus;
+    private IGitMacheteBranch parentBranch = null;
+    private final SyncToParentStatus syncToParentStatus;
 
     @Override
-    public IGitMacheteBranch getUpstreamBranch() {
-      assert upstreamBranch != null : "upstreamBranch hasn't been set yet";
-      return upstreamBranch;
+    public IGitMacheteBranch getParentBranch() {
+      assert parentBranch != null : "parentBranch hasn't been set yet";
+      return parentBranch;
     }
 
-    void setUpstreamBranch(IGitMacheteBranch givenUpstreamBranch) {
-      assert upstreamBranch == null : "upstreamBranch has already been set";
-      upstreamBranch = givenUpstreamBranch;
+    void setParentBranch(IGitMacheteBranch givenParentBranch) {
+      assert parentBranch == null : "parentBranch has already been set";
+      parentBranch = givenParentBranch;
     }
 
     @Override
@@ -237,12 +237,12 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public IGitRebaseParameters getParametersForRebaseOntoUpstream() {
+    public IGitRebaseParameters getParametersForRebaseOntoParent() {
       throw new NotImplementedError();
     }
 
     @Override
-    public IGitMergeParameters getParametersForMergeIntoUpstream() {
+    public IGitMergeParameters getParametersForMergeIntoParent() {
       throw new NotImplementedError();
     }
 

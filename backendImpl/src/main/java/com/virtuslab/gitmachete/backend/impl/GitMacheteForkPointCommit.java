@@ -30,7 +30,7 @@ public final class GitMacheteForkPointCommit extends GitMacheteCommit implements
     return new GitMacheteForkPointCommit(coreCommit, branchesContainingInReflog, false);
   }
 
-  public static GitMacheteForkPointCommit fallbackToUpstream(IGitCoreCommit upstreamCoreCommit) {
-    return new GitMacheteForkPointCommit(upstreamCoreCommit, List.empty(), false);
+  public static GitMacheteForkPointCommit fallbackToParent(IGitCoreCommit parentCoreCommit) {
+    return new GitMacheteForkPointCommit(parentCoreCommit, List.empty(), false);
   }
 }

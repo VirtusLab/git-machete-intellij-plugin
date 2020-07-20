@@ -23,13 +23,13 @@ public interface IGitMacheteNonRootBranch extends IGitMacheteBranch {
 
   List<IGitMacheteCommit> getCommits();
 
-  IGitMacheteBranch getUpstreamBranch();
+  IGitMacheteBranch getParentBranch();
 
-  SyncToUpstreamStatus getSyncToUpstreamStatus();
+  SyncToParentStatus getSyncToParentStatus();
 
   Option<IGitMacheteForkPointCommit> getForkPoint();
 
-  IGitRebaseParameters getParametersForRebaseOntoUpstream() throws GitMacheteMissingForkPointException;
+  IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
 
-  IGitMergeParameters getParametersForMergeIntoUpstream();
+  IGitMergeParameters getParametersForMergeIntoParent();
 }

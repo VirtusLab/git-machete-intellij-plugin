@@ -34,7 +34,7 @@ create_repo machete-sandbox
   git checkout call-ws
     commit 2nd round of fixes
   git checkout develop
-    # call-ws is merged to develop, and would have no downstream branches in the discovered layout,
+    # call-ws is merged to develop, and would have no child branches in the discovered layout,
     # so it should be skipped from the discovered layout
     git merge --ff-only call-ws
 

@@ -24,7 +24,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.SyncToUpstreamStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.common.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -107,7 +107,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           presentation.setEnabledAndVisible(false);
         }
 
-      } else if (branch.get().asNonRootBranch().getSyncToUpstreamStatus() == SyncToUpstreamStatus.MergedToUpstream) {
+      } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
         presentation
             .setDescription(GitMacheteBundle.message(
@@ -115,10 +115,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       } else if (branch.get().isNonRootBranch()) {
         var nonRootBranch = branch.get().asNonRootBranch();
-        IGitMacheteBranch upstream = nonRootBranch.getUpstreamBranch();
+        IGitMacheteBranch parent = nonRootBranch.getParentBranch();
         presentation
             .setDescription(GitMacheteBundle.message("action.GitMachete.BaseRebaseBranchOntoParentAction.description",
-                branch.get().getName(), upstream.getName()));
+                branch.get().getName(), parent.getName()));
       }
 
       var isRebasingCurrent = branch.isDefined() && getCurrentBranchNameIfManaged(anActionEvent)
@@ -162,7 +162,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       IGitMacheteNonRootBranch branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoUpstream());
+    var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
 
     if (tryGitRebaseParameters.isFailure()) {
       var e = tryGitRebaseParameters.getCause();
@@ -241,7 +241,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     String newBase = gitRebaseParameters.getNewBaseCommit().getHash();
     String forkPoint = gitRebaseParameters.getForkPointCommit().getHash();
 
-    return new GitRebaseParams(gitVersion, currentBranch, newBase, /* upstream */ forkPoint,
+    return new GitRebaseParams(gitVersion, currentBranch, newBase, /* parent */ forkPoint,
         /* interactive */ true, /* preserveMerges */ false);
   }
 }

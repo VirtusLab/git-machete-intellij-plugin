@@ -8,7 +8,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 public interface IGitMacheteRepository {
   IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException;
 
-  Option<String> inferUpstreamForLocalBranch(
+  Option<String> inferParentForLocalBranch(
       Set<String> eligibleBranchNames,
       String localBranchName) throws GitMacheteException;
 

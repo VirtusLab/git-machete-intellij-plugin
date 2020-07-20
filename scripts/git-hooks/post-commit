@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # That's a sample standard post-commit hook that checks if a current branch is already managed by git machete,
-# and if it isn't, suggests to add it onto its inferred upstream.
+# and if it isn't, suggests to add it onto its inferred parent.
 
 # Don't do anything if we're in a detached HEAD state.
 git symbolic-ref --quiet HEAD >/dev/null || exit 0

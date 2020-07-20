@@ -58,7 +58,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
     boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
         .map(repo -> repo.getRootBranches()
-            .flatMap(root -> root.getDownstreamBranches())
+            .flatMap(root -> root.getChildBranches())
             .exists(b -> b.getCommits().nonEmpty()))
         .getOrElse(false);
 
