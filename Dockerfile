@@ -21,9 +21,9 @@ RUN set -x \
   `# installing JDK and not just JRE to provide javadoc executable` \
   && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 \
   && rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 ARG hub_version=2.14.2
-
 # Install hub (GitHub CLI); Debian Buster package has an ancient version (e.g. `hub pr show` isn't supported there yet)
 RUN set -x \
   && curl -Lsf https://github.com/github/hub/releases/download/v${hub_version}/hub-linux-amd64-${hub_version}.tgz -o hub.tgz \
@@ -31,8 +31,7 @@ RUN set -x \
   && rm hub.tgz \
   && hub --version
 
-COPY --from=gradle-cache repo/backendImpl/src/test/resources/reference-cli-version.properties /tmp/reference-cli-version.properties
-
+COPY backendImpl/src/test/resources/reference-cli-version.properties /tmp/reference-cli-version.properties
 RUN set -x \
   && apt-get update \
   && apt-get install --no-install-recommends -y python3-pip \
@@ -46,7 +45,6 @@ RUN set -x \
   && dir=/root/.local/share/JetBrains/consentOptions \
   && mkdir -p "$dir" \
   && echo -n "rsch.send.usage.stat:1.1:0:$(date +%s)000" > "$dir/accepted"
-
 # Accept End User Agreement/privacy policy
 RUN set -x \
   && dir="/root/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@==" \
@@ -60,8 +58,7 @@ RUN set -x \
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
 
-# Secondary packages needed in just one (or few) steps of the pipeline;
-# subject to frequent change, thus moved towards the end of the Dockerfile.
+# Secondary packages needed in just one (or few) steps of the pipeline:
 # (package       => needed for command(s))
 # binutils       => strings
 # netcat         => nc
