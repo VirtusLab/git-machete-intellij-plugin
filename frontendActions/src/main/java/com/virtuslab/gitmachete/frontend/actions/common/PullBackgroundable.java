@@ -18,7 +18,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsBundle;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -39,7 +38,6 @@ import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
-import git4idea.i18n.GitBundle;
 import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
@@ -60,9 +58,11 @@ public class PullBackgroundable extends Task.Backgroundable {
   private final GitLineHandler handler;
   private final String remoteBranchName;
 
-  public PullBackgroundable(Project project,
+  public PullBackgroundable(
+      Project project,
       GitRepository gitRepository,
-      GitLineHandler handler, String remoteBranchName) {
+      GitLineHandler handler,
+      String remoteBranchName) {
     super(project,
         /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title"),
         /* canBeCancelled */ true);
@@ -103,7 +103,9 @@ public class PullBackgroundable extends Task.Backgroundable {
   }
 
   @Nullable
-  private static GitUpdatedRanges deriveGitUpdatedRanges(Project project, GitRepository gitRepository,
+  private static GitUpdatedRanges deriveGitUpdatedRanges(
+      Project project,
+      GitRepository gitRepository,
       String remoteBranchName) {
     GitUpdatedRanges updatedRanges = null;
     var currentBranch = gitRepository.getCurrentBranch();
@@ -115,13 +117,14 @@ public class PullBackgroundable extends Task.Backgroundable {
         updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
             java.util.Collections.singletonMap(gitRepository, refPair));
       } else {
-        LOG.warn("Couldn't find the branch with name [" + selectedBranch + "]");
+        LOG.warn("Couldn't find the branch with name '${selectedBranch}'");
       }
     }
     return updatedRanges;
   }
 
-  private static void handleResult(GitCommandResult result,
+  private static void handleResult(
+      GitCommandResult result,
       Project project,
       GitLocalChangesWouldBeOverwrittenDetector localChangesDetector,
       GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector,
@@ -149,13 +152,15 @@ public class PullBackgroundable extends Task.Backgroundable {
               content,
               INFORMATION,
               /* listener */ null);
-          notification.addAction(NotificationAction.createSimple(GitBundle.messagePointer(
-              "action.NotificationAction.GitMergeAction.text.view.commits"),
+          notification.addAction(NotificationAction.createSimple(getString(
+              "action.GitMachete.PullBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
 
         } else {
+          // When the pull results with no commits, there is no git update info (as log).
+          // Based on that we know that all files are up-to-date.
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              VcsBundle.message("message.text.all.files.are.up.to.date"),
+              getString("action.GitMachete.PullBackgroundable.notification.title.all-files-are-up-to-date"),
               /* content */ "", INFORMATION, /* listener */ null);
         }
         VcsNotifier.getInstance(project).notify(notification);
@@ -179,7 +184,7 @@ public class PullBackgroundable extends Task.Backgroundable {
 
     } else {
       GitUIUtil.notifyError(project,
-          /* title */ "Git Pull Failed",
+          getString("action.GitMachete.PullBackgroundable.notification.fail"),
           result.getErrorOutputAsJoinedString(),
           /* important */ true,
           /* error */ null);

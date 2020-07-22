@@ -69,12 +69,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
 
     if (branchName != null && gitRepository != null) {
-      var name = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
-      if (branchName.equals(name)) {
+      var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+      if (branchName.equals(currentBranchName)) {
         doPull(project, gitRepository, branchName);
       } else {
         doFetch(project, gitRepository, branchName);
-        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       }
     }
   }
