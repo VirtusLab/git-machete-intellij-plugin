@@ -85,7 +85,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var slideInDialogBranchName = new SlideInDialog(project, parentName).showAndGetBranchName();
+    var slideInDialogBranchName = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
     if (slideInDialogBranchName == null) {
       log().debug("Name of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;

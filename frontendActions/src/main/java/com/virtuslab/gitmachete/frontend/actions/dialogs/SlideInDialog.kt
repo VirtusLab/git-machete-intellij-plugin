@@ -7,16 +7,23 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.CellBuilder
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.panel
+import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import java.awt.event.KeyEvent
+import javax.swing.JCheckBox
 import kotlin.apply
 import kotlin.text.isEmpty
 import kotlin.text.trim
 
-class SlideInDialog constructor(project: Project, private val parentName: String) :
-    DialogWrapper(project, true) {
+class SlideInDialog
+    constructor(
+        project: Project, private val branchLayout: IBranchLayout, private val parentName: String
+    ) : DialogWrapper(project, true) {
 
   // this field is only ever meant to be written on UI thread
   private var branchName = ""
+  private var reattach = false
+  private var reattachCheckbox: JCheckBox? = null
 
   init {
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
@@ -36,7 +43,7 @@ class SlideInDialog constructor(project: Project, private val parentName: String
           label(parentName, bold = true)
         }
         row {
-          label(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label"))
+          label(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.label.slide-in"))
         }
         row {
           textField(::branchName, { branchName = it })
@@ -44,13 +51,38 @@ class SlideInDialog constructor(project: Project, private val parentName: String
               .withValidationOnApply(validateBranchName())
               .apply { startTrackingValidationIfNeeded() }
         }
+        row {
+          reattachCheckbox =
+              checkBox(
+                  getString(
+                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.checkbox.reattach"),
+                  ::reattach)
+                  .component
+                  .apply {
+                mnemonic = KeyEvent.VK_R
+                isEnabled = false
+                isSelected = false
+              }
+        }
       }
 
   private fun validateBranchName():
       ValidationInfoBuilder.(javax.swing.JTextField) -> ValidationInfo? =
       {
         val errorInfo = git4idea.validators.checkRefName(it.text)
-        if (errorInfo != null) error(errorInfo.message) else null
+        if (errorInfo != null) error(errorInfo.message)
+        else if (it.text == parentName)
+            error(
+            getString(
+                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+        else {
+          val existsAndHasChildren =
+              branchLayout.findEntryByName(it.text).orNull?.children?.nonEmpty() ?: false
+          val isEnabledAndSelected = existsAndHasChildren
+          reattachCheckbox?.isEnabled = isEnabledAndSelected
+          reattachCheckbox?.isSelected = isEnabledAndSelected
+          null
+        }
       }
 
   private fun CellBuilder<javax.swing.JTextField>.startTrackingValidationIfNeeded() {
