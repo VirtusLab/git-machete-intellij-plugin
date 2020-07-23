@@ -28,7 +28,6 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
-import com.virtuslab.logger.IntelliJLoggingUtils;
 
 @CustomLog
 public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgroundable {
@@ -116,10 +115,6 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
     VcsNotifier.getInstance(getProject()).notifyError("Repository instantiation failed",
         exceptionMessage != null ? exceptionMessage : "");
-
-    IntelliJLoggingUtils.showErrorDialog(exceptionMessage != null
-        ? exceptionMessage
-        : "Repository instantiation failed. For more information, please look at the IntelliJ logs");
   }
 
 }
