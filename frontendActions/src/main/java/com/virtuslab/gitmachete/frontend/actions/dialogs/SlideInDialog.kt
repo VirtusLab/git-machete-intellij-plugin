@@ -15,6 +15,11 @@ import kotlin.apply
 import kotlin.text.isEmpty
 import kotlin.text.trim
 
+data class SlideInOptions(
+    val name: String,
+    @get:JvmName("shouldReattach")
+    val reattach: Boolean = true)
+
 class SlideInDialog
     constructor(
         project: Project, private val branchLayout: IBranchLayout, private val parentName: String
@@ -33,7 +38,8 @@ class SlideInDialog
     init()
   }
 
-  fun showAndGetBranchName() = if (showAndGet()) branchName.trim() else null
+  fun showAndGetBranchName() =
+      if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
 
   override fun createCenterPanel() =
       panel {
@@ -78,9 +84,9 @@ class SlideInDialog
         else {
           val existsAndHasChildren =
               branchLayout.findEntryByName(it.text).orNull?.children?.nonEmpty() ?: false
-          val isEnabledAndSelected = existsAndHasChildren
-          reattachCheckbox?.isEnabled = isEnabledAndSelected
-          reattachCheckbox?.isSelected = isEnabledAndSelected
+          reattachCheckbox?.isEnabled = existsAndHasChildren
+          reattachCheckbox?.isSelected =
+              reattachCheckbox?.isSelected ?: false && existsAndHasChildren
           null
         }
       }

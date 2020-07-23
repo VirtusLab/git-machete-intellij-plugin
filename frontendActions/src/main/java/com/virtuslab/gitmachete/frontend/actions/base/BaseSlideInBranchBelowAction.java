@@ -23,6 +23,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -85,32 +87,32 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var slideInDialogBranchName = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
-    if (slideInDialogBranchName == null) {
-      log().debug("Name of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
+    var slideInOptions = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
+    if (slideInOptions == null) {
+      log().debug("Options of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
     }
 
-    if (parentName.equals(slideInDialogBranchName)) {
+    if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
       notifier.notifyError(
-          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"), slideInDialogBranchName),
+          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"), slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
     }
 
-    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(slideInDialogBranchName);
+    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(slideInOptions.getName());
     if (localBranch == null) {
       var createNewBranchDialogBranchName = createOrCheckoutNewBranch(project, selectedVcsRepository, parentName,
-          slideInDialogBranchName);
-      if (!slideInDialogBranchName.equals(createNewBranchDialogBranchName)) {
+          slideInOptions.getName());
+      if (!slideInOptions.getName().equals(createNewBranchDialogBranchName)) {
         createNewBranchDialogBranchName = createNewBranchDialogBranchName != null
             ? createNewBranchDialogBranchName
             : "no name provided";
         notifier.notifyWeakError(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.mismatched-names"),
-                slideInDialogBranchName, createNewBranchDialogBranchName));
+                slideInOptions.getName(), createNewBranchDialogBranchName));
         return;
       }
     }
@@ -120,7 +122,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     var entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
-        .map(names -> names.contains(slideInDialogBranchName))
+        .map(names -> names.contains(slideInOptions.getName()))
         .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent) {
@@ -134,16 +136,41 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       public void run(ProgressIndicator indicator) {
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
 
-        var entryToSlideIn = branchLayout.findEntryByName(slideInDialogBranchName)
-            .getOrElse(
-                new BranchLayoutEntry(slideInDialogBranchName, /* customAnnotation */ null, /* children */ List.empty()));
+        var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
+        IBranchLayoutEntry entryToSlideIn;
+        IBranchLayout branchLayoutToSlideInTo;
+        if (childEntryByName.isDefined()) {
+
+          if (slideInOptions.shouldReattach()) {
+            entryToSlideIn = childEntryByName.get();
+            branchLayoutToSlideInTo = branchLayout;
+          } else {
+            entryToSlideIn = childEntryByName.map(e -> e.withChildren(List.empty())).getOrNull();
+            branchLayoutToSlideInTo = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
+                .onFailure(
+                    t -> notifier.notifyError(
+                        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
+                            slideInOptions.getName()),
+                        getMessageOrEmpty(t)))
+                .getOrNull();
+
+            if (branchLayoutToSlideInTo == null) {
+              return;
+            }
+          }
+
+        } else {
+          entryToSlideIn = new BranchLayoutEntry(slideInOptions.getName(), /* customAnnotation */ null,
+              /* children */ List.empty());
+          branchLayoutToSlideInTo = branchLayout;
+        }
 
         var newBranchLayout = Try
-            .of(() -> branchLayout.slideIn(parentName, entryToSlideIn))
+            .of(() -> branchLayoutToSlideInTo.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
-                        slideInDialogBranchName),
+                        slideInOptions.getName()),
                     getMessageOrEmpty(t)))
             .toOption();
 
