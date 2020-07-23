@@ -5,11 +5,14 @@ import static java.text.MessageFormat.format;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageUtil;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
@@ -28,6 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -38,6 +42,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       IBranchNameProvider,
       IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
+
+  public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";
 
   private static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetBranchToRemoteAction.notification.title");
@@ -116,6 +122,20 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       return;
     }
 
+    if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
+      final var showOkCancelDialog = MessageUtil.showOkCancelDialog(
+          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
+          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"),
+          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
+          Messages.getCancelButton(),
+          Messages.getWarningIcon(),
+          new ResetBranchToRemoteInfoDialog(),
+          project);
+      if (showOkCancelDialog != 0) {
+        return;
+      }
+    }
+
     doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(), anActionEvent);
   }
 
@@ -131,6 +151,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         log().debug(() -> "Resetting '${branchName}' branch");
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
             getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
+          // TODO (#444): prohibit reset on conflicts with uncommitted
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
