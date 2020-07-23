@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Run pre-compile checks
-          command: bash -x ./scripts/run-pre-build-checks
+          command: ./scripts/run-pre-build-checks
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -33,14 +33,6 @@ jobs:
       - run:
           name: Compile tests
           command: ./gradlew compileTestJava
-      - run:
-          # To be removed once Docker image is regenerated
-          name: '[TEMP] Reinstall git-machete CLI in the required version'
-          command: |
-            apt-get update
-            apt-get install -y --no-install-recommends python3-pip
-            cli_version=$(cut -d'=' -f2 backendImpl/src/test/resources/reference-cli-version.properties)
-            pip3 install -U git-machete==$cli_version
       - run:
           name: Run backend tests
           command: ./gradlew test
