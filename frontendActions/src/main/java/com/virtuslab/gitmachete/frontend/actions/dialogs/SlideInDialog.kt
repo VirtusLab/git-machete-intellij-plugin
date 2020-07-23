@@ -8,6 +8,7 @@ import com.intellij.ui.layout.CellBuilder
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.panel
 import com.virtuslab.branchlayout.api.IBranchLayout
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import java.awt.event.KeyEvent
 import javax.swing.JCheckBox
@@ -29,6 +30,7 @@ class SlideInDialog
   private var branchName = ""
   private var reattach = false
   private var reattachCheckbox: JCheckBox? = null
+  private val rootsNames = branchLayout.rootEntries.map { it.name }
 
   init {
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
@@ -77,17 +79,31 @@ class SlideInDialog
       {
         val errorInfo = git4idea.validators.checkRefName(it.text)
         if (errorInfo != null) error(errorInfo.message)
-        else if (it.text == parentName)
+        else if (it.text == parentName) {
+          error(
+              getString(
+                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+        } else {
+          val entryByName = branchLayout.findEntryByName(it.text)
+          if (entryByName
+              .map { isDescendant(presumedDescendantName = parentName, presumedAncestorEntry = it) }
+              .getOrElse(false)) {
             error(
-            getString(
-                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
-        else {
-          val existsAndHasChildren =
-              branchLayout.findEntryByName(it.text).orNull?.children?.nonEmpty() ?: false
-          reattachCheckbox?.isEnabled = existsAndHasChildren
-          reattachCheckbox?.isSelected =
-              reattachCheckbox?.isSelected ?: false && existsAndHasChildren
-          null
+                getString(
+                    "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
+          } else {
+            if (rootsNames.contains(it.text)) { // the provided branch name refers to the root entry
+              reattachCheckbox?.isEnabled = false
+              reattachCheckbox?.isSelected = true
+            } else {
+              val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
+              reattachCheckbox?.isEnabled = existsAndHasAChild
+              reattachCheckbox?.isSelected =
+                  reattachCheckbox?.isSelected ?: false && existsAndHasAChild
+            }
+
+            null
+          }
         }
       }
 
@@ -103,6 +119,18 @@ class SlideInDialog
               })
     } else {
       startTrackingValidation()
+    }
+  }
+
+  private fun isDescendant(
+      presumedDescendantName: String, presumedAncestorEntry: IBranchLayoutEntry
+  ): Boolean {
+    if (presumedAncestorEntry.children.find { it.name.equals(presumedDescendantName) }.isDefined) {
+      return true
+    } else {
+      return presumedAncestorEntry.children
+          .find { isDescendant(presumedDescendantName, it) }
+          .isDefined
     }
   }
 }
