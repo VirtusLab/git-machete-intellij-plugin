@@ -138,15 +138,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
         var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
         IBranchLayoutEntry entryToSlideIn;
-        IBranchLayout branchLayoutToSlideInTo;
+        IBranchLayout targetBranchLayout;
         if (childEntryByName.isDefined()) {
 
           if (slideInOptions.shouldReattach()) {
             entryToSlideIn = childEntryByName.get();
-            branchLayoutToSlideInTo = branchLayout;
+            targetBranchLayout = branchLayout;
           } else {
             entryToSlideIn = childEntryByName.map(e -> e.withChildren(List.empty())).getOrNull();
-            branchLayoutToSlideInTo = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
+            targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
                 .onFailure(
                     t -> notifier.notifyError(
                         /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
@@ -154,7 +154,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
                         getMessageOrEmpty(t)))
                 .getOrNull();
 
-            if (branchLayoutToSlideInTo == null) {
+            if (targetBranchLayout == null) {
               return;
             }
           }
@@ -162,11 +162,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         } else {
           entryToSlideIn = new BranchLayoutEntry(slideInOptions.getName(), /* customAnnotation */ null,
               /* children */ List.empty());
-          branchLayoutToSlideInTo = branchLayout;
+          targetBranchLayout = branchLayout;
         }
 
         var newBranchLayout = Try
-            .of(() -> branchLayoutToSlideInTo.slideIn(parentName, entryToSlideIn))
+            .of(() -> targetBranchLayout.slideIn(parentName, entryToSlideIn))
             .onFailure(
                 t -> notifier.notifyError(
                     /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
@@ -178,6 +178,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
             .onFailure(t -> notifier.notifyError(
                 /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.branch-layout-write"),
                 getMessageOrEmpty(t))));
+      }
+
+      @Override
+      public void onFinished() {
+        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       }
     }.queue();
   }

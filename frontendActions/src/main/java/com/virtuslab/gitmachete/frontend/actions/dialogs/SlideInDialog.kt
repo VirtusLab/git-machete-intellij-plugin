@@ -24,13 +24,13 @@ data class SlideInOptions(
 class SlideInDialog
     constructor(
         project: Project, private val branchLayout: IBranchLayout, private val parentName: String
-    ) : DialogWrapper(project, true) {
+    ) : DialogWrapper(project, /* canBeParent */ true) {
 
   // this field is only ever meant to be written on UI thread
   private var branchName = ""
   private var reattach = false
   private var reattachCheckbox: JCheckBox? = null
-  private val rootsNames = branchLayout.rootEntries.map { it.name }
+  private val rootNames = branchLayout.rootEntries.map { it.name }
 
   init {
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
@@ -51,7 +51,9 @@ class SlideInDialog
           label(parentName, bold = true)
         }
         row {
-          label(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.label.slide-in"))
+          label(
+              getString(
+                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name"))
         }
         row {
           textField(::branchName, { branchName = it })
@@ -63,7 +65,7 @@ class SlideInDialog
           reattachCheckbox =
               checkBox(
                   getString(
-                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.checkbox.reattach"),
+                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
                   ::reattach)
                   .component
                   .apply {
@@ -92,7 +94,7 @@ class SlideInDialog
                 getString(
                     "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
           } else {
-            if (rootsNames.contains(it.text)) { // the provided branch name refers to the root entry
+            if (rootNames.contains(it.text)) { // the provided branch name refers to the root entry
               reattachCheckbox?.isEnabled = false
               reattachCheckbox?.isSelected = true
             } else {
@@ -125,12 +127,10 @@ class SlideInDialog
   private fun isDescendant(
       presumedDescendantName: String, presumedAncestorEntry: IBranchLayoutEntry
   ): Boolean {
-    if (presumedAncestorEntry.children.find { it.name.equals(presumedDescendantName) }.isDefined) {
+    if (presumedAncestorEntry.children.exists { it.name.equals(presumedDescendantName) }) {
       return true
     } else {
-      return presumedAncestorEntry.children
-          .find { isDescendant(presumedDescendantName, it) }
-          .isDefined
+      return presumedAncestorEntry.children.exists() { isDescendant(presumedDescendantName, it) }
     }
   }
 }
