@@ -132,8 +132,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
       public void run(ProgressIndicator indicator) {
-        deleteBranchIfRequired(anActionEvent, branchName,
-            () -> getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh());
+        deleteBranchIfRequired(anActionEvent, branchName);
       }
     }.queue();
   }
@@ -141,7 +140,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   /**
    * This method must NOT be called on UI thread.
    */
-  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName, Runnable andThen) {
+  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
 
     if (selectedVcsRepository.isDefined()) {
@@ -154,15 +153,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
             .getOrElse(true);
         if (slidOutBranchIsCurrent) {
           LOG.debug("Skipping local branch deletion because it is equal to current branch");
-          andThen.run();
+          getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
           return;
         }
 
-        GitBrancher.getInstance(project)
-            .deleteBranches(java.util.Collections.singletonMap(branchName, selectedVcsRepository.toJavaList()), andThen);
+        GitBrancher.getInstance(project).deleteBranch(branchName, selectedVcsRepository.toJavaList());
       }
     } else {
-      andThen.run();
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }
   }
 
