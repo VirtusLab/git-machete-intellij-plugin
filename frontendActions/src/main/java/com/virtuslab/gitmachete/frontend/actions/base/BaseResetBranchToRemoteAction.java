@@ -16,14 +16,12 @@ import com.intellij.openapi.ui.MessageUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
-import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
 import lombok.CustomLog;
@@ -155,7 +153,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         log().debug(() -> "Resetting '${branchName}' branch");
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
             getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
-          GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
+          GitLineHandler resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
           var branchOption = macheteRepository.getManagedBranchByName(branchName);
@@ -198,11 +196,6 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           GitCommandResult result = Git.getInstance().runCommand(resetHandler);
 
-          // git4idea methods are used instead of our RefreshStatusAction, to refresh state not only in our plugin,
-          // but also in whole IDE. Repository status will be refreshed also in our plugin because we are subscribed
-          // to IDE event bus.
-          refreshRepo(project, gitRepository);
-
           if (result.success()) {
             VcsNotifier.getInstance(project)
                 .notifySuccess(
@@ -224,11 +217,5 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         }
       }
     }.queue();
-  }
-
-  private void refreshRepo(Project project, GitRepository gitRepository) {
-    GitRepositoryManager.getInstance(project).updateRepository(gitRepository.getRoot());
-    // If `changes` is null the whole root will be refreshed
-    GitUtil.refreshVfs(gitRepository.getRoot(), /* changes */ null);
   }
 }
