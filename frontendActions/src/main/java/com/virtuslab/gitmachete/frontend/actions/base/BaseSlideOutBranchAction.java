@@ -158,10 +158,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
         }
 
         GitBrancher.getInstance(project).deleteBranch(branchName, selectedVcsRepository.toJavaList());
+        return; // repository update invoked via GIT_REPO_CHANGE topic
       }
-    } else {
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
     }
+    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
   /**
