@@ -79,22 +79,22 @@ class SlideInDialog
   private fun validateBranchName():
       ValidationInfoBuilder.(javax.swing.JTextField) -> ValidationInfo? =
       {
-        val errorInfo = git4idea.validators.checkRefName(it.text)
+        val insertedText = it.text
+        val errorInfo = git4idea.validators.checkRefName(insertedText)
         if (errorInfo != null) error(errorInfo.message)
-        else if (it.text == parentName) {
+        else if (insertedText == parentName) {
           error(
               getString(
                   "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
         } else {
-          val entryByName = branchLayout.findEntryByName(it.text)
-          if (entryByName
-              .map { isDescendant(presumedDescendantName = parentName, presumedAncestorEntry = it) }
+          val entryByName = branchLayout.findEntryByName(insertedText)
+          if (entryByName.map(isDescendantOf(presumedDescendantName = parentName))
               .getOrElse(false)) {
             error(
                 getString(
                     "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
           } else {
-            if (rootNames.contains(it.text)) { // the provided branch name refers to the root entry
+            if (insertedText in rootNames) { // the provided branch name refers to the root entry
               reattachCheckbox?.isEnabled = false
               reattachCheckbox?.isSelected = true
             } else {
@@ -124,13 +124,13 @@ class SlideInDialog
     }
   }
 
-  private fun isDescendant(
-      presumedDescendantName: String, presumedAncestorEntry: IBranchLayoutEntry
-  ): Boolean {
-    if (presumedAncestorEntry.children.exists { it.name.equals(presumedDescendantName) }) {
-      return true
-    } else {
-      return presumedAncestorEntry.children.exists() { isDescendant(presumedDescendantName, it) }
+  private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {
+    return fun(presumedAncestorEntry: IBranchLayoutEntry): Boolean {
+      if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
+        return true
+      } else {
+        return presumedAncestorEntry.children.exists(isDescendantOf(presumedDescendantName))
+      }
     }
   }
 }
