@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
+import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -69,23 +70,22 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
 
     if (branchName != null && gitRepository != null) {
+      var trackingInfo = gitRepository.getBranchTrackInfo(branchName);
+      if (trackingInfo == null) {
+        log().warn("No branch tracking info for branch ${branchName}");
+        return;
+      }
+
       var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
       if (branchName.equals(currentBranchName)) {
-        doPull(project, gitRepository, branchName);
+        doPull(project, gitRepository, branchName, trackingInfo.getRemote());
       } else {
-        doFetch(project, gitRepository, branchName);
+        doFetch(project, gitRepository, trackingInfo);
       }
     }
   }
 
-  private void doFetch(Project project, GitRepository gitRepository, String branchName) {
-    var trackingInfo = gitRepository.getBranchTrackInfo(branchName);
-
-    if (trackingInfo == null) {
-      log().warn("No branch tracking info for branch ${branchName}");
-      return;
-    }
-
+  private void doFetch(Project project, GitRepository gitRepository, GitBranchTrackInfo trackingInfo) {
     var localFullName = trackingInfo.getLocalBranch().getFullName();
     var remoteFullName = trackingInfo.getRemoteBranch().getFullName();
 
@@ -106,18 +106,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title")).queue();
   }
 
-  private void doPull(Project project, GitRepository gitRepository, String branchName) {
-    var firstRemote = Option.ofOptional(gitRepository.getRemotes().stream().findFirst()).getOrNull();
-    if (firstRemote == null) {
-      LOG.error("Selected remote can't be null here.");
-      return;
-    }
-    var remoteBranchName = "${firstRemote.getName()}/${branchName}";
-
+  private void doPull(Project project, GitRepository gitRepository, String branchName, GitRemote gitRemote) {
     var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
-    handler.setUrls(firstRemote.getUrls());
+    handler.setUrls(gitRemote.getUrls());
     handler.addParameters("--ff-only");
-    handler.addParameters(firstRemote.getName());
+    handler.addParameters(gitRemote.getName());
     handler.addParameters(branchName);
 
     new PullBackgroundable(project, gitRepository, handler, branchName).queue();
