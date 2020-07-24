@@ -125,7 +125,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
       final var showOkCancelDialog = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
-          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"),
+          format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"), branchName.get()),
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
           Messages.getWarningIcon(),
