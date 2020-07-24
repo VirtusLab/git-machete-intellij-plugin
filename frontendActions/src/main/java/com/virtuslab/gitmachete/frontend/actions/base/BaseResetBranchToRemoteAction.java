@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static java.text.MessageFormat.format;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -20,8 +21,10 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
+import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -152,7 +155,6 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         log().debug(() -> "Resetting '${branchName}' branch");
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
             getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
-          // TODO (#444): prohibit reset on conflicts with uncommitted
           GitLineHandler resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
@@ -167,6 +169,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
             VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
             return;
           }
+
+          var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), RESET);
+          resetHandler.addLineListener(localChangesDetector);
 
           resetHandler.endOptions();
 
@@ -198,17 +203,25 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           // to IDE event bus.
           refreshRepo(project, gitRepository);
 
-          if (!result.success()) {
+          if (result.success()) {
+            VcsNotifier.getInstance(project)
+                .notifySuccess(
+                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"),
+                        branchName));
+            log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
+
+          } else if (localChangesDetector.wasMessageDetected()) {
+            LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
+                gitRepository.getRoot(),
+                "Reset",
+                localChangesDetector.getRelativeFilePaths());
+
+          } else {
             log().error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
-            return;
+            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
+                result.getErrorOutputAsHtmlString());
           }
         }
-
-        // If we are here this means that all went good
-        VcsNotifier.getInstance(project).notifySuccess(
-            format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
-        log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
       }
     }.queue();
   }
