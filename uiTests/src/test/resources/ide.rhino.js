@@ -41,16 +41,6 @@ function Ide() {
       });
     });
   };
-
-  this.close = function () {
-    // We can't just run `app.exit()` synchronously since then the Robot client would never receive a reply from the Robot server,
-    // and the entire test would end up in a ConnectException.
-    GuiUtils.invokeLaterIfNeeded(function () {
-      // Just to give enough time for the Robot server to send back the response to the client.
-      sleep();
-      ApplicationManager.getApplication().exit();
-    }, ModalityState.NON_MODAL);
-  };
 }
 
 const ide = new Ide();

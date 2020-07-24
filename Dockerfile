@@ -63,11 +63,12 @@ RUN set -x \
 # binutils       => strings
 # netcat         => nc
 # procps         => ps
+# psmisc         => fuser
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils netcat procps xxd unzip \
+  && apt-get install --no-install-recommends -y binutils netcat procps psmisc xxd unzip \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*

@@ -56,6 +56,9 @@ jobs:
           command: ./scripts/verify-binary-compatibility
 
       - run:
+          name: '[TEMP] Install prerequisites of UI tests'
+          command: apt-get update && apt-get install --no-install-recommends -y psmisc
+      - run:
           name: Run UI tests against 2020.1 (earliest supported)
           command: ./scripts/run-ui-tests 2020.1
       # We can't just store the results once at the end since they get overwritten with each UI test run.

@@ -24,7 +24,7 @@ awk_script="$(cat <<'EOF'
     joined_length = length(prev) + length($0) - this_indent_width + 1
     MAX_LEN = 128
     if (joined_length <= MAX_LEN) {
-      print file ":" NR-1 " should be joined with the next line (will be " joined_length "<" MAX_LEN " chars)"
+      print file ":" NR-1 " should be joined with the next line (will be " joined_length "<=" MAX_LEN " chars)"
       exit_code = 1
     }
   }

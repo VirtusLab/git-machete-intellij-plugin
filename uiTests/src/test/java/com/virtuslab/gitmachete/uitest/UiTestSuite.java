@@ -8,7 +8,6 @@ import com.intellij.remoterobot.RemoteRobot;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import org.intellij.lang.annotations.Language;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,10 +59,8 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     Assert.assertEquals(13, branchAndCommitRowsCount);
   }
 
-  @After
-  public void closeIde() {
-    runJs("ide.close()");
-  }
+  // Note that since this suite is not responsible for opening the IDE,
+  // it is not going to close the IDE at the end, either.
 
   private void runJs(@Language("JS") String statement) {
     remoteRobot.runJs(rhinoCodebase + statement, /* runInEdt */ false);
