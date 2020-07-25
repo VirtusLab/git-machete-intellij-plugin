@@ -2,14 +2,10 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.Collections;
-
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessProvider;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -61,26 +57,13 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
     if (macheteFile.isEmpty()) {
       log().warn("Skipping the action because machete file is undefined");
     } else {
-      try {
-        doOpenFile(project, macheteFile.get());
-      } catch (DirNamedMacheteExistsException e) {
+      VirtualFile file = macheteFile.get();
+      if (file.isDirectory()) {
         VcsNotifier.getInstance(project).notifyWeakError(
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"));
       }
+
+      OpenFileAction.openFile(file, project);
     }
   }
-
-  @UIEffect
-  private static void doOpenFile(Project project, VirtualFile file) throws DirNamedMacheteExistsException {
-    if (file.isDirectory()) {
-      throw new DirNamedMacheteExistsException();
-    }
-
-    ApplicationManager.getApplication()
-        .runWriteAction(() -> NonProjectFileWritingAccessProvider.allowWriting(Collections.singletonList(file)));
-
-    new OpenFileDescriptor(project, file).navigate(/* requestFocus */ true);
-  }
-
-  private static class DirNamedMacheteExistsException extends Exception {}
 }
