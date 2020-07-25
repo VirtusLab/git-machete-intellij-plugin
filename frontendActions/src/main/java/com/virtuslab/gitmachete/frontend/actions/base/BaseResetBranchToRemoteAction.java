@@ -9,6 +9,7 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -138,6 +139,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       }
     }
 
+    FileDocumentManager.getInstance().saveAllDocuments();
+
     doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(), anActionEvent);
   }
 
@@ -199,8 +202,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           if (result.success()) {
             VcsNotifier.getInstance(project)
                 .notifySuccess(
-                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"),
-                        branchName));
+                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
             log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
 
           } else if (localChangesDetector.wasMessageDetected()) {
@@ -211,8 +213,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           } else {
             log().error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-                result.getErrorOutputAsHtmlString());
+            VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
           }
         }
       }
