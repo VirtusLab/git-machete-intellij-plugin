@@ -101,7 +101,7 @@ class SlideInDialog
               val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
               reattachCheckbox?.isEnabled = existsAndHasAChild
               reattachCheckbox?.isSelected =
-                  reattachCheckbox?.isSelected ?: false && existsAndHasAChild
+                  (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
             }
 
             null
