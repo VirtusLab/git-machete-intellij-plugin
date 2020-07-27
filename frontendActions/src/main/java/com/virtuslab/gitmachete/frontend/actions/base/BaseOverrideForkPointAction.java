@@ -1,73 +1,70 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static java.text.MessageFormat.format;
+import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.config.GitConfigUtil;
+import io.vavr.collection.List;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
-import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository,
-      IExpectsKeySelectedBranchName {
+      ISyncToParentStatusDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
   }
+
+  @Override
+  public @I18nFormat({}) String getActionName() {
+    return getString("action.GitMachete.BaseOverrideForkPointAction.action-name");
+  }
+
+  @Override
+  public @I18nFormat({}) String getDescriptionActionName() {
+    return getString("action.GitMachete.BaseOverrideForkPointAction.description-action-name");
+  }
+
+  @Override
+  public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
+    return getString("action.GitMachete.BaseOverrideForkPointAction.description");
+  }
+
+  @Override
+  public String getCurrentBranchText() {
+    return getString("action.GitMachete.BaseOverrideForkPointAction.text.current-branch");
+  }
+
+  @Override
+  public List<SyncToParentStatus> getEligibleStatuses() {
+    return List.of(SyncToParentStatus.InSyncButForkPointOff);
+  }
+
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-
-    Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
-      return;
-    }
-
-    var branchName = getSelectedBranchName(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
-
-    if (branch.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Override Fork Point"));
-    } else if (branch.get().isNonRootBranch()) {
-      presentation.setDescription(
-          format(getString("action.GitMachete.BaseOverrideForkPointAction.description"), branch.get().getName()));
-
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(getString("action.GitMachete.BaseOverrideForkPointAction.text.current-branch"));
-      }
-    } else {
-      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
-        presentation.setEnabled(false);
-        presentation.setDescription(
-            format(getString("action.GitMachete.BaseOverrideForkPointAction.description.root.branch"), branch.get().getName()));
-      } else { //contextmenu
-        // in case of root branch we do not want to show this option at all
-        presentation.setEnabledAndVisible(false);
-      }
-    }
+    syncToParentStatusDependentActionUpdate(anActionEvent);
   }
 
   @Override
@@ -75,7 +72,7 @@ public class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAc
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var branchUnderAction = getSelectedBranchName(anActionEvent);
+    var branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByName(anActionEvent, pn)).getOrNull();
 
     if (selectedVcsRepository == null || branch == null || branch.isRootBranch()) {
@@ -144,5 +141,4 @@ public class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAc
       LOG.info("Attempt to get '${whileDescendantOf}' git config value failed: " + e.getMessage());
     }
   }
-
 }

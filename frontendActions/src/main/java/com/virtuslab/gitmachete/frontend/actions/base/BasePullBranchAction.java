@@ -56,7 +56,6 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
   }
 

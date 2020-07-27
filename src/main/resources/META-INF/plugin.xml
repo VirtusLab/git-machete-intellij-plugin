@@ -49,7 +49,7 @@
             </action>
 
             <action id="GitMachete.OverrideForkPointAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.base.BaseOverrideForkPointAction">
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedBranchAction">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 

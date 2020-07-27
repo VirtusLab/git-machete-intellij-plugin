@@ -41,7 +41,6 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     }
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
-
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
