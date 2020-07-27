@@ -17,7 +17,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -86,7 +85,7 @@ public class PullBackgroundable extends Task.Backgroundable {
 
     String beforeRevision = gitRepository.getCurrentRevision();
     try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, OPERATION_NAME)) {
-      GitCommandResult result = Git.getInstance().runCommand(() -> handler);
+      GitCommandResult result = Git.getInstance().runCommand(handler);
 
       if (beforeRevision != null) {
         GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
@@ -102,8 +101,7 @@ public class PullBackgroundable extends Task.Backgroundable {
     }
   }
 
-  @Nullable
-  private static GitUpdatedRanges deriveGitUpdatedRanges(
+  private static @Nullable GitUpdatedRanges deriveGitUpdatedRanges(
       Project project,
       GitRepository gitRepository,
       String remoteBranchName) {
@@ -199,7 +197,7 @@ public class PullBackgroundable extends Task.Backgroundable {
       collector.collect(files);
 
       GuiUtils.invokeLaterIfNeeded(() -> {
-        ProjectLevelVcsManagerEx manager = (ProjectLevelVcsManagerEx) ProjectLevelVcsManager.getInstance(project);
+        var manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
         UpdateInfoTree tree = manager.showUpdateProjectInfo(files, OPERATION_NAME, ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
           tree.setBefore(beforeLabel);

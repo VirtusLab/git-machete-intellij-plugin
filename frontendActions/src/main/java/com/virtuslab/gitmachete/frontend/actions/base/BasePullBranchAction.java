@@ -78,7 +78,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
       if (branchName.equals(currentBranchName)) {
-        doPull(project, gitRepository, branchName, trackingInfo.getRemote());
+        doPullFastForwardOnly(project, gitRepository, branchName, trackingInfo.getRemote());
       } else {
         doFetch(project, gitRepository, trackingInfo);
       }
@@ -106,7 +106,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title")).queue();
   }
 
-  private void doPull(Project project, GitRepository gitRepository, String branchName, GitRemote gitRemote) {
+  private void doPullFastForwardOnly(Project project, GitRepository gitRepository, String branchName, GitRemote gitRemote) {
     var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
     handler.setUrls(gitRemote.getUrls());
     handler.addParameters("--ff-only");
