@@ -144,7 +144,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     if (selectedVcsRepository.isDefined()) {
       var root = selectedVcsRepository.get().getRoot();
       var project = getProject(anActionEvent);
-      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigKeyValue(root, project);
+      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigKeyValue(project, root);
       if (shallDeleteLocalBranch) {
         var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
             .map(b -> b.equals(branchName))
@@ -165,7 +165,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   /**
    * This method must NOT be called on the UI thread.
    */
-  private boolean getDeleteLocalBranchOnSlideOutGitConfigKeyValue(VirtualFile root, Project project) {
+  private boolean getDeleteLocalBranchOnSlideOutGitConfigKeyValue(Project project, VirtualFile root) {
     try {
       ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
           DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);

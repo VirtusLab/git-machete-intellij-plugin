@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.cell;
 
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.LINK_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
@@ -154,6 +155,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
       if (commitItem.getCommit().equals(forkPoint)) {
         append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ? ", new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+        append("(Resolve) ", LINK_ATTRIBUTES);
         append("commit ", REGULAR_ATTRIBUTES);
         append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
         append(" has been found in reflog of ", REGULAR_ATTRIBUTES);
