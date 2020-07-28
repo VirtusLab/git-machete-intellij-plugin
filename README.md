@@ -33,6 +33,26 @@ For those who don't know this yet, `machete` file is located inside `.git` direc
 It describes relation between branches in your repository (these relations are probably determined by order of branch creation - which branch form which - but this is not a rule).
 For more information look [here](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02). <br/>
 
+![](docs/machete_file_editor.gif)
+
+### Rebase - the heart of Git-Machete
+
+When branch tree is created, Git-Machete indicate relation between parent branch and each of its child branches.
+If edge between them is green that mean child branch is in-sync with its parent branch - in other words there are no commits in parent branch that doesn't belong to the child.
+But if there are some of that commits, then edge is red - we need to rebase child branch onto the parent.
+With this plugin it's easy!
+Just right click on the child branch and from context menu select `(Checkout and) Rebase Branch onto Parent`.
+Standard IntelliJ rebase dialog will appear, and we can easily rebase child branch.
+
+![](docs/rebase.gif)
+
+### Push
+
+After rebase it's good practice to push rebased branch to remote.
+To do this right click on the branch you want to push and select `Push (Current) Branch` from context menu.
+Standard IntelliJ push dialog will appear but in case when we rebased selected branch (when branch we want to push diverge from its remote) only force push button will be available (in other cases only standard push).
+
+![](docs/push.gif)
 
 ## Build
 
