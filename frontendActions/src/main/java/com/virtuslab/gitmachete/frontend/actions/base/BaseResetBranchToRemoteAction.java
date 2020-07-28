@@ -139,6 +139,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       }
     }
 
+    // Required to avoid reset with uncommitted changes and file cache conflicts
     FileDocumentManager.getInstance().saveAllDocuments();
 
     doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(), anActionEvent);
@@ -203,7 +204,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
             VcsNotifier.getInstance(project)
                 .notifySuccess(
                     format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
-            log().debug(() -> "Branch '${branchName}' reset to its remote tracking branch");
+            log().debug(() -> "Branch '${branchName}' has been reset to its remote tracking branch");
 
           } else if (localChangesDetector.wasMessageDetected()) {
             LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
