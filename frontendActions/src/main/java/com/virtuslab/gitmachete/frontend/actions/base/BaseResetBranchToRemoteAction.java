@@ -122,13 +122,14 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       return;
     }
 
+    // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
       final var okCancelDialogResult = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
           format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"), branchName.get()),
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
-          Messages.getWarningIcon(),
+          Messages.getInformationIcon(),
           new ResetBranchToRemoteInfoDialog(),
           project);
       if (okCancelDialogResult != Messages.OK) {
