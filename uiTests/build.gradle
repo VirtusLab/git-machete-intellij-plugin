@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 jetbrainsAnnotations()
 junit()
 lombok()
@@ -10,7 +13,10 @@ dependencies {
 
 task syncTestResults(type: Sync) {
   from testResultsDir
-  into testResultsDir.parentFile.toPath().resolve('ui-test-results').resolve(intellijVersions.runIdeTarget)
+
+  def subdirectoryName = project.findProperty('testResultsSubdir')
+    ?: LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+  into "$buildDir/ui-test-results/$subdirectoryName"
 }
 
 test {
@@ -21,7 +27,8 @@ test {
   // Always re-run the tests, never assume they're up to date.
   outputs.upToDateWhen { false }
 
-  // Let's segregate the XML test results by IDE version, this makes things easier in the CI
+  // Let's copy the XML test results to a unique per-run directory, this makes things easier in the CI
   // where the UI tests are executed under a couple different IDE versions one after another.
+  // The results in the default directory (build/test-results/) are getting overwritten which each subsequent test.
   finalizedBy(syncTestResults)
 }
