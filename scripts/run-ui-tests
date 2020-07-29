@@ -17,9 +17,32 @@ fi
 
 intellij_version=${1-} # can be skipped; the same IntelliJ version that the plugin has been built against will be assumed
 
-# We need to clean up the sandbox in case it has originally been set up for a different version of IDE;
+# Let's clean up idea-sandbox in case it has been previously used for a NEWER version of IDE;
 # the configs are not forward-compatible between the releases (e.g. 2020.1 crashes on 2020.2 configs).
-rm -rf build/idea-sandbox/
+if [[ $intellij_version && -d build/idea-sandbox ]]; then
+  # If $intellij_version is empty, then we're running the latest version of IDE anyway,
+  # so there will be NO problem with using idea-sandbox that's been previously used for a newer IDE.
+
+  existing_sandbox_version=$(grep -o '[^/-]*$' build/idea-sandbox/system/.home)
+  echo "The existing idea-sandbox has been previously used for $existing_sandbox_version"
+  # Let's check if the 2-element sequence [existing sandbox version, current version] is non-decreasing.
+  if ! echo -e "$existing_sandbox_version\n$intellij_version" | sort --check=quiet --version-sort; then
+    # If not, then the sandbox is set up for a newer version; we should remove it to avoid compatibility errors.
+    echo "Removing the existing idea-sandbox since $intellij_version < $existing_sandbox_version"
+    rm -rf build/idea-sandbox/
+  fi
+  # Otherwise, it's better not to wipe out the sandbox to avoid the initialization overhead (esp. of indexing).
+fi
+
+ide_log=build/idea-sandbox/system/log/idea.log
+# Leaving aside the case of sandbox getting completely wiped out (see above),
+# idea.log is not automatically cleared before each `runIde(ForUiTests)`
+# and we don't want to print the potential logs from the previous runs.
+ide_log_last_line=$(cat $ide_log 2>/dev/null | wc -l || true)  # will be 0 if $ide_log doesn't exist
+
+function ide_logs_from_this_run() {
+  tail -n+$((ide_log_last_line+1)) $ide_log
+}
 
 # If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.
 # --auto-servernum is deprecated in favor of --auto-display,
@@ -87,13 +110,6 @@ until is_robot_server_listening; do
     die 'Wrapper process has been terminated before Remote Robot plugin started listening; aborting'
   fi
 done
-
-ide_log=build/idea-sandbox/system/log/idea.log
-ide_log_last_line=0
-
-function ide_logs_from_this_run() {
-  tail -n+$((ide_log_last_line+1)) $ide_log
-}
 
 info 'Logs of gradle uiTests:test'
 ./gradlew \
