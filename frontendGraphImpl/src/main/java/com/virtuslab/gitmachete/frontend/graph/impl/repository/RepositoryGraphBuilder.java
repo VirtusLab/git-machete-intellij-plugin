@@ -46,7 +46,7 @@ import com.virtuslab.gitmachete.frontend.graph.impl.items.CommitItem;
 public class RepositoryGraphBuilder {
 
   @Setter
-  private IGitMacheteRepositorySnapshot repository = NullGitMacheteRepositorySnapshot.getInstance();
+  private IGitMacheteRepositorySnapshot repositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
 
   @Setter
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
@@ -65,7 +65,7 @@ public class RepositoryGraphBuilder {
   }
 
   private Tuple2<List<IGraphItem>, List<List<Integer>>> deriveGraphItemsAndPositionsOfVisibleEdges() {
-    List<IGitMacheteRootBranch> rootBranches = repository.getRootBranches();
+    List<IGitMacheteRootBranch> rootBranches = repositorySnapshot.getRootBranches();
 
     java.util.List<IGraphItem> graphItems = new ArrayList<>();
     java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
@@ -194,7 +194,7 @@ public class RepositoryGraphBuilder {
       GraphItemColor graphItemColor,
       @NonNegative int indentLevel) {
     SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
-    Option<IGitMacheteBranch> currentBranch = repository.getCurrentBranchIfManaged();
+    Option<IGitMacheteBranch> currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
     boolean hasChildItem = !branch.getChildBranches().isEmpty();
 

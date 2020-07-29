@@ -6,5 +6,5 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 public interface IRepositoryGraphCache {
   @UIEffect
-  IRepositoryGraph getRepositoryGraph(IGitMacheteRepositorySnapshot givenRepository, boolean isListingCommits);
+  IRepositoryGraph getRepositoryGraph(IGitMacheteRepositorySnapshot givenRepositorySnapshot, boolean isListingCommits);
 }

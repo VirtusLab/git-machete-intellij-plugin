@@ -146,7 +146,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
-      IGitMacheteRepositorySnapshot macheteRepository, AnActionEvent anActionEvent) {
+      IGitMacheteRepositorySnapshot macheteRepositorySnapshot, AnActionEvent anActionEvent) {
 
     new Task.Backgroundable(project,
         getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
@@ -160,11 +160,11 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           GitLineHandler resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
 
-          var branchOption = macheteRepository.getManagedBranchByName(branchName);
+          var branchOption = macheteRepositorySnapshot.getManagedBranchByName(branchName);
           assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
           var remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
           if (remoteTrackingBranchOption.isDefined()) {
-            resetHandler.addParameters(remoteTrackingBranchOption.get().getPointedCommit().getHash());
+            resetHandler.addParameters(remoteTrackingBranchOption.get().getName());
           } else {
             String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
             log().warn(message);
@@ -177,7 +177,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           resetHandler.endOptions();
 
-          // Check if branch to reset is not current branch - if isn't then checkout
+          // Check if branch to reset is the current branch - if it isn't, then checkout
           var currentBranchOption = getCurrentBranchNameIfManagedWithLoggingOnEmpty(anActionEvent);
           if (currentBranchOption.isEmpty() || !currentBranchOption.get().equals(branchName)) {
             log().debug(() -> "Checkout to branch '${branchName}' is needed");

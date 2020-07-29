@@ -239,8 +239,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
           return;
         }
 
-        @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepository -> {
-          this.gitMacheteRepositorySnapshot = newGitMacheteRepository.getOrNull();
+        @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepositorySnapshot -> {
+          this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot.getOrNull();
           refreshModel(gitRepository,
               this.gitMacheteRepositorySnapshot != null
                   ? this.gitMacheteRepositorySnapshot.getSkippedBranchNames()

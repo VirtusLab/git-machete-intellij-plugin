@@ -7,5 +7,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
 
 @Data
 public class GitMacheteRemoteBranch implements IGitMacheteRemoteBranch {
+  private final String name;
   private final IGitMacheteCommit pointedCommit;
 }

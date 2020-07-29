@@ -76,7 +76,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     LOG.startTimer().debug("Entering");
     try {
       var aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      var result = aux.createGitMacheteRepository(branchLayout);
+      var result = aux.createSnapshot(branchLayout);
       LOG.withTimeElapsed().info("Finished");
       return result;
     } catch (GitCoreException e) {
@@ -105,7 +105,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     try {
       var aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      var result = aux.discoverGitMacheteRepository(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
+      var result = aux.discoverLayoutAndCreateSnapshot(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
       LOG.withTimeElapsed().info("Finished");
       return result;
     } catch (GitCoreException e) {
@@ -299,7 +299,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
     }
 
-    IGitMacheteRepositorySnapshot createGitMacheteRepository(IBranchLayout branchLayout) throws GitMacheteException {
+    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       var rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
       var rootBranches = rootBranchCreationResults.map(creationResult -> creationResult.getCreatedRootBranch());
@@ -417,7 +417,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       if (coreRemoteBranch == null) {
         return null;
       }
-      return new GitMacheteRemoteBranch(new GitMacheteCommit(coreRemoteBranch.getPointedCommit()));
+      return new GitMacheteRemoteBranch(coreRemoteBranch.getName(), new GitMacheteCommit(coreRemoteBranch.getPointedCommit()));
     }
 
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(
@@ -785,7 +785,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return HashMap.ofAll(result);
     }
 
-    IGitMacheteRepositorySnapshot discoverGitMacheteRepository(int mostRecentlyCheckedOutBranchesCount)
+    IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot(int mostRecentlyCheckedOutBranchesCount)
         throws GitCoreException, GitMacheteException {
 
       List<String> localBranchNames = localBranches.map(lb -> lb.getName());
@@ -883,7 +883,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         }
       }
 
-      return createGitMacheteRepository(new BranchLayout(List.narrow(roots)));
+      return createSnapshot(new BranchLayout(List.narrow(roots)));
     }
 
   }
