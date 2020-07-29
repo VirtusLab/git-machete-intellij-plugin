@@ -96,7 +96,7 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runIde` or `./gradlew runIde`).
 
-To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
+To watch the logs of this IntelliJ instance, run `tail -F build/idea-sandbox/system/log/idea.log`.
 
 
 ### Run UI tests

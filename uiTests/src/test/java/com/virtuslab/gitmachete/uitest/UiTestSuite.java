@@ -46,7 +46,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   @Before
   public void openProjectAndAwaitIdle() {
     runJs("ide.openProject('" + repositoryMainDir + "')");
-    runJs("ide.awaitNoBackgroundTask()");
+    awaitIdle();
   }
 
   // Note that due to how Remote Robot operates,
@@ -74,9 +74,9 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     runJs("ide.soleOpenedProject().openTab()");
 
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
-    runJs("ide.awaitNoBackgroundTask()");
+    awaitIdle();
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
-    runJs("ide.awaitNoBackgroundTask()");
+    awaitIdle();
 
     ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
@@ -84,12 +84,24 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @After
   public void awaitIdleAndCloseProject() {
-    runJs("ide.awaitNoBackgroundTask()");
+    awaitIdle();
     runJs("ide.closeOpenedProjects()");
   }
 
   // Note that since this suite is not responsible for opening the IDE,
   // it is not going to close the IDE at the end, either.
+
+  @SneakyThrows
+  private static void awaitIdle() {
+    ArrayList<String> indicators = callJs("ide.getProgressIndicators()");
+    // This loop could theoretically be performed totally on the IDE side (in JS/Rhino code),
+    // but this would lead to spurious timeouts when e.g. the indexing task happens to take too long.
+    while (!indicators.isEmpty()) {
+      System.out.println("Waiting for ${indicators.size()} task(s) to complete...");
+      Thread.sleep(1000);
+      indicators = callJs("ide.getProgressIndicators()");
+    }
+  }
 
   private static void runJs(@Language("JS") String statement) {
     remoteRobot.runJs(rhinoCodebase + statement, /* runInEdt */ false);

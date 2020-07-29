@@ -51,13 +51,13 @@ function Ide() {
     return new Project(ProjectUtil.getOpenProjects()[0]);
   }
 
-  this.awaitNoBackgroundTask = function () {
+  this.getProgressIndicators = function () {
     const progressManager = ProgressManager.getInstance();
     const method = getNonPublicMethod(progressManager.getClass(), 'getCurrentIndicators');
     method.setAccessible(true);
-    while (!method.invoke(progressManager).isEmpty()) {
-      sleep();
-    }
+    return method.invoke(progressManager).stream().map(function (indicator) {
+      return indicator.toString();
+    }).collect(Collectors.toList());
   }
 
   this.closeOpenedProjects = function () {
