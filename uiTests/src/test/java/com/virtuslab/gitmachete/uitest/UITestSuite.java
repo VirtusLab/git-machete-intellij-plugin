@@ -84,6 +84,8 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   public void pullCurrentBranchAndEnsureCorrectRepositoryState() {
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
     awaitIdle();
+    // Remote tracking data is purposefully NOT set for this branch.
+    // Our plugin should infer the remote tracking branch based on its name.
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
     awaitIdle();
 
@@ -99,6 +101,8 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   public void pullNonCurrentBranchAndEnsureCorrectRepositoryState() {
     runJs("ide.soleOpenedProject().checkoutBranch('develop')");
     awaitIdle();
+    // Remote tracking data is purposefully NOT set for this branch.
+    // Our plugin should infer the remote tracking branch based on its name.
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
     awaitIdle();
 

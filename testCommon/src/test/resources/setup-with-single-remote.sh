@@ -20,6 +20,9 @@ create_repo machete-sandbox
     commit Allow ownership links
     commit 1st round of fixes
     push
+    # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;
+    # we'll need to match the local branch to its remote tracking branch by name.
+    git branch --unset-upstream
   create_branch build-chain
     commit Build arbitrarily long chains
   git checkout allow-ownership-link
@@ -31,7 +34,7 @@ create_repo machete-sandbox
     commit Call web service
     commit 1st round of fixes
     push
-  create_branch drop-constraint # not added to definition file
+  create_branch drop-constraint # not added to the machete file
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes

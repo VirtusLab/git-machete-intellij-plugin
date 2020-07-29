@@ -16,7 +16,7 @@ create_repo machete-sandbox
     commit Root
   create_branch develop
     commit Develop commit
-  create_branch allow-ownership-link # not added to definition file
+  create_branch allow-ownership-link # not added to the machete file
     commit Allow ownership links
     push
   create_branch build-chain
@@ -25,7 +25,7 @@ create_repo machete-sandbox
     commit Call web service
     commit 1st round of fixes
     push
-  create_branch drop-constraint # not added to definition file
+  create_branch drop-constraint # not added to the machete file
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes
