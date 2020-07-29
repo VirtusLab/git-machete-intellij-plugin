@@ -58,14 +58,14 @@ jobs:
       - run:
           name: Run UI tests against 2020.1 (earliest supported)
           command: ./scripts/run-ui-tests 2020.1
-      # We can't just store the results once at the end since they get overwritten with each UI test run.
-      - store_test_results:
-          path: uiTests/build/test-results/
       - run:
-          name: Run UI tests against 2020.1.2 (latest non-EAP & our build target)
+          name: Run UI tests against 2020.1.2
           command: ./scripts/run-ui-tests 2020.1.2
+      - run:
+          name: Run UI tests against 2020.2 (latest non-EAP & our build target)
+          command: ./scripts/run-ui-tests 2020.2
       - store_test_results:
-          path: uiTests/build/test-results/
+          path: uiTests/build/ui-test-results/
 
       - when:
           # No point persisting the project directory to workspace if the `release` job is not going to be executed.

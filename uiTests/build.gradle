@@ -8,6 +8,11 @@ dependencies {
   testImplementation project(':testCommon').sourceSets.test.output
 }
 
+task syncTestResults(type: Sync) {
+  from testResultsDir
+  into testResultsDir.parentFile.toPath().resolve('ui-test-results').resolve(intellijVersions.runIdeTarget)
+}
+
 test {
   onlyIf {
     project.hasProperty('enableUiTests')
@@ -15,4 +20,8 @@ test {
 
   // Always re-run the tests, never assume they're up to date.
   outputs.upToDateWhen { false }
+
+  // Let's segregate the XML test results by IDE version, this makes things easier in the CI
+  // where the UI tests are executed under a couple different IDE versions one after another.
+  finalizedBy(syncTestResults)
 }

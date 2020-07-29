@@ -19,8 +19,8 @@ ext {
   intellijVersions = [
     earliestSupported: '2020.1',
     // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
-    inBetweenForCompatibilityChecks: [],
-    current: '2020.1.2',
+    inBetweenForCompatibilityChecks: ['2020.1.2'],
+    current: '2020.2',
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
