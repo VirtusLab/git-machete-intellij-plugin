@@ -19,7 +19,7 @@ Git Machete IntelliJ Plugin is a port of a great console tool - [git-machete](ht
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on remote repository.
 Let's see how this plugin can help you:
 
-### Where to find this plugin
+### Where to find this plugin window
 
 Git Machete IntelliJ Plugin is available under `Git` section (in the bottom of the IDE) in the `Git Machete` tab.
 You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open this plugin.
@@ -32,12 +32,14 @@ If you are familiar with console equivalent of this tool ([git-machete](https://
 For those who don't know this yet, `machete` file is located inside `.git` directory in your repo.
 It describes relation between branches in your repository (these relations are probably determined by order of branch creation - which branch form which - but this is not a rule).
 For more information look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02). <br/>
+Machete file editor will help you to manage `machete` file: it underlines any errors (bad indentation or nonexistent branches) and propose branch names based on local repository branches.
+When file editing is done, you can click button in top right corner of file editor to refresh machete branch tree.
 
 ![](docs/machete_file_editor.gif)
 
 ### Checking out branches
 
-With Git Machete you can easily checkout branches that was defined in `machete` file.
+With Git Machete you can easily check out branches that have been defined in `machete` file.
 Just right click on the branch you wont to check out and select `Checkout Branch`.
 You can also double-click on the selected branch to check it out.
 Current branch is underlined in branch tree.
@@ -74,7 +76,7 @@ Standard IntelliJ push dialog will appear but in case when we rebased selected b
 
 ### Pull
 
-If branch is behind its remote, it can be pulled.
+If branch is behind (or in sync with) its remote, it can be pulled.
 To do this, right click on given branch and select `Pull Branch`.
 
 ![](docs/pull.gif)
@@ -92,20 +94,58 @@ To be more precise, this action perform reset with `--keep` option - it means th
 
 When you are done changes on the selected branch (e.g. PR was approved and all needed changes are applied) you probably wont to merge this branch to its parent branch.
 When these branches are in sync (green edge) you can do a fast-forward merge.
-This is what `Fast Forward Parent Branch To Match Current Branch` context menu option do.
+This is what `Fast Forward Parent Branch To Match Current Branch` context menu action do.
 As you can see, edge between given branch and its parent was changed to grey - it means that branch was merged.
 
 ![](docs/fast_forward.gif)
 
 ### Slide out branch
 
-When branch was merged (but not only then) you probably wont to remove this branch from branch tree.
+When branch was merged (but not only then) you probably want to remove this branch from branch tree.
 To do this with easy (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
 This action will modify branch tree for you - delete the selected branch and reattach its children as children of deleted branch parent.
 
 ![](docs/slide_out.gif)
 
 ![](docs/slide_out2.gif)
+
+### Slide in branch
+
+You can also create new branch bellow selected one (also without manual editing `machete` file). To do this, choose `Slide In Branch Bellow Selected Branch` action from context menu.
+Dialog window will appear.
+In text box type new branch name and click `SLide In` button.
+Another dialog will appear - it is a standard new branch IntelliJ dialog.
+Here you can choose if you want to check out a newly created branch or not.
+
+![](docs/slide_in1.gif)
+
+This action can also be used to reattach existing branch bellow selected.
+In this case you just must type name of existing branch that you want to reattach and then click `Slide In`.
+You can also select `Reattach children` checkbox to move all children of reattached branch with it.
+
+![](docs/slide_in2.gif)
+
+![](docs/slide_in3.gif)
+
+### Other actions
+
+On the left side bar you can find another actions (from top to bottom):
+- ![](docs/left_bar_actions/refresh.png) **Refresh Status** - refreshing (reload) branch tree (the graph displayed in main plugin window)
+- ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** - show or hide commits belonging to branches (for more details see section [Listing commits](#listing-commits))
+- ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** - open `machete` file in IntelliJ editor (to see what this editor can do see [Machete file editor](#machete-file-editor) section)
+- ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** - equivalent of `git fetch --all` command
+- ![](docs/left_bar_actions/push_current_branch.png) **Push Current Branch** - push branch that is currently checked out (shortcut of [Push](#push) context menu action for the current branch)
+- ![](docs/left_bar_actions/rebase_current_branch.png) **Rebase Current Branch Onto Parent** - rebase currently checked out branch onto its parent (shortcut of [Rebase](#rebase) context menu action for the current branch)
+- ![](docs/left_bar_actions/help.png) **Show Help Window** - show window with example branch tree and explanation what parts of this graph mean
+
+### Multi-repository support
+
+Git Machete support many git repositories in one project. It can be many standard repositories or subrepositories.
+If more than one repository will be detected, then selection list will appear in top of main plugin window.
+In that case each repository will have its own `machete` file.
+
+![](docs/multi_repo.gif)
+
 
 ## Installing
 
