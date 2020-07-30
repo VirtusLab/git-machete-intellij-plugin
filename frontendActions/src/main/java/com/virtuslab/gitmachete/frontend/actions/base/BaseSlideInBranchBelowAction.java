@@ -4,9 +4,14 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.instanceOf;
 import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
+import java.util.function.Function;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -23,6 +28,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
+import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
+import com.virtuslab.branchlayout.api.EntryIsRootException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
@@ -96,7 +104,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
       notifier.notifyError(
-          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"), slideInOptions.getName()),
+          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"), slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
@@ -111,7 +119,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
             ? createNewBranchDialogBranchName
             : "no name provided";
         notifier.notifyWeakError(
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.mismatched-names"),
+            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.mismatched-names"),
                 slideInOptions.getName(), createNewBranchDialogBranchName));
         return;
       }
@@ -147,11 +155,16 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           } else {
             entryToSlideIn = childEntryByName.map(e -> e.withChildren(List.empty())).getOrNull();
             targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
-                .onFailure(
-                    t -> notifier.notifyError(
-                        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
-                            slideInOptions.getName()),
-                        getMessageOrEmpty(t)))
+                .onFailure(e -> Match(e).of(
+                    Case($(instanceOf(EntryDoesNotExistException.class)), exceptionWithMessageHandler(
+                        format(
+                            getString(
+                                "action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
+                            entryToSlideIn.getName()))),
+                    Case($(instanceOf(EntryIsRootException.class)), exceptionWithMessageHandler(
+                        format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-root"),
+                            entryToSlideIn.getName()))),
+                    Case($(), exceptionWithMessageHandler(/* message */ null))))
                 .getOrNull();
 
             if (targetBranchLayout == null) {
@@ -167,17 +180,33 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
         var newBranchLayout = Try
             .of(() -> targetBranchLayout.slideIn(parentName, entryToSlideIn))
-            .onFailure(
-                t -> notifier.notifyError(
-                    /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail"),
-                        slideInOptions.getName()),
-                    getMessageOrEmpty(t)))
+            .onFailure(e -> Match(e).of(
+                Case($(instanceOf(EntryDoesNotExistException.class)), exceptionWithMessageHandler(
+                    format(
+                        getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
+                        parentName))),
+                Case($(instanceOf(EntryIsDescendantOfException.class)), exceptionWithMessageHandler(
+                    format(
+                        getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
+                        entryToSlideIn.getName(), parentName))),
+                Case($(), exceptionWithMessageHandler(/* message */ null))))
             .toOption();
 
         newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
             .onFailure(t -> notifier.notifyError(
-                /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.fail.branch-layout-write"),
+                /* title */ getString(
+                    "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
                 getMessageOrEmpty(t))));
+      }
+
+      private Function<Throwable, @Nullable IBranchLayout> exceptionWithMessageHandler(@Nullable String message) {
+        return t -> {
+          notifier.notifyError(
+              /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
+                  slideInOptions.getName()),
+              message != null ? message : getMessageOrEmpty(t));
+          return null;
+        };
       }
 
       @Override
