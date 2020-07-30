@@ -27,16 +27,16 @@ class OverrideForkPointDialog
     title =
         getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
     setOKButtonMnemonic('O'.toInt())
-    init()
+    super.init()
   }
 
   fun showAndGetSelectedCommit() =
-      if (!showAndGet()) null
-      else
-          when (myOverrideOption) {
-        OverrideOption.PARENT -> parentBranch.pointedCommit
-        OverrideOption.INFERRED -> branch.forkPoint.orNull
-      }
+      if (showAndGet()) {
+        when (myOverrideOption) {
+          OverrideOption.PARENT -> parentBranch.pointedCommit
+          OverrideOption.INFERRED -> branch.forkPoint.orNull
+        }
+      } else null
 
   override fun createCenterPanel() =
       panel {
@@ -53,8 +53,7 @@ class OverrideForkPointDialog
                         "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"),
                     parentBranch.name),
                 OverrideOption.PARENT,
-                /* comment */ (parentBranch.pointedCommit.shortMessage
-                    ?: "cannot resolve commit message"))
+                /* comment */ parentBranch.pointedCommit.shortMessage)
           }
           row {
             radioButton(

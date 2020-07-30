@@ -61,7 +61,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   @Override
-  public @I18nFormat({}) String getDescriptionActionName() {
+  public @I18nFormat({}) String getActionNameForDescription() {
     return getString("action.GitMachete.BaseResetBranchToRemoteAction.description-action-name");
   }
 
@@ -125,9 +125,12 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
+      String currentCommitSha = getGitMacheteBranchByName(anActionEvent, branchName.get())
+          .map(b -> b.getPointedCommit().getHash()).getOrElse("<current-commit-SHA>");
       final var okCancelDialogResult = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
-          format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"), branchName.get()),
+          format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"), branchName.get(),
+              currentCommitSha),
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
           Messages.getInformationIcon(),

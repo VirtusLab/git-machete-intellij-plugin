@@ -31,12 +31,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   }
 
   @Override
-  public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.action-name");
-  }
-
-  @Override
-  public @I18nFormat({}) String getDescriptionActionName() {
+  public @I18nFormat({}) String getActionNameForDescription() {
     return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description-action-name");
   }
 
@@ -46,7 +41,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   }
 
   @Override
-  public String getCurrentBranchText() {
+  public @I18nFormat({}) String getActionTextForCurrentBranch() {
     return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.text.current-branch");
   }
 

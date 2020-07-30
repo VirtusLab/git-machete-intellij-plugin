@@ -489,7 +489,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       String branchName = coreLocalBranch.getName();
 
       // Section spans the characters before the first dot
-      // Name spans the characters after the first dot
+      // Name spans the characters after the last dot
       // Subsection is everything else
       String toRevision = gitCoreRepository
           .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to").getOrNull();

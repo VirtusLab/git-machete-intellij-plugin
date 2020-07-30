@@ -22,6 +22,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
+import com.virtuslab.qual.internal.NotUiThreadSafe;
 
 @CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
@@ -36,12 +37,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @Override
-  public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BaseOverrideForkPointAction.action-name");
-  }
-
-  @Override
-  public @I18nFormat({}) String getDescriptionActionName() {
+  public @I18nFormat({}) String getActionNameForDescription() {
     return getString("action.GitMachete.BaseOverrideForkPointAction.description-action-name");
   }
 
@@ -51,7 +47,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @Override
-  public String getCurrentBranchText() {
+  public @I18nFormat({}) String getActionTextForCurrentBranch() {
     return getString("action.GitMachete.BaseOverrideForkPointAction.text.current-branch");
   }
 
@@ -84,7 +80,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
         .showAndGetSelectedCommit();
     if (selectedCommit == null) {
       log().debug(
-          "Selected commit to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
+          "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
       return;
     }
 
@@ -97,25 +93,21 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     }.queue();
   }
 
-  /**
-   * This method must NOT be called on UI thread.
-   */
+  @NotUiThreadSafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IGitMacheteBranch branch, IGitMacheteCommit forkPoint) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
 
     if (selectedVcsRepository.isDefined()) {
       var root = selectedVcsRepository.get().getRoot();
       var project = getProject(anActionEvent);
-      setOverrideForkPointConfigKeyValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
+      setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
-  /**
-   * This method must NOT be called on UI thread.
-   */
-  private void setOverrideForkPointConfigKeyValues(
+  @NotUiThreadSafe
+  private void setOverrideForkPointConfigValues(
       Project project,
       VirtualFile root,
       String branchName,
@@ -126,6 +118,9 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     var to = "to";
     var whileDescendantOf = "whileDescendantOf";
 
+    // Section spans the characters before the first dot
+    // Name spans the characters after the last dot
+    // Subsection is everything else
     var toKey = "${section}.${subsectionPrefix}.${branchName}.${to}";
     var whileDescendantOfKey = "${section}.${subsectionPrefix}.${branchName}.${whileDescendantOf}";
 

@@ -40,7 +40,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   }
 
   @Override
-  public @I18nFormat({}) String getDescriptionActionName() {
+  public @I18nFormat({}) String getActionNameForDescription() {
     return getString("action.GitMachete.BasePushBranchAction.description-action-name");
   }
 

@@ -37,7 +37,7 @@ class SlideInDialog
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
     setOKButtonMnemonic('I'.toInt())
-    init()
+    super.init()
   }
 
   fun showAndGetBranchName() =

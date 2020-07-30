@@ -100,7 +100,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
 
-    setCellSelectionEnabled(false);
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
     setIntercellSpacing(JBUI.emptySize());

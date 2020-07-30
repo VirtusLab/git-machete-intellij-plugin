@@ -27,6 +27,7 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMach
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
+import com.virtuslab.qual.internal.NotUiThreadSafe;
 
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -135,16 +136,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     }.queue();
   }
 
-  /**
-   * This method must NOT be called on the UI thread.
-   */
+  @NotUiThreadSafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
 
     if (selectedVcsRepository.isDefined()) {
       var root = selectedVcsRepository.get().getRoot();
       var project = getProject(anActionEvent);
-      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigKeyValue(project, root);
+      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (shallDeleteLocalBranch) {
         var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
             .map(b -> b.equals(branchName))
@@ -162,10 +161,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
-  /**
-   * This method must NOT be called on the UI thread.
-   */
-  private boolean getDeleteLocalBranchOnSlideOutGitConfigKeyValue(Project project, VirtualFile root) {
+  @NotUiThreadSafe
+  private boolean getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
     try {
       ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
           DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);

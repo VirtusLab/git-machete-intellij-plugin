@@ -21,7 +21,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
   String getActionName();
 
   @I18nFormat({})
-  default String getDescriptionActionName() {
+  default String getActionNameForDescription() {
     return getActionName();
   }
 
@@ -44,7 +44,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.branch-name"), getDescriptionActionName()));
+          format(getString("action.GitMachete.description.disabled.undefined.branch-name"), getActionNameForDescription()));
       return;
     }
 
@@ -52,7 +52,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (gitMacheteBranchByName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getDescriptionActionName()));
+          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getActionNameForDescription()));
       return;
     }
     var syncToRemoteStatus = gitMacheteBranchByName.map(branch -> branch.getSyncToRemoteStatus());
@@ -61,7 +61,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       presentation.setEnabled(false);
       presentation.setDescription(format(
           getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.undefined.sync-to-remote"),
-          getDescriptionActionName()));
+          getActionNameForDescription()));
       return;
     }
 
@@ -74,7 +74,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
             format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.text.current-branch"), getActionName()));
       }
 
-      var enabledDesc = format(getEnabledDescriptionFormat(), getDescriptionActionName(), branchName.get());
+      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName.get());
       presentation.setDescription(enabledDesc);
 
     } else {
@@ -98,7 +98,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
               format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.unknown"), relation.toString())));
 
       presentation.setDescription(
-          format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"), getDescriptionActionName(), desc));
+          format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"), getActionNameForDescription(), desc));
       // @formatter:on
     }
   }

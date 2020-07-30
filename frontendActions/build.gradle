@@ -30,5 +30,6 @@ dependencies {
 
 apply plugin: 'org.jetbrains.kotlin.jvm'
 compileKotlin {
+  kotlinOptions.allWarningsAsErrors = true
   kotlinOptions.jvmTarget = sourceCompatibility.toString() // from java-library plugin
 }
