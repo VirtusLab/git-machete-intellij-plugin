@@ -31,13 +31,13 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideOut(String branchName) throws BranchLayoutException {
+  public IBranchLayout slideOut(String branchName) throws EntryDoesNotExistException, EntryIsRootException {
     var entryToSlideOut = findEntryByName(branchName).getOrNull();
     if (entryToSlideOut == null) {
-      throw new BranchLayoutException("Branch entry '${branchName}' does not exist");
+      throw new EntryDoesNotExistException("Branch entry '${branchName}' does not exist");
     }
     if (rootEntries.contains(entryToSlideOut)) {
-      throw new BranchLayoutException("Cannot slide out root branch entry ${branchName}");
+      throw new EntryIsRootException("Cannot slide out root branch entry ${branchName}");
     }
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
   }
@@ -53,17 +53,20 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn) throws BranchLayoutException {
+  public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
+      throws EntryDoesNotExistException, EntryIsDescendantOfException {
     var parentEntry = findEntryByName(parentBranchName).getOrNull();
     if (parentEntry == null) {
-      throw new BranchLayoutException("Parent branch entry '${parentBranchName}' does not exists");
+      throw new EntryDoesNotExistException("Parent branch entry '${parentBranchName}' does not exist");
     }
     var entry = findEntryByName(entryToSlideIn.getName());
     var entryAlreadyExists = entry.isDefined();
 
     if (entry.map(e -> isDescendant(/* presumedAncestor */ e, /* presumedDescendant */ parentEntry)).getOrElse(false)) {
-      throw new BranchLayoutException(
-          "Entry '${parentEntry.getName()}' is a descendant of entry '${entryToSlideIn.getName()}'");
+      throw new EntryIsDescendantOfException(
+          "Entry '${parentEntry.getName()}' is a descendant of entry '${entryToSlideIn.getName()}'",
+          /* descendant */ parentEntry,
+          /* ancestor */ entryToSlideIn);
     }
 
     var newRootEntries = entryAlreadyExists
