@@ -35,6 +35,24 @@ For more information look at the [reference blog post](https://medium.com/virtus
 
 ![](docs/machete_file_editor.gif)
 
+### Checking out branches
+
+With Git Machete you can easily checkout branches that was defined in `machete` file.
+Just right click on the branch you wont to check out and select `Checkout Branch`.
+You can also double-click on the selected branch to check it out.
+Current branch is underlined in branch tree.
+
+![](docs/checkout.gif)
+
+### Listing commits
+
+Git Machete can display commits belonging to the branches.
+It displays only these commits that are unique for the selected branch.
+When you click on eye button on the left side of plugin, you can toggle between show and hide commits.
+
+![](docs/toggle_listing_commits.gif)
+
+
 ### Rebase
 
 When branch tree is created, Git Machete indicates relation between parent branch and each of its child branches.
@@ -54,6 +72,40 @@ Standard IntelliJ push dialog will appear but in case when we rebased selected b
 
 ![](docs/push.gif)
 
+### Pull
+
+If branch is behind its remote, it can be pulled.
+To do this, right click on given branch and select `Pull Branch`.
+
+![](docs/pull.gif)
+
+### Reset to remote
+
+If given branch is not in sync with its remote, we can reset it.
+From right click context menu select `Checkout and Reset Branch to Remote`.
+Now branch point to the same commit as its remote.
+To be more precise, this action perform reset with `--keep` option - it means that your unstaged changes are safe.
+
+![](docs/reset.gif)
+
+### Fast forward parent
+
+When you are done changes on the selected branch (e.g. PR was approved and all needed changes are applied) you probably wont to merge this branch to its parent branch.
+When these branches are in sync (green edge) you can do a fast-forward merge.
+This is what `Fast Forward Parent Branch To Match Current Branch` context menu option do.
+As you can see, edge between given branch and its parent was changed to grey - it means that branch was merged.
+
+![](docs/fast_forward.gif)
+
+### Slide out branch
+
+When branch was merged (but not only then) you probably wont to remove this branch from branch tree.
+To do this with easy (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
+This action will modify branch tree for you - delete the selected branch and reattach its children as children of deleted branch parent.
+
+![](docs/slide_out.gif)
+
+![](docs/slide_out2.gif)
 
 ## Installing
 
