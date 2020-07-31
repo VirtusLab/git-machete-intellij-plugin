@@ -13,30 +13,26 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCa
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 
-public final class DemoGraphTable extends JBTable implements IGitMacheteRepositorySnapshotProvider {
-
-  private static final GraphTableModel GRAPH_TABLE_MODEL = deriveGraphTableModel();
-
+public final class SimpleGraphTable extends JBTable implements IGitMacheteRepositorySnapshotProvider {
   @Getter
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
 
   @UIEffect
-  public static DemoGraphTable deriveInstance() {
+  public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
-    return new DemoGraphTable(GRAPH_TABLE_MODEL);
+    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot));
   }
 
   @UIEffect
-  private static GraphTableModel deriveGraphTableModel() {
+  private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
     var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var gitMacheteRepositorySnapshot = new DemoGitMacheteRepositorySnapshot();
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, /* isListingCommits */ true);
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, /* isListingCommits */ true);
     return new GraphTableModel(repositoryGraph);
   }
 
   @UIEffect
-  private DemoGraphTable(GraphTableModel graphTableModel) {
+  private SimpleGraphTable(GraphTableModel graphTableModel) {
     super(graphTableModel);
 
     createDefaultColumnsFromModel();

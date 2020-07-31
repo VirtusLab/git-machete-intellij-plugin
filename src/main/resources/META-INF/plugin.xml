@@ -157,6 +157,8 @@
             <add-to-group group-id="GitRepositoryActions" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
+
+        <action id="GitMachete.Discover" class="com.virtuslab.gitmachete.frontend.actions.base.BaseDiscoverAction"/>
     </actions>
 
 </idea-plugin>

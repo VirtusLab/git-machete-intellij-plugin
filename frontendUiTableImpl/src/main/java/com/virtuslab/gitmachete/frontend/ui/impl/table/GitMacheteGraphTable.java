@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_DISCOVER;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
@@ -173,7 +174,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     if (!isMacheteFilePresent) {
       setTextForEmptyTable(
           "There is no machete file (${macheteFilePath}) for this repository.",
-          "Create & open machete file", () -> invokeOpenMacheteFileAction());
+          "Discover repository layout", () -> openDiscoverDialog());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
@@ -194,6 +195,14 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
     var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
     GuiUtils.invokeLaterIfNeeded(() -> action.actionPerformed(anActionEvent), NON_MODAL);
+  }
+
+  @UIEffect
+  private void openDiscoverDialog() {
+    var action = ActionManager.getInstance().getAction(ACTION_DISCOVER);
+    var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
+    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
+    action.actionPerformed(anActionEvent);
   }
 
   @Override
