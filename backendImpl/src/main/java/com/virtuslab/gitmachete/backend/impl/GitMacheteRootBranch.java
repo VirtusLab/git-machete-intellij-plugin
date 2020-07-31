@@ -16,13 +16,14 @@ public final class GitMacheteRootBranch extends BaseGitMacheteBranch implements 
 
   public GitMacheteRootBranch(
       String name,
+      String fullName,
       List<GitMacheteNonRootBranch> childBranches,
       IGitMacheteCommit pointedCommit,
       @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
-    super(name, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+    super(name, fullName, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
 
     LOG.debug("Creating ${this}");
 

@@ -120,19 +120,8 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   private void doFastForward(Project project,
       GitRepository gitRepository,
       IGitMacheteNonRootBranch gitMacheteNonRootBranch) {
-    var trackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getName());
-    var parentTrackingInfo = gitRepository.getBranchTrackInfo(gitMacheteNonRootBranch.getParentBranch().getName());
-
-    if (trackingInfo == null) {
-      log().warn("No branch tracking info for branch ${gitMacheteNonRootBranch.getName()}");
-      return;
-    } else if (parentTrackingInfo == null) {
-      log().warn("No branch tracking info for parent branch ${gitMacheteNonRootBranch.getParentBranch().getName()}");
-      return;
-    }
-
-    var localFullName = trackingInfo.getLocalBranch().getFullName();
-    var parentLocalFullName = parentTrackingInfo.getLocalBranch().getFullName();
+    var localFullName = gitMacheteNonRootBranch.getFullName();
+    var parentLocalFullName = gitMacheteNonRootBranch.getParentBranch().getFullName();
     var refspecChildParent = "${localFullName}:${parentLocalFullName}";
 
     // Remote set to '.' (dot) is just the local repository.

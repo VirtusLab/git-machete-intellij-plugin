@@ -30,6 +30,8 @@ public interface IGitMacheteBranch {
 
   String getName();
 
+  String getFullName();
+
   IGitMacheteCommit getPointedCommit();
 
   List<? extends IGitMacheteNonRootBranch> getChildBranches();
