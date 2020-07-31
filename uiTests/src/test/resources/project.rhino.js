@@ -8,8 +8,6 @@ importClass(com.intellij.openapi.actionSystem.ActionManager);
 importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
-importClass(com.intellij.ide.plugins.PluginManagerCore);
-importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.util.Key);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
@@ -24,7 +22,7 @@ function Project(underlyingProject) {
     do {
       toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
       sleep();
-    } while (toolWindow == null);
+    } while (toolWindow === null);
 
     // The test is (obviously) not run on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
@@ -75,7 +73,7 @@ function Project(underlyingProject) {
         return getGraphTable().getData(dataId);
       }
     });
-  }
+  };
 
   const invokeActionAndWait = function(actionName, actionPlace, dataContext) {
     const actionManager = ActionManager.getInstance();
@@ -85,7 +83,7 @@ function Project(underlyingProject) {
     GuiUtils.runOrInvokeAndWait(function () {
       action.actionPerformed(actionEvent);
     });
-  }
+  };
 
   this.toggleListingCommits = function () {
     const dataContext = DataManager.getInstance().getDataContext(getGraphTable());
@@ -102,28 +100,37 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.PullSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
   };
 
-  this.getDiffOfWorkingTreeToHead = function () {
-    const pluginId = PluginId.getId('com.virtuslab.git-machete');
-    const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
-
+  const getSelectedGitRepository = function() {
     // We can't rely on the Rhino's default classloader
     // since it operates in the context of the Remote Robot plugin, not our plugin.
     const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');
     const provider = underlyingProject.getService(providerClass);
-    const gitRepository = provider.getSelectedGitRepository().get();
+    return provider.getSelectedGitRepository().get();
+  };
 
-    // Same problem even though git4idea isn't a part of our plugin:
-    // since Remote Robot plugin does not declare <depends> on git4idea,
-    // git4idea's classes won't be visible from RR plugin's classloader in the runtime.
+  this.getDiffOfWorkingTreeToHead = function () {
+    // Since Remote Robot plugin does not declare <depends> on git4idea,
+    // git4idea's classes won't be visible from Remote Robot plugin's classloader in the runtime.
+    // But since our plugin <depends> on git4idea, we can access git4idea's classes from our classloader.
     const gitRepositoryClass = pluginClassLoader.loadClass('git4idea.repo.GitRepository');
     const gitChangeUtilsClass = pluginClassLoader.loadClass('git4idea.changes.GitChangeUtils');
     const getDiffWithWorkingTree = gitChangeUtilsClass.getMethod('getDiffWithWorkingTree', gitRepositoryClass, java.lang.String, java.lang.Boolean.TYPE);
 
-    const diff = getDiffWithWorkingTree.invoke(/* (static method) */ null, gitRepository, 'HEAD', /* detectRenames */ false);
+    const diff = getDiffWithWorkingTree.invoke(/* (static method) */ null, getSelectedGitRepository(), 'HEAD', /* detectRenames */ false);
     return diff.stream().map(function (change) {
       // We can't return the com.intellij.openapi.vcs.changes.Change objects
       // since they won't properly serialize for the transfer from Robot Remote plugin (in the IDE) back to the client (UI tests).
       return change.toString();
     }).collect(Collectors.toList());
-  }
+  };
+
+  this.getHashOfCommitPointedByBranch = function (branchName) {
+    const gitRepository = getSelectedGitRepository();
+    const branchesCollection = gitRepository.getBranches();
+    const branch = branchesCollection.findBranchByName(branchName);
+    if (branch === null) return null;
+    const hash = branchesCollection.getHash(branch);
+    if (hash === null) return null;
+    return hash.asString();
+  };
 }

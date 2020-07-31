@@ -6,9 +6,11 @@ importClass(java.util.stream.Stream);
 importClass(com.intellij.diagnostic.DebugLogManager);
 importClass(com.intellij.ide.GeneralSettings);
 importClass(com.intellij.ide.impl.ProjectUtil);
+importClass(com.intellij.ide.plugins.PluginManagerCore);
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
+importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.progress.ProgressManager);
 importClass(com.intellij.ui.GuiUtils);
 
@@ -45,10 +47,12 @@ function Ide() {
     const propertiesComponent = PropertiesComponent.getInstance(project);
     propertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
     propertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
+    return new Project(project);
   };
 
   this.soleOpenedProject = function () {
-    return new Project(ProjectUtil.getOpenProjects()[0]);
+    const openProjects = ProjectUtil.getOpenProjects();
+    return openProjects.length === 1 ? new Project(openProjects[0]) : null;
   }
 
   this.getProgressIndicators = function () {
@@ -71,3 +75,5 @@ function Ide() {
 }
 
 const ide = new Ide();
+const pluginId = PluginId.getId('com.virtuslab.git-machete');
+const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
