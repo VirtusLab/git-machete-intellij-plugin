@@ -16,7 +16,6 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -63,7 +62,7 @@ public class PullBackgroundable extends Task.Backgroundable {
       GitLineHandler handler,
       String remoteBranchName) {
     super(project,
-        /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title"),
+        /* taskTitle */ getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"),
         /* canBeCancelled */ true);
     this.project = project;
     this.gitRepository = gitRepository;
@@ -108,14 +107,13 @@ public class PullBackgroundable extends Task.Backgroundable {
     GitUpdatedRanges updatedRanges = null;
     var currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
-      String selectedBranch = StringUtil.trimStart(remoteBranchName, /* prefix */ "remotes/");
-      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(selectedBranch);
+      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
       if (targetBranch != null) {
         GitBranchPair refPair = new GitBranchPair(currentBranch, targetBranch);
         updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
             java.util.Collections.singletonMap(gitRepository, refPair));
       } else {
-        LOG.warn("Couldn't find the branch with name '${selectedBranch}'");
+        LOG.warn("Couldn't find the branch with name '${remoteBranchName}'");
       }
     }
     return updatedRanges;

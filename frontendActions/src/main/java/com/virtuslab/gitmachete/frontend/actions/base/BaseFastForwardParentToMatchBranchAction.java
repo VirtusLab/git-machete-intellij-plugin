@@ -9,7 +9,6 @@ import static java.text.MessageFormat.format;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -125,7 +124,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var refspecChildParent = "${localFullName}:${parentLocalFullName}";
 
     // Remote set to '.' (dot) is just the local repository.
-    new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT,
+    new FetchBackgroundable(project, gitRepository, ".", refspecChildParent,
         getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
   }
 }

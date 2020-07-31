@@ -422,7 +422,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       if (coreRemoteBranch == null) {
         return null;
       }
-      return new GitMacheteRemoteBranch(coreRemoteBranch.getName(), new GitMacheteCommit(coreRemoteBranch.getPointedCommit()));
+      return new GitMacheteRemoteBranch(
+          coreRemoteBranch.getName(),
+          coreRemoteBranch.getFullName(),
+          coreRemoteBranch.getRemoteName());
     }
 
     private @Nullable GitMacheteForkPointCommit deriveParentAwareForkPoint(

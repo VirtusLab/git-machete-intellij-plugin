@@ -102,7 +102,7 @@ function Project(underlyingProject) {
 
   this.pullBranch = function (branchName) {
     const dataContext = createDataContextForSelectedBranch(branchName);
-    invokeActionAndWait('GitMachete.PullSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
+    invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
   };
 
   const getSelectedGitRepository = function() {

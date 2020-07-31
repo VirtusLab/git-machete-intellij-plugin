@@ -67,7 +67,6 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     Assert.assertEquals(13, branchAndCommitRowsCount);
   }
 
-  @SneakyThrows
   @Test
   public void fastForwardParentOfBranchAndEnsureCorrectRepositoryState() {
     runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
@@ -87,6 +86,25 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     awaitIdle();
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
     awaitIdle();
+
+    String localBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('allow-ownership-link')");
+    String remoteBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
+    Assert.assertEquals(remoteBranchHash, localBranchHash);
+
+    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    Assert.assertEquals(new ArrayList<>(), changes);
+  }
+
+  @Test
+  public void pullNonCurrentBranchAndEnsureCorrectRepositoryState() {
+    runJs("ide.soleOpenedProject().checkoutBranch('develop')");
+    awaitIdle();
+    runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
+    awaitIdle();
+
+    String localBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('allow-ownership-link')");
+    String remoteBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
+    Assert.assertEquals(remoteBranchHash, localBranchHash);
 
     ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
