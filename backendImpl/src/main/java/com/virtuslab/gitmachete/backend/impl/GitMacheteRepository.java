@@ -364,7 +364,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      GitMacheteRootBranch createdRootBranch = new GitMacheteRootBranch(branchName, branchFullName, childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput);
+      GitMacheteRootBranch createdRootBranch = new GitMacheteRootBranch(branchName, branchFullName,
+          childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+          statusHookOutput);
       return RootCreatedBranchAndSkippedBranches.of(createdRootBranch, childBranches.getSkippedBranchNames());
     }
 
@@ -408,7 +410,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      var result = new GitMacheteNonRootBranch(branchName, branchFullName, childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint, commits.map(GitMacheteCommit::new), syncToParentStatus);
+      var result = new GitMacheteNonRootBranch(branchName, branchFullName, childBranches.getCreatedBranches(), pointedCommit,
+          remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint,
+          commits.map(GitMacheteCommit::new), syncToParentStatus);
       return NonRootCreatedAndSkippedBranches.of(result, childBranches.getSkippedBranchNames());
     }
 
