@@ -2,13 +2,12 @@
 
 set -e -o pipefail -u
 
-self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
-source "$self_dir"/utils.sh
-
 awk_script="$(cat <<'EOF'
 
+  FNR == 1 { prev_non_empty = "" }
+
   ( /^ {3}/ && prev_non_empty !~ /^ {2}/ ) || ( /^ {5}/ && prev_non_empty !~ /^ {4}/ ) {
-    print file ":" NR ": likely three or four spaces used for indent instead of two"
+    print FILENAME ":" FNR ": likely three or four spaces used for indent instead of two"
     exit_code = 1
   }
 
@@ -19,8 +18,8 @@ awk_script="$(cat <<'EOF'
 EOF
 )"
 
-exit_code=0
-for file in $(git ls-files ':!*.flex' ':!gradlew' ':!*.java' ':!*.kt' ':!plugin-verifier.gradle' ':!scripts/setup-multiroot-sandbox' ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml'); do
-  awk -v "file=$file" "$awk_script" < "$file" || exit_code=1
-done
-exit $exit_code
+git ls-files \
+  ':!*.flex' ':!gradlew' ':!*.java' ':!*.kt' \
+  ':!plugin-verifier.gradle' ':!scripts/setup-multiroot-sandbox' \
+  ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml' \
+   | xargs awk "$awk_script"

@@ -65,8 +65,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     if (branchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
+      presentation.setDescription(getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(

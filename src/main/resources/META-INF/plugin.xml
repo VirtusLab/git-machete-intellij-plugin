@@ -71,7 +71,7 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.ResetSelectedBranchAction"
+            <action id="GitMachete.ResetSelectedBranchToRemoteAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ResetSelectedBranchToRemoteAction"
                     icon="MacheteIcons.RESET">
                 <override-text place="GitMacheteContextMenu"/>
