@@ -59,10 +59,10 @@ jobs:
           name: Run UI tests against 2020.1 (earliest supported)
           command: ./scripts/run-ui-tests 2020.1
       - run:
-          name: Run UI tests against 2020.1.2
-          command: ./scripts/run-ui-tests 2020.1.2
+          name: Run UI tests against 2020.1.4 (latest 2020.1.*)
+          command: ./scripts/run-ui-tests 2020.1.4
       - run:
-          name: Run UI tests against 2020.2 (latest non-EAP & our build target)
+          name: Run UI tests against 2020.2 (latest stable & our build target)
           command: ./scripts/run-ui-tests 2020.2
       - store_test_results:
           path: uiTests/build/ui-test-results/
