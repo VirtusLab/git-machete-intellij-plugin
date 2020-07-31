@@ -16,7 +16,6 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -30,9 +29,11 @@ import com.intellij.ui.GuiUtils;
 import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
 import git4idea.GitRevisionNumber;
+import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchPair;
 import git4idea.commands.Git;
+import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
@@ -47,28 +48,26 @@ import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+
 @CustomLog
-public class PullBackgroundable extends Task.Backgroundable {
+public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgroundable {
 
   private static final String OPERATION_NAME = "Pull";
 
   private final Project project;
   private final GitRepository gitRepository;
-  private final GitLineHandler handler;
-  private final String remoteBranchName;
+  private final IGitMacheteRemoteBranch remoteBranch;
 
-  public PullBackgroundable(
+  public PullCurrentBranchFastForwardOnlyBackgroundable(
       Project project,
       GitRepository gitRepository,
-      GitLineHandler handler,
-      String remoteBranchName) {
-    super(project,
-        /* taskTitle */ getString("action.GitMachete.BasePullBranchAction.task-title"),
-        /* canBeCancelled */ true);
+      IGitMacheteRemoteBranch remoteBranch,
+      String taskTitle) {
+    super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;
     this.gitRepository = gitRepository;
-    this.handler = handler;
-    this.remoteBranchName = remoteBranchName;
+    this.remoteBranch = remoteBranch;
   }
 
   @Override
@@ -76,12 +75,32 @@ public class PullBackgroundable extends Task.Backgroundable {
     var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
     var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
 
+    var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
+    String remoteName = remoteBranch.getRemoteName();
+    var remote = GitUtil.findRemoteByName(gitRepository, remoteName);
+    if (remote == null) {
+      // This is generally NOT expected, the task should never be triggered
+      // for an invalid remote in the first place.
+      LOG.warn("Remote '${remoteName}' does not exist");
+      return;
+    }
+    handler.setUrls(remote.getUrls());
+    handler.addParameters("--ff-only");
+    handler.addParameters(remote.getName());
+    var remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
+    var remoteBranchFullName = remoteBranch.getFullName();
+    // Note the '+' sign preceding the refspec. It permits non-fast-forward updates.
+    // This strategy is used to fetch branch from remote repository to remote branch in our repository.
+    handler.addParameters("+${remoteBranchFullNameAsLocalBranchOnRemote}:${remoteBranchFullName}");
+    // Updating the current local branch in our repository to the commit pointed by the just-fetched remote branch,
+    // in turn, will happen fast-forward-only thanks to `--ff-only` flag.
+
     handler.addLineListener(localChangesDetector);
     handler.addLineListener(untrackedFilesDetector);
 
     Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, /* name */ "Before update");
 
-    GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(project, gitRepository, remoteBranchName);
+    GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(project, gitRepository, remoteBranch.getName());
 
     String beforeRevision = gitRepository.getCurrentRevision();
     try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, OPERATION_NAME)) {
@@ -108,14 +127,13 @@ public class PullBackgroundable extends Task.Backgroundable {
     GitUpdatedRanges updatedRanges = null;
     var currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
-      String selectedBranch = StringUtil.trimStart(remoteBranchName, /* prefix */ "remotes/");
-      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(selectedBranch);
+      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
       if (targetBranch != null) {
         GitBranchPair refPair = new GitBranchPair(currentBranch, targetBranch);
         updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
             java.util.Collections.singletonMap(gitRepository, refPair));
       } else {
-        LOG.warn("Couldn't find the branch with name '${selectedBranch}'");
+        LOG.warn("Couldn't find the branch with name '${remoteBranchName}'");
       }
     }
     return updatedRanges;

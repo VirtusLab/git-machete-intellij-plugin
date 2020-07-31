@@ -66,7 +66,7 @@ create_branch call-ws
   commit Call web service
   commit 1st round of fixes
   push
-create_branch drop-constraint # not added to definition file
+create_branch drop-constraint # not added to the machete file
   commit Drop unneeded SQL constraints
 git checkout call-ws
   commit 2nd round of fixes
@@ -135,7 +135,7 @@ create_branch go-home
   commit ide
   push
 git checkout forbid-ownership-link
-create_branch add-constraint # not added to definition file
+create_branch add-constraint # not added to the machete file
   commit Add unneeded SQL constraints
 git checkout send-a-pigeon-for-ws
   commit 2nd round of bugs

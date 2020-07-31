@@ -16,4 +16,8 @@ final class BranchFullNameUtils {
   static String getRemoteBranchFullName(String remoteName, String remoteBranchShortName) {
     return Constants.R_REMOTES + getRemoteBranchName(remoteName, remoteBranchShortName);
   }
+
+  static String getRemoteBranchFullNameAsLocalBranchOnRemote(String remoteBranchShortName) {
+    return Constants.R_HEADS + remoteBranchShortName;
+  }
 }

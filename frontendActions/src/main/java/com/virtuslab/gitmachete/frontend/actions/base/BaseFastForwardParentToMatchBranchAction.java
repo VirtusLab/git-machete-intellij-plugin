@@ -5,7 +5,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.CustomLog;
@@ -76,10 +75,11 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
       IGitMacheteNonRootBranch gitMacheteNonRootBranch) {
     var localFullName = gitMacheteNonRootBranch.getFullName();
     var parentLocalFullName = gitMacheteNonRootBranch.getParentBranch().getFullName();
-    var refspecChildParent = "${localFullName}:${parentLocalFullName}";
+    // There is no leading '+' in the refspec since we only ever want a fast-forward update.
+    var refspecFromChildToParent = "${localFullName}:${parentLocalFullName}";
 
     // Remote set to '.' (dot) is just the local repository.
-    new FetchBackgroundable(project, gitRepository, refspecChildParent, GitRemote.DOT,
+    new FetchBackgroundable(project, gitRepository, ".", refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
   }
 }

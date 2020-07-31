@@ -17,7 +17,7 @@ create_repo machete-sandbox
   create_branch develop
     commit Develop commit
     push
-  create_branch allow-ownership-link # not added to definition file
+  create_branch allow-ownership-link # not added to the machete file
     commit Allow ownership links
   create_branch build-chain
     commit Build arbitrarily long chains

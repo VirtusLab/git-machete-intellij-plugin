@@ -103,6 +103,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bgetBranchTrackInfo(s?)\b"/>
+    <property name="message" value="Usage of prohibited git4idea.repo.GitRepository#getBranchTrackInfo(s), use tracking data from GitMacheteRepositorySnapshot instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="(^|[^@])\binterface\s+[^I]"/>
     <property name="message" value="Interface names must start with 'I'"/>
 </module>

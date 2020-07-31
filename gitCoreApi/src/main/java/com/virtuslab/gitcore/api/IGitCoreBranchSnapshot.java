@@ -16,7 +16,7 @@ public interface IGitCoreBranchSnapshot {
   boolean isLocal();
 
   /**
-   * @return {@code X} part of {@code refs/heads/X} or {@code [remote-name]/X} part of {@code refs/heads/[remote-name]/X}
+   * @return {@code X} part of {@code refs/heads/X} or {@code [remote-name]/X} part of {@code refs/remotes/[remote-name]/X}
    */
   String getName();
 
