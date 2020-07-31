@@ -14,7 +14,7 @@ dependencies {
 task syncTestResults(type: Sync) {
   from testResultsDir
 
-  def subdirectoryName = project.findProperty('testResultsSubdir')
+  def subdirectoryName = project.properties.testResultsSubdir
     ?: LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
   into "$buildDir/ui-test-results/$subdirectoryName"
 }

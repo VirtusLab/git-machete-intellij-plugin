@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
-public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
+public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
-  private final static String rhinoCodebase = List.of("common", "ide", "project").map(UiTestSuite::loadScript).mkString();
+  private final static String rhinoCodebase = List.of("common", "ide", "project").map(UITestSuite::loadScript).mkString();
 
   private static RemoteRobot remoteRobot;
 
@@ -28,7 +28,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     return new String(
         Files.readAllBytes(
             Paths.get(
-                UiTestSuite.class.getResource("/" + baseName + ".rhino.js").toURI())));
+                UITestSuite.class.getResource("/" + baseName + ".rhino.js").toURI())));
   }
 
   @BeforeClass
@@ -39,7 +39,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     runJs("ide.closeOpenedProjects()");
   }
 
-  public UiTestSuite() {
+  public UITestSuite() {
     super(SETUP_WITH_SINGLE_REMOTE);
   }
 
@@ -105,7 +105,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   private static void awaitIdle() {
     ArrayList<String> indicators = callJs("ide.getProgressIndicators()");
     // This loop could theoretically be performed totally on the IDE side (in JS/Rhino code),
-    // but this would lead to spurious timeouts when e.g. the indexing task happens to take too long.
+    // but this would lead to spurious socket read timeouts when e.g. the indexing task happens to take too long.
     while (!indicators.isEmpty()) {
       System.out.println("Waiting for ${indicators.size()} task(s) to complete...");
       Thread.sleep(1000);
