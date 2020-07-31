@@ -44,6 +44,7 @@ create_repo machete-sandbox
     commit HOTFIX Add the trigger
     push
     git commit --amend -m 'HOTFIX Add the trigger (amended)'
+    git branch --unset-upstream
 
   git branch -d root
 
