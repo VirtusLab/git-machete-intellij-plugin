@@ -2,7 +2,9 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -15,35 +17,20 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 @Getter
 @ToString
 @UsesObjectEquals
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   private final String name;
+  private final String fullName;
   private final List<GitMacheteNonRootBranch> childBranches;
   private final IGitMacheteCommit pointedCommit;
-  private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable IGitMacheteRemoteBranch remoteTrackingBranch;
+  private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 
   @ToString.Include(name = "childBranches") // avoid recursive `toString` calls on child branches
   private List<String> getChildBranchNames() {
     return childBranches.map(e -> e.getName());
-  }
-
-  protected BaseGitMacheteBranch(
-      String name,
-      List<GitMacheteNonRootBranch> childBranches,
-      IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
-      SyncToRemoteStatus syncToRemoteStatus,
-      @Nullable String customAnnotation,
-      @Nullable String statusHookOutput) {
-    this.name = name;
-    this.childBranches = childBranches;
-    this.pointedCommit = pointedCommit;
-    this.syncToRemoteStatus = syncToRemoteStatus;
-    this.remoteTrackingBranch = remoteTrackingBranch;
-    this.customAnnotation = customAnnotation;
-    this.statusHookOutput = statusHookOutput;
   }
 
   /**

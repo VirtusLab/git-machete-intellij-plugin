@@ -37,6 +37,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     var fp = new FpCommit("Fork point commit");
     NonRoot[] nonRoots = {
         new NonRoot(/* name */ "allow-ownership-link",
+            /* fullName */ "refs/heads/allow-ownership-link",
             /* customAnnotation */ "# Gray edge: branch is merged to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
@@ -44,6 +45,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* commits */ List.empty(),
             SyncToParentStatus.MergedToParent),
         new NonRoot(/* name */ "build-chain",
+            /* fullName */ "refs/heads/build-chain",
             /* customAnnotation */ "# Green edge: branch is in sync with its parent branch",
             nullPointedCommit,
             /* fork point */ null,
@@ -52,6 +54,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
                 new Commit("First commit of build-chain")),
             SyncToParentStatus.InSync),
         new NonRoot(/* name */ "call-ws",
+            /* fullName */ "refs/heads/call-ws",
             /* customAnnotation */ "# Yellow edge: Branch is in sync with its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
             /* fork point */ fp,
@@ -59,6 +62,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* commits */ List.of(fp),
             SyncToParentStatus.InSyncButForkPointOff),
         new NonRoot(/* name */ "remove-ff",
+            /* fullName */ "refs/heads/remove-ff",
             /* customAnnotation */ "# Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
             /* fork point */ null,
@@ -68,6 +72,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     };
 
     var root = new Root(/* name */ "develop",
+        /* fullName */ "refs/heads/develop",
         /* customAnnotation */ "# This is a root branch, the underline indicates that it is the currently checked out branch",
         nullPointedCommit,
         /* childBranches */ List.of(nonRoots));
@@ -174,6 +179,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   @AllArgsConstructor
   private static final class Root implements IGitMacheteRootBranch {
     private final String name;
+    private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
@@ -199,6 +205,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   @RequiredArgsConstructor
   private static final class NonRoot implements IGitMacheteNonRootBranch {
     private final String name;
+    private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final @Nullable IGitMacheteForkPointCommit forkPoint;
