@@ -95,6 +95,11 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.CheckoutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
   };
 
+  this.fastForwardParentToMatchBranch = function (branchName) {
+    const dataContext = createDataContextForSelectedBranch(branchName);
+    invokeActionAndWait('GitMachete.FastForwardParentToMatchSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
+  };
+
   this.pullBranch = function (branchName) {
     const dataContext = createDataContextForSelectedBranch(branchName);
     invokeActionAndWait('GitMachete.PullSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);

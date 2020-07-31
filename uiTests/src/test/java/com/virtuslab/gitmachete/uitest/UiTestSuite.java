@@ -67,6 +67,20 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     Assert.assertEquals(13, branchAndCommitRowsCount);
   }
 
+  @SneakyThrows
+  @Test
+  public void fastForwardParentOfBranchAndEnsureCorrectRepositoryState() {
+    runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
+    awaitIdle();
+
+    String parentBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('master')");
+    String childBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    Assert.assertEquals(childBranchHash, parentBranchHash);
+
+    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    Assert.assertEquals(new ArrayList<>(), changes);
+  }
+
   @Test
   public void pullCurrentBranchAndEnsureCorrectRepositoryState() {
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
