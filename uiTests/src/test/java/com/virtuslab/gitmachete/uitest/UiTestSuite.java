@@ -45,7 +45,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @Before
   public void openProjectAndAwaitIdle() {
-    runJs("ide.openProject('" + repositoryMainDir + "')");
+    runJs("ide.openProject('" + repositoryMainDir + "').openTab()");
     awaitIdle();
   }
 
@@ -56,8 +56,6 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @Test
   public void ensureCorrectGraphTableRowCounts() {
-    runJs("ide.soleOpenedProject().openTab()");
-
     int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
     // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
     // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
@@ -70,9 +68,7 @@ public class UiTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
-  public void pullCurrentBranchAndEnsureCleanWorkingTree() {
-    runJs("ide.soleOpenedProject().openTab()");
-
+  public void pullCurrentBranchAndEnsureCorrectRepositoryState() {
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
     awaitIdle();
     runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
