@@ -5,7 +5,7 @@ import io.vavr.control.Option;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideInBranchBelowAction;
 
-public class SlideInBranchBelowCurrentAction extends BaseSlideInBranchBelowAction {
+public class SlideInBranchBelowCurrentBranchAction extends BaseSlideInBranchBelowAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+# List the strings that appear as upper-case 3rd segment of a property key, but are NOT name of any Java file.
+output=$(comm -23 \
+  <(git grep -Pho '(?<=action\.GitMachete\.)[A-Z].*?(?=\.)' -- '*.properties' | sort -u) \
+  <(git ls-files '*.java' | xargs basename -s .java | sort) \
+)
+
+if [[ $output ]]; then
+  echo -n "$output" | sed 's/^/action.GitMachete./'
+  die 'The above property keys do not correspond to valid Java class names'
+fi

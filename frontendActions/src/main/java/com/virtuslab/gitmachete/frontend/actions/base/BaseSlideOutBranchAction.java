@@ -65,7 +65,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.get().getName()));
 
       if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(getString("action.GitMachete.BaseSlideOutBranchBelowAction.text.current-branch"));
+        presentation.setText(getString("action.GitMachete.BaseSlideOutBranchAction.text.current-branch"));
       }
     } else {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {

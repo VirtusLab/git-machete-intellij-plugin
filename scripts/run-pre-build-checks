@@ -5,18 +5,15 @@ set -e
 # We don't want `less` to open for `git grep` results in the below scripts when running locally.
 export GIT_PAGER=cat
 
-# `$-` yields the list of the options of the current shell; we'll only interested in whether `x` is present
-x_option=${-//[^x]/}
-
-# pass -x option if this script is run with -x option itself
 ./scripts/enforce-call-super-for-overridden-onupdate
-bash ${x_option:+-x} ./scripts/enforce-change-notes-updated-on-pr-to-master
+./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
 ./scripts/enforce-issue-number-for-todos
 ./scripts/enforce-newline-at-eof
+./scripts/enforce-property-keys-with-valid-class-names
 ./scripts/enforce-settings-gradle-match-directories
-bash ${x_option:+-x} ./scripts/enforce-version-bump
+./scripts/enforce-version-bump
 
 ./scripts/prohibit-class-name-hardcode-in-strings
 ./scripts/prohibit-inner-classes

@@ -169,14 +169,15 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgro
               INFORMATION,
               /* listener */ null);
           notification.addAction(NotificationAction.createSimple(getString(
-              "action.GitMachete.PullBackgroundable.notification.message.view-commits"),
+              "action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
 
         } else {
           // When the pull results with no commits, there is no git update info (as log).
           // Based on that we know that all files are up-to-date.
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString("action.GitMachete.PullBackgroundable.notification.title.all-files-are-up-to-date"),
+              getString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable" +
+                  ".notification.title.all-files-are-up-to-date"),
               /* content */ "", INFORMATION, /* listener */ null);
         }
         VcsNotifier.getInstance(project).notify(notification);
@@ -200,7 +201,7 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgro
 
     } else {
       GitUIUtil.notifyError(project,
-          getString("action.GitMachete.PullBackgroundable.notification.fail"),
+          getString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.notification.fail"),
           result.getErrorOutputAsJoinedString(),
           /* important */ true,
           /* error */ null);
