@@ -4,7 +4,6 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_DISCOVER;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
@@ -163,8 +162,8 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
             /* upperText */ "Provided machete file (${macheteFilePath}) is empty.",
-            /* lowerText */ "Open machete file",
-            /* onClickRunnableAction */ () -> invokeOpenMacheteFileAction());
+            /* lowerText */ "Discover repository layout",
+            /* onClickRunnableAction */ () -> openDiscoverDialog());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
     }
@@ -187,14 +186,6 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     repaint();
     revalidate();
-  }
-
-  @UIEffect
-  private void invokeOpenMacheteFileAction() {
-    var action = ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE);
-    var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
-    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
-    GuiUtils.invokeLaterIfNeeded(() -> action.actionPerformed(anActionEvent), NON_MODAL);
   }
 
   @UIEffect
