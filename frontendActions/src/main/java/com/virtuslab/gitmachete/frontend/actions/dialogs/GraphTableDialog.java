@@ -65,7 +65,6 @@ public final class GraphTableDialog extends DialogWrapper {
   }
 
   @Override
-  @SuppressWarnings("interning:not.interned") // to allow for `helpAction == myHelpAction`
   protected Action[] createActions() {
     return cancelButtonVisible
         ? new Action[]{getOKAction(), getCancelAction()}

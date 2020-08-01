@@ -31,8 +31,7 @@ public class BaseDiscoverAction extends DumbAwareAction implements IExpectsKeyPr
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class)
-        .getGitRepositorySelectionProvider();
+    var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
     var selectedRepositoryOption = selectedRepoProvider.getSelectedGitRepository();
     assert selectedRepositoryOption.isDefined() : "Selected repository is undefined";
     var selectedRepository = selectedRepositoryOption.get();
@@ -41,12 +40,15 @@ public class BaseDiscoverAction extends DumbAwareAction implements IExpectsKeyPr
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project)
-            .notifyError("Repository discover error", e.getMessage() != null ? e.getMessage() : ""), NON_MODAL))
-        .onSuccess(repoSnapshot -> GuiUtils
-            .invokeLaterIfNeeded(() -> GraphTableDialog.of(repoSnapshot, /* windowTitle */ "Discovered branch tree",
-                repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-                    GitVfsUtils.getMacheteFilePath(selectedRepository), project, getGraphTable(anActionEvent)),
-                /* okButtonText */ "Save Discovered Layout", /* cancelButtonVisible */ true).show(), NON_MODAL));
+            .notifyError(/* title */ getString("action.GitMachete.BaseDiscoverAction.repository-discover-error-title"),
+                /* message */ e.getMessage() != null ? e.getMessage() : ""),
+            NON_MODAL))
+        .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.of(repoSnapshot,
+            /* windowTitle */ getString("action.GitMachete.BaseDiscoverAction.discovered-branch-tree-dialog.title"),
+            /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
+                GitVfsUtils.getMacheteFilePath(selectedRepository), project, getGraphTable(anActionEvent)),
+            /* okButtonText */ getString("action.GitMachete.BaseDiscoverAction.discovered-branch-tree-dialog.save-button-text"),
+            /* cancelButtonVisible */ true).show(), NON_MODAL));
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,

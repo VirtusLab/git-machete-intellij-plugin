@@ -158,7 +158,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
 
-        <action id="GitMachete.Discover" class="com.virtuslab.gitmachete.frontend.actions.base.BaseDiscoverAction"/>
+        <action id="GitMachete.BaseDiscoverAction" class="com.virtuslab.gitmachete.frontend.actions.base.BaseDiscoverAction"/>
     </actions>
 
 </idea-plugin>
