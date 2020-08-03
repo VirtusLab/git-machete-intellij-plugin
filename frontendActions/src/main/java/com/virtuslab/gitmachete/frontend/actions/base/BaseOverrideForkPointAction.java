@@ -22,7 +22,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
-import com.virtuslab.qual.internal.NotUiThreadSafe;
+import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 
 @CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
@@ -93,7 +93,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     }.queue();
   }
 
-  @NotUiThreadSafe
+  @NotUIThreadSafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IGitMacheteBranch branch, IGitMacheteCommit forkPoint) {
     var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
 
@@ -106,7 +106,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
-  @NotUiThreadSafe
+  @NotUIThreadSafe
   private void setOverrideForkPointConfigValues(
       Project project,
       VirtualFile root,

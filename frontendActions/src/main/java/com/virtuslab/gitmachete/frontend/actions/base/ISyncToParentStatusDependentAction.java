@@ -84,11 +84,17 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
 
       // @formatter:off
       var desc = Match(syncToParentStatus).of(
-              Case($(SyncToParentStatus.InSync), getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
-              Case($(SyncToParentStatus.InSyncButForkPointOff), getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
-              Case($(SyncToParentStatus.MergedToParent), getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent")),
-              Case($(SyncToParentStatus.OutOfSync), getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync")),
-              Case($(), format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
+              Case($(SyncToParentStatus.InSync),
+                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
+              Case($(SyncToParentStatus.InSyncButForkPointOff),
+                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
+              Case($(SyncToParentStatus.MergedToParent),
+                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent")),
+              Case($(SyncToParentStatus.OutOfSync),
+                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync")),
+              Case($(),
+                  format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
+
       presentation.setDescription(
           format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.disabled.branch-status"), getActionNameForDescription(), desc));
       // @formatter:on

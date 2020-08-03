@@ -133,7 +133,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         .map(names -> names.contains(slideInOptions.getName()))
         .getOrElse(false);
 
-    if (entryAlreadyExistsBelowGivenParent) {
+    if (entryAlreadyExistsBelowGivenParent && slideInOptions.shouldReattach()) {
       log().debug("Skipping action: Branch layout entry already exists below given parent");
       return;
     }
