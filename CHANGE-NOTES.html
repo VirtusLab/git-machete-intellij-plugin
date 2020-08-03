@@ -1,11 +1,19 @@
+Features:
 <ul>
-  <li>Added editor for .git/machete file with syntax highlighting</li>
-  <li>Added action for fast-forwarding parent to the given branch</li>
-  <li>Added action for resetting the given branch to its remote tracking branch</li>
-  <li>Added fetch/pull actions</li>
-  <li>Added help action</li>
-  <li>Improved displaying of status</li>
-  <li>Improved push action to automatically suggest force-push when needed</li>
-  <li>Improved stability of push dialog (v0.5.1)</li>
-  <li>Improved stability of slide out (v0.5.2)</li>
+  <li>Added support for pulling current branch</li>
+  <li>Added support for sliding in a new branch (or reattaching a existing one) without the need to edit machete file manually</li>
+  <li>Open Machete Tab action was added under VCS/Git submenu with key shortcut Ctrl + Alt + Shift + M</li>
+  <li>Current branch is marked even if there is an ongoing operation in repo (rebasing, bisecting, etc.) and name of this operation is displayed</li>
+  <li>Added a notification when skipping branches declared in machete file but nonexistent in the repository</li>
+  <li>Reset action is preceded by information dialog</li>
+  <li>Reset is prohibited when uncommitted changes are present in repository</li>
+</ul>
+<br/>
+<br/>
+Bug fixes:
+<ul>
+  <li>Detecting existing indentation style in machete file editor</li>
+  <li>Refreshing of branch tree after slide-out action</li>
+  <li>Reset always gets up-to-date commit from remote tracking branch</li>
+  <li>Fast forward is possible without remote tracking branch information</li>
 </ul>
