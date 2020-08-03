@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import com.intellij.ide.DataManager;
@@ -97,6 +98,11 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
     // `@UnderInitialization(GitMacheteGraphTable.class)`, as would be with a non-final class) at this point.
 
     initColumns();
+
+    setCellSelectionEnabled(false);
+    setColumnSelectionAllowed(false);
+    setRowSelectionAllowed(true);
+    setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
 

@@ -19,6 +19,8 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.Predicates.isIn;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -27,6 +29,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleColoredRenderer;
@@ -36,6 +39,7 @@ import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.Data;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
@@ -64,6 +68,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
   private final JTable graphTable;
   private final BufferedImage graphImage;
+  private final MyTableCellRenderer myTableCellRenderer;
 
   @UIEffect
   public BranchOrCommitCellRendererComponent(
@@ -95,6 +100,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     var graphCellPainter = graphCellPainterFactoryInstance.create(table);
     graphCellPainter.draw(g2, renderParts);
 
+    this.myTableCellRenderer = new MyTableCellRenderer();
+
     // `this` is @Initialized at this point (since the class is final).
 
     clear();
@@ -102,6 +109,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     acquireState(table, isSelected, hasFocus, row, column);
     getCellState().updateRenderer(this);
     setBorder(null);
+
+    applyHighlighters(/* rendererComponent */ this, row, column, hasFocus, isSelected);
 
     append(""); // appendTextPadding won't work without this
 
@@ -231,5 +240,49 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
         Case($(DivergedFromAndNewerThanRemote), "  (diverged from ${remoteName})"),
         Case($(DivergedFromAndOlderThanRemote), "  (diverged from & older than ${remoteName})"));
+  }
+
+  private static class MyTableCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    @UIEffect
+    public Component getTableCellRendererComponent(
+        JTable table,
+        Object value,
+        boolean isSelected,
+        boolean hasFocus,
+        int row,
+        int column) {
+      Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+      var backgroundColor = isSelected ? UIUtil.getListSelectionBackground(table.hasFocus()) : UIUtil.getListBackground();
+      component.setBackground(backgroundColor);
+      return component;
+    }
+  }
+
+  @UIEffect
+  private void applyHighlighters(
+      Component rendererComponent,
+      int row,
+      int column,
+      boolean hasFocus,
+      final boolean selected) {
+    CellStyle style = getStyle(row, column, hasFocus, selected);
+    assert style.getBackground() != null && style.getForeground() != null : "foreground or background color is null";
+
+    rendererComponent.setBackground(style.getBackground());
+    rendererComponent.setForeground(style.getForeground());
+  }
+
+  @UIEffect
+  CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
+    Component dummyRendererComponent = myTableCellRenderer.getTableCellRendererComponent(
+        graphTable, /* value */"", selected, hasFocus, row, column);
+    return new CellStyle(dummyRendererComponent.getBackground(), dummyRendererComponent.getForeground());
+  }
+
+  @Data
+  private static final class CellStyle {
+    private final Color background;
+    private final Color foreground;
   }
 }

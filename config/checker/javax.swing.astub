@@ -1,6 +1,7 @@
 
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -37,4 +38,11 @@ class JTable {
   void setModel(@UnknownInitialization JTable this, TableModel dataModel);
 
   void initializeLocalVars(@UnknownInitialization JTable this);
+}
+
+package javax.swing.table;
+
+class DefaultTableCellRenderer {
+  @UIEffect
+  Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 }
