@@ -182,6 +182,10 @@ in [version.gradle](version.gradle) in the following way:
 1. `2.0.0` (bugfix PR)
 1. `2.0.0` (release PR) - finally releasing as major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
 
+### IDE supported versions
+
+Since we cannot skip `untilBuild` field in plugin build configuration (see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460) and [YouTrack ticket](https://youtrack.jetbrains.com/issue/IJSDK-888)) the most reasonable approach is to bump `untilBuild` since each new EAP or RC is released.
+There is a little chance if our plugin doesn't use any EAP/RC-related api and is compatible with it to NOT be compatible with not EAP/RC release of IDE.
 
 ## PRs & releases
 
@@ -191,8 +195,10 @@ They must instead be retargeted to its base's base once their base branch is mer
 
 To create a release:
 * create a branch `release/v<version>` out of the current develop
-* fill up `<change-notes>` in [plugin.xml](src/main/resources/META-INF/plugin.xml) with the updated change notes
-  and commit the changes with the `Release v<version>` message
+* fill up [CHANGE-NOTES.html](CHANGE-NOTES.html) file with the updated change notes:
+    * for major/minor release - wipe existing file content and replace with new one
+    * for patch release - append to the existing change notes
+* commit the changes with the `Release v<version>` message
 * open PR from `release/v<version>` to `master`
 
 Once the release PR is merged, `master` is built. <br/>
