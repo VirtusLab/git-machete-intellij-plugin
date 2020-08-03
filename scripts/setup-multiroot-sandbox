@@ -83,10 +83,10 @@ create_branch hotfix/add-trigger
 cat >.git/machete <<EOF
 develop
     allow-ownership-link PR #123
-        build-chain PR #124
-    call-ws
+        build-chain
+    call-ws PR #124
 master
-    hotfix/add-trigger
+    hotfix/add-trigger PR #121
 EOF
 
 git branch -d root
@@ -142,7 +142,7 @@ git checkout send-a-pigeon-for-ws
 
 git checkout root
 create_branch master
-  commit 'Master of puppets!!111111oneoneone commit'
+  commit 'Restore configs'
   push
 create_branch coldfix/knor
   commit pudliszki
@@ -155,14 +155,14 @@ create_branch hotfix/remove-trigger
 cat >.git/machete <<EOF
 develop
     forbid-ownership-link PR #123
-        send-a-pigeon-for-ws
-    destroy-chain PR #124
+        send-a-pigeon-for-ws #70
+    destroy-chain
         toggle-rain PR #21
             make-coffee PR #37
-        go-home
+        go-home PR #124
 master
-    coldfix/knor
-        hotfix/remove-trigger
+    coldfix/knor PR #72
+        hotfix/remove-trigger PR #13
 EOF
 
 
