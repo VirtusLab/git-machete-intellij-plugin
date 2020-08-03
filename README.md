@@ -6,11 +6,21 @@
 
 ![](src/main/resources/META-INF/pluginIcon.svg)
 
+Git Machete plugin is a robust tool that simplify your git related workflow.
+It's a great completion of IntelliJ version control system.
+You can with easy rebase branches, do pull, push or reset.
+Just define what you would like your branch tree to look like and leave the rest to Git Machete.
+It gives you simple view of what's going on in your repository.
+Just look at the edge colors or status descriptions to see what should be rebased, pushed, pulled or reset.
+
+With this plugin you can simply maintain small pull request that are easy to review.
+
 This is a port of [git-machete](https://github.com/VirtusLab/git-machete#git-machete) into an IntelliJ plugin.
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
-**It is compatible with all JetBrains products except Android Studio.**
+**It is compatible with all JetBrains products except Android Studio.
+Minimum required version is 2020.1**.
 
 ![](docs/sample-workflow.gif)
 
