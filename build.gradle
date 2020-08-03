@@ -455,6 +455,8 @@ patchPluginXml {
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   untilBuild intellijVersionToBuildNumber(intellijVersions.current) + '.*'
 
+  pluginDescription file("$rootDir/DESCRIPTION.html").text
+
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 
