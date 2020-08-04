@@ -37,7 +37,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @Override
-  public @I18nFormat({}) String getActionNameForDescription() {
+  public @I18nFormat({}) String getActionNameForDisabledDescription() {
     return getString("action.GitMachete.BaseOverrideForkPointAction.description-action-name");
   }
 
