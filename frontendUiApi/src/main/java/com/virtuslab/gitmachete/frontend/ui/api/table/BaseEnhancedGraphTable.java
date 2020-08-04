@@ -6,7 +6,7 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 /**
- *  {@link BaseEnhancedGraphTable} compared to SimpleGraphTable has graph table refreshing
+ *  This class compared to SimpleGraphTable has graph table refreshing
  */
 
 public abstract class BaseEnhancedGraphTable extends BaseGraphTable {

@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
+import javax.swing.ListSelectionModel;
+
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
@@ -40,9 +42,13 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
     // Otherwise sizes would be recalculated after each TableColumn re-initialization
     setAutoCreateColumnsFromModel(false);
 
+    setCellSelectionEnabled(false);
+    setColumnSelectionAllowed(false);
+    setRowSelectionAllowed(true);
+    setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
     setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
 
-    setCellSelectionEnabled(false);
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
     setIntercellSpacing(JBUI.emptySize());

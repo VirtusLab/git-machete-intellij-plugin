@@ -272,6 +272,18 @@ subprojects {
       }
     }
 
+    applyI18nFormatterChecker = { ->
+      checkerFramework {
+        checkers += 'org.checkerframework.checker.i18nformatter.I18nFormatterChecker'
+        extraJavacArgs += '-Abundlenames=GitMacheteBundle'
+      }
+
+      // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
+      dependencies {
+        checkerFramework project(':frontendResourceBundles')
+      }
+    }
+
     applySubtypingChecker = { ->
       if (shouldRunAllCheckers) {
         dependencies {

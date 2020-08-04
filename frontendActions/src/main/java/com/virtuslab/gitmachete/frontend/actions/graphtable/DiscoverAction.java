@@ -57,7 +57,7 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      BaseEnhancedGraphTable gitMacheteGraphTable, IBranchLayoutWriter branchLayoutWriter) {
+      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter) {
     var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
@@ -74,7 +74,7 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
                 /* title */ getString("action.GitMachete.DiscoverAction.write-file-error-title"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
-            .onSuccess(__ -> gitMacheteGraphTable.queueRepositoryUpdateAndModelRefresh());
+            .onSuccess(__ -> baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh());
       }
     }.queue();
   }

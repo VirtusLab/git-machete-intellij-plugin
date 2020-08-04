@@ -65,7 +65,7 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 /**
- *  {@link EnhancedGraphTable} compared to {@link SimpleGraphTable} has graph table refreshing and provides
+ *  This class compared to {@link SimpleGraphTable} has graph table refreshing and provides
  *  data like last clicked branch name, opened project or {@link IGitMacheteRepositorySnapshot} of current
  *  repository for actions
  */
@@ -171,8 +171,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
-            /* upperText */ format(getString("string.EnhancedGraphTable.empty-machete-file.upper-text"), macheteFilePath),
-            /* lowerText */ getString("string.EnhancedGraphTable.empty-machete-file.lower-text"),
+            /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.upper-text"),
+                macheteFilePath),
+            /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.lower-text"),
             /* onClickRunnableAction */ () -> openDiscoverDialog());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
@@ -182,8 +183,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       setTextForEmptyTable(
-          /* upperText */ format(getString("string.EnhancedGraphTable.nonexistent-machete-file.upper-text"), macheteFilePath),
-          /* lowerText */ getString("string.EnhancedGraphTable.nonexistent-machete-file.lower-text"),
+          /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.upper-text"),
+              macheteFilePath),
+          /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.lower-text"),
           /* onClickRunnableAction */ () -> openDiscoverDialog());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
@@ -191,7 +193,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
-          getString("string.EnhancedGraphTable.omitted-branches-text"),
+          getString("string.GitMachete.EnhancedGraphTable.omitted-branches-text"),
           String.join(", ", skippedBranchNames));
     }
 
@@ -249,7 +251,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           doOnUIThreadWhenReady.run();
         };
 
-        setTextForEmptyTable(getString("string.EnhancedGraphTable.empty-text"));
+        setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-text"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
