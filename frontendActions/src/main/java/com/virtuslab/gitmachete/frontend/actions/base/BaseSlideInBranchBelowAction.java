@@ -20,6 +20,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitNewBranchDialog;
+import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
@@ -124,7 +125,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       }
     }
 
-    // TODO (#430): expose getParent from branch layout api
+    // TODO (#430): expose getParent from branch layout API
     var parentEntry = branchLayout.findEntryByName(parentName);
     var entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
@@ -229,13 +230,13 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
-        /* localConflictsAllowed */ true);
+        /* showSetTrackingOption */ true);
 
-    var options = gitNewBranchDialog.showAndGetOptions();
+    GitNewBranchOptions options = gitNewBranchDialog.showAndGetOptions();
 
     if (options == null) {
-      log().debug(
-          "Name of branch to slide in is null: most likely the action has been canceled from create-new-branch dialog");
+      log().debug("Name of branch to slide in is null: " +
+          "most likely the action has been canceled from create-new-branch dialog");
       return null;
     }
 

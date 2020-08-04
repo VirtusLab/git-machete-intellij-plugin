@@ -125,14 +125,42 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @SneakyThrows
   private static void awaitIdle() {
-    ArrayList<String> indicators = callJs("ide.getProgressIndicators()");
+    var indicators = getProgressIndicators();
     // This loop could theoretically be performed totally on the IDE side (in JS/Rhino code),
     // but this would lead to spurious socket read timeouts when e.g. the indexing task happens to take too long.
     while (!indicators.isEmpty()) {
       System.out.println("Waiting for ${indicators.size()} task(s) to complete...");
       Thread.sleep(1000);
-      indicators = callJs("ide.getProgressIndicators()");
+      indicators = getProgressIndicators();
     }
+
+    long withinMillis = 2000;
+    System.out.println("Waiting for ${withinMillis} milliseconds to ensure no new task appears...");
+    if (newTaskAppeared(withinMillis, /* intervalMillis */ 250)) {
+      awaitIdle();
+    } else {
+      System.out.println("OK, IDE is idle");
+    }
+  }
+
+  private static ArrayList<String> getProgressIndicators() {
+    return callJs("ide.getProgressIndicators()");
+  }
+
+  @SneakyThrows
+  private static boolean newTaskAppeared(long withinMillis, long intervalMillis) {
+    long passedTimeMillis = 0;
+    while (passedTimeMillis < withinMillis) {
+      Thread.sleep(intervalMillis);
+      passedTimeMillis += intervalMillis;
+
+      var indicators = getProgressIndicators();
+      if (!indicators.isEmpty()) {
+        System.out.println("${indicators.size()} new task(s) appeared...");
+        return true;
+      }
+    }
+    return false;
   }
 
   private static void runJs(@Language("JS") String statement) {

@@ -35,7 +35,6 @@ public final class GitVfsUtils {
   /**
    * @param gitRepository {@link GitRepository} to get the virtual file from
    * @return an option of {@link VirtualFile} representing the machete file
-   *
    */
   public static Option<VirtualFile> getMacheteFile(GitRepository gitRepository) {
     return Option.of(getGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME));
@@ -44,6 +43,7 @@ public final class GitVfsUtils {
   /**
    * As opposed to {@link GitVfsUtils#getMacheteFile(GitRepository)} the result always exists.
    * This is because the path is valid even though the file may not exist.
+   *
    * @param gitRepository {@link GitRepository} to resolve the path within
    * @return an option of {@link VirtualFile} representing the machete file
    */
