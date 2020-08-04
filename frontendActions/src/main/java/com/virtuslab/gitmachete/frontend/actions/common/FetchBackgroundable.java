@@ -21,6 +21,9 @@ public class FetchBackgroundable extends Task.Backgroundable {
   private final String remoteName;
   private final String refspec;
 
+  /** Use as {@code remoteName} when referring to the local repository. */
+  public static final String LOCAL_REPOSITORY_NAME = ".";
+
   public FetchBackgroundable(Project project,
       GitRepository gitRepository,
       String remoteName,
@@ -36,7 +39,9 @@ public class FetchBackgroundable extends Task.Backgroundable {
   @Override
   public void run(ProgressIndicator indicator) {
     var fetchSupport = GitFetchSupport.fetchSupport(project);
-    var remote = remoteName.equals(".") ? GitRemote.DOT : GitUtil.findRemoteByName(gitRepository, remoteName);
+    var remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
+        ? GitRemote.DOT
+        : GitUtil.findRemoteByName(gitRepository, remoteName);
     if (remote == null) {
       // This is generally NOT expected, the task should never be triggered
       // for an invalid remote in the first place.

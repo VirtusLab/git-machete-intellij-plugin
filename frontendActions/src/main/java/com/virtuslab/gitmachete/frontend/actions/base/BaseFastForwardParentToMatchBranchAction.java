@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -78,8 +79,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     // There is no leading '+' in the refspec since we only ever want a fast-forward update.
     var refspecFromChildToParent = "${localFullName}:${parentLocalFullName}";
 
-    // Remote set to '.' (dot) is just the local repository.
-    new FetchBackgroundable(project, gitRepository, ".", refspecFromChildToParent,
+    new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
   }
 }
