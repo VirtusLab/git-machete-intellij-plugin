@@ -134,6 +134,24 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
+            <action id="GitMachete.PullCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchAction"
+                    icon="MacheteIcons.PULL">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
+            <action id="GitMachete.ResetCurrentBranchToRemoteAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentBranchToRemoteAction"
+                    icon="MacheteIcons.RESET">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
+            <action id="GitMachete.SlideOutCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentBranchAction"
+                    icon="MacheteIcons.SLIDE_OUT">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
             <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
                     icon="MacheteIcons.REBASE">
