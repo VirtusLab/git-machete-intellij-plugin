@@ -11,6 +11,7 @@ dependencies {
   implementation project(':frontendGraphApi')
   implementation project(':frontendVfsUtils')
   implementation project(':frontendProviderServices')
+  implementation project(':frontendResourceBundles')
 
   api project(':frontendUiApi')
 }

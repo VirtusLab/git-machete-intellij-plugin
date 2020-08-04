@@ -17,7 +17,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.ui.api.table.AbstractEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
@@ -43,12 +43,12 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
   }
 
-  public AbstractEnhancedGraphTable getGraphTable() {
+  public BaseEnhancedGraphTable getGraphTable() {
     return project.getService(GraphTableProvider.class).getGraphTable();
   }
 
   @UIEffect
-  private static ActionToolbar createGitMacheteVerticalToolbar(AbstractEnhancedGraphTable graphTable) {
+  private static ActionToolbar createGitMacheteVerticalToolbar(BaseEnhancedGraphTable graphTable) {
     var actionManager = ActionManager.getInstance();
     var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
     var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,

@@ -21,7 +21,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
-import com.virtuslab.gitmachete.frontend.ui.api.table.AbstractEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -57,7 +57,7 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      AbstractEnhancedGraphTable gitMacheteGraphTable, IBranchLayoutWriter branchLayoutWriter) {
+      BaseEnhancedGraphTable gitMacheteGraphTable, IBranchLayoutWriter branchLayoutWriter) {
     var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(

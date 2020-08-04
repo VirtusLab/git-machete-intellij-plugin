@@ -5,15 +5,15 @@ import javax.swing.table.AbstractTableModel;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-public abstract class AbstractEnhancedGraphTable extends BaseGraphTable {
+/**
+ *  {@link BaseEnhancedGraphTable} compared to {@link SimpleGraphTable} has graph table refreshing
+ */
 
+public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   @UIEffect
-  protected AbstractEnhancedGraphTable(AbstractTableModel model) {
+  protected BaseEnhancedGraphTable(AbstractTableModel model) {
     super(model);
   }
-
-  @UIEffect
-  public abstract boolean isListingCommits();
 
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
@@ -27,7 +27,7 @@ public abstract class AbstractEnhancedGraphTable extends BaseGraphTable {
 
   /**
    * Queues repository update as a background task, which in turn itself queues model refresh onto the UI thread.
-   * As opposed to {@link AbstractEnhancedGraphTable#refreshModel}, does not need to be called from the UI thread (i.e. is not {@link UIEffect}).
+   * As opposed to {@link BaseEnhancedGraphTable#refreshModel}, does not need to be called from the UI thread (i.e. is not {@link UIEffect}).
    *
    * @param doOnUIThreadWhenReady an action to execute on the UI thread after the model is refreshed.
    */

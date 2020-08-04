@@ -6,10 +6,12 @@ import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_DISCOVER;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
+import static java.text.MessageFormat.format;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -57,7 +59,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.ui.api.table.AbstractEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -70,7 +72,7 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositor
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
-public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
+public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
       DataProvider,
       IGitMacheteRepositorySnapshotProvider {
@@ -169,8 +171,8 @@ public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
-            /* upperText */ "Provided machete file (${macheteFilePath}) is empty.",
-            /* lowerText */ "Discover the repository's branch layout",
+            /* upperText */ format(getString("string.EnhancedGraphTable.empty-machete-file.upper-text"), macheteFilePath),
+            /* lowerText */ getString("string.EnhancedGraphTable.empty-machete-file.lower-text"),
             /* onClickRunnableAction */ () -> openDiscoverDialog());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
@@ -180,15 +182,16 @@ public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       setTextForEmptyTable(
-          "There is no machete file (${macheteFilePath}) for this repository.",
-          "Discover the repository's branch layout", () -> openDiscoverDialog());
+          /* upperText */ format(getString("string.EnhancedGraphTable.nonexistent-machete-file.upper-text"), macheteFilePath),
+          /* lowerText */ getString("string.EnhancedGraphTable.nonexistent-machete-file.lower-text"),
+          /* onClickRunnableAction */ () -> openDiscoverDialog());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
     if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
-          "The following branches defined by machete file do not belong to the local repository:",
+          getString("string.EnhancedGraphTable.omitted-branches-text"),
           String.join(", ", skippedBranchNames));
     }
 
@@ -246,7 +249,7 @@ public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
           doOnUIThreadWhenReady.run();
         };
 
-        setTextForEmptyTable("Loading...");
+        setTextForEmptyTable(getString("string.EnhancedGraphTable.empty-text"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();

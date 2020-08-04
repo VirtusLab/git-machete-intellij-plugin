@@ -11,7 +11,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BaseGraphTable extends JBTable {
   @UIEffect
-  public BaseGraphTable(TableModel model) {
+  protected BaseGraphTable(TableModel model) {
     super(model);
   }
 

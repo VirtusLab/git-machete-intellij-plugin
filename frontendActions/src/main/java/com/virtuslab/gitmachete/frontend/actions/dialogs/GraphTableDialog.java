@@ -77,7 +77,8 @@ public final class GraphTableDialog extends DialogWrapper {
   @Override
   protected JComponent createCenterPanel() {
     var panel = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2);
-    panel.addToCenter(ScrollPaneFactory.createScrollPane(table));
+    var scrollPane = ScrollPaneFactory.createScrollPane(table);
+    panel.addToCenter(scrollPane);
     panel.setPreferredSize(new JBDimension(windowWidth, windowHeight));
     return panel;
   }
