@@ -11,6 +11,8 @@ import com.intellij.openapi.util.IconLoader;
 public final class MacheteIcons {
   private MacheteIcons() {}
 
+  public static final Icon DISCOVER = IconLoader.getIcon("/discover.svg");
+
   public static final Icon FAST_FORWARD = IconLoader.getIcon("/applyNotConflictsLeft.svg");
 
   public static final Icon FETCH = IconLoader.getIcon("/download.svg");

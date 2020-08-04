@@ -158,7 +158,12 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
 
-        <action id="GitMachete.BaseDiscoverAction" class="com.virtuslab.gitmachete.frontend.actions.base.BaseDiscoverAction"/>
+        <!-- GitMachete.DiscoverAction is not added to any group because it's only available
+            from `Search Everywhere` and by link displayed in graph table when `machete` file
+            is empty or absent -->
+        <action id="GitMachete.DiscoverAction"
+                class="com.virtuslab.gitmachete.frontend.actions.graphtable.DiscoverAction"
+                icon="MacheteIcons.DISCOVER"/>
     </actions>
 
 </idea-plugin>

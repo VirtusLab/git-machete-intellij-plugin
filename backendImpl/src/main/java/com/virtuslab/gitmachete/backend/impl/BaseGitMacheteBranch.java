@@ -46,6 +46,11 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   }
 
   @Override
+  public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
+    return Option.of(remoteTrackingBranch);
+  }
+
+  @Override
   public Option<String> getCustomAnnotation() {
     return Option.of(customAnnotation);
   }
@@ -53,10 +58,5 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
   @Override
   public Option<String> getStatusHookOutput() {
     return Option.of(statusHookOutput);
-  }
-
-  @Override
-  public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
-    return Option.of(remoteTrackingBranch);
   }
 }

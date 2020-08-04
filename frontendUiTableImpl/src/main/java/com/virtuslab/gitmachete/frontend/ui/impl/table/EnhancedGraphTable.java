@@ -63,9 +63,14 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
+/* {@link EnhancedGraphTable} compared to {@link SimpleGraphTable} has graph table refreshing and provides
+   data like last clicked branch name, opened project or {@link GitMacheteRepositorySnapshot} of current
+   repository for actions
+ */
+
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
-public final class GitMacheteGraphTable extends BaseGraphTable implements DataProvider, IGitMacheteRepositorySnapshotProvider {
+public final class EnhancedGraphTable extends BaseGraphTable implements DataProvider, IGitMacheteRepositorySnapshotProvider {
 
   private final Project project;
 
@@ -85,7 +90,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   private @Nullable String selectedBranchName;
 
   @UIEffect
-  public GitMacheteGraphTable(Project project) {
+  public EnhancedGraphTable(Project project) {
     super(new GraphTableModel(NullRepositoryGraph.getInstance()));
 
     this.project = project;
@@ -95,7 +100,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
-    // `@UnderInitialization(GitMacheteGraphTable.class)`, as would be with a non-final class) at this point.
+    // `@UnderInitialization(EnhancedGraphTable.class)`, as would be with a non-final class) at this point.
 
     initColumns();
 
@@ -191,7 +196,7 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   @UIEffect
   private void openDiscoverDialog() {
     var action = ActionManager.getInstance().getAction(ACTION_DISCOVER);
-    var dataContext = DataManager.getInstance().getDataContext(GitMacheteGraphTable.this);
+    var dataContext = DataManager.getInstance().getDataContext(EnhancedGraphTable.this);
     var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
     action.actionPerformed(anActionEvent);
   }
@@ -273,10 +278,10 @@ public final class GitMacheteGraphTable extends BaseGraphTable implements DataPr
   }
 
   private static class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-    private final GitMacheteGraphTable outer;
+    private final EnhancedGraphTable outer;
 
     @UIEffect
-    GitMacheteGraphTableMouseAdapter(GitMacheteGraphTable outer) {
+    GitMacheteGraphTableMouseAdapter(EnhancedGraphTable outer) {
       this.outer = outer;
     }
 

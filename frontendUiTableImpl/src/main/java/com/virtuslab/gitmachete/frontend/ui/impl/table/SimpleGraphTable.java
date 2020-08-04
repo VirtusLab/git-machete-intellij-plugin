@@ -52,4 +52,9 @@ public final class SimpleGraphTable extends JBTable implements IGitMacheteReposi
 
     ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
   }
+
+  @UIEffect
+  private void setTextForEmptyTable(String upperText) {
+    getEmptyText().setText(upperText);
+  }
 }

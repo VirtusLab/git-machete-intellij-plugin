@@ -6,7 +6,7 @@ import lombok.Getter;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGraphTableFactory;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IBaseGraphTableFactory;
 
 @Service
 public final class GraphTableProvider {
@@ -16,7 +16,7 @@ public final class GraphTableProvider {
 
   public GraphTableProvider(Project project) {
     this.graphTable = RuntimeBinding
-        .instantiateSoleImplementingClass(IGraphTableFactory.class)
+        .instantiateSoleImplementingClass(IBaseGraphTableFactory.class)
         .create(project);
   }
 }

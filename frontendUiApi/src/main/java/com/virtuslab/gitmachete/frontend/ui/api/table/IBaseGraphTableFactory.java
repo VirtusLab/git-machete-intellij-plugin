@@ -2,6 +2,6 @@ package com.virtuslab.gitmachete.frontend.ui.api.table;
 
 import com.intellij.openapi.project.Project;
 
-public interface IGraphTableFactory {
+public interface IBaseGraphTableFactory {
   BaseGraphTable create(Project project);
 }

@@ -20,41 +20,41 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider;
 public final class GraphTableDialog extends DialogWrapper {
   private final JBTable table;
   private final @Nullable IGitMacheteRepositorySnapshot repositorySnapshot;
-  private final int width;
-  private final int height;
+  private final int windowWidth;
+  private final int windowHeight;
   private final @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction;
   private final boolean cancelButtonVisible;
 
-  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle,
-      @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
-    return of(gitMacheteRepositorySnapshot, windowTitle, /* width */ 800, /* height */ 500, okAction, okButtonText,
+  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
+    return of(gitMacheteRepositorySnapshot, windowTitle, /* windowWidth */ 800, /* windowHeight */ 500, okAction, okButtonText,
         cancelButtonVisible);
   }
 
-  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle, int width,
-      int height, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText,
-      boolean cancelButtonVisible) {
+  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle, int windowWidth, int windowHeight, @Nullable String emptyGraphText, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
     var table = RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider.class)
         .deriveInstance(gitMacheteRepositorySnapshot);
-    return new GraphTableDialog(table, gitMacheteRepositorySnapshot, windowTitle, width, height, okAction, okButtonText,
+    table.set
+    return new GraphTableDialog(table, gitMacheteRepositorySnapshot, windowTitle, windowWidth, windowHeight, okAction,
+        okButtonText,
         cancelButtonVisible);
   }
 
   public static GraphTableDialog ofDemoRepository() {
     var table = RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider.class).deriveDemoInstance();
-    return new GraphTableDialog(table, /* repositorySnapshot */ null, "Git Machete Help", /* width */800, /* height */ 250,
-        /* okAction */ null, /* okButtonText */ "Close", /* cancelButtonVisible */ false);
+    return new GraphTableDialog(table, /* repositorySnapshot */ null, /* windowTitle */ "Git Machete Help",
+        /* windowWidth */800, /* windowHeight */ 250, /* okAction */ null, /* okButtonText */ "Close",
+        /* cancelButtonVisible */ false);
   }
 
   private GraphTableDialog(JBTable table, @Nullable IGitMacheteRepositorySnapshot repositorySnapshot, String windowTitle,
-      int width, int height, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText,
+      int windowWidth, int windowHeight, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText,
       boolean cancelButtonVisible) {
     super(/* canBeParent */ false);
 
     this.table = table;
     this.repositorySnapshot = repositorySnapshot;
-    this.width = width;
-    this.height = height;
+    this.windowWidth = windowWidth;
+    this.windowHeight = windowHeight;
     this.okAction = okAction;
     this.cancelButtonVisible = cancelButtonVisible;
 
@@ -75,7 +75,7 @@ public final class GraphTableDialog extends DialogWrapper {
   protected JComponent createCenterPanel() {
     var panel = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2);
     panel.addToCenter(ScrollPaneFactory.createScrollPane(table));
-    panel.setPreferredSize(new JBDimension(width, height));
+    panel.setPreferredSize(new JBDimension(windowWidth, windowHeight));
     return panel;
   }
 

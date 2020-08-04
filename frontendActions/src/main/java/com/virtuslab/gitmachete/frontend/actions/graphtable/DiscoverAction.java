@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.base;
+package com.virtuslab.gitmachete.frontend.actions.graphtable;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -27,46 +27,53 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public class BaseDiscoverAction extends DumbAwareAction implements IExpectsKeyProject {
+public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProject {
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
-    var selectedRepositoryOption = selectedRepoProvider.getSelectedGitRepository();
-    assert selectedRepositoryOption.isDefined() : "Selected repository is undefined";
-    var selectedRepository = selectedRepositoryOption.get();
+    var selectedRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
+    if (selectedRepository == null) {
+      VcsNotifier.getInstance(project).notifyError(
+          /* title */ getString("action.GitMachete.DiscoverAction.cant-get-current-repository-error-title"), /* message */ "");
+      return;
+    }
     var mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
     var gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project)
-            .notifyError(/* title */ getString("action.GitMachete.BaseDiscoverAction.repository-discover-error-title"),
+            .notifyError(/* title */ getString("action.GitMachete.DiscoverAction.repository-discover-error-title"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""),
             NON_MODAL))
         .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.of(repoSnapshot,
-            /* windowTitle */ getString("action.GitMachete.BaseDiscoverAction.discovered-branch-tree-dialog.title"),
+            /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-                GitVfsUtils.getMacheteFilePath(selectedRepository), project, getGraphTable(anActionEvent)),
-            /* okButtonText */ getString("action.GitMachete.BaseDiscoverAction.discovered-branch-tree-dialog.save-button-text"),
+                GitVfsUtils.getMacheteFilePath(selectedRepository), project, getGraphTable(anActionEvent),
+                getBranchLayoutWriter(anActionEvent)),
+            /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true).show(), NON_MODAL));
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      BaseGraphTable gitMacheteGraphTable) {
-    var branchLayoutOption = repositorySnapshot.getBranchLayout();
-    assert branchLayoutOption.isDefined() : "Branch layout from discovered repository is not defined";
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseDiscoverAction.write-file-task-title")) {
+      BaseGraphTable gitMacheteGraphTable, IBranchLayoutWriter branchLayoutWriter) {
+    var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
+    if (branchLayout == null) {
+      VcsNotifier.getInstance(project).notifyError(
+          /* title */ getString("action.GitMachete.DiscoverAction.cant-discover-layout-error-title"), /* message */ "");
+      return;
+    }
+    new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file-task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
         Try.of(() -> {
-          var branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
-          branchLayoutWriter.write(macheteFilePath, branchLayoutOption.get(), /* backupBranchLayout */ true);
+          branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true);
           return null;
         })
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
-                /* title */ getString("action.GitMachete.BaseDiscoverAction.write-file-error-title"),
+                /* title */ getString("action.GitMachete.DiscoverAction.write-file-error-title"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
-            .onSuccess(__ -> gitMacheteGraphTable.queueRepositoryUpdateAndModelRefresh(() -> {}));
+            .onSuccess(__ -> gitMacheteGraphTable.queueRepositoryUpdateAndModelRefresh());
       }
     }.queue();
   }
