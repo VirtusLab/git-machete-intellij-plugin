@@ -272,9 +272,9 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   @UIEffect
-  CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
+  private CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
     Component dummyRendererComponent = myTableCellRenderer.getTableCellRendererComponent(
-        graphTable, /* value */"", selected, hasFocus, row, column);
+        graphTable, /* value */ "", selected, hasFocus, row, column);
     final var background = dummyRendererComponent.getBackground();
     final var foreground = dummyRendererComponent.getForeground();
     // Theoretically the result of getBackground/getForeground can be null.
