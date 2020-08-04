@@ -25,18 +25,21 @@ public final class GraphTableDialog extends DialogWrapper {
   private final @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction;
   private final boolean cancelButtonVisible;
 
-  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
-    return of(gitMacheteRepositorySnapshot, windowTitle, /* windowWidth */ 800, /* windowHeight */ 500, okAction, okButtonText,
-        cancelButtonVisible);
+  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle,
+      @Nullable String emptyTableText, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText,
+      boolean cancelButtonVisible) {
+    return of(gitMacheteRepositorySnapshot, windowTitle, /* windowWidth */ 800, /* windowHeight */ 500, emptyTableText,
+        okAction, okButtonText, cancelButtonVisible);
   }
 
-  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle, int windowWidth, int windowHeight, @Nullable String emptyGraphText, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
+  public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle,
+      int windowWidth, int windowHeight, @Nullable String emptyTableText,
+      @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
     var table = RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider.class)
         .deriveInstance(gitMacheteRepositorySnapshot);
-    table.set
+    table.setTextForEmptyTable(emptyTableText != null ? emptyTableText : "");
     return new GraphTableDialog(table, gitMacheteRepositorySnapshot, windowTitle, windowWidth, windowHeight, okAction,
-        okButtonText,
-        cancelButtonVisible);
+        okButtonText, cancelButtonVisible);
   }
 
   public static GraphTableDialog ofDemoRepository() {

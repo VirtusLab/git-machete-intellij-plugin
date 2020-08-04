@@ -34,7 +34,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.ScrollingUtil;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
@@ -58,7 +57,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.AbstractEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -70,7 +69,10 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositor
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
-public final class EnhancedGraphTable extends BaseGraphTable implements DataProvider, IGitMacheteRepositorySnapshotProvider {
+public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
+    implements
+      DataProvider,
+      IGitMacheteRepositorySnapshotProvider {
 
   private final Project project;
 
@@ -211,21 +213,6 @@ public final class EnhancedGraphTable extends BaseGraphTable implements DataProv
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
     }
-  }
-
-  @UIEffect
-  private void setTextForEmptyTable(String upperText, @Nullable String lowerText, @Nullable @UI Runnable onClickRunnable) {
-    var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
-    var statusText = getEmptyText().setText(upperText);
-    if (lowerText != null) {
-      statusText.appendSecondaryText(lowerText, attrs,
-          /* listener */ onClickRunnable != null ? __ -> onClickRunnable.run() : null);
-    }
-  }
-
-  @UIEffect
-  private void setTextForEmptyTable(String upperText) {
-    setTextForEmptyTable(upperText, /* lowerText */ null, /* onClickRunnable */ null);
   }
 
   @UIEffect

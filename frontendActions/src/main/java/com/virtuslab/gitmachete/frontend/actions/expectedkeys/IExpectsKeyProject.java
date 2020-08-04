@@ -6,7 +6,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.AbstractEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -26,7 +26,7 @@ public interface IExpectsKeyProject extends IWithLogger {
     return getProject(anActionEvent).getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
   }
 
-  default BaseGraphTable getGraphTable(AnActionEvent anActionEvent) {
+  default AbstractEnhancedGraphTable getGraphTable(AnActionEvent anActionEvent) {
     return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
   }
 
