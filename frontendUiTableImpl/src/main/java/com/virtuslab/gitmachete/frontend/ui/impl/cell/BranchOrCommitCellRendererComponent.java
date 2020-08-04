@@ -267,8 +267,6 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       boolean hasFocus,
       final boolean selected) {
     CellStyle style = getStyle(row, column, hasFocus, selected);
-    assert style.getBackground() != null && style.getForeground() != null : "foreground or background color is null";
-
     rendererComponent.setBackground(style.getBackground());
     rendererComponent.setForeground(style.getForeground());
   }
@@ -277,7 +275,14 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
     Component dummyRendererComponent = myTableCellRenderer.getTableCellRendererComponent(
         graphTable, /* value */"", selected, hasFocus, row, column);
-    return new CellStyle(dummyRendererComponent.getBackground(), dummyRendererComponent.getForeground());
+    final var background = dummyRendererComponent.getBackground();
+    final var foreground = dummyRendererComponent.getForeground();
+    // Theoretically the result of getBackground/getForeground can be null.
+    // In our case, we have two factors that guarantee us non-null result.
+    // - DefaultTableCellRenderer::getTableCellRendererComponent sets the non-null values for us
+    // - both getters look for the non-null values from the parent component (for a cell this is the table)
+    assert background != null && foreground != null : "foreground or background color is null";
+    return new CellStyle(background, foreground);
   }
 
   @Data

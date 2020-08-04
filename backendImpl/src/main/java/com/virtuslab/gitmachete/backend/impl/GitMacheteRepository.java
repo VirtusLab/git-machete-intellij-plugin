@@ -876,7 +876,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           continue;
         }
 
-        // A little hack wrt. fork point: we only want to distinct between a branch merged or not merged to the parent,
+        // A little hack wrt. fork point: we only want to distinguish between a branch merged or not merged to the parent,
         // and fork point does not affect this specific distinction.
         // It's in fact only useful for distinguishing between `InSync` and `InSyncButForkPointOff`,
         // but here we don't care if the former is returned instead of the latter.
