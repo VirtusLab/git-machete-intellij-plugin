@@ -12,8 +12,8 @@ public final class Colors {
   private static final Color DARK_ORANGE_COLOR = Color.decode("#D68C00");
   private static final Color YELLOW_COLOR = Color.decode("#C4A000");
   private static final Color GREEN_COLOR = Color.decode("#008000");
-  private static final Color GRAY_COLOR = Color.decode("#AAAAAA");
-  private static final Color DARK_GREY_COLOR = Color.decode("#555555");
+  private static final Color GRAY_COLOR = Color.decode("#BBBBBB");
+  private static final Color DARK_GREY_COLOR = Color.decode("#888888");
   private static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, /* alpha */ 0);
 
   /**
