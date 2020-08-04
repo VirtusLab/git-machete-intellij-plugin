@@ -8,7 +8,7 @@
 
 Git Machete plugin is a robust tool that simplify your git related workflow.
 It's a great completion of IntelliJ version control system.
-You can with easy rebase branches, do pull, push or reset.
+You can with ease rebase branches, do pull, push or reset.
 Just define what you would like your branch tree to look like and leave the rest to Git Machete.
 It gives you simple view of what's going on in your repository.
 Just look at the edge colors or status descriptions to see what should be rebased, pushed, pulled or reset.
@@ -40,14 +40,14 @@ Git Machete IntelliJ Plugin is a port of a great console tool - [git-machete](ht
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
 Let's see how this plugin can help you:
 
-### Where to find this plugin window
+### Where to find the plugin tab
 
-Git Machete IntelliJ Plugin is available under `Git` section (in the bottom of the IDE) in the `Git Machete` tab.
+Git Machete IntelliJ Plugin is available under `Git` (`VCS` in older IntelliJ versions) tab in the `Git Machete` subtab.
 You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 ![](docs/open_git_machete.gif)
 
-### Machete file editor
+### Machete file edition
 
 `machete` file describes relation between branches in your repository (these relations are probably determined by order of branch creation - which branch form which - but this is not a rule).
 It's located inside `.git` directory in your repo.
@@ -98,7 +98,7 @@ When you click on eye button on the left side of plugin, you can toggle between 
 
 ### Rebase
 
-Rebase with this plugin is easy!
+Rebase with Git Machete plugin is easy!
 Just right-click on the child branch and from context menu select `(Checkout and) Rebase Branch onto Parent` and a standard IntelliJ dialog for interactive rebase will appear.
 
 ![](docs/rebase.gif)
@@ -107,7 +107,9 @@ Just right-click on the child branch and from context menu select `(Checkout and
 
 After a rebase, you might want to push rebased branch to remote.
 To do this, right-click on the branch you want to push and select `Push (Current) Branch` from context menu.
-Standard IntelliJ push dialog will appear but in case when we rebased selected branch (when branch we want to push diverge from its remote) only force push button will be available.
+Standard IntelliJ push dialog will appear with proper push button (regular push or force push) depending on which of them is needed.
+Basically, we need force push in case when we rebased our branch, because in this case parent of the first commit that we want to push (that is one of `new base` commits)
+is not the last commit of pushed branch in a remote repository, so git won't let us do regular push.
 
 ![](docs/push.gif)
 
@@ -115,6 +117,7 @@ Standard IntelliJ push dialog will appear but in case when we rebased selected b
 
 If branch is behind (or in sync with) its remote, it can be pulled.
 To do this, right-click on given branch and select `Pull Branch`.
+This action does `--ff-only` pull only which is enough in this case.
 
 ![](docs/pull.gif)
 
@@ -130,6 +133,7 @@ This action performs `git reset --keep` under the hood. `--keep`, as opposed to 
 
 When you are done with the changes on the selected branch (e.g. PR was approved and all required fixes are applied), you probably want to merge this branch to its parent branch.
 When these branches are in sync (green edge) you can do a fast-forward merge.
+Fast forward merge is nothing else like move tip of branch to which we merge to the same commit as tip of merged branch.
 This is what `Fast Forward Parent Branch To Match Current Branch` context menu action do.
 As you can see, edge between given branch and its parent was changed to grey - it means that the child branch has been merged.
 
@@ -151,7 +155,6 @@ You can also create new branch bellow selected one (also without manual editing 
 Dialog window will appear.
 In text box type new branch name and click `Slide In` button.
 Another dialog will appear - it is a standard new branch IntelliJ dialog.
-Here you can choose if you want to check out a newly created branch or not.
 
 ![](docs/slide_in1.gif)
 
@@ -188,7 +191,7 @@ In that case each repository will have its own `machete` file.
 ### Prerequisites
 
 * git
-* IntelliJ 2020.1 Community Edition/Ultimate
+* latest 2020.1 Community Edition/Ultimate
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
   * Enable annotation processing (for Lombok):
@@ -242,7 +245,7 @@ gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
 
-Then reproduce the bug and go to `Help` -> `Show Log in Files` to open log file.
+Then reproduce the bug and go to `Help` -> `Show Log in Files` to open the log file.
 
 ## Development
 

@@ -12,9 +12,9 @@
 
 Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
 
-For running `./gradlew` from command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
+For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-For running tests of `backendImpl` (which are included under `./gradlew test`, which is in turn itself included under `./gradlew build`),
+For running tests of `backendImpl` (which are also run by `./gradlew test` task, which is in turn itself run by `./gradlew build` task),
 install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
 in the version present in [backendImpl/src/test/resources/reference-cli-version.properties](backendImpl/src/test/resources/reference-cli-version.properties).
 
@@ -49,7 +49,7 @@ To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
 
-By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to {subproject}/build/delombok/...<br/>
+By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to <subproject>/build/delombok/...<br/>
 To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
 
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
@@ -129,9 +129,6 @@ Most non-standard/project-specific conventions are enforced by:
 * [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells (see [top-level config](config/checkstyle/checkstyle.xml))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
   (most config in [build.gradle](build.gradle), stubs in [config/checker/](config/checker))
-
-Note that certain Checker Framework's checkers (`Index`, `Optional`, `Regex`) are by default only run in the CI to speed up local compilation. <br/>
-Pass `RUN_ALL_CHECKERS=true` env var to Gradle to enable all of them locally.
 
 Other coding conventions include:
 
