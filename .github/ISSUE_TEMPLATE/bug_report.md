@@ -7,29 +7,45 @@ assignees: ''
 
 ---
 
-**Bug description**
+### Bug description
 A clear and concise description of what the bug is.
 
-**Steps to reproduce**
+### Steps to reproduce
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+### Expected behavior
 Description of what you expected to happen.
 
-**Current behavior**
+### Current behavior
 Describe what is actually happening.
 
-**Screenshots**
+### Logs
+Enable logging on debug level for this plugin by adding
+```
+binding
+branchlayout
+gitcore
+gitmachete.backend
+gitmachete.frontend.actions
+gitmachete.frontend.externalsystem
+gitmachete.frontend.graph
+gitmachete.frontend.ui
+```
+to list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
+Then reproduce a bug and attach logs here.
+To find IntelliJ log file go to `Help` -> `Show Log in Files`.
+
+### Screenshots
 If applicable, add screenshots to help explain your problem.
 
-**Running environment**
+### Running environment
  - Operating system [e.g. Windows]
  - IDE type [e.g. IntelliJ, PyCharm]
  - IDE version [e.g. 2020.1.4]
 
-**Additional context**
+### Additional context
 Add any other context about the problem here.
