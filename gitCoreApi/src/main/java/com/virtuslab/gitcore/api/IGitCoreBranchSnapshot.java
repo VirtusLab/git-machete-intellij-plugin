@@ -2,6 +2,7 @@ package com.virtuslab.gitcore.api;
 
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -30,8 +31,7 @@ public interface IGitCoreBranchSnapshot {
   List<IGitCoreReflogEntry> getReflogFromMostRecent();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
-  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
-  static boolean defaultEquals(IGitCoreBranchSnapshot self, @Nullable Object other) {
+  static boolean defaultEquals(@FindDistinct IGitCoreBranchSnapshot self, @Nullable Object other) {
     if (self == other) {
       return true;
     } else if (!(other instanceof IGitCoreBranchSnapshot)) {

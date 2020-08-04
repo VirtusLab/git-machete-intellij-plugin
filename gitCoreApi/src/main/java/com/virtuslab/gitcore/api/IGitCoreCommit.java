@@ -2,6 +2,7 @@ package com.virtuslab.gitcore.api;
 
 import java.time.Instant;
 
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -20,8 +21,7 @@ public interface IGitCoreCommit {
   IGitCoreCommitHash getHash();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
-  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
-  static boolean defaultEquals(IGitCoreCommit self, @Nullable Object other) {
+  static boolean defaultEquals(@FindDistinct IGitCoreCommit self, @Nullable Object other) {
     if (self == other) {
       return true;
     } else if (!(other instanceof IGitCoreCommit)) {

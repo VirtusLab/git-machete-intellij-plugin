@@ -1,5 +1,6 @@
 package com.virtuslab.gitcore.api;
 
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
@@ -23,8 +24,7 @@ public interface IGitCoreCommitHash {
   }
 
   @EnsuresNonNullIf(expression = "#2", result = true)
-  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
-  static boolean defaultEquals(IGitCoreCommitHash self, @Nullable Object other) {
+  static boolean defaultEquals(@FindDistinct IGitCoreCommitHash self, @Nullable Object other) {
     if (self == other) {
       return true;
     } else if (!(other instanceof IGitCoreCommitHash)) {

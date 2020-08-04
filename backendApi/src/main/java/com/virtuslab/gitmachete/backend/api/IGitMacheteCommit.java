@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.api;
 
 import java.time.Instant;
 
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
@@ -21,8 +22,7 @@ public interface IGitMacheteCommit {
   Instant getCommitTime();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
-  @SuppressWarnings("interning:not.interned") // to allow for `self == other`
-  static boolean defaultEquals(IGitMacheteCommit self, @Nullable Object other) {
+  static boolean defaultEquals(@FindDistinct IGitMacheteCommit self, @Nullable Object other) {
     if (self == other) {
       return true;
     } else if (!(other instanceof IGitMacheteCommit)) {

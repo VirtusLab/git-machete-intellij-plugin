@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.graph.impl.repository;
 
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -13,10 +14,11 @@ public class RepositoryGraphCache implements IRepositoryGraphCache {
   private @MonotonicNonNull IGitMacheteRepositorySnapshot repositorySnapshot = null;
 
   @Override
-  // to allow for `synchronized` and for `givenRepositorySnapshot != this.repositorySnapshot`
-  @SuppressWarnings({"regexp", "interning:not.interned"})
-  public synchronized IRepositoryGraph getRepositoryGraph(IGitMacheteRepositorySnapshot givenRepositorySnapshot,
+  @SuppressWarnings("regexp") // to allow for `synchronized`
+  public synchronized IRepositoryGraph getRepositoryGraph(
+      @FindDistinct IGitMacheteRepositorySnapshot givenRepositorySnapshot,
       boolean isListingCommits) {
+
     if (givenRepositorySnapshot != this.repositorySnapshot || repositoryGraphWithCommits == null
         || repositoryGraphWithoutCommits == null) {
 

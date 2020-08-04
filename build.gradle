@@ -28,7 +28,7 @@ ext {
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
 
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.5.0'
+  checkerFrameworkVersion = '3.6.0'
   checkstyleToolVersion = '8.33'
   jetbrainsAnnotationsVersion = '19.0.0'
   jgitVersion = '5.8.1.202007141445-r'

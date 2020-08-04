@@ -5,6 +5,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.Getter;
+import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 
 @UsesObjectEquals
@@ -42,8 +43,9 @@ public class BranchLayout implements IBranchLayout {
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
   }
 
-  @SuppressWarnings("interning:not.interned") // to allow for `entry == entryToSlideOut`
-  private List<IBranchLayoutEntry> slideOut(IBranchLayoutEntry entry, IBranchLayoutEntry entryToSlideOut) {
+  private List<IBranchLayoutEntry> slideOut(
+      @FindDistinct IBranchLayoutEntry entry,
+      @FindDistinct IBranchLayoutEntry entryToSlideOut) {
     var children = entry.getChildren();
     if (entry == entryToSlideOut) {
       return children;
