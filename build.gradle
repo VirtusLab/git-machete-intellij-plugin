@@ -273,6 +273,8 @@ subprojects {
     }
 
     applyI18nFormatterChecker = { ->
+      // I18nFormatterChecker, like GuiEffectChecker and NullnessChecker, is enabled
+      // regardless of `CI` env var/`runAllCheckers` Gradle project property.
       checkerFramework {
         checkers += 'org.checkerframework.checker.i18nformatter.I18nFormatterChecker'
         extraJavacArgs += '-Abundlenames=GitMacheteBundle'

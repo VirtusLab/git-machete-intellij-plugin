@@ -40,41 +40,33 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    if (branchName.isEmpty()) {
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    if (branchName == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
           format(getString("action.GitMachete.description.disabled.undefined.branch-name"), getActionNameForDescription()));
       return;
     }
 
-    var gitMacheteBranchByName = getGitMacheteBranchByName(anActionEvent, branchName.get());
-    if (gitMacheteBranchByName.isEmpty()) {
+    var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName).getOrNull();
+    if (gitMacheteBranch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
           format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getActionNameForDescription()));
       return;
     }
-    var syncToRemoteStatus = gitMacheteBranchByName.map(branch -> branch.getSyncToRemoteStatus());
+    var syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
 
-    if (syncToRemoteStatus.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription(format(
-          getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.undefined.sync-to-remote"),
-          getActionNameForDescription()));
-      return;
-    }
-
-    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.get().getRelation();
+    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.getRelation();
     var isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
+      if (getCurrentBranchNameIfManaged(anActionEvent).contains(branchName)) {
         presentation.setText(
             format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.text.current-branch"), getActionName()));
       }
 
-      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName.get());
+      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
@@ -96,10 +88,11 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.untracked")),
           Case($(),
               format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.unknown"), relation.toString())));
+      // @formatter:on
 
       presentation.setDescription(
-          format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"), getActionNameForDescription(), desc));
-      // @formatter:on
+          format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),
+              getActionNameForDescription(), desc));
     }
   }
 }
