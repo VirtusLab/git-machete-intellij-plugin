@@ -29,7 +29,7 @@ public final class GitVfsUtils {
   }
 
   public static Path getMainDirectoryPath(GitRepository gitRepository) {
-    return Path.of(gitRepository.getRoot().getPath());
+    return Path.of(getMainDirectory(gitRepository).getPath());
   }
 
   /**
@@ -45,7 +45,7 @@ public final class GitVfsUtils {
    * This is because the path is valid even though the file may not exist.
    *
    * @param gitRepository {@link GitRepository} to resolve the path within
-   * @return an option of {@link VirtualFile} representing the machete file
+   * @return {@link Path} representing the machete file
    */
   public static Path getMacheteFilePath(GitRepository gitRepository) {
     return getGitDirectoryPath(gitRepository).resolve(MACHETE_FILE_NAME);

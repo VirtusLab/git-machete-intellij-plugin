@@ -62,9 +62,10 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
-/* {@link EnhancedGraphTable} compared to {@link SimpleGraphTable} has graph table refreshing and provides
-   data like last clicked branch name, opened project or {@link GitMacheteRepositorySnapshot} of current
-   repository for actions
+/**
+ *  {@link EnhancedGraphTable} compared to {@link SimpleGraphTable} has graph table refreshing and provides
+ *  data like last clicked branch name, opened project or {@link IGitMacheteRepositorySnapshot} of current
+ *  repository for actions
  */
 
 // TODO (#99): consider applying SpeedSearch for branches and commits
@@ -169,7 +170,7 @@ public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
             /* upperText */ "Provided machete file (${macheteFilePath}) is empty.",
-            /* lowerText */ "Discover repository layout",
+            /* lowerText */ "Discover the repository's branch layout",
             /* onClickRunnableAction */ () -> openDiscoverDialog());
         LOG.info("Machete file (${macheteFilePath}) is empty");
       }
@@ -180,7 +181,7 @@ public final class EnhancedGraphTable extends AbstractEnhancedGraphTable
     if (!isMacheteFilePresent) {
       setTextForEmptyTable(
           "There is no machete file (${macheteFilePath}) for this repository.",
-          "Discover repository layout", () -> openDiscoverDialog());
+          "Discover the repository's branch layout", () -> openDiscoverDialog());
       LOG.info("Machete file (${macheteFilePath}) is absent");
     }
 
