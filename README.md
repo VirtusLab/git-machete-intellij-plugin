@@ -19,8 +19,6 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete#git-mac
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
-<iframe src="https://plugins.jetbrains.com/plugin/14221-git-machete" title="Git Machete plugin"></iframe>
-
 **It is compatible with all JetBrains products except Android Studio.
 Minimum required version is 2020.1**.
 
@@ -38,13 +36,13 @@ Plugin will be installed. After installation depending on IDE version restart ma
 
 ## How it works
 
-Git Machete IntelliJ Plugin is a port of a great console tool - [git-machete](https://github.com/VirtusLab/git-machete#git-machete) - into an IntelliJ plugin.
+Git Machete IntelliJ Plugin is a port of a great console tool - [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
 Let's see how this plugin can help you:
 
 ### Where to find the plugin tab
 
-Git Machete IntelliJ Plugin is available under `Git` (`VCS` in older IntelliJ versions) tab in the `Git Machete` subtab.
+Git Machete IntelliJ Plugin is available under `Git` (`VCS` in older IntelliJ versions) tool window in the `Git Machete` tab.
 You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 ![](docs/open_git_machete.gif)
@@ -109,7 +107,7 @@ Just right-click on the child branch and from context menu select `(Checkout and
 
 After a rebase, you might want to push rebased branch to remote.
 To do this, right-click on the branch you want to push and select `Push (Current) Branch` from context menu.
-Standard IntelliJ push dialog will appear with proper push button (regular push or force push) depending on which of them is needed.
+Push dialog will appear with proper push button (regular push or force push) depending on which of them is needed.
 Basically, we need force push in case when we rebased our branch, because in this case parent of the first commit that we want to push (that is one of `new base` commits)
 is not the last commit of pushed branch in a remote repository, so git won't let us do regular push.
 
@@ -147,7 +145,7 @@ When branch was merged (and sometimes in other cases as well), you probably want
 To do this with easy (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
 This action will modify branch tree for you - delete the selected branch and reattach its children as children of deleted branch parent.
 
-![](docs/slide_out.gif)
+![](docs/slide_out1.gif)
 
 ![](docs/slide_out2.gif)
 
