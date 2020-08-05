@@ -60,6 +60,8 @@ create_repo machete-sandbox
   sed 's/^  //' <<< "$machete_file" > .git/machete
 )
 
+sleep 1
+
 create_repo machete-sandbox2
 (
   cd machete-sandbox2

@@ -10,26 +10,11 @@ EOF
 
 # All functions defined here are guaranteed to preserve the original current working directory.
 
-function set_fake_git_date() {
-  if (( $# != 1 )); then
-    echo "${FUNCNAME[0]} <date> needs 1 parameter, $# was given"
-    exit 100
-  fi
-
-  local date=$1
-  # Note that GIT_COMMITTER_DATE is recorded not only into the commits but also into reflog entries.
-  export GIT_COMMITTER_DATE="$date 12:34:56"
-}
-
-commit_day_of_month=1
-
 function create_repo() {
   if (( $# < 1 )); then
     echo "${FUNCNAME[0]} <dir> [<git-init-options>...] needs at least 1 parameter, $# was given"
     exit 100
   fi
-
-  set_fake_git_date 2020-01-$commit_day_of_month
 
   local dir=$1
   mkdir -p $dir
@@ -65,7 +50,6 @@ function commit() {
   touch $f
   git add $f
   git commit -m "$*"
-  set_fake_git_date 2020-01-$((++commit_day_of_month))
 }
 
 function push() {
