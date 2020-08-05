@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.*;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
