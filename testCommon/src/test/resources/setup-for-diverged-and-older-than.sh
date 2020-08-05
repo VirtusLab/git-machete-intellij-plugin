@@ -9,8 +9,7 @@ source "$self_dir"/common.sh
 create_repo machete-sandbox-remote --bare
 
 create_repo machete-sandbox
-(
-  cd machete-sandbox
+cd machete-sandbox
   git remote add origin ../machete-sandbox-remote
 
   create_branch root
@@ -58,11 +57,11 @@ create_repo machete-sandbox
       hotfix/add-trigger
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
-)
+cd -
+
 
 create_repo machete-sandbox2
-(
-  cd machete-sandbox2
+cd machete-sandbox2
   git remote add origin ../machete-sandbox-remote
   git fetch
 
@@ -73,9 +72,9 @@ create_repo machete-sandbox2
   git checkout master
   commit Master newer commit
   push
-)
+cd -
 
-(
-  cd machete-sandbox
+
+cd machete-sandbox
   git fetch
-)
+cd -

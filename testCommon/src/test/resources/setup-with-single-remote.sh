@@ -8,8 +8,7 @@ source "$self_dir"/common.sh
 create_repo machete-sandbox-remote --bare
 
 create_repo machete-sandbox
-(
-  cd machete-sandbox
+cd machete-sandbox
   git remote add origin ../machete-sandbox-remote
 
   create_branch root
@@ -61,4 +60,4 @@ create_repo machete-sandbox
   '
 
   sed 's/^  //' <<< "$machete_file" > .git/machete
-)
+cd -

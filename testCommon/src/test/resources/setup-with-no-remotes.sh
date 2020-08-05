@@ -6,8 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/common.sh
 
 create_repo machete-sandbox
-(
-  cd machete-sandbox
+cd machete-sandbox
   # Let's add more than 10 branches so that some of them (the least recently checked out ones)
   # should be skipped from the discovered layout
   create_branch root
@@ -52,4 +51,4 @@ create_repo machete-sandbox
           drop-constraint
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
-)
+cd -

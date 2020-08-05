@@ -9,8 +9,7 @@ create_repo machete-sandbox-remote1 --bare
 create_repo machete-sandbox-remote2 --bare
 
 create_repo machete-sandbox
-(
-  cd machete-sandbox
+cd machete-sandbox
   git remote add remote1 ../machete-sandbox-remote1
   git remote add remote2 ../machete-sandbox-remote2
 
@@ -59,4 +58,4 @@ create_repo machete-sandbox
       hotfix/add-trigger
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
-)
+cd -
