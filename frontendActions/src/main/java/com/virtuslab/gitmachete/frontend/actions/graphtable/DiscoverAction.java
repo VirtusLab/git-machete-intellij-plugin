@@ -67,10 +67,7 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file-task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        Try.of(() -> {
-          branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true);
-          return null;
-        })
+        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true))
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
                 /* title */ getString("action.GitMachete.DiscoverAction.write-file-error-title"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
