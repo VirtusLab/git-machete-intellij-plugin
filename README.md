@@ -6,23 +6,21 @@
 
 ![](src/main/resources/META-INF/pluginIcon.svg)
 
-Git Machete plugin is a robust tool that simplify your git related workflow.
-It's a great completion of IntelliJ version control system.
-You can with ease rebase branches, do pull, push or reset.
-Just define what you would like your branch tree to look like and leave the rest to Git Machete.
-It gives you simple view of what's going on in your repository.
+Git Machete plugin is a robust tool that simplifies your git related workflow.
+It's a great complement of IntelliJ version control system.
+You can with ease rebase, pull, push or reset branches.
+Just define what relation between your branches you want to keep and leave the rest to Git Machete.
+It gives you a simple view of what's going on in your repository.
 Just look at the edge colors or status descriptions to see what should be rebased, pushed, pulled or reset.
 
 With this plugin you can simply maintain small pull request that are easy to review.
-
-This is a port of [git-machete](https://github.com/VirtusLab/git-machete#git-machete) into an IntelliJ plugin.
-
-This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
 **It is compatible with all JetBrains products except Android Studio.
 Minimum required version is 2020.1**.
 
 ![](docs/sample-workflow.gif)
+
+See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) - CLI version of this plugin.
 
 
 ## Installing
@@ -31,7 +29,7 @@ Minimum required version is 2020.1**.
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
 To install this plugin go to `File` -> `Settings` -> `Plugins`, then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`.
-Plugin will be installed. After installation depending on IDE version restart may be required. In that case just click `Restart IDE` and confirm that action in a messagebox.
+After installation depending on IDE version restart may be required. In that case just click `Restart IDE` and confirm that action in a messagebox.
 
 
 ## How it works
@@ -62,36 +60,36 @@ master
 ```
 `develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
 Two of them (`allow-ownership-link` and `build-chain`) have custom annotation - it's some kind of short description for given branch and it can be any text that will be displayed next to this branch - in this case they are pull request numbers.
-Relation between these branches is determined by indentations - here single indent is 4 spaces but also tabulation(s) can be used.
+Relation between these branches is determined by indentations - here single indent is 4 spaces, but a tab can be used as well.
 In the example above branches `allow-ownership-link` and `call-ws` are children of `develop` and `build-chain` is a child of `allow-ownership-link`.
-The same for `hotfix/add-trigger` and `master` - former is a child of latter.
+The same for `hotfix/add-trigger` and `master` - the former is a child of the latter.
 `develop` and `master` are root branches.
 
-When branch tree is created, Git Machete indicates relation between parent branch and each of its child branches.
+When branch layout is created, Git Machete indicates relation between parent branch and each of its child branches.
 If edge between them is green that means child branch is in sync with its parent branch - in other words there are no commits in parent branch that don't belong to the child.
-But if there are some of that commits, then edge is red - we need to [rebase](#rebase) child branch onto the parent.
+But if there are some commits in the parent branch that are **not** reachable from the child, then edge is red - we need to [rebase](#rebase) child branch onto the parent.
 
-Machete file editor will help you to manage `machete` file: it underlines any errors (bad indentation or nonexistent branches) and propose branch names based on local repository branches.
-When file editing is done, you can click button in top right corner of file editor to refresh machete branch tree.
+Machete file editor will help you to manage `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
+When file editing is done, you can click button in top right corner of file editor to refresh machete branch layout.
 
 ![](docs/machete_file_editor.gif)
 
-For more information about `machete` file look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02)
+For more information about `machete` file look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
 
 ### Checking out branches
 
 With Git Machete you can easily check out branches that have been defined in `machete` file.
 Just right-click on the branch you wont to check out and select `Checkout Branch`.
 You can also double-click on the selected branch to check it out.
-Current branch is underlined in branch tree.
+Current branch is underlined in branch layout.
 
 ![](docs/checkout.gif)
 
 ### Listing commits
 
 Git Machete can display commits belonging to the branches.
-It displays only these commits that are unique for the selected branch (i.e. were never a tip of a different branch).
-When you click on eye button on the left side of plugin, you can toggle between show and hide commits.
+It displays only the commits that are unique to the selected branch (i.e. have never been a tip of a different branch).
+When you click on the eye button on the left side of plugin, you can toggle between showing and hiding commits.
 
 ![](docs/toggle_listing_commits.gif)
 
@@ -105,11 +103,10 @@ Just right-click on the child branch and from context menu select `(Checkout and
 
 ### Push
 
-After a rebase, you might want to push rebased branch to remote.
-To do this, right-click on the branch you want to push and select `Push (Current) Branch` from context menu.
+After a rebase, you might want to push the rebased branch to the remote.
+Right-click on the given branch and select `Push (Current) Branch` from context menu.
 Push dialog will appear with proper push button (regular push or force push) depending on which of them is needed.
-Basically, we need force push in case when we rebased our branch, because in this case parent of the first commit that we want to push (that is one of `new base` commits)
-is not the last commit of pushed branch in a remote repository, so git won't let us do regular push.
+Basically, we need force push in case when we rebased our branch, because local and remote branch diverged from each other (they have different commits), so git won't let us do regular push.
 
 ![](docs/push.gif)
 
@@ -141,9 +138,9 @@ As you can see, edge between given branch and its parent was changed to grey - i
 
 ### Slide out branch
 
-When branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch tree.
-To do this with easy (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
-This action will modify branch tree for you - delete the selected branch and reattach its children as children of deleted branch parent.
+When branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch layout.
+To do this with ease (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
+This action will modify branch layout for you - delete the selected branch and reattach its children as children of deleted branch parent.
 When the `machete.slideOut.deleteLocalBranch` git configuration key is set to `true`, then this action delete also sided out branch from your git repository.
 The easiest way to set this key is using `git config --add machete.slideOut.deleteLocalBranch true` command inside given repository.
 If you want to set this key globally (to by used for all repositories that don't have this key set explicitly), add `--global` option to the previous command.
@@ -172,18 +169,18 @@ You can also select `Reattach children` checkbox to move along all children of t
 ### Other actions
 
 On the left side bar you can find other actions (from top to bottom):
-- ![](docs/left_bar_actions/refresh.png) **Refresh Status** - refreshing (reload) branch tree (the graph displayed in main plugin window)
+- ![](docs/left_bar_actions/refresh.png) **Refresh Status** - refreshing (reload) branch layout (the graph displayed in main plugin window)
 - ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** - show or hide commits belonging to branches (for more details see section [Listing commits](#listing-commits))
 - ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** - open `machete` file in IntelliJ editor (to see what this editor can do see [Machete file editor](#machete-file-editor) section)
 - ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** - equivalent of `git fetch --all` command
 - ![](docs/left_bar_actions/push_current_branch.png) **Push Current Branch** - push branch that is currently checked out (shortcut of [Push](#push) context menu action for the current branch)
 - ![](docs/left_bar_actions/rebase_current_branch.png) **Rebase Current Branch Onto Parent** - rebase currently checked out branch onto its parent (shortcut of [Rebase](#rebase) context menu action for the current branch)
-- ![](docs/left_bar_actions/help.png) **Show Help Window** - show window with example branch tree and explanation what parts of this graph mean
+- ![](docs/left_bar_actions/help.png) **Show Help Window** - show window with example branch layout and explanation what parts of this graph mean
 
 ### Multi-repository support
 
-Git Machete support many git repositories in one project. It can be many standard repositories or submodules.
-If more than one repository will be detected, then selection list will appear in top of main plugin window.
+Git Machete support many git repositories in one project. It can be many regular repositories or submodules.
+If more than one repository is detected, then selection list will appear in top of main plugin window.
 In that case each repository will have its own `machete` file.
 
 ![](docs/multi_repo.gif)
@@ -205,9 +202,9 @@ Consider increasing maximum heap size for the IDE (the default value is 2048 MB)
 
 For running `./gradlew` from command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-### Building
+### Compilation
 
-To build the project, run `./gradlew build`.
+To compile the project, run `./gradlew build`.
 
 Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
