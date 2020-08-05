@@ -19,6 +19,8 @@ This is a port of [git-machete](https://github.com/VirtusLab/git-machete#git-mac
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete).
 
+<iframe src="https://plugins.jetbrains.com/plugin/14221-git-machete" title="Git Machete plugin"></iframe>
+
 **It is compatible with all JetBrains products except Android Studio.
 Minimum required version is 2020.1**.
 
