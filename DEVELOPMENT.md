@@ -3,7 +3,7 @@
 ## Prerequisites
 
 * git
-* IntelliJ 2020.1 Community Edition/Ultimate
+* latest IntelliJ Community Edition/Ultimate
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
   * Enable annotation processing (for Lombok):
@@ -81,6 +81,11 @@ See [Gradle Intellij plugin docs](https://github.com/JetBrains/gradle-intellij-p
 for more details.
 
 
+## Check dependency updates
+
+`./gradlew dependencyUpdates`
+
+
 ## Generate plugin zip
 
 To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).<br/>
@@ -138,11 +143,6 @@ Other coding conventions include:
   Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
 * Non-obvious method params that have values like `false`, `true`, `0`, `1`, `null`, `""` should be preceded with a `/* comment */ `
   containing the name of the param.
-
-
-## Check dependency updates
-
-`./gradlew dependencyUpdates`
 
 
 ## Rebuild the CI base image

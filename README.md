@@ -144,6 +144,9 @@ As you can see, edge between given branch and its parent was changed to grey - i
 When branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch tree.
 To do this with easy (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
 This action will modify branch tree for you - delete the selected branch and reattach its children as children of deleted branch parent.
+When the `machete.slideOut.deleteLocalBranch` git configuration key is set to `true`, then this action delete also sided out branch from your git repository.
+The easiest way to set this key is using `git config --add machete.slideOut.deleteLocalBranch true` command inside given repository.
+If you want to set this key globally (to by used for all repositories that don't have this key set explicitly), add `--global` option to the previous command.
 
 ![](docs/slide_out1.gif)
 
