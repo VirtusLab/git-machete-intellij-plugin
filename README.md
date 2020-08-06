@@ -9,7 +9,7 @@
 Git Machete plugin is a robust tool that simplifies your git related workflow.
 It's a great complement of IntelliJ version control system.
 You can with ease rebase, pull, push or reset branches.
-Just define what relation between your branches you want to keep and leave the rest to Git Machete.
+Just use discover action or manually define what relation between your branches you want to keep and leave the rest to Git Machete.
 It gives you a simple view of what's going on in your repository.
 Just look at the edge colors or status descriptions to see what should be rebased, pushed, pulled or reset.
 
@@ -18,7 +18,7 @@ With this plugin you can simply maintain small pull request that are easy to rev
 **It is compatible with all JetBrains products except Android Studio.
 Minimum required version is 2020.1**.
 
-![](docs/sample-workflow.gif)
+![](docs/sample_workflow.gif)
 
 See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) - CLI version of this plugin.
 
@@ -47,8 +47,11 @@ You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 ### Machete file edition
 
-`machete` file describes relation between branches in your repository (these relations are probably determined by order of branch creation - which branch form which - but this is not a rule).
+`machete` file describes relations between branches in your repository (these relations are probably determined by order of branch creation - which branch form which - but this is not a rule).
 It's located inside `.git` directory in your repo.
+
+You can define this file manually or use [discover](#discover) action.
+
 This is the example of `machete` file:
 ```
 develop
@@ -76,6 +79,15 @@ When file editing is done, you can click button in top right corner of file edit
 
 For more information about `machete` file look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
 
+### Discover
+
+Branch layout can be automatically discovered based on your git repository by `Discover Branch Layout` action.
+It detects a layout of 10 recently used branches.
+This action is proposed in Git Machete tab in case of empty or nonexistent `machete` file,
+but you can also run it any time you want from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
+
+![](docs/discover.gif)
+
 ### Checking out branches
 
 With Git Machete you can easily check out branches that have been defined in `machete` file.
@@ -97,7 +109,8 @@ When you click on the eye button on the left side of plugin, you can toggle betw
 ### Rebase
 
 Rebase with Git Machete plugin is easy!
-Just right-click on the child branch and from context menu select `(Checkout and) Rebase Branch onto Parent` and a standard IntelliJ dialog for interactive rebase will appear.
+Just right-click on the child branch and from context menu select `(Checkout and) Rebase Branch onto Parent`.
+Standard IntelliJ dialog for interactive rebase will appear.
 
 ![](docs/rebase.gif)
 
@@ -145,9 +158,9 @@ When the `machete.slideOut.deleteLocalBranch` git configuration key is set to `t
 The easiest way to set this key is using `git config --add machete.slideOut.deleteLocalBranch true` command inside given repository.
 If you want to set this key globally (to by used for all repositories that don't have this key set explicitly), add `--global` option to the previous command.
 
-![](docs/slide_out1.gif)
+![](docs/slide_out_leaf_node.gif)
 
-![](docs/slide_out2.gif)
+![](docs/slide_out_non_leaf_node.gif)
 
 ### Slide in branch
 
@@ -156,15 +169,20 @@ Dialog window will appear.
 In text box type new branch name and click `Slide In` button.
 Another dialog will appear - it is a standard new branch IntelliJ dialog.
 
-![](docs/slide_in1.gif)
+![](docs/slide_in_new_branch.gif)
+
+Slide in action can also add a branch that already exists in git repository to the branch layout.
+Again, select `Slide In Branch Bellow Selected Branch` from context menu and type already existent branch name.
+
+![](docs/slide_in_existent_branch.gif)
 
 This action can also be used to reattach an existing branch below a selected one.
 In this case you just must type name of existing branch that you want to reattach and then click `Slide In`.
 You can also select `Reattach children` checkbox to move along all children of the reattached branch.
 
-![](docs/slide_in2.gif)
+![](docs/slide_in_reattach_without_children.gif)
 
-![](docs/slide_in3.gif)
+![](docs/slide_in_reattach_with_children.gif)
 
 ### Other actions
 
