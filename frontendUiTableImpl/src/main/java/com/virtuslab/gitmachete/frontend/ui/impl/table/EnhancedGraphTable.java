@@ -13,6 +13,8 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static java.text.MessageFormat.format;
 
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGitMacheteRepositorySnapshotProvider;
+import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -61,7 +63,6 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGrap
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
-import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 /**
@@ -74,8 +75,7 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositor
 @CustomLog
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
-      DataProvider,
-      IGitMacheteRepositorySnapshotProvider {
+      DataProvider {
 
   private final Project project;
 
@@ -86,10 +86,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Setter
   @UIEffect
   private boolean isListingCommits;
-
-  @UIEffect
-  @Getter
-  private @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @UIEffect
   private @Nullable String selectedBranchName;
@@ -114,7 +110,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     setRowSelectionAllowed(true);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
+    var renderer = new BranchOrCommitCellRenderer();
+    setDefaultRenderer(BranchOrCommitCell.class, renderer);
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);

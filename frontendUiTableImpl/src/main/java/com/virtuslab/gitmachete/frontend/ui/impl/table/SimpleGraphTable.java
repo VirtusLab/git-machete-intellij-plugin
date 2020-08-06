@@ -15,10 +15,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
 
-public final class SimpleGraphTable extends BaseGraphTable implements IGitMacheteRepositorySnapshotProvider {
-  @Getter
-  private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
-
+public final class SimpleGraphTable extends BaseGraphTable {
   @UIEffect
   public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
     // We can keep the data - graph table model,
