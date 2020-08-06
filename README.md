@@ -191,8 +191,15 @@ On the left side bar you can find other actions (from top to bottom):
 - ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** - show or hide commits belonging to branches (for more details see section [Listing commits](#listing-commits))
 - ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** - open `machete` file in IntelliJ editor (to see what this editor can do see [Machete file editor](#machete-file-editor) section)
 - ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** - equivalent of `git fetch --all` command
-- ![](docs/left_bar_actions/push_current_branch.png) **Push Current Branch** - push branch that is currently checked out (shortcut of [Push](#push) context menu action for the current branch)
-- ![](docs/left_bar_actions/rebase_current_branch.png) **Rebase Current Branch Onto Parent** - rebase currently checked out branch onto its parent (shortcut of [Rebase](#rebase) context menu action for the current branch)
+- The most suitable action (each is equivalent of context menu actions) for a current branch that can be one of:
+    - ![](docs/left_bar_actions/push.png) **Push Current Branch**
+    - ![](docs/left_bar_actions/pull.png) **Pull Current Branch**
+    - ![](docs/left_bar_actions/reset.png) **Reset Current Branch to Remote**
+    - ![](docs/left_bar_actions/slide_out.png) **Slide Out Current Branch**
+
+  Available action is selected based on a relation between current branch and its parent and remote branch.
+- ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** - shortcut of [slide in](#slide-in-branch) action for current branch
+- ![](docs/left_bar_actions/rebase.png) **Rebase Current Branch Onto Parent** - shortcut of [rebase](#rebase) action for the current branch
 - ![](docs/left_bar_actions/help.png) **Show Help Window** - show window with example branch layout and explanation what parts of this graph mean
 
 ### Multi-repository support
