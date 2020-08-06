@@ -1,8 +1,13 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.cell;
 
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSync;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButForkPointOff;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.MergedToParent;
+import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.OutOfSync;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
@@ -56,7 +61,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGitMacheteRepositorySnapshotProvider;
+import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnapshotProvider;
 
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
@@ -140,6 +145,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     if (graphItem.isBranchItem()) {
       IBranchItem branchItem = graphItem.asBranchItem();
       IGitMacheteBranch branch = branchItem.getBranch();
+
+      if (branch.isNonRootBranch()) {
+        setToolTipText(getSyncToParentStatusBasedTooltip(branch.asNonRootBranch()));
+      }
 
       Option<String> customAnnotation = branch.getCustomAnnotation();
       if (customAnnotation.isDefined()) {
@@ -239,6 +248,19 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
         Case($(DivergedFromAndNewerThanRemote), "  (diverged from ${remoteName})"),
         Case($(DivergedFromAndOlderThanRemote), "  (diverged from & older than ${remoteName})"));
+  }
+
+  private static String getSyncToParentStatusBasedTooltip(IGitMacheteNonRootBranch currentBranch) {
+    var currentBranchName = currentBranch.getName();
+    var parentBranchName = currentBranch.getParentBranch().getName();
+    return Match(currentBranch.getSyncToParentStatus()).of(
+        Case($(InSync), "Branch '${currentBranchName}' is in sync with '${parentBranchName}'"),
+        Case($(InSyncButForkPointOff), "Branch '${currentBranchName}' is in sync with '${parentBranchName}', " +
+            "but the range of commits belonging to '${currentBranchName}' is uncertain; consider overriding fork point from right-click menu"),
+        Case($(OutOfSync), "Branch '${currentBranchName}' is out of sync with '${parentBranchName}'; " +
+            "consider rebasing onto '${parentBranchName}' from right-click menu"),
+        Case($(MergedToParent), "Branch '${currentBranchName}' is merged to '${parentBranchName}'; " +
+            "consider sliding out from right-click menu"));
   }
 
   private static class MyTableCellRenderer extends DefaultTableCellRenderer {

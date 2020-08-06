@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.api.table;
+package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
