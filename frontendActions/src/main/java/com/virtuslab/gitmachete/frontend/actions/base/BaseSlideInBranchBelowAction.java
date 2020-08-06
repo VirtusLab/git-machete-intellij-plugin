@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
+import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -19,10 +20,15 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
+import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -34,6 +40,7 @@ import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.EntryIsRootException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
+import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -111,16 +118,18 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     }
 
     var localBranch = selectedVcsRepository.getBranches().findLocalBranch(slideInOptions.getName());
+    Runnable preSlideInRunnable = () -> {};
     if (localBranch == null) {
-      var createNewBranchDialogBranchName = createOrCheckoutNewBranch(project, selectedVcsRepository, parentName,
-          slideInOptions.getName());
-      if (!slideInOptions.getName().equals(createNewBranchDialogBranchName)) {
-        createNewBranchDialogBranchName = createNewBranchDialogBranchName != null
-            ? createNewBranchDialogBranchName
+      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(project,
+          selectedVcsRepository, parentName, slideInOptions.getName());
+      preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
+      if (!slideInOptions.getName().equals(branchNameAndPreSlideInRunnable._1())) {
+        var branchNameFromNewBranchDialog = branchNameAndPreSlideInRunnable._1() != null
+            ? branchNameAndPreSlideInRunnable._1()
             : "no name provided";
         notifier.notifyWeakError(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.mismatched-names"),
-                slideInOptions.getName(), createNewBranchDialogBranchName));
+                slideInOptions.getName(), branchNameFromNewBranchDialog));
         return;
       }
     }
@@ -138,10 +147,13 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
+    final var finalPreSlideInRunnable = preSlideInRunnable;
     new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
 
       @Override
       public void run(ProgressIndicator indicator) {
+        finalPreSlideInRunnable.run();
+
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
 
         var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
@@ -220,8 +232,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     return t.getMessage() != null ? t.getMessage() : "";
   }
 
-  @Nullable
-  String createOrCheckoutNewBranch(Project project, GitRepository gitRepository, String startPoint, String initialName) {
+  Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
+      Project project,
+      GitRepository gitRepository,
+      String startPoint,
+      String initialName) {
     var repositories = java.util.Collections.singletonList(gitRepository);
     var gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
@@ -230,27 +245,61 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
-        /* showSetTrackingOption */ true);
+        /* showSetTrackingOption */ false); // TODO (#496): use setTrackingOption that comes with 2020.2
 
     GitNewBranchOptions options = gitNewBranchDialog.showAndGetOptions();
 
     if (options == null) {
       log().debug("Name of branch to slide in is null: " +
           "most likely the action has been canceled from create-new-branch dialog");
-      return null;
+      return Tuple.of(null, () -> {});
     }
 
     var branchName = options.getName();
     if (!initialName.equals(branchName)) {
-      return branchName;
+      return Tuple.of(branchName, () -> {});
     }
 
-    if (options.shouldCheckout()) {
-      checkoutOrReset(project, repositories, startPoint, options);
-    } else {
-      createNewBranch(project, repositories, startPoint, options);
+    Runnable preSlideInRunnable = () -> {};
+    var remoteBranch = getGitRemoteBranch(project, gitRepository, branchName);
+
+    if (options.shouldCheckout() && remoteBranch != null) {
+      preSlideInRunnable = () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName());
+
+    } else if (!options.shouldCheckout() && remoteBranch != null) {
+      var refspec = "refs/remotes/${remoteBranch.getName()}:refs/heads/${branchName}";
+      preSlideInRunnable = () -> new FetchBackgroundable(project, gitRepository, GitRemote.DOT.getName(), refspec,
+          "Fetching Remote Branch").queue();
+
+    } else if (options.shouldCheckout() && remoteBranch == null) {
+      preSlideInRunnable = () -> checkoutOrReset(project, repositories, startPoint, options);
+
+    } else if (!options.shouldCheckout() && remoteBranch == null) {
+      preSlideInRunnable = () -> createNewBranch(project, repositories, startPoint, options);
     }
 
-    return options.getName();
+    final var finalPreSlideInRunnable = preSlideInRunnable;
+    return Tuple.of(options.getName(), () -> {
+      finalPreSlideInRunnable.run();
+    });
+  }
+
+  @Nullable
+  private static GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
+    var remotes = gitRepository.getRemotes();
+    if (remotes.size() > 0) {
+      var remote = Option.ofOptional(remotes.stream().findFirst()).getOrNull();
+      assert remote != null : "remote is null";
+
+      if (remotes.size() > 1) {
+        VcsNotifier.getInstance(project).notifyInfo(format(
+            getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
+            remote.getName()));
+      }
+
+      var remoteBranchName = "${remote.getName()}/${branchName}";
+      return gitRepository.getBranches().findRemoteBranch(remoteBranchName);
+    }
+    return null;
   }
 }
