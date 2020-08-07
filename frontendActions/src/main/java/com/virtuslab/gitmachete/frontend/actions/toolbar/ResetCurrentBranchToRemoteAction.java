@@ -17,14 +17,14 @@ public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAct
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
-    var isEnabledAndVisible = getNameOfBranchUnderAction(anActionEvent)
+    var isDivergedFromAndOlderThanRemote = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation() == DivergedFromAndOlderThanRemote)
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isEnabledAndVisible);
+    anActionEvent.getPresentation().setEnabledAndVisible(isDivergedFromAndOlderThanRemote);
 
-    if (isEnabledAndVisible) {
+    if (isDivergedFromAndOlderThanRemote) {
       super.onUpdate(anActionEvent);
     }
   }

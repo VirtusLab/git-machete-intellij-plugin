@@ -15,14 +15,14 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
-    var isEnabledAndVisible = getNameOfBranchUnderAction(anActionEvent)
+    var isNonRootBranch = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
         .map(b -> b.isNonRootBranch())
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isEnabledAndVisible);
+    anActionEvent.getPresentation().setEnabledAndVisible(isNonRootBranch);
 
-    if (isEnabledAndVisible) {
+    if (isNonRootBranch) {
       super.onUpdate(anActionEvent);
     }
   }

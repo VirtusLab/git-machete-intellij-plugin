@@ -16,15 +16,15 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
-    var isEnabledAndVisible = getNameOfBranchUnderAction(anActionEvent)
+    var isMergedToParent = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
-        .flatMap(b -> Option.of(b.isNonRootBranch() ? b.asNonRootBranch() : null))
+        .flatMap(b -> b.isNonRootBranch() ? Option.some(b.asNonRootBranch()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.MergedToParent)
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isEnabledAndVisible);
+    anActionEvent.getPresentation().setEnabledAndVisible(isMergedToParent);
 
-    if (isEnabledAndVisible) {
+    if (isMergedToParent) {
       super.onUpdate(anActionEvent);
     }
   }
