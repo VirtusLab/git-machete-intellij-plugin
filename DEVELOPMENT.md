@@ -181,9 +181,12 @@ in [version.gradle](version.gradle) in the following way:
 
 ### IDE supported versions
 
-Since we cannot skip `untilBuild` field in plugin build configuration (see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460) and [YouTrack ticket](https://youtrack.jetbrains.com/issue/IJSDK-888)) the most reasonable approach is to bump `untilBuild` to `X.*` when new `X` EAP or RC version will be released.
-Then we should verify ASAP that our plugin is compatible with `X`.
-If it is, there is a little chance to our plugin that is compatible with `X` and doesn't use any `X EAP/RC`-related API (is compatible with `X-1`) be NOT compatible with not EAP/RC `X` release of IDE.
+Since we cannot skip `untilBuild` field in plugin build configuration
+(see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460) 
+and [YouTrack ticket](https://youtrack.jetbrains.com/issue/IJSDK-888)),
+the most reasonable approach is to bump `untilBuild` to `X.*` when the new `X` EAP or RC version is released.
+Once stable (non-EAP/RC) `X` is released, we should verify ASAP that our plugin is compatible with `X`.
+There is a rather little risk that the plugin which is compatible with `X - 1` and does **not** use any `X EAP/RC`-specific API turns out to be **not** compatible with stable `X` release of IDE.
 
 For instance:
 1. our plugin in version `0.6.0` is compatible with IntelliJ `2020.2`

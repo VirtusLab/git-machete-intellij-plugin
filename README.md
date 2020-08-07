@@ -8,10 +8,11 @@
 
 Git Machete plugin is a robust tool that simplifies your git related workflow.
 It's a great complement of IntelliJ version control system.
-You can with ease rebase, pull, push or reset branches.
-Just use discover action or manually define what relation between your branches you want to keep and leave the rest to Git Machete.
-It gives you a simple view of what's going on in your repository.
-Just look at the edge colors or status descriptions to see what should be rebased, pushed, pulled or reset.
+The "bird’s eye view" provided by Git Machete makes merges/rebases/push/pulls hassle-free
+even when multiple branches are present in the repository
+(master/develop, your topic branches, teammate’s branches checked out for review etc.).
+A look at Git Machete tab gives an instant answer to the question
+"what are the branches in this repository, what is going to be merged (rebased/pushed/pulled) and to what?".
 
 With this plugin you can simply maintain small pull request that are easy to review.
 
@@ -82,7 +83,7 @@ For more information about `machete` file look at the [reference blog post](http
 ### Discover
 
 Branch layout can be automatically discovered based on your git repository by `Discover Branch Layout` action.
-It detects a layout of 10 recently used branches.
+It detects a layout of around 10 most recently used branches.
 This action is proposed in Git Machete tab in case of empty or nonexistent `machete` file,
 but you can also run it any time you want from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
