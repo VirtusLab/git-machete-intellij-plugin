@@ -15,15 +15,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BaseGraphTable extends JBTable {
   @UIEffect
-  @SuppressWarnings("nullness") // to allow setAutoResizeMode
+  @SuppressWarnings("nullness:method.invocation.invalid") // to allow for setAutoResizeMode despite the object isn't initialized yet
   protected BaseGraphTable(TableModel model) {
     super(model);
 
+    // Without set autoresize off column will expand to whole table width (will not fit the content size)
     setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
   }
 
   /**
-   * This override of {@link JBTable#prepareRenderer} set column size to fit the content
+   * This method that overrides {@link JBTable#prepareRenderer} is responsible for set column size that fit the content
    */
   @Override
   @UIEffect

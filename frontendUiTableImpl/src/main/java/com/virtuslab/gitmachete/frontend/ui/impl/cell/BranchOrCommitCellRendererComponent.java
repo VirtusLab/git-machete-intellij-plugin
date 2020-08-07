@@ -18,10 +18,12 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.Predicates.isIn;
+import static java.text.MessageFormat.format;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -66,6 +68,7 @@ import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnap
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
+  private static final String SPACE = " ";
 
   private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = RuntimeBinding
       .instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
@@ -126,12 +129,18 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         var ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
         if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
           var ongoingOperationName = Match(ongoingRepositoryOperation).of(
-              Case($(OngoingRepositoryOperation.CHERRY_PICKING), "CHERRY-PICKING"),
-              Case($(OngoingRepositoryOperation.MERGING), "MERGING"),
-              Case($(OngoingRepositoryOperation.REBASING), "REBASING"),
-              Case($(OngoingRepositoryOperation.REVERTING), "REVERTING"),
-              Case($(OngoingRepositoryOperation.APPLYING), "APPLYING"),
-              Case($(OngoingRepositoryOperation.BISECTING), "BISECTING"),
+              Case($(OngoingRepositoryOperation.CHERRY_PICKING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
+              Case($(OngoingRepositoryOperation.MERGING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging")),
+              Case($(OngoingRepositoryOperation.REBASING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing")),
+              Case($(OngoingRepositoryOperation.REVERTING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting")),
+              Case($(OngoingRepositoryOperation.APPLYING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying")),
+              Case($(OngoingRepositoryOperation.BISECTING),
+                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
               Case($(), ""));
           SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
@@ -147,7 +156,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IGitMacheteBranch branch = branchItem.getBranch();
 
       if (branch.isNonRootBranch()) {
-        setToolTipText(getSyncToParentStatusBasedTooltip(branch.asNonRootBranch()));
+        setToolTipText(getSyncToParentStatusBasedTooTipText(branch.asNonRootBranch()));
       }
 
       Option<String> customAnnotation = branch.getCustomAnnotation();
@@ -170,10 +179,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IGitMacheteForkPointCommit forkPoint = containingBranch.getForkPoint().getOrNull();
 
       if (commitItem.getCommit().equals(forkPoint)) {
-        append(" ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} fork point ? ", new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
-        append("commit ", REGULAR_ATTRIBUTES);
+        append(
+            " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
+                + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + SPACE,
+            new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+        append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + SPACE,
+            REGULAR_ATTRIBUTES);
         append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
-        append(" has been found in reflog of ", REGULAR_ATTRIBUTES);
+        append(SPACE + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
+            + SPACE, REGULAR_ATTRIBUTES);
         append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
       }
     }
@@ -240,27 +254,42 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
   private static String getLabel(SyncToRemoteStatus status) {
     var remoteName = status.getRemoteName();
-    return Match(status.getRelation()).of(
+    return "  " + Match(status.getRelation()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
-        Case($(Untracked), "  (untracked)"),
-        Case($(AheadOfRemote), "  (ahead of ${remoteName})"),
-        Case($(BehindRemote), "  (behind ${remoteName})"),
+        Case($(Untracked), getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.untracked")),
+        Case($(AheadOfRemote),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.ahead-of-remote"), remoteName)),
+        Case($(BehindRemote),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.behind-remote"), remoteName)),
         // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
-        Case($(DivergedFromAndNewerThanRemote), "  (diverged from ${remoteName})"),
-        Case($(DivergedFromAndOlderThanRemote), "  (diverged from & older than ${remoteName})"));
+        Case($(DivergedFromAndNewerThanRemote),
+            format(
+                getString(
+                    "string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.diverged-from-and-newer-than-remote"),
+                remoteName)),
+        Case($(DivergedFromAndOlderThanRemote),
+            format(
+                getString(
+                    "string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.diverged-from-and-older-than-remote"),
+                remoteName)));
   }
 
-  private static String getSyncToParentStatusBasedTooltip(IGitMacheteNonRootBranch currentBranch) {
-    var currentBranchName = currentBranch.getName();
-    var parentBranchName = currentBranch.getParentBranch().getName();
-    return Match(currentBranch.getSyncToParentStatus()).of(
-        Case($(InSync), "Branch '${currentBranchName}' is in sync with '${parentBranchName}'"),
-        Case($(InSyncButForkPointOff), "Branch '${currentBranchName}' is in sync with '${parentBranchName}', " +
-            "but the range of commits belonging to '${currentBranchName}' is uncertain; consider overriding fork point from right-click menu"),
-        Case($(OutOfSync), "Branch '${currentBranchName}' is out of sync with '${parentBranchName}'; " +
-            "consider rebasing onto '${parentBranchName}' from right-click menu"),
-        Case($(MergedToParent), "Branch '${currentBranchName}' is merged to '${parentBranchName}'; " +
-            "consider sliding out from right-click menu"));
+  private static String getSyncToParentStatusBasedTooTipText(IGitMacheteNonRootBranch branch) {
+    var currentBranchName = branch.getName();
+    var parentBranchName = branch.getParentBranch().getName();
+    return Match(branch.getSyncToParentStatus()).of(
+        Case($(InSync),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.in-sync"),
+                currentBranchName, parentBranchName)),
+        Case($(InSyncButForkPointOff),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.in-sync-but-fork-point-off"),
+                currentBranchName, parentBranchName)),
+        Case($(OutOfSync),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.out-of-sync"),
+                currentBranchName, parentBranchName)),
+        Case($(MergedToParent),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.merged-to-parent"),
+                currentBranchName, parentBranchName)));
   }
 
   private static class MyTableCellRenderer extends DefaultTableCellRenderer {
