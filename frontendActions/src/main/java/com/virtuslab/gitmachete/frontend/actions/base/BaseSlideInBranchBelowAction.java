@@ -13,6 +13,7 @@ import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -20,6 +21,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
@@ -154,6 +156,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       public void run(ProgressIndicator indicator) {
         finalPreSlideInRunnable.run();
 
+        waitForLocalBranch();
+
         Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
 
         var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
@@ -209,6 +213,34 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
                 /* title */ getString(
                     "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
                 getMessageOrEmpty(t))));
+      }
+
+      @SuppressWarnings("regexp") // needed to use forbidden "synchronized"
+      private void waitForLocalBranch() {
+        Supplier<@Nullable GitLocalBranch> findLocalBranch = () -> selectedVcsRepository.getBranches()
+            .findLocalBranch(slideInOptions.getName());
+
+        try {
+          //  6 attempts, usually 3 are enough
+          final int TIMEOUT = 2048;
+          long WAIT_DURATION = 64;
+          while (findLocalBranch.get() == null && WAIT_DURATION <= TIMEOUT) {
+            synchronized (this) {
+              wait(WAIT_DURATION);
+            }
+            WAIT_DURATION *= 2;
+          }
+        } catch (InterruptedException e) {
+          notifier.notifyWeakError(
+              format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted"),
+                  slideInOptions.getName()));
+        }
+
+        if (findLocalBranch.get() == null) {
+          notifier
+              .notifyWeakError(format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
+                  slideInOptions.getName()));
+        }
       }
 
       private Function<Throwable, @Nullable IBranchLayout> exceptionWithMessageHandler(@Nullable String message) {
@@ -278,10 +310,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       preSlideInRunnable = () -> createNewBranch(project, repositories, startPoint, options);
     }
 
-    final var finalPreSlideInRunnable = preSlideInRunnable;
-    return Tuple.of(options.getName(), () -> {
-      finalPreSlideInRunnable.run();
-    });
+    return Tuple.of(options.getName(), preSlideInRunnable);
   }
 
   @Nullable
