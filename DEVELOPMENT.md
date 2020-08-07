@@ -24,7 +24,7 @@ in the version present in [backendImpl/src/test/resources/reference-cli-version.
 to manually generate grammar and lexer code from `.bnf` and `.flex` files.
 
 When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer)
-can be helpful to see parsing result on machete file.
+can be helpful to see parsing result on the `machete` file.
 
 
 ## Set up git config/hooks
@@ -113,7 +113,7 @@ gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
 
-The standard practice in Java logging is to use fully-qualified name of each class as category;
+The standard practice in Java logging is to use fully-qualified name of each class as a category;
 in our case, however, we're only ever using the categories provided above.
 FQCN (and method name), however, is always a part of the log message itself.
 
@@ -147,7 +147,7 @@ Other coding conventions include:
 
 ## Rebuild the CI base image
 
-To push the rebuilt image, you need a write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
+To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
 
 ```
 docker build -t gitmachete/intellij-plugin-ci .
@@ -177,12 +177,12 @@ in [version.gradle](version.gradle) in the following way:
 1. `2.0.0` (breaking change PR)
 1. `2.0.0` (feature PR) - again, still `2.0.0` and not e.g. `2.1.0`
 1. `2.0.0` (bugfix PR)
-1. `2.0.0` (release PR) - finally releasing as major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
+1. `2.0.0` (release PR) - finally releasing as a major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
 
 ### IDE supported versions
 
-Since we cannot skip `untilBuild` field in plugin build configuration
-(see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460) 
+Since we cannot skip `untilBuild` field in a plugin build configuration
+(see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460)
 and [YouTrack ticket](https://youtrack.jetbrains.com/issue/IJSDK-888)),
 the most reasonable approach is to bump `untilBuild` to `X.*` when the new `X` EAP or RC version is released.
 Once stable (non-EAP/RC) `X` is released, we should verify ASAP that our plugin is compatible with `X`.
@@ -193,6 +193,7 @@ For instance:
 2. then IntelliJ `2020.3-EAP` is released
 3. we check if `0.6.0` is compatible with IntelliJ `2020.3-EAP` (if not we must refactor it)
 4. we extend `untilBuild` in our plugin to `2020.3.*` and release it as `0.7.0`
+5. once stable `2020.3` is released, we verify ASAP that `0.7.0` is binary compatible with `2020.3` as well
 
 ## PRs & releases
 
@@ -203,13 +204,13 @@ They must instead be retargeted to its base's base once their base branch is mer
 To create a release:
 * create a branch `release/v<version>` out of the current develop
 * fill up [CHANGE-NOTES.html](CHANGE-NOTES.html) file with the updated change notes:
-    * for major/minor release - wipe existing file content and replace with new one
+    * for major/minor release - wipe existing file content and replace with a new one
     * for patch release - append to the existing change notes
 * commit the changes with the `Release v<version>` message
 * open PR from `release/v<version>` to `master`
 
 Once the release PR is merged, `master` is built. <br/>
-After a manual approval, the `master` build:
+After manual approval, the `master` build:
 * pushes a tag (`v<version>`) back to the repository
 * opens a backport PR from `backport/v<version>` branch (created on the fly from `master`) to `develop`
 * **publishes the plugin to JetBrains marketplace**
