@@ -158,6 +158,12 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
+            <action id="GitMachete.OverrideForkPointOfCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.OverrideForkPointOfCurrentBranchAction"
+                    icon="MacheteIcons.OVERRIDE_FORKPOINT">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
             <action id="GitMachete.SlideInBranchBelowCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideInBranchBelowCurrentBranchAction"
                     icon="MacheteIcons.SLIDE_IN">

@@ -23,6 +23,8 @@ public final class MacheteIcons {
 
   public static final Icon MACHETE_LOAD_CHANGES = IconLoader.getIcon("/macheteLoadChanges.svg");
 
+  public static final Icon OVERRIDE_FORKPOINT = IconLoader.getIcon("/overrideForkPoint.svg");
+
   public static final Icon PULL = IconLoader.getIcon("/incomingChangesOn.svg");
 
   public static final Icon PUSH = IconLoader.getIcon("/outgoingChangesOn.svg");
