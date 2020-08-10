@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
@@ -13,10 +14,10 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
-import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -179,7 +180,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     } else if (!options.shouldCheckout() && remoteBranch != null) {
       var refspec = "refs/remotes/${remoteBranch.getName()}:refs/heads/${branchName}";
-      preSlideInRunnable = () -> new FetchBackgroundable(project, gitRepository, GitRemote.DOT.getName(), refspec,
+      preSlideInRunnable = () -> new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspec,
           "Fetching Remote Branch").queue();
 
     } else if (options.shouldCheckout() && remoteBranch == null) {
@@ -196,17 +197,25 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   private static GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
     var remotes = gitRepository.getRemotes();
     if (remotes.size() > 0) {
-      var remote = Option.ofOptional(remotes.stream().findFirst()).getOrNull();
-      assert remote != null : "remote is null";
+      var remotesWithBranch = List.ofAll(remotes).map(r -> {
+        var remoteBranchName = "${r.getName()}/${branchName}";
+        var remoteBranch = Option.of(gitRepository.getBranches().findRemoteBranch(remoteBranchName));
+        return Tuple.of(r, remoteBranch);
+      }).filter(t -> t._2().isDefined())
+          .toList()
+          .sortBy(t -> !t._1().getName().equals("origin"));
 
-      if (remotes.size() > 1) {
+      if (remotesWithBranch.size() > 1) {
+        var chosen = remotesWithBranch.peek();
         VcsNotifier.getInstance(project).notifyInfo(format(
             getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
-            remote.getName()));
-      }
+            chosen._1().getName()));
 
-      var remoteBranchName = "${remote.getName()}/${branchName}";
-      return gitRepository.getBranches().findRemoteBranch(remoteBranchName);
+        // guaranteed by filter above
+        var gitRemoteBranchOption = chosen._2();
+        assert gitRemoteBranchOption.isDefined() : "remote branch is undefined";
+        return gitRemoteBranchOption.get();
+      }
     }
     return null;
   }
