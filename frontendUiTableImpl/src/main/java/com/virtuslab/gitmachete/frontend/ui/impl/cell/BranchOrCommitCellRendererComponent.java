@@ -255,20 +255,24 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     var remoteName = status.getRemoteName();
     return Match(status.getRelation()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
-        Case($(Untracked), getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.untracked")),
+        Case($(Untracked),
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),
         Case($(AheadOfRemote),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.ahead-of-remote"), remoteName)),
+            format(
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote"),
+                remoteName)),
         Case($(BehindRemote),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.behind-remote"), remoteName)),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote"),
+                remoteName)),
         Case($(DivergedFromAndNewerThanRemote),
             format(
                 getString(
-                    "string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.diverged-from-and-newer-than-remote"),
+                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote"),
                 remoteName)),
         Case($(DivergedFromAndOlderThanRemote),
             format(
                 getString(
-                    "string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.diverged-from-and-older-than-remote"),
+                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote"),
                 remoteName)));
   }
 
@@ -277,16 +281,19 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     var parentBranchName = branch.getParentBranch().getName();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.in-sync"),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync"),
                 currentBranchName, parentBranchName)),
         Case($(InSyncButForkPointOff),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.in-sync-but-fork-point-off"),
+            format(getString(
+                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off"),
                 currentBranchName, parentBranchName)),
         Case($(OutOfSync),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.out-of-sync"),
+            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync"),
                 currentBranchName, parentBranchName)),
         Case($(MergedToParent),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.stps-tooltip.merged-to-parent"),
+            format(
+                getString(
+                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent"),
                 currentBranchName, parentBranchName)));
   }
 
