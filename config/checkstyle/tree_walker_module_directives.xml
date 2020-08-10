@@ -44,8 +44,8 @@
 </module>
 <module name="MissingSwitchDefault"/>
 <module name="MultipleStringLiterals">
-    <property name="allowedDuplicates" value="5"/>
-    <!-- Allow for more than 5 occurrences of an empty string, a single-space string or  ", " string in the given file -->
+    <property name="allowedDuplicates" value="3"/>
+    <!-- Allow for more than 3 occurrences of an empty string, a single-space string or  ", " string in the given file -->
     <property name="ignoreStringsRegexp" value="^&quot;(| |, )&quot;$"/>
 </module>
 <module name="MultipleVariableDeclarations"/>

@@ -19,7 +19,8 @@ public abstract class BaseGraphTable extends JBTable {
   protected BaseGraphTable(TableModel model) {
     super(model);
 
-    // Without set autoresize off column will expand to whole table width (will not fit the content size)
+    // Without set autoresize off column will expand to whole table width (will not fit the content size).
+    // This cause the branch tooltips (sync to parent status descriptions) are displayed on the whole Git Machete panel width
     setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
   }
 
