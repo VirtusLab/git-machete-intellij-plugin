@@ -223,6 +223,21 @@ You can also select the `Reattach children` checkbox to move along all children 
 </details>
 
 <details>
+<summary><strong>Override fork point</strong></summary>
+<br/>
+
+If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
+However, Git Machete can give you a hit which of a commit is probably a fork point.
+Show commits to see this one (see the `Listing commits` section).
+
+Now you can use `Override Fork Point of Branch` action to choose the fork point of this branch.
+It can be commit inferred by Git Machete (the one marked in commits list), or the one that parent branch is pointing to.
+
+![](docs/override_forkpoint.gif)
+
+</details>
+
+<details>
 <summary><strong>Other actions</strong></summary>
 <br/>
 
@@ -237,6 +252,7 @@ On the left side bar you can find other actions (from top to bottom):
     - ![](docs/left_bar_actions/reset.png) **Reset Current Branch to Remote**
     - ![](docs/left_bar_actions/slide_out.png) **Slide Out Current Branch**
     - ![](docs/left_bar_actions/rebase.png) **Rebase Current Branch Onto Parent**
+    - ![](docs/left_bar_actions/override_forkpoint.png) **Override Fork Point of Current Branch**
 
   Available action is selected based on a relation between a current branch and its parent and remote branch.
 - ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
