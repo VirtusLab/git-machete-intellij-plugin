@@ -68,7 +68,6 @@ import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnap
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
-  private static final String SPACE = " ";
 
   private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = RuntimeBinding
       .instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
@@ -156,7 +155,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IGitMacheteBranch branch = branchItem.getBranch();
 
       if (branch.isNonRootBranch()) {
-        setToolTipText(getSyncToParentStatusBasedTooTipText(branch.asNonRootBranch()));
+        setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRootBranch()));
       }
 
       Option<String> customAnnotation = branch.getCustomAnnotation();
@@ -171,8 +170,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
       SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
       var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(syncToRemoteStatus));
-      String remoteStatusLabel = getLabel(syncToRemoteStatus);
-      append(remoteStatusLabel, textAttributes);
+      String remoteStatusLabel = getSyncToRemoteStatusBasedLabel(syncToRemoteStatus);
+      append(" " + remoteStatusLabel, textAttributes);
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
       IGitMacheteNonRootBranch containingBranch = commitItem.getContainingBranch();
@@ -181,13 +180,13 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       if (commitItem.getCommit().equals(forkPoint)) {
         append(
             " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + SPACE,
+                + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + " ",
             new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
-        append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + SPACE,
+        append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
             REGULAR_ATTRIBUTES);
         append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
-        append(SPACE + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
-            + SPACE, REGULAR_ATTRIBUTES);
+        append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
+            + " ", REGULAR_ATTRIBUTES);
         append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
       }
     }
@@ -252,16 +251,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
   }
 
-  private static String getLabel(SyncToRemoteStatus status) {
+  private static String getSyncToRemoteStatusBasedLabel(SyncToRemoteStatus status) {
     var remoteName = status.getRemoteName();
-    return "  " + Match(status.getRelation()).of(
+    return Match(status.getRelation()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
         Case($(Untracked), getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.untracked")),
         Case($(AheadOfRemote),
             format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.ahead-of-remote"), remoteName)),
         Case($(BehindRemote),
             format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.strs-text.behind-remote"), remoteName)),
-        // To avoid clutter we omit `& newer than` part in status label, coz this is default situation
         Case($(DivergedFromAndNewerThanRemote),
             format(
                 getString(
@@ -274,7 +272,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
                 remoteName)));
   }
 
-  private static String getSyncToParentStatusBasedTooTipText(IGitMacheteNonRootBranch branch) {
+  private static String getSyncToParentStatusBasedToolTipText(IGitMacheteNonRootBranch branch) {
     var currentBranchName = branch.getName();
     var parentBranchName = branch.getParentBranch().getName();
     return Match(branch.getSyncToParentStatus()).of(

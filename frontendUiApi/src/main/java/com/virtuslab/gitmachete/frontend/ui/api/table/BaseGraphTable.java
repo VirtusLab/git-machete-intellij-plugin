@@ -24,7 +24,7 @@ public abstract class BaseGraphTable extends JBTable {
   }
 
   /**
-   * This method that overrides {@link JBTable#prepareRenderer} is responsible for set column size that fit the content
+   * This method that overrides {@link JBTable#prepareRenderer} is responsible for setting column size that fits the content
    */
   @Override
   @UIEffect
