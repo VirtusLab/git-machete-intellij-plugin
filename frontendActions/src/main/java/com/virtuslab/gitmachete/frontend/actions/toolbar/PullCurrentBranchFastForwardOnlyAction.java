@@ -19,16 +19,18 @@ public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastFo
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    if (!presentation.isVisible()) {
+      return;
+    }
+
     var isBehindOrInSyncToRemote = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isBehindOrInSyncToRemote);
-
-    if (isBehindOrInSyncToRemote) {
-      super.onUpdate(anActionEvent);
-    }
+    presentation.setVisible(isBehindOrInSyncToRemote);
   }
 }

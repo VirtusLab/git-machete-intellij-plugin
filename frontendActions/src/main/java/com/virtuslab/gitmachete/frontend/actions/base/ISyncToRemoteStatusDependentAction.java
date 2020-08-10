@@ -36,7 +36,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
   default void syncToRemoteStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 
     Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
+    if (!presentation.isEnabled()) {
       return;
     }
 

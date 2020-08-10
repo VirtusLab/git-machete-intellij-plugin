@@ -20,16 +20,18 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    if (!presentation.isVisible()) {
+      return;
+    }
+
     var isAheadOrDivergedAndNewerOrUntracked = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isAheadOrDivergedAndNewerOrUntracked);
-
-    if (isAheadOrDivergedAndNewerOrUntracked) {
-      super.onUpdate(anActionEvent);
-    }
+    presentation.setVisible(isAheadOrDivergedAndNewerOrUntracked);
   }
 }

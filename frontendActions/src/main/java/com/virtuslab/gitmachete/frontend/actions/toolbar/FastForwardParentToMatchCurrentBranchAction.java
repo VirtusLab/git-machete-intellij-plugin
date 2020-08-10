@@ -16,16 +16,18 @@ public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForward
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
+    var presentation = anActionEvent.getPresentation();
+    if (!presentation.isVisible()) {
+      return;
+    }
+
     var isInSyncToParent = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRootBranch() ? Option.some(b.asNonRootBranch()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
         .getOrElse(false);
 
-    anActionEvent.getPresentation().setEnabledAndVisible(isInSyncToParent);
-
-    if (isInSyncToParent) {
-      super.onUpdate(anActionEvent);
-    }
+    presentation.setVisible(isInSyncToParent);
   }
 }

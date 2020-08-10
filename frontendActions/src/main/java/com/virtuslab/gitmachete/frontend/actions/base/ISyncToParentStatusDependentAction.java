@@ -39,7 +39,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
   default void syncToParentStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 
     Presentation presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
+    if (!presentation.isEnabled()) {
       return;
     }
 

@@ -23,6 +23,11 @@ public abstract class BaseProjectKeyAvailabilityAssuranceAction extends DumbAwar
     onUpdate(anActionEvent);
   }
 
+  /**
+   * If overridden {@code super.onUpdate(anActionEvent);} should always be called in the first line of overriding method.
+   *
+   * @param anActionEvent an action event
+   */
   @UIEffect
   protected abstract void onUpdate(AnActionEvent anActionEvent);
 }

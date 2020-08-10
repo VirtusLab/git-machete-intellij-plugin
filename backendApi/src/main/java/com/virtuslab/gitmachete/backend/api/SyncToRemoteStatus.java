@@ -7,6 +7,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`
 @SuppressWarnings("interning:unnecessary.equals")
 public class SyncToRemoteStatus {
+  // TODO (#499): Resolve "status" (to parent) and "relation" (to remote) inconsistency
   public enum Relation {
     NoRemotes, Untracked, InSyncToRemote, AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote
   }
