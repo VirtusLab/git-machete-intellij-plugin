@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
+import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -14,7 +14,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 

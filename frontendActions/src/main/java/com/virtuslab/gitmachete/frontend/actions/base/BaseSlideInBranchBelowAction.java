@@ -22,8 +22,8 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.SlideInBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;

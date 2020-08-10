@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
