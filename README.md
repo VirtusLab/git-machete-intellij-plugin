@@ -12,7 +12,7 @@ The "bird's eye view" provided by Git Machete makes merges/rebases/push/pulls ha
 even when multiple branches are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).
 A look at a Git Machete tab gives an instant answer to the question
-"what branches are in this repository, what is going to be merged (rebased/pushed/pulled) and to what?".
+"what branches are in this repository, what is ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Lisgoing to be merged (rebased/pushed/pulled) and to what?".
 
 With this plugin, you can simply maintain small, focused pull requests that are easy to review.
 
@@ -229,6 +229,9 @@ You can also select the `Reattach children` checkbox to move along all children 
 <summary><strong>Override fork point</strong></summary>
 <br/>
 
+Branch fork point is the commit from which given branch was created.
+The commits from fork point to current branch commit are unique to this branch (this is what Git Machete displays when `toggle listing commits` is enabled).
+
 If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
 However, Git Machete can give you a hint which commit is probably the fork point.
 Show commits to see the suggested fork point (see the `Toggle listing commits` section).
@@ -246,7 +249,7 @@ It can be commit inferred by Git Machete (the one marked in commits list), or th
 
 On the left side bar you can find other actions (from top to bottom):
 - ![](docs/left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
-- ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see section `Toggle listing commits`)
+- ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
 - ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** &mdash; open `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
 - ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** &mdash; equivalent of `git fetch --all` command
 - The most suitable action (each is equivalent of context menu actions) for a current branch that can be one of:
