@@ -21,7 +21,7 @@ The minimum required version is 2020.1**.
 
 ![](docs/sample_workflow.gif)
 
-See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; CLI version of this plugin.
+See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
 
 
 ## Installing
@@ -29,7 +29,8 @@ See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &md
 ### Install from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
-To install this plugin go to `File` -> `Settings` -> `Plugins`, then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`.
+To install this plugin go to `File` -> `Settings` -> `Plugins` in your IDE,
+then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`.
 After installation depending on IDE version restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
 
@@ -54,13 +55,15 @@ You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 <summary><strong>Discover</strong></summary>
 <br/>
 
-`machete` file describes relations between branches in your repository (these relations are probably determined by order of branch creation &mdash; which branch from which &mdash; but this is not a rule).
+`machete` file describes relations between branches in your repository
+(these relations are probably determined by the order of branch creation &mdash;
+which branch has been created from which &mdash; but this is not a strict rule).
 It's located inside the `.git` directory in your repo.
 
 This branch layout can be automatically discovered based on the state of your git repository by `Discover Branch Layout` action.
 It constructs a layout from around 10 most recently used branches.
 This action is proposed in Git Machete tab in case of empty or nonexistent `machete` file,
-but you can also run it any time you want from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
+but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
 ![](docs/discover.gif)
 </details>
@@ -79,7 +82,7 @@ master
     hotfix/add-trigger
 ```
 `develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
-Two of them, `allow-ownership-link` and `build-chain`, have a custom annotation -
+Two of them, `allow-ownership-link` and `build-chain`, have a custom annotation &mdash;
 it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
 
 The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
@@ -90,7 +93,7 @@ The same for `hotfix/add-trigger` and `master` &mdash; the former is a child of 
 
 When branch layout is created, Git Machete indicates a relation between parent branch and each of its child branches.
 If the edge between them is green that means child branch is in sync with its parent branch &mdash; in other words, there are no commits in parent branch that don't belong to the child.
-But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to [rebase](#rebase) child branch onto the parent.
+But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to rebase child branch onto the parent.
 
 Machete file editor will help you to manage `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
 When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
@@ -113,7 +116,7 @@ The current branch is underlined in a branch layout.
 </details>
 
 <details>
-<summary><strong>Listing commits</strong></summary>
+<summary><strong>Toggle listing commits</strong></summary>
 <br/>
 
 Git Machete can display commits belonging to the branches.
@@ -141,7 +144,7 @@ Standard IntelliJ dialog for interactive rebase will appear.
 After a rebase, you might want to push the rebased branch to the remote.
 Right-click on the given branch and select `Push (Current) Branch` from a context menu.
 Push dialog will appear with a proper push button (regular push or force push) depending on which of them is needed.
-Basically, you need force push in a case when you rebased our branch because local and remote branch diverged from each other (they have different commits), so git won't let us do a regular push.
+Basically, you need force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
 
 ![](docs/push.gif)
 </details>
@@ -201,7 +204,7 @@ If you want to set this key globally (to be used for all repositories that don't
 <summary><strong>Slide in branch</strong></summary>
 <br/>
 
-You can also create a new branch below selected one (also without editing `machete` file manually).
+You can also create a new branch below the selected one (also without editing `machete` file manually).
 To do this, choose the `Slide In Branch Below Selected Branch` action from a context menu.
 Type the name of new branch in the dialog window and click `Slide In` button.
 Another dialog will appear &mdash; it is a standard new branch IntelliJ dialog.
@@ -227,8 +230,8 @@ You can also select the `Reattach children` checkbox to move along all children 
 <br/>
 
 If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
-However, Git Machete can give you a hit which of a commit is probably a fork point.
-Show commits to see this one (see the `Listing commits` section).
+However, Git Machete can give you a hint which commit is probably the fork point.
+Show commits to see the suggested fork point (see the `Toggle listing commits` section).
 
 Now you can use `Override Fork Point of Branch` action to choose the fork point of this branch.
 It can be commit inferred by Git Machete (the one marked in commits list), or the one that parent branch is pointing to.
@@ -242,9 +245,9 @@ It can be commit inferred by Git Machete (the one marked in commits list), or th
 <br/>
 
 On the left side bar you can find other actions (from top to bottom):
-- ![](docs/left_bar_actions/refresh.png) **Refresh Status** &mdash; refreshing (reload) branch layout (the graph displayed in main plugin window)
-- ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see section [Listing commits](#listing-commits))
-- ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** &mdash; open `machete` file in IntelliJ editor (to see what this editor can do see [Machete file editor](#machete-file-editor) section)
+- ![](docs/left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
+- ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see section `Toggle listing commits`)
+- ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** &mdash; open `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
 - ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** &mdash; equivalent of `git fetch --all` command
 - The most suitable action (each is equivalent of context menu actions) for a current branch that can be one of:
     - ![](docs/left_bar_actions/push.png) **Push Current Branch**
@@ -255,8 +258,8 @@ On the left side bar you can find other actions (from top to bottom):
     - ![](docs/left_bar_actions/override_forkpoint.png) **Override Fork Point of Current Branch**
 
   Available action is selected based on a relation between a current branch and its parent and remote branch.
-- ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
-- ![](docs/left_bar_actions/help.png) **Show Help Window** &mdash; show window with example branch layout and explanation what parts of this graph mean
+- ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of `slide in` action for current branch
+- ![](docs/left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
 </details>
 
 <details>
