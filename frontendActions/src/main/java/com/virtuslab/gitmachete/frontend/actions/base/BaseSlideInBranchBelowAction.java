@@ -1,27 +1,15 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.Predicates.instanceOf;
 import static java.text.MessageFormat.format;
-
-import java.nio.file.Path;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
@@ -29,20 +17,13 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.List;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.BranchLayoutEntry;
-import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
-import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
-import com.virtuslab.branchlayout.api.EntryIsRootException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -94,13 +75,13 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var selectedVcsRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     var notifier = VcsNotifier.getInstance(project);
 
-    if (selectedVcsRepository == null || parentName == null || branchLayout == null) {
+    if (gitRepository == null || parentName == null || branchLayout == null) {
       return;
     }
 
@@ -119,16 +100,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var localBranch = selectedVcsRepository.getBranches().findLocalBranch(slideInOptions.getName());
+    var localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
     Runnable preSlideInRunnable = () -> {};
     if (localBranch == null) {
       Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(project,
-          selectedVcsRepository, parentName, slideInOptions.getName());
+          gitRepository, parentName, slideInOptions.getName());
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
-      if (!slideInOptions.getName().equals(branchNameAndPreSlideInRunnable._1())) {
-        var branchNameFromNewBranchDialog = branchNameAndPreSlideInRunnable._1() != null
-            ? branchNameAndPreSlideInRunnable._1()
-            : "no name provided";
+      var branchName = branchNameAndPreSlideInRunnable._1();
+      if (!slideInOptions.getName().equals(branchName)) {
+        var branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         notifier.notifyWeakError(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.mismatched-names"),
                 slideInOptions.getName(), branchNameFromNewBranchDialog));
@@ -149,119 +129,18 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    final var finalPreSlideInRunnable = preSlideInRunnable;
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideInBranchBelowAction.task-title")) {
-
-      @Override
-      public void run(ProgressIndicator indicator) {
-        finalPreSlideInRunnable.run();
-
-        waitForLocalBranch();
-
-        Path macheteFilePath = getMacheteFilePath(selectedVcsRepository);
-
-        var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
-        IBranchLayoutEntry entryToSlideIn;
-        IBranchLayout targetBranchLayout;
-        if (childEntryByName.isDefined()) {
-
-          if (slideInOptions.shouldReattach()) {
-            entryToSlideIn = childEntryByName.get();
-            targetBranchLayout = branchLayout;
-          } else {
-            entryToSlideIn = childEntryByName.map(e -> e.withChildren(List.empty())).getOrNull();
-            targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
-                .onFailure(e -> Match(e).of(
-                    Case($(instanceOf(EntryDoesNotExistException.class)), exceptionWithMessageHandler(
-                        format(
-                            getString(
-                                "action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                            entryToSlideIn.getName()))),
-                    Case($(instanceOf(EntryIsRootException.class)), exceptionWithMessageHandler(
-                        format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-root"),
-                            entryToSlideIn.getName()))),
-                    Case($(), exceptionWithMessageHandler(/* message */ null))))
-                .getOrNull();
-
-            if (targetBranchLayout == null) {
-              return;
-            }
-          }
-
-        } else {
-          entryToSlideIn = new BranchLayoutEntry(slideInOptions.getName(), /* customAnnotation */ null,
-              /* children */ List.empty());
-          targetBranchLayout = branchLayout;
-        }
-
-        var newBranchLayout = Try
-            .of(() -> targetBranchLayout.slideIn(parentName, entryToSlideIn))
-            .onFailure(e -> Match(e).of(
-                Case($(instanceOf(EntryDoesNotExistException.class)), exceptionWithMessageHandler(
-                    format(
-                        getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                        parentName))),
-                Case($(instanceOf(EntryIsDescendantOfException.class)), exceptionWithMessageHandler(
-                    format(
-                        getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
-                        entryToSlideIn.getName(), parentName))),
-                Case($(), exceptionWithMessageHandler(/* message */ null))))
-            .toOption();
-
-        newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
-            .onFailure(t -> notifier.notifyError(
-                /* title */ getString(
-                    "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
-                getMessageOrEmpty(t))));
-      }
-
-      @SuppressWarnings("regexp") // needed to use forbidden "synchronized"
-      private void waitForLocalBranch() {
-        Supplier<@Nullable GitLocalBranch> findLocalBranch = () -> selectedVcsRepository.getBranches()
-            .findLocalBranch(slideInOptions.getName());
-
-        try {
-          //  6 attempts, usually 3 are enough
-          final int TIMEOUT = 2048;
-          long WAIT_DURATION = 64;
-          while (findLocalBranch.get() == null && WAIT_DURATION <= TIMEOUT) {
-            synchronized (this) {
-              wait(WAIT_DURATION);
-            }
-            WAIT_DURATION *= 2;
-          }
-        } catch (InterruptedException e) {
-          notifier.notifyWeakError(
-              format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted"),
-                  slideInOptions.getName()));
-        }
-
-        if (findLocalBranch.get() == null) {
-          notifier
-              .notifyWeakError(format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
-                  slideInOptions.getName()));
-        }
-      }
-
-      private Function<Throwable, @Nullable IBranchLayout> exceptionWithMessageHandler(@Nullable String message) {
-        return t -> {
-          notifier.notifyError(
-              /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
-                  slideInOptions.getName()),
-              message != null ? message : getMessageOrEmpty(t));
-          return null;
-        };
-      }
-
+    new SlideInBackgroundable(project,
+        gitRepository,
+        branchLayout,
+        branchLayoutWriter,
+        preSlideInRunnable,
+        slideInOptions,
+        parentName) {
       @Override
       public void onFinished() {
         getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       }
     }.queue();
-  }
-
-  private static String getMessageOrEmpty(Throwable t) {
-    return t.getMessage() != null ? t.getMessage() : "";
   }
 
   Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
