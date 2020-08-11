@@ -3,10 +3,12 @@ vavr()
 
 dependencies {
   implementation project(':frontendIcons')
+  implementation project(':frontendResourceBundles')
   implementation project(':frontendVfsUtils')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
+applyI18nFormatterChecker()
 
 
 apply plugin: 'org.jetbrains.grammarkit'

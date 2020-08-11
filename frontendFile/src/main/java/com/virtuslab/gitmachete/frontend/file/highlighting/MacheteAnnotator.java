@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static java.text.MessageFormat.format;
 
 import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.hint.HintManager;
@@ -44,7 +46,7 @@ public class MacheteAnnotator implements Annotator {
       return;
     }
     HintManager.getInstance().showInformationHint(currentEditor,
-        "Local branches cannot be retrieved, so they will not be checked", HintManager.ABOVE);
+        getString("string.GitMachete.MacheteAnnotator.cant-retrieve-local-branches"), HintManager.ABOVE);
     cantGetBranchesMessageWasShown = true;
   }
 
@@ -67,7 +69,9 @@ public class MacheteAnnotator implements Annotator {
     var processedBranchName = branch.getText();
 
     if (!branchNames.contains(processedBranchName)) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "Can't find local branch '${processedBranchName}' in git repository")
+      holder
+          .newAnnotation(HighlightSeverity.ERROR,
+              format(getString("string.GitMachete.MacheteAnnotator.cant-find-local-branch-in-repo"), processedBranchName))
           .range(branch).create();
     }
   }
@@ -82,7 +86,8 @@ public class MacheteAnnotator implements Annotator {
 
     var prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
     if (prevMacheteGeneratedEntryOption.isEmpty()) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "First entry cannot be indented").range(element).create();
+      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.cant-indent-first-entry"))
+          .range(element).create();
       return;
     }
 
@@ -121,23 +126,24 @@ public class MacheteAnnotator implements Annotator {
     var wrongIndentChar = thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter).findFirst();
     if (wrongIndentChar.isPresent()) {
       holder.newAnnotation(HighlightSeverity.ERROR,
-          "Indentation character (${indentCharToName((char)wrongIndentChar.getAsInt())}) "
-              + "does not match the indentation character in first indented line (${indentCharToName(indentationParameters.indentationCharacter)})")
+          format(getString("string.GitMachete.MacheteAnnotator.indent-char-not-match"),
+              indentCharToName((char) wrongIndentChar.getAsInt()),
+              indentCharToName(indentationParameters.indentationCharacter)))
           .range(element).create();
       return;
     }
 
     if (thisIndentationText.length() % indentationParameters.indentationWidth != 0) {
-      holder.newAnnotation(HighlightSeverity.ERROR,
-          "Indentation width is not multiple of ${indentationParameters.indentationWidth}" +
-              " as first indented line suggests")
+      holder
+          .newAnnotation(HighlightSeverity.ERROR, format(getString("string.GitMachete.MacheteAnnotator.indent-width-not-match"),
+              indentationParameters.indentationWidth))
           .range(element).create();
     }
 
     thisLevel = thisIndentationText.length() / indentationParameters.indentationWidth;
 
     if (hasPrevLevelCorrectWidth && thisLevel > prevLevel + 1) {
-      holder.newAnnotation(HighlightSeverity.ERROR, "Too much indent on this line")
+      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.too-much-indent"))
           .range(element).create();
     }
   }
