@@ -12,7 +12,7 @@ The "bird's eye view" provided by Git Machete makes merges/rebases/push/pulls ha
 even when multiple branches are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).
 A look at a Git Machete tab gives an instant answer to the question
-"what branches are in this repository, what is ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Lisgoing to be merged (rebased/pushed/pulled) and to what?".
+"what branches are in this repository, what is going to be merged (rebased/pushed/pulled) and to what?".
 
 With this plugin, you can simply maintain small, focused pull requests that are easy to review.
 
@@ -229,8 +229,10 @@ You can also select the `Reattach children` checkbox to move along all children 
 <summary><strong>Override fork point</strong></summary>
 <br/>
 
-Branch fork point is the commit from which given branch was created.
-The commits from fork point to current branch commit are unique to this branch (this is what Git Machete displays when `toggle listing commits` is enabled).
+According to [git documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
+fork point is `the point at which a branch (or any history that leads to <commit>) forked from another branch (or any reference) <ref>`.
+The commits from the fork point (exclusive) to the tip of the branch (inclusive) are unique to this branch &mdash;
+this is what Git Machete displays when `toggle listing commits` is enabled.
 
 If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
 However, Git Machete can give you a hint which commit is probably the fork point.
