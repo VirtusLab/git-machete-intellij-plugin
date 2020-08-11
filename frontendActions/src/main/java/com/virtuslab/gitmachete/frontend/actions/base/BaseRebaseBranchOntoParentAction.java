@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -88,8 +89,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       if (branch.isEmpty()) {
         presentation.setEnabled(false);
-        presentation.setDescription(
-            format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Rebase"));
+        presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
+            "Rebase", getQuotedStringOrCurrent(branchName)));
       } else if (branch.get().isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {

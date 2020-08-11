@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -50,19 +51,14 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    if (branchName == null) {
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.branch-name"), getActionNameForDescription()));
-      return;
-    }
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var gitMacheteBranch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn)).getOrNull();
 
-    var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName).getOrNull();
     if (gitMacheteBranch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getActionNameForDescription()));
+          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getActionNameForDescription(),
+              getQuotedStringOrCurrent(branchName)));
       return;
     }
     var syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
@@ -71,7 +67,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     var isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
-      if (getCurrentBranchNameIfManaged(anActionEvent).contains(branchName)) {
+      // `.getOrElse()` to satisfy checker framework
+      if (getCurrentBranchNameIfManaged(anActionEvent).contains(branchName.getOrElse(""))) {
         presentation.setText(
             format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.text.current-branch"), getActionName()));
       }

@@ -45,8 +45,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), "Checkout"));
+      presentation.setDescription(getString("action.GitMachete.CheckoutSelectedBranchAction.undefined.branch-name"));
       return;
     }
 

@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -54,20 +55,13 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
     }
 
     var branchName = getNameOfBranchUnderAction(anActionEvent);
-    if (branchName.isEmpty()) {
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.branch-name"),
-              getActionNameForDisabledDescription()));
-      return;
-    }
+    var gitMacheteBranchByName = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
 
-    var gitMacheteBranchByName = getGitMacheteBranchByName(anActionEvent, branchName.get());
     if (gitMacheteBranchByName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
           format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
-              getActionNameForDisabledDescription()));
+              getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     } else if (gitMacheteBranchByName.get().isRootBranch()) {
 
@@ -93,7 +87,8 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       }
 
       var parentName = gitMacheteNonRootBranch.getParentBranch().getName();
-      var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName.get());
+      // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
+      var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName.getOrNull());
       presentation.setDescription(enabledDesc);
 
     } else {
