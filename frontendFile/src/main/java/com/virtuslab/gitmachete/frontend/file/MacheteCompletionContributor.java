@@ -15,7 +15,7 @@ public class MacheteCompletionContributor extends CompletionContributor {
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 
-    var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
+    var branchNamesOption = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
     if (branchNamesOption.isEmpty()) {
       return;

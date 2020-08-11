@@ -52,7 +52,7 @@ public class MacheteAnnotator implements Annotator {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
-    var branchNamesOption = MacheteFileUtils.getBranchNamesForFile(file);
+    var branchNamesOption = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
     if (branchNamesOption.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {

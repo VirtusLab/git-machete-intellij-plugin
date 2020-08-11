@@ -3,6 +3,7 @@ vavr()
 
 dependencies {
   implementation project(':frontendIcons')
+  implementation project(':frontendVfsUtils')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
