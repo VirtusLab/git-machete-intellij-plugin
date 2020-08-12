@@ -59,7 +59,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   // i.e. the value of `ide.soleOpenedProject()`) between the invocations.
 
   @Test
-  public void ensureCorrectGraphTableRowCounts() {
+  public void toggleListingCommits() {
     int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
     // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
     // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
@@ -72,7 +72,10 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
-  public void fastForwardParentOfBranchAndEnsureCorrectRepositoryState() {
+  public void fastForwardParentOfBranch_parentIsCurrentBranch() {
+    runJs("ide.soleOpenedProject().checkoutBranch('master')");
+    awaitIdle();
+    // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
     runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
     awaitIdle();
 
@@ -85,7 +88,23 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
-  public void pullCurrentBranchAndEnsureCorrectRepositoryState() {
+  public void fastForwardParentOfBranch_childIsCurrentBranch() {
+    runJs("ide.soleOpenedProject().checkoutBranch('hotfix/add-trigger')");
+    awaitIdle();
+    // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
+    runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
+    awaitIdle();
+
+    String parentBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('master')");
+    String childBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    Assert.assertEquals(childBranchHash, parentBranchHash);
+
+    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    Assert.assertEquals(new ArrayList<>(), changes);
+  }
+
+  @Test
+  public void pullCurrentBranch() {
     runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
     awaitIdle();
     // Remote tracking data is purposefully NOT set for this branch.
@@ -102,7 +121,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
-  public void pullNonCurrentBranchAndEnsureCorrectRepositoryState() {
+  public void pullNonCurrentBranch() {
     runJs("ide.soleOpenedProject().checkoutBranch('develop')");
     awaitIdle();
     // Remote tracking data is purposefully NOT set for this branch.
