@@ -40,6 +40,9 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
     }
     var mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
     var gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
+    // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
+    // This is still acceptable since it simplifies the flow (no background task needed)
+    // and this action is not going to be invoked frequently (probably just once for a given project).
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project)

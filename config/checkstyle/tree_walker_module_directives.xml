@@ -45,7 +45,7 @@
 <module name="MissingSwitchDefault"/>
 <module name="MultipleStringLiterals">
     <property name="allowedDuplicates" value="3"/>
-    <!-- Allow for more than 3 occurrences of an empty string, a single-space string or  ", " string in the given file -->
+    <!-- Allow for more than 3 occurrences of an empty string, a single-space string or ", " string in the given file -->
     <property name="ignoreStringsRegexp" value="^&quot;(| |, )&quot;$"/>
 </module>
 <module name="MultipleVariableDeclarations"/>
@@ -79,12 +79,14 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <!-- (?<!... ) is a negative lookbehind -->
     <property name="format" value="(?&lt;!Error) extends [A-Za-z0-9]*Error\b"/>
     <property name="message" value="Classes extending errors must have the 'Error' suffix"/>
 </module>
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <!-- (?<!... ) is a negative lookbehind -->
     <property name="format" value="(?&lt;!Exception) extends [A-Za-z0-9]*Exception\b"/>
     <property name="message" value="Classes extending exceptions must have the 'Exception' suffix"/>
 </module>

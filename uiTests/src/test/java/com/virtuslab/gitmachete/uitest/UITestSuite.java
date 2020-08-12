@@ -32,10 +32,14 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @BeforeClass
-  public static void connectToIde() {
+  public static void connectToIdeAndCloseProjects() {
     remoteRobot = new RemoteRobot("http://127.0.0.1:8080");
     runJs("ide.configure(/* enableDebugLog */ false)");
-    // In case there are any leftovers from the previous runs of IDE for UI tests.
+
+    // Let's close the opened projects first - there may be leftovers from the previous runs of IDE for UI tests.
+    // First, let's make sure IDE actually initialized these projects - otherwise, we might end up with race conditions:
+    //   'Already disposed: Project (name=machete-sandbox, containerState=DISPOSE_COMPLETED, ...)'
+    awaitIdle();
     runJs("ide.closeOpenedProjects()");
   }
 

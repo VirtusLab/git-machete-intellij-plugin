@@ -143,6 +143,8 @@ Other coding conventions include:
   Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
 * Non-obvious method params that have values like `false`, `true`, `0`, `1`, `null`, `""` should be preceded with a `/* comment */ `
   containing the name of the param.
+* Avoid running code outside of IDE-managed threads.
+  Use either UI thread (for lightweight operations) or `Task.Backgroundable` (for heavyweight operations).
 
 
 ## Rebuild the CI base image
