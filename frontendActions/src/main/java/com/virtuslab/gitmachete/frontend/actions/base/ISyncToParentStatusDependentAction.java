@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static java.text.MessageFormat.format;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -51,16 +51,18 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var gitMacheteBranchByName = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var gitMacheteBranchByName = branchName != null
+        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        : null;
 
-    if (gitMacheteBranchByName.isEmpty()) {
+    if (branchName == null || gitMacheteBranchByName == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
           format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
               getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
-    } else if (gitMacheteBranchByName.get().isRootBranch()) {
+    } else if (gitMacheteBranchByName.isRootBranch()) {
 
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
@@ -73,15 +75,14 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var gitMacheteNonRootBranch = gitMacheteBranchByName.get().asNonRootBranch();
+    var gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRootBranch();
     var syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
 
     var isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
 
     if (isStatusEligible) {
       var parentName = gitMacheteNonRootBranch.getParentBranch().getName();
-      // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
-      var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName.getOrNull());
+      var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
@@ -89,16 +90,16 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
 
       // @formatter:off
       var desc = Match(syncToParentStatus).of(
-              Case($(SyncToParentStatus.InSync),
-                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
-              Case($(SyncToParentStatus.InSyncButForkPointOff),
-                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
-              Case($(SyncToParentStatus.MergedToParent),
-                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent")),
-              Case($(SyncToParentStatus.OutOfSync),
-                  getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync")),
-              Case($(),
-                  format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
+          Case($(SyncToParentStatus.InSync),
+              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
+          Case($(SyncToParentStatus.InSyncButForkPointOff),
+              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
+          Case($(SyncToParentStatus.MergedToParent),
+              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent")),
+          Case($(SyncToParentStatus.OutOfSync),
+              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync")),
+          Case($(),
+              format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
       // @formatter:on
 
       presentation.setDescription(

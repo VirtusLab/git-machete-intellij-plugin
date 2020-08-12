@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static java.text.MessageFormat.format;
 
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -84,40 +84,42 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status"), stateName));
     } else {
 
-      var branchName = getNameOfBranchUnderAction(anActionEvent);
-      var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+      var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+      var branch = branchName != null
+          ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+          : null;
 
-      if (branch.isEmpty()) {
+      if (branch == null) {
         presentation.setEnabled(false);
         presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
             "Rebase", getQuotedStringOrCurrent(branchName)));
-      } else if (branch.get().isRootBranch()) {
+      } else if (branch.isRootBranch()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
               format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch"),
-                  branch.get().getName()));
+                  branch.getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
         }
 
-      } else if (branch.get().asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
+      } else if (branch.asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
         presentation.setDescription(
             format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged"),
-                branch.get().getName()));
+                branch.getName()));
 
-      } else if (branch.get().isNonRootBranch()) {
-        var nonRootBranch = branch.get().asNonRootBranch();
+      } else if (branch.isNonRootBranch()) {
+        var nonRootBranch = branch.asNonRootBranch();
         IGitMacheteBranch upstream = nonRootBranch.getParentBranch();
         presentation.setDescription(format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description"),
-            branch.get().getName(), upstream.getName()));
+            branch.getName(), upstream.getName()));
       }
 
-      var isRebasingCurrent = branch.isDefined() && getCurrentBranchNameIfManaged(anActionEvent)
-          .map(bn -> bn.equals(branch.get().getName())).getOrElse(false);
+      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
+          .map(bn -> bn.equals(branch.getName())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
       }

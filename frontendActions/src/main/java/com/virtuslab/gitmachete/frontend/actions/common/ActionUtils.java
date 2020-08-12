@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ActionUtils {
   private ActionUtils() {}
 
-  public static String getQuotedStringOrCurrent(Option<String> string) {
-    return string.map(s -> "'${s}'").getOrElse("current");
+  public static String getQuotedStringOrCurrent(@Nullable String string) {
+    return string != null ? "'${string}'" : "current";
   }
 }

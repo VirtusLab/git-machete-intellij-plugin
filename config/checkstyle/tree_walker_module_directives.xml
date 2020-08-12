@@ -135,6 +135,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bMessageFormat\.format\b"/>
+    <property name="message" value="Use more restrictive GitMacheteBundle.format instead"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\\n"/>
     <property name="message" value="Usage of \n is forbidden, use System.lineSeparator() instead"/>
 </module>

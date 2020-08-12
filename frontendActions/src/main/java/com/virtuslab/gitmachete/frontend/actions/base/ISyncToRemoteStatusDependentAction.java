@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static java.text.MessageFormat.format;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -51,14 +51,16 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var gitMacheteBranch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn)).getOrNull();
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var gitMacheteBranch = branchName != null
+        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        : null;
 
-    if (gitMacheteBranch == null) {
+    if (branchName == null || gitMacheteBranch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"), getActionNameForDescription(),
-              getQuotedStringOrCurrent(branchName)));
+          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
+              getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
     var syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
@@ -68,7 +70,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
 
     if (isRelationEligible) {
       // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
-      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName.getOrNull());
+      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 
     } else {

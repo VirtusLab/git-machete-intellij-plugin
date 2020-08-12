@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
-import static java.text.MessageFormat.format;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.dvcs.DvcsUtil;

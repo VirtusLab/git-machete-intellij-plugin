@@ -18,12 +18,12 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.Predicates.isIn;
-import static java.text.MessageFormat.format;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -33,6 +33,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -252,7 +253,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getSyncToRemoteStatusBasedLabel(SyncToRemoteStatus status) {
-    var remoteName = status.getRemoteName();
+    var remoteName = Objects.requireNonNullElse(status.getRemoteName(), "");
     return Match(status.getRelation()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
         Case($(Untracked),

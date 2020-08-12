@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
-import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
 
@@ -54,21 +54,23 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var branch = branchName != null
+        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        : null;
 
-    if (branch.isEmpty()) {
+    if (branch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
           "Slide out", getQuotedStringOrCurrent(branchName)));
-    } else if (branch.get().isNonRootBranch()) {
+    } else if (branch.isNonRootBranch()) {
       presentation.setDescription(
-          format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.get().getName()));
+          format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.getName()));
     } else {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
         presentation.setDescription(
-            format(getString("action.GitMachete.BaseSlideOutBranchAction.description.root.branch"), branch.get().getName()));
+            format(getString("action.GitMachete.BaseSlideOutBranchAction.description.root.branch"), branch.getName()));
       } else { //contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);

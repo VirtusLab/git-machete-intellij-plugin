@@ -6,8 +6,8 @@ import com.intellij.ui.layout.buttonGroup
 import com.intellij.ui.layout.panel
 import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch
 import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
-import java.text.MessageFormat.format
 
 enum class OverrideOption {
   PARENT,

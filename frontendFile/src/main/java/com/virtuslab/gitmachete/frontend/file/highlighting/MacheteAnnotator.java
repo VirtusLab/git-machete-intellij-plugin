@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static java.text.MessageFormat.format;
 
 import java.util.OptionalInt;
 
@@ -138,8 +138,9 @@ public class MacheteAnnotator implements Annotator {
 
     if (thisIndentationText.length() % indentationParameters.indentationWidth != 0) {
       holder
-          .newAnnotation(HighlightSeverity.ERROR, format(getString("string.GitMachete.MacheteAnnotator.indent-width-not-match"),
-              indentationParameters.indentationWidth))
+          .newAnnotation(HighlightSeverity.ERROR,
+              format(getString("string.GitMachete.MacheteAnnotator.indent-width-not-match"),
+                  String.valueOf(indentationParameters.indentationWidth)))
           .range(element).create();
     }
 

@@ -6,12 +6,12 @@ import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_DISCOVER;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static java.text.MessageFormat.format;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -177,7 +177,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         setTextForEmptyTable(
             /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.upper-text"),
-                macheteFilePath),
+                macheteFilePath.toString()),
             /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.lower-text"),
             /* onClickRunnableAction */ () -> openDiscoverDialog());
         LOG.info("Machete file (${macheteFilePath}) is empty");
@@ -189,7 +189,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     if (!isMacheteFilePresent) {
       setTextForEmptyTable(
           /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.upper-text"),
-              macheteFilePath),
+              macheteFilePath.toString()),
           /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.lower-text"),
           /* onClickRunnableAction */ () -> openDiscoverDialog());
       LOG.info("Machete file (${macheteFilePath}) is absent");

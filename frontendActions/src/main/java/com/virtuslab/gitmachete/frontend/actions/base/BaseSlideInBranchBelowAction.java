@@ -2,11 +2,11 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
 import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
-import static java.text.MessageFormat.format;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -53,19 +53,21 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var branch = branchName != null
+        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        : null;
 
-    if (branchName.isEmpty()) {
+    if (branchName == null) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
-    } else if (branch.isEmpty()) {
+    } else if (branch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
           "Slide In", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation.setDescription(
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.description"), branchName.get()));
+          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.description"), branchName));
     }
   }
 

@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
-import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
