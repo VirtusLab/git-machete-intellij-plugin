@@ -229,8 +229,8 @@ You can also select the `Reattach children` checkbox to move along all children 
 <summary><strong>Override fork point</strong></summary>
 <br/>
 
-According to [git documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
-fork point is `the point at which a branch (or any history that leads to <commit>) forked from another branch (or any reference) <ref>`.
+Similarly as defined in [git merge-base documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
+we define **fork point** of a given branch `X` as the commit at which `X` forks from any other branch.
 The commits from the fork point (exclusive) to the tip of the branch (inclusive) are unique to this branch &mdash;
 this is what Git Machete displays when `toggle listing commits` is enabled.
 
