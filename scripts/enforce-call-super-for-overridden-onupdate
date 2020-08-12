@@ -5,7 +5,9 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-if git grep --files-with-matches 'void onUpdate' -- '*.java' ':!*/BaseProjectKeyAvailabilityAssuranceAction.java' | xargs git grep --files-without-match 'extends BaseProjectKeyAvailabilityAssuranceAction\|super\.onUpdate'
+if git grep --files-with-matches 'void onUpdate' -- '*.java' ':!*/BaseProjectKeyAvailabilityAssuranceAction.java' |
+  xargs git grep --files-without-match 'extends BaseProjectKeyAvailabilityAssuranceAction' |
+  xargs grep -Pz --files-without-match 'void onUpdate\([\w ]*\) {\n\W*super\.onUpdate'
 then
-  die "You must call 'super.onUpdate' if you override 'onUpdate' method and this class does not directly extend 'BaseProjectKeyAvailabilityAssuranceAction'!"
+  die "You must call 'super.onUpdate' as a first statement if you override 'onUpdate' method and this class does not directly extend 'BaseProjectKeyAvailabilityAssuranceAction'!"
 fi
