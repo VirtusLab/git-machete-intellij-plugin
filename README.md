@@ -39,13 +39,12 @@ In that case, just click `Restart IDE` and confirm that action in a message box.
 
 Git Machete IntelliJ Plugin is a port of a great console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
-Let's see how this plugin can help you:
 
 <details>
 <summary><strong>Where to find the plugin tab</strong></summary>
 <br/>
 
-Git Machete IntelliJ Plugin is available under `Git` (`VCS` in older IntelliJ versions) tool window in the `Git Machete` tab.
+Git Machete IntelliJ Plugin is available under `Git` tool window in the `Git Machete` tab.
 You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 ![](docs/open_git_machete.gif)
@@ -55,14 +54,14 @@ You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 <summary><strong>Discover</strong></summary>
 <br/>
 
-`machete` file describes relations between branches in your repository
-(these relations are probably determined by the order of branch creation &mdash;
-which branch has been created from which &mdash; but this is not a strict rule).
-It's located inside the `.git` directory in your repo.
+`machete` file describes relations between branches in your repository.
+These relations are probably determined by the order of branch creation &mdash;
+which branch has been created from which &mdash; but this is not a strict rule).<br/>
+It'll be located under `.git/machete` path in your repo.
 
 This branch layout can be automatically discovered based on the state of your git repository by `Discover Branch Layout` action.
 It constructs a layout from around 10 most recently used branches.
-This action is proposed in Git Machete tab in case of empty or nonexistent `machete` file,
+This action is proposed in Git Machete tab in case of an empty or nonexistent `machete` file,
 but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
 ![](docs/discover.gif)
@@ -87,20 +86,20 @@ it's an arbitrary description displayed next to the given branch (in this case, 
 
 The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
 
-In the example above branches `allow-ownership-link` and `call-ws` are children of `develop` and `build-chain` is a child of `allow-ownership-link`.
-The same for `hotfix/add-trigger` and `master` &mdash; the former is a child of the latter.
+In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`.
+`master`, in turn, is the parent of `hotfix/add-trigger`.
 `develop` and `master` are root branches.
 
 When branch layout is created, Git Machete indicates a relation between parent branch and each of its child branches.
 If the edge between them is green that means child branch is in sync with its parent branch &mdash; in other words, there are no commits in parent branch that don't belong to the child.
 But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to rebase child branch onto the parent.
 
-Machete file editor will help you to manage `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
+Machete file editor will help you with managing `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
 When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
 
 ![](docs/machete_file_editor.gif)
 
-For more information about a `machete` file look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
+For more information about `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
 </details>
 
 <details>
@@ -144,7 +143,7 @@ Standard IntelliJ dialog for interactive rebase will appear.
 After a rebase, you might want to push the rebased branch to the remote.
 Right-click on the given branch and select `Push (Current) Branch` from a context menu.
 Push dialog will appear with a proper push button (regular push or force push) depending on which of them is needed.
-Basically, you need force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
+Basically, you need a force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
 
 ![](docs/push.gif)
 </details>
@@ -154,8 +153,8 @@ Basically, you need force push in a case when you rebased your branch and thus l
 <br/>
 
 If a branch is behind (or in sync with) its remote, it can be pulled.
-To do this, right-click on a given branch and select `Pull Branch`.
-This action does `--ff-only` pull only which is enough in this case.
+To do this, right-click on a given branch and select `Pull Branch`.<br/>
+This action always performs a `--ff-only` (fast-forward only) pull which makes handling diverged remote branches less error-prone.
 
 ![](docs/pull.gif)
 </details>
@@ -165,7 +164,7 @@ This action does `--ff-only` pull only which is enough in this case.
 <br/>
 
 If a given branch is not in sync with its remote, you can reset it to point to the exact same commit as the remote.
-From a right-click context menu select `Checkout and Reset Branch to Remote`.
+From a right-click context menu select `Checkout and Reset Branch to Remote`.<br/>
 This action performs `git reset --keep` under the hood. `--keep`, as opposed to `--hard`, keeps your uncommitted changes safe from getting overwritten.
 
 ![](docs/reset.gif)
@@ -175,11 +174,13 @@ This action performs `git reset --keep` under the hood. `--keep`, as opposed to 
 <summary><strong>Fast forward parent</strong></summary>
 <br/>
 
-When you are done with the changes on the selected branch (e.g. PR was approved and all required fixes are applied), you probably want to merge this branch to its parent branch.
-When these branches are in sync (green edge) you can do a fast forward merge.
-Fast forward merge is just equivalent to moving tip of a branch to which you merge to the same commit as a tip of a merged branch.
+When you are done with the changes on the selected branch (e.g. PR has been approved and all required fixes are applied),
+you probably want to merge this branch to its parent branch.
+When these branches are in sync (green edge), you can do a fast forward merge.
+Fast forward merge is just equivalent to moving tip of a branch to which you merge (`develop` in the sample below)
+to the same commit as a tip of a merged branch (`call-ws` below).
 This is what `Fast Forward Parent Branch To Match Current Branch` context menu action does.
-As you can see, the edge between a given branch and its parent was changed to grey &mdash; it means that the child branch has been merged.
+As you can see, the edge between `develop` and `call-ws` changed to grey &mdash; it means that `call-ws` has been merged.
 
 ![](docs/fast_forward.gif)
 </details>
@@ -189,8 +190,9 @@ As you can see, the edge between a given branch and its parent was changed to gr
 <br/>
 
 When a branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch layout.
-To do this with ease (and without manual editing of `machete` file) you can use `Slide Out Selected Branch` action.
-This action will modify the branch layout, removing the entry for the selected branch `X` and reattaching `X`'s children as new children of `X`'s parent.
+To do this with ease (and without editing `machete` file manually), you can use `Slide Out Selected Branch` action.
+This action will modify the branch layout, removing the entry for the selected branch `X` and reattaching `X`'s children as new children of `X`'s parent.<br/>
+
 If `machete.slideOut.deleteLocalBranch` git configuration key is set to `true`, then this action will also delete `X` branch from the underlying git repository (and not just from `.git/machete` file).
 The easiest way to set this key is using `git config --add machete.slideOut.deleteLocalBranch true` command inside a given repository.
 If you want to set this key globally (to be used for all repositories that don't have this key set explicitly), add `--global` option to the previous command.
@@ -217,7 +219,7 @@ Again, select the `Slide In Branch Bellow Selected Branch` from a context menu a
 ![](docs/slide_in_existent_branch.gif)
 
 This action can also be used to reattach an existing branch below a selected one.
-In this case, you just must type a name of the existing branch that you want to reattach and then click `Slide In`.
+In this case, just type the name of the existing branch that you want to reattach and then click `Slide In`.
 You can also select the `Reattach children` checkbox to move along all children of the reattached branch.
 
 ![](docs/slide_in_reattach_without_children.gif)
@@ -253,8 +255,8 @@ On the left side bar you can find other actions (from top to bottom):
 - ![](docs/left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
 - ![](docs/left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
 - ![](docs/left_bar_actions/open_machete_file.png) **Open Machete File** &mdash; open `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
-- ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** &mdash; equivalent of `git fetch --all` command
-- The most suitable action (each is equivalent of context menu actions) for a current branch that can be one of:
+- ![](docs/left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
+- The most suitable actions (each is equivalent to one of the context menu actions) for a current branch that include one or more of:
     - ![](docs/left_bar_actions/push.png) **Push Current Branch**
     - ![](docs/left_bar_actions/pull.png) **Pull Current Branch**
     - ![](docs/left_bar_actions/reset.png) **Reset Current Branch to Remote**
