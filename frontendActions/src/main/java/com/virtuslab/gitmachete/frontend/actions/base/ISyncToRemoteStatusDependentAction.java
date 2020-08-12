@@ -67,7 +67,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     var isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
-      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
+      // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
+      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName.getOrNull());
       presentation.setDescription(enabledDesc);
 
     } else {
