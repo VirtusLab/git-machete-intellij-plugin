@@ -4,7 +4,7 @@
 [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 
-![](src/main/resources/META-INF/pluginIcon.svg)
+<img src="src/main/resources/META-INF/pluginIcon.svg" width="150" height="150" />
 
 Git Machete plugin is a robust tool that simplifies your git related workflow.
 It's a great complement to the JetBrains products' built-in version control system.
@@ -282,51 +282,7 @@ In that case, each repository will have its own `machete` file.
 
 ## Build
 
-<details>
-<summary><strong>Prerequisites</strong></summary>
-<br/>
-
-* git
-* latest 2020.1 Community Edition/Ultimate
-
-  * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
-  * Enable annotation processing (for Lombok):
-    `File` -> `Settings` -> `Build`, `Execution`, `Deployment` -> `Compiler` -> `Annotation Processors` -> `Enable Annotation Processing`
-  * Set Project SDK to JDK 11: `Project Structure` -> `Project`
-
-Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
-
-For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
-</details>
-
-<details>
-<summary><strong>Compilation</strong></summary>
-<br/>
-
-To compile the project, run `./gradlew build`.
-
-Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
-To overwrite them, use `compileJavaJvmArgs` Gradle project property
-(e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
-or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew compileJava`).
-
-By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to {subproject}/build/delombok/...<br/>
-To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
-
-In case of spurious cache-related issues with Gradle build, try one of the following:
-* `./gradlew --stop` to shut down gradle daemon
-* `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
-* remove .gradle/ directory in the project directory
-* remove ~/.gradle/caches/ (or even the entire ~/.gradle/) directory
-</details>
-
-<details>
-<summary><strong>Generate plugin zip</strong></summary>
-<br/>
-
-To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).<br/>
-The resulting file will be available under `build/distributions/`.
-</details>
+Please see the [development documentation](DEVELOPMENT.md) for instruction on how to build this plugin on your own.
 
 ## Issue reporting
 
