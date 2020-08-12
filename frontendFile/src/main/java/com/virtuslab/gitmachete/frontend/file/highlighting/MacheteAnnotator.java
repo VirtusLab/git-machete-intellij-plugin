@@ -4,6 +4,8 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static java.text.MessageFormat.format;
 
+import java.util.OptionalInt;
+
 import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.lang.ASTNode;
@@ -123,7 +125,8 @@ public class MacheteAnnotator implements Annotator {
 
     var thisIndentationText = element.getText();
 
-    var wrongIndentChar = thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter).findFirst();
+    OptionalInt wrongIndentChar = thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter)
+        .findFirst();
     if (wrongIndentChar.isPresent()) {
       holder.newAnnotation(HighlightSeverity.ERROR,
           format(getString("string.GitMachete.MacheteAnnotator.indent-char-not-match"),
