@@ -196,27 +196,23 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   @Nullable
   private static GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
     var remotes = gitRepository.getRemotes();
-    if (remotes.size() > 0) {
-      var remotesWithBranch = List.ofAll(remotes).map(r -> {
-        var remoteBranchName = "${r.getName()}/${branchName}";
-        var remoteBranch = Option.of(gitRepository.getBranches().findRemoteBranch(remoteBranchName));
-        return Tuple.of(r, remoteBranch);
-      }).filter(t -> t._2().isDefined())
-          .toList()
-          .sortBy(t -> !t._1().getName().equals("origin"));
-
-      if (remotesWithBranch.size() > 1) {
-        var chosen = remotesWithBranch.peek();
-        VcsNotifier.getInstance(project).notifyInfo(format(
-            getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
-            chosen._1().getName()));
-
-        // guaranteed by filter above
-        var gitRemoteBranchOption = chosen._2();
-        assert gitRemoteBranchOption.isDefined() : "remote branch is undefined";
-        return gitRemoteBranchOption.get();
-      }
+    if (remotes.isEmpty()) {
+      return null;
     }
-    return null;
+
+    var remotesWithBranch = List.ofAll(remotes).flatMap(r -> {
+      var remoteBranchName = "${r.getName()}/${branchName}";
+      var remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
+      return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
+    }).sortBy(t -> !t._1().getName().equals("origin"));
+
+    assert remotesWithBranch.nonEmpty() : "remotes list is empty";
+    var chosen = remotesWithBranch.head();
+    if (remotesWithBranch.size() > 1) {
+      VcsNotifier.getInstance(project).notifyInfo(format(
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
+          chosen._1().getName()));
+    }
+    return chosen._2();
   }
 }

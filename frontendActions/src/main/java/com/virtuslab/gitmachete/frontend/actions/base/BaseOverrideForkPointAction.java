@@ -67,11 +67,11 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var selectedVcsRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByName(anActionEvent, pn)).getOrNull();
 
-    if (selectedVcsRepository == null || branch == null || branch.isRootBranch()) {
+    if (gitRepository == null || branch == null || branch.isRootBranch()) {
       return;
     }
 
@@ -95,10 +95,10 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
 
   @NotUIThreadSafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IGitMacheteBranch branch, IGitMacheteCommit forkPoint) {
-    var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (selectedVcsRepository.isDefined()) {
-      var root = selectedVcsRepository.get().getRoot();
+    if (gitRepository.isDefined()) {
+      var root = gitRepository.get().getRoot();
       var project = getProject(anActionEvent);
       setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }

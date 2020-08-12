@@ -138,10 +138,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
   @NotUIThreadSafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    var selectedVcsRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (selectedVcsRepository.isDefined()) {
-      var root = selectedVcsRepository.get().getRoot();
+    if (gitRepository.isDefined()) {
+      var root = gitRepository.get().getRoot();
       var project = getProject(anActionEvent);
       var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (shallDeleteLocalBranch) {
@@ -154,7 +154,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           return;
         }
 
-        GitBrancher.getInstance(project).deleteBranch(branchName, selectedVcsRepository.toJavaList());
+        GitBrancher.getInstance(project).deleteBranch(branchName, gitRepository.toJavaList());
         return; // repository update invoked via GIT_REPO_CHANGE topic
       }
     }

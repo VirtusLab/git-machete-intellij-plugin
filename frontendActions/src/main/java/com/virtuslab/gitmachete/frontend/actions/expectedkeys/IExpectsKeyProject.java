@@ -31,11 +31,11 @@ public interface IExpectsKeyProject extends IWithLogger {
   }
 
   default Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
-    var selectedGitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
+    var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
-    if (selectedGitRepository.isEmpty()) {
+    if (gitRepository.isEmpty()) {
       log().warn("No Git repository is selected");
     }
-    return selectedGitRepository;
+    return gitRepository;
   }
 }
