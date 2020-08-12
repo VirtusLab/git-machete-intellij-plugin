@@ -66,10 +66,6 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     } else {
       presentation.setDescription(
           format(getString("action.GitMachete.BaseSlideInBranchBelowAction.description"), branchName.get()));
-
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(getString("action.GitMachete.BaseSlideInBranchBelowAction.text.current-branch"));
-      }
     }
   }
 

@@ -67,12 +67,6 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     var isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
-      // `.getOrElse()` to satisfy checker framework
-      if (getCurrentBranchNameIfManaged(anActionEvent).contains(branchName.getOrElse(""))) {
-        presentation.setText(
-            format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.text.current-branch"), getActionName()));
-      }
-
       var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 

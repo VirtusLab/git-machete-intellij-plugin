@@ -31,9 +31,6 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
   @I18nFormat({GENERAL, GENERAL})
   String getEnabledDescriptionFormat();
 
-  @I18nFormat({})
-  String getActionTextForCurrentBranch();
-
   /**
    * This method provides a list of {@link SyncToParentStatus}s for which the action should be ENABLED.
    * Note that this "enability" matches actions in any place (both toolbar and context menu in particular).
@@ -82,10 +79,6 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
     var isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
 
     if (isStatusEligible) {
-      if (getCurrentBranchNameIfManaged(anActionEvent).equals(branchName)) {
-        presentation.setText(getActionTextForCurrentBranch());
-      }
-
       var parentName = gitMacheteNonRootBranch.getParentBranch().getName();
       // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
       var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName.getOrNull());

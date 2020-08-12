@@ -47,11 +47,6 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @Override
-  public @I18nFormat({}) String getActionTextForCurrentBranch() {
-    return getString("action.GitMachete.BaseOverrideForkPointAction.text.current-branch");
-  }
-
-  @Override
   public List<SyncToParentStatus> getEligibleStatuses() {
     return List.of(SyncToParentStatus.InSyncButForkPointOff);
   }

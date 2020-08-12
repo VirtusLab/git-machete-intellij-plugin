@@ -41,11 +41,6 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   }
 
   @Override
-  public @I18nFormat({}) String getActionTextForCurrentBranch() {
-    return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.text.current-branch");
-  }
-
-  @Override
   public List<SyncToParentStatus> getEligibleStatuses() {
     return List.of(SyncToParentStatus.InSync);
   }
