@@ -33,6 +33,16 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
   @I18nFormat({})
   String getActionTextForCurrentBranch();
 
+  /**
+   * This method provides a list of {@link SyncToParentStatus}s for which the action should be ENABLED.
+   * Note that this "enability" matches actions in any place (both toolbar and context menu in particular).
+   * Visibility itself may be switched off (even though the action is enabled).
+   *
+   * As we want to avoid an overpopulation of the toolbar we make some actions there INVISIBLE
+   * but ENABLED (since they still shall be available from {@code Find Action...}).
+   *
+   * @return a list of statuses for which the action should be enabled (not necessarily visible)
+   */
   List<SyncToParentStatus> getEligibleStatuses();
 
   @UIEffect
