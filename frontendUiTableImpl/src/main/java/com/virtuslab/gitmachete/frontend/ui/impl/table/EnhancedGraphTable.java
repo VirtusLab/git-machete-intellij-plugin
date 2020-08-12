@@ -20,8 +20,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -111,7 +114,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setCellSelectionEnabled(false);
     setColumnSelectionAllowed(false);
-    setRowSelectionAllowed(true);
+    setRowSelectionAllowed(false);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
@@ -125,7 +128,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     ScrollingUtil.installActions(/* table */ this, /* cycleScrolling */ false);
 
-    addMouseListener(new GitMacheteGraphTableMouseAdapter( /* outer */ this));
+    addMouseListener(new EnhancedGraphTableMouseAdapter( /* outer */ this));
 
     subscribeToGitRepositoryFilesChanges();
     subscribeToSelectedGitRepositoryChange();
@@ -270,46 +273,73 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         Case($(), (Object) null));
   }
 
-  private static class GitMacheteGraphTableMouseAdapter extends MouseAdapter {
-    private final EnhancedGraphTable outer;
+  private static class EnhancedGraphTableMouseAdapter extends MouseAdapter {
+    private final EnhancedGraphTable graphTable;
+    private final EnhancedGraphTablePopupMenuListener popupMenuListener;
 
     @UIEffect
-    GitMacheteGraphTableMouseAdapter(EnhancedGraphTable outer) {
-      this.outer = outer;
+    EnhancedGraphTableMouseAdapter(EnhancedGraphTable graphTable) {
+      this.graphTable = graphTable;
+      this.popupMenuListener = new EnhancedGraphTablePopupMenuListener(graphTable);
     }
 
     @Override
     @UIEffect
     public void mouseClicked(MouseEvent e) {
       Point point = e.getPoint();
-      int row = outer.rowAtPoint(point);
-      int col = outer.columnAtPoint(point);
+      int row = graphTable.rowAtPoint(point);
+      int col = graphTable.columnAtPoint(point);
 
       // check if we click on one of branches
       if (row < 0 || col < 0) {
         return;
       }
 
-      BranchOrCommitCell cell = (BranchOrCommitCell) outer.getModel().getValueAt(row, col);
+      BranchOrCommitCell cell = (BranchOrCommitCell) graphTable.getModel().getValueAt(row, col);
       IGraphItem graphItem = cell.getGraphItem();
       if (!graphItem.isBranchItem()) {
         return;
       }
 
-      outer.selectedBranchName = graphItem.asBranchItem().getBranch().getName();
+      graphTable.selectedBranchName = graphItem.asBranchItem().getBranch().getName();
 
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
         var actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
-        actionPopupMenu.getComponent().show(outer, (int) point.getX(), (int) point.getY());
+        JPopupMenu popupMenu = actionPopupMenu.getComponent();
+        popupMenu.addPopupMenuListener(popupMenuListener);
+        popupMenu.show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
         e.consume();
-        DataContext dataContext = DataManager.getInstance().getDataContext(outer);
+        DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
         var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }
   }
 
+  private static class EnhancedGraphTablePopupMenuListener implements PopupMenuListener {
+    private final EnhancedGraphTable graphTable;
+
+    @UIEffect
+    EnhancedGraphTablePopupMenuListener(EnhancedGraphTable graphTable) {
+      this.graphTable = graphTable;
+    }
+
+    @Override
+    @UIEffect
+    public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent) {
+      graphTable.setRowSelectionAllowed(true);
+    }
+
+    @Override
+    @UIEffect
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
+      graphTable.setRowSelectionAllowed(false);
+    }
+
+    @Override
+    public void popupMenuCanceled(PopupMenuEvent popupMenuEvent) {}
+  }
 }
