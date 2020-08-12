@@ -7,21 +7,16 @@ assignees: ''
 
 ---
 
-### Bug description
-A clear and concise description of what the bug is.
+## Bug description
+Please include steps to reproduce (like `go to...`/`click on...` etc.) + expected and actual behavior.
 
-### Steps to reproduce
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+For more non-trivial issues, we would also appreciate if you included the following details:
 
-### Expected behavior
-Description of what you expected to happen.
-
-### Current behavior
-Describe what is actually happening.
+### Running environment
+ - Git Machete plugin version
+ - IDE type [e.g. IntelliJ, PyCharm]
+ - IDE version [e.g. 2020.1.4]
+ - Operating system [e.g. Windows]
 
 ### Logs
 Enable logging on debug level for this plugin by adding
@@ -35,9 +30,9 @@ gitmachete.frontend.externalsystem
 gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
-to list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
-Then reproduce a bug and attach logs here.
-To find IntelliJ log file go to `Help` -> `Show Log in Files`.
+to list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.<br/>
+Then reproduce a bug and attach the logs to the issue.<br/>
+To find IntelliJ log file, go to `Help` -> `Show Log in Files`.
 
 Consider placing the logs within the `details` (aka "spoiler") tags as the may be very extensive.
 
@@ -47,12 +42,5 @@ Logs go here
 </details>
 
 ### Screenshots
-If applicable, add screenshots to help explain your problem.
-
-### Running environment
- - Operating system [e.g. Windows]
- - IDE type [e.g. IntelliJ, PyCharm]
- - IDE version [e.g. 2020.1.4]
-
-### Additional context
-Add any other context about the problem here.
+If applicable, add screenshots (or screen recordings, see [Peek](https://github.com/phw/peek#peek---an-animated-gif-recorder) on Linux)
+to help explain your problem.
