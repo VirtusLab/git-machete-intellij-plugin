@@ -9,25 +9,25 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
 @RequiredArgsConstructor
 public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
   @Getter
-  private final List<IGitMacheteRootBranch> rootBranches;
+  private final List<IRootManagedBranchSnapshot> rootBranches;
 
   private final @Nullable IBranchLayout branchLayout;
 
-  private final @Nullable IGitMacheteBranch currentBranchIfManaged;
+  private final @Nullable IManagedBranchSnapshot currentBranchIfManaged;
 
-  private final Map<String, IGitMacheteBranch> managedBranchByName;
+  private final Map<String, IManagedBranchSnapshot> managedBranchByName;
 
   @Getter
   private final List<String> skippedBranchNames;
@@ -43,17 +43,17 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   }
 
   @Override
-  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
     return Option.of(currentBranchIfManaged);
   }
 
   @Override
-  public List<IGitMacheteBranch> getManagedBranches() {
+  public List<IManagedBranchSnapshot> getManagedBranches() {
     return managedBranchByName.values().toList();
   }
 
   @Override
-  public Option<IGitMacheteBranch> getManagedBranchByName(String branchName) {
+  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
     return managedBranchByName.get(branchName);
   }
 

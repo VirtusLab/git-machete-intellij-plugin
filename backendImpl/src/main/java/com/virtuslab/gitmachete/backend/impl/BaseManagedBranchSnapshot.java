@@ -9,28 +9,28 @@ import lombok.ToString;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @Getter
 @ToString
 @UsesObjectEquals
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
+public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapshot {
   private final String name;
   private final String fullName;
-  private final List<GitMacheteNonRootBranch> childBranches;
-  private final IGitMacheteCommit pointedCommit;
-  private final @Nullable IGitMacheteRemoteBranch remoteTrackingBranch;
+  private final List<NonRootManagedBranchSnapshot> children;
+  private final ICommitOfManagedBranch pointedCommit;
+  private final @Nullable IRemoteBranchReference remoteTrackingBranch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 
-  @ToString.Include(name = "childBranches") // avoid recursive `toString` calls on child branches
-  private List<String> getChildBranchNames() {
-    return childBranches.map(e -> e.getName());
+  @ToString.Include(name = "children") // avoid recursive `toString` calls on child branches
+  private List<String> getChildNames() {
+    return children.map(e -> e.getName());
   }
 
   /**
@@ -39,14 +39,14 @@ public abstract class BaseGitMacheteBranch implements IGitMacheteBranch {
    * This is definitely not the cleanest solution, but still easier to manage and reason about than keeping the
    * parent data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
    */
-  protected void setParentForChildBranches() {
-    for (GitMacheteNonRootBranch branch : childBranches) {
-      branch.setParentBranch(this);
+  protected void setParentForChildren() {
+    for (NonRootManagedBranchSnapshot child : children) {
+      child.setParent(this);
     }
   }
 
   @Override
-  public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
+  public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
     return Option.of(remoteTrackingBranch);
   }
 

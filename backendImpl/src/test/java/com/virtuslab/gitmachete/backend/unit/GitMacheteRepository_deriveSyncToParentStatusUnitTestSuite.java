@@ -14,7 +14,7 @@ import org.powermock.reflect.Whitebox;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteForkPointCommit;
+import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 
 public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
@@ -27,7 +27,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
       IGitCoreCommit forkPointCommit) {
     return Whitebox.invokeMethod(aux(), "deriveSyncToParentStatus",
         childBranch, parentBranch,
-        GitMacheteForkPointCommit.inferred(forkPointCommit, /* containingBranches */ List.empty()));
+        ForkPointCommitOfManagedBranch.inferred(forkPointCommit, /* containingBranches */ List.empty()));
   }
 
   @Test

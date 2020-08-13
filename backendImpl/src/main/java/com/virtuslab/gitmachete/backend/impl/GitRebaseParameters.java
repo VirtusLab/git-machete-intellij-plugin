@@ -3,15 +3,15 @@ package com.virtuslab.gitmachete.backend.impl;
 import lombok.Data;
 import lombok.ToString;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 
 @Data
 public class GitRebaseParameters implements IGitRebaseParameters {
-  private final IGitMacheteBranch currentBranch;
-  private final IGitMacheteCommit newBaseCommit;
-  private final IGitMacheteCommit forkPointCommit;
+  private final IManagedBranchSnapshot currentBranch;
+  private final ICommitOfManagedBranch newBaseCommit;
+  private final ICommitOfManagedBranch forkPointCommit;
 
   @ToString.Include(name = "currentBranch")
   private String getCurrentBranchBame() {

@@ -28,11 +28,11 @@ import org.junit.runners.Parameterized;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
@@ -153,14 +153,18 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     return sb.toString();
   }
 
-  private void printRootBranch(IGitMacheteRootBranch branch, StringBuilder sb) {
+  private void printRootBranch(IRootManagedBranchSnapshot branch, StringBuilder sb) {
     sb.append("  ");
     printCommonParts(branch, /* path */ List.empty(), sb);
   }
 
-  private void printNonRootBranch(IGitMacheteNonRootBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
+  private void printNonRootBranch(
+      INonRootManagedBranchSnapshot branch,
+      List<INonRootManagedBranchSnapshot> path,
+      StringBuilder sb) {
+
     String prefix = path.init()
-        .map(anc -> anc == anc.getParentBranch().getChildBranches().last() ? "  " : "| ")
+        .map(anc -> anc == anc.getParent().getChildren().last() ? "  " : "| ")
         .mkString();
 
     sb.append("  ");
@@ -208,7 +212,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     printCommonParts(branch, path, sb);
   }
 
-  private void printCommonParts(IGitMacheteBranch branch, List<IGitMacheteNonRootBranch> path, StringBuilder sb) {
+  private void printCommonParts(IManagedBranchSnapshot branch, List<INonRootManagedBranchSnapshot> path, StringBuilder sb) {
     sb.append(branch.getName());
 
     var currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
@@ -241,7 +245,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     }
     sb.append(System.lineSeparator());
 
-    for (var childBranch : branch.getChildBranches()) {
+    for (var childBranch : branch.getChildren()) {
       printNonRootBranch(childBranch, path.append(childBranch), sb);
     }
   }

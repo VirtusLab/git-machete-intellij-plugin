@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.api.hook;
+package com.virtuslab.gitmachete.backend.api.hooks;
 
 public interface IExecutionResult {
   int getExitCode();

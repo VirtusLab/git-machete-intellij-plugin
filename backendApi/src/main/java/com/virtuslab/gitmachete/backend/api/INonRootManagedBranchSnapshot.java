@@ -4,30 +4,30 @@ import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 
-public interface IGitMacheteNonRootBranch extends IGitMacheteBranch {
+public interface INonRootManagedBranchSnapshot extends IManagedBranchSnapshot {
 
   @Override
-  default boolean isRootBranch() {
+  default boolean isRoot() {
     return false;
   }
 
   @Override
-  default IGitMacheteRootBranch asRootBranch() {
+  default IRootManagedBranchSnapshot asRoot() {
     throw new NotImplementedError();
   }
 
   @Override
-  default IGitMacheteNonRootBranch asNonRootBranch() {
+  default INonRootManagedBranchSnapshot asNonRoot() {
     return this;
   }
 
-  List<IGitMacheteCommit> getCommits();
+  List<ICommitOfManagedBranch> getCommits();
 
-  IGitMacheteBranch getParentBranch();
+  IManagedBranchSnapshot getParent();
 
   SyncToParentStatus getSyncToParentStatus();
 
-  Option<IGitMacheteForkPointCommit> getForkPoint();
+  Option<IForkPointCommitOfManagedBranch> getForkPoint();
 
   IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
 

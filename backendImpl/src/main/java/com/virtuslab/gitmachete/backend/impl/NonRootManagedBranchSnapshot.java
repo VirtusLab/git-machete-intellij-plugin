@@ -9,44 +9,44 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @CustomLog
 @Getter
 @ToString
-public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implements IGitMacheteNonRootBranch {
+public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapshot implements INonRootManagedBranchSnapshot {
 
-  private @MonotonicNonNull IGitMacheteBranch parentBranch = null;
-  private final @Nullable IGitMacheteForkPointCommit forkPoint;
-  private final List<IGitMacheteCommit> commits;
+  private @MonotonicNonNull IManagedBranchSnapshot parent = null;
+  private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
+  private final List<ICommitOfManagedBranch> commits;
   private final SyncToParentStatus syncToParentStatus;
 
-  @ToString.Include(name = "parentBranch") // avoid recursive `toString` call on parent branch to avoid stack overflow
-  private @Nullable String getParentBranchName() {
-    return parentBranch != null ? parentBranch.getName() : null;
+  @ToString.Include(name = "parent") // avoid recursive `toString` call on parent branch to avoid stack overflow
+  private @Nullable String getParentName() {
+    return parent != null ? parent.getName() : null;
   }
 
-  public GitMacheteNonRootBranch(
+  public NonRootManagedBranchSnapshot(
       String name,
       String fullName,
-      List<GitMacheteNonRootBranch> childBranches,
-      IGitMacheteCommit pointedCommit,
-      @Nullable IGitMacheteRemoteBranch remoteTrackingBranch,
+      List<NonRootManagedBranchSnapshot> children,
+      ICommitOfManagedBranch pointedCommit,
+      @Nullable IRemoteBranchReference remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
-      @Nullable IGitMacheteForkPointCommit forkPoint,
-      List<IGitMacheteCommit> commits,
+      @Nullable IForkPointCommitOfManagedBranch forkPoint,
+      List<ICommitOfManagedBranch> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, fullName, childBranches, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
         statusHookOutput);
 
     this.forkPoint = forkPoint;
@@ -56,22 +56,22 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
     LOG.debug("Creating ${this}");
 
     // Note: since the class is final, `this` is already @Initialized at this point.
-    setParentForChildBranches();
+    setParentForChildren();
   }
 
   @Override
-  public IGitMacheteBranch getParentBranch() {
-    assert parentBranch != null : "parentBranch hasn't been set yet";
-    return parentBranch;
+  public IManagedBranchSnapshot getParent() {
+    assert parent != null : "parentBranch hasn't been set yet";
+    return parent;
   }
 
-  void setParentBranch(IGitMacheteBranch givenParentBranch) {
-    assert parentBranch == null : "parentBranch has already been set";
-    parentBranch = givenParentBranch;
+  void setParent(IManagedBranchSnapshot givenParentBranch) {
+    assert parent == null : "parentBranch has already been set";
+    parent = givenParentBranch;
   }
 
   @Override
-  public Option<IGitMacheteForkPointCommit> getForkPoint() {
+  public Option<IForkPointCommitOfManagedBranch> getForkPoint() {
     return Option.of(forkPoint);
   }
 
@@ -81,7 +81,7 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
     if (forkPoint == null) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${getName()}'");
     }
-    var newBaseBranch = getParentBranch();
+    var newBaseBranch = getParent();
 
     LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
         "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
@@ -94,8 +94,8 @@ public final class GitMacheteNonRootBranch extends BaseGitMacheteBranch implemen
   public IGitMergeParameters getParametersForMergeIntoParent() {
     LOG.debug(() -> "Entering: branch = '${getName()}'");
     LOG.debug(() -> "Inferred merge parameters: currentBranch = ${getName()}, " +
-        "branchToMergeInto = ${getParentBranch().getName()}");
+        "branchToMergeInto = ${getParent().getName()}");
 
-    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getParentBranch());
+    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getParent());
   }
 }

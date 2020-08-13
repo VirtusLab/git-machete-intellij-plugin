@@ -12,7 +12,7 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
@@ -61,16 +61,16 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var gitMacheteBranch = getNameOfBranchUnderAction(anActionEvent).flatMap(b -> getGitMacheteBranchByName(anActionEvent, b));
 
     if (gitMacheteBranch.isDefined() && gitRepository.isDefined()) {
-      assert gitMacheteBranch.get().isNonRootBranch() : "Provided machete branch to fast forward is a root";
-      doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRootBranch());
+      assert gitMacheteBranch.get().isNonRoot() : "Provided machete branch to fast forward is a root";
+      doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRoot());
     }
   }
 
   private void doFastForward(Project project,
       GitRepository gitRepository,
-      IGitMacheteNonRootBranch gitMacheteNonRootBranch) {
+      INonRootManagedBranchSnapshot gitMacheteNonRootBranch) {
     var localFullName = gitMacheteNonRootBranch.getFullName();
-    var parentLocalFullName = gitMacheteNonRootBranch.getParentBranch().getFullName();
+    var parentLocalFullName = gitMacheteNonRootBranch.getParent().getFullName();
     // There is no leading '+' in the refspec since we only ever want a fast-forward update.
     var refspecFromChildToParent = "${localFullName}:${parentLocalFullName}";
 

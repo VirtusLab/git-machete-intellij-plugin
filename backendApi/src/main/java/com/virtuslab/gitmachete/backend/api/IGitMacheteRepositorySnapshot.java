@@ -4,7 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 /**
  * An immutable snapshot of an {@link IGitMacheteRepository} for some specific moment in time.
@@ -13,13 +13,13 @@ import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
 public interface IGitMacheteRepositorySnapshot {
   Option<IBranchLayout> getBranchLayout();
 
-  List<IGitMacheteRootBranch> getRootBranches();
+  List<IRootManagedBranchSnapshot> getRootBranches();
 
-  Option<IGitMacheteBranch> getCurrentBranchIfManaged();
+  Option<IManagedBranchSnapshot> getCurrentBranchIfManaged();
 
-  List<IGitMacheteBranch> getManagedBranches();
+  List<IManagedBranchSnapshot> getManagedBranches();
 
-  Option<IGitMacheteBranch> getManagedBranchByName(String branchName);
+  Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName);
 
   List<String> getSkippedBranchNames();
 

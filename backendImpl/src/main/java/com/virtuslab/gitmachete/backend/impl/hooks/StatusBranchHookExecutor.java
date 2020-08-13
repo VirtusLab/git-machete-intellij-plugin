@@ -12,7 +12,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 
-import com.virtuslab.gitmachete.backend.impl.GitMacheteCommit;
+import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 
 @CustomLog
 public final class StatusBranchHookExecutor {
@@ -81,7 +81,7 @@ public final class StatusBranchHookExecutor {
     return Option.some(strippedStdout);
   }
 
-  public Option<String> deriveHookOutputFor(String branchName, GitMacheteCommit pointedCommit) {
+  public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
     var key = Tuple.of(branchName, pointedCommit.getHash());
     return hookOutputByBranchNameAndCommitHash.computeIfAbsent(key,
         k -> Try.of(() -> executeHookFor(k._1)).getOrElse(Option.none()));

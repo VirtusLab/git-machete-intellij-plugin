@@ -23,12 +23,12 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -93,7 +93,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         presentation.setEnabled(false);
         presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
             "Rebase", getQuotedStringOrCurrent(branchName)));
-      } else if (branch.isRootBranch()) {
+      } else if (branch.isRoot()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
@@ -105,15 +105,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           presentation.setEnabledAndVisible(false);
         }
 
-      } else if (branch.asNonRootBranch().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
+      } else if (branch.asNonRoot().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
         presentation.setEnabled(false);
         presentation.setDescription(
             format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged"),
                 branch.getName()));
 
-      } else if (branch.isNonRootBranch()) {
-        var nonRootBranch = branch.asNonRootBranch();
-        IGitMacheteBranch upstream = nonRootBranch.getParentBranch();
+      } else if (branch.isNonRoot()) {
+        var nonRootBranch = branch.asNonRoot();
+        IManagedBranchSnapshot upstream = nonRootBranch.getParent();
         presentation.setDescription(format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description"),
             branch.getName(), upstream.getName()));
       }
@@ -134,15 +134,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
 
     if (branch.isDefined()) {
-      if (branch.get().isNonRootBranch()) {
-        doRebase(anActionEvent, branch.get().asNonRootBranch());
+      if (branch.get().isNonRoot()) {
+        doRebase(anActionEvent, branch.get().asNonRoot());
       } else {
         LOG.warn("Skipping the action because the branch '${branch.get().getName()}' is a root branch");
       }
     }
   }
 
-  private void doRebase(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToRebase) {
+  private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
@@ -156,7 +156,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       Project project,
       GitRepository gitRepository,
       IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
-      IGitMacheteNonRootBranch branchToRebase) {
+      INonRootManagedBranchSnapshot branchToRebase) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
     var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
@@ -172,7 +172,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     }
 
     var gitRebaseParameters = tryGitRebaseParameters.get();
-    LOG.debug(() -> "Queuing machete-pre-rebase hook background task for '${branchToRebase.getName()}' branch");
+    LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
 
     new Task.Backgroundable(project, getString("action.GitMachete.BaseRebaseBranchOntoParentAction.hook.task-title")) {
       @Override
@@ -182,14 +182,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           Try<Option<IExecutionResult>> hookResult = Try.success(Option.none());
         };
         new GitFreezingProcess(project, myTitle, () -> {
-          LOG.info("Executing machete-pre-rebase hook");
+          LOG.info("Executing machete-pre-rebase hooks");
           wrapper.hookResult = Try
               .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
         }).execute();
         var hookResult = wrapper.hookResult;
 
         if (hookResult.isFailure()) {
-          var message = "machete-pre-rebase hook refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
+          var message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
           VcsNotifier.getInstance(project)
               .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.abort"), message);
@@ -198,7 +198,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
         var maybeExecutionResult = hookResult.get();
         if (maybeExecutionResult.isDefined() && maybeExecutionResult.get().getExitCode() != 0) {
-          var message = "machete-pre-rebase hook refused to rebase (exit code ${maybeExecutionResult.get().getExitCode()})";
+          var message = "machete-pre-rebase hooks refused to rebase (exit code ${maybeExecutionResult.get().getExitCode()})";
           LOG.error(message);
           var executionResult = maybeExecutionResult.get();
           var stdoutOption = executionResult.getStdout();

@@ -20,17 +20,16 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
-import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
@@ -42,7 +41,6 @@ import com.virtuslab.gitmachete.frontend.graph.impl.items.BranchItem;
 import com.virtuslab.gitmachete.frontend.graph.impl.items.CommitItem;
 
 @Accessors(fluent = true)
-@CustomLog
 public class RepositoryGraphBuilder {
 
   @Setter
@@ -51,30 +49,25 @@ public class RepositoryGraphBuilder {
   @Setter
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = IGitMacheteNonRootBranch::getCommits;
+  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = INonRootManagedBranchSnapshot::getCommits;
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public IRepositoryGraph build() {
-    LOG.startTimer().debug("Entering");
-
     Tuple2<List<IGraphItem>, List<List<Integer>>> graphData = deriveGraphItemsAndPositionsOfVisibleEdges();
-    var result = new RepositoryGraph(graphData._1(), graphData._2());
-
-    LOG.withTimeElapsed().debug("Finished");
-    return result;
+    return new RepositoryGraph(graphData._1(), graphData._2());
   }
 
   private Tuple2<List<IGraphItem>, List<List<Integer>>> deriveGraphItemsAndPositionsOfVisibleEdges() {
-    List<IGitMacheteRootBranch> rootBranches = repositorySnapshot.getRootBranches();
+    List<IRootManagedBranchSnapshot> rootBranches = repositorySnapshot.getRootBranches();
 
     java.util.List<IGraphItem> graphItems = new ArrayList<>();
     java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
 
-    for (IGitMacheteRootBranch branch : rootBranches) {
+    for (IRootManagedBranchSnapshot branch : rootBranches) {
       int currentBranchIndex = graphItems.size();
       positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
       addRootBranch(graphItems, branch);
-      List<? extends IGitMacheteNonRootBranch> childBranches = branch.getChildBranches();
+      List<? extends INonRootManagedBranchSnapshot> childBranches = branch.getChildren();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, childBranches, currentBranchIndex,
           /* indentLevel */ 0);
     }
@@ -94,7 +87,7 @@ public class RepositoryGraphBuilder {
   private void recursivelyAddCommitsAndBranches(
       java.util.List<IGraphItem> graphItems,
       java.util.List<java.util.List<Integer>> positionsOfVisibleEdges,
-      List<? extends IGitMacheteNonRootBranch> childBranches,
+      List<? extends INonRootManagedBranchSnapshot> childBranches,
       @GTENegativeOne int parentBranchIndex,
       @NonNegative int indentLevel) {
     boolean isFirstBranch = true;
@@ -103,7 +96,7 @@ public class RepositoryGraphBuilder {
         : null;
 
     int previousBranchIndex = parentBranchIndex;
-    for (IGitMacheteNonRootBranch branch : childBranches) {
+    for (INonRootManagedBranchSnapshot branch : childBranches) {
       if (!isFirstBranch) {
         graphItems.get(previousBranchIndex).setNextSiblingItemIndex(graphItems.size());
       }
@@ -114,7 +107,7 @@ public class RepositoryGraphBuilder {
       buildCommitsAndNonRootBranch(graphItems, branch, prevSiblingItemIndex, indentLevel);
 
       int upBranchIndex = graphItems.size() - 1;
-      List<? extends IGitMacheteNonRootBranch> branches = branch.getChildBranches();
+      List<? extends INonRootManagedBranchSnapshot> branches = branch.getChildren();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, /* child */ branches,
           upBranchIndex, indentLevel + 1);
 
@@ -132,7 +125,7 @@ public class RepositoryGraphBuilder {
     }
   }
 
-  private void addRootBranch(java.util.List<IGraphItem> graphItems, IGitMacheteRootBranch branch) {
+  private void addRootBranch(java.util.List<IGraphItem> graphItems, IRootManagedBranchSnapshot branch) {
     BranchItem branchItem = createBranchItemFor(branch, /* prevSiblingItemIndex */ -1,
         GraphItemColor.GREEN, /* indentLevel */ 0);
     graphItems.add(branchItem);
@@ -150,10 +143,10 @@ public class RepositoryGraphBuilder {
 
   private void buildCommitsAndNonRootBranch(
       java.util.List<IGraphItem> graphItems,
-      IGitMacheteNonRootBranch branch,
+      INonRootManagedBranchSnapshot branch,
       @NonNegative int parentBranchIndex,
       @NonNegative int indentLevel) {
-    List<IGitMacheteCommit> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
+    List<ICommitOfManagedBranch> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
     var syncToParentStatus = branch.getSyncToParentStatus();
     GraphItemColor graphItemColor = getGraphItemColor(syncToParentStatus);
@@ -162,7 +155,7 @@ public class RepositoryGraphBuilder {
     assert branchItemIndex > 0 : "Branch node index is not greater than 0 but should be";
 
     boolean isFirstItemInBranch = true;
-    for (IGitMacheteCommit commit : commits) {
+    for (ICommitOfManagedBranch commit : commits) {
       int lastItemIndex = graphItems.size() - 1;
       // We are building some non root branch here so some root branch item has been added already.
       assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
@@ -189,14 +182,14 @@ public class RepositoryGraphBuilder {
    * @return {@link BranchItem} for given properties and provide additional attributes if the branch is the current one
    */
   private BranchItem createBranchItemFor(
-      IGitMacheteBranch branch,
+      IManagedBranchSnapshot branch,
       @GTENegativeOne int prevSiblingItemIndex,
       GraphItemColor graphItemColor,
       @NonNegative int indentLevel) {
     SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
-    Option<IGitMacheteBranch> currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
+    Option<IManagedBranchSnapshot> currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
-    boolean hasChildItem = !branch.getChildBranches().isEmpty();
+    boolean hasChildItem = !branch.getChildren().isEmpty();
 
     return new BranchItem(branch, graphItemColor, syncToRemoteStatus, prevSiblingItemIndex, indentLevel,
         isCurrentBranch, hasChildItem);

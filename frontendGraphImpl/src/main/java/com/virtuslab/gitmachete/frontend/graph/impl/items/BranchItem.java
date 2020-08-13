@@ -9,14 +9,14 @@ import lombok.Getter;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 
 @Getter
 public final class BranchItem extends BaseGraphItem implements IBranchItem {
-  private final IGitMacheteBranch branch;
+  private final IManagedBranchSnapshot branch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final SimpleTextAttributes attributes;
   private final boolean isCurrentBranch;
@@ -25,7 +25,7 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
   private final boolean hasChildItem;
 
   public BranchItem(
-      IGitMacheteBranch branch,
+      IManagedBranchSnapshot branch,
       GraphItemColor graphItemColor,
       SyncToRemoteStatus syncToRemoteStatus,
       @GTENegativeOne int prevSiblingItemIndex,

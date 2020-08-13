@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.backend.api;
 
-public interface IGitMacheteRemoteBranch {
+public interface IRemoteBranchReference {
   String getName();
 
   String getFullName();

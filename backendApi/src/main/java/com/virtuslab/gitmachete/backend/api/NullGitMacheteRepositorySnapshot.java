@@ -4,7 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
   private static final NullGitMacheteRepositorySnapshot instance = new NullGitMacheteRepositorySnapshot();
@@ -21,22 +21,22 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public List<IGitMacheteRootBranch> getRootBranches() {
+  public List<IRootManagedBranchSnapshot> getRootBranches() {
     return List.empty();
   }
 
   @Override
-  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
     return Option.none();
   }
 
   @Override
-  public List<IGitMacheteBranch> getManagedBranches() {
+  public List<IManagedBranchSnapshot> getManagedBranches() {
     return List.empty();
   }
 
   @Override
-  public Option<IGitMacheteBranch> getManagedBranchByName(String branchName) {
+  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
     return Option.none();
   }
 

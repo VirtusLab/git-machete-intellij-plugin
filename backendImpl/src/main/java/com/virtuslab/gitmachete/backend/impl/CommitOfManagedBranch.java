@@ -10,11 +10,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @ToString(onlyExplicitlyIncluded = true)
-public class GitMacheteCommit implements IGitMacheteCommit {
+public class CommitOfManagedBranch implements ICommitOfManagedBranch {
 
   @Getter(AccessLevel.PACKAGE)
   private final IGitCoreCommit coreCommit;
@@ -43,11 +43,11 @@ public class GitMacheteCommit implements IGitMacheteCommit {
 
   @Override
   public final boolean equals(@Nullable Object other) {
-    return IGitMacheteCommit.defaultEquals(this, other);
+    return ICommitOfManagedBranch.defaultEquals(this, other);
   }
 
   @Override
   public final int hashCode() {
-    return IGitMacheteCommit.defaultHashCode(this);
+    return ICommitOfManagedBranch.defaultHashCode(this);
   }
 }

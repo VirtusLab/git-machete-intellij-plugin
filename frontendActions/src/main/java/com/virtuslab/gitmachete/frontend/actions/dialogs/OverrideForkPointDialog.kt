@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.layout.buttonGroup
 import com.intellij.ui.layout.panel
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 
@@ -17,8 +17,8 @@ enum class OverrideOption {
 class OverrideForkPointDialog
     constructor(
         project: Project,
-        private val parentBranch: IGitMacheteBranch,
-        private val branch: IGitMacheteNonRootBranch
+        private val parentBranch: IManagedBranchSnapshot,
+        private val branch: INonRootManagedBranchSnapshot
     ) : DialogWrapper(project, /* canBeParent */ true) {
 
   private var myOverrideOption = OverrideOption.PARENT

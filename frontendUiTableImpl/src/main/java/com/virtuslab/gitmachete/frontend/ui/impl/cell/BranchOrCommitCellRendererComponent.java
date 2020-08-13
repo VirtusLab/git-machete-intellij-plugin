@@ -52,9 +52,9 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
@@ -153,10 +153,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     if (graphItem.isBranchItem()) {
       IBranchItem branchItem = graphItem.asBranchItem();
-      IGitMacheteBranch branch = branchItem.getBranch();
+      IManagedBranchSnapshot branch = branchItem.getBranch();
 
-      if (branch.isNonRootBranch()) {
-        setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRootBranch()));
+      if (branch.isNonRoot()) {
+        setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRoot()));
       }
 
       Option<String> customAnnotation = branch.getCustomAnnotation();
@@ -175,8 +175,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       append(" " + remoteStatusLabel, textAttributes);
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
-      IGitMacheteNonRootBranch containingBranch = commitItem.getContainingBranch();
-      IGitMacheteForkPointCommit forkPoint = containingBranch.getForkPoint().getOrNull();
+      INonRootManagedBranchSnapshot containingBranch = commitItem.getContainingBranch();
+      IForkPointCommitOfManagedBranch forkPoint = containingBranch.getForkPoint().getOrNull();
 
       if (commitItem.getCommit().equals(forkPoint)) {
         append(
@@ -222,7 +222,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     // for the corresponding the right edge to the left.
     // If item is a commit, then the text must be shifted right to keep it horizontally aligned
     // with the corresponding branch item.
-    boolean isRootBranch = graphItem.isBranchItem() && graphItem.asBranchItem().getBranch().isRootBranch();
+    boolean isRootBranch = graphItem.isBranchItem() && graphItem.asBranchItem().getBranch().isRoot();
     return graphItem.getIndentLevel() + (isRootBranch ? 0 : 1);
   }
 
@@ -277,9 +277,9 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
                 remoteName)));
   }
 
-  private static String getSyncToParentStatusBasedToolTipText(IGitMacheteNonRootBranch branch) {
+  private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
     var currentBranchName = branch.getName();
-    var parentBranchName = branch.getParentBranch().getName();
+    var parentBranchName = branch.getParent().getName();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
             format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync"),

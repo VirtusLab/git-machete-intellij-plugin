@@ -9,8 +9,8 @@ import org.checkerframework.framework.qual.SubtypeOf;
 import org.checkerframework.framework.qual.TargetLocations;
 import org.checkerframework.framework.qual.TypeUseLocation;
 
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRootBranch;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRootBranch;
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
@@ -21,8 +21,8 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
 // otherwise Subtyping Checker would raise an error about multiple top/bottom types.
 @SubtypeOf({
     // Despite having a unified type hierarchy, we're actually doing 3 completely independent checks here.
-    ConfirmedRootBranch.class,
-    ConfirmedNonRootBranch.class,
+    ConfirmedRoot.class,
+    ConfirmedNonRoot.class,
     ConfirmedGraphNode.class,
     ConfirmedGraphEdge.class,
     ConfirmedBranchItem.class,

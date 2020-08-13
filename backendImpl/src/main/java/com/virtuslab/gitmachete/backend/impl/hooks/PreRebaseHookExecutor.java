@@ -10,7 +10,7 @@ import lombok.CustomLog;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 @CustomLog
 public final class PreRebaseHookExecutor {

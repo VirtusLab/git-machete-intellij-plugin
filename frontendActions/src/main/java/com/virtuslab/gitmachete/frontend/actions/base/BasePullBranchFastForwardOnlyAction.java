@@ -11,8 +11,8 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.PullCurrentBranchFastForwardOnlyBackgroundable;
@@ -94,7 +94,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
   private void doPullCurrentBranchFastForwardOnly(Project project,
       GitRepository gitRepository,
-      IGitMacheteRemoteBranch remoteBranch) {
+      IRemoteBranchReference remoteBranch) {
 
     new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, remoteBranch,
         getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title")).queue();
@@ -102,8 +102,8 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
   private void doPullNonCurrentBranchFastForwardOnly(Project project,
       GitRepository gitRepository,
-      IGitMacheteBranch localBranch,
-      IGitMacheteRemoteBranch remoteBranch) {
+      IManagedBranchSnapshot localBranch,
+      IRemoteBranchReference remoteBranch) {
 
     var remoteName = remoteBranch.getRemoteName();
     var remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();

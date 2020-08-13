@@ -14,23 +14,23 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteForkPointCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRootBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.hook.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
-  private final List<IGitMacheteRootBranch> roots;
+  private final List<IRootManagedBranchSnapshot> roots;
 
   public DemoGitMacheteRepositorySnapshot() {
     var nullPointedCommit = new Commit("");
@@ -78,7 +78,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
         /* childBranches */ List.of(nonRoots));
 
     for (var nr : nonRoots) {
-      nr.setParentBranch(root);
+      nr.setParent(root);
     }
 
     this.roots = List.of(root);
@@ -94,22 +94,22 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public List<IGitMacheteRootBranch> getRootBranches() {
+  public List<IRootManagedBranchSnapshot> getRootBranches() {
     return roots;
   }
 
   @Override
-  public Option<IGitMacheteBranch> getCurrentBranchIfManaged() {
+  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
     return Option.narrow(roots.headOption());
   }
 
   @Override
-  public List<IGitMacheteBranch> getManagedBranches() {
+  public List<IManagedBranchSnapshot> getManagedBranches() {
     throw new NotImplementedError();
   }
 
   @Override
-  public Option<IGitMacheteBranch> getManagedBranchByName(String branchName) {
+  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
     throw new NotImplementedError();
   }
 
@@ -129,7 +129,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @AllArgsConstructor
-  private static class Commit implements IGitMacheteCommit {
+  private static class Commit implements ICommitOfManagedBranch {
 
     private final String msg;
 
@@ -154,7 +154,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
   }
 
-  private static final class FpCommit extends Commit implements IGitMacheteForkPointCommit {
+  private static final class FpCommit extends Commit implements IForkPointCommitOfManagedBranch {
     FpCommit(String msg) {
       super(msg);
     }
@@ -177,13 +177,13 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   @Getter
   @AllArgsConstructor
-  private static final class Root implements IGitMacheteRootBranch {
+  private static final class Root implements IRootManagedBranchSnapshot {
     private final String name;
     private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
-    private final List<IGitMacheteNonRootBranch> childBranches;
+    private final List<INonRootManagedBranchSnapshot> children;
 
     @Override
     public Option<String> getCustomAnnotation() {
@@ -196,36 +196,36 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
+    public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
       return Option.none();
     }
   }
 
   @Getter
   @RequiredArgsConstructor
-  private static final class NonRoot implements IGitMacheteNonRootBranch {
+  private static final class NonRoot implements INonRootManagedBranchSnapshot {
     private final String name;
     private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final @Nullable IGitMacheteForkPointCommit forkPoint;
+    private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
     private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
-    private final List<IGitMacheteNonRootBranch> childBranches;
+    private final List<INonRootManagedBranchSnapshot> children;
 
-    private final List<IGitMacheteCommit> commits;
+    private final List<ICommitOfManagedBranch> commits;
     @MonotonicNonNull
-    private IGitMacheteBranch parentBranch = null;
+    private IManagedBranchSnapshot parent = null;
     private final SyncToParentStatus syncToParentStatus;
 
     @Override
-    public IGitMacheteBranch getParentBranch() {
-      assert parentBranch != null : "parentBranch hasn't been set yet";
-      return parentBranch;
+    public IManagedBranchSnapshot getParent() {
+      assert parent != null : "parentBranch hasn't been set yet";
+      return parent;
     }
 
-    void setParentBranch(IGitMacheteBranch givenParentBranch) {
-      assert parentBranch == null : "parentBranch has already been set";
-      parentBranch = givenParentBranch;
+    void setParent(IManagedBranchSnapshot givenParentBranch) {
+      assert parent == null : "parentBranch has already been set";
+      parent = givenParentBranch;
     }
 
     @Override
@@ -239,7 +239,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IGitMacheteForkPointCommit> getForkPoint() {
+    public Option<IForkPointCommitOfManagedBranch> getForkPoint() {
       return Option.of(forkPoint);
     }
 
@@ -254,7 +254,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IGitMacheteRemoteBranch> getRemoteTrackingBranch() {
+    public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
       return Option.none();
     }
   }

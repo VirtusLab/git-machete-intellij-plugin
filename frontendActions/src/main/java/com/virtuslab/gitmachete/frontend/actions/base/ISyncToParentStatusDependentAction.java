@@ -62,7 +62,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
           format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
               getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
-    } else if (gitMacheteBranchByName.isRootBranch()) {
+    } else if (gitMacheteBranchByName.isRoot()) {
 
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
@@ -75,13 +75,13 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRootBranch();
+    var gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRoot();
     var syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
 
     var isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
 
     if (isStatusEligible) {
-      var parentName = gitMacheteNonRootBranch.getParentBranch().getName();
+      var parentName = gitMacheteNonRootBranch.getParent().getName();
       var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
       presentation.setDescription(enabledDesc);
 

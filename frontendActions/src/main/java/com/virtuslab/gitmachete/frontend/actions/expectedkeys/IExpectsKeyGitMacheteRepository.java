@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
@@ -30,7 +30,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return branchLayout;
   }
 
-  default Option<IGitMacheteBranch> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
+  default Option<IManagedBranchSnapshot> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
     return getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
         .flatMap(repository -> repository.getCurrentBranchIfManaged());
   }
@@ -47,7 +47,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return currentBranchName;
   }
 
-  default Option<IGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
+  default Option<IManagedBranchSnapshot> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
     var gitMacheteBranch = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
         .flatMap(r -> r.getManagedBranchByName(branchName));
     if (gitMacheteBranch.isEmpty()) {

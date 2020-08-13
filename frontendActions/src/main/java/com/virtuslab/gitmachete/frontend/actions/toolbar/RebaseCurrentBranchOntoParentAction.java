@@ -23,7 +23,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
     var isNonRootBranch = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
-        .map(b -> b.isNonRootBranch())
+        .map(b -> b.isNonRoot())
         .getOrElse(false);
 
     presentation.setVisible(isNonRootBranch);

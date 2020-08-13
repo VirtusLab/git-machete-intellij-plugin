@@ -2,12 +2,12 @@ package com.virtuslab.gitmachete.frontend.graph.api.items;
 
 import io.vavr.NotImplementedError;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 public interface IBranchItem extends IGraphItem {
 
-  IGitMacheteBranch getBranch();
+  IManagedBranchSnapshot getBranch();
 
   SyncToRemoteStatus getSyncToRemoteStatus();
 

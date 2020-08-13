@@ -48,7 +48,7 @@ import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRemoteBranch;
+import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
 
 @CustomLog
 public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgroundable {
@@ -57,12 +57,12 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgro
 
   private final Project project;
   private final GitRepository gitRepository;
-  private final IGitMacheteRemoteBranch remoteBranch;
+  private final IRemoteBranchReference remoteBranch;
 
   public PullCurrentBranchFastForwardOnlyBackgroundable(
       Project project,
       GitRepository gitRepository,
-      IGitMacheteRemoteBranch remoteBranch,
+      IRemoteBranchReference remoteBranch,
       String taskTitle) {
     super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;

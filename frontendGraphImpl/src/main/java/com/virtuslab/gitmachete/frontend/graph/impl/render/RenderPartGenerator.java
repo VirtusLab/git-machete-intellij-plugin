@@ -57,7 +57,7 @@ public final class RenderPartGenerator implements IRenderPartGenerator {
     }
 
     int nodeAndItsDownEdgePos = position;
-    if (graphItem.isBranchItem() && graphItem.asBranchItem().getBranch().isNonRootBranch()) {
+    if (graphItem.isBranchItem() && graphItem.asBranchItem().getBranch().isNonRoot()) {
       builder.consumeRightEdge(new GraphEdge(rowIndex, rowIndex), position);
       nodeAndItsDownEdgePos++;
     }

@@ -6,20 +6,20 @@ import lombok.Getter;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
 
 @Getter
 public final class CommitItem extends BaseGraphItem implements ICommitItem {
 
-  private final IGitMacheteCommit commit;
-  private final IGitMacheteNonRootBranch containingBranch;
+  private final ICommitOfManagedBranch commit;
+  private final INonRootManagedBranchSnapshot containingBranch;
 
   public CommitItem(
-      IGitMacheteCommit commit,
-      IGitMacheteNonRootBranch containingBranch,
+      ICommitOfManagedBranch commit,
+      INonRootManagedBranchSnapshot containingBranch,
       GraphItemColor containingBranchGraphItemColor,
       @NonNegative int prevSiblingItemIndex,
       @Positive int nextSiblingItemIndex,

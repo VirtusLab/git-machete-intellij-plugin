@@ -23,7 +23,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteNonRootBranch;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -63,7 +63,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       presentation.setEnabled(false);
       presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
           "Slide out", getQuotedStringOrCurrent(branchName)));
-    } else if (branch.isNonRootBranch()) {
+    } else if (branch.isNonRoot()) {
       presentation.setDescription(
           format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.getName()));
     } else {
@@ -86,8 +86,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
     if (branch.isDefined()) {
-      if (branch.get().isNonRootBranch()) {
-        doSlideOut(anActionEvent, branch.get().asNonRootBranch());
+      if (branch.get().isNonRoot()) {
+        doSlideOut(anActionEvent, branch.get().asNonRoot());
       } else {
         LOG.warn("Skipping the action because the branch '${branch.get().getName()}' is a root branch");
       }
@@ -95,7 +95,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   }
 
   @UIEffect
-  private void doSlideOut(AnActionEvent anActionEvent, IGitMacheteNonRootBranch branchToSlideOut) {
+  private void doSlideOut(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);

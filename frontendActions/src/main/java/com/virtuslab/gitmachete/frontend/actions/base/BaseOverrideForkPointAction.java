@@ -15,8 +15,8 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteCommit;
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -66,12 +66,12 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     var branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByName(anActionEvent, pn)).getOrNull();
 
-    if (gitRepository == null || branch == null || branch.isRootBranch()) {
+    if (gitRepository == null || branch == null || branch.isRoot()) {
       return;
     }
 
-    var nonRootBranch = branch.asNonRootBranch();
-    var selectedCommit = new OverrideForkPointDialog(project, nonRootBranch.getParentBranch(), nonRootBranch)
+    var nonRootBranch = branch.asNonRoot();
+    var selectedCommit = new OverrideForkPointDialog(project, nonRootBranch.getParent(), nonRootBranch)
         .showAndGetSelectedCommit();
     if (selectedCommit == null) {
       log().debug(
@@ -89,7 +89,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @NotUIThreadSafe
-  private void overrideForkPoint(AnActionEvent anActionEvent, IGitMacheteBranch branch, IGitMacheteCommit forkPoint) {
+  private void overrideForkPoint(AnActionEvent anActionEvent, IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
@@ -106,8 +106,8 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
       Project project,
       VirtualFile root,
       String branchName,
-      IGitMacheteCommit forkPoint,
-      IGitMacheteCommit ancestorCommit) {
+      ICommitOfManagedBranch forkPoint,
+      ICommitOfManagedBranch ancestorCommit) {
     var section = "machete";
     var subsectionPrefix = "overrideForkPoint";
     var to = "to";

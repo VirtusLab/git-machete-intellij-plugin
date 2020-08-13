@@ -24,7 +24,7 @@ public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForward
 
     var isInSyncToParent = getNameOfBranchUnderAction(anActionEvent)
         .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
-        .flatMap(b -> b.isNonRootBranch() ? Option.some(b.asNonRootBranch()) : Option.none())
+        .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
         .getOrElse(false);
 
