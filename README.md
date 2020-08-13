@@ -303,7 +303,3 @@ gitmachete.frontend.ui
 ```
 
 Then reproduce the bug and go to `Help` -> `Show Log in Files` to open the log file.
-
-## Development
-
-For more details on development of the project, see the [guideline](DEVELOPMENT.md).
