@@ -176,8 +176,8 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends Task.Backgro
           // When the pull results with no commits, there is no git update info (as log).
           // Based on that we know that all files are up-to-date.
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable" +
-                  ".notification.title.all-files-are-up-to-date"),
+              getString(
+                  "action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.notification.title.all-files-are-up-to-date"),
               /* content */ "", INFORMATION, /* listener */ null);
         }
         VcsNotifier.getInstance(project).notify(notification);
