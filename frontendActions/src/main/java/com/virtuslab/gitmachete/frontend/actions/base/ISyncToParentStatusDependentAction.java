@@ -25,7 +25,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
 
   /**
    * @return a format string for description of action in enabled state
-   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderAction}
+   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderActionWithLogging}
    *         and {@code {0}} corresponds to name of its parent branch
    */
   @I18nFormat({GENERAL, GENERAL})
@@ -51,7 +51,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var gitMacheteBranchByName = branchName != null
         ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
         : null;

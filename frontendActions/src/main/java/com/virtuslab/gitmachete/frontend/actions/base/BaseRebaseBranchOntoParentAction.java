@@ -84,7 +84,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status"), stateName));
     } else {
 
-      var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+      var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
       var branch = branchName != null
           ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
           : null;
@@ -118,7 +118,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
             branch.getName(), upstream.getName()));
       }
 
-      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
+      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent)
           .map(bn -> bn.equals(branch.getName())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
@@ -130,8 +130,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
+    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn));
 
     if (branch.isDefined()) {
       if (branch.get().isNonRoot()) {

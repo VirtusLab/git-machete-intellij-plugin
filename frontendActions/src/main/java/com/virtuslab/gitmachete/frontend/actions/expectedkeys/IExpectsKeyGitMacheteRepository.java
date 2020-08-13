@@ -21,7 +21,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return gitMacheteRepositorySnapshot;
   }
 
-  default Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
+  default Option<IBranchLayout> getBranchLayoutWithLoggingOnEmpty(AnActionEvent anActionEvent) {
     var branchLayout = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
         .flatMap(repository -> repository.getBranchLayout());
     if (branchLayout.isEmpty()) {
@@ -31,7 +31,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<IManagedBranchSnapshot> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
-    return getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
+    return getGitMacheteRepositorySnapshot(anActionEvent)
         .flatMap(repository -> repository.getCurrentBranchIfManaged());
   }
 
@@ -39,20 +39,34 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
   }
 
+  default Option<IGitMacheteBranch> getCurrentMacheteBranchIfManagedWithLoggingOnEmptyRepository(AnActionEvent anActionEvent) {
+    return getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
+        .flatMap(repository -> repository.getCurrentBranchIfManaged());
+  }
+
+  default Option<String> getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(AnActionEvent anActionEvent) {
+    return getCurrentMacheteBranchIfManagedWithLoggingOnEmptyRepository(anActionEvent).map(branch -> branch.getName());
+  }
+
   default Option<String> getCurrentBranchNameIfManagedWithLoggingOnEmpty(AnActionEvent anActionEvent) {
-    var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
+    var currentBranchName = getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
     if (currentBranchName.isEmpty()) {
       log().warn("Current Git Machete branch name is undefined");
     }
     return currentBranchName;
   }
 
-  default Option<IManagedBranchSnapshot> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
+  default Option<IManagedBranchSnapshot> getGitMacheteBranchByNameWithLoggingOnEmpty(AnActionEvent anActionEvent,
+      String branchName) {
     var gitMacheteBranch = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent)
         .flatMap(r -> r.getManagedBranchByName(branchName));
     if (gitMacheteBranch.isEmpty()) {
       log().warn(branchName + " Git Machete branch is undefined");
     }
     return gitMacheteBranch;
+  }
+
+  default Option<IGitMacheteBranch> getGitMacheteBranchByName(AnActionEvent anActionEvent, String branchName) {
+    return getGitMacheteRepositorySnapshot(anActionEvent).flatMap(r -> r.getManagedBranchByName(branchName));
   }
 }

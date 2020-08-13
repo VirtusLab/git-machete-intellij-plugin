@@ -51,7 +51,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var gitMacheteBranch = branchName != null
         ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
         : null;

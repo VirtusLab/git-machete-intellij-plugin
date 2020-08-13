@@ -25,6 +25,7 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -79,6 +80,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote);
   }
 
+  public abstract Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent);
+
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
@@ -102,7 +105,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     Project project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
     var macheteRepository = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
 
     if (branchName.isEmpty()) {
@@ -125,7 +128,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
-      var gitMacheteBranch = getGitMacheteBranchByName(anActionEvent, branchName.get());
+      var gitMacheteBranch = getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, branchName.get());
       var remoteBranch = gitMacheteBranch.flatMap(b -> b.getRemoteTrackingBranch()).map(rtb -> rtb.getName())
           .getOrElse("<remote-branch>");
       var currentCommitSha = gitMacheteBranch.map(b -> b.getPointedCommit().getHash()).getOrNull();

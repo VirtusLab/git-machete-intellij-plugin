@@ -9,8 +9,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseOverrideForkPointActio
 
 public class OverrideForkPointOfCurrentBranchAction extends BaseOverrideForkPointAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManaged(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
   }
 
   @Override
@@ -22,8 +22,8 @@ public class OverrideForkPointOfCurrentBranchAction extends BaseOverrideForkPoin
       return;
     }
 
-    var isInSyncButForkPointOff = getNameOfBranchUnderAction(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
+    var isInSyncButForkPointOff = getCurrentBranchNameIfManaged(anActionEvent)
+        .flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff)
         .getOrElse(false);

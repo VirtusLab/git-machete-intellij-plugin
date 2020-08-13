@@ -341,7 +341,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         public void run() {
           GuiUtils.invokeLaterIfNeeded(() -> graphTable.setRowSelectionAllowed(true), NON_MODAL);
         }
-      }, 35);
+      }, /* delay */ 35);
     }
 
     @Override

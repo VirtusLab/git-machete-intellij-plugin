@@ -9,8 +9,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutBranchAction;
 
 public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManaged(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
   }
 
   @Override
@@ -22,8 +22,8 @@ public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
       return;
     }
 
-    var isMergedToParent = getNameOfBranchUnderAction(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
+    var isMergedToParent = getCurrentBranchNameIfManaged(anActionEvent)
+        .flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.MergedToParent)
         .getOrElse(false);

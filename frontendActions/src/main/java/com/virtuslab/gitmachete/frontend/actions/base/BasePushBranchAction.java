@@ -66,8 +66,8 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var relation = branchName.flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
+    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus())
         .map(strs -> strs.getRelation());
 

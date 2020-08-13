@@ -8,6 +8,11 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelecte
 
 public class ResetSelectedBranchToRemoteAction extends BaseResetBranchToRemoteAction implements IExpectsKeySelectedBranchName {
   @Override
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getSelectedBranchNameWithLogging(anActionEvent);
+  }
+
+  @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
   }

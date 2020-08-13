@@ -7,7 +7,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideInBranchBelowActi
 
 public class SlideInBranchBelowCurrentBranchAction extends BaseSlideInBranchBelowAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManaged(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
   }
 }

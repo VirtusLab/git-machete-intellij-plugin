@@ -64,7 +64,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var localBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var localBranchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
 
     if (localBranchName != null && gitRepository != null && gitMacheteRepositorySnapshot != null) {

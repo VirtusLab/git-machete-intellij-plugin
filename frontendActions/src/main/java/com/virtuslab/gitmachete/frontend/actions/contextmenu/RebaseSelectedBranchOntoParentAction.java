@@ -10,7 +10,7 @@ public class RebaseSelectedBranchOntoParentAction extends BaseRebaseBranchOntoPa
     implements
       IExpectsKeySelectedBranchName {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getSelectedBranchName(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getSelectedBranchNameWithLogging(anActionEvent);
   }
 }

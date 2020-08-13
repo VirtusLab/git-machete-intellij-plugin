@@ -40,7 +40,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    var selectedBranchName = getSelectedBranchName(anActionEvent);
+    var selectedBranchName = getSelectedBranchNameWithLogging(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
@@ -49,7 +49,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
+    var currentBranchName = getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
 
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
@@ -65,7 +65,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var selectedBranchName = getSelectedBranchName(anActionEvent);
+    var selectedBranchName = getSelectedBranchNameWithLogging(anActionEvent);
     if (selectedBranchName.isEmpty()) {
       return;
     }

@@ -8,7 +8,7 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelecte
 
 public class SlideOutSelectedBranchAction extends BaseSlideOutBranchAction implements IExpectsKeySelectedBranchName {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getSelectedBranchName(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getSelectedBranchNameWithLogging(anActionEvent);
   }
 }
