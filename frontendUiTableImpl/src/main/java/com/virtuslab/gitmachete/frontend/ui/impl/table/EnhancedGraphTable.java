@@ -18,6 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Consumer;
 
 import javax.swing.JPopupMenu;
@@ -330,7 +332,16 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @Override
     @UIEffect
     public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent) {
-      graphTable.setRowSelectionAllowed(true);
+      // This delay is needed to avoid `focus transfer` effect when at the beginning row selection is light blue
+      // but when context menu is created (in a fraction of second), selection loses focus to the context menu and becomes dark blue.
+      // TimerTask can't be replaced by lambda because it's not a SAM (single abstract method).
+      // For more details see https://stackoverflow.com/a/37970821/10116324
+      new Timer().schedule(new TimerTask() {
+        @Override
+        public void run() {
+          GuiUtils.invokeLaterIfNeeded(() -> graphTable.setRowSelectionAllowed(true), NON_MODAL);
+        }
+      }, 35);
     }
 
     @Override
