@@ -4,15 +4,18 @@
 [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 
-<img src="src/main/resources/META-INF/pluginIcon.svg" width="150" height="150" />
+<img src="src/main/resources/META-INF/pluginIcon.svg" width="130" height="130" align="left"/>
 
 Git Machete plugin is a robust tool that simplifies your git related workflow.
-It's a great complement to the JetBrains products' built-in version control system.
+It's a great complement to the JetBrains products' built-in version control system.<br/>
+
 The "bird's eye view" provided by Git Machete makes merges/rebases/push/pulls hassle-free
 even when multiple branches are present in the repository
-(master/develop, your topic branches, teammate's branches checked out for review, etc.).
-A look at a Git Machete tab gives an instant answer to the question
-"what branches are in this repository, what is going to be merged (rebased/pushed/pulled) and to what?".
+(master/develop, your topic branches, teammate's branches checked out for review, etc.).<br/>
+
+A look at a Git Machete tab gives an instant answer to the questions:
+* what branches are in this repository
+* what is going to be merged (rebased/pushed/pulled) and to what?.
 
 With this plugin, you can simply maintain small, focused pull requests that are easy to review.
 
