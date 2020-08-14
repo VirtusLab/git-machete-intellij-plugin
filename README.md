@@ -14,8 +14,8 @@ even when multiple branches are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).<br/>
 
 A look at a Git Machete tab gives an instant answer to the questions:
-* what branches are in this repository
-* what is going to be merged (rebased/pushed/pulled) and to what?.
+* What branches are in this repository?
+* What is going to be merged (rebased/pushed/pulled) and to what?
 
 With this plugin, you can simply maintain small, focused pull requests that are easy to review.
 
@@ -23,8 +23,6 @@ With this plugin, you can simply maintain small, focused pull requests that are 
 The minimum required version is 2020.1**.
 
 ![](docs/sample_workflow.gif)
-
-See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
 
 
 ## Installing
@@ -306,3 +304,8 @@ gitmachete.frontend.ui
 ```
 
 Then reproduce the bug and go to `Help` -> `Show Log in Files` to open the log file.
+
+
+## References
+
+See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
