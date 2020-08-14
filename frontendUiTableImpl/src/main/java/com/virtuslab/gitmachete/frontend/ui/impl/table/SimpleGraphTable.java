@@ -29,7 +29,7 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   @UIEffect
   private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
     var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, /* isListingCommits */ true);
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, /* isListingCommits */ false);
     return new GraphTableModel(repositoryGraph);
   }
 
