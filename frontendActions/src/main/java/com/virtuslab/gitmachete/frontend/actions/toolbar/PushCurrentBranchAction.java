@@ -14,7 +14,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BasePushBranchAction;
 public class PushCurrentBranchAction extends BasePushBranchAction {
   @Override
   public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
+    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
   }
 
   @Override
@@ -27,7 +27,7 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
     }
 
     var isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
+        .flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))
         .getOrElse(false);

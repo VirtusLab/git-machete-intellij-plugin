@@ -64,7 +64,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var branchUnderAction = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, pn)).getOrNull();
+    var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByNameWithLogging(anActionEvent, pn)).getOrNull();
 
     if (gitRepository == null || branch == null || branch.isRoot()) {
       return;

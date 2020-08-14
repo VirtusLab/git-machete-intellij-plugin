@@ -55,7 +55,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var branch = branchName != null
-        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null) {
@@ -77,7 +77,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var parentName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
-    var branchLayout = getBranchLayoutWithLoggingOnEmpty(anActionEvent).getOrNull();
+    var branchLayout = getBranchLayoutWithLogging(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     var notifier = VcsNotifier.getInstance(project);
 

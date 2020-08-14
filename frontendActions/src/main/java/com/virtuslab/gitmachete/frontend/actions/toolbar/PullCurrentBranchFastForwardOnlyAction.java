@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchFastForwardO
 public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastForwardOnlyAction {
   @Override
   public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
+    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
   }
 
   @Override
@@ -26,7 +26,7 @@ public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastFo
     }
 
     var isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
+        .flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))
         .getOrElse(false);

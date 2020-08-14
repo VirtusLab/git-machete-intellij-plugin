@@ -56,7 +56,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var branch = branchName != null
-        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branch == null) {
@@ -84,7 +84,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     LOG.debug("Performing");
 
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn));
+    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn));
     if (branch.isDefined()) {
       if (branch.get().isNonRoot()) {
         doSlideOut(anActionEvent, branch.get().asNonRoot());
@@ -101,7 +101,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     var project = getProject(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var branchLayout = getBranchLayoutWithLoggingOnEmpty(anActionEvent).getOrNull();
+    var branchLayout = getBranchLayoutWithLogging(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {
       return;
     }
@@ -144,7 +144,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       var project = getProject(anActionEvent);
       var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (shallDeleteLocalBranch) {
-        var slidOutBranchIsCurrent = getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent)
+        var slidOutBranchIsCurrent = getCurrentBranchNameIfManagedWithLogging(anActionEvent)
             .map(b -> b.equals(branchName))
             .getOrElse(true);
         if (slidOutBranchIsCurrent) {

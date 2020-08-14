@@ -106,7 +106,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     Project project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var macheteRepository = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
+    var macheteRepository = getGitMacheteRepositorySnapshotWithLogging(anActionEvent);
 
     if (branchName.isEmpty()) {
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
@@ -128,7 +128,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
-      var gitMacheteBranch = getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, branchName.get());
+      var gitMacheteBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName.get());
       var remoteBranch = gitMacheteBranch.flatMap(b -> b.getRemoteTrackingBranch()).map(rtb -> rtb.getName())
           .getOrElse("<remote-branch>");
       var currentCommitSha = gitMacheteBranch.map(b -> b.getPointedCommit().getHash()).getOrNull();
@@ -193,7 +193,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           resetHandler.endOptions();
 
           // Check if branch to reset is the current branch - if it isn't, then checkout
-          var currentBranchOption = getCurrentBranchNameIfManagedWithLoggingOnEmpty(anActionEvent);
+          var currentBranchOption = getCurrentBranchNameIfManagedWithLogging(anActionEvent);
           if (currentBranchOption.isEmpty() || !currentBranchOption.get().equals(branchName)) {
             log().debug(() -> "Checkout to branch '${branchName}' is needed");
             // Checking out given branch

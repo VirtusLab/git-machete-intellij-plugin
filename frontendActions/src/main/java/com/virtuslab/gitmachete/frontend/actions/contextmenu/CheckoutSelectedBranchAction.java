@@ -49,7 +49,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    var currentBranchName = getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
+    var currentBranchName = getCurrentBranchNameIfManagedWithLogging(anActionEvent);
 
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);

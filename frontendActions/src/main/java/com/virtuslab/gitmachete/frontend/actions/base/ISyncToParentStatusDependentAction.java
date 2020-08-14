@@ -53,7 +53,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
 
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var gitMacheteBranchByName = branchName != null
-        ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null || gitMacheteBranchByName == null) {

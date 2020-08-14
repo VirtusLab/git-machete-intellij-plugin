@@ -86,7 +86,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
       var branch = branchName != null
-          ? getGitMacheteBranchByName(anActionEvent, branchName).getOrNull()
+          ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
           : null;
 
       if (branch == null) {
@@ -118,7 +118,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
             branch.getName(), upstream.getName()));
       }
 
-      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent)
+      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManagedWithLogging(anActionEvent)
           .map(bn -> bn.equals(branch.getName())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
@@ -131,7 +131,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     LOG.debug("Performing");
 
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn));
+    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn));
 
     if (branch.isDefined()) {
       if (branch.get().isNonRoot()) {
@@ -145,7 +145,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
-    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLoggingOnEmpty(anActionEvent);
+    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLogging(anActionEvent);
 
     if (gitRepository.isDefined() && gitMacheteRepositorySnapshot.isDefined()) {
       doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot.get(), branchToRebase);

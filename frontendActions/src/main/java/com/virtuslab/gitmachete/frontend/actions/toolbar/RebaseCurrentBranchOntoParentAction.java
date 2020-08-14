@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseRebaseBranchOntoParent
 public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoParentAction {
   @Override
   public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
+    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
   }
 
   @Override
@@ -22,7 +22,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
     }
 
     var isNonRootBranch = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByNameWithLoggingOnEmpty(anActionEvent, bn))
+        .flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
         .map(b -> b.isNonRoot())
         .getOrElse(false);
 

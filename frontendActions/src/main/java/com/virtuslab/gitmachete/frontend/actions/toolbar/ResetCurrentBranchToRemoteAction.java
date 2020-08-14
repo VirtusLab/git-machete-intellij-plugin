@@ -11,7 +11,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseResetBranchToRemoteAct
 public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAction {
   @Override
   public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLoggingOnEmptyRepository(anActionEvent);
+    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
   }
 
   @Override
