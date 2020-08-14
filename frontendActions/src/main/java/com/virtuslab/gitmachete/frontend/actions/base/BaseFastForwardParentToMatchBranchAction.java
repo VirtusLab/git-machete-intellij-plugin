@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -15,6 +16,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -57,21 +59,41 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
-    var gitMacheteBranch = getNameOfBranchUnderActionWithLogging(anActionEvent)
-        .flatMap(b -> getGitMacheteBranchByNameWithLogging(anActionEvent, b));
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
+    var targetBranchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    if (gitRepository == null || targetBranchName == null) {
+      return;
+    }
 
-    if (gitMacheteBranch.isDefined() && gitRepository.isDefined()) {
-      assert gitMacheteBranch.get().isNonRoot() : "Provided machete branch to fast forward is a root";
-      doFastForward(project, gitRepository.get(), gitMacheteBranch.get().asNonRoot());
+    var targetBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, targetBranchName).getOrNull();
+    if (targetBranch == null) {
+      return;
+    }
+    // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
+    assert targetBranch.isNonRoot() : "Target branch provided to fast forward is a root";
+
+    var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    if (targetBranch.asNonRoot().getParent().getName().equals(currentBranchName)) {
+      doFastForwardCurrentBranch(project, gitRepository, targetBranch.asNonRoot());
+    } else {
+      doFastForwardNonCurrentBranch(project, gitRepository, targetBranch.asNonRoot());
     }
   }
 
-  private void doFastForward(Project project,
+  private void doFastForwardCurrentBranch(Project project,
       GitRepository gitRepository,
-      INonRootManagedBranchSnapshot gitMacheteNonRootBranch) {
-    var localFullName = gitMacheteNonRootBranch.getFullName();
-    var parentLocalFullName = gitMacheteNonRootBranch.getParent().getFullName();
+      INonRootManagedBranchSnapshot targetBranch) {
+
+    var taskTitle = getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title");
+
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, targetBranch.getName()).queue();
+  }
+
+  private void doFastForwardNonCurrentBranch(Project project,
+      GitRepository gitRepository,
+      INonRootManagedBranchSnapshot targetBranch) {
+    var localFullName = targetBranch.getFullName();
+    var parentLocalFullName = targetBranch.getParent().getFullName();
     // There is no leading '+' in the refspec since we only ever want a fast-forward update.
     var refspecFromChildToParent = "${localFullName}:${parentLocalFullName}";
 

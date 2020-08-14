@@ -96,8 +96,9 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch) {
 
-    new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, remoteBranch,
-        getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title")).queue();
+    var taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
+
+    new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranch).queue();
   }
 
   private void doPullNonCurrentBranchFastForwardOnly(Project project,
