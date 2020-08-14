@@ -6,18 +6,18 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 
-# Find the string that have `{number}`, but have only single `'` character
+# Find the strings that have `{number}`, but contain an isolated `'` character (single single quote)
 non_escaped_single_quotes=$(git grep -Ph -e '=.*\{\d+\}' --and -e "(='[^'])|([^']'[^'])|([^']'$)" -- '*.properties')
-
-# Find the strings that DON'T have `{number}`, but have a double `'` character
-unnecessarily_escaped_single_quotes=$(git grep -Ph --not -e '=.*\{\d+\}' --and -e "''" -- '*.properties')
-
 
 if [[ $non_escaped_single_quotes ]]; then
   echo "$non_escaped_single_quotes"
   die "The above property keys have a format element ({number}), but they contain single single quote character (').\
   Use double single quote ('') instead"
 fi
+
+
+# Find the strings that DON'T have `{number}`, but have a double `'` character (double single quote)
+unnecessarily_escaped_single_quotes=$(git grep -Ph --not -e '=.*\{\d+\}' --and -e "''" -- '*.properties')
 
 if [[ $unnecessarily_escaped_single_quotes ]]; then
   echo "$unnecessarily_escaped_single_quotes"
