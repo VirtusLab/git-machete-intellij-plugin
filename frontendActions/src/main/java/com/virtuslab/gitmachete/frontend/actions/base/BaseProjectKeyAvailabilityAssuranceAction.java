@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject
 public abstract class BaseProjectKeyAvailabilityAssuranceAction extends DumbAwareAction {
   @Override
   @UIEffect
-  public void update(AnActionEvent anActionEvent) {
+  public final void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
 
     if (this instanceof IExpectsKeyProject) {

@@ -45,7 +45,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   }
 
   default Option<String> getCurrentBranchNameIfManagedWithLogging(AnActionEvent anActionEvent) {
-    var currentBranchName = getCurrentBranchNameIfManagedWithLogging(anActionEvent);
+    var currentBranchName = getCurrentMacheteBranchIfManagedWithLogging(anActionEvent).map(branch -> branch.getName());
     if (currentBranchName.isEmpty()) {
       log().warn("Current Git Machete branch name is undefined");
     }

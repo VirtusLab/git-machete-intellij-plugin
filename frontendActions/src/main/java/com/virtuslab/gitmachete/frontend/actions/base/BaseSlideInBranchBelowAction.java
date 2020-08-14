@@ -45,8 +45,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
   @Override
   @UIEffect
-  public void update(AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
+  public void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
 
     Presentation presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
