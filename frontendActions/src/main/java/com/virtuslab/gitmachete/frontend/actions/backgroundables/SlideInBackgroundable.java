@@ -5,7 +5,7 @@ import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteF
 import static java.text.MessageFormat.format;
 
 import java.nio.file.Path;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -61,9 +61,9 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
     // The high-level method used within the runnable do not allow us to schedule the tasks after them.
-    // (Stepping deeper is not an option since we loose some important logic or make us very dependent on git4idea.)
-    // Hence we await for the creation of the branch (with exponential backoff).
-    waitForLocalBranch();
+    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea.)
+    // Hence we wait for the creation of the branch (with exponential backoff).
+    waitForCreationOfLocalBranch();
 
     Path macheteFilePath = getMacheteFilePath(gitRepository);
 
@@ -81,11 +81,11 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
             .onFailure(EntryDoesNotExistException.class, exceptionWithMessageHandler(
                 format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                    entryToSlideIn.getName()))::apply)
+                    entryToSlideIn.getName())))
             .onFailure(EntryIsRootException.class, exceptionWithMessageHandler(
                 format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-root"),
-                    entryToSlideIn.getName()))::apply)
-            .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null)::apply)
+                    entryToSlideIn.getName())))
+            .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null))
             .getOrNull();
 
         if (targetBranchLayout == null) {
@@ -103,11 +103,11 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         .of(() -> targetBranchLayout.slideIn(parentName, entryToSlideIn))
         .onFailure(EntryDoesNotExistException.class, exceptionWithMessageHandler(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                parentName))::apply)
+                parentName)))
         .onFailure(EntryIsDescendantOfException.class, exceptionWithMessageHandler(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
-                entryToSlideIn.getName(), parentName))::apply)
-        .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null)::apply)
+                entryToSlideIn.getName(), parentName)))
+        .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null))
         .toOption();
 
     newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
@@ -117,7 +117,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
             getMessageOrEmpty(t))));
   }
 
-  private void waitForLocalBranch() {
+  private void waitForCreationOfLocalBranch() {
     Supplier<@Nullable GitLocalBranch> findLocalBranch = () -> gitRepository.getBranches()
         .findLocalBranch(slideInOptions.getName());
 
@@ -142,13 +142,12 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     }
   }
 
-  private Function<Throwable, @Nullable IBranchLayout> exceptionWithMessageHandler(@Nullable String message) {
+  private Consumer<Throwable> exceptionWithMessageHandler(@Nullable String message) {
     return t -> {
       notifier.notifyError(
           /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
               slideInOptions.getName()),
           message != null ? message : getMessageOrEmpty(t));
-      return null;
     };
   }
 

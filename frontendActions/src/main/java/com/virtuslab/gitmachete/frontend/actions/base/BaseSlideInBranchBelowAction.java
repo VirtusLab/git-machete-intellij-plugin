@@ -193,25 +193,26 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     return Tuple.of(options.getName(), preSlideInRunnable);
   }
 
-  @Nullable
-  private static GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
-    var remotes = gitRepository.getRemotes();
-    if (remotes.isEmpty()) {
+  private static @Nullable GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
+
+    var remotesWithBranch = List.ofAll(gitRepository.getRemotes())
+        .flatMap(r -> {
+          var remoteBranchName = "${r.getName()}/${branchName}";
+          var remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
+          return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
+        })
+        // Note: false < true. Hence the pair with origin will be first (head) if exists.
+        .sortBy(t -> !t._1().getName().equals("origin"));
+
+    if (remotesWithBranch.isEmpty()) {
       return null;
     }
 
-    var remotesWithBranch = List.ofAll(remotes).flatMap(r -> {
-      var remoteBranchName = "${r.getName()}/${branchName}";
-      var remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
-      return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
-    }).sortBy(t -> !t._1().getName().equals("origin"));
-
-    assert remotesWithBranch.nonEmpty() : "remotes list is empty";
     var chosen = remotesWithBranch.head();
     if (remotesWithBranch.size() > 1) {
       VcsNotifier.getInstance(project).notifyInfo(format(
           getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
-          chosen._1().getName()));
+          chosen._2().getName(), chosen._1().getName()));
     }
     return chosen._2();
   }
