@@ -63,11 +63,11 @@ public class RepositoryGraphBuilder {
     java.util.List<IGraphItem> graphItems = new ArrayList<>();
     java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
 
-    for (IRootManagedBranchSnapshot branch : rootBranches) {
+    for (var rootBranch : rootBranches) {
       int currentBranchIndex = graphItems.size();
       positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
-      addRootBranch(graphItems, branch);
-      List<? extends INonRootManagedBranchSnapshot> childBranches = branch.getChildren();
+      addRootBranch(graphItems, rootBranch);
+      List<? extends INonRootManagedBranchSnapshot> childBranches = rootBranch.getChildren();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, childBranches, currentBranchIndex,
           /* indentLevel */ 0);
     }
@@ -96,7 +96,7 @@ public class RepositoryGraphBuilder {
         : null;
 
     int previousBranchIndex = parentBranchIndex;
-    for (INonRootManagedBranchSnapshot branch : childBranches) {
+    for (var nonRootBranch : childBranches) {
       if (!isFirstBranch) {
         graphItems.get(previousBranchIndex).setNextSiblingItemIndex(graphItems.size());
       }
@@ -104,17 +104,17 @@ public class RepositoryGraphBuilder {
       int prevSiblingItemIndex = graphItems.size() - 1;
       // We are building some non root branches here so some root branch item has been added already.
       assert prevSiblingItemIndex >= 0 : "There is no previous sibling node but should be";
-      buildCommitsAndNonRootBranch(graphItems, branch, prevSiblingItemIndex, indentLevel);
+      buildCommitsAndNonRootBranch(graphItems, nonRootBranch, prevSiblingItemIndex, indentLevel);
 
       int upBranchIndex = graphItems.size() - 1;
-      List<? extends INonRootManagedBranchSnapshot> branches = branch.getChildren();
+      List<? extends INonRootManagedBranchSnapshot> branches = nonRootBranch.getChildren();
       recursivelyAddCommitsAndBranches(graphItems, positionsOfVisibleEdges, /* child */ branches,
           upBranchIndex, indentLevel + 1);
 
       while (positionsOfVisibleEdges.size() < graphItems.size()) {
         positionsOfVisibleEdges.add(new SmartList<>());
       }
-      if (!branch.equals(lastChildBranch)) {
+      if (!nonRootBranch.equals(lastChildBranch)) {
         for (int i = upBranchIndex + 1; i < graphItems.size(); ++i) {
           positionsOfVisibleEdges.get(i).add(indentLevel);
         }
@@ -161,7 +161,7 @@ public class RepositoryGraphBuilder {
       assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
       int prevSiblingItemIndex = isFirstItemInBranch ? parentBranchIndex : lastItemIndex;
       int nextSiblingItemIndex = graphItems.size() + 1;
-      CommitItem c = new CommitItem(commit, branch, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
+      var c = new CommitItem(commit, branch, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
       graphItems.add(c);
       isFirstItemInBranch = false;
     }

@@ -368,7 +368,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       var statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
-      RootManagedBranchSnapshot createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
+      var createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
           childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
           statusHookOutput);
       return RootCreatedBranchAndSkippedBranches.of(createdRootBranch, childBranches.getSkippedBranchNames());

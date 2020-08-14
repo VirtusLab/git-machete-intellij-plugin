@@ -40,7 +40,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
    * parent data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
    */
   protected void setParentForChildren() {
-    for (NonRootManagedBranchSnapshot child : children) {
+    for (var child : children) {
       child.setParent(this);
     }
   }
