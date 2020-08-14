@@ -16,3 +16,5 @@ dependencies {
   testRuntime project(':branchLayoutImpl')
   testRuntime project(':gitCoreJGit')
 }
+
+applySubtypingChecker()

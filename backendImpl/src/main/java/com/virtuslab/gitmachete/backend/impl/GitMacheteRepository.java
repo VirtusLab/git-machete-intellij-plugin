@@ -50,10 +50,12 @@ import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -85,13 +87,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
-  public Option<String> inferParentForLocalBranch(
-      Set<String> eligibleBranchNames,
+  public Option<ILocalBranchReference> inferParentForLocalBranch(
+      Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
     LOG.startTimer().debug(() -> "Entering: localBranchName = ${localBranchName}");
     try {
       var aux = new Aux(gitCoreRepository);
-      var result = aux.inferParentForLocalBranch(eligibleBranchNames, localBranchName);
+      var result = aux.inferParentForLocalBranch(eligibleLocalBranchNames, localBranchName);
       LOG.withTimeElapsed().info("Finished");
       return result;
     } catch (GitCoreException e) {
@@ -120,7 +122,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     protected final Map<String, IGitCoreLocalBranchSnapshot> localBranchByName;
 
     private final java.util.Map<IGitCoreBranchSnapshot, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
-    private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<String>> branchesContainingGivenCommitInReflog;
+    private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<IBranchReference>> branchesContainingGivenCommitInReflog;
 
     Aux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
       this.gitCoreRepository = gitCoreRepository;
@@ -128,46 +130,47 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getName(), localBranch));
     }
 
-    protected Map<IGitCoreCommitHash, Seq<String>> deriveBranchesContainingGivenCommitInReflog() {
+    protected Map<IGitCoreCommitHash, Seq<IBranchReference>> deriveBranchesContainingGivenCommitInReflog() {
       if (branchesContainingGivenCommitInReflog != null) {
         return branchesContainingGivenCommitInReflog;
       }
 
       LOG.debug("Getting reflogs of local branches");
 
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogByLocalBranchName = localBranches
+      Map<IBranchReference, List<IGitCoreReflogEntry>> filteredReflogByLocalBranch = localBranches
           .toMap(
-              /* keyMapper */ localBranch -> localBranch.getName(),
+              /* keyMapper */ LocalBranchReference::of,
               /* valueMapper */ this::deriveFilteredReflog);
 
       LOG.debug("Getting reflogs of remote branches");
 
-      List<IGitCoreRemoteBranchSnapshot> remoteTrackingBranches = localBranches
-          .flatMap(localBranch -> localBranch.getRemoteTrackingBranch().toList());
+      List<Tuple2<IGitCoreLocalBranchSnapshot, IGitCoreRemoteBranchSnapshot>> remoteTrackingBranches = localBranches
+          .flatMap(localBranch -> localBranch.getRemoteTrackingBranch()
+              .map(remoteTrackingBranch -> Tuple.of(localBranch, remoteTrackingBranch)));
 
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranchName = remoteTrackingBranches
+      Map<IBranchReference, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranch = remoteTrackingBranches
           .toMap(
-              /* keyMapper */ remoteBranch -> remoteBranch.getName(),
-              /* valueMapper */ this::deriveFilteredReflog);
+              /* keyMapper */ localAndRemote -> RemoteTrackingBranchReference.of(localAndRemote._2, localAndRemote._1),
+              /* valueMapper */ localAndRemote -> deriveFilteredReflog(localAndRemote._2));
 
       LOG.debug("Converting reflogs to mapping of branches containing in reflog by commit");
 
-      Map<String, List<IGitCoreReflogEntry>> filteredReflogsByBranchName = filteredReflogByLocalBranchName
-          .merge(filteredReflogByRemoteTrackingBranchName);
+      Map<IBranchReference, List<IGitCoreReflogEntry>> filteredReflogsByBranch = filteredReflogByLocalBranch
+          .merge(filteredReflogByRemoteTrackingBranch);
 
       LOG.trace(() -> "Filtered reflogs by branch name:");
-      LOG.trace(() -> filteredReflogsByBranchName
-          .map(kv -> kv._1 + " -> " + kv._2.map(e -> e.getNewCommitHash()).mkString(", "))
+      LOG.trace(() -> filteredReflogsByBranch
+          .map(kv -> kv._1.getName() + " -> " + kv._2.map(e -> e.getNewCommitHash()).mkString(", "))
           .sorted().mkString(System.lineSeparator()));
 
-      Seq<Tuple2<IGitCoreCommitHash, String>> commitHashAndBranchNamePairs = filteredReflogsByBranchName
-          .flatMap(branchNameAndReflog -> branchNameAndReflog._2
-              .map(re -> Tuple.of(re.getNewCommitHash(), branchNameAndReflog._1)));
+      Seq<Tuple2<IGitCoreCommitHash, IBranchReference>> reflogCommitHashAndBranchPairs = filteredReflogsByBranch
+          .flatMap(branchAndReflog -> branchAndReflog._2
+              .map(re -> Tuple.of(re.getNewCommitHash(), branchAndReflog._1)));
 
-      var result = commitHashAndBranchNamePairs
-          .groupBy(commitHashAndBranchName -> commitHashAndBranchName._1)
-          .mapValues(pairsOfCommitHashAndBranchName -> pairsOfCommitHashAndBranchName
-              .map(commitHashAndBranchName -> commitHashAndBranchName._2));
+      var result = reflogCommitHashAndBranchPairs
+          .groupBy(reflogCommitHashAndBranch -> reflogCommitHashAndBranch._1)
+          .mapValues(pairsOfReflogCommitHashAndBranch -> pairsOfReflogCommitHashAndBranch
+              .map(reflogCommitHashAndBranch -> reflogCommitHashAndBranch._2));
 
       LOG.debug("Derived the map of branches containing given commit in reflog:");
       LOG.debug(() -> result.toList().map(kv -> kv._1 + " -> " + kv._2.mkString(", "))
@@ -242,27 +245,28 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return result;
     }
 
-    Option<String> inferParentForLocalBranch(
-        Set<String> eligibleBranchNames,
+    Option<ILocalBranchReference> inferParentForLocalBranch(
+        Set<String> eligibleLocalBranchNames,
         String localBranchName) throws GitCoreException {
 
-      var branch = localBranchByName.get(localBranchName).getOrNull();
-      if (branch == null) {
+      var localBranch = localBranchByName.get(localBranchName).getOrNull();
+      if (localBranch == null) {
         return Option.none();
       }
 
       LOG.debug(() -> "Branch(es) eligible for becoming the parent of ${localBranchName}: " +
-          "${eligibleBranchNames.mkString(\", \")}");
-      String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
+          "${eligibleLocalBranchNames.mkString(\", \")}");
 
       var commitAndContainingBranches = gitCoreRepository
-          .ancestorsOf(branch.getPointedCommit())
+          .ancestorsOf(localBranch.getPointedCommit())
           .map(commit -> {
-            Seq<String> eligibleContainingBranches = deriveBranchesContainingGivenCommitInReflog()
+            Seq<ILocalBranchReference> eligibleContainingBranches = deriveBranchesContainingGivenCommitInReflog()
                 .getOrElse(commit.getHash(), List.empty())
-                .filter(candidateBranchName -> !candidateBranchName.equals(branch.getName())
-                    && !candidateBranchName.equals(remoteTrackingBranchName)
-                    && eligibleBranchNames.contains(candidateBranchName));
+                .map(candidateBranch -> candidateBranch.isLocal()
+                    ? candidateBranch.asLocal()
+                    : candidateBranch.asRemote().getTrackedLocalBranch())
+                .filter(correspondingLocalBranch -> !correspondingLocalBranch.getName().equals(localBranch.getName())
+                    && eligibleLocalBranchNames.contains(correspondingLocalBranch.getName()));
             return Tuple.of(commit, eligibleContainingBranches);
           })
           .find(ccbs -> ccbs._2.nonEmpty())
@@ -273,13 +277,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         var containingBranches = commitAndContainingBranches._2.toList();
         assert containingBranches.nonEmpty() : "containingBranches is empty";
 
-        String firstContainingBranchName = containingBranches.head();
+        ILocalBranchReference firstContainingBranch = containingBranches.head();
+        Seq<String> containingBranchNames = containingBranches.map(b -> b.getName());
         LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
-            "of managed branch(es) ${containingBranches.mkString(\", \")}; " +
-            "returning ${firstContainingBranchName} as the inferred parent for branch '${localBranchName}'");
-        return Option.some(firstContainingBranchName);
+            "of managed branch(es) ${containingBranchNames.mkString(\", \")}; " +
+            "returning ${firstContainingBranch.getName()} as the inferred parent for branch '${localBranchName}'");
+        return Option.some(firstContainingBranch);
       } else {
-        LOG.debug(() -> "Could not infer parent for branch '${branch.getFullName()}'");
+        LOG.debug(() -> "Could not infer parent for branch '${localBranchName}'");
         return Option.none();
       }
     }
@@ -420,13 +425,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return NonRootCreatedAndSkippedBranches.of(result, childBranches.getSkippedBranchNames());
     }
 
-    private @Nullable IRemoteBranchReference getRemoteTrackingBranchForCoreLocalBranch(
+    private @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranchForCoreLocalBranch(
         IGitCoreLocalBranchSnapshot coreLocalBranch) {
-      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
-      if (coreRemoteBranch == null) {
+      IGitCoreRemoteBranchSnapshot coreRemoteTrackingBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      if (coreRemoteTrackingBranch == null) {
         return null;
       }
-      return RemoteBranchReference.of(coreRemoteBranch);
+      return RemoteTrackingBranchReference.of(coreRemoteTrackingBranch, coreLocalBranch);
     }
 
     private @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
@@ -545,14 +550,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throws GitCoreException {
       LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
-      String remoteTrackingBranchName = branch.getRemoteTrackingBranch().map(rtb -> rtb.getName()).getOrNull();
-
       var forkPointAndContainingBranches = gitCoreRepository
           .ancestorsOf(branch.getPointedCommit())
           .map(commit -> {
             var containingBranches = deriveBranchesContainingGivenCommitInReflog()
                 .getOrElse(commit.getHash(), List.empty())
-                .reject(branchName -> branchName.equals(branch.getName()) || branchName.equals(remoteTrackingBranchName));
+                .reject(candidateBranch -> {
+                  ILocalBranchReference correspondingLocalBranch = candidateBranch.isLocal()
+                      ? candidateBranch.asLocal()
+                      : candidateBranch.asRemote().getTrackedLocalBranch();
+                  return correspondingLocalBranch.getName().equals(branch.getName());
+                });
             return Tuple.of(commit, containingBranches);
           })
           .find(commitAndContainingBranches -> commitAndContainingBranches._2.nonEmpty())
@@ -834,19 +842,20 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       // Skipping the parent inference for fixed roots (currently just `master`) and for the stale non-fixed-root branches.
       for (var branchEntry : entryByFreshNonFixedRootBranch.values()) {
-        // Note that stale non-fixed-root branches are never considered as candidates for an parent.
+        // Note that stale non-fixed-root branches are never considered as candidates for the parent.
         Seq<String> parentCandidateNames = entryByIncludedBranchName.values()
             .filter(e -> e.getRoot() != branchEntry)
             .map(e -> e.getName());
         LOG.debug(() -> "Parent candidate(s) for ${branchEntry.getName()}: " + parentCandidateNames.mkString(", "));
 
-        String parentName = inferParentForLocalBranch(parentCandidateNames.toSet(), branchEntry.getName()).getOrNull();
+        IBranchReference parent = inferParentForLocalBranch(parentCandidateNames.toSet(), branchEntry.getName()).getOrNull();
 
-        if (parentName != null) {
+        if (parent != null) {
+          String parentName = parent.getName();
           LOG.debug(() -> "Parent inferred for ${branchEntry.getName()} is ${parentName}");
 
           var parentEntry = entryByIncludedBranchName.get(parentName).getOrNull();
-          // Generally we expect an entry for parentName to always be present.
+          // Generally we expect an entry for parent to always be present.
           if (parentEntry != null) {
             branchEntry.attachUnder(parentEntry);
             parentEntry.appendChild(branchEntry);

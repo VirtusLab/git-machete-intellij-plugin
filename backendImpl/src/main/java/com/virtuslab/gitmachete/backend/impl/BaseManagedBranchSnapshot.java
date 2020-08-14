@@ -11,7 +11,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @Getter
@@ -23,7 +23,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   private final String fullName;
   private final List<NonRootManagedBranchSnapshot> children;
   private final ICommitOfManagedBranch pointedCommit;
-  private final @Nullable IRemoteBranchReference remoteTrackingBranch;
+  private final @Nullable IRemoteTrackingBranchReference remoteTrackingBranch;
   private final SyncToRemoteStatus syncToRemoteStatus;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
@@ -46,7 +46,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   }
 
   @Override
-  public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
+  public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
     return Option.of(remoteTrackingBranch);
   }
 

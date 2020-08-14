@@ -9,7 +9,9 @@ import org.checkerframework.framework.qual.SubtypeOf;
 import org.checkerframework.framework.qual.TargetLocations;
 import org.checkerframework.framework.qual.TypeUseLocation;
 
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedLocal;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRemote;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
@@ -20,11 +22,16 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
 // There needs to be single subtyping hierarchy with single bottom and top annotation,
 // otherwise Subtyping Checker would raise an error about multiple top/bottom types.
 @SubtypeOf({
-    // Despite having a unified type hierarchy, we're actually doing 3 completely independent checks here.
+    // Despite having a unified type hierarchy, we're actually doing 4 completely independent checks here.
+    ConfirmedLocal.class,
+    ConfirmedRemote.class,
+
     ConfirmedRoot.class,
     ConfirmedNonRoot.class,
+
     ConfirmedGraphNode.class,
     ConfirmedGraphEdge.class,
+
     ConfirmedBranchItem.class,
     ConfirmedCommitItem.class,
 })

@@ -3,6 +3,8 @@ package com.virtuslab.gitmachete.backend.integration;
 import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
 import static org.junit.runners.Parameterized.Parameters;
 
+import io.vavr.collection.Set;
+import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,6 +19,7 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
@@ -62,10 +65,10 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
   @Test
   @SneakyThrows
   public void parentIsCorrectlyInferred() {
-    var managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
-    var result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
+    Set<String> managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
+    Option<ILocalBranchReference> result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
     Assert.assertTrue(result.isDefined());
-    Assert.assertEquals(expectedParent, result.get());
+    Assert.assertEquals(expectedParent, result.get().getName());
   }
 
   @Rule(order = Integer.MIN_VALUE)

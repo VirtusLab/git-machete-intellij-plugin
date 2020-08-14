@@ -15,7 +15,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
@@ -39,7 +39,7 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       String fullName,
       List<NonRootManagedBranchSnapshot> children,
       ICommitOfManagedBranch pointedCommit,
-      @Nullable IRemoteBranchReference remoteTrackingBranch,
+      @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,

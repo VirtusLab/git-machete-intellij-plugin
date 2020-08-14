@@ -14,14 +14,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -40,7 +42,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* fullName */ "refs/heads/allow-ownership-link",
             /* customAnnotation */ "# Gray edge: branch is merged to its parent branch",
             nullPointedCommit,
-            /* fork point */ null,
+            /* forkPoint */ null,
             /* childBranches */ List.empty(),
             /* commits */ List.empty(),
             SyncToParentStatus.MergedToParent),
@@ -48,7 +50,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* fullName */ "refs/heads/build-chain",
             /* customAnnotation */ "# Green edge: branch is in sync with its parent branch",
             nullPointedCommit,
-            /* fork point */ null,
+            /* forkPoint */ null,
             /* childBranches */ List.empty(),
             /* commits */ List.of(new Commit("Second commit of build-chain"),
                 new Commit("First commit of build-chain")),
@@ -57,7 +59,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* fullName */ "refs/heads/call-ws",
             /* customAnnotation */ "# Yellow edge: Branch is in sync with its parent branch but the fork point is NOT equal to parent branch",
             nullPointedCommit,
-            /* fork point */ fp,
+            /* forkPoint */ fp,
             /* childBranches */ List.empty(),
             /* commits */ List.of(fp),
             SyncToParentStatus.InSyncButForkPointOff),
@@ -65,7 +67,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             /* fullName */ "refs/heads/remove-ff",
             /* customAnnotation */ "# Red edge: branch is out of sync to its parent branch",
             nullPointedCommit,
-            /* fork point */ null,
+            /* forkPoint */ null,
             /* childBranches */ List.empty(),
             /* commits */ List.of(new Commit("Some commit")),
             SyncToParentStatus.OutOfSync)
@@ -154,6 +156,17 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
   }
 
+  @Getter
+  @RequiredArgsConstructor
+  private static final class LocalBranchRef implements ILocalBranchReference {
+    private final String name;
+
+    @Override
+    public String getFullName() {
+      return "refs/heads/" + getName();
+    }
+  }
+
   private static final class FpCommit extends Commit implements IForkPointCommitOfManagedBranch {
     FpCommit(String msg) {
       super(msg);
@@ -165,8 +178,13 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public List<String> getBranchesContainingInReflog() {
-      return List.of("some-other-branch");
+    public List<IBranchReference> getBranchesContainingInReflog() {
+      return List.of(new LocalBranchRef("some-other-branch"));
+    }
+
+    @Override
+    public List<IBranchReference> getUniqueBranchesContainingInReflog() {
+      return getBranchesContainingInReflog();
     }
 
     @Override
@@ -176,7 +194,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Getter
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static final class Root implements IRootManagedBranchSnapshot {
     private final String name;
     private final String fullName;
@@ -196,7 +214,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
+    public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
       return Option.none();
     }
   }
@@ -254,7 +272,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IRemoteBranchReference> getRemoteTrackingBranch() {
+    public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
       return Option.none();
     }
   }

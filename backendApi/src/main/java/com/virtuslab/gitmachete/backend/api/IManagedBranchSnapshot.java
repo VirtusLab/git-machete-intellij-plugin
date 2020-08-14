@@ -38,7 +38,7 @@ public interface IManagedBranchSnapshot {
 
   SyncToRemoteStatus getSyncToRemoteStatus();
 
-  Option<IRemoteBranchReference> getRemoteTrackingBranch();
+  Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch();
 
   Option<String> getCustomAnnotation();
 

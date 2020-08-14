@@ -20,6 +20,8 @@ import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
 class UnitTestUtils {
 
+  private static final AtomicInteger counter = new AtomicInteger(0);
+
   static TestGitCoreCommit createGitCoreCommit() {
     return new TestGitCoreCommit();
   }
@@ -28,6 +30,7 @@ class UnitTestUtils {
   static IGitCoreLocalBranchSnapshot createGitCoreLocalBranch(IGitCoreCommit pointedCommit,
       IGitCoreReflogEntry... reflogEntries) {
     IGitCoreLocalBranchSnapshot mock = PowerMockito.mock(IGitCoreLocalBranchSnapshot.class);
+    PowerMockito.doReturn(String.valueOf(counter.incrementAndGet())).when(mock).getFullName();
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
     PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflogFromMostRecent();
     PowerMockito.doReturn(Option.none()).when(mock).getRemoteTrackingBranch();
@@ -35,8 +38,6 @@ class UnitTestUtils {
   }
 
   static class TestGitCoreCommitHash implements IGitCoreCommitHash {
-
-    private static final AtomicInteger counter = new AtomicInteger(0);
 
     private final int id;
 

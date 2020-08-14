@@ -6,7 +6,7 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
-import com.virtuslab.gitmachete.backend.api.IRemoteBranchReference;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
@@ -19,7 +19,7 @@ public final class RootManagedBranchSnapshot extends BaseManagedBranchSnapshot i
       String fullName,
       List<NonRootManagedBranchSnapshot> children,
       ICommitOfManagedBranch pointedCommit,
-      @Nullable IRemoteBranchReference remoteTrackingBranch,
+      @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
       SyncToRemoteStatus syncToRemoteStatus,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {

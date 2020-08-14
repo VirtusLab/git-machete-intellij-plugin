@@ -14,7 +14,6 @@ import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
 import io.vavr.collection.List;
-import io.vavr.collection.Set;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,6 +27,7 @@ import org.junit.runners.Parameterized;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -183,14 +183,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
         sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
-        Set<String> branchesContainingInReflog = forkPoint.getBranchesContainingInReflog().toSet();
-        // This is a hack necessary to keep consistent with CLI, which skips remote branch from the fork point hint
-        // in case a corresponding local branch is already present.
-        // In the IntelliJ plugin, we list both local and its remote tracking branch
-        // if both contain the given commit in their reflogs.
-        Set<String> withoutBothLocalAndItsRemoteTracking = branchesContainingInReflog
-            .reject(b -> b.startsWith("origin/") && branchesContainingInReflog.contains(b.substring("origin/".length())));
-        sb.append(withoutBothLocalAndItsRemoteTracking.toList().sorted().mkString(", "));
+        List<IBranchReference> uniqueBranchesContainingInReflog = forkPoint.getUniqueBranchesContainingInReflog();
+        sb.append(uniqueBranchesContainingInReflog.map(b -> b.getName()).sorted().mkString(" and "));
       }
       sb.append(System.lineSeparator());
     }

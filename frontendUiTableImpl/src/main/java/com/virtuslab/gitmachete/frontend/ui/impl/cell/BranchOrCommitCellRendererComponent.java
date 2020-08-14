@@ -188,7 +188,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
         append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
             + " ", REGULAR_ATTRIBUTES);
-        append(forkPoint.getBranchesContainingInReflog().sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        append(forkPoint.getUniqueBranchesContainingInReflog()
+            .map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
       }
     }
   }
