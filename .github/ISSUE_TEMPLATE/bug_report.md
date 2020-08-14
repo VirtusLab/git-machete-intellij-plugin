@@ -39,6 +39,13 @@ to list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.
 Then reproduce a bug and attach logs here.
 To find IntelliJ log file go to `Help` -> `Show Log in Files`.
 
+Consider placing the logs within the `details` (aka "spoiler") tags as the may be very extensive.
+
+<details>
+<summary>Logs</summary>
+Logs go here
+</details>
+
 ### Screenshots
 If applicable, add screenshots to help explain your problem.
 
