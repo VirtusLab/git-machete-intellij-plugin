@@ -26,7 +26,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -40,6 +39,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
+import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
@@ -321,7 +321,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
   }
 
-  private static class EnhancedGraphTablePopupMenuListener implements PopupMenuListener {
+  private static class EnhancedGraphTablePopupMenuListener extends PopupMenuListenerAdapter {
     private final EnhancedGraphTable graphTable;
 
     @UIEffect
@@ -349,8 +349,5 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
       graphTable.setRowSelectionAllowed(false);
     }
-
-    @Override
-    public void popupMenuCanceled(PopupMenuEvent popupMenuEvent) {}
   }
 }
