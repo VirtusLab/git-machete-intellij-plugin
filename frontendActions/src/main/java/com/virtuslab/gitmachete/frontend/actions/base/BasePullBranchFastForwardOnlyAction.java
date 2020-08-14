@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -111,14 +112,14 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
     var remoteBranchFullName = remoteBranch.getFullName();
     var localBranchFullName = localBranch.getFullName();
 
-    // Note the '+' sign preceding the refspec. It permits non-fast-forward updates.
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    var refspecFromRemoteRepoToOurRemoteBranch = "+${remoteBranchFullNameAsLocalBranchOnRemote}:${remoteBranchFullName}";
+    var refspecFromRemoteRepoToOurRemoteBranch = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
+        remoteBranchFullName, /* allowNonFastForward */ true);
 
-    // On the other hand this refspec has no '+' sign.
-    // This is because we want a fetch from remote branch in our repository
+    // We want a fetch from remote branch in our repository
     // to local branch in our repository to only ever be fast-forward.
-    var refspecFromOurRemoteBranchToOurLocalBranch = "${remoteBranchFullName}:${localBranchFullName}";
+    var refspecFromOurRemoteBranchToOurLocalBranch = createRefspec(remoteBranchFullName,
+        localBranchFullName, /* allowNonFastForward */ false);
 
     String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
 

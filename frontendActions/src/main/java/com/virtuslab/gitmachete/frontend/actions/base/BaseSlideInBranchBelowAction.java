@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -179,7 +180,9 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       preSlideInRunnable = () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName());
 
     } else if (!options.shouldCheckout() && remoteBranch != null) {
-      var refspec = "refs/remotes/${remoteBranch.getName()}:refs/heads/${branchName}";
+
+      var refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
+          "refs/heads/${branchName}", /* allowNonFastForward */ false);
       preSlideInRunnable = () -> new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspec,
           "Fetching Remote Branch").queue();
 

@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.project.Project;
@@ -54,9 +55,10 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
     handler.addParameters(remote.getName());
     var remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
     var remoteBranchFullName = remoteBranch.getFullName();
-    // Note the '+' sign preceding the refspec. It permits non-fast-forward updates.
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    handler.addParameters("+${remoteBranchFullNameAsLocalBranchOnRemote}:${remoteBranchFullName}");
+    String refspec = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
+        remoteBranchFullName, /* allowNonFastForward */ true);
+    handler.addParameters(refspec);
     // Updating the current local branch in our repository to the commit pointed by the just-fetched remote branch,
     // in turn, will happen fast-forward-only thanks to `--ff-only` flag.
 
