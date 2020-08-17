@@ -59,20 +59,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   // Thus, we can't store any state between the invocations.
 
   @Test
-  public void toggleListingCommits() {
-    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
-    // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
-    // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
-    Assert.assertEquals(6, branchRowsCount);
-
-    runJs("project.toggleListingCommits()");
-    int branchAndCommitRowsCount = callJs("project.refreshModelAndGetRowCount()");
-    // 6 branch rows + 7 commit rows
-    Assert.assertEquals(13, branchAndCommitRowsCount);
-  }
-
-  @Test
-  public void skipNonExistentBranches() {
+  public void skipNonExistentBranchesAndToggleListingCommits() {
     overwriteMacheteFile(
         "develop",
         "  non-existent",
@@ -87,6 +74,11 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file;
     // non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(6, branchRowsCount);
+
+    runJs("project.toggleListingCommits()");
+    int branchAndCommitRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    // 6 branch rows + 7 commit rows
+    Assert.assertEquals(13, branchAndCommitRowsCount);
   }
 
   @Test
@@ -188,8 +180,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     Assert.assertEquals(new ArrayList<>(), changes);
 
     String currentBranchName = callJs("project.getCurrentBranchName()");
-    // TODO (#523): `develop` should remain the current branch
-    Assert.assertEquals("hotfix/add-trigger", currentBranchName);
+    Assert.assertEquals("develop", currentBranchName);
   }
 
   @SneakyThrows

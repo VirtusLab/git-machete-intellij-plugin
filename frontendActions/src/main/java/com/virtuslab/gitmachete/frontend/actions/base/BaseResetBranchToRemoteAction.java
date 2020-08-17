@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
@@ -16,7 +18,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitLocalBranch;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
@@ -25,14 +26,15 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -124,23 +126,34 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       return;
     }
 
+    var localBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull();
+    if (localBranch == null) {
+      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
+          "Internal error occurred. For more information see IDE log file");
+      return;
+    }
+
+    var remoteTrackingBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+    if (remoteTrackingBranch == null) {
+      String message = "Branch '${localBranch.getName()}' doesn't have remote tracking branch, so cannot be reset";
+      log().warn(message);
+      VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
+      return;
+    }
+
     // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
-      var gitMacheteBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName);
-      var remoteBranch = gitMacheteBranch.flatMap(b -> b.getRemoteTrackingBranch()).map(rtb -> rtb.getName())
-          .getOrElse("<remote-branch>");
-      var currentCommitSha = gitMacheteBranch.map(b -> b.getPointedCommit().getHash()).getOrNull();
-      if (currentCommitSha == null) {
-        currentCommitSha = "<current-commit-SHA>";
-      } else if (currentCommitSha.length() == 40) {
+
+      String currentCommitSha = localBranch.getPointedCommit().getHash();
+      if (currentCommitSha.length() == 40) {
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
 
-      final var okCancelDialogResult = MessageUtil.showOkCancelDialog(
+      final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
           format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"),
-              remoteBranch,
               branchName,
+              remoteTrackingBranch.getName(),
               currentCommitSha),
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
@@ -155,11 +168,30 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     // Required to avoid reset with uncommitted changes and file cache conflicts
     FileDocumentManager.getInstance().saveAllDocuments();
 
-    doResetToRemoteWithKeep(project, gitRepository, branchName, macheteRepository, anActionEvent);
+    var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    if (branchName.equals(currentBranchName)) {
+      doResetCurrentBranchToRemoteWithKeep(project, gitRepository, localBranch, remoteTrackingBranch);
+    } else {
+      doResetNonCurrentBranchToRemoteWithKeep(project, gitRepository, localBranch, remoteTrackingBranch);
+    }
   }
 
-  protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
-      IGitMacheteRepositorySnapshot macheteRepositorySnapshot, AnActionEvent anActionEvent) {
+  private void doResetNonCurrentBranchToRemoteWithKeep(Project project,
+      GitRepository gitRepository,
+      IManagedBranchSnapshot localBranch,
+      IRemoteTrackingBranchReference remoteTrackingBranch) {
+    var refspecFromRemoteToLocal = createRefspec(
+        remoteTrackingBranch.getFullName(), localBranch.getFullName(), /* allowNonFastForward */ true);
+
+    new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspecFromRemoteToLocal,
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title")).queue();
+  }
+
+  protected void doResetCurrentBranchToRemoteWithKeep(
+      Project project,
+      GitRepository gitRepository,
+      IManagedBranchSnapshot localBranch,
+      IRemoteTrackingBranchReference remoteTrackingBranch) {
 
     new Task.Backgroundable(project,
         getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
@@ -167,59 +199,27 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
       @Override
       public void run(ProgressIndicator indicator) {
-        log().debug(() -> "Resetting '${branchName}' branch");
+        var localBranchName = localBranch.getName();
+        var remoteTrackingBranchName = remoteTrackingBranch.getName();
+        log().debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
+
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
             getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
           GitLineHandler resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
-
-          var branchOption = macheteRepositorySnapshot.getManagedBranchByName(branchName);
-          assert branchOption.isDefined() : "Can't get branch '${branchName}' from Git Machete repository";
-          var remoteTrackingBranchOption = branchOption.get().getRemoteTrackingBranch();
-          if (remoteTrackingBranchOption.isDefined()) {
-            resetHandler.addParameters(remoteTrackingBranchOption.get().getName());
-          } else {
-            String message = "Branch '${branchName}' doesn't have remote tracking branch, so cannot be reset";
-            log().warn(message);
-            VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE, message);
-            return;
-          }
+          resetHandler.addParameters(remoteTrackingBranchName);
+          resetHandler.endOptions();
 
           var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), RESET);
           resetHandler.addLineListener(localChangesDetector);
-
-          resetHandler.endOptions();
-
-          // Check if branch to reset is the current branch - if it isn't, then checkout
-          var currentBranchOption = getCurrentBranchNameIfManagedWithLogging(anActionEvent);
-          if (currentBranchOption.isEmpty() || !currentBranchOption.get().equals(branchName)) {
-            log().debug(() -> "Checkout to branch '${branchName}' is needed");
-            // Checking out given branch
-            CheckoutSelectedBranchAction.doCheckout(branchName, gitRepository, project, indicator);
-
-            // Check again if we are in branch to reset to be sure that checkout was successful.
-            // This time we are using git4idea because GitMacheteRepositorySnapshot is immutable
-            // and it would return previous branch.
-            @Nullable GitLocalBranch localBranch = gitRepository.getCurrentBranch();
-            if (localBranch == null || !localBranch.getName().equals(branchName)) {
-              log().error("Checkout to branch ${branchName} failed");
-              VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-                  "Error occurred during checkout of the branch that was to be reset! Operation aborted.");
-              return;
-            } else {
-              log().debug(() -> "Checkout to branch '${branchName}' successful");
-            }
-          }
 
           GitCommandResult result = Git.getInstance().runCommand(resetHandler);
 
           if (result.success()) {
             VcsNotifier.getInstance(project)
                 .notifySuccess(
-                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
-            log().debug(() -> "Branch '${branchName}' has been reset to its remote tracking branch");
-
-            getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), localBranchName));
+            log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
           } else if (localChangesDetector.wasMessageDetected()) {
             LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,

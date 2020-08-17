@@ -165,7 +165,7 @@ This action always performs a `--ff-only` (fast-forward only) pull which makes h
 <br/>
 
 If a given branch is not in sync with its remote, you can reset it to point to the exact same commit as the remote.
-From a right-click context menu select `Checkout and Reset Branch to Remote`.<br/>
+From the right-click context menu, select `Reset Branch to Remote`.<br/>
 This action performs `git reset --keep` under the hood. `--keep`, as opposed to `--hard`, keeps your uncommitted changes safe from getting overwritten.
 
 ![](docs/reset.gif)

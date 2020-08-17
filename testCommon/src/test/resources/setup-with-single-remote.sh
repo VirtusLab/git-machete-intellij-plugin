@@ -46,6 +46,8 @@ cd machete-sandbox
     commit HOTFIX Add the trigger
     push
     git commit --amend -m 'HOTFIX Add the trigger (amended)'
+    # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;
+    # we'll need to match the local branch to its remote tracking branch by name.
     git branch --unset-upstream
 
   git branch -d root
