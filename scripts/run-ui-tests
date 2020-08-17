@@ -41,7 +41,10 @@ ide_log=build/idea-sandbox/system/log/idea.log
 ide_log_last_line=$(cat $ide_log 2>/dev/null | wc -l || true)  # will be 0 if $ide_log doesn't exist
 
 function ide_logs_from_this_run() {
-  tail -n+$((ide_log_last_line+1)) $ide_log
+  # To increase readability, let's skip the innocuous but verbose (~50 lines of stack trace) INFO logs
+  # from com.intellij.openapi.roots.impl.ProjectRootManagerComponent.synchronizeRoots (that only started to occur in IDEA 2020.2).
+  tail -n+$((ide_log_last_line+1)) $ide_log \
+    | sed '/INFO - pl.ProjectRootManagerComponent - project roots have changed/, /at java.desktop.java.awt.EventDispatchThread.run/ d'
 }
 
 # If we're on CI, run IDE on X Virtual Framebuffer; otherwise, open a regular window.

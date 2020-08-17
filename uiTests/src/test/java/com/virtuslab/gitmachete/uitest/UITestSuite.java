@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.intellij.remoterobot.RemoteRobot;
 import io.vavr.collection.List;
@@ -72,6 +73,24 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
+  public void skipNonExistentBranches() {
+    overwriteMacheteFile(
+        "develop",
+        "  non-existent",
+        "    allow-ownership-link",
+        "      build-chain",
+        "    non-existent-leaf",
+        "  call-ws",
+        "non-existent-root",
+        "master",
+        "  hotfix/add-trigger");
+    int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
+    // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file;
+    // non-existent branches should be skipped while causing no error (only a low-severity notification).
+    Assert.assertEquals(6, branchRowsCount);
+  }
+
+  @Test
   public void fastForwardParentOfBranch_parentIsCurrentBranch() {
     runJs("ide.soleOpenedProject().checkoutBranch('master')");
     awaitIdle();
@@ -135,6 +154,11 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
     ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
+  }
+
+  @SneakyThrows
+  private void overwriteMacheteFile(String... lines) {
+    Files.write(repositoryGitDir.resolve("machete"), Arrays.asList(lines));
   }
 
   @After
