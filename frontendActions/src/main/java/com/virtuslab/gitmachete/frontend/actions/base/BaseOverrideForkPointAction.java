@@ -27,6 +27,7 @@ import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 @CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
     implements
+      IBranchNameProviderWithLogging,
       IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository,
       ISyncToParentStatusDependentAction {
@@ -62,7 +63,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
     var branchUnderAction = getNameOfBranchUnderActionWithLogging(anActionEvent);
     var branch = branchUnderAction.flatMap(pn -> getGitMacheteBranchByNameWithLogging(anActionEvent, pn)).getOrNull();
 
@@ -90,7 +91,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
 
   @NotUIThreadSafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
-    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
 
     if (gitRepository.isDefined()) {
       var root = gitRepository.get().getRoot();

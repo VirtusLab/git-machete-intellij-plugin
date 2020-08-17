@@ -30,7 +30,11 @@ public interface IExpectsKeyProject extends IWithLogger {
     return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
   }
 
-  default Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
+  default Option<GitRepository> getSelectedGitRepositoryWithoutLogging(AnActionEvent anActionEvent) {
+    return getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class).getSelectedGitRepository();
+  }
+
+  default Option<GitRepository> getSelectedGitRepositoryWithLogging(AnActionEvent anActionEvent) {
     var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
     if (gitRepository.isEmpty()) {

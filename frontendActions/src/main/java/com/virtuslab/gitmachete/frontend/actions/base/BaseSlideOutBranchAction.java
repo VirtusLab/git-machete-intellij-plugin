@@ -33,7 +33,8 @@ import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider,
+      IBranchNameProviderWithLogging,
+      IBranchNameProviderWithoutLogging,
       IExpectsKeyGitMacheteRepository,
       IExpectsKeyProject {
 
@@ -54,9 +55,9 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
     var branch = branchName != null
-        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branch == null) {
@@ -100,7 +101,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
     var branchLayout = getBranchLayoutWithLogging(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {
       return;
@@ -137,7 +138,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
   @NotUIThreadSafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
 
     if (gitRepository.isDefined()) {
       var root = gitRepository.get().getRoot();

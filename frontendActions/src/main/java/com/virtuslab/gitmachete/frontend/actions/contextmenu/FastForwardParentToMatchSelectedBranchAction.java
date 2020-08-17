@@ -10,6 +10,11 @@ public class FastForwardParentToMatchSelectedBranchAction extends BaseFastForwar
     implements
       IExpectsKeySelectedBranchName {
   @Override
+  public Option<String> getNameOfBranchUnderActionWithoutLogging(AnActionEvent anActionEvent) {
+    return getSelectedBranchNameWithoutLogging(anActionEvent);
+  }
+
+  @Override
   public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
     return getSelectedBranchNameWithLogging(anActionEvent);
   }

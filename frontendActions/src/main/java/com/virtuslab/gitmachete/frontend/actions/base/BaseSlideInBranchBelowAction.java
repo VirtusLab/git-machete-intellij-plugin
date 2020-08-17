@@ -34,9 +34,10 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
     implements
+      IBranchNameProviderWithLogging,
+      IBranchNameProviderWithoutLogging,
       IExpectsKeyProject,
-      IExpectsKeyGitMacheteRepository,
-      IBranchNameProvider {
+      IExpectsKeyGitMacheteRepository {
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -53,9 +54,9 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
     var branch = branchName != null
-        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null) {
@@ -75,7 +76,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
     var parentName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
     var branchLayout = getBranchLayoutWithLogging(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);

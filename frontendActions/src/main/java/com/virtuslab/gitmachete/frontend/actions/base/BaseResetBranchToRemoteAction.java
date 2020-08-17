@@ -25,7 +25,6 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -42,7 +41,8 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider,
+      IBranchNameProviderWithLogging,
+      IBranchNameProviderWithoutLogging,
       IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
@@ -80,17 +80,15 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote);
   }
 
-  public abstract Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent);
-
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    var branch = getNameOfBranchUnderAction(anActionEvent);
+    var branch = getNameOfBranchUnderActionWithoutLogging(anActionEvent);
     if (branch.isDefined()) {
-      var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+      var isResettingCurrent = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
           .map(bn -> bn.equals(branch.get())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(() -> getActionName());
@@ -104,7 +102,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     log().debug("Performing");
 
     Project project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
     var macheteRepository = getGitMacheteRepositorySnapshotWithLogging(anActionEvent);
 

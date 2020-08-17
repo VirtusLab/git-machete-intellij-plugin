@@ -25,7 +25,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider,
+      IBranchNameProviderWithLogging,
       IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
@@ -65,7 +65,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
     var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus())

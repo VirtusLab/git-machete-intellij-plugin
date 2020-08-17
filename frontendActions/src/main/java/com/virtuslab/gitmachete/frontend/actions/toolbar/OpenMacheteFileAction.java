@@ -35,7 +35,7 @@ public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKe
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    var gitDir = getSelectedGitRepository(anActionEvent)
+    var gitDir = getSelectedGitRepositoryWithLogging(anActionEvent)
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))

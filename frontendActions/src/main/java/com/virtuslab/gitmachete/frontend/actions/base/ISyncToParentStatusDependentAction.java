@@ -18,14 +18,14 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
-public interface ISyncToParentStatusDependentAction extends IBranchNameProvider, IExpectsKeyGitMacheteRepository {
+public interface ISyncToParentStatusDependentAction extends IBranchNameProviderWithoutLogging, IExpectsKeyGitMacheteRepository {
 
   @I18nFormat({})
   String getActionNameForDisabledDescription();
 
   /**
    * @return a format string for description of action in enabled state
-   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderActionWithLogging}
+   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderActionWithoutLogging}
    *         and {@code {0}} corresponds to name of its parent branch
    */
   @I18nFormat({GENERAL, GENERAL})
@@ -51,9 +51,9 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
     var gitMacheteBranchByName = branchName != null
-        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
+        ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null || gitMacheteBranchByName == null) {
@@ -63,7 +63,6 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
               getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     } else if (gitMacheteBranchByName.isRoot()) {
-
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
         presentation.setDescription(

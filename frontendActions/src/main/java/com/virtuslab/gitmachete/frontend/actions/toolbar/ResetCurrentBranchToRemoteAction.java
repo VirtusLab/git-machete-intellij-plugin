@@ -10,13 +10,13 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseResetBranchToRemoteAct
 
 public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAction {
   @Override
-  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithoutLogging(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManagedWithoutLogging(anActionEvent);
   }
 
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManaged(anActionEvent);
+  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
   }
 
   @Override
@@ -28,8 +28,8 @@ public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAct
       return;
     }
 
-    var isDivergedFromAndOlderThanRemote = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByName(anActionEvent, bn))
+    var isDivergedFromAndOlderThanRemote = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
+        .flatMap(bn -> getGitMacheteBranchByNameWithoutLogging(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation() == DivergedFromAndOlderThanRemote)
         .getOrElse(false);
 
