@@ -56,18 +56,17 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   // Note that due to how Remote Robot operates,
   // each `runJs`/`callJs` invocation is executed in a fresh JavaScript environment.
-  // Thus, we can't store any state (like a reference to the project,
-  // i.e. the value of `ide.soleOpenedProject()`) between the invocations.
+  // Thus, we can't store any state between the invocations.
 
   @Test
   public void toggleListingCommits() {
-    int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
+    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
     // There should be exactly 6 rows in the graph table, since there are 6 branches in machete file,
     // as set up via `super(SETUP_WITH_SINGLE_REMOTE)`.
     Assert.assertEquals(6, branchRowsCount);
 
-    runJs("ide.soleOpenedProject().toggleListingCommits()");
-    int branchAndCommitRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
+    runJs("project.toggleListingCommits()");
+    int branchAndCommitRowsCount = callJs("project.refreshModelAndGetRowCount()");
     // 6 branch rows + 7 commit rows
     Assert.assertEquals(13, branchAndCommitRowsCount);
   }
@@ -84,7 +83,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
         "non-existent-root",
         "master",
         "  hotfix/add-trigger");
-    int branchRowsCount = callJs("ide.soleOpenedProject().refreshModelAndGetRowCount()");
+    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
     // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file;
     // non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(6, branchRowsCount);
@@ -92,68 +91,105 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @Test
   public void fastForwardParentOfBranch_parentIsCurrentBranch() {
-    runJs("ide.soleOpenedProject().checkoutBranch('master')");
+    runJs("project.checkoutBranch('master')");
     awaitIdle();
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
+    runJs("project.fastForwardParentToMatchBranch('hotfix/add-trigger')");
     awaitIdle();
 
-    String parentBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('master')");
-    String childBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    String parentBranchHash = callJs("project.getHashOfCommitPointedByBranch('master')");
+    String childBranchHash = callJs("project.getHashOfCommitPointedByBranch('hotfix/add-trigger')");
     Assert.assertEquals(childBranchHash, parentBranchHash);
 
-    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
   }
 
   @Test
   public void fastForwardParentOfBranch_childIsCurrentBranch() {
-    runJs("ide.soleOpenedProject().checkoutBranch('hotfix/add-trigger')");
+    runJs("project.checkoutBranch('hotfix/add-trigger')");
     awaitIdle();
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    runJs("ide.soleOpenedProject().fastForwardParentToMatchBranch('hotfix/add-trigger')");
+    runJs("project.fastForwardParentToMatchBranch('hotfix/add-trigger')");
     awaitIdle();
 
-    String parentBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('master')");
-    String childBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    String parentBranchHash = callJs("project.getHashOfCommitPointedByBranch('master')");
+    String childBranchHash = callJs("project.getHashOfCommitPointedByBranch('hotfix/add-trigger')");
     Assert.assertEquals(childBranchHash, parentBranchHash);
 
-    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
   }
 
   @Test
   public void pullCurrentBranch() {
-    runJs("ide.soleOpenedProject().checkoutBranch('allow-ownership-link')");
+    runJs("project.checkoutBranch('allow-ownership-link')");
     awaitIdle();
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
-    runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
+    runJs("project.pullBranch('allow-ownership-link')");
     awaitIdle();
 
-    String localBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('allow-ownership-link')");
-    String remoteBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
+    String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('allow-ownership-link')");
+    String remoteBranchHash = callJs("project.getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
     Assert.assertEquals(remoteBranchHash, localBranchHash);
 
-    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
   }
 
   @Test
   public void pullNonCurrentBranch() {
-    runJs("ide.soleOpenedProject().checkoutBranch('develop')");
+    runJs("project.checkoutBranch('develop')");
     awaitIdle();
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
-    runJs("ide.soleOpenedProject().pullBranch('allow-ownership-link')");
+    runJs("project.pullBranch('allow-ownership-link')");
     awaitIdle();
 
-    String localBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('allow-ownership-link')");
-    String remoteBranchHash = callJs("ide.soleOpenedProject().getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
+    String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('allow-ownership-link')");
+    String remoteBranchHash = callJs("project.getHashOfCommitPointedByBranch('origin/allow-ownership-link')");
     Assert.assertEquals(remoteBranchHash, localBranchHash);
 
-    ArrayList<String> changes = callJs("ide.soleOpenedProject().getDiffOfWorkingTreeToHead()");
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
     Assert.assertEquals(new ArrayList<>(), changes);
+  }
+
+  @Test
+  public void resetCurrentBranchToRemote() {
+    runJs("project.checkoutBranch('hotfix/add-trigger')");
+    awaitIdle();
+    runJs("project.resetBranchToRemote('hotfix/add-trigger')");
+    awaitIdle();
+
+    String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    String remoteBranchHash = callJs("project.getHashOfCommitPointedByBranch('origin/hotfix/add-trigger')");
+    Assert.assertEquals(remoteBranchHash, localBranchHash);
+
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
+    Assert.assertEquals(new ArrayList<>(), changes);
+
+    String currentBranchName = callJs("project.getCurrentBranchName()");
+    Assert.assertEquals("hotfix/add-trigger", currentBranchName);
+  }
+
+  @Test
+  public void resetNonCurrentBranchToRemote() {
+    runJs("project.checkoutBranch('develop')");
+    awaitIdle();
+    runJs("project.resetBranchToRemote('hotfix/add-trigger')");
+    awaitIdle();
+
+    String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('hotfix/add-trigger')");
+    String remoteBranchHash = callJs("project.getHashOfCommitPointedByBranch('origin/hotfix/add-trigger')");
+    Assert.assertEquals(remoteBranchHash, localBranchHash);
+
+    ArrayList<String> changes = callJs("project.getDiffOfWorkingTreeToHead()");
+    Assert.assertEquals(new ArrayList<>(), changes);
+
+    String currentBranchName = callJs("project.getCurrentBranchName()");
+    // TODO (#523): `develop` should remain the current branch
+    Assert.assertEquals("hotfix/add-trigger", currentBranchName);
   }
 
   @SneakyThrows

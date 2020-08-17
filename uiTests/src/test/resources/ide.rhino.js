@@ -44,9 +44,9 @@ function Ide() {
   this.openProject = function (path) {
     const project = ProjectUtil.openOrImport(path, /* projectToClose */ null, /* forceOpenInNewFrame */ false);
     // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
-    const propertiesComponent = PropertiesComponent.getInstance(project);
-    propertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
-    propertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
+    const projectPropertiesComponent = PropertiesComponent.getInstance(project);
+    projectPropertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
+    projectPropertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
     return new Project(project);
   };
 
@@ -77,3 +77,4 @@ function Ide() {
 const ide = new Ide();
 const pluginId = PluginId.getId('com.virtuslab.git-machete');
 const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
+const project = ide.soleOpenedProject();

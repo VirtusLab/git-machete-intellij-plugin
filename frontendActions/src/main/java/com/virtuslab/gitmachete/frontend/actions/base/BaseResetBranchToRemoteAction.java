@@ -102,23 +102,23 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     log().debug("Performing");
 
     Project project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var macheteRepository = getGitMacheteRepositorySnapshotWithLogging(anActionEvent);
+    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    var macheteRepository = getGitMacheteRepositorySnapshotWithLogging(anActionEvent).getOrNull();
 
-    if (branchName.isEmpty()) {
-      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-          "Internal error occurred. For more information see IDE log file");
-      return;
-    }
-
-    if (gitRepository.isEmpty()) {
+    if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
           "Skipping the action because no Git repository is selected");
       return;
     }
 
-    if (macheteRepository.isEmpty()) {
+    if (branchName == null) {
+      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
+          "Internal error occurred. For more information see IDE log file");
+      return;
+    }
+
+    if (macheteRepository == null) {
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
           "Internal error occurred. For more information see IDE log file");
       return;
@@ -126,7 +126,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     // if key is missing the default value (false) is returned
     if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
-      var gitMacheteBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName.get());
+      var gitMacheteBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName);
       var remoteBranch = gitMacheteBranch.flatMap(b -> b.getRemoteTrackingBranch()).map(rtb -> rtb.getName())
           .getOrElse("<remote-branch>");
       var currentCommitSha = gitMacheteBranch.map(b -> b.getPointedCommit().getHash()).getOrNull();
@@ -140,7 +140,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
           format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"),
               remoteBranch,
-              branchName.get(),
+              branchName,
               currentCommitSha),
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
@@ -155,7 +155,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     // Required to avoid reset with uncommitted changes and file cache conflicts
     FileDocumentManager.getInstance().saveAllDocuments();
 
-    doResetToRemoteWithKeep(project, gitRepository.get(), branchName.get(), macheteRepository.get(), anActionEvent);
+    doResetToRemoteWithKeep(project, gitRepository, branchName, macheteRepository, anActionEvent);
   }
 
   protected void doResetToRemoteWithKeep(Project project, GitRepository gitRepository, String branchName,
@@ -218,6 +218,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
                 .notifySuccess(
                     format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), branchName));
             log().debug(() -> "Branch '${branchName}' has been reset to its remote tracking branch");
+
+            getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
           } else if (localChangesDetector.wasMessageDetected()) {
             LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,

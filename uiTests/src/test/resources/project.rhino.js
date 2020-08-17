@@ -4,6 +4,7 @@ importClass(java.util.ArrayList);
 importClass(java.util.stream.Collectors);
 
 importClass(com.intellij.ide.DataManager);
+importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
 importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
@@ -64,20 +65,18 @@ function Project(underlyingProject) {
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
+  const SELECTED_BRANCH_NAME = 'SELECTED_BRANCH_NAME';
 
-  const createDataContextForSelectedBranch = function (branchName) {
-    return new DataContext({
+  const invokeActionAndWait = function(actionName, actionPlace, data) {
+    const actionManager = ActionManager.getInstance();
+    const action = actionManager.getAction(actionName);
+    const dataContext = new DataContext({
       getData: function(dataId) {
-        if (dataId.equals('SELECTED_BRANCH_NAME')) return branchName;
+        if (dataId in data) return data[dataId];
         if (dataId.equals('project')) return underlyingProject;
         return getGraphTable().getData(dataId);
       }
     });
-  };
-
-  const invokeActionAndWait = function(actionName, actionPlace, dataContext) {
-    const actionManager = ActionManager.getInstance();
-    const action = actionManager.getAction(actionName);
     const actionEvent = AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
 
     GuiUtils.runOrInvokeAndWait(function () {
@@ -86,23 +85,26 @@ function Project(underlyingProject) {
   };
 
   this.toggleListingCommits = function () {
-    const dataContext = DataManager.getInstance().getDataContext(getGraphTable());
-    invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, dataContext);
+    invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.checkoutBranch = function (branchName) {
-    const dataContext = createDataContextForSelectedBranch(branchName);
-    invokeActionAndWait('GitMachete.CheckoutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
+    invokeActionAndWait('GitMachete.CheckoutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   this.fastForwardParentToMatchBranch = function (branchName) {
-    const dataContext = createDataContextForSelectedBranch(branchName);
-    invokeActionAndWait('GitMachete.FastForwardParentToMatchSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
+    invokeActionAndWait('GitMachete.FastForwardParentToMatchSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   this.pullBranch = function (branchName) {
-    const dataContext = createDataContextForSelectedBranch(branchName);
-    invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, dataContext);
+    invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.resetBranchToRemote = function (branchName) {
+    const idePropertiesComponent = PropertiesComponent.getInstance();
+    idePropertiesComponent.setValue('git-machete.reset.info.shown', true);
+
+    invokeActionAndWait('GitMachete.ResetSelectedBranchToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   const getSelectedGitRepository = function() {
@@ -110,7 +112,15 @@ function Project(underlyingProject) {
     // since it operates in the context of the Remote Robot plugin, not our plugin.
     const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');
     const provider = underlyingProject.getService(providerClass);
-    return provider.getSelectedGitRepository().get();
+    const gitRepository = provider.getSelectedGitRepository().get();
+    // Let's make sure the data stored in the GitRepository object is up to date with the underlying .git/ folder.
+    gitRepository.update();
+    return gitRepository;
+  };
+
+  this.getCurrentBranchName = function () {
+    const gitRepository = getSelectedGitRepository();
+    return gitRepository.getCurrentBranch().getName();
   };
 
   this.getDiffOfWorkingTreeToHead = function () {
