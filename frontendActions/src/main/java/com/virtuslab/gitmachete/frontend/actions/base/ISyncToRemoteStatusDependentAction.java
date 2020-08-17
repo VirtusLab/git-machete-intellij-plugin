@@ -43,6 +43,12 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProviderW
    */
   List<SyncToRemoteStatus.Relation> getEligibleRelations();
 
+  /**
+   * As this method is used in `onUpdate` methods, only `*WithoutLogging` getters should be used here.
+   *
+   * @param anActionEvent an action event
+   */
+
   @UIEffect
   default void syncToRemoteStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 

@@ -11,6 +11,12 @@ import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterPr
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
+/**
+ * As a rule of thumb, method {@code getSelectedGitRepositoryWithLogging} should be used only in `actionPerformed` methods
+ * and definitely NOT in any `update` or `onUpdate` methods.
+ * In `update` and `onUpdate` methods only {@code getSelectedGitRepositoryWithoutLogging} should be used.
+ */
+
 public interface IExpectsKeyProject extends IWithLogger {
   default Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();

@@ -43,6 +43,11 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProviderW
    */
   List<SyncToParentStatus> getEligibleStatuses();
 
+  /**
+   * As this method is used in `onUpdate` methods, only `*WithoutLogging` getters should be used here.
+   *
+   * @param anActionEvent an action event
+   */
   @UIEffect
   default void syncToParentStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 

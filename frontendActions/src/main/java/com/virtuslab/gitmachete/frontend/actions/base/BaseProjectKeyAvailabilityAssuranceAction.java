@@ -25,6 +25,8 @@ public abstract class BaseProjectKeyAvailabilityAssuranceAction extends DumbAwar
 
   /**
    * If overridden {@code super.onUpdate(anActionEvent);} should always be called in the first line of overriding method.
+   * In addition, in this method we should use getters WITHOUT logging like
+   * {@code IExpectsKeyGitMacheteRepository#getGitMacheteRepositorySnapshotWithoutLogging}
    *
    * @param anActionEvent an action event
    */

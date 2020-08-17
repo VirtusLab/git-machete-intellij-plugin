@@ -8,6 +8,12 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
+/**
+ * As a rule of thumb, methods `*WithLogging` should be used only in `actionPerformed` methods and definitely NOT in
+ * any `update` or `onUpdate` methods.
+ * In `update` and `onUpdate` methods only `*WithoutLogging` should be used.
+ */
+
 public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default Option<IGitMacheteRepositorySnapshot> getGitMacheteRepositorySnapshotWithoutLogging(AnActionEvent anActionEvent) {
     return Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT));
