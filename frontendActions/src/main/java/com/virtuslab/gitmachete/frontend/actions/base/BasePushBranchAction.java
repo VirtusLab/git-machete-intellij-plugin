@@ -4,11 +4,17 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.A
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
+import git4idea.config.GitSharedSettings;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -57,7 +63,29 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
+
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
+
+    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
+    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
+        .map(b -> b.getSyncToRemoteStatus())
+        .map(strs -> strs.getRelation());
+    var project = tryGetProject(anActionEvent);
+
+    if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get()) && project.isDefined()) {
+      var anyPatternMatch = GitSharedSettings.getInstance(project.get()).getForcePushProhibitedPatterns().stream()
+          .anyMatch(patternString -> {
+            Pattern pattern = Pattern.compile(patternString);
+            Matcher matcher = pattern.matcher(branchName.get());
+            return matcher.matches();
+          });
+      if (anyPatternMatch) {
+        Presentation presentation = anActionEvent.getPresentation();
+        presentation.setDescription(format(
+            getString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch"), branchName.get()));
+        presentation.setEnabled(false);
+      }
+    }
   }
 
   @Override
@@ -72,10 +100,13 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
         .map(strs -> strs.getRelation());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
-      boolean isForcePushRequired = List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)
-          .contains(relation.get());
+      boolean isForcePushRequired = isForcePushRequired(relation.get());
       doPush(project, gitRepository.get(), branchName.get(), isForcePushRequired);
     }
+  }
+
+  private boolean isForcePushRequired(SyncToRemoteStatus.Relation relation) {
+    return List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote).contains(relation);
   }
 
   @UIEffect
