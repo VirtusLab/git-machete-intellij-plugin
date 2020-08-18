@@ -27,16 +27,17 @@ public final class GraphTableDialog extends DialogWrapper {
 
   public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle,
       @Nullable String emptyTableText, @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText,
-      boolean cancelButtonVisible) {
+      boolean cancelButtonVisible, boolean hasBranchActionHints) {
     return of(gitMacheteRepositorySnapshot, windowTitle, /* windowWidth */ 800, /* windowHeight */ 500, emptyTableText,
-        okAction, okButtonText, cancelButtonVisible);
+        okAction, okButtonText, cancelButtonVisible, hasBranchActionHints);
   }
 
   public static GraphTableDialog of(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, String windowTitle,
       int windowWidth, int windowHeight, @Nullable String emptyTableText,
-      @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
+      @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible,
+      boolean hasBranchActionHints) {
     var table = RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider.class)
-        .deriveInstance(gitMacheteRepositorySnapshot, /* isListingCommitsEnabled */ false);
+        .deriveInstance(gitMacheteRepositorySnapshot, /* isListingCommitsEnabled */ false, hasBranchActionHints);
     table.setTextForEmptyTable(emptyTableText != null ? emptyTableText : "");
     return new GraphTableDialog(table, gitMacheteRepositorySnapshot, windowTitle, windowWidth, windowHeight, okAction,
         okButtonText, cancelButtonVisible);

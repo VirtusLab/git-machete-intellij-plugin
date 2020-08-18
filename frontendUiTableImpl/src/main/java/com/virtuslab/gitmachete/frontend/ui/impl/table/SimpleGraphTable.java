@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellRenderer;
 
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.ui.JBUI;
@@ -13,18 +14,20 @@ import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
-import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
+import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 
 public final class SimpleGraphTable extends BaseGraphTable implements IGitMacheteRepositorySnapshotProvider {
   @Getter
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
 
+  private final TableCellRenderer tableCellRenderer;
+
   @UIEffect
   public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
-      boolean isListingCommitsEnabled) {
+      boolean isListingCommitsEnabled, boolean hasBranchActionHints) {
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
-    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled));
+    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled), hasBranchActionHints);
   }
 
   @UIEffect
@@ -36,8 +39,10 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   }
 
   @UIEffect
-  private SimpleGraphTable(GraphTableModel graphTableModel) {
+  private SimpleGraphTable(GraphTableModel graphTableModel, boolean hasBranchActionHints) {
     super(graphTableModel);
+
+    this.tableCellRenderer = new BranchOrCommitCellRenderer(hasBranchActionHints);
 
     createDefaultColumnsFromModel();
 
@@ -49,7 +54,7 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
     setRowSelectionAllowed(true);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
+    setDefaultRenderer(BranchOrCommitCell.class, tableCellRenderer);
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);

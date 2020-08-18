@@ -10,15 +10,15 @@ public class SimpleGraphTableProvider implements ISimpleGraphTableProvider {
   @Override
   @UIEffect
   public BaseGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
-      boolean isListingCommitsEnabled) {
+      boolean isListingCommitsEnabled, boolean hasBranchActionHints) {
     // The reinstantiation is needed every time because without it
     // the table keeps the first IDE theme despite the theme changes.
-    return SimpleGraphTable.deriveInstance(macheteRepositorySnapshot, isListingCommitsEnabled);
+    return SimpleGraphTable.deriveInstance(macheteRepositorySnapshot, isListingCommitsEnabled, hasBranchActionHints);
   }
 
   @Override
   @UIEffect
   public BaseGraphTable deriveDemoInstance() {
-    return deriveInstance(new DemoGitMacheteRepositorySnapshot(), /* isListingCommitsEnabled */ true);
+    return deriveInstance(new DemoGitMacheteRepositorySnapshot(), /* isListingCommitsEnabled */ true, /* hasBranchActionHints */ false);
   }
 }

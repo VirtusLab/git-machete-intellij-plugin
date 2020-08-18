@@ -46,3 +46,8 @@ class DefaultTableCellRenderer {
   @UIEffect
   Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 }
+
+class TableCellRenderer {
+  @UIEffect
+  Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column);
+}

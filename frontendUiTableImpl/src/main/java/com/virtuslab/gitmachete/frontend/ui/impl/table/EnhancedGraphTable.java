@@ -26,6 +26,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
+import javax.swing.table.TableCellRenderer;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -67,7 +68,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGrap
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
-import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRendererComponent;
+import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
 /**
@@ -100,6 +101,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private @Nullable String selectedBranchName;
 
+  private final TableCellRenderer tableCellRenderer;
+
   @UIEffect
   public EnhancedGraphTable(Project project) {
     super(new GraphTableModel(NullRepositoryGraph.getInstance()));
@@ -108,6 +111,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     this.repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
     this.isListingCommits = false;
+    this.tableCellRenderer = new BranchOrCommitCellRenderer(/* hasBranchActionHints */ true);
 
     // InitializationChecker allows us to invoke the below methods because the class is final
     // and all `@NonNull` fields are already initialized. `this` is already `@Initialized` (and not just
@@ -120,7 +124,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     setRowSelectionAllowed(false);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    setDefaultRenderer(BranchOrCommitCell.class, BranchOrCommitCellRendererComponent::new);
+    setDefaultRenderer(BranchOrCommitCell.class, tableCellRenderer);
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);
