@@ -41,6 +41,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
+import com.intellij.ui.table.JBTable;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
@@ -202,6 +203,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           String.join(", ", skippedBranchNames));
     }
 
+    // It's needed to properly recalculate column width, esp. when the new max cell width is smaller than the previous one
+    resetColumnWidth();
+
     repaint();
     revalidate();
   }
@@ -339,7 +343,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
-          GuiUtils.invokeLaterIfNeeded(() -> graphTable.setRowSelectionAllowed(true), NON_MODAL);
+          GuiUtils.invokeLaterIfNeeded(() -> {
+            // To selection have a full width (for better feeling)
+            graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);
+            graphTable.setRowSelectionAllowed(true);
+          }, NON_MODAL);
         }
       }, /* delay */ 35);
     }
@@ -348,6 +356,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
       graphTable.setRowSelectionAllowed(false);
+      // To selection (and thus the area where tooltip is shown) have again the possible smallest size
+      graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
     }
   }
 }

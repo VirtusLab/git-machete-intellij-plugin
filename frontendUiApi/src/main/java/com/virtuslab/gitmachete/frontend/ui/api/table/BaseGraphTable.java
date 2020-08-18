@@ -38,6 +38,15 @@ public abstract class BaseGraphTable extends JBTable {
     return component;
   }
 
+  /**
+   * This method should be invoked after each graph table model change but BEFORE {@code revalidate} and {@code repaint}
+   * It cause the max column width is reset and can be properly recalculated in {@code prepareRenderer}
+   */
+  @UIEffect
+  protected void resetColumnWidth() {
+    getColumnModel().getColumn(0).setPreferredWidth(0);
+  }
+
   @UIEffect
   public void setTextForEmptyTable(String upperText, @Nullable String lowerText, @Nullable @UI Runnable onClickRunnable) {
     var attrs = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBUI.CurrentTheme.Link.linkColor());
