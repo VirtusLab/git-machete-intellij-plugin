@@ -128,8 +128,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
     var localBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull();
     if (localBranch == null) {
-      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE,
-          "Internal error occurred. For more information see IDE log file");
+      VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, "Cannot get local branch '${branchName}'");
       return;
     }
 
