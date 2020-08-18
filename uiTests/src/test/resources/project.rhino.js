@@ -65,7 +65,7 @@ function Project(underlyingProject) {
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
-  const SELECTED_BRANCH_NAME = 'SELECTED_BRANCH_NAME';
+  const RESET_INFO_SHOWN = 'git-machete.reset.info.shown';
 
   const invokeActionAndWait = function(actionName, actionPlace, data) {
     const actionManager = ActionManager.getInstance();
@@ -96,15 +96,28 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.FastForwardParentToMatchSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
+  this.fastForwardParentToMatchCurrentBranch = function () {
+    invokeActionAndWait('GitMachete.FastForwardParentToMatchCurrentBranchAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
   this.pullBranch = function (branchName) {
     invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
+  this.pullCurrentBranch = function () {
+    invokeActionAndWait('GitMachete.PullCurrentBranchFastForwardOnlyAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
   this.resetBranchToRemote = function (branchName) {
-    const idePropertiesComponent = PropertiesComponent.getInstance();
-    idePropertiesComponent.setValue('git-machete.reset.info.shown', true);
+    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
 
     invokeActionAndWait('GitMachete.ResetSelectedBranchToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.resetCurrentBranchToRemote = function () {
+    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
+
+    invokeActionAndWait('GitMachete.ResetCurrentBranchToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   const getSelectedGitRepository = function() {

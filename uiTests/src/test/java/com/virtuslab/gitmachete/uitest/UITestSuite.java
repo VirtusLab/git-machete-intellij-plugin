@@ -110,7 +110,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     runJs("project.checkoutBranch('hotfix/add-trigger')");
     awaitIdle();
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    runJs("project.fastForwardParentToMatchBranch('hotfix/add-trigger')");
+    runJs("project.fastForwardParentToMatchCurrentBranch()");
     awaitIdle();
 
     String parentBranchHash = callJs("project.getHashOfCommitPointedByBranch('master')");
@@ -123,11 +123,11 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
   @Test
   public void pullCurrentBranch() {
-    runJs("project.checkoutBranch('allow-ownership-link')");
-    awaitIdle();
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
-    runJs("project.pullBranch('allow-ownership-link')");
+    runJs("project.checkoutBranch('allow-ownership-link')");
+    awaitIdle();
+    runJs("project.pullCurrentBranch()");
     awaitIdle();
 
     String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('allow-ownership-link')");
@@ -159,7 +159,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   public void resetCurrentBranchToRemote() {
     runJs("project.checkoutBranch('hotfix/add-trigger')");
     awaitIdle();
-    runJs("project.resetBranchToRemote('hotfix/add-trigger')");
+    runJs("project.resetCurrentBranchToRemote()");
     awaitIdle();
 
     String localBranchHash = callJs("project.getHashOfCommitPointedByBranch('hotfix/add-trigger')");
