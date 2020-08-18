@@ -1,10 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import lombok.Getter;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
@@ -22,8 +25,8 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   }
 
   @Override
-  protected String getOperationName() {
-    return "Fast-forward merge";
+  protected @I18nFormat({}) String getOperationName() {
+    return getString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.operation-name");
   }
 
   @Override

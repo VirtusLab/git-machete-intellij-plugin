@@ -45,6 +45,8 @@ import git4idea.util.GitUIUtil;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @CustomLog
@@ -62,7 +64,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     this.gitRepository = gitRepository;
   }
 
-  protected abstract String getOperationName();
+  protected abstract @I18nFormat({}) String getOperationName();
 
   protected abstract String getTargetBranchName();
 
@@ -184,10 +186,26 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     }
   }
 
+  // TODO (#496): replace with a non-reflective constructor call
+  @SneakyThrows
+  private static MergeChangeCollector createMergeChangeCollector(
+      Project project, GitRepository repository, GitRevisionNumber start) {
+    try {
+      // Proper solution for 2020.2+
+      var constructor = MergeChangeCollector.class.getConstructor(Project.class, GitRepository.class, GitRevisionNumber.class);
+      return constructor.newInstance(project, repository, start);
+    } catch (NoSuchMethodException e) {
+      // Fallback for 2020.1 (also available on 2020.2, but scheduled for removal in 2020.3)
+      var constructor = MergeChangeCollector.class.getConstructor(Project.class, VirtualFile.class, GitRevisionNumber.class);
+      return constructor.newInstance(project, repository.getRoot(), start);
+    }
+  }
+
   private void showUpdates(VirtualFile root, GitRevisionNumber currentRev, Label beforeLabel) {
     try {
       UpdatedFiles files = UpdatedFiles.create();
-      @SuppressWarnings("UnstableApiUsage") var collector = new MergeChangeCollector(project, root, currentRev);
+
+      var collector = createMergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
       GuiUtils.invokeLaterIfNeeded(() -> {
