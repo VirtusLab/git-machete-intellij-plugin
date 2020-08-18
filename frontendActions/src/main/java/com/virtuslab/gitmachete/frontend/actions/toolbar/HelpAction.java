@@ -10,7 +10,7 @@ public class HelpAction extends DumbAwareAction {
 
   @Override
   @UIEffect
-  public void actionPerformed(AnActionEvent e) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     GraphTableDialog.ofDemoRepository().show();
   }
 }

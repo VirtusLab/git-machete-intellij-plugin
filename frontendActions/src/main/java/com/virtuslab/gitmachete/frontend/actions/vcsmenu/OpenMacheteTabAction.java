@@ -24,12 +24,12 @@ public class OpenMacheteTabAction extends DumbAwareAction implements IExpectsKey
 
   @Override
   @UIEffect
-  public void actionPerformed(AnActionEvent e) {
+  public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
     // Getting project from event and assigning it to variable is needed to avoid exception
     // because the data context is shared between Swing events (esp. with #2 VcsNotifier call - inside lambda)
-    Project project = getProject(e);
+    Project project = getProject(anActionEvent);
 
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);

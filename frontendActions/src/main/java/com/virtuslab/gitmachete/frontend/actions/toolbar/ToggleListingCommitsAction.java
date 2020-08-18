@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
 import lombok.CustomLog;
@@ -32,7 +31,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     super.onUpdate(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();
-    boolean selected = isSelected(presentation);
+    boolean selected = Toggleable.isSelected(presentation);
     Toggleable.setSelected(presentation, selected);
     if (!presentation.isEnabledAndVisible()) {
       return;
@@ -42,16 +41,6 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
-      return;
-    }
-
-    boolean noChildBranchExists = branchLayout.get().getRootEntries()
-        .exists(rootBranch -> rootBranch.getChildren().isEmpty());
-
-    if (noChildBranchExists) {
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-child-branches"));
       return;
     }
 
@@ -72,30 +61,15 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
   @Override
   @UIEffect
-  public final void actionPerformed(AnActionEvent e) {
-    boolean state = !isSelected(e);
-    setSelected(e, state);
-    var presentation = e.getPresentation();
-    Toggleable.setSelected(presentation, state);
-  }
-
-  @UIEffect
-  private boolean isSelected(AnActionEvent anActionEvent) {
-    var presentation = anActionEvent.getPresentation();
-    return Toggleable.isSelected(presentation);
-  }
-
-  @UIEffect
-  private boolean isSelected(Presentation presentation) {
-    return Toggleable.isSelected(presentation);
-  }
-
-  @UIEffect
-  public void setSelected(AnActionEvent anActionEvent, boolean state) {
-    log().debug("Triggered with state = ${state}");
+  public final void actionPerformed(AnActionEvent anActionEvent) {
+    boolean newState = !Toggleable.isSelected(anActionEvent.getPresentation());
+    log().debug("Triggered with newState = ${newState}");
 
     var graphTable = getGraphTable(anActionEvent);
-    graphTable.setListingCommits(state);
+    graphTable.setListingCommits(newState);
     graphTable.refreshModel();
+
+    var presentation = anActionEvent.getPresentation();
+    Toggleable.setSelected(presentation, newState);
   }
 }
