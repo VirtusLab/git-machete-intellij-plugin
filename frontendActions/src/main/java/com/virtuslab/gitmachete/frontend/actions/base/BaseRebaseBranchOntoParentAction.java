@@ -128,6 +128,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   }
 
   @Override
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 

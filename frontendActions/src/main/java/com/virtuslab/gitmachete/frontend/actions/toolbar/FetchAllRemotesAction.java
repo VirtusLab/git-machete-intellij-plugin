@@ -37,6 +37,7 @@ public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAc
   }
 
   @Override
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 

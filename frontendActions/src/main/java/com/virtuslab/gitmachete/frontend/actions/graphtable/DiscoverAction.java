@@ -14,6 +14,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -28,7 +29,9 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProject {
+
   @Override
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();

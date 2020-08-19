@@ -64,6 +64,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   }
 
   @Override
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var selectedBranchName = getSelectedBranchNameWithLogging(anActionEvent);
     if (selectedBranchName.isEmpty()) {
