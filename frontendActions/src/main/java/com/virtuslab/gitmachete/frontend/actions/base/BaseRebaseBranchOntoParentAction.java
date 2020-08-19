@@ -36,8 +36,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
-      IBranchNameProviderWithoutLogging,
+      IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
   private static final String NL = System.lineSeparator();
 
@@ -56,7 +55,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       return;
     }
 
-    var state = getSelectedGitRepositoryWithoutLogging(anActionEvent).map(r -> r.getState());
+    var state = getSelectedGitRepository(anActionEvent).map(r -> r.getState());
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
@@ -83,9 +82,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status"), stateName));
     } else {
 
-      var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
+      var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
       var branch = branchName != null
-          ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
+          ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
           : null;
 
       if (branch == null) {
@@ -117,7 +116,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
             branch.getName(), upstream.getName()));
       }
 
-      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
+      var isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.getName())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
@@ -130,8 +129,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
 
     if (branch.isDefined()) {
       if (branch.get().isNonRoot()) {
@@ -144,8 +143,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
-    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLogging(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
 
     if (gitRepository.isDefined() && gitMacheteRepositorySnapshot.isDefined()) {
       doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot.get(), branchToRebase);

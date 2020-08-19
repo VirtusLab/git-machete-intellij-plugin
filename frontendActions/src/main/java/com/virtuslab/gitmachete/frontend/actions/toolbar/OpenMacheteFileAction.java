@@ -34,7 +34,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    var gitDir = getSelectedGitRepositoryWithLogging(anActionEvent)
+    var gitDir = getSelectedGitRepository(anActionEvent)
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))

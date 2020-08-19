@@ -9,13 +9,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardParentToMat
 
 public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForwardParentToMatchBranchAction {
   @Override
-  public Option<String> getNameOfBranchUnderActionWithoutLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithoutLogging(anActionEvent);
-  }
-
-  @Override
-  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
+  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
   @Override
@@ -28,8 +23,8 @@ public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForward
       return;
     }
 
-    var isInSyncToParent = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
+    var isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
+        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
         .getOrElse(false);

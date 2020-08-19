@@ -17,7 +17,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 
-public interface ISyncToRemoteStatusDependentAction extends IBranchNameProviderWithoutLogging, IExpectsKeyGitMacheteRepository {
+public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider, IExpectsKeyGitMacheteRepository {
   @I18nFormat({})
   String getActionName();
 
@@ -43,12 +43,6 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProviderW
    */
   List<SyncToRemoteStatus.Relation> getEligibleRelations();
 
-  /**
-   * As this method is used in `onUpdate` methods, only `*WithoutLogging` getters should be used here.
-   *
-   * @param anActionEvent an action event
-   */
-
   @UIEffect
   default void syncToRemoteStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 
@@ -57,9 +51,9 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProviderW
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     var gitMacheteBranch = branchName != null
-        ? getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null || gitMacheteBranch == null) {

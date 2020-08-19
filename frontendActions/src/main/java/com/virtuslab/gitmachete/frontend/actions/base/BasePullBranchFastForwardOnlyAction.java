@@ -23,7 +23,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
+      IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       ISyncToRemoteStatusDependentAction {
 
@@ -62,9 +62,9 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
     log().debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
-    var localBranchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
-    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshotWithLogging(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var localBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
 
     if (localBranchName != null && gitRepository != null && gitMacheteRepositorySnapshot != null) {
       var localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName).getOrNull();

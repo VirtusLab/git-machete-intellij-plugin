@@ -23,7 +23,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
+      IBranchNameProvider,
       ISyncToParentStatusDependentAction {
 
   @Override
@@ -58,13 +58,13 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
-    var targetBranchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var targetBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     if (gitRepository == null || targetBranchName == null) {
       return;
     }
 
-    var targetBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, targetBranchName).getOrNull();
+    var targetBranch = getManagedBranchByName(anActionEvent, targetBranchName).getOrNull();
     if (targetBranch == null) {
       return;
     }

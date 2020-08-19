@@ -32,8 +32,7 @@ import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
-      IBranchNameProviderWithoutLogging,
+      IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
 
   private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
@@ -53,9 +52,9 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     var branch = branchName != null
-        ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branch == null) {
@@ -82,8 +81,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var branch = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn));
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
     if (branch.isDefined()) {
       if (branch.get().isNonRoot()) {
         doSlideOut(anActionEvent, branch.get().asNonRoot());
@@ -99,8 +98,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
-    var branchLayout = getBranchLayoutWithLogging(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {
       return;
     }
@@ -136,14 +135,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
   @NotUIThreadSafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       var root = gitRepository.get().getRoot();
       var project = getProject(anActionEvent);
       var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (shallDeleteLocalBranch) {
-        var slidOutBranchIsCurrent = getCurrentBranchNameIfManagedWithLogging(anActionEvent)
+        var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
             .map(b -> b.equals(branchName))
             .getOrElse(true);
         if (slidOutBranchIsCurrent) {

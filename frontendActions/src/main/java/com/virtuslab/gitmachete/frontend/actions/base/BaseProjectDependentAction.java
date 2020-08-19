@@ -8,17 +8,29 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IWithLogger;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
+import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
+  @UIEffect
+  private boolean isUpdateInProgressOnUIThread;
+
+  @Override
+  public boolean isLoggingDiscouraged() {
+    // We discourage logging while `update()` is in progress since it would lead to massive spam
+    // (`update` is invoked very frequently, regardless of whether `actionPerformed` is going to happen).
+    return isUpdateInProgressOnUIThread;
+  }
+
   @Override
   @UIEffect
   public final void update(AnActionEvent anActionEvent) {
     super.update(anActionEvent);
+
+    isUpdateInProgressOnUIThread = true;
 
     var maybeProject = anActionEvent.getProject();
     var presentation = anActionEvent.getPresentation();
@@ -28,17 +40,20 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
       presentation.setEnabledAndVisible(true);
       onUpdate(anActionEvent);
     }
+
+    isUpdateInProgressOnUIThread = false;
   }
 
   /**
    * If overridden, {@code super.onUpdate(anActionEvent)} should always be called in the first line of overriding method.
-   * In addition, in this method we should use getters WITHOUT logging like
-   * {@code IExpectsKeyGitMacheteRepository#getGitMacheteRepositorySnapshotWithoutLogging}
    *
    * @param anActionEvent an action event
    */
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {}
+
+  @Override
+  public abstract IEnhancedLambdaLogger log();
 
   protected Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();
@@ -54,14 +69,10 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
   }
 
-  protected Option<GitRepository> getSelectedGitRepositoryWithoutLogging(AnActionEvent anActionEvent) {
-    return getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class).getSelectedGitRepository();
-  }
-
-  protected Option<GitRepository> getSelectedGitRepositoryWithLogging(AnActionEvent anActionEvent) {
+  protected Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
     var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
-    if (gitRepository.isEmpty()) {
+    if (!isLoggingDiscouraged() && gitRepository.isEmpty()) {
       log().warn("No Git repository is selected");
     }
     return gitRepository;

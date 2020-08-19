@@ -35,14 +35,14 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
       return;
     }
 
-    var branchLayout = getBranchLayoutWithoutLogging(anActionEvent);
+    var branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
-    boolean anyCommitExists = getGitMacheteRepositorySnapshotWithoutLogging(anActionEvent)
+    boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
         .map(repo -> repo.getManagedBranches()
             .exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty()))
         .getOrElse(false);

@@ -42,8 +42,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
-      IBranchNameProviderWithoutLogging,
+      IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
 
   public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";
@@ -86,9 +85,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     super.onUpdate(anActionEvent);
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    var branch = getNameOfBranchUnderActionWithoutLogging(anActionEvent);
+    var branch = getNameOfBranchUnderAction(anActionEvent);
     if (branch.isDefined()) {
-      var isResettingCurrent = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
+      var isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.get())).getOrElse(false);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(() -> getActionName());
@@ -102,9 +101,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     log().debug("Performing");
 
     Project project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent).getOrNull();
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent).getOrNull();
-    var macheteRepository = getGitMacheteRepositorySnapshotWithLogging(anActionEvent).getOrNull();
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    var macheteRepository = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
 
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyWarning(VCS_NOTIFIER_TITLE,
@@ -124,7 +123,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       return;
     }
 
-    var localBranch = getGitMacheteBranchByNameWithLogging(anActionEvent, branchName).getOrNull();
+    var localBranch = getManagedBranchByName(anActionEvent, branchName).getOrNull();
     if (localBranch == null) {
       VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, "Cannot get local branch '${branchName}'");
       return;

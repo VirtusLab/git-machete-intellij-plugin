@@ -18,14 +18,14 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 
-public interface ISyncToParentStatusDependentAction extends IBranchNameProviderWithoutLogging, IExpectsKeyGitMacheteRepository {
+public interface ISyncToParentStatusDependentAction extends IBranchNameProvider, IExpectsKeyGitMacheteRepository {
 
   @I18nFormat({})
   String getActionNameForDisabledDescription();
 
   /**
    * @return a format string for description of action in enabled state
-   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderActionWithoutLogging}
+   *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderAction}
    *         and {@code {0}} corresponds to name of its parent branch
    */
   @I18nFormat({GENERAL, GENERAL})
@@ -43,11 +43,6 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProviderW
    */
   List<SyncToParentStatus> getEligibleStatuses();
 
-  /**
-   * As this method is used in `onUpdate` methods, only `*WithoutLogging` getters should be used here.
-   *
-   * @param anActionEvent an action event
-   */
   @UIEffect
   default void syncToParentStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 
@@ -56,9 +51,9 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProviderW
       return;
     }
 
-    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent).getOrNull();
+    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     var gitMacheteBranchByName = branchName != null
-        ? getGitMacheteBranchByNameWithoutLogging(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
     if (branchName == null || gitMacheteBranchByName == null) {

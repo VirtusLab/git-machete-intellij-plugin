@@ -13,13 +13,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BasePushBranchAction;
 
 public class PushCurrentBranchAction extends BasePushBranchAction {
   @Override
-  public Option<String> getNameOfBranchUnderActionWithoutLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithoutLogging(anActionEvent);
-  }
-
-  @Override
-  public Option<String> getNameOfBranchUnderActionWithLogging(AnActionEvent anActionEvent) {
-    return getCurrentBranchNameIfManagedWithLogging(anActionEvent);
+  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+    return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
   @Override
@@ -31,8 +26,8 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
       return;
     }
 
-    var isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent)
-        .flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
+    var isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
+        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))
         .getOrElse(false);

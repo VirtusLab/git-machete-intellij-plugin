@@ -27,7 +27,7 @@ import com.virtuslab.logger.IEnhancedLambdaLogger;
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProviderWithLogging,
+      IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
 
   @Override
@@ -61,8 +61,8 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent);
-    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithoutLogging(anActionEvent, bn))
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation());
     var project = getProject(anActionEvent);
 
@@ -81,9 +81,9 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
+    var gitRepository = getSelectedGitRepository(anActionEvent);
+    var branchName = getNameOfBranchUnderAction(anActionEvent);
+    var relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {

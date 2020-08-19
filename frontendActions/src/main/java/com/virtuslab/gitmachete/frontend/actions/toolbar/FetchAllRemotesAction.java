@@ -43,7 +43,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
     log().debug("Performing");
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
     String title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
     new Task.Backgroundable(project, title, /* canBeCancelled */ true) {

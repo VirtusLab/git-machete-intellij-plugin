@@ -38,7 +38,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    var selectedBranchName = getSelectedBranchNameWithoutLogging(anActionEvent);
+    var selectedBranchName = getSelectedBranchName(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
@@ -47,7 +47,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       return;
     }
 
-    var currentBranchName = getCurrentBranchNameIfManagedWithoutLogging(anActionEvent);
+    var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
 
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
@@ -64,13 +64,13 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var selectedBranchName = getSelectedBranchNameWithLogging(anActionEvent);
+    var selectedBranchName = getSelectedBranchName(anActionEvent);
     if (selectedBranchName.isEmpty()) {
       return;
     }
 
     var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
+    var gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
       log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
