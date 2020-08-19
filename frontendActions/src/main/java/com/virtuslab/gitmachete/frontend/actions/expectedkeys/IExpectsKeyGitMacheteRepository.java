@@ -36,6 +36,11 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return branchLayout;
   }
 
+  default Option<IBranchLayout> getBranchLayoutWithoutLogging(AnActionEvent anActionEvent) {
+    return getGitMacheteRepositorySnapshotWithLogging(anActionEvent)
+        .flatMap(repository -> repository.getBranchLayout());
+  }
+
   default Option<IManagedBranchSnapshot> getCurrentMacheteBranchIfManagedWithoutLogging(AnActionEvent anActionEvent) {
     return getGitMacheteRepositorySnapshotWithoutLogging(anActionEvent)
         .flatMap(repository -> repository.getCurrentBranchIfManaged());
