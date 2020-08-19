@@ -353,7 +353,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
       graphTable.setRowSelectionAllowed(false);
-      // So that the selection (and thus the area where tooltip is shown) has again the possible smallest size
+      // So that the selection (and thus the area where tooltip is shown) has again the smallest possible size
       graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
     }
   }

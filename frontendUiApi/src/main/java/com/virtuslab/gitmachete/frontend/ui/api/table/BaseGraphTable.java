@@ -15,7 +15,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BaseGraphTable extends JBTable {
-  private static List<Integer> rowWidths = List.empty();
+  private List<Integer> rowWidths = List.empty();
 
   @UIEffect
   @SuppressWarnings("nullness:method.invocation.invalid") // to allow for setAutoResizeMode despite the object isn't initialized yet
