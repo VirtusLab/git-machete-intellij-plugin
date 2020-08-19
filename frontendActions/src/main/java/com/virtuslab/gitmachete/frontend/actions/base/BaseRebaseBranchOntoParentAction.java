@@ -30,7 +30,6 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -39,7 +38,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     implements
       IBranchNameProviderWithLogging,
       IBranchNameProviderWithoutLogging,
-      IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository {
   private static final String NL = System.lineSeparator();
 

@@ -25,7 +25,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.NotUIThreadSafe;
@@ -35,8 +34,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     implements
       IBranchNameProviderWithLogging,
       IBranchNameProviderWithoutLogging,
-      IExpectsKeyGitMacheteRepository,
-      IExpectsKeyProject {
+      IExpectsKeyGitMacheteRepository {
 
   private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 

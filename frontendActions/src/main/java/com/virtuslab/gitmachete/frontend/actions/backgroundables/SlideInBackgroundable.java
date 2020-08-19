@@ -61,7 +61,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
     // The high-level method used within the runnable do not allow us to schedule the tasks after them.
-    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea.)
+    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
     // Hence we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch();
 

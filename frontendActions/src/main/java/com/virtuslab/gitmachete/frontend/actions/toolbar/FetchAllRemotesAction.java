@@ -11,12 +11,11 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectKeyAvailabilityAssuranceAction;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public class FetchAllRemotesAction extends BaseProjectKeyAvailabilityAssuranceAction implements IExpectsKeyProject {
+public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {

@@ -29,7 +29,6 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -37,7 +36,6 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     implements
       IBranchNameProviderWithLogging,
       IBranchNameProviderWithoutLogging,
-      IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository {
 
   @Override

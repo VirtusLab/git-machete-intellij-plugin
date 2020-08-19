@@ -22,14 +22,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProviderWithLogging,
-      IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
   @Override

@@ -25,6 +25,7 @@ public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastFo
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
+
     var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;

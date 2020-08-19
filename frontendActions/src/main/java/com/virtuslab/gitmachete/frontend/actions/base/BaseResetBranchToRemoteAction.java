@@ -36,7 +36,6 @@ import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -45,7 +44,6 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
     implements
       IBranchNameProviderWithLogging,
       IBranchNameProviderWithoutLogging,
-      IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
   public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";

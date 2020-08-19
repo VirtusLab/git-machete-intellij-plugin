@@ -15,14 +15,12 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IExpectsKeyProject,
       IExpectsKeySelectedBranchName {
 
   @Override

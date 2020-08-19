@@ -7,7 +7,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
-public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectKeyAvailabilityAssuranceAction
+public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDependentAction
     implements
       IExpectsKeyGitMacheteRepository {
   @Override
@@ -25,11 +25,11 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectKey
 
   /**
    * Bear in mind that {@link AnAction#beforeActionPerformedUpdate} is called before each action.
-   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well.)
+   * (For more details check {@link com.intellij.openapi.actionSystem.ex.ActionUtil} as well).
    * The {@link AnActionEvent} argument passed to before-called {@link AnAction#update} is the same one that is passed here.
    * This gives us certainty that all checks from actions' update implementations will be performed
    * and all data available via data keys in those {@code update} implementations will still be available
-   * in {@link BaseGitMacheteRepositoryReadyAction#actionPerformed} implementations.
+   * in {@link #actionPerformed} implementations.
    */
   @Override
   @UIEffect

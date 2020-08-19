@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
@@ -20,15 +19,23 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProject {
+public class DiscoverAction extends BaseProjectDependentAction {
+
+  @Override
+  public IEnhancedLambdaLogger log() {
+    return LOG;
+  }
+
+  @Override
+  protected void onUpdate(AnActionEvent anActionEvent) {}
 
   @Override
   @UIEffect
@@ -81,10 +88,5 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
             .onSuccess(__ -> baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh());
       }
     }.queue();
-  }
-
-  @Override
-  public IEnhancedLambdaLogger log() {
-    return LOG;
   }
 }

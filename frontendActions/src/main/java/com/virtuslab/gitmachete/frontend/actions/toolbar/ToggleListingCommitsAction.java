@@ -10,15 +10,13 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAction
     implements
       DumbAware,
-      IExpectsKeyGitMacheteRepository,
-      IExpectsKeyProject {
+      IExpectsKeyGitMacheteRepository {
 
   @Override
   public IEnhancedLambdaLogger log() {

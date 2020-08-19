@@ -6,7 +6,6 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -16,17 +15,20 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public class OpenMacheteFileAction extends DumbAwareAction implements IExpectsKeyProject {
+public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
   }
+
+  @Override
+  protected void onUpdate(AnActionEvent anActionEvent) {}
 
   @Override
   @UIEffect

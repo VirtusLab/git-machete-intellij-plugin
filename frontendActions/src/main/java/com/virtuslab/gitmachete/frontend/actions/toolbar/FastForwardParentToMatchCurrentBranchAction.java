@@ -22,6 +22,7 @@ public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForward
   @UIEffect
   public void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
+
     var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;

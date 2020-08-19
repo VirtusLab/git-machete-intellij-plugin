@@ -18,7 +18,6 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.PullCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -26,7 +25,6 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
     implements
       IBranchNameProviderWithLogging,
       IExpectsKeyGitMacheteRepository,
-      IExpectsKeyProject,
       ISyncToRemoteStatusDependentAction {
 
   @Override

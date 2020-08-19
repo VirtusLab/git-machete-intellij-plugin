@@ -18,14 +18,12 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProviderWithLogging,
-      IExpectsKeyProject,
       ISyncToParentStatusDependentAction {
 
   @Override

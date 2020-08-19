@@ -20,7 +20,6 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyProject;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 
@@ -28,7 +27,6 @@ import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProviderWithLogging,
-      IExpectsKeyProject,
       IExpectsKeyGitMacheteRepository,
       ISyncToParentStatusDependentAction {
 
