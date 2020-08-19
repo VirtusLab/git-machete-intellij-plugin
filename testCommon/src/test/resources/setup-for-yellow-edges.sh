@@ -43,8 +43,8 @@ cd machete-sandbox
   # Let's skip allow-ownership-link on purpose so that develop and build-chain are connected with a yellow edge
   machete_file='
   develop
-      build-chain PR #124
-      call-ws
+      build-chain
+      call-ws PR #124
   master
       hotfix/add-trigger
   '

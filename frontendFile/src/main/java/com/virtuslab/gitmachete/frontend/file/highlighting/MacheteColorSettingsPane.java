@@ -34,8 +34,8 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
   public String getDemoText() {
     return "develop" + NL +
         "    allow-ownership-link PR #123" + NL +
-        "        build-chain PR #124" + NL +
-        "    call-ws" + NL +
+        "        build-chain" + NL +
+        "    call-ws PR #124" + NL +
         "master" + NL +
         "    hotfix/add-trigger PR #127";
   }

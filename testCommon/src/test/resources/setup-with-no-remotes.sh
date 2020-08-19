@@ -46,8 +46,8 @@ cd machete-sandbox
   machete_file='
   develop
       allow-ownership-link PR #123
-          build-chain PR #124
-      call-ws
+          build-chain
+      call-ws PR #124
           drop-constraint
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete

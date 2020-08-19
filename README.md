@@ -76,13 +76,13 @@ but you can also run it any time from IntelliJ's `Search Everywhere` (double Shi
 ```
 develop
     allow-ownership-link PR #123
-        build-chain PR #124
-    call-ws
+        build-chain
+    call-ws PR #124
 master
     hotfix/add-trigger
 ```
 `develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
-Two of them, `allow-ownership-link` and `build-chain`, have a custom annotation &mdash;
+Two of them, `allow-ownership-link` and `call-ws`, have a custom annotation &mdash;
 it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
 
 The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
@@ -166,7 +166,8 @@ This action always performs a `--ff-only` (fast-forward only) pull which makes h
 
 If a given branch is not in sync with its remote, you can reset it to point to the exact same commit as the remote.
 From the right-click context menu, select `Reset Branch to Remote`.<br/>
-This action performs `git reset --keep` under the hood. `--keep`, as opposed to `--hard`, keeps your uncommitted changes safe from getting overwritten.
+When resetting the current branch, this action performs `git reset --keep` under the hood.
+The `--keep` option, as opposed to `--hard`, keeps your uncommitted changes safe from getting overwritten.
 
 ![](docs/reset.gif)
 </details>
