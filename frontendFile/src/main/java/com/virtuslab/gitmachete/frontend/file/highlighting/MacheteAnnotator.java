@@ -14,6 +14,7 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
@@ -29,7 +30,7 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
 
-public class MacheteAnnotator implements Annotator {
+public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean cantGetBranchesMessageWasShown = false;
 
   @Override

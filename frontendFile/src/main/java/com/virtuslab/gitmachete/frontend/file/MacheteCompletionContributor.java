@@ -6,10 +6,11 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PlainPrefixMatcher;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
 
-public class MacheteCompletionContributor extends CompletionContributor {
+public class MacheteCompletionContributor extends CompletionContributor implements DumbAware {
 
   @Override
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
