@@ -6,18 +6,18 @@
 
 <img src="src/main/resources/META-INF/pluginIcon.svg" width="130" height="130" align="left"/>
 
-Git Machete plugin is a robust tool that simplifies your git related workflow.
+Git Machete plugin is a robust tool that **simplifies your git related workflow**.
 It's a great complement to the JetBrains products' built-in version control system.<br/>
 
-The "bird's eye view" provided by Git Machete makes merges/rebases/push/pulls hassle-free
-even when multiple branches are present in the repository
+The _bird's eye view_ provided by Git Machete makes **merges/rebases/push/pulls hassle-free**
+even when **multiple branches** are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).<br/>
 
 A look at a Git Machete tab gives an instant answer to the questions:
 * What branches are in this repository?
 * What is going to be merged (rebased/pushed/pulled) and to what?
 
-With this plugin, you can simply maintain small, focused pull requests that are easy to review.
+With this plugin, you can simply maintain **small, focused pull requests** that are easy to review.
 
 **It is compatible with all JetBrains products except Android Studio.
 The minimum required version is 2020.1**.
@@ -218,7 +218,7 @@ Another dialog will appear &mdash; it is a standard new branch IntelliJ dialog.
 A slide in action can also add a branch that already exists in git repository to the branch layout.
 Again, select the `Slide In Branch Bellow Selected Branch` from a context menu and type the name of an already existing branch.
 
-![](docs/slide_in_existent_branch.gif)
+![](docs/slide_in_existing_branch.gif)
 
 This action can also be used to reattach an existing branch below a selected one.
 In this case, just type the name of the existing branch that you want to reattach and then click `Slide In`.

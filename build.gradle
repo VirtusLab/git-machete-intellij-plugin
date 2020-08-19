@@ -469,6 +469,8 @@ patchPluginXml {
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   untilBuild intellijVersionToBuildNumber(intellijVersions.current) + '.*'
 
+  // Note that the first line of the description should be self-contained since it is placed into embeddable card:
+  // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
   pluginDescription file("$rootDir/DESCRIPTION.html").text
 
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
