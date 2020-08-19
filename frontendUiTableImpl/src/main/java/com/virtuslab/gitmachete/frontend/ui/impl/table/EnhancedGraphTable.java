@@ -203,9 +203,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           String.join(", ", skippedBranchNames));
     }
 
-    // It's needed to properly recalculate column width, esp. when the new max cell width is smaller than the previous one
-    resetColumnWidth();
-
     repaint();
     revalidate();
   }
@@ -344,7 +341,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         @Override
         public void run() {
           GuiUtils.invokeLaterIfNeeded(() -> {
-            // To selection have a full width (for better feeling)
+            // So that the selection spans over the full width of the row (for better feeling)
             graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);
             graphTable.setRowSelectionAllowed(true);
           }, NON_MODAL);
@@ -356,7 +353,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
       graphTable.setRowSelectionAllowed(false);
-      // To selection (and thus the area where tooltip is shown) have again the possible smallest size
+      // So that the selection (and thus the area where tooltip is shown) has again the possible smallest size
       graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
     }
   }

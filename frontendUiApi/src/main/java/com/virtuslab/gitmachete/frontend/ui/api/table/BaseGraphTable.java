@@ -9,11 +9,14 @@ import javax.swing.table.TableModel;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BaseGraphTable extends JBTable {
+  private static List<Integer> rowWidths = List.empty();
+
   @UIEffect
   @SuppressWarnings("nullness:method.invocation.invalid") // to allow for setAutoResizeMode despite the object isn't initialized yet
   protected BaseGraphTable(TableModel model) {
@@ -31,20 +34,17 @@ public abstract class BaseGraphTable extends JBTable {
   @Override
   @UIEffect
   public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+    if (getRowCount() != rowWidths.size()) {
+      rowWidths = List.fill(getRowCount(), 0);
+    }
+
     Component component = super.prepareRenderer(renderer, row, column);
     int rendererWidth = component.getPreferredSize().width;
-    TableColumn tableColumn = getColumnModel().getColumn(column);
-    tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
-    return component;
-  }
+    rowWidths = rowWidths.update(row, rendererWidth);
 
-  /**
-   * This method should be invoked after each graph table model change but BEFORE {@code revalidate} and {@code repaint}
-   * It cause the max column width is reset and can be properly recalculated in {@code prepareRenderer}
-   */
-  @UIEffect
-  protected void resetColumnWidth() {
-    getColumnModel().getColumn(0).setPreferredWidth(0);
+    TableColumn tableColumn = getColumnModel().getColumn(column);
+    tableColumn.setPreferredWidth(rowWidths.max().getOrElse(0));
+    return component;
   }
 
   @UIEffect
