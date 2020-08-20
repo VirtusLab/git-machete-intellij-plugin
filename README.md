@@ -25,9 +25,7 @@ The minimum required version is 2020.1**.
 ![](docs/sample_workflow.gif)
 
 
-## Installing
-
-### Install from JetBrains Marketplace
+## Installing from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
 To install this plugin go to `File` -> `Settings` -> `Plugins` in your IDE,
@@ -41,19 +39,15 @@ In that case, just click `Restart IDE` and confirm that action in a message box.
 Git Machete IntelliJ Plugin is a port of a great console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
 
-<details>
-<summary><strong>Where to find the plugin tab</strong></summary>
-<br/>
+### Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under `Git` tool window in the `Git Machete` tab.
 You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 ![](docs/open_git_machete.gif)
-</details>
 
-<details>
-<summary><strong>Discover</strong></summary>
-<br/>
+
+### Discover
 
 `machete` file describes relations between branches in your repository.
 These relations are probably determined by the order of branch creation &mdash;
@@ -66,11 +60,9 @@ This action is proposed in Git Machete tab in case of an empty or nonexistent `m
 but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
 ![](docs/discover.gif)
-</details>
 
-<details>
-<summary><strong>Edit machete file</strong></summary>
-<br/>
+
+### Edit machete file
 
 `machete` file can be also edited manually. Let's look at the structure of this file based on the example below:
 ```
@@ -93,7 +85,7 @@ In the example above, branches `allow-ownership-link` and `call-ws` are children
 
 When branch layout is created, Git Machete indicates a relation between parent branch and each of its child branches.
 If the edge between them is green that means child branch is in sync with its parent branch &mdash; in other words, there are no commits in parent branch that don't belong to the child.
-But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to rebase child branch onto the parent.
+But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to [rebase](#rebase) child branch onto the parent.
 
 Machete file editor will help you with managing `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
 When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
@@ -101,11 +93,9 @@ When file editing is done, you can click the button in the top right corner of t
 ![](docs/machete_file_editor.gif)
 
 For more information about `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
-</details>
 
-<details>
-<summary><strong>Check out branches</strong></summary>
-<br/>
+
+### Check out branches
 
 With Git Machete you can easily check out branches that have been defined in `machete` file.
 Just right-click on the branch you want to check out and select `Checkout Branch`.
@@ -113,33 +103,27 @@ You can also double-click on the selected branch to check it out.
 The current branch is underlined in a branch layout.
 
 ![](docs/checkout.gif)
-</details>
 
-<details>
-<summary><strong>Toggle listing commits</strong></summary>
-<br/>
+
+### Toggle listing commits
 
 Git Machete can display commits belonging to the branches.
 It displays only the commits that are unique to the selected branch (i.e. have never been a tip of a different branch).
 When you click on the eye button on the left side of the plugin, you can toggle between showing and hiding commits.
 
 ![](docs/toggle_listing_commits.gif)
-</details>
 
-<details>
-<summary><strong>Rebase</strong></summary>
-<br/>
+
+### Rebase
 
 Rebase with Git Machete plugin is easy!
 Just right-click on the child branch and from a context menu select `(Checkout and) Rebase Branch onto Parent`.
 Standard IntelliJ dialog for interactive rebase will appear.
 
 ![](docs/rebase.gif)
-</details>
 
-<details>
-<summary><strong>Push</strong></summary>
-<br/>
+
+### Push
 
 After a rebase, you might want to push the rebased branch to the remote.
 Right-click on the given branch and select `Push (Current) Branch` from a context menu.
@@ -147,22 +131,18 @@ Push dialog will appear with a proper push button (regular push or force push) d
 Basically, you need a force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
 
 ![](docs/push.gif)
-</details>
 
-<details>
-<summary><strong>Pull</strong></summary>
-<br/>
+
+### Pull
 
 If a branch is behind (or in sync with) its remote, it can be pulled.
 To do this, right-click on a given branch and select `Pull Branch`.<br/>
 This action always performs a `--ff-only` (fast-forward only) pull which makes handling diverged remote branches less error-prone.
 
 ![](docs/pull.gif)
-</details>
 
-<details>
-<summary><strong>Reset to remote</strong></summary>
-<br/>
+
+### Reset to remote
 
 If a given branch is not in sync with its remote, you can reset it to point to the exact same commit as the remote.
 From the right-click context menu, select `Reset Branch to Remote`.<br/>
@@ -170,11 +150,9 @@ When resetting the current branch, this action performs `git reset --keep` under
 The `--keep` option, as opposed to `--hard`, keeps your uncommitted changes safe from getting overwritten.
 
 ![](docs/reset.gif)
-</details>
 
-<details>
-<summary><strong>Fast forward parent</strong></summary>
-<br/>
+
+### Fast forward parent
 
 When you are done with the changes on the selected branch (e.g. PR has been approved and all required fixes are applied),
 you probably want to merge this branch to its parent branch.
@@ -185,11 +163,9 @@ This is what `Fast Forward Parent Branch To Match Current Branch` context menu a
 As you can see, the edge between `develop` and `call-ws` changed to grey &mdash; it means that `call-ws` has been merged.
 
 ![](docs/fast_forward.gif)
-</details>
 
-<details>
-<summary><strong>Slide out branch</strong></summary>
-<br/>
+
+### Slide out branch
 
 When a branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch layout.
 To do this with ease (and without editing `machete` file manually), you can use `Slide Out Selected Branch` action.
@@ -202,11 +178,9 @@ If you want to set this key globally (to be used for all repositories that don't
 ![](docs/slide_out_leaf_node.gif)
 
 ![](docs/slide_out_non_leaf_node.gif)
-</details>
 
-<details>
-<summary><strong>Slide in branch</strong></summary>
-<br/>
+
+### Slide in branch
 
 You can also create a new branch below the selected one (also without editing `machete` file manually).
 To do this, choose the `Slide In Branch Below Selected Branch` action from a context menu.
@@ -227,31 +201,27 @@ You can also select the `Reattach children` checkbox to move along all children 
 ![](docs/slide_in_reattach_without_children.gif)
 
 ![](docs/slide_in_reattach_with_children.gif)
-</details>
 
-<details>
-<summary><strong>Override fork point</strong></summary>
-<br/>
+
+### Override fork point
 
 Similarly as defined in [git merge-base documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
 we define **fork point** of a given branch `X` as the commit at which `X` forks from any other branch.
 The commits from the fork point (exclusive) to the tip of the branch (inclusive) are unique to this branch &mdash;
-this is what Git Machete displays when `toggle listing commits` is enabled.
+this is what Git Machete displays when [toggle listing commits](#toggle-listing-commits) is enabled.
 
 If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
 However, Git Machete can give you a hint which commit is probably the fork point.
-Show commits to see the suggested fork point (see the `Toggle listing commits` section).
+Show commits to see the suggested fork point (see the [toggle listing commits](#toggle-listing-commits) section).
 
 Now you can use `Override Fork Point of Branch` action to choose the fork point of this branch.
 It can be commit inferred by Git Machete (the one marked in commits list), or the one that parent branch is pointing to.
 
 ![](docs/override_forkpoint.gif)
 
-</details>
 
-<details>
-<summary><strong>Other actions</strong></summary>
-<br/>
+
+### Other actions
 
 On the left side bar you can find other actions (from top to bottom):
 - ![](docs/left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
@@ -267,20 +237,18 @@ On the left side bar you can find other actions (from top to bottom):
     - ![](docs/left_bar_actions/override_forkpoint.png) **Override Fork Point of Current Branch**
 
   Available action is selected based on a relation between a current branch and its parent and remote branch.
-- ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of `slide in` action for current branch
+- ![](docs/left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
 - ![](docs/left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
-</details>
 
-<details>
-<summary><strong>Multi-repository support</strong></summary>
-<br/>
+
+### Multi-repository support
 
 Git Machete supports many git repositories in one project, including both regular repositories and submodules.
 If more than one repository is detected, the selection list will appear in the top of a main plugin window.
 In that case, each repository will have its own `machete` file.
 
 ![](docs/multi_repo.gif)
-</details>
+
 
 ## Build
 
