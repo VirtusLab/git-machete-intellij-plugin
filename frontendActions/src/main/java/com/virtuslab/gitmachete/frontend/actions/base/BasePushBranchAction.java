@@ -7,9 +7,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -66,20 +63,13 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
-    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus())
-        .map(strs -> strs.getRelation());
-    var project = tryGetProject(anActionEvent);
+    var branchName = getNameOfBranchUnderActionWithoutLogging(anActionEvent);
+    var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithoutLogging(anActionEvent, bn))
+        .map(b -> b.getSyncToRemoteStatus().getRelation());
+    var project = getProject(anActionEvent);
 
-    if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get()) && project.isDefined()) {
-      var anyPatternMatch = GitSharedSettings.getInstance(project.get()).getForcePushProhibitedPatterns().stream()
-          .anyMatch(patternString -> {
-            Pattern pattern = Pattern.compile(patternString);
-            Matcher matcher = pattern.matcher(branchName.get());
-            return matcher.matches();
-          });
-      if (anyPatternMatch) {
+    if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
+      if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
         Presentation presentation = anActionEvent.getPresentation();
         presentation.setDescription(format(
             getString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch"), branchName.get()));
@@ -96,8 +86,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     var gitRepository = getSelectedGitRepositoryWithLogging(anActionEvent);
     var branchName = getNameOfBranchUnderActionWithLogging(anActionEvent);
     var relation = branchName.flatMap(bn -> getGitMacheteBranchByNameWithLogging(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus())
-        .map(strs -> strs.getRelation());
+        .map(b -> b.getSyncToRemoteStatus().getRelation());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
       boolean isForcePushRequired = isForcePushRequired(relation.get());
