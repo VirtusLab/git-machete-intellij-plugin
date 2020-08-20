@@ -17,7 +17,7 @@ A look at a Git Machete tab gives an instant answer to the questions:
 * What branches are in this repository?
 * What is going to be merged (rebased/pushed/pulled) and to what?
 
-With this plugin, you can simply maintain **small, focused pull requests** that are easy to review.
+With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
 **It is compatible with all JetBrains products except Android Studio.
 The minimum required version is 2020.1**.
