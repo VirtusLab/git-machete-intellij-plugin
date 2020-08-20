@@ -21,10 +21,9 @@ data class SlideInOptions(
     @get:JvmName("shouldReattach")
     val reattach: Boolean = true)
 
-class SlideInDialog
-    constructor(
-        project: Project, private val branchLayout: IBranchLayout, private val parentName: String
-    ) : DialogWrapper(project, /* canBeParent */ true) {
+class SlideInDialog(
+    project: Project, private val branchLayout: IBranchLayout, private val parentName: String
+) : DialogWrapper(project, /* canBeParent */ true) {
 
   // this field is only ever meant to be written on UI thread
   private var branchName = ""

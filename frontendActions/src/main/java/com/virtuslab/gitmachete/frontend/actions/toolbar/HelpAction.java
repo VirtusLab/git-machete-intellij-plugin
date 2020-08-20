@@ -11,6 +11,6 @@ public class HelpAction extends DumbAwareAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    GraphTableDialog.ofDemoRepository().show();
+    GraphTableDialog.Companion.ofDemoRepository().show();
   }
 }

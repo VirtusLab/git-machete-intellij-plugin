@@ -56,7 +56,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
             .notifyError(/* title */ getString("action.GitMachete.DiscoverAction.repository-discover-error-title"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""),
             NON_MODAL))
-        .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.of(repoSnapshot,
+        .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.Companion.of(repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
             /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
