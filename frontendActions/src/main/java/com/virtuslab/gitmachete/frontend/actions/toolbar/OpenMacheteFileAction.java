@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -54,12 +55,16 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
-      log().warn("Skipping the action because machete file is undefined");
+      VcsNotifier.getInstance(project).notifyError(
+          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.machete-file-not-found"),
+          /* message */ format(getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
+              gitDir.get().getPath()));
     } else {
       VirtualFile file = macheteFile.get();
       if (file.isDirectory()) {
-        VcsNotifier.getInstance(project).notifyWeakError(
-            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"));
+        VcsNotifier.getInstance(project).notifyError(
+            /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"),
+            /* message */ "");
       }
 
       OpenFileAction.openFile(file, project);

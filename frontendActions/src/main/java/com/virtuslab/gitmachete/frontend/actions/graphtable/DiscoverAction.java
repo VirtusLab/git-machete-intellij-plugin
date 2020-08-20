@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.graphtable;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
+import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -37,7 +39,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
-  @SuppressWarnings("guieffect:argument.type.incompatible")
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
@@ -64,10 +65,26 @@ public class DiscoverAction extends BaseProjectDependentAction {
             /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
                 GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
                 getBranchLayoutWriter(anActionEvent)),
-            /* editAction */ () -> OpenFileAction.openFile(GitVfsUtils.getMacheteFile(gitRepository).get(), project),
+            /* editAction */ getOpeningMacheteFileRunnable(project, gitRepository),
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
             /* hasBranchActionToolTips */ false).show(), NON_MODAL));
+  }
+
+  private static Runnable getOpeningMacheteFileRunnable(Project project, GitRepository gitRepository) {
+    return () -> GuiUtils.invokeLaterIfNeeded(() -> {
+      var file = GitVfsUtils.getMacheteFile(gitRepository);
+      if (file.isDefined()) {
+        OpenFileAction.openFile(file.get(), project);
+      } else {
+        VcsNotifier.getInstance(project)
+            .notifyError(
+                /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.machete-file-not-found"),
+                /* message */ format(
+                    getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
+                    gitRepository.getRoot().getPath()));
+      }
+    }, NON_MODAL);
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
@@ -75,7 +92,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.cant-discover-layout-error-title"), /* message */ "");
+          /* title */ getString("action.GitMachete.DiscoverAction.cant-discover-layout-error-title"),
+          /* message */ "");
       return;
     }
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file-task-title")) {
