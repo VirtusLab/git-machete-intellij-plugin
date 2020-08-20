@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Table of Contents
+
+- [Git Machete IntelliJ Plugin](#git-machete-intellij-plugin)
+  - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
+  - [How it works](#how-it-works)
+    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
+    - [Discover](#discover)
+    - [Edit machete file](#edit-machete-file)
+    - [Check out branches](#check-out-branches)
+    - [Toggle listing commits](#toggle-listing-commits)
+    - [Rebase](#rebase)
+    - [Push](#push)
+    - [Pull](#pull)
+    - [Reset to remote](#reset-to-remote)
+    - [Fast forward parent](#fast-forward-parent)
+    - [Slide out branch](#slide-out-branch)
+    - [Slide in branch](#slide-in-branch)
+    - [Override fork point](#override-fork-point)
+    - [Other actions](#other-actions)
+    - [Multi-repository support](#multi-repository-support)
+  - [Build](#build)
+  - [Issue reporting](#issue-reporting)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Machete IntelliJ Plugin
 
 [![CircleCI](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master.svg?style=shield)](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master)
