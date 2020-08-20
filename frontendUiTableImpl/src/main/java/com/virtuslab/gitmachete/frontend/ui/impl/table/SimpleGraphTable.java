@@ -24,7 +24,8 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
       boolean isListingCommitsEnabled, boolean hasBranchActionToolTips) {
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
-    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled), hasBranchActionToolTips);
+    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled),
+        hasBranchActionToolTips);
   }
 
   @UIEffect

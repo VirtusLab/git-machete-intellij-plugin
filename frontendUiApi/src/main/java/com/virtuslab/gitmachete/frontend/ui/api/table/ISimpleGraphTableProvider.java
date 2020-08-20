@@ -6,7 +6,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 public interface ISimpleGraphTableProvider {
   @UIEffect
-  BaseGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot, boolean isListingCommitsEnabled, boolean hasBranchActionToolTips);
+  BaseGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot, boolean isListingCommitsEnabled,
+      boolean hasBranchActionToolTips);
 
   @UIEffect
   BaseGraphTable deriveDemoInstance();
