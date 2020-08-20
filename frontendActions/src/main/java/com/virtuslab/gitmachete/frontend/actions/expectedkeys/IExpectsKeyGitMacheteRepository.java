@@ -12,7 +12,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default Option<IGitMacheteRepositorySnapshot> getGitMacheteRepositorySnapshot(AnActionEvent anActionEvent) {
     var gitMacheteRepositorySnapshot = Option.of(anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT));
-    if (!isLoggingDiscouraged() && gitMacheteRepositorySnapshot.isEmpty()) {
+    if (isLoggingAcceptable() && gitMacheteRepositorySnapshot.isEmpty()) {
       log().warn("Git Machete repository snapshot is undefined");
     }
     return gitMacheteRepositorySnapshot;
@@ -21,7 +21,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
     var branchLayout = getGitMacheteRepositorySnapshot(anActionEvent)
         .flatMap(repository -> repository.getBranchLayout());
-    if (!isLoggingDiscouraged() && branchLayout.isEmpty()) {
+    if (isLoggingAcceptable() && branchLayout.isEmpty()) {
       log().warn("Branch layout is undefined");
     }
     return branchLayout;
@@ -34,7 +34,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
 
   default Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
     var currentBranchName = getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
-    if (!isLoggingDiscouraged() && currentBranchName.isEmpty()) {
+    if (isLoggingAcceptable() && currentBranchName.isEmpty()) {
       log().warn("Current Git Machete branch name is undefined");
     }
     return currentBranchName;
@@ -43,7 +43,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default Option<IManagedBranchSnapshot> getManagedBranchByName(AnActionEvent anActionEvent, String branchName) {
     var branch = getGitMacheteRepositorySnapshot(anActionEvent)
         .flatMap(r -> r.getManagedBranchByName(branchName));
-    if (!isLoggingDiscouraged() && branch.isEmpty()) {
+    if (isLoggingAcceptable() && branch.isEmpty()) {
       log().warn(branchName + " Git Machete branch is undefined");
     }
     return branch;

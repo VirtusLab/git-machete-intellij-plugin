@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 public interface IExpectsKeySelectedBranchName extends IWithLogger {
   default Option<String> getSelectedBranchName(AnActionEvent anActionEvent) {
     var selectedBranchName = Option.of(anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME));
-    if (!isLoggingDiscouraged() && selectedBranchName.isEmpty()) {
+    if (isLoggingAcceptable() && selectedBranchName.isEmpty()) {
       log().warn("Selected branch is undefined");
     }
     return selectedBranchName;

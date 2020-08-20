@@ -19,10 +19,10 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   private boolean isUpdateInProgressOnUIThread;
 
   @Override
-  public boolean isLoggingDiscouraged() {
+  public boolean isLoggingAcceptable() {
     // We discourage logging while `update()` is in progress since it would lead to massive spam
     // (`update` is invoked very frequently, regardless of whether `actionPerformed` is going to happen).
-    return isUpdateInProgressOnUIThread;
+    return !isUpdateInProgressOnUIThread;
   }
 
   @Override
@@ -72,7 +72,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   protected Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
     var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
-    if (!isLoggingDiscouraged() && gitRepository.isEmpty()) {
+    if (isLoggingAcceptable() && gitRepository.isEmpty()) {
       log().warn("No Git repository is selected");
     }
     return gitRepository;
