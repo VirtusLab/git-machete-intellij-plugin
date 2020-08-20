@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+if git grep -w --files-with-matches 'void onUpdate' -- '*.java' ':!**/BaseProjectDependentAction.java' \
+  | xargs grep -Pz --files-without-match 'void onUpdate\([^)]*\) \{\n *super\.onUpdate' --
+then
+  die "You must call 'super.onUpdate' as the first statement if you override 'onUpdate' method"
+fi

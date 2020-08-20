@@ -19,7 +19,7 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
 
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {

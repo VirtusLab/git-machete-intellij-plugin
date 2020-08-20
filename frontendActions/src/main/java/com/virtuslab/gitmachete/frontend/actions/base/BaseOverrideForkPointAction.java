@@ -52,7 +52,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
 
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
   }

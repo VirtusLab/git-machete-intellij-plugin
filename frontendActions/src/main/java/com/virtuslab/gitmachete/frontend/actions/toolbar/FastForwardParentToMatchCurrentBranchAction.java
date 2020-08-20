@@ -20,7 +20,7 @@ public class FastForwardParentToMatchCurrentBranchAction extends BaseFastForward
 
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
     var presentation = anActionEvent.getPresentation();

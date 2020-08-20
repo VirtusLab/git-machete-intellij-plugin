@@ -35,9 +35,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   @Override
-  protected void onUpdate(AnActionEvent anActionEvent) {}
-
-  @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);

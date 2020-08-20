@@ -10,9 +10,12 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDependentAction
     implements
       IExpectsKeyGitMacheteRepository {
+
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
+
     boolean isEnabled = getGitMacheteRepositorySnapshotWithoutLogging(anActionEvent).isDefined();
     anActionEvent.getPresentation().setEnabled(isEnabled);
 

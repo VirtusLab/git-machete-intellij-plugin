@@ -22,9 +22,6 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
   }
 
   @Override
-  protected void onUpdate(AnActionEvent anActionEvent) {}
-
-  @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");

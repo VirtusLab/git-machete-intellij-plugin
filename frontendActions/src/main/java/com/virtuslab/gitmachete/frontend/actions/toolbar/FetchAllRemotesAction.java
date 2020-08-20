@@ -24,7 +24,9 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
+    super.onUpdate(anActionEvent);
+
     var project = getProject(anActionEvent);
     var presentation = anActionEvent.getPresentation();
     if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {

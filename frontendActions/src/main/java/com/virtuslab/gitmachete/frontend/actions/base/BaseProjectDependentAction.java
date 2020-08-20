@@ -38,7 +38,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
    * @param anActionEvent an action event
    */
   @UIEffect
-  protected abstract void onUpdate(AnActionEvent anActionEvent);
+  protected void onUpdate(AnActionEvent anActionEvent) {}
 
   protected Project getProject(AnActionEvent anActionEvent) {
     var project = anActionEvent.getProject();

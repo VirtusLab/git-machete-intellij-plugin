@@ -5,12 +5,12 @@ set -e
 # We don't want `less` to open for `git grep` results in the below scripts when running locally.
 export GIT_PAGER=cat
 
-./scripts/enforce-call-super-for-overridden-onupdate
 ./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-explicit-annotation-import-in-astubs
 ./scripts/enforce-indent-two-spaces-outside-java
 ./scripts/enforce-issue-number-for-todos
 ./scripts/enforce-newline-at-eof
+./scripts/enforce-onupdate-call-super-if-overridden
 ./scripts/enforce-property-keys-with-valid-class-names
 ./scripts/enforce-property-single-quote-in-bundle-message
 ./scripts/enforce-settings-gradle-match-directories

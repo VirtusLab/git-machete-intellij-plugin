@@ -18,10 +18,6 @@ public class RefreshStatusAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
-  protected void onUpdate(AnActionEvent anActionEvent) {}
-
-  @Override
-  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     FileDocumentManager.getInstance().saveAllDocuments();
 

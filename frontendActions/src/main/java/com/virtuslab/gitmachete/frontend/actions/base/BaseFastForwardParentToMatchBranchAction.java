@@ -48,7 +48,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
   @Override
   @UIEffect
-  public void onUpdate(AnActionEvent anActionEvent) {
+  protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
   }
