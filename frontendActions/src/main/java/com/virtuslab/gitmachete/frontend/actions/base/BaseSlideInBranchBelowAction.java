@@ -109,7 +109,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       if (!slideInOptions.getName().equals(branchName)) {
         var branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         notifier.notifyWeakError(
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.mismatched-names"),
+            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.mismatched-names"),
                 slideInOptions.getName(), branchNameFromNewBranchDialog));
         return;
       }

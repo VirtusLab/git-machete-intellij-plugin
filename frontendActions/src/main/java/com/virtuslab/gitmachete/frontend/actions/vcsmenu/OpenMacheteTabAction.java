@@ -34,8 +34,8 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
 
     Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
-        getString("action.GitMachete.OpenMacheteTabAction.notification.fail.title"),
-        getString("action.GitMachete.OpenMacheteTabAction.notification.fail.message.no-git"));
+        getString("action.GitMachete.OpenMacheteTabAction.notification.title.could-not-open-tab"),
+        getString("action.GitMachete.OpenMacheteTabAction.notification.message.no-git"));
 
     if (toolWindow == null) {
       LOG.debug("VCS tool window does not exist");

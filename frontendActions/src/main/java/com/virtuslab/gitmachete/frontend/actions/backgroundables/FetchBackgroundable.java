@@ -49,12 +49,13 @@ public class FetchBackgroundable extends Task.Backgroundable {
       return;
     }
     var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
-    fetchResult.showNotificationIfFailed(format(getString("action.GitMachete.FetchBackgroundable.notification.fail"), refspec));
+    fetchResult.showNotificationIfFailed(
+        format(getString("action.GitMachete.FetchBackgroundable.notification.title.fetch-fail"), refspec));
   }
 
   @Override
   public void onSuccess() {
     VcsNotifier.getInstance(project)
-        .notifySuccess(format(getString("action.GitMachete.FetchBackgroundable.notification.success"), refspec));
+        .notifySuccess(format(getString("action.GitMachete.FetchBackgroundable.notification.title.fetch-success"), refspec));
   }
 }

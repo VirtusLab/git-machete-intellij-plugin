@@ -214,7 +214,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           if (result.success()) {
             VcsNotifier.getInstance(project)
                 .notifySuccess(
-                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.success"), localBranchName));
+                    format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success"),
+                        localBranchName));
             log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
           } else if (localChangesDetector.wasMessageDetected()) {

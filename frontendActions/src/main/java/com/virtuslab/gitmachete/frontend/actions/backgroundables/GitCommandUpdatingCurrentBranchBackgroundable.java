@@ -177,7 +177,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
     } else {
       GitUIUtil.notifyError(project,
-          format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.fail"),
+          format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
               getOperationName()),
           result.getErrorOutputAsJoinedString(),
           /* important */ true,

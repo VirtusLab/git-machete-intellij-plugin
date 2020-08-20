@@ -53,7 +53,7 @@ class GraphTableDialog
             .apply { setTextForEmptyTable(emptyTableText ?: "") }
             .let {
               GraphTableDialog(
-                  it,
+                  /* table */ it,
                   gitMacheteRepositorySnapshot,
                   dimension,
                   okAction,
@@ -68,7 +68,7 @@ class GraphTableDialog
             .deriveDemoInstance()
             .let {
           GraphTableDialog(
-              it,
+              table = it,
               repositorySnapshot = null,
               dimension = JBDimension(/* width */ 800, /* height */ 250),
               okAction = null,
@@ -81,17 +81,18 @@ class GraphTableDialog
 
   override fun createActions() =
       if (cancelButtonVisible)
-          arrayOf(getEditAction(), getOKAction(), cancelAction).filterNotNull().toTypedArray()
+          arrayOf(getSaveAndEditAction(), getOKAction(), cancelAction)
+              .filterNotNull()
+              .toTypedArray()
       else arrayOf(getOKAction())
 
-  private fun getEditAction() =
+  private fun getSaveAndEditAction() =
       if (editAction == null) null
       else
-          object : AbstractAction("Edit") {
+          object : AbstractAction("Save && Edit") {
             override fun actionPerformed(e: ActionEvent?) {
               doOKAction()
               editAction.run()
-              close(OK_EXIT_CODE)
             }
           }
 
@@ -103,9 +104,7 @@ class GraphTableDialog
 
   @Override
   override fun doOKAction() {
-    if (getOKAction().isEnabled) {
-      repositorySnapshot?.let { okAction?.accept(it) }
-      close(OK_EXIT_CODE)
-    }
+    repositorySnapshot?.let { okAction?.accept(it) }
+    close(OK_EXIT_CODE)
   }
 }

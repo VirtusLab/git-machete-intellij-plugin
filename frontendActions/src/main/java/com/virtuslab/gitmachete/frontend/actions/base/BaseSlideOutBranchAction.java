@@ -112,7 +112,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
       VcsNotifier.getInstance(project)
-          .notifySuccess(format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.success"), branchName));
+          .notifySuccess(
+              format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success"), branchName));
 
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
@@ -120,7 +121,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError(
-          format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.fail"), branchName),
+          format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-fail"), branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
 

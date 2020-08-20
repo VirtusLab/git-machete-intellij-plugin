@@ -45,7 +45,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     var gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.cant-get-current-repository-error-title"), /* message */ "");
+          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cant-get-current-repository-error"),
+          /* message */ "");
       return;
     }
     var mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
@@ -56,7 +57,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project)
-            .notifyError(/* title */ getString("action.GitMachete.DiscoverAction.repository-discover-error-title"),
+            .notifyError(/* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""),
             NON_MODAL))
         .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.Companion.of(repoSnapshot,
@@ -79,7 +80,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       } else {
         VcsNotifier.getInstance(project)
             .notifyError(
-                /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.machete-file-not-found"),
+                /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
                 /* message */ format(
                     getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
                     gitRepository.getRoot().getPath()));
@@ -92,7 +93,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.cant-discover-layout-error-title"),
+          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cant-discover-layout-error"),
           /* message */ "");
       return;
     }
@@ -101,7 +102,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       public void run(ProgressIndicator indicator) {
         Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true))
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
-                /* title */ getString("action.GitMachete.DiscoverAction.write-file-error-title"),
+                /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
             .onSuccess(__ -> baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh());
       }

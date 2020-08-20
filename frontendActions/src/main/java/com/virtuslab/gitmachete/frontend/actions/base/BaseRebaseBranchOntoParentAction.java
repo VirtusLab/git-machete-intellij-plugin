@@ -166,7 +166,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project)
-          .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.fail"), message);
+          .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-fail"), message);
       return;
     }
 
@@ -191,7 +191,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           var message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
           VcsNotifier.getInstance(project)
-              .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.abort"), message);
+              .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"),
+                  message);
           return;
         }
 
@@ -203,7 +204,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           var stdoutOption = executionResult.getStdout();
           var stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.abort"), message
+              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"), message
                   + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
                   + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;

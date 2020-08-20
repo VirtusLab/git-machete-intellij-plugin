@@ -49,21 +49,21 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     var macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(
-            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.cannot-open")))
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
         .toOption());
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.machete-file-not-found"),
+          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ format(getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
               gitDir.get().getPath()));
     } else {
       VirtualFile file = macheteFile.get();
       if (file.isDirectory()) {
         VcsNotifier.getInstance(project).notifyError(
-            /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.fail.same-name-dir-exists"),
+            /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.same-name-dir-exists"),
             /* message */ "");
       }
 
