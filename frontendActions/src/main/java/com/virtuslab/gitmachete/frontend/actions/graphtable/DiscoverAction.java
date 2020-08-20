@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 
+import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -36,17 +37,18 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
+  @SuppressWarnings("guieffect:argument.type.incompatible")
   public void actionPerformed(AnActionEvent anActionEvent) {
     var project = getProject(anActionEvent);
     var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
-    var selectedRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
-    if (selectedRepository == null) {
+    var gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
+    if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* title */ getString("action.GitMachete.DiscoverAction.cant-get-current-repository-error-title"), /* message */ "");
       return;
     }
-    var mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
-    var gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
+    var mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
+    var gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
     // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
     // This is still acceptable since it simplifies the flow (no background task needed)
     // and this action is not going to be invoked frequently (probably just once for a given project).
@@ -60,8 +62,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
             /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-                GitVfsUtils.getMacheteFilePath(selectedRepository), project, getGraphTable(anActionEvent),
+                GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
                 getBranchLayoutWriter(anActionEvent)),
+            /* editAction */ () -> OpenFileAction.openFile(GitVfsUtils.getMacheteFile(gitRepository).get(), project),
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
             /* hasBranchActionToolTips */ false).show(), NON_MODAL));

@@ -3,12 +3,14 @@ package com.virtuslab.gitmachete.frontend.actions.dialogs
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.table.JBTable
-import com.intellij.util.Consumer
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.virtuslab.binding.RuntimeBinding
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot
 import com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider
+import java.awt.event.ActionEvent
+import java.util.function.Consumer
+import javax.swing.AbstractAction
 
 class GraphTableDialog
     private constructor(
@@ -16,6 +18,7 @@ class GraphTableDialog
         private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
         private val dimension: JBDimension,
         private val okAction: Consumer<IGitMacheteRepositorySnapshot>?,
+        private val editAction: Runnable?,
         private val cancelButtonVisible: Boolean,
         private val windowTitle: String,
         private val okButtonText: String
@@ -37,6 +40,7 @@ class GraphTableDialog
         dimension: JBDimension = JBDimension(/* width */ 800, /* height */ 500),
         emptyTableText: String?,
         okAction: Consumer<IGitMacheteRepositorySnapshot>?,
+        editAction: Runnable?,
         okButtonText: String,
         cancelButtonVisible: Boolean,
         hasBranchActionToolTips: Boolean
@@ -53,6 +57,7 @@ class GraphTableDialog
                   gitMacheteRepositorySnapshot,
                   dimension,
                   okAction,
+                  editAction,
                   cancelButtonVisible,
                   windowTitle,
                   okButtonText)
@@ -67,6 +72,7 @@ class GraphTableDialog
               repositorySnapshot = null,
               dimension = JBDimension(/* width */ 800, /* height */ 250),
               okAction = null,
+              editAction = null,
               cancelButtonVisible = false,
               windowTitle = "Git Machete Help",
               okButtonText = "Close")
@@ -74,7 +80,20 @@ class GraphTableDialog
   }
 
   override fun createActions() =
-      if (cancelButtonVisible) arrayOf(getOKAction(), cancelAction) else arrayOf(getOKAction())
+      if (cancelButtonVisible)
+          arrayOf(getEditAction(), getOKAction(), cancelAction).filterNotNull().toTypedArray()
+      else arrayOf(getOKAction())
+
+  private fun getEditAction() =
+      if (editAction == null) null
+      else
+          object : AbstractAction("Edit") {
+            override fun actionPerformed(e: ActionEvent?) {
+              doOKAction()
+              editAction.run()
+              close(OK_EXIT_CODE)
+            }
+          }
 
   override fun createCenterPanel() =
       JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2).apply {
@@ -85,9 +104,7 @@ class GraphTableDialog
   @Override
   override fun doOKAction() {
     if (getOKAction().isEnabled) {
-      if (okAction != null && repositorySnapshot != null) {
-        okAction.consume(repositorySnapshot)
-      }
+      repositorySnapshot?.let { okAction?.accept(it) }
       close(OK_EXIT_CODE)
     }
   }
