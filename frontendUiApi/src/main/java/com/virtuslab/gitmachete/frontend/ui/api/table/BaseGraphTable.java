@@ -15,6 +15,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BaseGraphTable extends JBTable {
+  @UIEffect
   private List<Integer> rowWidths = List.empty();
 
   @UIEffect
@@ -34,6 +35,9 @@ public abstract class BaseGraphTable extends JBTable {
   @Override
   @UIEffect
   public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+    // In case row count is not equal the previous one, it means that the graph was changed, so we don't care
+    // about previous row width and we must create new list with size equals new row count.
+    // This is why we replace previous list with new, filled with 0.
     if (getRowCount() != rowWidths.size()) {
       rowWidths = List.fill(getRowCount(), 0);
     }
