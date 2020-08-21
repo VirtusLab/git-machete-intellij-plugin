@@ -1,31 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-# Table of Contents
-
-- [Git Machete IntelliJ Plugin](#git-machete-intellij-plugin)
-  - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
-  - [How it works](#how-it-works)
-    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-    - [Discover](#discover)
-    - [Edit machete file](#edit-machete-file)
-    - [Check out branches](#check-out-branches)
-    - [Toggle listing commits](#toggle-listing-commits)
-    - [Rebase](#rebase)
-    - [Push](#push)
-    - [Pull](#pull)
-    - [Reset to remote](#reset-to-remote)
-    - [Fast forward parent](#fast-forward-parent)
-    - [Slide out branch](#slide-out-branch)
-    - [Slide in branch](#slide-in-branch)
-    - [Override fork point](#override-fork-point)
-    - [Other actions](#other-actions)
-    - [Multi-repository support](#multi-repository-support)
-  - [Build](#build)
-  - [Issue reporting](#issue-reporting)
-  - [References](#references)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Git Machete IntelliJ Plugin
 
 [![CircleCI](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master.svg?style=shield)](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master)
@@ -53,6 +25,36 @@ The minimum required version is 2020.1**.
 ![](docs/sample_workflow.gif)
 
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path> -->
+# Table of Contents
+
+- [Git Machete IntelliJ Plugin](#git-machete-intellij-plugin)
+  - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
+  - [How it works](#how-it-works)
+    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
+    - [Discover](#discover)
+    - [Edit machete file](#edit-machete-file)
+    - [Check out branches](#check-out-branches)
+    - [Toggle listing commits](#toggle-listing-commits)
+    - [Rebase](#rebase)
+    - [Push](#push)
+    - [Pull](#pull)
+    - [Reset to remote](#reset-to-remote)
+    - [Fast forward parent](#fast-forward-parent)
+    - [Slide out branch](#slide-out-branch)
+    - [Slide in branch](#slide-in-branch)
+    - [Override fork point](#override-fork-point)
+    - [Other actions](#other-actions)
+    - [Multi-repository support](#multi-repository-support)
+  - [Build](#build)
+  - [Issue reporting](#issue-reporting)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 ## Installing from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
@@ -66,6 +68,7 @@ In that case, just click `Restart IDE` and confirm that action in a message box.
 
 Git Machete IntelliJ Plugin is a port of a great console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
+
 
 ### Where to find the plugin tab
 
@@ -248,7 +251,6 @@ It can be commit inferred by Git Machete (the one marked in commits list), or th
 ![](docs/override_forkpoint.gif)
 
 
-
 ### Other actions
 
 On the left side bar you can find other actions (from top to bottom):
@@ -281,6 +283,7 @@ In that case, each repository will have its own `machete` file.
 ## Build
 
 Please see the [development documentation](DEVELOPMENT.md) for instruction on how to build this plugin on your own.
+
 
 ## Issue reporting
 
