@@ -85,7 +85,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       boolean hasFocus,
       int row,
       int column,
-      boolean hasBranchActionHints) {
+      boolean hasBranchActionToolTips) {
 
     this.graphTable = table;
 
@@ -156,7 +156,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IBranchItem branchItem = graphItem.asBranchItem();
       IManagedBranchSnapshot branch = branchItem.getBranch();
 
-      if (hasBranchActionHints && branch.isNonRoot()) {
+      if (hasBranchActionToolTips && branch.isNonRoot()) {
         setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRoot()));
       }
 

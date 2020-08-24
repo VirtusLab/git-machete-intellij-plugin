@@ -60,7 +60,7 @@ public class DiscoverAction extends DumbAwareAction implements IExpectsKeyProjec
                 getBranchLayoutWriter(anActionEvent)),
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
-            /* hasBranchActionHints */ true).show(), NON_MODAL));
+            /* hasBranchActionToolTips */ false).show(), NON_MODAL));
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
