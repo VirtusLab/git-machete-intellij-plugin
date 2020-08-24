@@ -1,19 +1,18 @@
 Features:
 <ul>
-  <li>Added support for pulling current branch</li>
-  <li>Added support for sliding in a new branch (or reattaching a existing one) without the need to edit machete file manually</li>
-  <li>Open Machete Tab action was added under VCS/Git submenu with key shortcut Ctrl + Alt + Shift + M</li>
-  <li>Current branch is marked even if there is an ongoing operation in repo (rebasing, bisecting, etc.) and name of this operation is displayed</li>
-  <li>Added a notification when skipping branches declared in machete file but nonexistent in the repository</li>
-  <li>Reset action is preceded by information dialog</li>
-  <li>Reset is prohibited when uncommitted changes are present in repository</li>
+  <li>Added discover functionality</li>
+  <li>Added fork point override functionality</li>
+  <li>Branch reset is possible without checking it out</li>
+  <li>Toolbar menu was revamped to suggest most suitable actions for the current branch</li>
+  <li>Pull action uses inferred remote branch in case tracking config is missing</li>
+  <li>Added tooltips with information about synchronization to parent branch status for given branch</li>
 </ul>
 <br/>
 <br/>
 Bug fixes:
 <ul>
-  <li>Detecting existing indentation style in machete file editor</li>
-  <li>Refreshing of branch tree after slide-out action</li>
-  <li>Reset always gets up-to-date commit from remote tracking branch</li>
-  <li>Fast forward is possible without remote tracking branch information</li>
+  <li>Sliding in a branch that does not exist in the local repository but has a remote counterpart was fixed</li>
+  <li>Fast forwarding given branch to the currently checked out branch is possible</li>
+  <li>Branch names of submodule repository are checked and proposed correctly in machete file editor</li>
+  <li>Toggle listing commits is disabled in case there are no commits to display</li>
 </ul>
