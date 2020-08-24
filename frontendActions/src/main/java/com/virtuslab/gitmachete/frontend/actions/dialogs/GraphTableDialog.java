@@ -36,7 +36,7 @@ public final class GraphTableDialog extends DialogWrapper {
       int windowWidth, int windowHeight, @Nullable String emptyTableText,
       @Nullable Consumer<IGitMacheteRepositorySnapshot> okAction, String okButtonText, boolean cancelButtonVisible) {
     var table = RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider.class)
-        .deriveInstance(gitMacheteRepositorySnapshot);
+        .deriveInstance(gitMacheteRepositorySnapshot, /* isListingCommitsEnabled */ false);
     table.setTextForEmptyTable(emptyTableText != null ? emptyTableText : "");
     return new GraphTableDialog(table, gitMacheteRepositorySnapshot, windowTitle, windowWidth, windowHeight, okAction,
         okButtonText, cancelButtonVisible);

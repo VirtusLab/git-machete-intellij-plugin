@@ -20,16 +20,18 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = NullGitMacheteRepositorySnapshot.getInstance();
 
   @UIEffect
-  public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
+  public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
+      boolean isListingCommitsEnabled) {
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
-    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot));
+    return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled));
   }
 
   @UIEffect
-  private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot) {
+  private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
+      boolean isListingCommitsEnabled) {
     var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, /* isListingCommits */ false);
+    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, isListingCommitsEnabled);
     return new GraphTableModel(repositoryGraph);
   }
 
