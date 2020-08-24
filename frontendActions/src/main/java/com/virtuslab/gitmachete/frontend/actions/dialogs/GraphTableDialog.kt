@@ -17,8 +17,8 @@ class GraphTableDialog
         private val table: JBTable,
         private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
         private val dimension: JBDimension,
-        private val okAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        private val editAction: Runnable?,
+        private val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+        private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
         private val cancelButtonVisible: Boolean,
         private val windowTitle: String,
         private val okButtonText: String
@@ -39,8 +39,8 @@ class GraphTableDialog
         windowTitle: String,
         dimension: JBDimension = JBDimension(/* width */ 800, /* height */ 500),
         emptyTableText: String?,
-        okAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        editAction: Runnable?,
+        saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+        saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
         okButtonText: String,
         cancelButtonVisible: Boolean,
         hasBranchActionToolTips: Boolean
@@ -56,8 +56,8 @@ class GraphTableDialog
                   /* table */ it,
                   gitMacheteRepositorySnapshot,
                   dimension,
-                  okAction,
-                  editAction,
+                  saveAction,
+                  saveAndEditAction,
                   cancelButtonVisible,
                   windowTitle,
                   okButtonText)
@@ -71,8 +71,8 @@ class GraphTableDialog
               table = it,
               repositorySnapshot = null,
               dimension = JBDimension(/* width */ 800, /* height */ 250),
-              okAction = null,
-              editAction = null,
+              saveAction = null,
+              saveAndEditAction = null,
               cancelButtonVisible = false,
               windowTitle = "Git Machete Help",
               okButtonText = "Close")
@@ -87,12 +87,12 @@ class GraphTableDialog
       else arrayOf(getOKAction())
 
   private fun getSaveAndEditAction() =
-      if (editAction == null) null
+      if (saveAndEditAction == null) null
       else
-          object : AbstractAction("Save && Edit") {
+          object : AbstractAction("Save && Edit") { // "&&" required to display a single "&"
             override fun actionPerformed(e: ActionEvent?) {
-              doOKAction()
-              editAction.run()
+              repositorySnapshot?.let { saveAndEditAction.accept(it) }
+              close(OK_EXIT_CODE)
             }
           }
 
@@ -104,7 +104,7 @@ class GraphTableDialog
 
   @Override
   override fun doOKAction() {
-    repositorySnapshot?.let { okAction?.accept(it) }
+    repositorySnapshot?.let { saveAction?.accept(it) }
     close(OK_EXIT_CODE)
   }
 }

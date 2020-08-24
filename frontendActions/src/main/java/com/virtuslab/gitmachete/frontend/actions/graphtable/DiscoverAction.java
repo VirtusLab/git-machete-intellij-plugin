@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -51,6 +52,15 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
     var mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
     var gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
+
+    Consumer<IGitMacheteRepositorySnapshot> saveAction = repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
+        GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
+        getBranchLayoutWriter(anActionEvent));
+    Consumer<IGitMacheteRepositorySnapshot> saveAndEditAction = repositorySnapshot -> {
+      saveAction.accept(repositorySnapshot);
+      openMacheteFile(project, gitRepository);
+    };
+
     // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
     // This is still acceptable since it simplifies the flow (no background task needed)
     // and this action is not going to be invoked frequently (probably just once for a given project).
@@ -63,17 +73,15 @@ public class DiscoverAction extends BaseProjectDependentAction {
         .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.Companion.of(repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
-            /* okAction */ repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-                GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
-                getBranchLayoutWriter(anActionEvent)),
-            /* editAction */ getOpeningMacheteFileRunnable(project, gitRepository),
+            saveAction,
+            saveAndEditAction,
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
             /* hasBranchActionToolTips */ false).show(), NON_MODAL));
   }
 
-  private static Runnable getOpeningMacheteFileRunnable(Project project, GitRepository gitRepository) {
-    return () -> GuiUtils.invokeLaterIfNeeded(() -> {
+  private static void openMacheteFile(Project project, GitRepository gitRepository) {
+    GuiUtils.invokeLaterIfNeeded(() -> {
       var file = GitVfsUtils.getMacheteFile(gitRepository);
       if (file.isDefined()) {
         OpenFileAction.openFile(file.get(), project);

@@ -49,7 +49,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       return;
     }
     HintManager.getInstance().showInformationHint(currentEditor,
-        getString("string.GitMachete.MacheteAnnotator.cant-retrieve-local-branches"), HintManager.ABOVE);
+        getString("string.GitMachete.MacheteAnnotator.could-not-retrieve-local-branches"), HintManager.ABOVE);
     cantGetBranchesMessageWasShown = true;
   }
 
