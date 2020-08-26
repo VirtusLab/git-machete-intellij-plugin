@@ -82,6 +82,17 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
+  public void autodiscoverBranchLayout() {
+    // Wipe `machete` file
+    overwriteMacheteFile("");
+
+    // When model is refreshed and machete file is empty, then autodiscover should occur
+    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+
+    Assert.assertEquals(7, branchRowsCount);
+  }
+
+  @Test
   public void fastForwardParentOfBranch_parentIsCurrentBranch() {
     runJs("project.checkoutBranch('master')");
     awaitIdle();

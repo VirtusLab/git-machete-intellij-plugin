@@ -3,9 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_DISCOVER;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
-import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_EMPTY_TABLE;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
@@ -36,6 +34,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.ui.GuiUtils;
@@ -48,6 +48,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,6 +58,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
@@ -68,7 +70,9 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
+import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 /**
  *  This class compared to {@link SimpleGraphTable} has graph table refreshing and provides
@@ -176,25 +180,17 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     } else {
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
-        setTextForEmptyTable(
-            /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.upper-text"),
-                macheteFilePath.toString()),
-            /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.lower-text"),
-            /* onClickRunnableAction */ () -> openDiscoverDialog());
-        LOG.info("Machete file (${macheteFilePath}) is empty");
+        LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
+        doAutomaticDiscover(macheteFilePath);
       }
     }
 
-    setModel(new GraphTableModel(repositoryGraph));
-
     if (!isMacheteFilePresent) {
-      setTextForEmptyTable(
-          /* upperText */ format(getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.upper-text"),
-              macheteFilePath.toString()),
-          /* lowerText */ getString("string.GitMachete.EnhancedGraphTable.nonexistent-machete-file.lower-text"),
-          /* onClickRunnableAction */ () -> openDiscoverDialog());
-      LOG.info("Machete file (${macheteFilePath}) is absent");
+      LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
+      doAutomaticDiscover(macheteFilePath);
     }
+
+    setModel(new GraphTableModel(repositoryGraph));
 
     if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
@@ -208,11 +204,66 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @UIEffect
-  private void openDiscoverDialog() {
-    var action = ActionManager.getInstance().getAction(ACTION_DISCOVER);
-    var dataContext = DataManager.getInstance().getDataContext(EnhancedGraphTable.this);
-    var anActionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_EMPTY_TABLE, new Presentation(), dataContext);
-    action.actionPerformed(anActionEvent);
+  private void doAutomaticDiscover(Path macheteFilePath) {
+    var selectedRepository = getGitRepositorySelectionProvider().getSelectedGitRepository().getOrNull();
+    if (selectedRepository == null) {
+      LOG.error("Can't do automatic discover because of undefined selected repository");
+      return;
+    }
+    var mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
+    var gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
+
+    new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
+      @Override
+      public void run(ProgressIndicator indicator) {
+        var discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+            .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot());
+
+        if (!discoverRunResult.isSuccess()) {
+          var exception = discoverRunResult.getCause();
+          GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
+              exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL);
+          return;
+        }
+
+        var repositorySnapshot = discoverRunResult.get();
+
+        if (repositorySnapshot.getRootBranches().size() == 0) {
+          GuiUtils.invokeLaterIfNeeded(
+              () -> setTextForEmptyTable(format(getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.upper-text"),
+                  macheteFilePath.toString())),
+              NON_MODAL);
+          return;
+        }
+
+        var branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
+        var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
+
+        if (branchLayout == null) {
+          LOG.error("Can't get branch layout from repository snapshot");
+          return;
+        }
+
+        @SuppressWarnings("guieffect") // To allow lambda invocation in `onSuccess` method
+        var __ = Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true))
+            .onFailure(exception -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
+                getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
+                exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL))
+            .onSuccess(v -> {
+              GuiUtils.invokeLaterIfNeeded(
+                  () -> VcsNotifier.getInstance(project)
+                      .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message")),
+                  NON_MODAL);
+
+              gitMacheteRepositorySnapshot = repositorySnapshot;
+              var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
+              setModel(new GraphTableModel(repositoryGraph));
+              repaint();
+              revalidate();
+            });
+      }
+    }.queue();
   }
 
   @Override

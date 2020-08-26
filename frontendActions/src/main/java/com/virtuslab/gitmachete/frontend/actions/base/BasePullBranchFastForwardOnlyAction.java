@@ -124,6 +124,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
     new FetchBackgroundable(project, gitRepository, remoteName, refspecFromRemoteRepoToOurRemoteBranch, taskTitle) {
       // We can only enqueue the update of local branch once the update of remote branch is completed.
       @Override
+      @UIEffect
       public void onSuccess() {
         new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME,
             refspecFromOurRemoteBranchToOurLocalBranch, taskTitle).queue();

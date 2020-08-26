@@ -197,6 +197,9 @@ class Task {
 
   @UIEffect
   void onThrowable(Throwable error);
+
+  @UIEffect
+  void onSuccess();
 }
 
 package com.intellij.openapi.project;

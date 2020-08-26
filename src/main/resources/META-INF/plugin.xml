@@ -199,7 +199,7 @@
             from `Search Everywhere` and by link displayed in graph table when `machete` file
             is empty or absent -->
         <action id="GitMachete.DiscoverAction"
-                class="com.virtuslab.gitmachete.frontend.actions.graphtable.DiscoverAction"
+                class="com.virtuslab.gitmachete.frontend.actions.unanchored.DiscoverAction"
                 icon="MacheteIcons.DISCOVER"/>
     </actions>
 

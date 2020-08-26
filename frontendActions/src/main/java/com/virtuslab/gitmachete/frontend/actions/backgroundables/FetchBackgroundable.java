@@ -12,6 +12,7 @@ import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 @CustomLog
 public class FetchBackgroundable extends Task.Backgroundable {
@@ -53,6 +54,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
         format(getString("action.GitMachete.FetchBackgroundable.notification.title.fetch-fail"), refspec));
   }
 
+  @UIEffect
   @Override
   public void onSuccess() {
     VcsNotifier.getInstance(project)

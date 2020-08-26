@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.graphtable;
+package com.virtuslab.gitmachete.frontend.actions.unanchored;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
