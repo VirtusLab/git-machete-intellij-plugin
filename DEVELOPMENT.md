@@ -16,7 +16,7 @@ For running `./gradlew` from the command line, make sure that `java` and `javac`
 
 For running tests of `backendImpl` (which are also run by `./gradlew test` task, which is in turn itself run by `./gradlew build` task),
 install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
-in the version present in [backendImpl/src/test/resources/reference-cli-version.properties](backendImpl/src/test/resources/reference-cli-version.properties).
+in any of the versions listed in [backendImpl/src/test/resources/reference-cli-version.properties](backendImpl/src/test/resources/reference-cli-version.properties).
 
 ### Optional
 

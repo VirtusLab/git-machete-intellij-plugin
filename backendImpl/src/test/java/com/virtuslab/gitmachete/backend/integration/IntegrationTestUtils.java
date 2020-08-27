@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.integration;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +16,7 @@ class IntegrationTestUtils {
     try (var inputStream = IntegrationTestUtils.class.getResourceAsStream("/reference-cli-version.properties")) {
       prop.load(inputStream);
     }
-    String cliReferenceVersion = prop.getProperty("referenceCliVersion");
+    List<String> referenceCliVersions = Arrays.asList(prop.getProperty("referenceCliVersions").split(","));
 
     var process = new ProcessBuilder().command("git", "machete", "--version").start();
     process.waitFor(1, TimeUnit.SECONDS);
@@ -25,8 +27,8 @@ class IntegrationTestUtils {
     var version = new String(process.getInputStream().readAllBytes())
         .stripTrailing()
         .replace("git-machete version ", "");
-    if (!version.equals(cliReferenceVersion)) {
-      Assert.fail("git-machete is expected in version ${cliReferenceVersion}, found ${version}");
+    if (!referenceCliVersions.contains(version)) {
+      Assert.fail("git-machete is expected in version ${referenceCliVersions}, found ${version}");
     }
   }
 }

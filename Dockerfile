@@ -35,7 +35,7 @@ COPY backendImpl/src/test/resources/reference-cli-version.properties /tmp/refere
 RUN set -x \
   && apt-get update \
   && apt-get install --no-install-recommends -y python3-pip \
-  && cli_version=$(cut -d'=' -f2 /tmp/reference-cli-version.properties) \
+  && cli_version=$(grep -o '[^,=]*$' /tmp/reference-cli-version.properties) \
   && pip3 install git-machete==$cli_version \
   && apt-get purge --autoremove -y python3-pip \
   && rm -rf /var/lib/apt/lists/*
