@@ -242,6 +242,13 @@ The commits from the fork point (exclusive) to the tip of the branch (inclusive)
 this is what Git Machete displays when [toggle listing commits](#toggle-listing-commits) is enabled.
 
 If one of branch layout edges is yellow, that means the fork point of this branch cannot be unambiguously determined.
+To be precise (and looking at the sample below) the downstream branch (`call-ws`) is still in sync with the upstream (`develop`),
+but the upstream branch tip isn't the fork point of the downstream branch.
+
+Translating from git-ese to English, there are probably commits from some other branches on the way between `develop` and `call-ws`.
+You won't come across the yellow edges very often in day-to-day work with git machete
+&mdash; it mostly happens when the tree structure has been surgically modified.
+
 However, Git Machete can give you a hint which commit is probably the fork point.
 Show commits to see the suggested fork point (see the [toggle listing commits](#toggle-listing-commits) section).
 
