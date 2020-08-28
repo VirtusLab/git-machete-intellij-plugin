@@ -22,7 +22,7 @@ ext {
     // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
     // Preferably the most recent minor release of each version between the earliest supported (incl.) and current (excl.)
     inBetweenForCompatibilityChecks: ['2020.1.4'],
-    current: '2020.2',
+    current: '2020.2.1',
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
