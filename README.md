@@ -129,7 +129,7 @@ For more information about `machete` file, look at the [reference blog post](htt
 ### Check out branches
 
 With Git Machete you can easily check out branches that have been defined in `machete` file.
-Just right-click on the branch you want to check out and select `Checkout Branch`.
+Just right-click on the branch you want to check out and select `Checkout`.
 You can also double-click on the selected branch to check it out.
 The current branch is underlined in a branch layout.
 
@@ -157,7 +157,7 @@ Standard IntelliJ dialog for interactive rebase will appear.
 ### Push
 
 After a rebase, you might want to push the rebased branch to the remote.
-Right-click on the given branch and select `Push (Current) Branch` from a context menu.
+Right-click on the given branch and select `Push...` from a context menu.
 Push dialog will appear with a proper push button (regular push or force push) depending on which of them is needed.
 Basically, you need a force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
 
@@ -167,7 +167,7 @@ Basically, you need a force push in a case when you rebased your branch and thus
 ### Pull
 
 If a branch is behind (or in sync with) its remote, it can be pulled.
-To do this, right-click on a given branch and select `Pull Branch`.<br/>
+To do this, right-click on a given branch and select `Pull`.<br/>
 This action always performs a `--ff-only` (fast-forward only) pull which makes handling diverged remote branches less error-prone.
 
 ![](docs/pull.gif)
@@ -190,7 +190,7 @@ you probably want to merge this branch to its parent branch.
 When these branches are in sync (green edge), you can do a fast forward merge.
 Fast forward merge is just equivalent to moving tip of a branch to which you merge (`develop` in the sample below)
 to the same commit as a tip of a merged branch (`call-ws` below).
-This is what `Fast Forward Parent Branch To Match Current Branch` context menu action does.
+This is what `Fast Forward Parent To Match This Branch` context menu action does.
 As you can see, the edge between `develop` and `call-ws` changed to grey &mdash; it means that `call-ws` has been merged.
 
 ![](docs/fast_forward.gif)
@@ -199,7 +199,7 @@ As you can see, the edge between `develop` and `call-ws` changed to grey &mdash;
 ### Slide out branch
 
 When a branch was merged (and sometimes in other cases as well), you probably want to remove this branch from branch layout.
-To do this with ease (and without editing `machete` file manually), you can use `Slide Out Selected Branch` action.
+To do this with ease (and without editing `machete` file manually), you can use `Slide Out` action.
 This action will modify the branch layout, removing the entry for the selected branch `X` and reattaching `X`'s children as new children of `X`'s parent.<br/>
 
 If `machete.slideOut.deleteLocalBranch` git configuration key is set to `true`, then this action will also delete `X` branch from the underlying git repository (and not just from `.git/machete` file).
@@ -214,14 +214,14 @@ If you want to set this key globally (to be used for all repositories that don't
 ### Slide in branch
 
 You can also create a new branch below the selected one (also without editing `machete` file manually).
-To do this, choose the `Slide In Branch Below Selected Branch` action from a context menu.
+To do this, choose the `Slide In Branch Below...` action from a context menu.
 Type the name of new branch in the dialog window and click `Slide In` button.
 Another dialog will appear &mdash; it is a standard new branch IntelliJ dialog.
 
 ![](docs/slide_in_new_branch.gif)
 
 A slide in action can also add a branch that already exists in git repository to the branch layout.
-Again, select the `Slide In Branch Bellow Selected Branch` from a context menu and type the name of an already existing branch.
+Again, select the `Slide In Branch Bellow...` from a context menu and type the name of an already existing branch.
 
 ![](docs/slide_in_existing_branch.gif)
 
@@ -252,7 +252,7 @@ You won't come across the yellow edges very often in day-to-day work with git ma
 However, Git Machete can give you a hint which commit is probably the fork point.
 Show commits to see the suggested fork point (see the [toggle listing commits](#toggle-listing-commits) section).
 
-Now you can use `Override Fork Point of Branch` action to choose the fork point of this branch.
+Now you can use `Override Fork Point...` action to choose the fork point of this branch.
 It can be commit inferred by Git Machete (the one marked in commits list), or the one that parent branch is pointing to.
 
 ![](docs/override_forkpoint.gif)
