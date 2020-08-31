@@ -160,6 +160,7 @@ After a rebase, you might want to push the rebased branch to the remote.
 Right-click on the given branch and select `Push...` from a context menu.
 Push dialog will appear with a proper push button (regular push or force push) depending on which of them is needed.
 Basically, you need a force push in a case when you rebased your branch and thus local and remote branch diverged from each other (they have different commits), so git won't let you do a regular push.
+Note that the standard allows for selecting the target remote to push (just like the usual push dialog).
 
 ![](docs/push.gif)
 
