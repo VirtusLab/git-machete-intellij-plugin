@@ -23,7 +23,8 @@ allow_equal_version=true
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
-  # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads)
+  # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads).
+  # Implicit usage of ${GITHUB_TOKEN} by hub
   base_revision="origin/$(hub pr show --format=%B "$pr_num")"
 
 elif [[ ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
@@ -47,6 +48,7 @@ elif command -v hub &>/dev/null; then
   # A local run.
   cb=$(current_branch)
   if [[ $cb ]]; then
+    # Implicit usage of ${GITHUB_TOKEN} by hub
     base_revision=$(hub pr show --format=%B --head="$cb" 2>/dev/null || local_base_revision_fallback)
   else
     base_revision=$(local_base_revision_fallback)

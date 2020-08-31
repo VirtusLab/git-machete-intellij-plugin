@@ -96,6 +96,7 @@ jobs:
             git push origin "$tag"
       - deploy:
           name: Create GitHub release
+          # Implicit usage of ${GITHUB_TOKEN} by hub
           command: |
             source scripts/utils.sh
             tag=v$(extract_version_from_current_wd)
@@ -105,6 +106,7 @@ jobs:
               $tag
       - deploy:
           name: Open backport PR to develop
+          # Implicit usage of ${GITHUB_TOKEN} by hub
           command: |
             source scripts/utils.sh
             version=$(extract_version_from_current_wd)

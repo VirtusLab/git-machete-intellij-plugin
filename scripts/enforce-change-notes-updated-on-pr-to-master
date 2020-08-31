@@ -15,6 +15,7 @@ function change_notes_from_git_revision() {
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
+  # Implicit usage of ${GITHUB_TOKEN} by hub
   base_branch=$(hub pr show --format=%B "$pr_num")
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
