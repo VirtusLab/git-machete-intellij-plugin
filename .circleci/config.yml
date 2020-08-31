@@ -7,40 +7,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run pre-compile checks
-          command: ./scripts/run-pre-build-checks
-      - run:
           name: Start Gradle daemon
           command: ./gradlew
-      - run:
-          name: Check formatting
-          command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
           command: ./gradlew --max-workers=2 compileJava
-      - run:
-          name: Run post-compile checks
-          command: ./scripts/verify-no-string-interpolation-leftovers
-      - run:
-          name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain
-      - run:
-          name: Check Javadoc correctness
-          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
-          command: ./gradlew --max-workers=2 javadoc
-
-      - run:
-          name: Compile tests
-          command: ./gradlew compileTestJava
-      - run:
-          name: Run backend tests
-          command: ./gradlew test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayoutImpl/build/test-results/
-      - store_test_results:
-          path: backendImpl/build/test-results/
 
       - run:
           name: Build plugin artifact
@@ -48,31 +20,10 @@ jobs:
       - store_artifacts:
           path: build/distributions/
           destination: .
-      - run:
-          name: Verify plugin artifact contents
-          command: ./scripts/verify-artifact-contents
-      - run:
-          name: Verify binary compatibility with supported IntelliJ versions
-          command: ./scripts/verify-binary-compatibility
 
-      - run:
-          name: Run UI tests against 2020.1 (earliest supported)
-          command: ./scripts/run-ui-tests 2020.1
-      # Skipping 2020.1.4 to speed up the build; the risk of 2020.1.x failing when both 2020.1 & 2020.2 pass is minuscule.
-      - run:
-          name: Run UI tests against 2020.2 (latest stable & our build target)
-          command: ./scripts/run-ui-tests 2020.2
-      - store_test_results:
-          path: uiTests/build/ui-test-results/
-
-      - when:
-          # No point persisting the project directory to workspace if the `release` job is not going to be executed.
-          condition:
-            equal: [ master, << pipeline.git.branch >> ]
-          steps:
-            - persist_to_workspace:
-                root: .
-                paths: ['*']
+      - persist_to_workspace:
+          root: .
+          paths: ['*']
 
 
   release:
@@ -86,20 +37,20 @@ jobs:
       - run:
           # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
           name: Reconfigure origin remote to https
-          command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+          command: git remote set-url origin https://${GITHUB_TOKEN_BOT}@github.com/VirtusLab/git-machete-intellij-plugin.git
       - deploy:
           name: Push git tag
           command: |
             source scripts/utils.sh
-            tag=v$(extract_version_from_current_wd)
+            tag=test_v$(extract_version_from_current_wd)
             git tag "$tag"
             git push origin "$tag"
       - deploy:
           name: Create GitHub release
           command: |
             source scripts/utils.sh
-            tag=v$(extract_version_from_current_wd)
-            hub release create \
+            tag=test_v$(extract_version_from_current_wd)
+            GITHUB_TOKEN="${GITHUB_TOKEN_BOT}" hub release create \
               --attach build/distributions/git-machete-intellij-plugin-*.zip \
               --message "$tag"$'\n\n'"$(<CHANGE-NOTES.html)" \
               $tag
@@ -108,18 +59,14 @@ jobs:
           command: |
             source scripts/utils.sh
             version=$(extract_version_from_current_wd)
-            branch=backport/v$version
+            branch=backport/test_v$version
             git checkout -b "$branch"
             git push origin "$branch"
-            hub pull-request \
+            GITHUB_TOKEN="${GITHUB_TOKEN_BOT}" hub pull-request \
               --no-edit \
               --base=develop \
-              --message="Backport release of v$version to develop" \
+              --message="[DO NOT MERGE] Backport release of test_v$version to develop" \
               --labels=backport
-      - deploy:
-          name: Publish plugin to Jetbrains Marketplace
-          # TODO (#391): prevent partial recompilation of the project in the `release` job
-          command: ./gradlew --max-workers=2 publishPlugin
 
 
 workflows:
@@ -130,11 +77,5 @@ workflows:
       - hold: # A job that will require manual approval in the CircleCI web application.
           type: approval
           requires: [build]
-          filters:
-            branches:
-              only: master
       - release:
           requires: [hold]
-          filters:
-            branches:
-              only: master
