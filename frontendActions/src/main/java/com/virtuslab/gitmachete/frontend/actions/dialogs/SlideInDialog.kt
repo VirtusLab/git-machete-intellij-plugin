@@ -35,7 +35,7 @@ class SlideInDialog(
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
-    setOKButtonMnemonic('I'.toInt())
+    setOKButtonMnemonic('S'.toInt())
     super.init()
   }
 
