@@ -82,13 +82,20 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   @Test
-  public void autodiscoverBranchLayout() {
-    // Wipe `machete` file
-    overwriteMacheteFile("");
+  public void discoverBranchLayout() {
+    deleteMacheteFile();
 
     // When model is refreshed and machete file is empty, then autodiscover should occur
     int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    Assert.assertEquals(7, branchRowsCount);
 
+    // This time, wipe out `machete` file (instead of removing it completely)
+    overwriteMacheteFile();
+
+    // Now let's test an explicit discover instead
+    runJs("project.discoverBranchLayout()");
+
+    branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
     Assert.assertEquals(7, branchRowsCount);
   }
 
@@ -192,6 +199,11 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
     String currentBranchName = callJs("project.getCurrentBranchName()");
     Assert.assertEquals("develop", currentBranchName);
+  }
+
+  @SneakyThrows
+  private void deleteMacheteFile() {
+    Files.delete(repositoryGitDir.resolve("machete"));
   }
 
   @SneakyThrows

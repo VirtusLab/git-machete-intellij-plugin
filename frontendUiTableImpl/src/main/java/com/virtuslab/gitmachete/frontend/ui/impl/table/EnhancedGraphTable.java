@@ -57,6 +57,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -79,7 +80,6 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
  *  data like last clicked branch name, opened project or {@link IGitMacheteRepositorySnapshot} of current
  *  repository for actions
  */
-
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @CustomLog
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
@@ -97,8 +97,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private boolean isListingCommits;
 
-  @UIEffect
   @Getter
+  @UIEffect
   private @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
   @UIEffect
@@ -159,8 +159,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @UIEffect
   private void refreshModel(GitRepository gitRepository, List<String> skippedBranchNames) {
-    // TODO (#176): When machete file is absent or empty,
-    // propose using branch layout automatically detected by discover functionality
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
@@ -245,23 +243,26 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           return;
         }
 
-        @SuppressWarnings("guieffect") // To allow lambda invocation in `onSuccess` method
-        var __ = Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true))
-            .onFailure(exception -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
-                getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
-                exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL))
-            .onSuccess(v -> {
-              GuiUtils.invokeLaterIfNeeded(
-                  () -> VcsNotifier.getInstance(project)
-                      .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message")),
-                  NON_MODAL);
+        try {
+          branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
 
-              gitMacheteRepositorySnapshot = repositorySnapshot;
-              var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
-              setModel(new GraphTableModel(repositoryGraph));
-              repaint();
-              revalidate();
-            });
+          GuiUtils.invokeLaterIfNeeded(
+              () -> {
+                gitMacheteRepositorySnapshot = repositorySnapshot;
+                var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
+                setModel(new GraphTableModel(repositoryGraph));
+                repaint();
+                revalidate();
+
+                VcsNotifier.getInstance(project)
+                    .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"));
+              },
+              NON_MODAL);
+        } catch (BranchLayoutException exception) {
+          GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
+              exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL);
+        }
       }
     }.queue();
   }

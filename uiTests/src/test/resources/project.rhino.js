@@ -6,12 +6,15 @@ importClass(java.util.stream.Collectors);
 importClass(com.intellij.ide.DataManager);
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
+importClass(com.intellij.openapi.actionSystem.ActionPlaces);
 importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
+importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.util.Key);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
+importClass(com.intellij.remoterobot.fixtures.ComponentFixture);
 importClass(com.intellij.ui.GuiUtils);
 
 // Do not run any of the methods on the UI thread.
@@ -45,7 +48,10 @@ function Project(underlyingProject) {
     return panel.getGraphTable();
   };
 
-  const refreshModelAndWaitUntilDone = function (graphTable) {
+  // Assumes that Git Machete tab is opened.
+  this.refreshModelAndGetRowCount = function () {
+    const graphTable = getGraphTable();
+
     let refreshDone = false;
     graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ function () {
       refreshDone = true;
@@ -53,12 +59,7 @@ function Project(underlyingProject) {
     do {
       sleep();
     } while (!refreshDone);
-  };
 
-  // Assumes that Git Machete tab is opened.
-  this.refreshModelAndGetRowCount = function () {
-    const graphTable = getGraphTable();
-    refreshModelAndWaitUntilDone(graphTable);
     return graphTable.getModel().getRowCount();
   };
 
@@ -67,21 +68,47 @@ function Project(underlyingProject) {
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
   const RESET_INFO_SHOWN = 'git-machete.reset.info.shown';
 
-  const invokeActionAndWait = function(actionName, actionPlace, data) {
-    const actionManager = ActionManager.getInstance();
-    const action = actionManager.getAction(actionName);
+  const getActionByName = function (actionName) {
+    return ActionManager.getInstance().getAction(actionName);
+  };
+
+  const createActionEvent = function (actionPlace, data) {
     const dataContext = new DataContext({
-      getData: function(dataId) {
+      getData: function (dataId) {
         if (dataId in data) return data[dataId];
         if (dataId.equals('project')) return underlyingProject;
         return getGraphTable().getData(dataId);
       }
     });
-    const actionEvent = AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
+    return AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
+  };
+
+  const invokeActionAsync = function (actionName, actionPlace, data) {
+    const action = getActionByName(actionName);
+    const actionEvent = createActionEvent(actionPlace, data);
+
+    GuiUtils.invokeLaterIfNeeded(function () {
+      action.actionPerformed(actionEvent);
+    }, ModalityState.NON_MODAL);
+  };
+
+  const invokeActionAndWait = function (actionName, actionPlace, data) {
+    const action = getActionByName(actionName);
+    const actionEvent = createActionEvent(actionPlace, data);
 
     GuiUtils.runOrInvokeAndWait(function () {
       action.actionPerformed(actionEvent);
     });
+  };
+
+  this.discoverBranchLayout = function () {
+    invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
+
+    const saveButton = robot.finder().find(function (component) {
+      return 'javax.swing.JButton'.equals(component.getClass().getName())
+        && 'Save'.equals(component.getText());
+    });
+    robot.click(saveButton);
   };
 
   this.toggleListingCommits = function () {
@@ -120,7 +147,7 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.ResetCurrentBranchToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
 
-  const getSelectedGitRepository = function() {
+  const getSelectedGitRepository = function () {
     // We can't rely on the Rhino's default classloader
     // since it operates in the context of the Remote Robot plugin, not our plugin.
     const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');

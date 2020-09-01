@@ -123,6 +123,12 @@
 <module name="Regexp">
     <property name="illegalPattern" value="true"/>
     <property name="ignoreComments" value="true"/>
+    <property name="format" value="\bLink\.link[A-Za-z]*Color\b"/>
+    <property name="message" value="Likely usage of com.intellij.util.ui.JBUI.CurrentTheme.Link.link*Color; avoid links since they're unreliable as of IDEA 2020.2"/>
+</module>
+<module name="Regexp">
+    <property name="illegalPattern" value="true"/>
+    <property name="ignoreComments" value="true"/>
     <property name="format" value="\bLocalDateTime\b"/>
     <property name="message" value="Local date-times are inherently unsafe since they give an impression of referring to a specific instant while in fact they don't. Use ZonedDateTime or Instant instead"/>
 </module>

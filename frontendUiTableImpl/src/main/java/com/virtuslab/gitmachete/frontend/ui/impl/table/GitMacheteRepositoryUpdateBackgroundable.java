@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getGitDirectoryPath;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainDirectoryPath;
@@ -43,8 +44,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
       @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doOnUIThreadWhenDone) {
-    // Quasi-title capitalization intended since we always write "Git Machete" with initial caps.
-    super(project, "Updating Git Machete repository");
+    super(project, getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;

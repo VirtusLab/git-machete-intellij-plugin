@@ -50,6 +50,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
           /* message */ "");
       return;
     }
+
     var mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
     var gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
 
@@ -108,7 +109,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file-task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupBranchLayout */ true))
+        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true))
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
                 /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
