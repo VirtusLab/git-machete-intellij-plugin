@@ -178,8 +178,14 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     } else {
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
-        LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
-        doAutomaticDiscover(macheteFilePath);
+        if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
+          LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
+          doAutomaticDiscover(macheteFilePath);
+        } else {
+          setTextForEmptyTable(
+              format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file"),
+                  macheteFilePath.toString()));
+        }
       }
     }
 

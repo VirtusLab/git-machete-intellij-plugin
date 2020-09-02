@@ -97,6 +97,11 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
     branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
     Assert.assertEquals(7, branchRowsCount);
+
+    // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
+    overwriteMacheteFile("non-existent");
+    branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    Assert.assertEquals(0, branchRowsCount);
   }
 
   @Test
