@@ -6,6 +6,7 @@ Features:
   <li>Toolbar menu was revamped to suggest most suitable actions for the current branch</li>
   <li>Pull action uses inferred remote branch in case tracking config is missing</li>
   <li>Added tooltips with information about synchronization to parent branch status for given branch</li>
+  <li>Added 'Edit' option to the discovered dialog that opens machete file</li>
 </ul>
 <br/>
 <br/>
@@ -15,4 +16,8 @@ Bug fixes:
   <li>Fast forwarding given branch to the currently checked out branch is possible</li>
   <li>Branch names of submodule repository are checked and proposed correctly in machete file editor</li>
   <li>Toggle listing commits is disabled in case there are no commits to display</li>
+  <li>Enable branch name completion and syntax annotation while indexing</li>
+  <li>Prohibit force push of protected branches</li>
+  <li>Ensure each project-readiness-dependent action is disabled & hidden as long as project is not ready</li>
+  <li>Unreliable links has been removed; non-existing/empty machete file is being created by autodiscover</li>
 </ul>
