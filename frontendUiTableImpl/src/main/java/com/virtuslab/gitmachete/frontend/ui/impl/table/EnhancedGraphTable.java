@@ -193,7 +193,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     if (skippedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
-          getString("string.GitMachete.EnhancedGraphTable.omitted-branches-text"),
+          getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text"),
           String.join(", ", skippedBranchNames));
     }
 
@@ -229,8 +229,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           GuiUtils.invokeLaterIfNeeded(
-              () -> setTextForEmptyTable(format(getString("string.GitMachete.EnhancedGraphTable.empty-machete-file.upper-text"),
-                  macheteFilePath.toString())),
+              () -> setTextForEmptyTable(
+                  format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cant-discover-layout"),
+                      macheteFilePath.toString())),
               NON_MODAL);
           return;
         }
@@ -309,7 +310,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           doOnUIThreadWhenReady.run();
         };
 
-        setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-text"));
+        setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();

@@ -48,7 +48,7 @@ public abstract class BaseGraphTable extends JBTable {
   }
 
   @UIEffect
-  public void setTextForEmptyTable(String upperText) {
-    getEmptyText().setText(upperText);
+  public void setTextForEmptyTable(String text) {
+    getEmptyText().setText(text);
   }
 }

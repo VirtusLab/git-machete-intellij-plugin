@@ -1,9 +1,7 @@
 
 importClass(java.lang.System);
-importClass(java.util.ArrayList);
 importClass(java.util.stream.Collectors);
 
-importClass(com.intellij.ide.DataManager);
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
 importClass(com.intellij.openapi.actionSystem.ActionPlaces);
@@ -11,10 +9,8 @@ importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
 importClass(com.intellij.openapi.application.ModalityState);
-importClass(com.intellij.openapi.util.Key);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
-importClass(com.intellij.remoterobot.fixtures.ComponentFixture);
 importClass(com.intellij.ui.GuiUtils);
 
 // Do not run any of the methods on the UI thread.

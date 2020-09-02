@@ -8,8 +8,6 @@ importClass(com.intellij.ide.GeneralSettings);
 importClass(com.intellij.ide.impl.ProjectUtil);
 importClass(com.intellij.ide.plugins.PluginManagerCore);
 importClass(com.intellij.ide.util.PropertiesComponent);
-importClass(com.intellij.openapi.application.ApplicationManager);
-importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.progress.ProgressManager);
 importClass(com.intellij.ui.GuiUtils);
