@@ -30,27 +30,27 @@ The minimum required version is 2020.1**.
 <!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path> -->
 # Table of Contents
 
-- [Git Machete IntelliJ Plugin](#git-machete-intellij-plugin)
-  - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
-  - [How it works](#how-it-works)
-    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-    - [Discover](#discover)
-    - [Edit machete file](#edit-machete-file)
-    - [Check out branches](#check-out-branches)
-    - [Toggle listing commits](#toggle-listing-commits)
-    - [Rebase](#rebase)
-    - [Push](#push)
-    - [Pull](#pull)
-    - [Reset to remote](#reset-to-remote)
-    - [Fast forward parent](#fast-forward-parent)
-    - [Slide out branch](#slide-out-branch)
-    - [Slide in branch](#slide-in-branch)
-    - [Override fork point](#override-fork-point)
-    - [Other actions](#other-actions)
-    - [Multi-repository support](#multi-repository-support)
-  - [Build](#build)
-  - [Issue reporting](#issue-reporting)
-  - [References](#references)
+- [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
+- [How it works](#how-it-works)
+  - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
+  - [Branch graph](#branch-graph)
+  - [Check out branches](#check-out-branches)
+  - [Toggle listing commits](#toggle-listing-commits)
+  - [Rebase](#rebase)
+  - [Push](#push)
+  - [Pull](#pull)
+  - [Reset to remote](#reset-to-remote)
+  - [Fast forward parent](#fast-forward-parent)
+  - [Slide out branch](#slide-out-branch)
+  - [Slide in branch](#slide-in-branch)
+  - [Override fork point](#override-fork-point)
+  - [Discover](#discover)
+  - [Edit machete file](#edit-machete-file)
+  - [Other actions](#other-actions)
+  - [Multi-repository support](#multi-repository-support)
+- [Build](#build)
+- [Issue reporting](#issue-reporting)
+- [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -78,52 +78,18 @@ You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 ![](docs/open_git_machete.gif)
 
 
-### Discover
+### Branch graph
 
-The `machete` file describes relations between branches in your repository.
-These relations are probably determined by the order of branch creation &mdash;
-which branch has been created from which &mdash; but this is not a strict rule).<br/>
-It'll be located under `.git/machete` path in your repository.
-
-This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.
-It constructs a layout from around 10 most recently used branches.
-This action is proposed in Git Machete tab in case of an empty or nonexistent `machete` file,
-but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
-
-![](docs/discover.gif)
-
-
-### Edit machete file
-
-The `machete` file can be also edited manually. Let's look at the structure of this file based on the example below:
-```
-develop
-    allow-ownership-link PR #123
-        build-chain
-    call-ws PR #124
-master
-    hotfix/add-trigger
-```
-`develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
-Two of them, `allow-ownership-link` and `call-ws`, have a custom annotation &mdash;
-it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
-
-The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
-
-In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`.
-`master`, in turn, is the parent of `hotfix/add-trigger`.
-`develop` and `master` are root branches.
-
-When the branch layout is created, Git Machete indicates a relation between the parent branch and each of its child branches.
+For each branch, Git Machete indicates a relation between this branch and each of its child branches.
 If the edge between them is green that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
 But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is red &mdash; you need to [rebase](#rebase) child branch onto the parent.
+Edge can also be gray and yellow &mdash; that means respectively the branch was merged to the parent, or a fork point can't be determined automatically.
 
-Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
-When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
+![](docs/sample_graph.png)
 
-![](docs/machete_file_editor.gif)
-
-For more information about the `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
+As we can see in example above `hotfix/add-trigger` is in sync with `master`.
+`call-ws` is **not** in sync with `develop` and `drop-constraint` is **not** in sync with `call-ws`.
+`build-chain` was merged into `develop`.
 
 
 ### Check out branches
@@ -258,6 +224,50 @@ Now you can use the `Override Fork Point...` action to choose the fork point of 
 It can be the commit inferred by Git Machete (the one marked in commits list), or the one that the parent branch is pointing to.
 
 ![](docs/override_forkpoint.gif)
+
+
+### Discover
+
+The `machete` file describes relations between branches in your repository.
+These relations are probably determined by the order of branch creation &mdash;
+which branch has been created from which &mdash; but this is not a strict rule).<br/>
+It'll be located under `.git/machete` path in your repository.
+
+This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.
+It constructs a layout from around 10 most recently used branches.
+**This action is automatically invoked in case of an empty or nonexistent `machete` file,**
+but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
+
+![](docs/discover.gif)
+
+
+### Edit machete file
+
+The `machete` file can be also edited manually. Let's look at the structure of this file based on the example below:
+```
+develop
+    allow-ownership-link PR #123
+        build-chain
+    call-ws PR #124
+master
+    hotfix/add-trigger
+```
+`develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
+Two of them, `allow-ownership-link` and `call-ws`, have a custom annotation &mdash;
+it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
+
+The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
+
+In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`.
+`master`, in turn, is the parent of `hotfix/add-trigger`.
+`develop` and `master` are root branches.
+
+Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
+When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
+
+![](docs/machete_file_editor.gif)
+
+For more information about the `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
 
 
 ### Other actions
