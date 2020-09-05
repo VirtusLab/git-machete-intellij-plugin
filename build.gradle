@@ -30,6 +30,7 @@ ext {
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.6.0'
   checkstyleToolVersion = '8.33'
+  ideProbeVersion = '0.1.3+70-c98b33c0-SNAPSHOT'
   jetbrainsAnnotationsVersion = '19.0.0'
   jgitVersion = '5.8.1.202007141445-r'
   junitVersion = '4.13'
@@ -37,7 +38,7 @@ ext {
   lombokVersion = '1.18.12'
   powerMockVersion = '2.0.7'
   reflectionsVersion = '0.9.12'
-  remoteRobotVersion = '0.9.35'
+  scalaVersion = '2.12.10'
   slf4jLambdaApiVersion = '0.1'
   slf4jVersion = '1.7.30'
   vavrVersion = '0.10.3'
@@ -299,6 +300,17 @@ subprojects {
       }
     }
 
+    ideProbe = { ->
+      repositories {
+        maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+      }
+
+      dependencies {
+        testImplementation group: 'org.virtuslab.ideprobe', name: 'junit-driver_2.12', version: ideProbeVersion
+      }
+    }
+
     jetbrainsAnnotations = { ->
       dependencies {
         implementation group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
@@ -355,14 +367,10 @@ subprojects {
       }
     }
 
-    remoteRobot = { ->
-      repositories {
-        maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
-      }
-
+    scala = { ->
       dependencies {
-        testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinStdlibVersion
-        testImplementation group: 'com.intellij.remoterobot', name: 'remote-robot', version: remoteRobotVersion
+        compileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
+        testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
       }
     }
 
@@ -506,16 +514,6 @@ runIde {
     ideDirectory resolveIdeaCommunity(intellijVersions.runIdeTarget)
   }
 }
-
-runIdeForUiTests {
-  maxHeapSize = '2G'
-
-  if (intellijVersions.runIdeTarget != intellijVersions.buildTarget) {
-    ideDirectory resolveIdeaCommunity(intellijVersions.runIdeTarget)
-  }
-}
-
-downloadRobotServerPlugin.version = remoteRobotVersion
 
 publishPlugin {
   token jetbrainsMarketplaceToken
