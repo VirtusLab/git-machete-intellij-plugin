@@ -70,13 +70,13 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
         "non-existent-root",
         "master",
         "  hotfix/add-trigger");
-    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    int branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file;
     // non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(6, branchRowsCount);
 
     runJs("project.toggleListingCommits()");
-    int branchAndCommitRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    int branchAndCommitRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     // 6 branch rows + 7 commit rows
     Assert.assertEquals(13, branchAndCommitRowsCount);
   }
@@ -86,7 +86,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     deleteMacheteFile();
 
     // When model is refreshed and machete file is empty, then autodiscover should occur
-    int branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    int branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     Assert.assertEquals(7, branchRowsCount);
 
     // This time, wipe out `machete` file (instead of removing it completely)
@@ -95,12 +95,12 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     // Now let's test an explicit discover instead
     runJs("project.discoverBranchLayout()");
 
-    branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     Assert.assertEquals(7, branchRowsCount);
 
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
     overwriteMacheteFile("non-existent");
-    branchRowsCount = callJs("project.refreshModelAndGetRowCount()");
+    branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     Assert.assertEquals(0, branchRowsCount);
   }
 

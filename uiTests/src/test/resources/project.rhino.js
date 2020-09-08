@@ -16,6 +16,8 @@ importClass(com.intellij.ui.GuiUtils);
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
 
+  // Tab & model management
+
   this.openTab = function () {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;
@@ -24,7 +26,7 @@ function Project(underlyingProject) {
       sleep();
     } while (toolWindow === null);
 
-    // The test is (obviously) not run on the UI thread,
+    // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
     GuiUtils.runOrInvokeAndWait(function () {
       toolWindow.activate(function () {});
@@ -33,7 +35,6 @@ function Project(underlyingProject) {
       contentManager.setSelectedContent(tab);
     });
   };
-
 
   const getGraphTable = function () {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
@@ -45,7 +46,8 @@ function Project(underlyingProject) {
   };
 
   // Assumes that Git Machete tab is opened.
-  this.refreshModelAndGetRowCount = function () {
+  // Returns the refreshed model.
+  this.refreshGraphTableModel = function () {
     const graphTable = getGraphTable();
 
     let refreshDone = false;
@@ -56,9 +58,11 @@ function Project(underlyingProject) {
       sleep();
     } while (!refreshDone);
 
-    return graphTable.getModel().getRowCount();
+    return graphTable.getModel();
   };
 
+
+  // Actions
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
@@ -100,10 +104,21 @@ function Project(underlyingProject) {
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
 
-    const saveButton = robot.finder().find(function (component) {
-      return 'javax.swing.JButton'.equals(component.getClass().getName())
-        && 'Save'.equals(component.getText());
-    });
+    const getSaveButton = function() {
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(function (component) {
+        return 'javax.swing.JButton'.equals(component.getClass().getName())
+          && 'Save'.equals(component.getText());
+      }).toArray();
+      return result.length === 1 ? result[0] : null;
+    };
+
+    // The action is invoked asynchronously, let's first make sure the button has already appeared.
+    let saveButton = getSaveButton();
+    while (saveButton === null) {
+      sleep();
+      saveButton = getSaveButton();
+    }
     robot.click(saveButton);
   };
 
@@ -142,6 +157,9 @@ function Project(underlyingProject) {
 
     invokeActionAndWait('GitMachete.ResetCurrentBranchToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
+
+
+  // Git utilities
 
   const getSelectedGitRepository = function () {
     // We can't rely on the Rhino's default classloader
