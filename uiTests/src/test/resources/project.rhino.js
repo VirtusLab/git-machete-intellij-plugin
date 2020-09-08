@@ -158,6 +158,10 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.ResetCurrentBranchToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
 
+  this.slideOutBranch = function (branchName) {
+    invokeActionAndWait('GitMachete.SlideOutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
 
   // Git utilities
 

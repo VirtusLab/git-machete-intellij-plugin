@@ -59,7 +59,7 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
   // Thus, we can't store any state between the invocations.
 
   @Test
-  public void skipNonExistentBranchesAndToggleListingCommits() {
+  public void skipNonExistentBranches_toggleListingCommits_slideOutRoot() {
     overwriteMacheteFile(
         "develop",
         "  non-existent",
@@ -79,22 +79,27 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     int branchAndCommitRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     // 6 branch rows + 7 commit rows
     Assert.assertEquals(13, branchAndCommitRowsCount);
+
+    // Let's slide out a root branch now
+    runJs("project.slideOutBranch('develop')");
+    awaitIdle();
+    branchAndCommitRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
+    // 5 branch rows (`develop` is no longer there) + 3 commit rows
+    // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
+    Assert.assertEquals(8, branchAndCommitRowsCount);
   }
 
   @Test
   public void discoverBranchLayout() {
     deleteMacheteFile();
-
     // When model is refreshed and machete file is empty, then autodiscover should occur
     int branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     Assert.assertEquals(7, branchRowsCount);
 
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile();
-
-    // Now let's test an explicit discover instead
+    // Now let's test an explicit discover instead (so autodiscover won't have a chance to run)
     runJs("project.discoverBranchLayout()");
-
     branchRowsCount = callJs("project.refreshGraphTableModel().getRowCount()");
     Assert.assertEquals(7, branchRowsCount);
 
