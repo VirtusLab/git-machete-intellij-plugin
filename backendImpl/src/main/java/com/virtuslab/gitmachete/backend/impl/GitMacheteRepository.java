@@ -718,6 +718,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @CustomLog
   private static class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryAux {
 
+    private static final String MASTER = "master";
+    private static final String DEVELOP = "develop";
+
     DiscoverGitMacheteRepositoryAux(
         IGitCoreRepository gitCoreRepository,
         StatusBranchHookExecutor statusHookExecutor,
@@ -812,9 +815,18 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throws GitCoreException, GitMacheteException {
 
       List<String> localBranchNames = localBranches.map(lb -> lb.getName());
-      var branchNamesFixedRootPartition = localBranchNames.partition(Predicate.isEqual("master"));
-      List<String> fixedRootBranchNames = branchNamesFixedRootPartition._1;
-      List<String> nonFixedRootBranchNames = branchNamesFixedRootPartition._2;
+      List<String> fixedRootBranchNames;
+      List<String> nonFixedRootBranchNames;
+      if (localBranchNames.contains(MASTER)) {
+        fixedRootBranchNames = List.of(MASTER);
+        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(MASTER));
+      } else if (localBranchNames.contains(DEVELOP)) {
+        fixedRootBranchNames = List.of(DEVELOP);
+        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(DEVELOP));
+      } else {
+        fixedRootBranchNames = List.empty();
+        nonFixedRootBranchNames = localBranchNames;
+      }
       List<String> freshNonFixedRootBranchNames;
 
       // Let's only leave at most the given number of most recently checked out ("fresh") branches.
@@ -842,10 +854,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           .merge(entryByFreshNonFixedRootBranch);
       LOG.debug(() -> "Branches included in the discovered layout: " + entryByIncludedBranchName.keySet().mkString(", "));
 
-      // `roots` may be an empty list in the rare case there's no `master` branch in the repository.
+      // `roots` may be an empty list in the rare case there's no `master` or `develop` branch in the repository.
       List<MyBranchLayoutEntry> roots = entryByFixedRootBranchNames.values().toList();
 
-      // Skipping the parent inference for fixed roots (currently just `master`) and for the stale non-fixed-root branches.
+      // Skipping the parent inference for fixed roots (currently just `master` or `develop`)
+      // and for the stale non-fixed-root branches.
       for (var branchEntry : entryByFreshNonFixedRootBranch.values()) {
         // Note that stale non-fixed-root branches are never considered as candidates for the parent.
         Seq<String> parentCandidateNames = entryByIncludedBranchName.values()

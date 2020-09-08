@@ -34,6 +34,12 @@ jobs:
           name: Compile tests
           command: ./gradlew compileTestJava
       - run:
+          name: '[TEMP] Upgrade git-machete CLI'
+          command: |
+            apt-get update
+            apt-get install --no-install-recommends -y python3-pip
+            pip3 install --upgrade git-machete==2.15.5
+      - run:
           name: Run backend tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.

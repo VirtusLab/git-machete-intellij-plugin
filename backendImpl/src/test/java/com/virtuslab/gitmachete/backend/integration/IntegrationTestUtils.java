@@ -28,7 +28,7 @@ class IntegrationTestUtils {
         .stripTrailing()
         .replace("git-machete version ", "");
     if (!referenceCliVersions.contains(version)) {
-      Assert.fail("git-machete is expected in version ${referenceCliVersions}, found ${version}");
+      Assert.fail("git-machete is expected in one of versions ${referenceCliVersions}, found ${version}");
     }
   }
 }
