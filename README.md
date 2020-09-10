@@ -22,7 +22,7 @@ With this plugin, you can maintain **small, focused, easy-to-review pull request
 **It is compatible with all JetBrains products except Android Studio.
 The minimum required version is 2020.1**.
 
-![](docs/sample_workflow.gif)
+Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 
 
 # Table of Contents
@@ -32,13 +32,13 @@ The minimum required version is 2020.1**.
 <!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path> -->
 
 - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
-- [How it works](#how-it-works)
-  - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
+- [Getting started with Git Machete](#getting-started-with-git-machete)
+    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
   - [Branch graph](#branch-graph)
   - [Check out branches](#check-out-branches)
   - [Rebase](#rebase)
   - [Discover](#discover)
-  - [Edit machete file](#edit-machete-file)
+- [Feature List](#feature-list)
 - [Build](#build)
 - [Issue reporting](#issue-reporting)
 - [References](#references)
@@ -54,19 +54,18 @@ then make sure you are on `Marketplace` tab (not `Installed`), in search box typ
 After installation, depending on the IDE version the restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
 
-
-## How it works
-
-Git Machete IntelliJ Plugin is a port of a great console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
-Git Machete can help you manage your repository branches and keep it in sync with each other and its counterparts on a remote repository.
+## Getting started with Git Machete
 
 
-### Where to find the plugin tab
+The examples below show a few common situations where Git Machete finds an exceptional application.
+If you are a Git Master or have used the CLI version already, you may want to jump directly to the [feature list](FEATURE-LIST.md).
+
+<TODO: EXAMPLES PLACEHOLDER>
+
+#### Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
-You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
-
-![](docs/open_git_machete.gif)
+You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
 
 ### Branch graph
@@ -120,37 +119,10 @@ but you can also run it any time from IntelliJ's `Search Everywhere` (double Shi
 ![](docs/discover.gif)
 
 
-### Edit machete file
-
-The `machete` file can be also edited manually. Let's look at the structure of this file based on the example below:
-```
-develop
-    allow-ownership-link PR #123
-        build-chain
-    call-ws PR #124
-master
-    hotfix/add-trigger
-```
-`develop`, `allow-ownership-link`, `build-chain`, `call-ws`, `master` and `hotfix/add-trigger` are branch names.
-Two of them, `allow-ownership-link` and `call-ws`, have a custom annotation &mdash;
-it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
-
-The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
-
-In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`. <br/>
-`master`, in turn, is the parent of `hotfix/add-trigger`. <br/>
-`develop` and `master` are root branches.
-
-Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
-When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
-
-![](docs/machete_file_editor.gif)
-
-For more information about the `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
-
 ## Feature List
 
 Please see the [feature list](FEATURE-LIST.md) for more specific features description.
+
 
 ## Build
 
@@ -181,3 +153,5 @@ Then reproduce the bug and go to `Help` -> `Show Log in Files` to open the log f
 ## References
 
 See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
+
+For more information about the `git machete`, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
