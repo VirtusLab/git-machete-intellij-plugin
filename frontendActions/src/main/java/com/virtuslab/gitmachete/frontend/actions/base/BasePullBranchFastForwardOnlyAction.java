@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -121,13 +122,31 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
     String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
 
-    new FetchBackgroundable(project, gitRepository, remoteName, refspecFromRemoteRepoToOurRemoteBranch, taskTitle) {
+    new FetchBackgroundable(
+        project,
+        gitRepository,
+        remoteName,
+        refspecFromRemoteRepoToOurRemoteBranch,
+        taskTitle,
+        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
+            remoteBranch.getName()),
+        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
+            remoteBranch.getName())) {
       // We can only enqueue the update of local branch once the update of remote branch is completed.
       @Override
       @UIEffect
       public void onSuccess() {
-        new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME,
-            refspecFromOurRemoteBranchToOurLocalBranch, taskTitle).queue();
+        new FetchBackgroundable(
+            project,
+            gitRepository,
+            LOCAL_REPOSITORY_NAME,
+            refspecFromOurRemoteBranchToOurLocalBranch,
+            taskTitle,
+            format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
+                localBranch.getName()),
+            format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
+                localBranch.getName()))
+                    .queue();
       }
     }.queue();
   }

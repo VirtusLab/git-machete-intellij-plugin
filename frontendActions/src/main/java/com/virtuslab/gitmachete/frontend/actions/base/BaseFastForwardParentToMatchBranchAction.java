@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -95,7 +96,16 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
     var parentLocalFullName = targetBranch.getParent().getFullName();
     var refspecFromChildToParent = createRefspec(localFullName, parentLocalFullName, /* allowNonFastForward */ false);
 
-    new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title")).queue();
+    new FetchBackgroundable(
+        project,
+        gitRepository,
+        LOCAL_REPOSITORY_NAME,
+        refspecFromChildToParent,
+        getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title"),
+        format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.notification.title.ff-fail"),
+            targetBranch.getParent().getName(), targetBranch.getName()),
+        format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.notification.title.ff-success"),
+            targetBranch.getParent().getName(), targetBranch.getName()))
+                .queue();
   }
 }

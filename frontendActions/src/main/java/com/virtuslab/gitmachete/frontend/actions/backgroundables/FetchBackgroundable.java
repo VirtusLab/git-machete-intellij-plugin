@@ -1,8 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -21,6 +18,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
   private final GitRepository gitRepository;
   private final String remoteName;
   private final String refspec;
+  private final String failureNotificationText;
+  private final String successNotificationText;
 
   /** Use as {@code remoteName} when referring to the local repository. */
   public static final String LOCAL_REPOSITORY_NAME = ".";
@@ -29,12 +28,16 @@ public class FetchBackgroundable extends Task.Backgroundable {
       GitRepository gitRepository,
       String remoteName,
       String refspec,
-      String taskTitle) {
+      String taskTitle,
+      String failureNotificationText,
+      String successNotificationText) {
     super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;
     this.gitRepository = gitRepository;
     this.remoteName = remoteName;
     this.refspec = refspec;
+    this.failureNotificationText = failureNotificationText;
+    this.successNotificationText = successNotificationText;
   }
 
   @Override
@@ -50,14 +53,12 @@ public class FetchBackgroundable extends Task.Backgroundable {
       return;
     }
     var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
-    fetchResult.showNotificationIfFailed(
-        format(getString("action.GitMachete.FetchBackgroundable.notification.title.fetch-fail"), refspec));
+    fetchResult.showNotificationIfFailed(failureNotificationText);
   }
 
   @UIEffect
   @Override
   public void onSuccess() {
-    VcsNotifier.getInstance(project)
-        .notifySuccess(format(getString("action.GitMachete.FetchBackgroundable.notification.title.fetch-success"), refspec));
+    VcsNotifier.getInstance(project).notifySuccess(successNotificationText);
   }
 }

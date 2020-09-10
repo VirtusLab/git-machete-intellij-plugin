@@ -180,8 +180,17 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
       var refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
           "refs/heads/${branchName}", /* allowNonFastForward */ false);
-      preSlideInRunnable = () -> new FetchBackgroundable(project, gitRepository, LOCAL_REPOSITORY_NAME, refspec,
-          "Fetching Remote Branch").queue();
+      preSlideInRunnable = () -> new FetchBackgroundable(
+          project,
+          gitRepository,
+          LOCAL_REPOSITORY_NAME,
+          refspec,
+          "Fetching Remote Branch",
+          format(
+              getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"), branchName),
+          format(
+              getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"), branchName))
+                  .queue();
 
     } else if (options.shouldCheckout() && remoteBranch == null) {
       preSlideInRunnable = () -> checkoutOrReset(project, repositories, startPoint, options);
