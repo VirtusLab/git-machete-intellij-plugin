@@ -82,16 +82,17 @@ You can also use `Ctrl` + `Alt` + `Shift` + `M` shortcut to open it.
 
 For each branch, Git Machete indicates the relation to each of its child branches.
 If the edge between them is **green** that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
-But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) child branch onto the parent.
-Edge can also be **gray** or **yellow** &mdash; that means respectively the branch was merged to the parent, or a fork point can't be determined automatically
+But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) the child branch onto the parent.
+The **gray** color of the edge means that the branch was merged to the parent.
+In some (rare) cases you may encounter a **yellow** edge which means that a fork point can't be determined automatically
 (see [Override fork point section](#override-fork-point) to learn how to fix that).
 
 ![](docs/sample_graph.png)
 
-As we can see in the example, above `hotfix/add-trigger` is in sync with `master`.
+As we can see in the example above, `hotfix/add-trigger` is in sync with `master`.
 `call-ws` is **not** in sync with `develop` and `drop-constraint` is **not** in sync with `call-ws`.
 `build-chain` was merged into `develop`.
-Note that the branch layout can be easily arbitrarily modified (see [Edit machete file section](#edit-machete-file) for details).
+Note that the branch layout can be arbitrarily modified with ease (see [Edit machete file section](#edit-machete-file) for details).
 
 
 ### Check out branches
