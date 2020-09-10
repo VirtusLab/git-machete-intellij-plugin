@@ -21,7 +21,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
 import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
-import com.virtuslab.branchlayout.api.EntryIsRootException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -81,9 +80,6 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
             .onFailure(EntryDoesNotExistException.class, exceptionWithMessageHandler(
                 format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                    entryToSlideIn.getName())))
-            .onFailure(EntryIsRootException.class, exceptionWithMessageHandler(
-                format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-root"),
                     entryToSlideIn.getName())))
             .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null))
             .getOrNull();

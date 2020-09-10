@@ -32,13 +32,10 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideOut(String branchName) throws EntryDoesNotExistException, EntryIsRootException {
+  public IBranchLayout slideOut(String branchName) throws EntryDoesNotExistException {
     var entryToSlideOut = findEntryByName(branchName).getOrNull();
     if (entryToSlideOut == null) {
       throw new EntryDoesNotExistException("Branch entry '${branchName}' does not exist");
-    }
-    if (rootEntries.contains(entryToSlideOut)) {
-      throw new EntryIsRootException("Cannot slide out root branch entry ${branchName}");
     }
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
   }

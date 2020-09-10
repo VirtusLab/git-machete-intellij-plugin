@@ -201,7 +201,8 @@ As you can see, the edge between `develop` and `call-ws` changed to grey &mdash;
 
 When a branch was merged (and sometimes in other cases as well), you probably want to remove this branch from the branch layout.
 To do this with ease (and without editing the `machete` file manually), you can use the `Slide Out` action.
-This action will modify the branch layout, removing the entry for the selected branch `X` and reattaching `X`'s children as new children of `X`'s parent.<br/>
+This action will modify the branch layout, removing the entry for the selected branch `X` and reattaching `X`'s children as new children of `X`'s parent.
+In the case of sliding out the root branch, the children will become the new roots.<br/>
 
 If `machete.slideOut.deleteLocalBranch` git configuration key is set to `true`, then this action will also delete `X` branch from the underlying git repository (and not just from `.git/machete` file).
 The easiest way to set this key is using `git config --add machete.slideOut.deleteLocalBranch true` command inside a given repository.

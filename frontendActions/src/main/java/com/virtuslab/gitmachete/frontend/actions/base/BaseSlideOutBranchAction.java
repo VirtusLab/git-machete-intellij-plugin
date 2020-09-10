@@ -23,9 +23,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.NotUIThreadSafe;
 
@@ -61,18 +60,9 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       presentation.setEnabled(false);
       presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
           "Slide out", getQuotedStringOrCurrent(branchName)));
-    } else if (branch.isNonRoot()) {
+    } else {
       presentation.setDescription(
           format(getString("action.GitMachete.BaseSlideOutBranchAction.description"), branch.getName()));
-    } else {
-      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
-        presentation.setEnabled(false);
-        presentation.setDescription(
-            format(getString("action.GitMachete.BaseSlideOutBranchAction.description.root.branch"), branch.getName()));
-      } else { //contextmenu
-        // in case of root branch we do not want to show this option at all
-        presentation.setEnabledAndVisible(false);
-      }
     }
   }
 
@@ -84,16 +74,12 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     var branchName = getNameOfBranchUnderAction(anActionEvent);
     var branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
     if (branch.isDefined()) {
-      if (branch.get().isNonRoot()) {
-        doSlideOut(anActionEvent, branch.get().asNonRoot());
-      } else {
-        LOG.warn("Skipping the action because the branch '${branch.get().getName()}' is a root branch");
-      }
+      doSlideOut(anActionEvent, branch.get());
     }
   }
 
   @UIEffect
-  private void doSlideOut(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToSlideOut) {
+  private void doSlideOut(AnActionEvent anActionEvent, IManagedBranchSnapshot branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
