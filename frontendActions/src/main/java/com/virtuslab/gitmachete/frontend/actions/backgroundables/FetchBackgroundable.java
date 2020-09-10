@@ -54,11 +54,17 @@ public class FetchBackgroundable extends Task.Backgroundable {
     }
     var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
     fetchResult.showNotificationIfFailed(failureNotificationText);
+    fetchResult.throwExceptionIfFailed();
   }
 
   @UIEffect
   @Override
   public void onSuccess() {
     VcsNotifier.getInstance(project).notifySuccess(successNotificationText);
+  }
+
+  @Override
+  public void onThrowable(Throwable error) {
+    // ignore - notification already shown from `run` implementation
   }
 }
