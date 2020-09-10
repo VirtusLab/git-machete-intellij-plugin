@@ -1,4 +1,4 @@
-# Git Machete Features List
+# Git Machete Feature List
 
 ## Table of Contents
 

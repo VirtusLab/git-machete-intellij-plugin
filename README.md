@@ -148,9 +148,9 @@ When file editing is done, you can click the button in the top right corner of t
 
 For more information about the `machete` file, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
 
-## Features List
+## Feature List
 
-Please see the [features list](FEATURES-LIST.md) for more specific features description.
+Please see the [feature list](FEATURE-LIST.md) for more specific features description.
 
 ## Build
 
