@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+set -e
+
+sandboxDir=machete-sandbox
+
+create_branch() {
+  git checkout -b $1
+}
+
+commit() {
+  b=$(git symbolic-ref --short HEAD)
+  f=${b/\//-}-${1}-${2}.txt
+  touch $f
+  git add $f
+  git commit -m "$*"
+}
+
+create_repo() {
+  dir=$sandboxDir/$1
+  mkdir ~/$dir
+  cd ~/$dir
+  opt=$2
+  git init $opt
+}
+
+newremote() {
+  dir=$sandboxDir/$1-remote
+  mkdir ~/$dir
+  cd ~/$dir
+  git init --bare
+}
+
+push() {
+  b=$(git symbolic-ref --short HEAD)
+  git push -u origin $b
+}
+
+init() {
+  rm -fr /tmp/_$sandboxDir
+  mv -f ~/$sandboxDir /tmp/_$sandboxDir || true
+  mkdir ~/$sandboxDir
+}
+
+init
+
+newremote scenario-1
+create_repo scenario-1
+git remote add origin ~/$sandboxDir/scenario-1-remote
+
+create_branch master
+  commit 'Init'
+  push
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
+git checkout master
+git merge --ff-only -
+git branch -d fancy-footer
+git reset --hard HEAD~1
+git rev-parse HEAD > ~/$sandboxDir/scenario-1/.git/refs/remotes/origin/master
+git rev-parse HEAD
+create_branch sticky-header
+  commit 'Add sticky-header'
+  push
+git rev-parse origin/fancy-footer > ~/$sandboxDir/scenario-1-remote/refs/heads/master
+
+cat >.git/machete <<EOF
+master
+  sticky-header PR #2
+EOF
+
+newremote scenario-2
+create_repo scenario-2
+git remote add origin ~/$sandboxDir/scenario-2-remote
+
+create_branch master
+  commit 'Init'
+  push
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
+create_branch sticky-header
+  commit 'Add sticky-header'
+  push
+
+cat >.git/machete <<EOF
+master
+  fancy-footer PR #1
+    sticky-header PR #2
+EOF
+
+newremote scenario-3
+create_repo scenario-3
+git remote add origin ~/$sandboxDir/scenario-3-remote
+
+create_branch master
+  commit 'Init'
+  push
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
+create_branch sticky-header
+  commit 'Add sticky-header'
+  push
+
+cat >.git/machete <<EOF
+master
+  fancy-footer PR #1
+    sticky-header PR #2
+EOF
