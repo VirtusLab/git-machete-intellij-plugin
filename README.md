@@ -32,12 +32,11 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
 <!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path> -->
 
 - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
+- [Where to find the plugin tab](#where-to-find-the-plugin-tab)
 - [Getting started with Git Machete](#getting-started-with-git-machete)
-    - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-  - [Branch graph](#branch-graph)
-  - [Check out branches](#check-out-branches)
-  - [Rebase](#rebase)
-  - [Discover](#discover)
+  - [Scenario 1: Branch update](#scenario-1-branch-update)
+  - [Scenario 2: Stacked PRs (sequential branch setup)](#scenario-2-stacked-prs-sequential-branch-setup)
+  - [Scenario 3: Merge (maintaining linear history)](#scenario-3-merge-maintaining-linear-history)
 - [Feature List](#feature-list)
 - [Build](#build)
 - [Issue reporting](#issue-reporting)
@@ -54,69 +53,87 @@ then make sure you are on `Marketplace` tab (not `Installed`), in search box typ
 After installation, depending on the IDE version the restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
 
-## Getting started with Git Machete
 
-
-The examples below show a few common situations where Git Machete finds an exceptional application.
-If you are a Git Master or have used the CLI version already, you may want to jump directly to the [feature list](FEATURE-LIST.md).
-
-<TODO: EXAMPLES PLACEHOLDER>
-
-#### Where to find the plugin tab
+## Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
 You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
-
-### Branch graph
-
-For each branch, Git Machete indicates the relation to each of its child branches.
-If the edge between them is **green** that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
-But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) the child branch onto the parent.
-The **gray** color of the edge means that the branch was merged to the parent.
-In some (rare) cases you may encounter a **yellow** edge which means that a fork point can't be determined automatically
-(see [Override fork point section](#override-fork-point) to learn how to fix that).
-
-![](docs/sample_graph.png)
-
-As we can see in the example above, `hotfix/add-trigger` is in sync with `master`.
-`call-ws` is **not** in sync with `develop` and `drop-constraint` is **not** in sync with `call-ws`.
-`build-chain` was merged into `develop`.
-Note that the branch layout can be arbitrarily modified with ease (see [Edit machete file section](#edit-machete-file) for details).
+## Getting started with Git Machete
 
 
-### Check out branches
+The examples below show a few common situations where Git Machete finds an exceptional application.
 
-With the Git Machete you can easily check out branches that have been defined in the `machete` file.
-Just right-click on the branch you want to check out and select `Checkout`.
-You can also double-click on the selected branch to check it out.
-The current branch is underlined in a branch layout.
-
-![](docs/checkout.gif)
+**If you are a Git Master or have used the Git Machete CLI version already, you may want to jump directly to the [feature list](FEATURE-LIST.md).**
 
 
-### Rebase
+### Scenario 1: Branch update
+- master
+  - sticky-header
 
-Rebase with Git Machete plugin is easy!
-Just right-click on the child branch and from a context menu select `(Checkout and) Rebase Branch onto Parent`.
-Standard IntelliJ dialog for interactive rebase will appear.
+---
+- explain situation
+- mention review state of PRs (branches)
+- mention push/force push difference and why is it needed
+- explain why pull, rebase and push are needed (in terms of syncs)
+- note checkout
+---
 
-![](docs/rebase.gif)
+0. all in sync (to remote and parent)
+1. fetch (`master` gets out of sync to remote)
+2. pull `master`
+4. rebase `sticky-header`
+5. push
+
+|gif|
+
+|desc|
 
 
-### Discover
+### Scenario 2: Stacked PRs (sequential branch setup)
+- master
+  - fancy-footer
+    - sticky-header
 
-The `machete` file describes relations between branches in your repository.
-These relations are probably determined by the order of branch creation &mdash;
-which branch has been created from which &mdash; but this is not a strict rule).<br/>
-It'll be located under `.git/machete` path in your repository.
+---
+- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
+- mention review state of PRs (branches)
+- mention push/force push difference and why is it needed
+- note checkout
+---
 
-This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.
-It constructs a layout from around 10 most recently used branches.
-**This action is automatically invoked in case of an empty or nonexistent `machete` file,**
-but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
+0. all in sync (to remote and parent)
+1. commit (to `fancy-footer`)
+2. push `fancy-footer`
+3. rebase `sticky-header`
+4. push `sticky-header`
 
-![](docs/discover.gif)
+|gif|
+
+|desc|
+
+
+### Scenario 3: Merge (maintaining linear history)
+- master
+  - fancy-footer
+    - sticky-header
+
+---
+- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
+- mention review state of PRs (branches)
+- mention push/force push difference and why is it needed
+- add note that ff merge is only an option (link [git scm](https://git-scm.com/docs/git-merge#_fast_forward_merge))
+- note checkout
+---
+
+0. all in sync (to remote and parent)
+1. ff `master` to match `fancy-footer`
+3. push `master`
+4. slide out `fancy-footer`
+
+|gif|
+
+|desc|
 
 
 ## Feature List
