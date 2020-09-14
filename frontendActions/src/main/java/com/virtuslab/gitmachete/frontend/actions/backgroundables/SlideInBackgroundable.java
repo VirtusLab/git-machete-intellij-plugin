@@ -77,14 +77,12 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         targetBranchLayout = branchLayout;
       } else {
         entryToSlideIn = entryByName.withChildren(List.empty());
-        targetBranchLayout = Try.of(() -> branchLayout.slideOut(slideInOptions.getName()))
-            .onFailure(EntryDoesNotExistException.class, exceptionWithMessageHandler(
-                format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                    entryToSlideIn.getName())))
-            .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null))
-            .getOrNull();
-
-        if (targetBranchLayout == null) {
+        try {
+          targetBranchLayout = branchLayout.slideOut(slideInOptions.getName());
+        } catch (EntryDoesNotExistException e) {
+          exceptionWithMessageHandler(
+              format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
+                  entryToSlideIn.getName())).accept(e);
           return;
         }
       }
