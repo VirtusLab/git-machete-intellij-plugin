@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -80,9 +79,10 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         try {
           targetBranchLayout = branchLayout.slideOut(slideInOptions.getName());
         } catch (EntryDoesNotExistException e) {
-          exceptionWithMessageHandler(
+          notifyError(
               format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                  entryToSlideIn.getName())).accept(e);
+                  entryToSlideIn.getName()),
+              e);
           return;
         }
       }
@@ -93,22 +93,29 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       targetBranchLayout = branchLayout;
     }
 
-    var newBranchLayout = Try
-        .of(() -> targetBranchLayout.slideIn(parentName, entryToSlideIn))
-        .onFailure(EntryDoesNotExistException.class, exceptionWithMessageHandler(
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-                parentName)))
-        .onFailure(EntryIsDescendantOfException.class, exceptionWithMessageHandler(
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
-                entryToSlideIn.getName(), parentName)))
-        .onFailure(Exception.class, exceptionWithMessageHandler(/* message */ null))
-        .toOption();
+    IBranchLayout newBranchLayout;
+    try {
+      newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
+    } catch (EntryDoesNotExistException e) {
+      notifyError(
+          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
+              parentName),
+          e);
+      return;
+    } catch (EntryIsDescendantOfException e) {
+      notifyError(
+          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
+              entryToSlideIn.getName(), parentName),
+          e);
+      return;
+    }
 
-    newBranchLayout.map(nbl -> Try.run(() -> branchLayoutWriter.write(macheteFilePath, nbl, /* backupOldLayout */ true))
+    final var finalNewBranchLayout = newBranchLayout;
+    Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
         .onFailure(t -> notifier.notifyError(
             /* title */ getString(
                 "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
-            getMessageOrEmpty(t))));
+            getMessageOrEmpty(t)));
   }
 
   private void waitForCreationOfLocalBranch() {
@@ -136,13 +143,11 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     }
   }
 
-  private Consumer<Throwable> exceptionWithMessageHandler(@Nullable String message) {
-    return t -> {
-      notifier.notifyError(
-          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
-              slideInOptions.getName()),
-          message != null ? message : getMessageOrEmpty(t));
-    };
+  private void notifyError(@Nullable String message, Throwable throwable) {
+    notifier.notifyError(
+        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
+            slideInOptions.getName()),
+        message != null ? message : getMessageOrEmpty(throwable));
   }
 
   private static String getMessageOrEmpty(Throwable t) {
