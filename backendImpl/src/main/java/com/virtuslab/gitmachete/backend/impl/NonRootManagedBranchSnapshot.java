@@ -87,7 +87,7 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
         "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
         "forkPointCommit = ${forkPoint != null ? forkPoint.getHash() : null}");
 
-    return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch.getPointedCommit(), forkPoint);
+    return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch, forkPoint);
   }
 
   @Override

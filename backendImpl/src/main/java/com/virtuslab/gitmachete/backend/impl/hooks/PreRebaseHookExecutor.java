@@ -49,7 +49,7 @@ public final class PreRebaseHookExecutor {
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(
         hookFilePath,
-        gitRebaseParameters.getNewBaseCommit().getHash(),
+        gitRebaseParameters.getNewBaseBranch().getFullName(),
         gitRebaseParameters.getForkPointCommit().getHash(),
         gitRebaseParameters.getCurrentBranch().getName());
     // According to git hooks spec (`git help hooks`):

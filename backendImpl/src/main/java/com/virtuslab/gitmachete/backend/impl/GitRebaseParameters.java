@@ -10,17 +10,17 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 @Data
 public class GitRebaseParameters implements IGitRebaseParameters {
   private final IManagedBranchSnapshot currentBranch;
-  private final ICommitOfManagedBranch newBaseCommit;
+  private final IManagedBranchSnapshot newBaseBranch;
   private final ICommitOfManagedBranch forkPointCommit;
 
   @ToString.Include(name = "currentBranch")
-  private String getCurrentBranchBame() {
+  private String getCurrentBranchName() {
     return currentBranch.getName();
   }
 
-  @ToString.Include(name = "newBaseCommit")
-  private String getNewBaseCommitShortHash() {
-    return newBaseCommit.getShortHash();
+  @ToString.Include(name = "newBaseBranch")
+  private String getNewBaseBranchName() {
+    return newBaseBranch.getName();
   }
 
   @ToString.Include(name = "forkPointCommit")

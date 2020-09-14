@@ -218,7 +218,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
             GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
             LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
                 "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
-                "onto ${gitRebaseParameters.getNewBaseCommit().getHash()}");
+                "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
 
             GitRebaseUtils.rebase(project, java.util.List.of(gitRepository), params, indicator);
           }
@@ -233,10 +233,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {
     GitVersion gitVersion = repository.getVcs().getVersion();
     String currentBranch = gitRebaseParameters.getCurrentBranch().getName();
-    String newBase = gitRebaseParameters.getNewBaseCommit().getHash();
+    String newBaseBranch = gitRebaseParameters.getNewBaseBranch().getFullName();
     String forkPoint = gitRebaseParameters.getForkPointCommit().getHash();
 
-    return new GitRebaseParams(gitVersion, currentBranch, newBase, /* parent */ forkPoint,
+    return new GitRebaseParams(gitVersion, currentBranch, newBaseBranch, /* parent */ forkPoint,
         /* interactive */ true, /* preserveMerges */ false);
   }
 }
