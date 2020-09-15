@@ -2,45 +2,10 @@
 
 set -e
 
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/sandbox-setup-utils.sh
+
 sandboxDir=machete-sandbox
-
-create_branch() {
-  git checkout -b $1
-}
-
-commit() {
-  b=$(git symbolic-ref --short HEAD)
-  f=${b/\//-}-${1}-${2}.txt
-  touch $f
-  git add $f
-  git commit -m "$*"
-}
-
-create_repo() {
-  dir=$sandboxDir/$1
-  mkdir ~/$dir
-  cd ~/$dir
-  opt=$2
-  git init $opt
-}
-
-newremote() {
-  dir=$sandboxDir/$1-remote
-  mkdir ~/$dir
-  cd ~/$dir
-  git init --bare
-}
-
-push() {
-  b=$(git symbolic-ref --short HEAD)
-  git push -u origin $b
-}
-
-init() {
-  rm -fr /tmp/_$sandboxDir
-  mv -f ~/$sandboxDir /tmp/_$sandboxDir || true
-  mkdir ~/$sandboxDir
-}
 
 init
 
