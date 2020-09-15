@@ -97,9 +97,6 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       Path macheteFilePath = getMacheteFilePath(gitRepository);
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
-      VcsNotifier.getInstance(project)
-          .notifySuccess(
-              format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success"), branchName));
 
     } catch (BranchLayoutException e) {
       String exceptionMessage = e.getMessage();
@@ -135,11 +132,26 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
         if (slidOutBranchIsCurrent) {
           LOG.debug("Skipping local branch deletion because it is equal to current branch");
           getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+          VcsNotifier.getInstance(project)
+              .notifySuccess(
+                  format(
+                      getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.of-current"),
+                      branchName));
           return;
         }
 
         GitBrancher.getInstance(project).deleteBranch(branchName, gitRepository.toJavaList());
+        VcsNotifier.getInstance(project)
+            .notifySuccess(
+                format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.with-delete"),
+                    branchName));
         return; // repository update invoked via GIT_REPO_CHANGE topic
+      } else {
+        VcsNotifier.getInstance(project)
+            .notifySuccess(
+                format(
+                    getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.without-delete"),
+                    branchName));
       }
     }
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
