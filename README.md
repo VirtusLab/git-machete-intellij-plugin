@@ -261,8 +261,8 @@ it's an arbitrary description displayed next to the given branch (in this case, 
 
 The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
 
-In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`.
-`master`, in turn, is the parent of `hotfix/add-trigger`.
+In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`. <br/>
+`master`, in turn, is the parent of `hotfix/add-trigger`. <br/>
 `develop` and `master` are root branches.
 
 Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
