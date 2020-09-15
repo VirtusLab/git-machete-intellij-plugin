@@ -2,16 +2,19 @@ package com.virtuslab.gitmachete.frontend.ui.impl;
 
 import java.awt.Component;
 
+import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
+import com.intellij.ui.GuiUtils;
 import com.intellij.util.Consumer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class GitMacheteErrorHandler extends ErrorReportSubmitter {
   @Override
   public String getReportActionText() {
-    return "Report to VirtusLab";
+    return "Open Issue On GitHub";
   }
 
   @Override
@@ -20,7 +23,9 @@ public class GitMacheteErrorHandler extends ErrorReportSubmitter {
       @Nullable String additionalInfo,
       Component parentComponent,
       Consumer<SubmittedReportInfo> consumer) {
-    // implement here
+    GuiUtils.invokeLaterIfNeeded(() -> BrowserUtil.browse(
+        "https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new?assignees=&labels=bug&template=bug_report.md"),
+        ModalityState.NON_MODAL);
     return super.submit(events, additionalInfo, parentComponent, consumer);
   }
 }
