@@ -74,3 +74,23 @@ master
   fancy-footer PR #1
     sticky-header PR #2
 EOF
+
+newremote scenario-4
+create_repo scenario-4
+git remote add origin ~/$sandboxDir/scenario-4-remote
+
+create_branch master
+  commit 'Init'
+  push
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
+git checkout master
+create_branch sticky-header
+  commit 'Add sticky-header'
+  push
+
+cat >.git/machete <<EOF
+master
+  fancy-footer PR #1
+EOF
