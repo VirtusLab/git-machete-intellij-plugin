@@ -37,6 +37,7 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
   - [Scenario 1: Branch update](#scenario-1-branch-update)
   - [Scenario 2: Stacked PRs (sequential branch setup)](#scenario-2-stacked-prs-sequential-branch-setup)
   - [Scenario 3: Merge (maintaining linear history)](#scenario-3-merge-maintaining-linear-history)
+  - [Scenario 4: Review](#scenario-4-review)
 - [Feature List](#feature-list)
 - [Build](#build)
 - [Issue reporting](#issue-reporting)
@@ -130,6 +131,26 @@ The examples below show a few common situations where Git Machete finds an excep
 1. ff `master` to match `fancy-footer`
 3. push `master`
 4. slide out `fancy-footer`
+
+|gif|
+
+|desc|
+
+
+### Scenario 4: Review
+- master
+  - fancy-footer
+
+---
+- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
+- mention review state of PRs (branches)
+- note checkout
+---
+
+0. all in sync (to remote and parent)
+1. slide in (and checkout) `sticky-header` (someone's PR)
+2. checkout `master`
+3. slide out `sticky-header`
 
 |gif|
 
