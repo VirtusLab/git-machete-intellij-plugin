@@ -49,7 +49,7 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
 ## Installing from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
-To install this plugin go to `File` -> `Settings` -> `Plugins` in your IDE,
+To install this plugin go to `File > Settings > Plugins` in your IDE,
 then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`.
 After installation, depending on the IDE version the restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
@@ -170,7 +170,7 @@ Please see the [development documentation](DEVELOPMENT.md) for instruction on ho
 If you see any bug or just would like to propose any new feature, feel free to create an issue.
 When you report a bug please include logs from IntelliJ.<br/>
 It can be very helpful for us to enable logging on a debug level and then reproduce a bug.
-To do this, go to `Help` -> `Diagnostic Tools` -> `Debug Log Settings` and then paste the following lines:
+To do this, go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following lines:
 
 ```
 binding
@@ -183,7 +183,7 @@ gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
 
-Then reproduce the bug and go to `Help` -> `Show Log in Files` to open the log file.
+Then reproduce the bug and go to `Help > Show Log in Files` to open the log file.
 
 
 ## References

@@ -7,10 +7,10 @@
 
   * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
   * Enable annotation processing (for Lombok):
-    `File` -> `Settings` -> `Build`, `Execution`, `Deployment` -> `Compiler` -> `Annotation Processors` -> `Enable Annotation Processing`
-  * Set Project SDK to JDK 11: `Project Structure` -> `Project`
+    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
+  * Set Project SDK to JDK 11: `Project Structure > Project`
 
-Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help` -> `Change Memory Settings`.
+Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
 For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
@@ -66,7 +66,7 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 ## Run & debug
 
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
-execute `:runIde` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `runIde` or `./gradlew runIde`).
+execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./gradlew runIde`).
 
 To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
 
@@ -88,14 +88,14 @@ for more details.
 
 ## Generate plugin zip
 
-To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel` -> `Tasks` -> `intellij` -> `buildPlugin` or `./gradlew buildPlugin`).<br/>
+To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel > Tasks > intellij > buildPlugin` or `./gradlew buildPlugin`).<br/>
 The resulting file will be available under `build/distributions/`.
 
 
 ## Install snapshot build of the plugin from CI
 
 Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin). <br/>
-Go to `File` -> `Settings` -> `Plugins` -> `(gear icon)` -> `Install Plugin from Disk...`, select the zip and restart IDE.
+Go to `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`, select the zip and restart IDE.
 
 
 ## Logging
@@ -118,10 +118,10 @@ in our case, however, we're only ever using the categories provided above.
 FQCN (and method name), however, is always a part of the log message itself.
 
 By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
-The exact location depends on a specific IntelliJ installation; check `Help` -> `Show Log in Files` to find out. <br/>
+The exact location depends on a specific IntelliJ installation; check `Help > Show Log in Files` to find out. <br/>
 Tip: use `tail -f` to watch the log file as it grows.
 
-To enable logging in `DEBUG` level, add selected categories to list in `Help` -> `Diagnostic Tools` -> `Debug Log Settings`. <br/>
+To enable logging in `DEBUG` level, add selected categories to list in `Help > Diagnostic Tools > Debug Log Settings`. <br/>
 A relatively small amount of `TRACE`-level logs is generated as well.
 
 
