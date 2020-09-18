@@ -9,6 +9,7 @@ sandboxDir=machete-sandbox
 
 init
 
+# Review
 newremote scenario-1
 create_repo scenario-1
 git remote add origin ~/$sandboxDir/scenario-1-remote
@@ -16,25 +17,27 @@ git remote add origin ~/$sandboxDir/scenario-1-remote
 create_branch master
   commit 'Init'
   push
+git checkout master
+create_branch sticky-header
+  commit 'Add sticky-header'
+  push
 create_branch fancy-footer
   commit 'Add fancy footer'
   push
 git checkout master
-git merge --ff-only -
-git branch -d fancy-footer
-git reset --hard HEAD~1
-git rev-parse HEAD > ~/$sandboxDir/scenario-1/.git/refs/remotes/origin/master
-git rev-parse HEAD
-create_branch sticky-header
-  commit 'Add sticky-header'
+create_branch common-scripts
+  commit 'Add common-scripts'
   push
-git rev-parse origin/fancy-footer > ~/$sandboxDir/scenario-1-remote/refs/heads/master
+git checkout fancy-footer
+git branch -d common-scripts
 
 cat >.git/machete <<EOF
 master
   sticky-header PR #2
+    fancy-footer PR #3
 EOF
 
+# Branch update
 newremote scenario-2
 create_repo scenario-2
 git remote add origin ~/$sandboxDir/scenario-2-remote
@@ -42,55 +45,71 @@ git remote add origin ~/$sandboxDir/scenario-2-remote
 create_branch master
   commit 'Init'
   push
-create_branch fancy-footer
-  commit 'Add fancy footer'
+create_branch common-scripts
+  commit 'Add common-scripts'
   push
+git checkout master
+  git merge --ff-only -
+  git branch -d common-scripts
+  git reset --hard HEAD~1
+  git rev-parse HEAD > ~/$sandboxDir/scenario-2/.git/refs/remotes/origin/master
+  git rev-parse HEAD
+  git rev-parse origin/common-scripts > ~/$sandboxDir/scenario-2-remote/refs/heads/master
 create_branch sticky-header
   commit 'Add sticky-header'
   push
-
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
 cat >.git/machete <<EOF
 master
-  fancy-footer PR #1
-    sticky-header PR #2
+  sticky-header PR #2
+    fancy-footer PR #3
 EOF
 
+# Stacker PRs
 newremote scenario-3
 create_repo scenario-3
 git remote add origin ~/$sandboxDir/scenario-3-remote
 
 create_branch master
   commit 'Init'
-  push
-create_branch fancy-footer
-  commit 'Add fancy footer'
+  commit 'Add common-scripts'
   push
 create_branch sticky-header
   commit 'Add sticky-header'
   push
+create_branch fancy-footer
+  commit 'Add fancy footer'
+  push
+git checkout sticky-header
+  commit 'Fix typos'
 
 cat >.git/machete <<EOF
 master
-  fancy-footer PR #1
-    sticky-header PR #2
+  sticky-header PR #2
+    fancy-footer PR #3
 EOF
 
+# Merge (ff)
 newremote scenario-4
 create_repo scenario-4
 git remote add origin ~/$sandboxDir/scenario-4-remote
 
 create_branch master
   commit 'Init'
+  commit 'Add common-scripts'
+ push
+create_branch sticky-header
+  commit 'Add sticky-header'
+  commit 'Fix typos'
   push
 create_branch fancy-footer
   commit 'Add fancy footer'
   push
-git checkout master
-create_branch sticky-header
-  commit 'Add sticky-header'
-  push
 
 cat >.git/machete <<EOF
 master
-  fancy-footer PR #1
+  sticky-header PR #2
+    fancy-footer PR #3
 EOF
