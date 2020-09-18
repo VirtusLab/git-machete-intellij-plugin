@@ -232,11 +232,11 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {
     GitVersion gitVersion = repository.getVcs().getVersion();
-    String currentBranch = gitRebaseParameters.getCurrentBranch().getName();
-    String newBaseBranch = gitRebaseParameters.getNewBaseBranch().getFullName();
-    String forkPoint = gitRebaseParameters.getForkPointCommit().getHash();
+    String currentBranchName = gitRebaseParameters.getCurrentBranch().getName();
+    String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
+    String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
-    return new GitRebaseParams(gitVersion, currentBranch, newBaseBranch, /* parent */ forkPoint,
+    return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName, /* upstream */ forkPointCommitHash,
         /* interactive */ true, /* preserveMerges */ false);
   }
 }
