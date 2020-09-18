@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:1.0.0'
+      - image: 'gitmachete/intellij-plugin-ci:2.0.0'
     working_directory: ~/git-machete-intellij-plugin
     steps:
       - checkout
@@ -34,12 +34,6 @@ jobs:
           name: Compile tests
           command: ./gradlew compileTestJava
       - run:
-          name: '[TEMP] Upgrade git-machete CLI'
-          command: |
-            apt-get update
-            apt-get install --no-install-recommends -y python3-pip
-            pip3 install --upgrade git-machete==2.15.5
-      - run:
           name: Run backend tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
@@ -66,8 +60,8 @@ jobs:
           command: ./scripts/run-ui-tests 2020.1
       # Skipping 2020.1.4 to speed up the build; the risk of 2020.1.x failing when both 2020.1 & 2020.2 pass is minuscule.
       - run:
-          name: Run UI tests against 2020.2.1 (latest stable & our build target)
-          command: ./scripts/run-ui-tests 2020.2.1
+          name: Run UI tests against 2020.2.2 (latest stable & our build target)
+          command: ./scripts/run-ui-tests 2020.2.2
       - store_test_results:
           path: uiTests/build/ui-test-results/
 
