@@ -34,10 +34,10 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
 - [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
 - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
 - [Getting started with Git Machete](#getting-started-with-git-machete)
-  - [Scenario 1: Branch update](#scenario-1-branch-update)
-  - [Scenario 2: Stacked PRs (sequential branch setup)](#scenario-2-stacked-prs-sequential-branch-setup)
-  - [Scenario 3: Merge (maintaining linear history)](#scenario-3-merge-maintaining-linear-history)
-  - [Scenario 4: Review](#scenario-4-review)
+  - [Scenario 1: Review](#scenario-1-review)
+  - [Scenario 2: Branch update](#scenario-2-branch-update)
+  - [Scenario 3: Stacked PRs (sequential branch setup)](#scenario-3-stacked-prs-sequential-branch-setup)
+  - [Scenario 4: Merge (maintaining linear history)](#scenario-4-merge-maintaining-linear-history)
 - [Feature List](#feature-list)
 - [Build](#build)
 - [Issue reporting](#issue-reporting)
@@ -68,89 +68,87 @@ The examples below show a few common situations where Git Machete finds an excep
 **If you are a Git Master or have used the Git Machete CLI version already, you may want to jump directly to the [feature list](FEATURE-LIST.md).**
 
 
-### Scenario 1: Branch update
+### Scenario 1: Review
 - master
   - sticky-header
+    - fancy-footer
 
 ---
-- explain situation
 - mention review state of PRs (branches)
-- mention push/force push difference and why is it needed
-- explain why pull, rebase and push are needed (in terms of syncs)
-- note checkout
+- note checkout (by d-click option)
+- note slide out and delete option
+---
+
+0. all in sync (to remote and parent)
+1. slide in (and checkout) `common-scripts` (someone's PR)
+2. checkout `master`
+3. slide out `common-scripts`
+
+|gif|
+
+|desc|
+
+
+### Scenario 2: Branch update
+- master
+  - sticky-header
+    - fancy-footer
+
+---
+- mention review state of PRs (branches)
+- explain why pull is needed (in terms of syncs)
+- note checkout (by d-click option)
 ---
 
 0. all in sync (to remote and parent)
 1. fetch (`master` gets out of sync to remote)
 2. pull `master`
 4. rebase `sticky-header`
-5. push
+5. rebase `fancy-footer`
+6. push'em all
 
 |gif|
 
 |desc|
 
 
-### Scenario 2: Stacked PRs (sequential branch setup)
+### Scenario 3: Stacked PRs (sequential branch setup)
 - master
-  - fancy-footer
-    - sticky-header
+  - sticky-header
+    - fancy-footer
 
 ---
-- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
 - mention review state of PRs (branches)
 - mention push/force push difference and why is it needed
-- note checkout
+- note checkout (by d-click option)
 ---
 
 0. all in sync (to remote and parent)
-1. commit (to `fancy-footer`)
-2. push `fancy-footer`
-3. rebase `sticky-header`
-4. push `sticky-header`
+1. commit (to `sticky-header`)
+2. rebase `fancy-footer`
+3. push'em all
 
 |gif|
 
 |desc|
 
 
-### Scenario 3: Merge (maintaining linear history)
+### Scenario 4: Merge (maintaining linear history)
 - master
-  - fancy-footer
-    - sticky-header
+  - sticky-header
+    - fancy-footer
 
 ---
-- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
 - mention review state of PRs (branches)
 - mention push/force push difference and why is it needed
 - add note that ff merge is only an option (link [git scm](https://git-scm.com/docs/git-merge#_fast_forward_merge))
-- note checkout
+- note checkout (by d-click option)
 ---
 
-0. all in sync (to remote and parent)
-1. ff `master` to match `fancy-footer`
+0. all in sync (to remote and parent, be on `fancy-footer`)
+1. ff `master` to match `sticky-header`
 3. push `master`
-4. slide out `fancy-footer`
-
-|gif|
-
-|desc|
-
-
-### Scenario 4: Review
-- master
-  - fancy-footer
-
----
-- explain branch layout (possibly fancy-footer introduces some library common for both footer and header)
-- mention review state of PRs (branches)
-- note checkout
----
-
-0. all in sync (to remote and parent)
-1. slide in (and checkout) `sticky-header` (someone's PR)
-2. checkout `master`
-3. slide out `sticky-header`
+4. slide out `sticky-header`
 
 |gif|
 
