@@ -84,7 +84,7 @@ The examples below show a few common situations where Git Machete finds an excep
 2. checkout `master`
 3. slide out `common-scripts`
 
-|gif|
+![](docs/plugins.jetbrains.com/scenario-1-review.gif)
 
 |desc|
 
@@ -107,7 +107,7 @@ The examples below show a few common situations where Git Machete finds an excep
 5. rebase `fancy-footer`
 6. push'em all
 
-|gif|
+![](docs/plugins.jetbrains.com/scenario-2-branch-update.gif)
 
 |desc|
 
@@ -128,7 +128,7 @@ The examples below show a few common situations where Git Machete finds an excep
 2. rebase `fancy-footer`
 3. push'em all
 
-|gif|
+![](docs/plugins.jetbrains.com/scenario-3-stacked-prs.gif)
 
 |desc|
 
@@ -150,7 +150,7 @@ The examples below show a few common situations where Git Machete finds an excep
 3. push `master`
 4. slide out `sticky-header`
 
-|gif|
+![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
 |desc|
 
