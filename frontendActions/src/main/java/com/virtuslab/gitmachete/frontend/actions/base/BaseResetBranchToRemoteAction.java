@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBac
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -18,12 +19,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
@@ -237,6 +240,10 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
             log().error(result.getErrorOutputAsJoinedString());
             VcsNotifier.getInstance(project).notifyError(VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
           }
+
+          var repositoryRoot = getMainDirectory(gitRepository);
+          GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
+          GitUtil.refreshVfsInRoot(repositoryRoot);
         }
       }
     }.queue();
