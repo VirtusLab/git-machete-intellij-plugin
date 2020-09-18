@@ -38,6 +38,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
@@ -256,10 +257,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           GuiUtils.invokeLaterIfNeeded(
               () -> {
                 gitMacheteRepositorySnapshot = repositorySnapshot;
-                var repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
-                setModel(new GraphTableModel(repositoryGraph));
-                repaint();
-                revalidate();
+                queueRepositoryUpdateAndModelRefresh();
 
                 VcsNotifier.getInstance(project)
                     .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"));
@@ -320,6 +318,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
+
+        GitVfsUtils.getMacheteFile(gitRepository).forEach(macheteFile -> VfsUtil.markDirtyAndRefresh(/* async */ true,
+            /* recursive */ false, /* reloadChildren */ false, macheteFile));
       }, NON_MODAL);
     } else {
       LOG.debug("Project is disposed");
