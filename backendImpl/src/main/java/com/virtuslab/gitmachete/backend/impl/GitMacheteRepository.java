@@ -719,6 +719,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private static class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryAux {
 
     private static final String MASTER = "master";
+    private static final String MAIN = "main"; // see https://github.com/github/renaming
     private static final String DEVELOP = "develop";
 
     DiscoverGitMacheteRepositoryAux(
@@ -820,6 +821,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       if (localBranchNames.contains(MASTER)) {
         fixedRootBranchNames = List.of(MASTER);
         nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(MASTER));
+      } else if (localBranchNames.contains(MAIN)) {
+        fixedRootBranchNames = List.of(MAIN);
+        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(MAIN));
       } else if (localBranchNames.contains(DEVELOP)) {
         fixedRootBranchNames = List.of(DEVELOP);
         nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(DEVELOP));

@@ -13,3 +13,4 @@ dependencies {
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
+applyI18nFormatterChecker()
