@@ -16,13 +16,11 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 
-    var branchNamesOption = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    var branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
-    if (branchNamesOption.isEmpty()) {
+    if (branchNames.isEmpty()) {
       return;
     }
-
-    var branchNames = branchNamesOption.get();
 
     /**
      * {@link CompletionResultSet#stopHere} marks the result set as stopped.

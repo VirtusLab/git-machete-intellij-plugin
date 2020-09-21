@@ -356,7 +356,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     private CreatedAndSkippedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
-        IBranchLayoutEntry entry) throws GitCoreException, GitMacheteException {
+        IBranchLayoutEntry entry) throws GitCoreException {
 
       var branchName = entry.getName();
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();

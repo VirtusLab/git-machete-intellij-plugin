@@ -57,17 +57,15 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
-    var branchNamesOption = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    var branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
-    if (branchNamesOption.isEmpty()) {
+    if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {
         GuiUtils.invokeLaterIfNeeded(() -> showCantGetBranchesMessage(file), NON_MODAL);
       }
       return;
     }
     cantGetBranchesMessageWasShown = false;
-
-    var branchNames = branchNamesOption.get();
 
     var processedBranchName = branch.getText();
 
