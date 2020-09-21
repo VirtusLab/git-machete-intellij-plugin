@@ -19,7 +19,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitUtil;
+import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
@@ -243,7 +243,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
           var repositoryRoot = getMainDirectory(gitRepository);
           GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
-          GitUtil.refreshVfsInRoot(repositoryRoot);
+          VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
         }
       }
     }.queue();
