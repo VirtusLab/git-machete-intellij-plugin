@@ -208,6 +208,7 @@ To create a release:
 * fill up [CHANGE-NOTES.html](CHANGE-NOTES.html) file with the updated change notes:
     * for major/minor release - wipe existing file content and replace with a new one
     * for patch release - append to the existing change notes
+      (although if a significant amount of time passed from the latest minor/major release, wiping out the existing notes is preferred as well)
 * commit the changes with the `Release v<version>` message
 * open PR from `release/v<version>` to `master`
 

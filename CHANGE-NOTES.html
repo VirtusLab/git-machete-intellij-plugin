@@ -1,23 +1,13 @@
-Features:
+Improvements:
 <ul>
-  <li>Added discover functionality</li>
-  <li>Added fork point override functionality</li>
-  <li>Branch reset is possible without checking it out</li>
-  <li>Toolbar menu was revamped to suggest most suitable actions for the current branch</li>
-  <li>Pull action uses inferred remote branch in case tracking config is missing</li>
-  <li>Added tooltips with information about synchronization to parent branch status for given branch</li>
-  <li>Added 'Edit' option to the discovered dialog that opens machete file</li>
+  <li>Sliding out root branches is now allowed</li>
+  <li>Success notifications for reset to remote, fast-forward, rebase and slide out actions have been made clearer</li>
+  <li>Machete file is automatically refreshed in the editor once the status is refreshed in the VCS tab</li>
+  <li>Both 'develop' and 'main' can also be considered root branches in layout discovery if 'master' branch is absent</li>
 </ul>
 <br/>
 <br/>
 Bug fixes:
 <ul>
-  <li>Sliding in a branch that does not exist in the local repository but has a remote counterpart was fixed</li>
-  <li>Fast forwarding given branch to the currently checked out branch is possible</li>
-  <li>Branch names of submodule repository are checked and proposed correctly in machete file editor</li>
-  <li>Toggle listing commits is disabled in case there are no commits to display</li>
-  <li>Enable branch name completion and syntax annotation while indexing</li>
-  <li>Prohibit force push of protected branches</li>
-  <li>Ensure each project-readiness-dependent action is disabled & hidden as long as project is not ready</li>
-  <li>Unreliable links has been removed; non-existing/empty machete file is being created by autodiscover</li>
+  <li>Status is now always automatically refreshed after resetting current branch to remote</li>
 </ul>
