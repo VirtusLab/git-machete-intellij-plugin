@@ -236,7 +236,8 @@ public class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
     // This loop could theoretically be performed totally on the IDE side (in JS/Rhino code),
     // but this would lead to spurious socket read timeouts when e.g. the indexing task happens to take too long.
     while (!indicators.isEmpty()) {
-      System.out.println("Waiting for ${indicators.size()} task(s) to complete...");
+      int taskCount = indicators.size();
+      System.out.println("Waiting for ${taskCount} task${taskCount > 1 ? \"s\" : \"\"} to complete...");
       Thread.sleep(1000);
       indicators = getProgressIndicators();
     }

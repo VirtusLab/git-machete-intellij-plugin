@@ -25,6 +25,7 @@ ext {
     // Preferably the most recent minor release of each version between the earliest supported (incl.) and current (excl.)
     inBetweenForCompatibilityChecks: ['2020.1.4'],
     current: '2020.2.2',
+    latestSupported: '2020.3'
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
@@ -469,7 +470,7 @@ patchPluginXml {
   sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupported)
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  untilBuild intellijVersionToBuildNumber(intellijVersions.current) + '.*'
+  untilBuild intellijVersionToBuildNumber(intellijVersions.latestSupported) + '.*'
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
@@ -483,11 +484,15 @@ apply from: 'plugin-verifier.gradle'
 runPluginVerifier {
   pluginFileName = "${intellij.pluginName}-${version}"
   verifierVersion = '1.241'
-  ides = [
+
+  def ideVersions = project.properties.intellijVersionForCompatibilityChecks ? [
+    project.properties.intellijVersionForCompatibilityChecks
+  ] : [
     intellijVersions.earliestSupported,
     *intellijVersions.inBetweenForCompatibilityChecks,
     intellijVersions.current
-  ].collect { 'IC-' + it }
+  ]
+  ides = ideVersions.collect { 'IC-' + it }
 }
 
 repositories {

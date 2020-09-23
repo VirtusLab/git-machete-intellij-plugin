@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
+# Usage:
+# $ ./scripts/verify-binary-compatibility [<intellij-version>]
+
+# If <intellij-version> is absent, then compatibility is verified against the set of versions defined in build.gradle.
+
 set -e -o pipefail -u
 
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-./gradlew runPluginVerifier
+intellij_version=${1-}
+
+./gradlew -PintellijVersionForCompatibilityChecks=${intellij_version} runPluginVerifier
+
 if stat -t build/pluginVerifier/reports/*/plugins/*/*/compatibility-problems.txt >/dev/null 2>&1; then
   die 'Compatibility problems detected'
 fi
