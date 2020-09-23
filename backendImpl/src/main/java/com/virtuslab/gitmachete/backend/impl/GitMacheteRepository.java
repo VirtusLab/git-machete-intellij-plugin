@@ -858,11 +858,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           .merge(entryByFreshNonFixedRootBranch);
       LOG.debug(() -> "Branches included in the discovered layout: " + entryByIncludedBranchName.keySet().mkString(", "));
 
-      // `roots` may be an empty list in the rare case there's no `master` or `develop` branch in the repository.
+      // `roots` may be an empty list in the rare case there's no master/main/develop branch in the repository.
       List<MyBranchLayoutEntry> roots = entryByFixedRootBranchNames.values().toList();
 
-      // Skipping the parent inference for fixed roots (currently just `master` or `develop`)
-      // and for the stale non-fixed-root branches.
+      // Skipping the parent inference for fixed roots and for the stale non-fixed-root branches.
       for (var branchEntry : entryByFreshNonFixedRootBranch.values()) {
         // Note that stale non-fixed-root branches are never considered as candidates for the parent.
         Seq<String> parentCandidateNames = entryByIncludedBranchName.values()

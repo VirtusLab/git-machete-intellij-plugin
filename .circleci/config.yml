@@ -66,77 +66,47 @@ jobs:
           path: uiTests/build/ui-test-results/
 
       - when:
-          # No point persisting the project directory to workspace if the `release` job is not going to be executed.
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
-            - persist_to_workspace:
-                root: .
-                paths: ['*']
-
-
-  release:
-    docker:
-      - image: gitmachete/intellij-plugin-ci
-    working_directory: ~/git-machete-intellij-plugin
-    steps:
-      # No checkout, just attaching the workspace from the build job.
-      - attach_workspace:
-          at: .
-      - run:
-          # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
-          name: Reconfigure origin remote to https
-          command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
-      - deploy:
-          name: Push git tag
-          command: |
-            source scripts/utils.sh
-            tag=v$(extract_version_from_current_wd)
-            git tag "$tag"
-            git push origin "$tag"
-      - deploy:
-          name: Create GitHub release
-          # Implicit usage of ${GITHUB_TOKEN} by hub
-          command: |
-            source scripts/utils.sh
-            tag=v$(extract_version_from_current_wd)
-            hub release create \
-              --attach build/distributions/git-machete-intellij-plugin-*.zip \
-              --message "$tag"$'\n\n'"$(<CHANGE-NOTES.html)" \
-              $tag
-      - deploy:
-          name: Open backport PR to develop
-          # Implicit usage of ${GITHUB_TOKEN} by hub
-          command: |
-            source scripts/utils.sh
-            version=$(extract_version_from_current_wd)
-            branch=backport/v$version
-            git checkout -b "$branch"
-            git push origin "$branch"
-            hub pull-request \
-              --no-edit \
-              --base=develop \
-              --message="Backport release of v$version to develop" \
-              --labels=backport
-      - deploy:
-          name: Publish plugin to Jetbrains Marketplace
-          # TODO (#391): prevent partial recompilation of the project in the `release` job
-          command: ./gradlew --max-workers=2 publishPlugin
-
-
-workflows:
-  version: 2
-  workflow:
-    jobs:
-      - build
-      - hold: # A job that will require manual approval in the CircleCI web application.
-          type: approval
-          requires: [build]
-          filters:
-            branches:
-              only: master
-      - release:
-          requires: [hold]
-          filters:
-            branches:
-              only: master
+            - deploy:
+                # Publishing should be the first step since if it fails, we should NOT proceed opening backport PR/GitHub release etc.
+                name: Publish plugin to Jetbrains Marketplace
+                command: ./gradlew --max-workers=2 publishPlugin
+            - deploy:
+                # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
+                name: Reconfigure origin remote to https
+                command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+            - deploy:
+                name: Push git tag
+                command: |
+                  source scripts/utils.sh
+                  tag=v$(extract_version_from_current_wd)
+                  git tag "$tag"
+                  git push origin "$tag"
+            - deploy:
+                name: Create GitHub release
+                # Implicit usage of ${GITHUB_TOKEN} by hub
+                command: |
+                  source scripts/utils.sh
+                  tag=v$(extract_version_from_current_wd)
+                  # Newlines (<br/>) are necessary for better layout on Marketplace, but make the formatting worse on GitHub
+                  change_notes=$(sed '/^<br.>$/d' CHANGE-NOTES.html)
+                  hub release create \
+                    --attach build/distributions/git-machete-intellij-plugin-*.zip \
+                    --message "$tag"$'\n\n'"$change_notes" \
+                    $tag
+            - deploy:
+                name: Open backport PR to develop
+                # Implicit usage of ${GITHUB_TOKEN} by hub
+                command: |
+                  source scripts/utils.sh
+                  version=$(extract_version_from_current_wd)
+                  branch=backport/v$version
+                  git checkout -b "$branch"
+                  git push origin "$branch"
+                  hub pull-request \
+                    --no-edit \
+                    --base=develop \
+                    --message="Backport release of v$version to develop" \
+                    --labels=backport
