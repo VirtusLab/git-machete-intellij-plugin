@@ -69,90 +69,72 @@ The examples below show a few common situations where Git Machete finds an excep
 
 
 ### Scenario 1: Review
-- master
-  - sticky-header
-    - fancy-footer
 
----
-- mention review state of PRs (branches)
-- note checkout (by d-click option)
-- note slide out and delete option
----
+Let's start our git machete story with a very common case of review.Suppose that you work on two branches: `sticky-header` and `fancy-footer`
+(you have split your work among these two branches as you know it is a good practice to keep PRs small and easily-reviewable).
 
-0. all in sync (to remote and parent)
-1. slide in (and checkout) `common-scripts` (someone's PR)
-2. checkout `master`
-3. slide out `common-scripts`
+In the meantime, a coworker of yours requested a review of their PR - branch `common-scripts`...
 
 ![](docs/plugins.jetbrains.com/scenario-1-review.gif)
 
-|desc|
+Git Machete allows you to checkout remote branch with `Slide In`.
+Alternatively, you could checkout it from CLI or IntelliJ itself.
+Once the review is done you can simply (from the dropdown option and by double-click) checkout any other branch - `master` in our example.
+Assume that our review will not result in any other changes to branch `common-scripts`, hence there is no need to keep it.
+The branch can be slid out (`Slide Out`) - deleted from the branch layout.
 
 
 ### Scenario 2: Branch update
-- master
-  - sticky-header
-    - fancy-footer
 
----
-- mention review state of PRs (branches)
-- explain why pull is needed (in terms of syncs)
-- note checkout (by d-click option)
----
-
-0. all in sync (to remote and parent)
-1. fetch (`master` gets out of sync to remote)
-2. pull `master`
-4. rebase `sticky-header`
-5. rebase `fancy-footer`
-6. push'em all
+The story continues... Your coworker has merged the `common-scripts` before you managed to merge your branches.
+You are supposed to update `master` and your branches now.
 
 ![](docs/plugins.jetbrains.com/scenario-2-branch-update.gif)
 
-|desc|
+Firstly, you can fetch all changes from the remote using `Fetch All`.
+As you expected, `master` is behind its remote, so you perform `Pull` to get it in sync.
+Note that the pull does not require checking out the branch.
+
+The edge between `master` and `sticky-header` got red.
+It means that there are some commits belonging to the parent (`master`) branch that are not reachable from the child (`sticky-header`).
+And there are such commits - from the merged `common-scripts`.
+
+Let's `Checkout and Rebase onto Parent...` to make `sticky-header` back in sync to `master`.Fortunately, there are no conflicts to resolve.
+Once `sticky-header` is rebased you can do the same for `fancy-footer`.You may want to update the remotes as well. To do so perform `Push...` for both of the branches.
+Again the push can be done to non-currently checked out branches.
+Note that force push is required (as you have rebased the branches).
+After the rebases and pushes all of your branches are back in sync - to their parents and to their remotes.
 
 
-### Scenario 3: Stacked PRs (sequential branch setup)
-- master
-  - sticky-header
-    - fancy-footer
+### Scenario 3: Commit to parent branch (sequential branch setup)
 
----
-- mention review state of PRs (branches)
-- mention push/force push difference and why is it needed
-- note checkout (by d-click option)
----
-
-0. all in sync (to remote and parent)
-1. commit (to `sticky-header`)
-2. rebase `fancy-footer`
-3. push'em all
+A review of your `sticky-header` has been done and all the fixes applied and committed.Git Machete shows that `sticky-header` is ahead of its remote.Furthermore, the edge between `sticky-header` and `fancy-footer` is red.
+The solution to this situation will not differ much from the previous scenario...
 
 ![](docs/plugins.jetbrains.com/scenario-3-stacked-prs.gif)
 
-|desc|
+You can start with `Checkout and Rebase Onto Parent...` to make `fancy-footer` back on top of `sticky-header`.
+Now `Push...` both branches.
+Everything is back in sync again.
 
 
 ### Scenario 4: Merge (maintaining linear history)
-- master
-  - sticky-header
-    - fancy-footer
 
----
-- mention review state of PRs (branches)
-- mention push/force push difference and why is it needed
-- add note that ff merge is only an option (link [git scm](https://git-scm.com/docs/git-merge#_fast_forward_merge))
-- note checkout (by d-click option)
----
-
-0. all in sync (to remote and parent, be on `fancy-footer`)
-1. ff `master` to match `sticky-header`
-3. push `master`
-4. slide out `sticky-header`
+Your `sticky-header` has been approved and is ready to merge.
+You know and value the concept of the linear git history,
+so you prefer merges that do not produce merge commits.
+You want to [fast-forward-merge](https://git-scm.com/docs/git-merge#_fast_forward_merge) `sticky-footer` into `master`.
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
-|desc|
+Note that `Fast Forward Parent to Match This Branch` does not require you to checkout any specific branch before.You can perform it from some other branch - `fancy-footer` in our case.
+
+Once you fast-forward the branch the edge between `master` and `sticky-header` gets gray - which means that the child branch has been merged.
+`master` is now ahead of remote because of the commits from `sticky-header`.
+`Push...` to it does not require force pushing so you can feel comfortable.
+
+You can now `Slide Out` the merged branch.
+The remained `master` and `fancy-footer` are in sync.
 
 
 ## Feature List
