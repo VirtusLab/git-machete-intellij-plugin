@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -e -o pipefail -u
 
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/sandbox-setup-utils.sh
@@ -85,7 +85,7 @@ create_branch fancy-footer
 git checkout sticky-header
   commit 'Fix typos'
 
-cat >.git/machete <<EOF
+cat >.git/machete <<'EOF'
 master
   sticky-header PR #2
     fancy-footer PR #3
@@ -108,7 +108,7 @@ create_branch fancy-footer
   commit 'Add fancy footer'
   push
 
-cat >.git/machete <<EOF
+cat >.git/machete <<'EOF'
 master
   sticky-header PR #2
     fancy-footer PR #3

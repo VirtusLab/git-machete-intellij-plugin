@@ -16,7 +16,7 @@ For running `./gradlew` from the command line, make sure that `java` and `javac`
 
 For running tests of `backendImpl` (which are also run by `./gradlew test` task, which is in turn itself run by `./gradlew build` task),
 install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
-in any of the versions listed in [backendImpl/src/test/resources/reference-cli-version.properties](backendImpl/src/test/resources/reference-cli-version.properties).
+in any of the versions listed in [backendImpl/src/test/resources/reference-cli-version.properties](../backendImpl/src/test/resources/reference-cli-version.properties).
 
 ### Optional
 
@@ -44,7 +44,7 @@ ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 
 To build the project, run `./gradlew build`.
 
-Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
+Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](../build.gradle)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
@@ -129,11 +129,11 @@ A relatively small amount of `TRACE`-level logs is generated as well.
 
 Most non-standard/project-specific conventions are enforced by:
 
-* [pre-commit hook](scripts/run-pre-build-checks)
-* [Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) for Java code formatting (see [Eclipse-compatible config](config/spotless/formatting-rules.xml))
-* [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells (see [top-level config](config/checkstyle/checkstyle.xml))
+* [pre-commit hook](../scripts/run-pre-build-checks)
+* [Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) for Java code formatting (see [Eclipse-compatible config](../config/spotless/formatting-rules.xml))
+* [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells (see [top-level config](../config/checkstyle/checkstyle.xml))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
-  (most config in [build.gradle](build.gradle), stubs in [config/checker/](config/checker))
+  (most config in [build.gradle](../build.gradle), stubs in [config/checker/](../config/checker))
 
 Other coding conventions include:
 
@@ -171,7 +171,7 @@ We follow [Semantic versioning](https://semver.org/) for the plugin releases:
 ### Sample sequence of versions between releases
 
 After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `PROSPECTIVE_RELEASE_VERSION`
-in [version.gradle](version.gradle) in the following way:
+in [version.gradle](../version.gradle) in the following way:
 1. `1.0.4` (bugfix PR)  - the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
 1. `1.0.4` (bugfix PR)  - even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
 1. `1.1.0` (feature PR) - since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
@@ -205,7 +205,7 @@ They must instead be retargeted to its base's base once their base branch is mer
 
 To create a release:
 * create a branch `release/v<version>` out of the current develop
-* fill up [CHANGE-NOTES.html](CHANGE-NOTES.html) file with the updated change notes:
+* fill up [CHANGE-NOTES.html](../CHANGE-NOTES.html) file with the updated change notes:
     * for major/minor release - wipe existing file content and replace with a new one
     * for patch release - append to the existing change notes
       (although if a significant amount of time passed from the latest minor/major release, wiping out the existing notes is preferred as well)

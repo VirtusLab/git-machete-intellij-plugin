@@ -60,33 +60,36 @@ In that case, just click `Restart IDE` and confirm that action in a message box.
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
 You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
+
 ## Getting started with Git Machete
 
+The examples below show a few common situations where Git Machete proves exceptionally useful.
 
-The examples below show a few common situations where Git Machete finds an exceptional application.
-
-**If you are a Git Master or have used the Git Machete CLI version already, you may want to jump directly to the [feature list](FEATURE-LIST.md).**
+**If you are a Git Master or have used the [git-machete CLI](https://github.com/VirtusLab/git-machete#git-machete) already,
+you may want to jump directly to the [features](docs/FEATURES.md).**
 
 
 ### Scenario 1: Review
 
-Let's start our git machete story with a very common case of review.Suppose that you work on two branches: `sticky-header` and `fancy-footer`
-(you have split your work among these two branches as you know it is a good practice to keep PRs small and easily-reviewable).
+Let's start the story with a very common case of review.
+Suppose that you work on two branches: `sticky-header` and `fancy-footer`
+(you have split your work among these two branches to keep the PRs small and easily-reviewable).
 
-In the meantime, a coworker of yours requested a review of their PR - branch `common-scripts`...
+In the meantime, a teammate of yours requested a review of their PR &mdash; branch `common-scripts`...
 
 ![](docs/plugins.jetbrains.com/scenario-1-review.gif)
 
-Git Machete allows you to checkout remote branch with `Slide In`.
-Alternatively, you could checkout it from CLI or IntelliJ itself.
-Once the review is done you can simply (from the dropdown option and by double-click) checkout any other branch - `master` in our example.
-Assume that our review will not result in any other changes to branch `common-scripts`, hence there is no need to keep it.
+Git Machete allows you to check out the remote branch with `Slide In`.
+Alternatively, you could check out it via git CLI or IntelliJ itself.
+Once the review is complete, you can simply (from the dropdown option or by double-click) check out any other branch - `master` in our example.
+
+Once the branch `common-scripts` is no longer needed for review, there is no need to keep it.
 The branch can be slid out (`Slide Out`) - deleted from the branch layout.
 
 
 ### Scenario 2: Branch update
 
-The story continues... Your coworker has merged the `common-scripts` before you managed to merge your branches.
+The story continues... your teammate has merged the `common-scripts` before you managed to merge your branches.
 You are supposed to update `master` and your branches now.
 
 ![](docs/plugins.jetbrains.com/scenario-2-branch-update.gif)
@@ -95,64 +98,73 @@ Firstly, you can fetch all changes from the remote using `Fetch All`.
 As you expected, `master` is behind its remote, so you perform `Pull` to get it in sync.
 Note that the pull does not require checking out the branch.
 
-The edge between `master` and `sticky-header` got red.
+The edge between `master` and `sticky-header` turned red.
 It means that there are some commits belonging to the parent (`master`) branch that are not reachable from the child (`sticky-header`).
-And there are such commits - from the merged `common-scripts`.
+In case of `master`, these commits came from the recently merged `common-scripts`.
 
-Let's `Checkout and Rebase onto Parent...` to make `sticky-header` back in sync to `master`.Fortunately, there are no conflicts to resolve.
-Once `sticky-header` is rebased you can do the same for `fancy-footer`.You may want to update the remotes as well. To do so perform `Push...` for both of the branches.
-Again the push can be done to non-currently checked out branches.
+Let's `Checkout and Rebase onto Parent...` to make `sticky-header` back in sync to `master`.
+Fortunately, there are no conflicts to resolve.
+Once `sticky-header` is rebased you can do the same for `fancy-footer`.
+You may want to update the remotes as well.
+To do so perform `Push...` for both of the branches.
+Again, the push can be done to non-currently checked out branches.
 Note that force push is required (as you have rebased the branches).
 After the rebases and pushes all of your branches are back in sync - to their parents and to their remotes.
 
 
 ### Scenario 3: Commit to parent branch (sequential branch setup)
 
-A review of your `sticky-header` has been done and all the fixes applied and committed.Git Machete shows that `sticky-header` is ahead of its remote.Furthermore, the edge between `sticky-header` and `fancy-footer` is red.
+A review of your `sticky-header` has been done and all you've applied and committed all the fixes. <br/>
+Git Machete shows that `sticky-header` is ahead of its remote.
+Furthermore, the edge between `sticky-header` and `fancy-footer` is red.
 The solution to this situation will not differ much from the previous scenario...
 
 ![](docs/plugins.jetbrains.com/scenario-3-stacked-prs.gif)
 
-You can start with `Checkout and Rebase Onto Parent...` to make `fancy-footer` back on top of `sticky-header`.
+You can start with `Checkout and Rebase Onto Parent...` to place `fancy-footer` back on top of `sticky-header`.
 Now `Push...` both branches.
 Everything is back in sync again.
 
 
 ### Scenario 4: Merge (maintaining linear history)
 
-Your `sticky-header` has been approved and is ready to merge.
-You know and value the concept of the linear git history,
-so you prefer merges that do not produce merge commits.
-You want to [fast-forward-merge](https://git-scm.com/docs/git-merge#_fast_forward_merge) `sticky-footer` into `master`.
+A PR for your `sticky-header` branch has been approved and is ready to merge. <br/>
+You know and value the concept of the linear git history
+(esp. making it easier to `git revert`, `git bisect` and generally quickly diagnose & provide fixes in production settings),
+so you prefer merges that do not produce merge commits. <br/>
+The way to go is to [fast-forward merge](https://git-scm.com/docs/git-merge#_fast_forward_merge) `sticky-footer` into `master`.
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
-Note that `Fast Forward Parent to Match This Branch` does not require you to checkout any specific branch before.You can perform it from some other branch - `fancy-footer` in our case.
+Note that `Fast Forward Parent to Match This Branch` does not require you to checkout any specific branch before.
+You can perform it from some other branch &mdash; `fancy-footer` in our case.
 
-Once you fast-forward the branch the edge between `master` and `sticky-header` gets gray - which means that the child branch has been merged.
+Once you fast-forward the branch the edge between `master` and `sticky-header` gets gray, which means that the child branch has been merged. <br/>
 `master` is now ahead of remote because of the commits from `sticky-header`.
-`Push...` to it does not require force pushing so you can feel comfortable.
+Since the branch aren't diverged, `Push...` does not require force.
 
 You can now `Slide Out` the merged branch.
-The remained `master` and `fancy-footer` are in sync.
+The remaining `master` and `fancy-footer` branches are now in sync.
 
 
-## Feature List
+## Complete Feature List
 
-Please see the [feature list](FEATURE-LIST.md) for more specific features description.
+Please see the [feature list](docs/FEATURES.md) for more specific features description.
 
 
 ## Build
 
-Please see the [development documentation](DEVELOPMENT.md) for instruction on how to build this plugin on your own.
+Please see the [development documentation](docs/development-guide.md) for instruction on how to build this plugin on your own.
 
 
 ## Issue reporting
 
 If you see any bug or just would like to propose any new feature, feel free to create an issue.
-When you report a bug please include logs from IntelliJ.<br/>
-It can be very helpful for us to enable logging on a debug level and then reproduce a bug.
-To do this, go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following lines:
+
+When reporting a bug, it'd be very helpful for us if you could enable the IntelliJ logging on a DEBUG level, reproduce a bug
+and include the logs from IntelliJ in the issue.
+
+Go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following lines:
 
 ```
 binding
@@ -172,4 +184,4 @@ Then reproduce the bug and go to `Help > Show Log in Files` to open the log file
 
 See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
 
-For more information about the `git machete`, look at the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
+For more information about the `git machete`, see the [reference blog post](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
