@@ -14,6 +14,7 @@ even when **multiple branches** are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).<br/>
 
 A look at a Git Machete tab gives an instant answer to the questions:
+
 * What branches are in this repository?
 * What is going to be merged (rebased/pushed/pulled) and to what?
 
@@ -25,7 +26,7 @@ The minimum required version is 2020.1**.
 Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 
 
-# Table of Contents
+## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -36,9 +37,9 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
 - [Getting started with Git Machete](#getting-started-with-git-machete)
   - [Scenario 1: Review](#scenario-1-review)
   - [Scenario 2: Branch update](#scenario-2-branch-update)
-  - [Scenario 3: Stacked PRs (sequential branch setup)](#scenario-3-stacked-prs-sequential-branch-setup)
+  - [Scenario 3: Commit to parent branch (sequential branch setup)](#scenario-3-commit-to-parent-branch-sequential-branch-setup)
   - [Scenario 4: Merge (maintaining linear history)](#scenario-4-merge-maintaining-linear-history)
-- [Feature List](#feature-list)
+- [Complete feature list](#complete-feature-list)
 - [Build](#build)
 - [Issue reporting](#issue-reporting)
 - [References](#references)
@@ -50,14 +51,14 @@ Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-mache
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
 To install this plugin go to `File > Settings > Plugins` in your IDE,
-then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`.
-After installation, depending on the IDE version the restart may be required.
+then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`. <br/>
+After installation, depending on the IDE version, the restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
 
 
 ## Where to find the plugin tab
 
-Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
+Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab. <br/>
 You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
 
@@ -71,45 +72,46 @@ you may want to jump directly to the [features](docs/FEATURES.md).**
 
 ### Scenario 1: Review
 
-Let's start the story with a very common case of review.
+Let's start with a very common case of review.
 Suppose that you work on two branches: `sticky-header` and `fancy-footer`
-(you have split your work among these two branches to keep the PRs small and easily-reviewable).
+(you've split your work among these two branches to keep the PRs small and easily reviewable).
 
-In the meantime, a teammate of yours requested a review of their PR &mdash; branch `common-scripts`...
+In the meantime, a teammate of yours requested a review of their PR for branch `common-scripts`...
 
 ![](docs/plugins.jetbrains.com/scenario-1-review.gif)
 
 Git Machete allows you to check out the remote branch with `Slide In`.
-Alternatively, you could check out it via git CLI or IntelliJ itself.
-Once the review is complete, you can simply (from the dropdown option or by double-click) check out any other branch - `master` in our example.
+Alternatively, you could check out it via git CLI or Git Branches widget in IntelliJ.
+Once the review is complete, you can simply check out any other branch from the right-click menu or by a double click &mdash; `master` in the example.
 
-Once the branch `common-scripts` is no longer needed for review, there is no need to keep it.
-The branch can be slid out (`Slide Out`) - deleted from the branch layout.
+Once the branch `common-scripts` is no longer needed for review, it can be slid out (`Slide Out`) &mdash; deleted from the branch layout.
 
 
 ### Scenario 2: Branch update
 
-The story continues... your teammate has merged the `common-scripts` before you managed to merge your branches.
+Some time passed and your teammate has merged the `common-scripts` before you managed to merge your branches.
 You are supposed to update `master` and your branches now.
 
 ![](docs/plugins.jetbrains.com/scenario-2-branch-update.gif)
 
-Firstly, you can fetch all changes from the remote using `Fetch All`.
-As you expected, `master` is behind its remote, so you perform `Pull` to get it in sync.
-Note that the pull does not require checking out the branch.
+Firstly, you can fetch all changes from the remote using `Fetch All`. <br/>
+As you'd expect, your local `master` is behind its remote, so you perform `Pull` to get it in sync.
+Note that the pull does not require checking out the local branch in question.
 
 The edge between `master` and `sticky-header` turned red.
 It means that there are some commits belonging to the parent (`master`) branch that are not reachable from the child (`sticky-header`).
 In case of `master`, these commits came from the recently merged `common-scripts`.
 
 Let's `Checkout and Rebase onto Parent...` to make `sticky-header` back in sync to `master`.
-Fortunately, there are no conflicts to resolve.
-Once `sticky-header` is rebased you can do the same for `fancy-footer`.
+Fortunately, there are no conflicts to resolve. <br/>
+Once `sticky-header` is rebased, you can do the same for `fancy-footer`.
+
 You may want to update the remotes as well.
-To do so perform `Push...` for both of the branches.
-Again, the push can be done to non-currently checked out branches.
-Note that force push is required (as you have rebased the branches).
-After the rebases and pushes all of your branches are back in sync - to their parents and to their remotes.
+To do so, perform `Push...` for both of the branches.
+The push can be done even for a branch that is **not** currently checked out.
+Note that force push is required (as you have rebased the branches since the latest push).
+
+After the rebases and pushes, all of your branches are back in sync &mdash; both to their parents and to their remotes.
 
 
 ### Scenario 3: Commit to parent branch (sequential branch setup)
@@ -136,18 +138,18 @@ The way to go is to [fast-forward merge](https://git-scm.com/docs/git-merge#_fas
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
-Note that `Fast Forward Parent to Match This Branch` does not require you to checkout any specific branch before.
-You can perform it from some other branch &mdash; `fancy-footer` in our case.
+Note that `Fast Forward Parent to Match This Branch` does not require you to check out any specific branch beforehand.
+You can perform it while some other branch is checked out &mdash; `fancy-footer` in our case.
 
-Once you fast-forward the branch the edge between `master` and `sticky-header` gets gray, which means that the child branch has been merged. <br/>
+Once the fast-forward merge is complete, the edge between `master` and `sticky-header` gets gray, which means that the latter has been merged. <br/>
 `master` is now ahead of remote because of the commits from `sticky-header`.
-Since the branch aren't diverged, `Push...` does not require force.
+Since `master` isn't diverged from its remote tracking branch, `Push...` does not require force.
 
-You can now `Slide Out` the merged branch.
+You can now `Slide Out` the merged `sticky-header` branch.
 The remaining `master` and `fancy-footer` branches are now in sync.
 
 
-## Complete Feature List
+## Complete feature list
 
 Please see the [feature list](docs/FEATURES.md) for more specific features description.
 

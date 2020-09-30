@@ -15,8 +15,10 @@ plugins {
 }
 
 ext {
-  // Update the range of UI-tested versions in .circle/config.yml when any of the below is updated
-  // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
+  // When any of the below is updated, also check:
+  // * the range of UI-tested versions in .circle/config.yml
+  // * the minimum required IDEA version mentioned in README.md
+  // Also, see https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
   intellijVersions = [
     earliestSupported: '2020.1',
     // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
