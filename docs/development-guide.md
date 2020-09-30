@@ -1,5 +1,30 @@
 # Development
 
+## Table of contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path>` -->
+
+- [Prerequisites](#prerequisites)
+  - [Optional](#optional)
+- [Set up git config/hooks](#set-up-git-confighooks)
+- [Build](#build)
+- [Run & debug](#run--debug)
+- [Run UI tests](#run-ui-tests)
+- [Check dependency updates](#check-dependency-updates)
+- [Generate plugin zip](#generate-plugin-zip)
+- [Install snapshot build of the plugin from CI](#install-snapshot-build-of-the-plugin-from-ci)
+- [Logging](#logging)
+- [Coding conventions](#coding-conventions)
+- [Rebuild the CI base image](#rebuild-the-ci-base-image)
+- [Versioning](#versioning)
+  - [Sample sequence of versions between releases](#sample-sequence-of-versions-between-releases)
+  - [IDE supported versions](#ide-supported-versions)
+- [PRs & releases](#prs--releases)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Prerequisites
 
 * git

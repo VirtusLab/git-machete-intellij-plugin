@@ -16,7 +16,7 @@ even when **multiple branches** are present in the repository
 A look at a Git Machete tab gives an instant answer to the questions:
 
 * What branches are in this repository?
-* What is going to be merged (rebased/pushed/pulled) and to what?
+* What is going to be merged (or rebased/pushed/pulled) and to what?
 
 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
@@ -26,7 +26,7 @@ The minimum required version is 2020.1**.
 Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
 
 
-## Table of Contents
+## Table of contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -96,13 +96,13 @@ You are supposed to update `master` and your branches now.
 
 Firstly, you can fetch all changes from the remote using `Fetch All`. <br/>
 As you'd expect, your local `master` is behind its remote, so you perform `Pull` to get it in sync.
-Note that the pull does not require checking out the local branch in question.
+Note that the pull via Git Machete plugin does **not** require checking out the given branch.
 
 The edge between `master` and `sticky-header` turned red.
 It means that there are some commits belonging to the parent (`master`) branch that are not reachable from the child (`sticky-header`).
 In case of `master`, these commits came from the recently merged `common-scripts`.
 
-Let's `Checkout and Rebase onto Parent...` to make `sticky-header` back in sync to `master`.
+Let's `Checkout and Rebase onto Parent...` to put `sticky-header` back in sync to `master`.
 Fortunately, there are no conflicts to resolve. <br/>
 Once `sticky-header` is rebased, you can do the same for `fancy-footer`.
 
@@ -131,9 +131,8 @@ Everything is back in sync again.
 ### Scenario 4: Merge (maintaining linear history)
 
 A PR for your `sticky-header` branch has been approved and is ready to merge. <br/>
-You know and value the concept of the linear git history
-(esp. making it easier to `git revert`, `git bisect` and generally quickly diagnose & provide fixes in production settings),
-so you prefer merges that do not produce merge commits. <br/>
+To make `git revert` & `git bisect` easier and generally simplify diagnostics & providing fixes in production settings,
+let's stick to linear git history and thus perform merges that do **not** produce the actual merge commits. <br/>
 The way to go is to [fast-forward merge](https://git-scm.com/docs/git-merge#_fast_forward_merge) `sticky-footer` into `master`.
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
@@ -143,7 +142,7 @@ You can perform it while some other branch is checked out &mdash; `fancy-footer`
 
 Once the fast-forward merge is complete, the edge between `master` and `sticky-header` gets gray, which means that the latter has been merged. <br/>
 `master` is now ahead of remote because of the commits from `sticky-header`.
-Since `master` isn't diverged from its remote tracking branch, `Push...` does not require force.
+Since `master` hasn't diverged from its remote tracking branch, `Push...` does not require force.
 
 You can now `Slide Out` the merged `sticky-header` branch.
 The remaining `master` and `fancy-footer` branches are now in sync.
@@ -151,7 +150,7 @@ The remaining `master` and `fancy-footer` branches are now in sync.
 
 ## Complete feature list
 
-Please see the [feature list](docs/FEATURES.md) for more specific features description.
+Please see the [feature list](docs/features.md) for more specific feature description.
 
 
 ## Build

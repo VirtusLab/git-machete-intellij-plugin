@@ -1,13 +1,13 @@
 # Git Machete Features
 
-## Table of Contents
+## Table of contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path>` -->
 
 - [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-- [Branch graph](#branch-graph)
+- [Branch layout graph](#branch-layout-graph)
 - [Check out branches](#check-out-branches)
 - [Toggle listing commits](#toggle-listing-commits)
 - [Rebase](#rebase)
