@@ -10,6 +10,13 @@ jobs:
           name: Run pre-compile checks
           command: ./scripts/run-pre-build-checks
       - run:
+          name: Validate Markdown links
+          command: |
+            # mlc = Markdown Link Checker
+            curl -fsL https://github.com/becheran/mlc/releases/download/v0.13.7/mlc-x86_64-linux -o /usr/local/bin/mlc
+            chmod +x /usr/local/bin/mlc
+            mlc --markup-types=md .
+      - run:
           name: Start Gradle daemon
           command: ./gradlew
       - run:

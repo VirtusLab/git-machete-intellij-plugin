@@ -1,6 +1,6 @@
 # Git Machete IntelliJ Plugin
 
-[![CircleCI](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master.svg?style=shield)](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master)
+[![CircleCI](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin?branch=master)
 [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 
@@ -67,7 +67,7 @@ You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 The examples below show a few common situations where Git Machete proves exceptionally useful.
 
 **If you are a Git Master or have used the [git-machete CLI](https://github.com/VirtusLab/git-machete#git-machete) already,
-you may want to jump directly to the [features](docs/FEATURES.md).**
+you may want to jump directly to the [features](docs/features.md).**
 
 
 ### Scenario 1: Review
