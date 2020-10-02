@@ -58,7 +58,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         : null;
 
     if (branchName == null) {
-      presentation.setEnabled(false);
+      presentation.setVisible(false);
       presentation.setDescription(getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch == null) {
       presentation.setEnabled(false);
