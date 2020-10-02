@@ -220,6 +220,7 @@ package com.intellij.openapi.project;
 @UIPackage package com.intellij.openapi.roots.ui;
 @UIPackage package com.intellij.openapi.roots.ui.configuration.libraryEditor;
 @UIPackage package com.intellij.openapi.roots.ui.util;
+@UIPackage package com.intellij.openapi.startup;
 @UIPackage package com.intellij.openapi.ui;
 
 class DialogWrapper {
