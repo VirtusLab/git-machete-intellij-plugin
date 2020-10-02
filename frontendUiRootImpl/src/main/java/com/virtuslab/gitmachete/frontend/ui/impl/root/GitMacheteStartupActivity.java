@@ -32,7 +32,7 @@ public class GitMacheteStartupActivity implements StartupActivity {
       return;
     }
 
-    var listener = new GitMacheteTabOpenListener();
+    var listener = new RediscoverSuggester(project);
     toolWindow.addContentManagerListener(listener);
   }
 }
