@@ -17,7 +17,7 @@ simpleFile ::= item_*
 
 // Even if we don't have comments in our machete file, the COMMENT element must be here - language parser definition
 // (in file MacheteParserDefinition) enforces us to define element that represent comments
-private item_ ::= (entry|COMMENT|(INDENTATION? EOL))
+private item_ ::= (entry|COMMENT|(INDENTATION? EOL)|INDENTATION)
 
 entry ::= INDENTATION? branch CUSTOM_ANNOTATION?
 
