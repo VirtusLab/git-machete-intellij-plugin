@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:2.0.0'
+      - image: 'gitmachete/intellij-plugin-ci:3.0.0'
     working_directory: ~/git-machete-intellij-plugin
     steps:
       - checkout
@@ -16,6 +16,19 @@ jobs:
             curl -fsL https://github.com/becheran/mlc/releases/download/v0.13.7/mlc-x86_64-linux -o /usr/local/bin/mlc
             chmod +x /usr/local/bin/mlc
             mlc --markup-types=md .
+
+      - restore_cache:
+          # Adding `-v1` suffix to enable easy cache invalidation when needed (just change to `-v2`)
+          keys:
+            # First, try finding a cache entry with the same set of libraries
+            # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
+            - gradle-deps-v1-{{ checksum "build.gradle" }}-{{ .Branch }}
+            # If the above key is not found, try finding a cache entry with the same set of libraries
+            # coming from another branch (Gradle compilation cache might then be less useful).
+            - gradle-deps-v1-{{ checksum "build.gradle" }}-
+            # If both above keys are not found, instead find the most recently generated cache from any branch.
+            - gradle-deps-v1-
+
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -41,6 +54,11 @@ jobs:
           name: Compile tests
           command: ./gradlew compileTestJava
       - run:
+          name: Install git-machete CLI
+          command: |
+            cli_version=$(grep -o '[^,=]*$' backendImpl/src/test/resources/reference-cli-version.properties)
+            pip3 install git-machete==$cli_version
+      - run:
           name: Run backend tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
@@ -48,6 +66,10 @@ jobs:
           path: branchLayoutImpl/build/test-results/
       - store_test_results:
           path: backendImpl/build/test-results/
+
+      - save_cache:
+          paths: [ ~/.gradle/ ]
+          key: gradle-deps-v1-{{ checksum "build.gradle" }}-{{ .Branch }}
 
       - run:
           name: Build plugin artifact

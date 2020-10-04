@@ -1,16 +1,4 @@
 
-FROM openjdk:11-jdk-slim-buster AS gradle-cache
-
-WORKDIR repo/
-
-COPY gradle.properties gradlew  ./
-COPY gradle/ gradle/
-RUN ./gradlew --no-daemon --no-build-cache --info
-
-COPY . .
-RUN ./gradlew --no-daemon --no-build-cache --info compileTestJava
-
-
 # Not using openjdk:11-jdk-slim-buster due to https://github.com/AdoptOpenJDK/openjdk-docker/issues/75
 FROM debian:buster-slim
 
@@ -19,7 +7,7 @@ RUN set -x \
   && mkdir -p /usr/share/man/man1 \
   && apt-get update \
   `# installing JDK and not just JRE to provide javadoc executable` \
-  && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3 \
+  && apt-get install --no-install-recommends -y curl git openjdk-11-jdk-headless openssh-client python3-pip \
   && rm -rf /var/lib/apt/lists/*
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
@@ -30,15 +18,6 @@ RUN set -x \
   && tar --directory=/usr/local/bin/ --strip-components=2 -xvzf hub.tgz hub-linux-amd64-${hub_version}/bin/hub \
   && rm hub.tgz \
   && hub --version
-
-COPY backendImpl/src/test/resources/reference-cli-version.properties /tmp/reference-cli-version.properties
-RUN set -x \
-  && apt-get update \
-  && apt-get install --no-install-recommends -y python3-pip \
-  && cli_version=$(grep -o '[^,=]*$' /tmp/reference-cli-version.properties) \
-  && pip3 install git-machete==$cli_version \
-  && apt-get purge --autoremove -y python3-pip \
-  && rm -rf /var/lib/apt/lists/*
 
 # Disable IntelliJ data sharing
 RUN set -x \
@@ -72,5 +51,3 @@ RUN set -x \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*
-
-COPY --from=gradle-cache /root/.gradle/ /root/.gradle/
