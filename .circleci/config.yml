@@ -6,6 +6,33 @@ jobs:
     working_directory: ~/git-machete-intellij-plugin
     steps:
       - checkout
+      - deploy:
+        # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
+          name: Reconfigure origin remote to https
+          command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+      - deploy:
+          name: Open backport PR to develop
+          command: |
+            source scripts/utils.sh
+            version=$(extract_version_from_current_wd)
+            branch=backport/v$version
+            git checkout -b "$branch"
+            git push origin "$branch"
+
+            # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+            pr_num=${CI_PULL_REQUEST##*/}
+            milestone=$(hub pr show --format=%Mn $pr_num)
+            reviewers=$(hub pr show --format=%rs $pr_num | tr -d ' ')
+            assignees=$(hub pr show --format=%as $pr_num | tr -d ' ')
+            hub pull-request \
+              --draft \
+              --no-edit \
+              --base=develop \
+              --message="Backport release of v$version to develop" \
+              --labels=backport \
+              --assign $assignees \
+              --milestone $milestone \
+              --reviewer $reviewers
       - run:
           name: Run pre-compile checks
           command: ./scripts/run-pre-build-checks
@@ -112,8 +139,17 @@ jobs:
                   branch=backport/v$version
                   git checkout -b "$branch"
                   git push origin "$branch"
+
+                  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
+                  pr_num=${CI_PULL_REQUEST##*/}
+                  milestone=$(hub pr show --format=%Mn $pr_num)
+                  reviewers=$(hub pr show --format=%rs $pr_num | tr -d ' ')
+                  assignees=$(hub pr show --format=%as $pr_num | tr -d ' ')
                   hub pull-request \
                     --no-edit \
                     --base=develop \
                     --message="Backport release of v$version to develop" \
-                    --labels=backport
+                    --labels=backport \
+                    --assign $assignees \
+                    --milestone $milestone \
+                    --reviewer $reviewers
