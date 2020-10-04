@@ -144,14 +144,24 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
   }
 
   protected JPanel createOptionsPanel() {
-    return new JPanel(new MigLayout(/* layoutConstraints */ "ins 0 0, flowy")) {
+    // A separate local class needs to be extracted so that explicit `this` can be annotated in `add` method.
+    class OptionsPanel extends JPanel {
+      @UIEffect
+      OptionsPanel() {
+        super(new MigLayout(/* layoutConstraints */ "ins 0 0, flowy"));
+      }
+
       @Override
-      public Component add(Component comp) {
+      @UIEffect
+      // `@UnknownInitialization` is needed to comply with Checker's Annotated JDK
+      public Component add(@UnknownInitialization(java.awt.Container.class) OptionsPanel this, Component comp) {
         JPanel wrapperPanel = new BorderLayoutPanel().addToCenter(comp);
         wrapperPanel.setBorder(JBUI.Borders.empty(5, 15, 0, 0));
         return super.add(wrapperPanel);
       }
-    };
+    }
+
+    return new OptionsPanel();
   }
 
   @UIEffect

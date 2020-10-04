@@ -229,6 +229,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   @UIEffect
+  @SuppressWarnings("nullness:argument.type.incompatible") // for GraphicsConfiguration param
   private static BufferedImage getGraphImage(JTable table, @NonNegative int maxGraphNodePositionInRow) {
     return UIUtil.createImage(table.getGraphicsConfiguration(),
         /* width */ PaintParameters.getNodeWidth(table.getRowHeight()) * (maxGraphNodePositionInRow + 2),
