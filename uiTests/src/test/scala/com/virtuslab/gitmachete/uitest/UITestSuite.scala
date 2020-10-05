@@ -16,8 +16,7 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
 import org.virtuslab.ideprobe.junit4.RunningIntelliJPerSuite
 
 object UITestSuite
-  extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH_SINGLE_REMOTE)
-    with RunningIntelliJPerSuite
+    extends RunningIntelliJPerSuite
     with IdeProbeFixture
     with GitMacheteExtension {
 
@@ -28,11 +27,16 @@ object UITestSuite
       check = CheckConfig(errors = true)
     )
     IntelliJFixture(
-      workspaceProvider = ExistingWorkspace(repositoryMainDir),
       version = version,
       factory = IntelliJFactory.Default.withConfig(driverConfig)
     )
   }
+}
+
+@RunWith(classOf[JUnit4])
+class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH_SINGLE_REMOTE) {
+
+  import UITestSuite._
 
   def deleteMacheteFile(): Unit = {
     repositoryGitDir.resolve("machete").delete()
@@ -42,17 +46,9 @@ object UITestSuite
     repositoryGitDir.resolve("machete").write(content + "\n")
   }
 
-
-}
-
-@RunWith(classOf[JUnit4])
-class UITestSuite {
-
-  import UITestSuite._
-
   @Before
   def beforeEach(): Unit = {
-    intelliJ.machete.runJs(s"ide.openProject('${intelliJ.workspace}').openTab()");
+    intelliJ.machete.runJs(s"ide.openProject('$repositoryMainDir').openTab()");
     intelliJ.probe.awaitIdle()
 
     //    intelliJ.probe.openProject(intelliJ.workspace)
@@ -66,7 +62,7 @@ class UITestSuite {
     intelliJ.machete.runJs("ide.closeOpenedProjects()")
   }
 
-/*  @Test def skipNonExistentBranchesAndToggleListingCommits(): Unit = {
+  @Test def skipNonExistentBranchesAndToggleListingCommits(): Unit = {
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -86,7 +82,7 @@ class UITestSuite {
     val branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     // 6 branch rows + 7 commit rows
     Assert.assertEquals(13, branchAndCommitRowsCount)
-  }*/
+  }
 
   @Test def discoverBranchLayout(): Unit = {
     deleteMacheteFile()
@@ -104,7 +100,6 @@ class UITestSuite {
     branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     Assert.assertEquals(0, branchRowsCount)
   }
-/*
 
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
     intelliJ.machete.checkoutBranch("master")
@@ -113,6 +108,7 @@ class UITestSuite {
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
     intelliJ.machete.assertWorkingTreeIsAtHead()
   }
+
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
@@ -130,13 +126,13 @@ class UITestSuite {
     intelliJ.machete.assertWorkingTreeIsAtHead()
   }
 
-*/
-/*  @Test def pullNonCurrentBranch(): Unit = {
+
+  @Test def pullNonCurrentBranch(): Unit = {
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.pullBranch("allow-ownership-link")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
     intelliJ.machete.assertWorkingTreeIsAtHead()
-  }*/
+  }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
@@ -147,7 +143,6 @@ class UITestSuite {
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
   }
 
-/*
   @Test def resetNonCurrentBranchToRemote(): Unit = {
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.resetBranchToRemote("hotfix/add-trigger")
@@ -156,6 +151,4 @@ class UITestSuite {
     val currentBranchName = intelliJ.machete.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)
   }
-*/
-
 }
