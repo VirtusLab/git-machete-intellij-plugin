@@ -16,8 +16,13 @@ importClass(com.intellij.ui.GuiUtils);
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
 
-  // Tab & model management
+  this.configure = function () {
+    const projectPropertiesComponent = PropertiesComponent.getInstance(underlyingProject);
+    projectPropertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
+    projectPropertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
+  };
 
+  // Tab & model management
   this.openTab = function () {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;

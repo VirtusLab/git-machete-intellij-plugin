@@ -41,17 +41,16 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Before
   def beforeEach(): Unit = {
-    intelliJ.machete.runJs(s"ide.openProject('${repositoryMainDir}').openTab()");
+    intelliJ.probe.openProject(repositoryMainDir)
+    intelliJ.machete.runJs(s"project.configure()");
+    intelliJ.machete.runJs(s"project.openTab()");
     intelliJ.probe.awaitIdle()
-//    intelliJ.probe.openProject(intelliJ.workspace)
-//    intelliJ.machete.runJs("project.disableTooltips()")
-//    intelliJ.machete.runJs("project.openTab()")
   }
 
   @After
   def afterEach(): Unit = {
     intelliJ.probe.awaitIdle()
-    intelliJ.machete.runJs("ide.closeOpenedProjects()")
+    intelliJ.probe.listOpenProjects.foreach(intelliJ.probe.closeProject)
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {

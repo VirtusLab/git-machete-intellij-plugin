@@ -39,37 +39,10 @@ function Ide() {
     }
   };
 
-  this.openProject = function (path) {
-    const project = ProjectUtil.openOrImport(path, /* projectToClose */ null, /* forceOpenInNewFrame */ false);
-    // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
-    const projectPropertiesComponent = PropertiesComponent.getInstance(project);
-    projectPropertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
-    projectPropertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
-    return new Project(project);
-  };
-
   this.soleOpenedProject = function () {
     const openProjects = ProjectUtil.getOpenProjects();
     return openProjects.length === 1 ? new Project(openProjects[0]) : null;
   }
-
-  this.getProgressIndicators = function () {
-    const progressManager = ProgressManager.getInstance();
-    const method = getNonPublicMethod(progressManager.getClass(), 'getCurrentIndicators');
-    method.setAccessible(true);
-    return method.invoke(progressManager).stream().map(function (indicator) {
-      return indicator.toString();
-    }).collect(Collectors.toList());
-  }
-
-  this.closeOpenedProjects = function () {
-    ProjectUtil.getOpenProjects().forEach(function (project) {
-      GuiUtils.runOrInvokeAndWait(function () {
-        System.out.println('project to close = ' + project.toString());
-        ProjectUtil.closeAndDispose(project);
-      });
-    });
-  };
 }
 
 const ide = new Ide();

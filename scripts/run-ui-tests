@@ -3,9 +3,6 @@
 # Usage:
 # $ ./scripts/run-ui-tests [<intellij-version> [<only-tests>]]
 
-# If <intellij-version> is absent or empty '',
-# the same IntelliJ version that the plugin has been built against will be assumed.
-
 # If <only-tests> is present and non-empty, only the UI test methods
 # whose names start with the given prefix will be executed (instead of all UI test methods).
 
@@ -16,6 +13,8 @@ source "$self_dir"/utils.sh
 
 intellij_version=${1-}
 test_method_prefix=${2-}
+
+export IDEPROBE_DISPLAY=xvfb
 
 only_tests_flag=${test_method_prefix:+--tests *.$test_method_prefix*}
 ./gradlew \
