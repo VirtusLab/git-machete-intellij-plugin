@@ -44,7 +44,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
   @Override
   public List<SyncToParentStatus> getEligibleStatuses() {
-    return List.of(SyncToParentStatus.InSync);
+    return List.of(SyncToParentStatus.InSync, SyncToParentStatus.InSyncButForkPointOff);
   }
 
   @Override
