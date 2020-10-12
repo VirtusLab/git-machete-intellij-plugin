@@ -159,7 +159,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @UIEffect
-  private void refreshModel(GitRepository gitRepository, List<String> skippedBranchNames) {
+  private void refreshModel(
+      GitRepository gitRepository,
+      List<String> skippedBranchNames,
+      @UI Runnable doOnUIThreadWhenReady) {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
@@ -181,7 +184,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
-          doAutomaticDiscover(macheteFilePath);
+          queueAutomaticDiscover(macheteFilePath, doOnUIThreadWhenReady);
+          return;
         } else {
           setTextForEmptyTable(
               format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file"),
@@ -192,7 +196,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
-      doAutomaticDiscover(macheteFilePath);
+      queueAutomaticDiscover(macheteFilePath, doOnUIThreadWhenReady);
+      return;
     }
 
     setModel(new GraphTableModel(repositoryGraph));
@@ -206,17 +211,18 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     repaint();
     revalidate();
+    doOnUIThreadWhenReady.run();
   }
 
   @UIEffect
-  private void doAutomaticDiscover(Path macheteFilePath) {
+  private void queueAutomaticDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
     var selectedRepository = getGitRepositorySelectionProvider().getSelectedGitRepository().getOrNull();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;
     }
-    var mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
-    var gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
+    Path mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
+    Path gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
 
     new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
       @Override
@@ -257,7 +263,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           GuiUtils.invokeLaterIfNeeded(
               () -> {
                 gitMacheteRepositorySnapshot = repositorySnapshot;
-                queueRepositoryUpdateAndModelRefresh();
+                queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
                 VcsNotifier.getInstance(project)
                     .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"));
@@ -278,7 +284,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
-      refreshModel(gitRepository.get(), List.empty());
+      refreshModel(gitRepository.get(), /* skippedBranchNames */ List.empty(), /* doOnUIThreadWhenReady */ () -> {});
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
     }
@@ -310,8 +316,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           refreshModel(gitRepository,
               this.gitMacheteRepositorySnapshot != null
                   ? this.gitMacheteRepositorySnapshot.getSkippedBranchNames()
-                  : List.empty());
-          doOnUIThreadWhenReady.run();
+                  : List.empty(),
+              doOnUIThreadWhenReady);
         };
 
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));

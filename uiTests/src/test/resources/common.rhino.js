@@ -18,5 +18,5 @@ function getNonPublicMethod(clazz, methodName) {
 
 // Do not run on the UI thread.
 function sleep() {
-  Thread.sleep(500);
+  Thread.sleep(100);
 }
