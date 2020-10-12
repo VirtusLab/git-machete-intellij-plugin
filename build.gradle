@@ -25,7 +25,10 @@ ext {
     // Preferably the most recent minor release of each version between the earliest supported (incl.) and current (excl.)
     inBetweenForCompatibilityChecks: ['2020.1.4'],
     current: '2020.2.2',
-    latestSupported: '2020.3'
+    latestSupported: '2020.3',
+    // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
+    // rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
+    eapsForCompatibilityChecks: ['203.4449.2-EAP-SNAPSHOT']
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
@@ -490,14 +493,18 @@ runPluginVerifier {
   ] : [
     intellijVersions.earliestSupported,
     *intellijVersions.inBetweenForCompatibilityChecks,
-    intellijVersions.current
+    intellijVersions.current,
+    *intellijVersions.eapsForCompatibilityChecks
   ]
   ides = ideVersions.collect { 'IC-' + it }
 }
 
 repositories {
   maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
-  maven { url = 'https://www.jetbrains.com/intellij-repository/snapshots/' }
+
+  if (intellijVersions.eapsForCompatibilityChecks) {
+    maven { url = 'https://www.jetbrains.com/intellij-repository/snapshots/' }
+  }
 }
 
 File resolveIdeaCommunity(String version) {
