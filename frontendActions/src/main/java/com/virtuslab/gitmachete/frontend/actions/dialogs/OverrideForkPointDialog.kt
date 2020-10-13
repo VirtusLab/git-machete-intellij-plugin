@@ -41,17 +41,19 @@ class OverrideForkPointDialog
   override fun createCenterPanel() =
       panel {
         row {
-          label(
-              format(
-                  getString(
-                      "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.1"),
-                  branch.name),
-              bold = false)
-          label(branch.name, bold = true)
-          label(
-              getString(
-                  "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.2"),
-              bold = false)
+          cell {
+            label(
+                format(
+                    getString(
+                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.1"),
+                    branch.name),
+                bold = false)
+            label(branch.name, bold = true)
+            label(
+                getString(
+                    "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.2"),
+                bold = false)
+          }
         }
         buttonGroup(::myOverrideOption) {
           row {
