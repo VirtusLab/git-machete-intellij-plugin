@@ -158,6 +158,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
+  // TODO (#620): rework callbacks into futures
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
@@ -196,6 +197,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
+      // The `doOnUIThreadWhenReady` callback  must be executed once discover task is *complete*,
+      // and not just when the discover task is *enqueued*.
+      // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
+      // which is undesirable.
       queueAutomaticDiscover(macheteFilePath, doOnUIThreadWhenReady);
       return;
     }
