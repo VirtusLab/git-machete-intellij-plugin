@@ -212,14 +212,18 @@ Since we cannot skip `untilBuild` field in a plugin build configuration
 (see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460)
 and [YouTrack ticket](https://youtrack.jetbrains.com/issue/IJSDK-888)),
 the most reasonable approach is to bump `untilBuild` to `X.*` when the new `X` EAP or RC version is released.
+
 Once stable (non-EAP/RC) `X` is released, we should verify ASAP that our plugin is compatible with `X`.
-There is a rather little risk that the plugin which is compatible with `X - 1` and does **not** use any `X EAP/RC`-specific API turns out to be **not** compatible with stable `X` release of IDE.
+There is a rather little risk that the plugin which is compatible with `X - 1`
+and does **not** use any `X EAP/RC`-specific API
+turns out to be **not** compatible with stable `X` release of IDE.
 
 For instance:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `idea`)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP`:
-   `./scripts/verify-binary-compatibility 203-EAP-SNAPSHOT` and `./scripts/run-ui-tests 203-EAP-SNAPSHOT`
+   `./scripts/verify-binary-compatibility 203-EAP-SNAPSHOT` (also see `ext.intellijVersions.eapsForCompatibilityChecks` in [build.gradle](build.gradle))
+   and `./scripts/run-ui-tests 203-EAP-SNAPSHOT`
 4. we extend `untilBuild` in our plugin to `2020.3.*`
    (by setting `ext.intellijVersions.latestSupported` in [build.gradle](build.gradle) to `2020.3`) and release it as `0.8.0`
 5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well

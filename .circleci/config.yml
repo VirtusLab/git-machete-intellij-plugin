@@ -89,8 +89,8 @@ jobs:
           command: ./scripts/run-ui-tests 2020.1
       # Skipping 2020.1.4 to speed up the build; the risk of 2020.1.x failing when both 2020.1 & 2020.2 pass is minuscule.
       - run:
-          name: Run UI tests against 2020.2.2 (latest stable & our build target)
-          command: ./scripts/run-ui-tests 2020.2.2
+          name: Run UI tests against 2020.2.3 (latest stable & our build target)
+          command: ./scripts/run-ui-tests 2020.2.3
       - run:
           name: Run UI tests against 2020.3 EAP
           # Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT

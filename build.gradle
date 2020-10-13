@@ -24,7 +24,7 @@ ext {
     // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
     // Preferably the most recent minor release of each version between the earliest supported (incl.) and current (excl.)
     inBetweenForCompatibilityChecks: ['2020.1.4'],
-    current: '2020.2.2',
+    current: '2020.2.3',
     latestSupported: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
     // rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
