@@ -23,6 +23,8 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
 
   private final SelectedGitRepositoryProvider selectedGitRepositoryProvider;
 
+  private boolean wasRediscoverSuggestionDeclined = false;
+
   public RediscoverSuggester(Project project) {
     super(project);
     selectedGitRepositoryProvider = new SelectedGitRepositoryProvider(project);
@@ -31,6 +33,10 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
   @Override
   @UIEffect
   public void perform() {
+    if (wasRediscoverSuggestionDeclined) {
+      return;
+    }
+
     var gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository();
     if (gitRepository.isEmpty()) {
       LOG.warn("Cannot proceed rediscover suggestion workflow - selected git repository is null");
@@ -55,11 +61,19 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
       var yesNo = MessageDialogBuilder.YesNo.yesNo(
           getString("string.GitMachete.RediscoverSuggester.dialog.title"),
           getString("string.GitMachete.RediscoverSuggester.dialog.question"));
-      if (yesNo.show() == Messages.YES) {
-        LOG.info("Branch layout has not been modified within given time - enqueueing rediscover");
-        new GraphTableProvider(project).getGraphTable().queueDiscover(macheteFilePath, () -> {});
-      } else {
-        LOG.info("Branch layout has not been modified within given time - rediscover declined from dialog");
+
+      switch (yesNo.show()) {
+        case Messages.YES :
+          LOG.info("Branch layout has not been modified within given time - enqueueing rediscover");
+          new GraphTableProvider(project).getGraphTable().queueDiscover(macheteFilePath, () -> {});
+          break;
+        case Messages.NO : // closing dialog goes here too
+          LOG.info("Branch layout has not been modified within given time - rediscover declined from dialog");
+          wasRediscoverSuggestionDeclined = true;
+          break;
+        default :
+          LOG.info("Branch layout has not been modified within given time - unknown response message");
+          break;
       }
     } else {
       LOG.info("Branch layout has been modified within given time - skipping rediscover suggestion");
@@ -73,9 +87,7 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
   }
 
   private Option<Long> getFileModificationDate(Path filePath) {
-    return Option.of(filePath)
-        .map(file -> Try.of(() -> Files.readAttributes(file, BasicFileAttributes.class)))
-        .map(t -> t.mapTry(attr -> attr.lastModifiedTime().toMillis()))
-        .map(x -> x.getOrNull());
+    return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
+        .map(attr -> attr.lastModifiedTime().toMillis()).toOption();
   }
 }
