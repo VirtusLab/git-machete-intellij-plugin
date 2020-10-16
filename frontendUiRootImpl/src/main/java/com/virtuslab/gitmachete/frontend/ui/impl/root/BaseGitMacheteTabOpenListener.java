@@ -27,7 +27,7 @@ public abstract class BaseGitMacheteTabOpenListener implements ContentManagerLis
 
   @UIEffect
   private boolean isGitMacheteTabOpen(ContentManagerEvent event) {
-    return event.getOperation().equals(ContentManagerEvent.ContentOperation.add) &&
+    return event.getOperation() == ContentManagerEvent.ContentOperation.add &&
         event.getContent().getDisplayName().equals("Git Machete");
   }
 }

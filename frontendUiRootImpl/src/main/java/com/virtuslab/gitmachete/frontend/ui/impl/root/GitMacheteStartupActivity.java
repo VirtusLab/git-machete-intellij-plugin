@@ -1,10 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
-import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import lombok.CustomLog;
@@ -25,10 +22,7 @@ public class GitMacheteStartupActivity implements StartupActivity {
     var toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
 
     if (toolWindow == null) {
-      LOG.debug("VCS tool window does not exist");
-      VcsNotifier.getInstance(project).notifyWarning(
-          getString("action.GitMachete.OpenMacheteTabAction.notification.title.could-not-open-tab"), // t0d0: proper msg here
-          getString("action.GitMachete.OpenMacheteTabAction.notification.message.no-git")); // t0d0: proper msg here
+      LOG.debug("Failed to attach activity for VCS tool window - VCS tool window does not exist");
       return;
     }
 

@@ -34,7 +34,7 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
 
   @UIEffect
-  public void doDiscover(Path macheteFilePath) {
+  public void enqueue(Path macheteFilePath) {
     var selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");

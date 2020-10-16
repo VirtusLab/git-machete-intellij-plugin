@@ -179,7 +179,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
-          doDiscover(macheteFilePath, doOnUIThreadWhenReady);
+          queueDiscover(macheteFilePath, doOnUIThreadWhenReady);
           return;
         } else {
           setTextForEmptyTable(
@@ -195,7 +195,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       // and not just when the discover task is *enqueued*.
       // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
       // which is undesirable.
-      doDiscover(macheteFilePath, doOnUIThreadWhenReady);
+      queueDiscover(macheteFilePath, doOnUIThreadWhenReady);
       return;
     }
 
@@ -213,13 +213,14 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @UIEffect
-  private void doDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
+  @Override
+  public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
     new GitMacheteRepositoryDiscoverer(
         project,
         getGitRepositorySelectionProvider(),
         getUnsuccessfulDiscoverMacheteFilePathConsumer(),
         getSuccessfulDiscoverRepositoryConsumer(doOnUIThreadWhenReady))
-            .doDiscover(macheteFilePath);
+            .enqueue(macheteFilePath);
   }
 
   @UIEffect
