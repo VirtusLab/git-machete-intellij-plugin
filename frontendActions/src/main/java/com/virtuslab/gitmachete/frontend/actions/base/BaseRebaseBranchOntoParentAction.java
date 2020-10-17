@@ -27,7 +27,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -102,12 +101,6 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
         }
-
-      } else if (branch.asNonRoot().getSyncToParentStatus() == SyncToParentStatus.MergedToParent) {
-        presentation.setEnabled(false);
-        presentation.setDescription(
-            format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.merged"),
-                branch.getName()));
 
       } else if (branch.isNonRoot()) {
         var nonRootBranch = branch.asNonRoot();
