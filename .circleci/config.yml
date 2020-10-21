@@ -140,11 +140,10 @@ jobs:
                   git checkout -b "$branch"
                   git push origin "$branch"
 
-                  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
-                  pr_num=${CI_PULL_REQUEST##*/}
-                  milestone=$(hub pr show --format=%Mn $pr_num)
-                  reviewers=$(hub pr show --format=%rs $pr_num | tr -d ' ')
-                  assignees=$(hub pr show --format=%as $pr_num | tr -d ' ')
+                  pr_num=$(hub pr list --state=closed --head=release/v$version --format=%I%n | head -1)
+                  milestone=$(hub pr show --format=%Mn "$pr_num")
+                  reviewers=$(hub pr show --format=%rs "$pr_num" | tr -d ' ')
+                  assignees=$(hub pr show --format=%as "$pr_num" | tr -d ' ')
                   hub pull-request \
                     --no-edit \
                     --base=develop \
