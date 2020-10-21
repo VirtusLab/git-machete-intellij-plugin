@@ -29,7 +29,12 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   protected int getRowHeight() {
-    return table.getRowHeight();
+    var font = table.getFont();
+    if (font != null) {
+      return Math.max(table.getFontMetrics(font).getHeight(), table.getRowHeight());
+    } else {
+      return table.getRowHeight();
+    }
   }
 
   @UIEffect
