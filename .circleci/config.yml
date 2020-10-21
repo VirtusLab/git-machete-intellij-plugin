@@ -150,6 +150,6 @@ jobs:
                     --base=develop \
                     --message="Backport release of v$version to develop" \
                     --labels=backport \
-                    --assign $assignees \
-                    --milestone $milestone \
-                    --reviewer $reviewers
+                    --assign="$assignees" \
+                    --milestone="$milestone" \
+                    --reviewer="$reviewers"
