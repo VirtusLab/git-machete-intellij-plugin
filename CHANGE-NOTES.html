@@ -1,13 +1,10 @@
-Improvements:
-<ul>
-  <li>Sliding out root branches is now allowed</li>
-  <li>Success notifications for reset to remote, fast-forward, rebase and slide out actions have been made clearer</li>
-  <li>Machete file is automatically refreshed in the editor once the status is refreshed in the VCS tab</li>
-  <li>Both 'develop' and 'main' can also be considered root branches in layout discovery if 'master' branch is absent</li>
-</ul>
+Added support for IntelliJ 2020.3.
 <br/>
 <br/>
-Bug fixes:
+Bug fixes/improvements:
 <ul>
-  <li>Status is now always automatically refreshed after resetting current branch to remote</li>
+  <li>Hid "Slide In Branch Below Current Branch" action for unmanaged branches</li>
+  <li>Fixed faulty .git/machete file parsing when the last line has only whitespace</li>
+  <li>Improved UX of Override Fork Point dialog</li>
+  <li>Allowed fast forwarding parent when a branch is connected to the parent with a yellow edge</li>
 </ul>
