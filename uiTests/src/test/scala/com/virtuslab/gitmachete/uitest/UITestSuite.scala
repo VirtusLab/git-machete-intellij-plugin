@@ -21,14 +21,23 @@ object UITestSuite
     with GitMacheteExtension {
 
   override protected def baseFixture: IntelliJFixture = transformFixture {
-    val version = sys.props.get("intellij.version").filterNot(_.isEmpty).map(IntelliJVersion(_)).getOrElse(IntelliJVersion("2020.2.1"))
+    val version = sys.props.get("intellij.version").filterNot(_.isEmpty).map(IntelliJVersion(_, None)).getOrElse(IntelliJVersion("2020.2.1", None))
     val driverConfig = DriverConfig(
       vmOptions = Seq("-Xmx1G"),
       check = CheckConfig(errors = true)
     )
+    val config = Config.fromString("""
+        |probe.endpoints.awaitIdle {
+        |    initialWait = "1 second"
+        |    newTaskWait = "2 seconds"
+        |    checkFrequency = "250 millis"
+        |}
+        |""".stripMargin)
+
     IntelliJFixture(
       version = version,
-      factory = IntelliJFactory.Default.withConfig(driverConfig)
+      factory = IntelliJFactory.Default.withConfig(driverConfig),
+      config = config
     )
   }
 

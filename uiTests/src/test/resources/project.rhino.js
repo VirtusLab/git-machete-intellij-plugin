@@ -17,6 +17,7 @@ importClass(com.intellij.ui.GuiUtils);
 function Project(underlyingProject) {
 
   this.configure = function () {
+    // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
     const projectPropertiesComponent = PropertiesComponent.getInstance(underlyingProject);
     projectPropertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
     projectPropertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);

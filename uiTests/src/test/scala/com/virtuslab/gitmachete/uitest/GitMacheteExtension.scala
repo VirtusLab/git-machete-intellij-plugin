@@ -9,8 +9,9 @@ import org.virtuslab.ideprobe.RunningIntelliJFixture
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.dependencies.Plugin
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
-trait GitMacheteExtension { this: IdeProbeFixture =>
+trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =>
 
   private val machetePlugin: Plugin = {
     val cwd = Paths.get(System.getProperty("user.dir"))
@@ -101,11 +102,11 @@ trait GitMacheteExtension { this: IdeProbeFixture =>
       }
 
       def runJs(@Language("JS") statement: String): Unit = {
-        intelliJ.probe.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
+        intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
       }
 
       def callJs[T](@Language("JS") expression: String): T = {
-        intelliJ.probe.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
+        intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
       }
     }
   }
