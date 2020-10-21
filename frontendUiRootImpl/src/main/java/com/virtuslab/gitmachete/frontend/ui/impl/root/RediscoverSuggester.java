@@ -23,6 +23,9 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
 
   private final SelectedGitRepositoryProvider selectedGitRepositoryProvider;
 
+  // TODO (#270): a candidate for custom settings tab
+  private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
+
   private boolean wasRediscoverSuggestionDeclined = false;
 
   public RediscoverSuggester(Project project) {
@@ -56,27 +59,28 @@ public class RediscoverSuggester extends BaseGitMacheteTabOpenListener {
     }
 
     var daysDiff = daysDiffTillNow(lastModifiedTimeMillis);
-    // TODO (#270): a candidate for custom settings tab
-    if (daysDiff > 14) { // magic val
+    LOG.info("Branch layout has not been modified within ${daysDiff} days");
+    if (daysDiff > DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER) {
+      LOG.info("Time diff above ${DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER}; Suggesting rediscover");
       var yesNo = MessageDialogBuilder.YesNo.yesNo(
           getString("string.GitMachete.RediscoverSuggester.dialog.title"),
           getString("string.GitMachete.RediscoverSuggester.dialog.question"));
 
       switch (yesNo.show()) {
         case Messages.YES :
-          LOG.info("Branch layout has not been modified within given time - enqueueing rediscover");
+          LOG.info("Enqueueing rediscover");
           new GraphTableProvider(project).getGraphTable().queueDiscover(macheteFilePath, () -> {});
           break;
         case Messages.NO : // closing dialog goes here too
-          LOG.info("Branch layout has not been modified within given time - rediscover declined from dialog");
+          LOG.info("Rediscover declined from dialog");
           wasRediscoverSuggestionDeclined = true;
           break;
         default :
-          LOG.info("Branch layout has not been modified within given time - unknown response message");
+          LOG.info("Unknown response message");
           break;
       }
     } else {
-      LOG.info("Branch layout has been modified within given time - skipping rediscover suggestion");
+      LOG.info("Time diff below (or equal) ${DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER}; rediscover suggestion skipped");
     }
   }
 
