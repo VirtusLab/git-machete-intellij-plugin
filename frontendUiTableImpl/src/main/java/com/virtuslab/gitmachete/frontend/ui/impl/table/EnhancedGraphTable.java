@@ -240,7 +240,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
     return (Path macheteFilePath) -> GuiUtils.invokeLaterIfNeeded(
         () -> setTextForEmptyTable(
-            format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cant-discover-layout"),
+            format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout"),
                 macheteFilePath.toString())),
         NON_MODAL);
   }

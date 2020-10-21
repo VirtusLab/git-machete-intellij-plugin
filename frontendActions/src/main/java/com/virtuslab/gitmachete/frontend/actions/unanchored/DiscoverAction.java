@@ -46,7 +46,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     var gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cant-get-current-repository-error"),
+          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-get-current-repository-error"),
           /* message */ "");
       return;
     }
@@ -102,7 +102,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cant-discover-layout-error"),
+          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-discover-layout-error"),
           /* message */ "");
       return;
     }

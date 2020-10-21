@@ -72,7 +72,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (!branchNames.contains(processedBranchName)) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
-              format(getString("string.GitMachete.MacheteAnnotator.cant-find-local-branch-in-repo"), processedBranchName))
+              format(getString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo"), processedBranchName))
           .range(branch).create();
     }
   }
@@ -87,7 +87,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     var prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
     if (prevMacheteGeneratedEntryOption.isEmpty()) {
-      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.cant-indent-first-entry"))
+      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.cannot-indent-first-entry"))
           .range(element).create();
       return;
     }

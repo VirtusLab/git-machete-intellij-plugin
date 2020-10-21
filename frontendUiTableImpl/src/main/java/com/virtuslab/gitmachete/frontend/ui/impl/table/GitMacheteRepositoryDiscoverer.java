@@ -52,7 +52,7 @@ public class GitMacheteRepositoryDiscoverer {
         if (!discoverRunResult.isSuccess()) {
           var exception = discoverRunResult.getCause();
           GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
-              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cannot-discover-layout-error-title"),
               exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL);
           return;
         }
@@ -77,7 +77,7 @@ public class GitMacheteRepositoryDiscoverer {
           onSuccessRepositoryConsumer.accept(repositorySnapshot);
         } catch (BranchLayoutException exception) {
           GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
-              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cant-discover-layout-error-title"),
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.cannot-discover-layout-error-title"),
               exception.getMessage() != null ? exception.getMessage() : ""), NON_MODAL);
         }
       }
