@@ -28,6 +28,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -55,13 +56,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     }
 
     var state = getSelectedGitRepository(anActionEvent).map(r -> r.getState());
+    var isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
 
     if (state.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
           getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.unknown-state"));
 
-    } else if (state.get() != Repository.State.NORMAL) {
+    } else if (state.get() != Repository.State.NORMAL
+        && !(isCalledFromContextMenu && state.get() == Repository.State.DETACHED)) {
 
       var stateName = Match(state.get()).of(
           Case($(Repository.State.GRAFTING),
@@ -111,7 +114,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       var isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.getName())).getOrElse(false);
-      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isRebasingCurrent) {
+      if (isCalledFromContextMenu && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
       }
     }
@@ -138,9 +141,12 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     var project = getProject(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent);
     var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+    var state = gitRepository.map(r -> r.getState());
+    var isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    var shouldExplicitlyCheckout = isCalledFromContextMenu && state.map(s -> Repository.State.DETACHED == s).getOrElse(false);
 
     if (gitRepository.isDefined() && gitMacheteRepositorySnapshot.isDefined()) {
-      doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot.get(), branchToRebase);
+      doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot.get(), branchToRebase, shouldExplicitlyCheckout);
     }
   }
 
@@ -148,7 +154,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       Project project,
       GitRepository gitRepository,
       IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
-      INonRootManagedBranchSnapshot branchToRebase) {
+      INonRootManagedBranchSnapshot branchToRebase,
+      boolean shouldExplicitlyCheckout) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
     var tryGitRebaseParameters = Try.of(() -> branchToRebase.getParametersForRebaseOntoParent());
@@ -213,6 +220,10 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
                 "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                 "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
 
+            if (shouldExplicitlyCheckout) {
+              CheckoutSelectedBranchAction.doCheckout(
+                  project, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
+            }
             GitRebaseUtils.rebase(project, java.util.List.of(gitRepository), params, indicator);
           }
         }.queue();

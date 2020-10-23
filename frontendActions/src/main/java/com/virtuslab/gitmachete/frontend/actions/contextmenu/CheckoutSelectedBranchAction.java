@@ -77,17 +77,17 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
       new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedBranchAction.task-title")) {
         @Override
         public void run(ProgressIndicator indicator) {
-          doCheckout(selectedBranchName.get(), gitRepository.get(), project, indicator);
+          doCheckout(project, indicator, selectedBranchName.get(), gitRepository.get());
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
     }
   }
 
-  public static void doCheckout(String branchNameToCheckout, GitRepository gitRepository, Project project,
-      ProgressIndicator indicator) {
+  public static void doCheckout(Project project, ProgressIndicator indicator, String branchToCheckoutName,
+      GitRepository gitRepository) {
     GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
     new GitBranchWorker(project, Git.getInstance(), uiHandler)
-        .checkout(branchNameToCheckout, /* detach */ false, java.util.List.of(gitRepository));
+        .checkout(branchToCheckoutName, /* detach */ false, java.util.List.of(gitRepository));
   }
 }

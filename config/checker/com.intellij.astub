@@ -129,6 +129,9 @@ class AnActionEvent {
 
   @SafeEffect
   @Nullable Project getProject();
+
+  @SafeEffect
+  String getPlace();
 }
 
 class DataKey<T> {
