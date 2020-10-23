@@ -220,6 +220,12 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
                 "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                 "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
 
+            /*
+             * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow to rebase in detached head state.
+             * However, it is possible with Git (performing checkout implicitly) and should be allowed in the case of
+             * "Checkout and Rebase Onto Parent" Action. To pass the git4idea check in such a case we checkout the branch
+             * explicitly and then perform the actual rebase.
+             */
             if (shouldExplicitlyCheckout) {
               CheckoutSelectedBranchAction.doCheckout(
                   project, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
