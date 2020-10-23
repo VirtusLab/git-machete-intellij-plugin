@@ -29,7 +29,14 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   protected int getRowHeight() {
-    return table.getRowHeight();
+    var font = table.getFont();
+    // The font (if missing) is being retrieved from parent. In the case of parent absence it could be null.
+    if (font != null) {
+      // The point is to scale the graph table content (text and graph) along with the font specified by settings.
+      return Math.max(table.getFontMetrics(font).getHeight(), table.getRowHeight());
+    } else {
+      return table.getRowHeight();
+    }
   }
 
   @UIEffect
