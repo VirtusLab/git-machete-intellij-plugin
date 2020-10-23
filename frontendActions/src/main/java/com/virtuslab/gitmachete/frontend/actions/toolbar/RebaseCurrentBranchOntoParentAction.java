@@ -23,15 +23,17 @@ public class RebaseCurrentBranchOntoParentAction extends BaseRebaseBranchOntoPar
     }
 
     var currentBranch = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
+        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn)).getOrNull();
 
-    var isNonRootBranch = currentBranch.map(b -> b.isNonRoot()).getOrElse(false);
-
-    @SuppressWarnings("confirmedbranchitem") var isNotMerged = currentBranch
-        .filter(branch -> branch.isNonRoot())
-        .map(branch -> branch.asNonRoot().getSyncToParentStatus() != SyncToParentStatus.MergedToParent)
-        .getOrElse(false);
-
-    presentation.setVisible(isNonRootBranch && isNotMerged);
+    if (currentBranch != null) {
+      if (currentBranch.isNonRoot()) {
+        var isNotMerged = currentBranch.asNonRoot().getSyncToParentStatus() != SyncToParentStatus.MergedToParent;
+        presentation.setVisible(isNotMerged);
+      } else {
+        presentation.setVisible(false);
+      }
+    } else {
+      presentation.setVisible(false);
+    }
   }
 }
