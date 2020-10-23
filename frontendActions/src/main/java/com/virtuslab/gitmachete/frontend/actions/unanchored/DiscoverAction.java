@@ -106,7 +106,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
           /* message */ "");
       return;
     }
-    new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file-task-title")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
         Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true))

@@ -5,7 +5,6 @@ import com.intellij.ui.content.ContentManagerEvent;
 import com.intellij.ui.content.ContentManagerListener;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
-import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 @CustomLog
 @AllArgsConstructor
@@ -14,7 +13,6 @@ public abstract class BaseGitMacheteTabOpenListener implements ContentManagerLis
   protected final Project project;
 
   @Override
-  @UIEffect
   public void selectionChanged(ContentManagerEvent event) {
     if (isGitMacheteTabOpen(event)) {
       LOG.info("Performing on Git Machete Tab open action...");
@@ -22,10 +20,8 @@ public abstract class BaseGitMacheteTabOpenListener implements ContentManagerLis
     }
   }
 
-  @UIEffect
   public abstract void perform();
 
-  @UIEffect
   private boolean isGitMacheteTabOpen(ContentManagerEvent event) {
     return event.getOperation() == ContentManagerEvent.ContentOperation.add &&
         event.getContent().getDisplayName().equals("Git Machete");

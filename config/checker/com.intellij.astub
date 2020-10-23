@@ -228,6 +228,11 @@ class DialogWrapper {
   @Nullable javax.swing.JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
 }
 
+class MessageDialogBuilder<T extends MessageDialogBuilder> {
+  @SafeEffect
+  YesNo yesNo(String title, String message);
+}
+
 
 @UIPackage package com.intellij.openapi.ui.cellvalidators;
 @UIPackage package com.intellij.openapi.ui.dialogs;
@@ -380,6 +385,16 @@ class TextFieldWithAutoCompletionListProvider<T> {
 @UIPackage package com.intellij.ui.components.labels;
 @UIPackage package com.intellij.ui.components.panels;
 @UIPackage package com.intellij.ui.content;
+
+interface Content {
+  @SafeEffect
+  String getDisplayName();
+}
+
+@AlwaysSafe
+class ContentManagerEvent {}
+
+
 @UIPackage package com.intellij.ui.docking;
 @UIPackage package com.intellij.ui.dualView;
 @UIPackage package com.intellij.ui.list;
