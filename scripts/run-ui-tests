@@ -11,7 +11,7 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-intellij_version=${1}
+intellij_version=${1-}
 test_method_prefix=${2-}
 
 if [[ ${CI-} == true ]]; then
@@ -26,12 +26,4 @@ only_tests_flag=${test_method_prefix:+--tests *.$test_method_prefix*}
   --info \
   --max-workers=1 \
   -Dorg.gradle.jvmargs=-Xmx256M \
-  uiTests:test $only_tests_flag || {
-    die 'UI tests failed; inspect Gradle and IDE logs above'
-}
-
-if ide_logs_from_this_run | grep -q ' ERROR - '; then
-  info 'Logs of IDE under test'
-  ide_logs_from_this_run
-  die 'UI tests passed, but IDE logs contain errors; inspect Gradle and IDE logs above'
-fi
+  uiTests:test $only_tests_flag

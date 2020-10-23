@@ -25,17 +25,17 @@ task syncTestResults(type: Sync) {
 }
 
 test {
-  // Exclude UI tests when running `./gradlew test`, unless a `-PrunUiTests` Gradle flag is provided.
-  def runUiTests = project.hasProperty('enableUiTests')
+  // Exclude UI tests when running `./gradlew test`, unless a `-PenableUiTests` Gradle flag is provided.
+  def enableUiTests = project.hasProperty('enableUiTests')
 
   onlyIf {
-    runUiTests
+    enableUiTests
   }
-  if (runUiTests) {
+  if (enableUiTests) {
     dependsOn ':buildPlugin'
   }
 
-  systemProperty 'intellij.version', project.findProperty('intellijVersion')
+  systemProperty 'intellij.version', project.findProperty('intellijVersion') ?: intellijVersions.current
 
   // Always re-run the tests, never assume they're up to date.
   outputs.upToDateWhen { false }

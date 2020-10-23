@@ -308,7 +308,7 @@ subprojects {
 
     ideProbe = { ->
       repositories {
-        maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+        maven { url 'https://jetbrains.bintray.com/intellij-third-party-dependencies' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
       }
 

@@ -86,7 +86,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def assertWorkingTreeIsAtHead(): Unit = {
-        Assert.assertEquals(Nil, getDiffOfWorkingTreeToHead())
+        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
       }
 
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
