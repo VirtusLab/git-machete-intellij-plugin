@@ -16,7 +16,7 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
 import org.virtuslab.ideprobe.junit4.RunningIntelliJPerSuite
 
 object UITestSuite
-    extends RunningIntelliJPerSuite
+  extends RunningIntelliJPerSuite
     with IdeProbeFixture
     with GitMacheteExtension {
 

@@ -32,6 +32,7 @@ ext {
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
+  intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests ?: intellijVersions.buildTarget
 
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.7.0'

@@ -1,6 +1,3 @@
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
 plugins {
   id 'org.gradle.scala'
 }
@@ -19,9 +16,7 @@ dependencies {
 task syncTestResults(type: Sync) {
   from testResultsDir
 
-  def subdirectoryName = project.properties.testResultsSubdir
-    ?: LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-  into "$buildDir/ui-test-results/$subdirectoryName"
+  into "$buildDir/ui-test-results/${intellijVersions.uiTestsTarget}"
 }
 
 test {
@@ -35,7 +30,7 @@ test {
     dependsOn ':buildPlugin'
   }
 
-  systemProperty 'intellij.version', project.findProperty('intellijVersion') ?: intellijVersions.current
+  systemProperty 'intellij.version', intellijVersions.uiTestsTarget
 
   // Always re-run the tests, never assume they're up to date.
   outputs.upToDateWhen { false }
