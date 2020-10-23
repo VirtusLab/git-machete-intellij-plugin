@@ -45,13 +45,13 @@ class OverrideForkPointDialog
             label(
                 format(
                     getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.1"),
+                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.1"),
                     branch.name),
                 bold = false)
             label(branch.name, bold = true)
             label(
                 getString(
-                    "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.branch-name.2"),
+                    "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.2"),
                 bold = false)
           }
         }
