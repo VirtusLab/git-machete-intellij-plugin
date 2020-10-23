@@ -21,7 +21,8 @@ object UITestSuite
     with GitMacheteExtension {
 
   override protected def baseFixture: IntelliJFixture = transformFixture {
-    val version = sys.props.get("intellij.version").filterNot(_.isEmpty).map(IntelliJVersion(_, None)).getOrElse(IntelliJVersion("2020.2.1", None))
+    val version = sys.props.get("intellij.version").filterNot(_.isEmpty).map(IntelliJVersion(_, None))
+      .getOrElse(throw new Exception("IntelliJ version is not provided"))
     val driverConfig = DriverConfig(
       vmOptions = Seq("-Xmx1G"),
       check = CheckConfig(errors = true)
