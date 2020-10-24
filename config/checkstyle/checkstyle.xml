@@ -1,22 +1,149 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
         "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
-        "https://checkstyle.org/dtds/configuration_1_3.dtd" [
-        <!ENTITY checkerModuleDirectives SYSTEM "checker_module_directives.xml">
-        <!ENTITY prohibitJavaCollections SYSTEM "prohibit_java_collections.xml">
-        <!ENTITY treeWalkerModuleDirectives SYSTEM "tree_walker_module_directives.xml">
-        ]>
-
-<!-- List of directives: https://checkstyle.sourceforge.io/version/4.4/availablechecks.html -->
-
-<!-- DTD entities are used to allow for splitting config file to smaller parts
-     that can be reimported in submodule-specific configuration files. -->
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
-    &checkerModuleDirectives;
+    <module name="NewlineAtEndOfFile"/>
+
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value=".*"/>
+        <property name="files" value="^.*/build/generated/.*\.java$"/>
+    </module>
+
+    <!-- to enable @SuppressWarnings -->
+    <module name="SuppressWarningsFilter"/>
 
     <module name="TreeWalker">
-        &prohibitJavaCollections;
-        &treeWalkerModuleDirectives;
+        <!-- to enable @SuppressWarnings -->
+        <module name="SuppressWarningsHolder"/>
+
+        <module name="ArrayTypeStyle"/>
+        <module name="AvoidStarImport"/>
+        <module name="ConstantName">
+            <property name="format" value="^((.+C|c)ache|(.+I|i)nstance|[A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
+        </module>
+        <module name="CovariantEquals"/>
+        <module name="DefaultComesLast"/>
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+            <property name="tokens"
+                      value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+        </module>
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="FallThrough"/>
+        <module name="FinalClass"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+        </module>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="IllegalCatch"/>
+        <module name="IllegalImport">
+            <!-- Avoid mutable collections; if really needed, qualify their class names explicitly. -->
+            <property name="illegalClasses" value="java.util.Deque, java.util.HashMap, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.TreeMap, java.util.Vector"/>
+            <!-- Use io.vavr.control.Option instead. -->
+            <property name="illegalClasses" value="java.util.Optional"/>
+            <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->
+            <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable"/>
+            <property name="illegalClasses" value="org.jetbrains.annotations.NotNull, org.jetbrains.annotations.Nullable"/>
+        </module>
+        <module name="IllegalThrows"/>
+        <module name="IllegalType"/>
+        <module name="InnerAssignment"/>
+        <module name="LeftCurly">
+            <property name="tokens"
+                      value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
+                    INTERFACE_DEF, LAMBDA, LITERAL_CASE, LITERAL_CATCH, LITERAL_DEFAULT,
+                    LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
+                    OBJBLOCK, STATIC_INIT"/>
+        </module>
+        <module name="MissingSwitchDefault"/>
+        <module name="MultipleStringLiterals">
+            <property name="allowedDuplicates" value="3"/>
+            <!-- Allow for more than 3 occurrences of an empty string, a single-space string or ", " string in the given file -->
+            <property name="ignoreStringsRegexp" value="^&quot;(| |, )&quot;$"/>
+        </module>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="ModifierOrder"/>
+        <module name="MutableException"/>
+        <module name="NeedBraces">
+            <property name="tokens"
+                      value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+        </module>
+        <module name="NestedTryDepth"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OneStatementPerLine"/>
+        <module name="PackageDeclaration"/>
+        <module name="ParameterAssignment"/>
+        <module name="RedundantModifier"/>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <!-- Sometimes the assertion expression spans over more than one line, so we must include newlines in the regex. -->
+            <property name="format" value="\bassert\b([^:]|\n)*;"/>
+            <property name="message" value="Assertion without comment/message"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="\bjava\.util\.Date\b"/>
+            <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value=" LOG = "/>
+            <property name="message" value="Do not declare LOG field manually, use @lombok.CustomLog instead"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="\\n"/>
+            <property name="message" value="Usage of \n is forbidden, use System.lineSeparator() instead"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="^package.*[A-Z]"/>
+            <property name="message" value="Package name must be lowercase"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="\bsynchronized\b"/>
+            <property name="message" value="Avoid lock-based synchronization, consider io.vavr.Lazy, Task.Backgroundable and/or GuiUtils.invokeLaterIfNeeded(...) instead"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="\([^@,)/*]+ this[,)]"/>
+            <property name="message" value="Unannotated (and therefore likely redundant) explicit receiver"/>
+        </module>
+        <module name="Regexp">
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+            <!-- (?<!... ) is a negative lookbehind -->
+            <property name="format" value="^.*(?&lt;!@Unique |@NonLeaked |import org\.eclipse\.jgit\.revwalk\.)\bRevCommit\b"/>
+            <property name="message" value="RevCommit is mutable and thus unsafe when leaked; always mark RevCommits as @org.checkerframework.common.aliasing.qual.Unique"/>
+        </module>
+        <module name="RequireThis">
+            <property name="checkMethods" value="false"/>
+            <property name="validateOnlyOverlapping" value="true"/>
+        </module>
+        <module name="RightCurly">
+            <property name="id" value="RightCurlySame"/>
+            <property name="tokens"
+                      value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
+        </module>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="StringLiteralEquality"/>
+        <module name="SuperClone"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="UnusedImports"/>
+        <module name="UpperEll"/>
     </module>
 </module>

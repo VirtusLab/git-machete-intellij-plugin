@@ -34,6 +34,7 @@ ext {
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests ?: intellijVersions.buildTarget
 
+  archUnitVersion = '0.14.1'
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.7.0'
   checkstyleToolVersion = '8.33'
@@ -78,12 +79,28 @@ dependencyUpdates {
   }
 }
 
+
 allprojects {
   repositories {
     jcenter()
     mavenCentral()
   }
+
+  apply plugin: 'com.diffplug.spotless'
+  spotless {
+    java {
+      importOrder 'java', 'javax', '', 'com.virtuslab'
+      // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
+      eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
+      removeUnusedImports()
+      targetExclude 'build/generated/**/*.*'
+    }
+    kotlin {
+      ktfmt()
+    }
+  }
 }
+
 
 subprojects {
   apply plugin: 'org.gradle.java-library'
@@ -121,7 +138,6 @@ subprojects {
       // The experience shows that the below checkers are just rarely failing, as compared to GuiEffect/Nullness.
       // Hence, they're only applied in CI, or locally only if a dedicated Gradle project property is set.
       checkers += [
-        'org.checkerframework.checker.fenum.FenumChecker',
         'org.checkerframework.checker.index.IndexChecker',
         'org.checkerframework.checker.interning.InterningChecker',
         'org.checkerframework.checker.optional.OptionalChecker',
@@ -139,21 +155,6 @@ subprojects {
     dependencies {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
       checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
-    }
-  }
-
-
-  apply plugin: 'com.diffplug.spotless'
-  spotless {
-    java {
-      importOrder 'java', 'javax', '', 'com.virtuslab'
-      // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
-      eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
-      removeUnusedImports()
-      targetExclude 'build/generated/**/*.*'
-    }
-    kotlin {
-      ktfmt()
     }
   }
 
@@ -183,20 +184,7 @@ subprojects {
     ignoreFailures = false
     checkstyleTest.enabled = false
 
-    // This enables "importing" subconfig files to main file (DTD ENTITY feature)
-    System.setProperty('checkstyle.enableExternalDtdLoad', 'true')
-
     configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
-
-    def checkstyleRelativeConfigPath = 'config/checkstyle/checkstyle.xml'
-
-    def subprojectConfigFile = new File(projectDir, checkstyleRelativeConfigPath)
-    // Check if subproject-specific config file exists. If exists then apply
-    if (subprojectConfigFile.isFile()) {
-      configFile = subprojectConfigFile
-    } else {
-      configFile = new File(rootDir, checkstyleRelativeConfigPath)
-    }
   }
 
   apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
@@ -466,12 +454,20 @@ if (ciBranch == 'master') {
 }
 
 
+
+dependencies {
+  testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
+}
+
+
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
   instrumentCode false
   pluginName 'git-machete-intellij-plugin'
   version intellijVersions.buildTarget
+
+  plugins 'git4idea' // Needed solely for ArchUnit
 }
 
 static String intellijVersionToBuildNumber(String version) {

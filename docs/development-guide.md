@@ -155,8 +155,12 @@ A relatively small amount of `TRACE`-level logs is generated as well.
 Most non-standard/project-specific conventions are enforced by:
 
 * [pre-commit hook](../scripts/run-pre-build-checks)
-* [Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) for Java code formatting (see [Eclipse-compatible config](../config/spotless/formatting-rules.xml))
-* [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells (see [top-level config](../config/checkstyle/checkstyle.xml))
+* [Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) for Java code formatting
+  (see [Eclipse-compatible config](../config/spotless/formatting-rules.xml))
+* [Checkstyle](https://checkstyle.sourceforge.io/) for code style/detecting basic smells
+  (see the [config](../config/checkstyle/checkstyle.xml))
+* [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html) for forbidden method calls/class naming patterns etc.
+  (see [tests in top-level project](../src/test/java/com/virtuslab/archunit))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
   (most config in [build.gradle](../build.gradle), stubs in [config/checker/](../config/checker))
 
