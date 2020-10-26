@@ -42,8 +42,6 @@
         <module name="IllegalImport">
             <!-- Avoid mutable collections; if really needed, qualify their class names explicitly. -->
             <property name="illegalClasses" value="java.util.Deque, java.util.HashMap, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.TreeMap, java.util.Vector"/>
-            <!-- Use io.vavr.control.Option instead. -->
-            <property name="illegalClasses" value="java.util.Optional"/>
             <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->
             <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable"/>
             <property name="illegalClasses" value="org.jetbrains.annotations.NotNull, org.jetbrains.annotations.Nullable"/>
@@ -86,12 +84,6 @@
             <!-- Sometimes the assertion expression spans over more than one line, so we must include newlines in the regex. -->
             <property name="format" value="\bassert\b([^:]|\n)*;"/>
             <property name="message" value="Assertion without comment/message"/>
-        </module>
-        <module name="Regexp">
-            <property name="illegalPattern" value="true"/>
-            <property name="ignoreComments" value="true"/>
-            <property name="format" value="\bjava\.util\.Date\b"/>
-            <property name="message" value="Usage of the prohibited and deprecated java.util.Date. Please use java.time.Instant instead"/>
         </module>
         <module name="Regexp">
             <property name="illegalPattern" value="true"/>

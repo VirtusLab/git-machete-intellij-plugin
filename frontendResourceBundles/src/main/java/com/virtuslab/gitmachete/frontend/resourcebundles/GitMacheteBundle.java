@@ -18,7 +18,7 @@ public final class GitMacheteBundle {
    * A more restrictive version of {@link MessageFormat#format(String, Object...)}.
    * Since each parameter must be a non-null {@link String},
    * we can capture the unintended parameter types (like {@code io.vavr.control.Option}) more easily during the build
-   * (this is realized with ArchUnit, see the test against {@code Option#toString} in the top-level project).
+   * (this is realized with ArchUnit; see the test against {@code Option#toString} in the top-level project).
    *
    * @param format as in {@link MessageFormat#format(String, Object...)}
    * @param args as in {@link MessageFormat#format(String, Object...)},

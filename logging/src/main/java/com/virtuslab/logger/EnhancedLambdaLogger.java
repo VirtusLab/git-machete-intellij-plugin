@@ -2,9 +2,9 @@ package com.virtuslab.logger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
+import io.vavr.collection.Stream;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -43,11 +43,10 @@ public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
     // #5: com.virtuslab.logger.MacheteLogger#debug
     // #6: method from which IMacheteLogger.<logMethod> was called;
     var stackTrace = Thread.currentThread().getStackTrace();
-    String methodName = Arrays.stream(stackTrace)
-        .filter(se -> !isInternalLoggingClass(se.getClassName()))
-        .findFirst()
+    String methodName = Stream.of(stackTrace)
+        .find(se -> !isInternalLoggingClass(se.getClassName()))
         .map(se -> se.getMethodName())
-        .orElse("<unknown>");
+        .getOrElse("<unknown>");
     String timerMessage = bufferedTimerMessage.get();
     bufferedTimerMessage.remove();
     return simpleClassName + "#" + methodName + ": " + (timerMessage == null ? "" : timerMessage);
