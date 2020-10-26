@@ -40,7 +40,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .orShould().callMethod(git4idea.repo.GitRepository.class, "getBranchTrackInfos")
         .because("getBranchTrackInfo(s) does not take into account inferred remote " +
             "(when only branch names match but tracking data is unset); " +
-            " use tracking data from " + GitMacheteRepositorySnapshot.class.getSimpleName() + " instead")
+            " use tracking data from " + GitMacheteRepositorySnapshot.class.getName() + " instead")
         .check(importedClasses);
   }
 
@@ -67,7 +67,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .that().areNotAssignableTo(com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.class)
         .should().callMethod(java.text.MessageFormat.class, "format", String.class, Object[].class)
-        .because("more restrictive " + GitMacheteBundle.class + ".format should be used instead")
+        .because("more restrictive " + GitMacheteBundle.class.getSimpleName() + ".format should be used instead")
         .check(importedClasses);
   }
 
@@ -94,7 +94,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().callMethod(javax.swing.SwingUtilities.class, "invokeLater", Runnable.class)
         .because("GuiUtils.invokeLaterIfNeeded(...) should be used instead. " +
-            "See docs for com.intellij.openapi.application.ModalityState for the reasons")
+            "See docs for " + com.intellij.openapi.application.ModalityState.class.getName() + " for the reasons")
         .check(importedClasses);
   }
 
