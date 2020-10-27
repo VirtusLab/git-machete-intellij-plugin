@@ -210,6 +210,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     repaint();
     revalidate();
+    doOnUIThreadWhenReady.run();
   }
 
   @UIEffect
