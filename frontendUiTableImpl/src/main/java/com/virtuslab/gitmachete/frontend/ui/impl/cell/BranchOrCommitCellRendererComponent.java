@@ -89,7 +89,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     this.graphTable = table;
 
-    assert table instanceof IGitMacheteRepositorySnapshotProvider : "Table variable is not instance of ${IGitMacheteRepositorySnapshotProvider.class.getSimpleName()}";
+    assert table instanceof IGitMacheteRepositorySnapshotProvider
+        : "Table variable is not instance of ${IGitMacheteRepositorySnapshotProvider.class.getSimpleName()}";
     var gitMacheteRepositorySnapshot = ((IGitMacheteRepositorySnapshotProvider) graphTable).getGitMacheteRepositorySnapshot();
 
     assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();

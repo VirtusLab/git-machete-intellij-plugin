@@ -37,17 +37,22 @@ RUN set -x \
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
 
+# Markdown validation utilities
+RUN set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y nodejs \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -L https://npmjs.org/install.sh | sh \
+  && npm install --global doctoc remark-cli remark-validate-links
+
 # Secondary packages needed in just one (or few) steps of the pipeline:
 # (package       => needed for command(s))
 # binutils       => strings
-# netcat         => nc
-# procps         => ps
-# psmisc         => fuser
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils netcat procps psmisc xxd unzip \
+  && apt-get install --no-install-recommends -y binutils xxd unzip \
   `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
   && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
   && rm -rf /var/lib/apt/lists/*

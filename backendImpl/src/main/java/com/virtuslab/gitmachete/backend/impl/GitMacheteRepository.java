@@ -227,6 +227,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to HEAD'");
         } else if (e.getComment().startsWith("reset: moving to ")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'reset: moving to '");
+        } else if (e.getComment().startsWith("fetch . ")) {
+          LOG.trace(() -> "Exclude ${e} because its comment starts with 'fetch . '");
         } else if (e.getComment().equals(rebaseComment)) {
           LOG.trace(() -> "Exclude ${e} because its comment is '${rebaseComment}'");
         } else {
