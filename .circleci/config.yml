@@ -101,7 +101,7 @@ jobs:
           name: Run UI tests against 2020.3 EAP
           # Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
           # rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
-          command: ./scripts/run-ui-tests 203.4818.26-EAP-SNAPSHOT
+          command: ./scripts/run-ui-tests 203.5251.39-EAP-SNAPSHOT
       - store_test_results:
           path: uiTests/build/ui-test-results/
 

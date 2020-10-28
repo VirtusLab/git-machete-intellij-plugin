@@ -19,4 +19,5 @@ only_tests_flag=${test_method_prefix:+--tests *.$test_method_prefix*}
 ./gradlew \
   -PenableUiTests \
   -PintellijVersionForUiTests="$intellij_version" \
+  --info \
   uiTests:test $only_tests_flag

@@ -28,7 +28,7 @@ ext {
     latestSupported: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
     // rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
-    eapsForCompatibilityChecks: ['203.4818.26-EAP-SNAPSHOT']
+    eapsForCompatibilityChecks: ['203.5251.39-EAP-SNAPSHOT']
   ]
   intellijVersions.buildTarget = intellijVersions.current
   intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
