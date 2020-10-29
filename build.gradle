@@ -9,7 +9,7 @@ plugins {
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
   id 'org.checkerframework' version '0.5.11' apply false
   id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
-  id 'org.jetbrains.intellij' version '0.5.1' apply false
+  id 'org.jetbrains.intellij' version '0.6.2' apply false
   id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.47' apply false
 }
@@ -20,16 +20,16 @@ ext {
   // * the minimum required IDEA version mentioned in README.md
   // Also, see https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
   intellijVersions = [
-    earliestSupported: '2020.1',
-    // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
-    // Preferably the most recent minor release of each version between the earliest supported (incl.) and latest stable (excl.)
-    inBetweenForCompatibilityChecks: ['2020.1.4'],
+    earliestSupportedMajor: '2020.1',
+    // Most recent minor versions of all major releases
+    // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
+    latestMinorsOfOldSupportedMajors: ['2020.1.4'],
     latestStable: '2020.2.3',
-    latestSupported: '2020.3',
+    latestSupportedMajor: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
     // rather than "rolling snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
     // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupported: ['203.5419.21-EAP-SNAPSHOT']
+    eapOfLatestSupportedMajor: ['203.5600.34-EAP-SNAPSHOT']
   ]
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
@@ -491,10 +491,10 @@ static String intellijVersionToBuildNumber(String version) {
 
 patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-  sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupported)
+  sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  untilBuild intellijVersionToBuildNumber(intellijVersions.latestSupported) + '.*'
+  untilBuild intellijVersionToBuildNumber(intellijVersions.latestSupportedMajor) + '.*'
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
@@ -503,33 +503,21 @@ patchPluginXml {
   changeNotes file("$rootDir/CHANGE-NOTES.html").text
 }
 
-apply from: 'plugin-verifier.gradle'
-
-runPluginVerifier {
-  pluginFileName = "${intellij.pluginName}-${version}"
-  verifierVersion = '1.241'
-
-  def ideVersions = project.properties.intellijVersionForCompatibilityChecks ? [
-    project.properties.intellijVersionForCompatibilityChecks
-  ] : [
-    intellijVersions.earliestSupported,
-    *intellijVersions.inBetweenForCompatibilityChecks,
-    intellijVersions.latestStable,
-    *intellijVersions.eapOfLatestSupported
-  ]
-  ides = ideVersions.collect { 'IC-' + it }
-}
-
-repositories {
-  maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
-
-  if (intellijVersions.eapOfLatestSupported) {
-    maven { url = 'https://www.jetbrains.com/intellij-repository/snapshots/' }
-  }
-}
-
 runIde {
   maxHeapSize = '2G'
+}
+
+import static org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel
+
+runPluginVerifier {
+  ideVersions = [
+    *intellijVersions.latestMinorsOfOldSupportedMajors,
+    intellijVersions.latestStable,
+    *intellijVersions.eapOfLatestSupportedMajor*.replace('-EAP-SNAPSHOT', '')
+  ]
+
+  def skippedFailureLevels = EnumSet.of(FailureLevel.DEPRECATED_API_USAGES, FailureLevel.NOT_DYNAMIC)
+  failureLevel = EnumSet.complementOf(skippedFailureLevels)
 }
 
 publishPlugin {

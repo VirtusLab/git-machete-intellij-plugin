@@ -97,17 +97,17 @@ jobs:
           command: ./scripts/verify-artifact-contents
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
-          command: ./scripts/verify-binary-compatibility
+          command: ./gradlew runPluginVerifier
 
       - run:
-          name: Run UI tests against earliest supported IDEA version
-          command: ./scripts/run-ui-tests earliestSupported
+          name: Run UI tests against earliest supported major IDEA version
+          command: ./scripts/run-ui-tests latestMinorsOfOldSupportedMajors
       - run:
           name: Run UI tests against latest stable IDEA version (our build target)
           command: ./scripts/run-ui-tests latestStable
       - run:
-          name: Run UI tests against EAP of latest supported IDEA version
-          command: ./scripts/run-ui-tests eapOfLatestSupported
+          name: Run UI tests against EAP of latest supported major IDEA version
+          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
       - store_test_results:
           path: uiTests/build/ui-test-results/
 
