@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.uitest
 
+import java.nio.file.Files
+import java.nio.file.attribute.FileTime
+
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite.SETUP_WITH_SINGLE_REMOTE
 import org.junit.After
@@ -53,7 +56,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(repositoryMainDir)
     intelliJ.machete.runJs(s"project.configure()");
-    intelliJ.machete.runJs(s"project.openTab()");
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()");
     intelliJ.probe.awaitIdle()
   }
 
@@ -94,9 +97,15 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def discoverBranchLayout(): Unit = {
+    setLastModifiedDateOfMacheteFileToZero()
+    intelliJ.machete.runJs("project.openLogTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
+    var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
+    Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()
     // When model is refreshed and machete file is empty, then autodiscover should occur
-    var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
+    branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
@@ -165,5 +174,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   private def overwriteMacheteFile(content: String): Unit = {
     repositoryGitDir.resolve("machete").write(content + "\n")
+  }
+
+  private def setLastModifiedDateOfMacheteFileToZero(): Unit = {
+    val path = repositoryGitDir.resolve("machete")
+    Files.setLastModifiedTime(path, FileTime.fromMillis(0))
   }
 }

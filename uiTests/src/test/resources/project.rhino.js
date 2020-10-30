@@ -24,11 +24,19 @@ function Project(underlyingProject) {
   };
 
   // Tab & model management
-  this.openTab = function () {
+  this.openGitMacheteTab = function () {
+    this.openTab(ToolWindowId.VCS, 'Git Machete');
+  }
+
+  this.openLogTab = function () {
+    this.openTab(ToolWindowId.VCS, 'Log');
+  }
+
+  this.openTab = function (toolWindowId, tabName) {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;
     do {
-      toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
+      toolWindow = toolWindowManager.getToolWindow(toolWindowId);
       sleep();
     } while (toolWindow === null);
 
@@ -37,7 +45,7 @@ function Project(underlyingProject) {
     GuiUtils.runOrInvokeAndWait(function () {
       toolWindow.activate(function () {});
       const contentManager = toolWindow.getContentManager();
-      const tab = contentManager.findContent('Git Machete');
+      const tab = contentManager.findContent(tabName);
       contentManager.setSelectedContent(tab);
     });
   };
@@ -109,12 +117,19 @@ function Project(underlyingProject) {
 
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
+    this.findAndClickButton('Save');
+  }
 
-    const getSaveButton = function() {
+  this.acceptSuggestedBranchLayout = function () {
+    this.findAndClickButton('Yes');
+  };
+
+  this.findAndClickButton = function (name) {
+    const getSaveButton = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(function (component) {
         return 'javax.swing.JButton'.equals(component.getClass().getName())
-          && 'Save'.equals(component.getText());
+            && name.equals(component.getText());
       }).toArray();
       return result.length === 1 ? result[0] : null;
     };
@@ -126,7 +141,7 @@ function Project(underlyingProject) {
       saveButton = getSaveButton();
     }
     robot.click(saveButton);
-  };
+  }
 
   this.toggleListingCommits = function () {
     invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, {});
