@@ -102,7 +102,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 ./scripts/run-ui-tests [<intellij-version>]
 ```
 
-See [Gradle Intellij plugin docs](https://github.com/JetBrains/gradle-intellij-plugin/tree/master/examples/ui-test-example)
+See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 for more details.
 
 
