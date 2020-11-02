@@ -17,7 +17,6 @@ export GIT_PAGER=cat
 ./scripts/enforce-version-bump
 
 ./scripts/prohibit-class-name-hardcode-in-strings
-./scripts/prohibit-inner-classes
 ./scripts/prohibit-java-code-commented-out
 ./scripts/prohibit-java-lines-split-needlessly
 ./scripts/prohibit-non-ascii-characters
