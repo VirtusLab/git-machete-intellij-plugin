@@ -208,13 +208,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           String.join(", ", skippedBranchNames));
     }
 
+    Runnable discoverOperation = () -> queueDiscover(macheteFilePath, () -> {});
+    var rediscoverSuggester = new RediscoverSuggester(project, gitRepository, discoverOperation);
+    GuiUtils.invokeLaterIfNeeded(() -> rediscoverSuggester.performIfNotDeclined(), NON_MODAL);
+
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
   }
 
-  @UIEffect
-  @Override
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
     new GitMacheteRepositoryDiscoverer(
         project,
@@ -224,7 +226,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
             .enqueue(macheteFilePath);
   }
 
-  @UIEffect
   private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositoryConsumer(@UI Runnable doOnUIThreadWhenReady) {
     return (IGitMacheteRepositorySnapshot repositorySnapshot) -> GuiUtils.invokeLaterIfNeeded(
         () -> {
@@ -237,7 +238,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         NON_MODAL);
   }
 
-  @UIEffect
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
     return (Path macheteFilePath) -> GuiUtils.invokeLaterIfNeeded(
         () -> setTextForEmptyTable(

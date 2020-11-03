@@ -1,11 +1,14 @@
 package com.virtuslab.gitmachete.frontend.vfsutils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 
 public final class GitVfsUtils {
 
@@ -49,5 +52,14 @@ public final class GitVfsUtils {
    */
   public static Path getMacheteFilePath(GitRepository gitRepository) {
     return getGitDirectoryPath(gitRepository).resolve(MACHETE_FILE_NAME);
+  }
+
+  /**
+   * @param filePath {@link Path} to file
+   * @return an option of {@link Long} stating for time of last modification in milliseconds
+   */
+  public static Option<Long> getFileModificationDate(Path filePath) {
+    return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
+        .map(attr -> attr.lastModifiedTime().toMillis()).toOption();
   }
 }

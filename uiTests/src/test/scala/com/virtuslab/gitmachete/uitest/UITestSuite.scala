@@ -5,10 +5,7 @@ import java.nio.file.attribute.FileTime
 
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite.SETUP_WITH_SINGLE_REMOTE
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.{After, Assert, Before, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
@@ -97,10 +94,11 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def discoverBranchLayout(): Unit = {
+    // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToZero()
-    intelliJ.machete.runJs("project.openLogTab()")
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.refreshGraphTableModel()")
     intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
+    intelliJ.probe.awaitIdle()
     var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()

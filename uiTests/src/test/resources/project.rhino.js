@@ -28,10 +28,6 @@ function Project(underlyingProject) {
     this.openTab(ToolWindowId.VCS, 'Git Machete');
   }
 
-  this.openLogTab = function () {
-    this.openTab(ToolWindowId.VCS, 'Log');
-  }
-
   this.openTab = function (toolWindowId, tabName) {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;

@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui.api.table;
 
-import java.nio.file.Path;
-
 import javax.swing.table.AbstractTableModel;
 
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -26,9 +24,6 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
    */
   @UIEffect
   public abstract void refreshModel();
-
-  @UIEffect
-  public abstract void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady);
 
   /**
    * Queues repository update as a background task, which in turn itself queues model refresh onto the UI thread.

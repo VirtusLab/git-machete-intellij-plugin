@@ -14,7 +14,6 @@ import com.intellij.ui.GuiUtils;
 import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
-import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -33,7 +32,6 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<Path> onFailurePathConsumer;
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
 
-  @UIEffect
   public void enqueue(Path macheteFilePath) {
     var selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
     if (selectedRepository == null) {
