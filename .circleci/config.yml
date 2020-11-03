@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Validate Markdown ToCs
           command: |
-            doctoc README.md docs/development-guide.md docs/features.md
+            git grep --files-with-matches 'START doctoc' | xargs doctoc
             git --no-pager diff --exit-code HEAD || {
               echo Tables of contents in the above Markdown files are not up to date
               exit 1
@@ -25,6 +25,7 @@ jobs:
 
             # External links
             case $CIRCLE_BRANCH in
+              # We don't want some linked website being randomly down to fail a crucial (non-regular-PR) build.
               develop|release/*|backport/*|master|hotfix/*) true ;;
               *) remark --use=lint-no-dead-urls --ignore-path=.gitignore --frail . ;;
             esac
@@ -99,17 +100,14 @@ jobs:
           command: ./scripts/verify-binary-compatibility
 
       - run:
-          name: Run UI tests against 2020.1 (earliest supported)
-          command: ./scripts/run-ui-tests 2020.1
-      # Skipping 2020.1.4 to speed up the build; the risk of 2020.1.x failing when both 2020.1 & 2020.2 pass is minuscule.
+          name: Run UI tests against earliest supported IDEA version
+          command: ./scripts/run-ui-tests earliestSupported
       - run:
-          name: Run UI tests against 2020.2.3 (latest stable & our build target)
-          command: ./scripts/run-ui-tests 2020.2.3
+          name: Run UI tests against latest stable IDEA version (our build target)
+          command: ./scripts/run-ui-tests latestStable
       - run:
-          name: Run UI tests against 2020.3 EAP
-          # Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
-          # rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
-          command: ./scripts/run-ui-tests 203.5251.39-EAP-SNAPSHOT
+          name: Run UI tests against EAP of latest supported IDEA version
+          command: ./scripts/run-ui-tests eapOfLatestSupported
       - store_test_results:
           path: uiTests/build/ui-test-results/
 

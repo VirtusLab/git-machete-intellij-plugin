@@ -22,17 +22,19 @@ ext {
   intellijVersions = [
     earliestSupported: '2020.1',
     // An arbitrary list of versions between earliest supported (excl.) and current (excl.), for binary compatibility checks
-    // Preferably the most recent minor release of each version between the earliest supported (incl.) and current (excl.)
+    // Preferably the most recent minor release of each version between the earliest supported (incl.) and latest stable (excl.)
     inBetweenForCompatibilityChecks: ['2020.1.4'],
-    current: '2020.2.3',
+    latestStable: '2020.2.3',
     latestSupported: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
-    // rather than "actual snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
-    eapsForCompatibilityChecks: ['203.5251.39-EAP-SNAPSHOT']
+    // rather than "rolling snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
+    // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
+    eapOfLatestSupported: ['203.5419.21-EAP-SNAPSHOT']
   ]
-  intellijVersions.buildTarget = intellijVersions.current
-  intellijVersions.runIdeTarget = project.properties.intellijVersionForRunIde ?: intellijVersions.buildTarget
-  intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests ?: intellijVersions.buildTarget
+  intellijVersions.buildTarget = intellijVersions.latestStable
+  intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
+    ? parseUiTestsTarget(project.properties.intellijVersionForUiTests)
+    : intellijVersions.buildTarget
 
   archUnitVersion = '0.14.1'
   betterStringsVersion = '0.5'
@@ -58,6 +60,19 @@ ext {
   jvmArgsForJavaCompilation = project.properties.get('compileJavaJvmArgs')?.tokenize(' ')
   shouldRunAllCheckers = isCI || project.hasProperty('runAllCheckers')
   shouldUseDelombok = project.hasProperty('useDelombok')
+}
+
+String parseUiTestsTarget(String versionKey) {
+  if (versionKey =~ /^[0-9].*$/) {
+    return versionKey
+  } else {
+    def versionValue = intellijVersions.get(versionKey)
+    if (versionValue instanceof List) {
+      return versionValue.get(0)
+    } else {
+      return versionValue
+    }
+  }
 }
 
 if (isCI) {
@@ -499,8 +514,8 @@ runPluginVerifier {
   ] : [
     intellijVersions.earliestSupported,
     *intellijVersions.inBetweenForCompatibilityChecks,
-    intellijVersions.current,
-    *intellijVersions.eapsForCompatibilityChecks
+    intellijVersions.latestStable,
+    *intellijVersions.eapOfLatestSupported
   ]
   ides = ideVersions.collect { 'IC-' + it }
 }
@@ -508,23 +523,13 @@ runPluginVerifier {
 repositories {
   maven { url = 'https://www.jetbrains.com/intellij-repository/releases/' }
 
-  if (intellijVersions.eapsForCompatibilityChecks) {
+  if (intellijVersions.eapOfLatestSupported) {
     maven { url = 'https://www.jetbrains.com/intellij-repository/snapshots/' }
   }
 }
 
-File resolveIdeaCommunity(String version) {
-  return runPluginVerifier.resolveIde('IC-' + version)
-}
-
 runIde {
   maxHeapSize = '2G'
-
-  // gradle-intellij-plugin doesn't have native support for building and running against different IntelliJ versions,
-  // hence a little workaround is needed; see https://github.com/JetBrains/gradle-intellij-plugin/issues/450 for details
-  if (intellijVersions.runIdeTarget != intellijVersions.buildTarget) {
-    ideDirectory resolveIdeaCommunity(intellijVersions.runIdeTarget)
-  }
 }
 
 publishPlugin {

@@ -3,6 +3,11 @@
 # Usage:
 # $ ./scripts/run-ui-tests [<intellij-version> [<only-tests>]]
 
+# <intellij-version> can be a release (e.g. `2020.2`), build (e.g. `203.5419.21-EAP-SNAPSHOT`)
+# or a field of `ext.intellijVersions` from build.gradle (e.g. `earliestSupported`).
+# In case the file corresponds to list of versions (like `inBetweenForCompatibilityChecks`),
+# then the first version is taken.
+
 # If <only-tests> is present and non-empty, only the UI test methods
 # whose names start with the given prefix will be executed (instead of all UI test methods).
 
