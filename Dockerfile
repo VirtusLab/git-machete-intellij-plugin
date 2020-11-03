@@ -37,19 +37,26 @@ RUN set -x \
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
 
+# Tools necessary to run non-headless UI tests in the screen-less environment of CI
+RUN set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
+  && rm -rf /var/lib/apt/lists/*
+
 # Secondary packages needed in just one (or few) steps of the pipeline:
 # (package       => needed for command(s))
 # binutils       => strings
-# nodejs         => npm
+# nodejs         => npm (Docker build only), doctoc, remark
+# procps         => kill (as a standalone command and not shell built-in, to be executed by ide-probe)
 # xxd            => xxd
 # unzip          => zipinfo
 RUN set -x \
   && apt-get update \
-  && apt-get install --no-install-recommends -y binutils nodejs xxd unzip \
-  && curl -Lf https://npmjs.org/install.sh | sh \
-  `# tools necessary to run non-headless UI tests in the screen-less environment of CI` \
-  && apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb \
+  && apt-get install --no-install-recommends -y binutils nodejs procps xxd unzip \
   && rm -rf /var/lib/apt/lists/*
 
 # Markdown validation utilities
-RUN npm install --global doctoc remark-cli remark-lint-no-dead-urls remark-validate-links
+RUN set -x \
+  && curl -Lf https://npmjs.org/install.sh | sh \
+  && npm install --global doctoc remark-cli remark-lint-no-dead-urls remark-validate-links \
+  && npm uninstall --global npm
