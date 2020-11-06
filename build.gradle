@@ -27,7 +27,7 @@ ext {
     latestStable: '2020.2.3',
     latestSupportedMajor: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
-    // rather than "rolling snapshot" X-EAP-SNAPSHOT to ensure that builds are reproducible.
+    // rather than a "rolling snapshot" X-EAP-SNAPSHOT to ensure that the builds are reproducible.
     // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
     eapOfLatestSupportedMajor: ['203.5600.34-EAP-SNAPSHOT']
   ]
