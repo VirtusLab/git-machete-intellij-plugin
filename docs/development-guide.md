@@ -51,6 +51,8 @@ to manually generate grammar and lexer code from `.bnf` and `.flex` files.
 When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer)
 can be helpful to see parsing result on the `machete` file.
 
+[Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
+
 
 ## Set up git config/hooks
 
