@@ -25,10 +25,10 @@ function Project(underlyingProject) {
 
   // Tab & model management
   this.openGitMacheteTab = function () {
-    this.openTab(ToolWindowId.VCS, 'Git Machete');
+    openTab(ToolWindowId.VCS, 'Git Machete');
   }
 
-  this.openTab = function (toolWindowId, tabName) {
+  const openTab = function (toolWindowId, tabName) {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;
     do {
@@ -113,14 +113,14 @@ function Project(underlyingProject) {
 
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
-    this.findAndClickButton('Save');
+    findAndClickButton('Save');
   }
 
   this.acceptSuggestedBranchLayout = function () {
-    this.findAndClickButton('Yes');
+    findAndClickButton('Yes');
   };
 
-  this.findAndClickButton = function (name) {
+  const findAndClickButton = function (name) {
     const getSaveButton = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(function (component) {

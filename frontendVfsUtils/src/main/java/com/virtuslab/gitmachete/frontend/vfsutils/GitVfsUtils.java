@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.vfsutils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
@@ -56,10 +57,19 @@ public final class GitVfsUtils {
 
   /**
    * @param filePath {@link Path} to file
-   * @return an option of {@link Long} stating for time of last modification in milliseconds
+   * @return an option of {@link Long} stating for time of last modification in milliseconds since the Unix epoch start
    */
   public static Option<Long> getFileModificationDate(Path filePath) {
     return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
         .map(attr -> attr.lastModifiedTime().toMillis()).toOption();
+  }
+
+  /**
+   * @param filePath {@link Path} to file
+   * @param millis {@code long} representing the new modification time in milliseconds since the Unix epoch start
+   * @return an option of {@link Path} stating for the given file
+   */
+  public static Option<Path> setFileModificationDate(Path filePath, long millis) {
+    return Try.of(() -> Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis))).toOption();
   }
 }

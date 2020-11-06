@@ -116,7 +116,7 @@ jobs:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - deploy:
-                # Publishing should be the first step since if it fails, we should NOT proceed opening backport PR/GitHub release etc.
+                # Publishing should be the first step since if it fails, we should NOT proceed with opening backport PR/GitHub release, etc.
                 name: Publish plugin to Jetbrains Marketplace
                 command: ./gradlew --max-workers=2 publishPlugin
             - deploy:

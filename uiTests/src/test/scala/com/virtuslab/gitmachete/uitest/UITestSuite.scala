@@ -95,7 +95,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
-    setLastModifiedDateOfMacheteFileToZero()
+    setLastModifiedDateOfMacheteFileToEpochStart()
     intelliJ.machete.runJs("project.refreshGraphTableModel()")
     intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
     intelliJ.probe.awaitIdle()
@@ -174,7 +174,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     repositoryGitDir.resolve("machete").write(content + "\n")
   }
 
-  private def setLastModifiedDateOfMacheteFileToZero(): Unit = {
+  private def setLastModifiedDateOfMacheteFileToEpochStart(): Unit = {
     val path = repositoryGitDir.resolve("machete")
     Files.setLastModifiedTime(path, FileTime.fromMillis(0))
   }
