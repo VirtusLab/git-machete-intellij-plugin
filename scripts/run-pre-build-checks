@@ -20,6 +20,7 @@ export GIT_PAGER=cat
 ./scripts/prohibit-java-code-commented-out
 ./scripts/prohibit-java-lines-split-needlessly
 ./scripts/prohibit-non-ascii-characters
+./scripts/prohibit-property-double-quote-wrapping-in-bundle-message
 ./scripts/prohibit-tab-character
 ./scripts/prohibit-trailing-whitespace
 ./scripts/prohibit-unused-custom-log
