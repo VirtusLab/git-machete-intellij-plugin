@@ -118,7 +118,7 @@ jobs:
             - deploy:
                 # Publishing should be the first step since if it fails, we should NOT proceed with opening backport PR/GitHub release, etc.
                 name: Publish plugin to Jetbrains Marketplace
-                command: ./gradlew --max-workers=2 publishPlugin
+                command: ./gradlew publishPlugin
             - deploy:
                 # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
                 name: Reconfigure origin remote to https
