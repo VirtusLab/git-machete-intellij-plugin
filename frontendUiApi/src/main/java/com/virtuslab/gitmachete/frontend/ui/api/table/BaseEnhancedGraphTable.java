@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.api.table;
 
+import java.nio.file.Path;
+
 import javax.swing.table.AbstractTableModel;
 
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -36,4 +38,6 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   public final void queueRepositoryUpdateAndModelRefresh() {
     queueRepositoryUpdateAndModelRefresh(() -> {});
   }
+
+  public abstract void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady);
 }

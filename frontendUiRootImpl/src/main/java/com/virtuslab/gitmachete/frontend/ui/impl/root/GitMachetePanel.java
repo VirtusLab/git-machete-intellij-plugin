@@ -1,16 +1,20 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
+
 import java.awt.BorderLayout;
 
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.event.AncestorEvent;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.AncestorListenerAdapter;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -18,6 +22,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 
@@ -32,7 +37,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiating");
     this.project = project;
 
-    var selectionComponent = project.getService(SelectedGitRepositoryProvider.class).getSelectionComponent();
+    var selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
+    var selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
     var graphTable = getGraphTable();
     graphTable.queueRepositoryUpdateAndModelRefresh();
 
@@ -41,6 +47,19 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     setToolbar(createGitMacheteVerticalToolbar(graphTable).getComponent());
     add(createShrinkingWrapper(selectionComponent), BorderLayout.NORTH);
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
+
+    addAncestorListener(new AncestorListenerAdapter() {
+      @Override
+      public void ancestorAdded(AncestorEvent event) {
+        var gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
+        if (gitRepository != null) {
+          var macheteFilePath = getMacheteFilePath(gitRepository);
+          Runnable discoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
+          var rediscoverSuggester = new RediscoverSuggester(gitRepository, discoverOperation);
+          graphTable.queueRepositoryUpdateAndModelRefresh(() -> rediscoverSuggester.perform());
+        }
+      }
+    });
   }
 
   public BaseEnhancedGraphTable getGraphTable() {

@@ -208,10 +208,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           String.join(", ", skippedBranchNames));
     }
 
-    Runnable discoverOperation = () -> queueDiscover(macheteFilePath, () -> {});
-    var rediscoverSuggester = new RediscoverSuggester(project, gitRepository, discoverOperation);
-    GuiUtils.invokeLaterIfNeeded(() -> rediscoverSuggester.performIfNotDeclined(), NON_MODAL);
-
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();

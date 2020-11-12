@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.table;
+package com.virtuslab.gitmachete.frontend.ui.impl;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getFileModificationDate;
@@ -6,25 +6,19 @@ import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.setFileModi
 
 import java.nio.file.Path;
 
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @CustomLog
 @RequiredArgsConstructor
 public class RediscoverSuggester {
-
-  private final Project project;
 
   private final GitRepository gitRepository;
 
@@ -33,7 +27,8 @@ public class RediscoverSuggester {
   // TODO (#270): a candidate for custom settings tab
   private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
 
-  public void performIfNotDeclined() {
+  @UIEffect
+  public void perform() {
     var macheteFilePath = Option.of(gitRepository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
     if (macheteFilePath == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - selected machete file is null");
@@ -56,31 +51,25 @@ public class RediscoverSuggester {
     }
   }
 
+  @UIEffect
   private void queueSuggestion(Path macheteFilePath) {
     var yesNo = MessageDialogBuilder.YesNo.yesNo(
         getString("string.GitMachete.RediscoverSuggester.dialog.title"),
         getString("string.GitMachete.RediscoverSuggester.dialog.question"));
 
-    new Task.Backgroundable(project, getString("string.GitMachete.RediscoverSuggester.task-title")) {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        GuiUtils.invokeLaterIfNeeded(() -> {
-          switch (yesNo.show()) {
-            case Messages.YES :
-              LOG.info("Enqueueing rediscover");
-              discoverOperation.run();
-              break;
-            case Messages.NO : // closing dialog goes here too
-              LOG.info("Rediscover declined from dialog");
-              setFileModificationDate(macheteFilePath, System.currentTimeMillis());
-              break;
-            default :
-              LOG.info("Unknown response message");
-              break;
-          }
-        }, ModalityState.NON_MODAL);
-      }
-    }.queue();
+    switch (yesNo.show()) {
+      case Messages.YES :
+        LOG.info("Enqueueing rediscover");
+        discoverOperation.run();
+        break;
+      case Messages.NO : // closing dialog goes here too
+        LOG.info("Rediscover declined from dialog");
+        setFileModificationDate(macheteFilePath, System.currentTimeMillis());
+        break;
+      default :
+        LOG.info("Unknown response message");
+        break;
+    }
   }
 
   private long daysDiffTillNow(long lastModifiedTimeMillis) {
