@@ -121,7 +121,7 @@ function Project(underlyingProject) {
   };
 
   const findAndClickButton = function (name) {
-    const getSaveButton = function () {
+    const getButton = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(function (component) {
         return 'javax.swing.JButton'.equals(component.getClass().getName())
@@ -131,12 +131,12 @@ function Project(underlyingProject) {
     };
 
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
-    let saveButton = getSaveButton();
-    while (saveButton === null) {
+    let button = getButton();
+    while (button === null) {
       sleep();
-      saveButton = getSaveButton();
+      button = getButton();
     }
-    robot.click(saveButton);
+    robot.click(button);
   }
 
   this.toggleListingCommits = function () {
