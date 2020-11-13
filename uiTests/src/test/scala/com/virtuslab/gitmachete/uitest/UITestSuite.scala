@@ -27,7 +27,8 @@ object UITestSuite
       vmOptions = Seq("-Xmx1G"),
       check = CheckConfig(errors = true)
     )
-    val config = Config.fromString("""
+    val config = Config.fromString(
+      """
         |probe.endpoints.awaitIdle {
         |    initialWait = "1 second"
         |    newTaskWait = "2 seconds"
@@ -52,8 +53,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Before
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(repositoryMainDir)
-    intelliJ.machete.runJs(s"project.configure()");
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()");
+    intelliJ.machete.runJs(s"project.configure()")
     intelliJ.probe.awaitIdle()
   }
 
@@ -64,6 +64,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -76,7 +77,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         |  hotfix/add-trigger""".stripMargin
     )
     val branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
-    // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file;
+    // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file
     // non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(6, branchRowsCount)
     intelliJ.machete.runJs("project.toggleListingCommits()")
@@ -85,18 +86,18 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(13, branchAndCommitRowsCount)
 
     // Let's slide out a root branch now
-    intelliJ.machete.runJs("project.slideOutBranch('develop')");
+    intelliJ.machete.runJs("project.slideOutBranch('develop')")
     intelliJ.probe.awaitIdle()
     branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     // 5 branch rows (`develop` is no longer there) + 3 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-    Assert.assertEquals(8, branchAndCommitRowsCount);
+    Assert.assertEquals(8, branchAndCommitRowsCount)
   }
 
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
-    intelliJ.machete.runJs("project.refreshGraphTableModel()")
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
     intelliJ.probe.awaitIdle()
     var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
@@ -118,6 +119,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
     intelliJ.machete.fastForwardParentToMatchBranch("hotfix/add-trigger")
@@ -126,6 +128,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.fastForwardParentToMatchCurrentBranch()
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
@@ -133,6 +136,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullCurrentBranch(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
     intelliJ.machete.checkoutBranch("allow-ownership-link")
@@ -142,6 +146,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullNonCurrentBranch(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.pullBranch("allow-ownership-link")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
@@ -149,6 +154,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.resetCurrentBranchToRemote()
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
@@ -158,6 +164,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetNonCurrentBranchToRemote(): Unit = {
+    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.resetBranchToRemote("hotfix/add-trigger")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
