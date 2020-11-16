@@ -53,7 +53,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Before
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(repositoryMainDir)
-    intelliJ.machete.runJs(s"project.configure()")
+    intelliJ.machete.runJs("project.configure()")
     intelliJ.probe.awaitIdle()
   }
 
@@ -64,7 +64,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -97,7 +97,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
     intelliJ.probe.awaitIdle()
     var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
@@ -119,7 +119,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
     intelliJ.machete.fastForwardParentToMatchBranch("hotfix/add-trigger")
@@ -128,7 +128,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.fastForwardParentToMatchCurrentBranch()
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
@@ -136,7 +136,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullCurrentBranch(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
     intelliJ.machete.checkoutBranch("allow-ownership-link")
@@ -146,7 +146,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullNonCurrentBranch(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.pullBranch("allow-ownership-link")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
@@ -154,7 +154,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.resetCurrentBranchToRemote()
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
@@ -164,7 +164,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetNonCurrentBranchToRemote(): Unit = {
-    intelliJ.machete.runJs(s"project.openGitMacheteTab()")
+    intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.resetBranchToRemote("hotfix/add-trigger")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")

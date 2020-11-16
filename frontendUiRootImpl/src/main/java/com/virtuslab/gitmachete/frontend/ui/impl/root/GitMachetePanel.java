@@ -48,14 +48,15 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     add(createShrinkingWrapper(selectionComponent), BorderLayout.NORTH);
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
 
+    // The following listener executes on each opening of the Git Machete tab.
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
         var gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository != null) {
           var macheteFilePath = getMacheteFilePath(gitRepository);
-          Runnable discoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
-          var rediscoverSuggester = new RediscoverSuggester(gitRepository, discoverOperation);
+          Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
+          var rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
           graphTable.queueRepositoryUpdateAndModelRefresh(() -> rediscoverSuggester.perform());
         }
       }

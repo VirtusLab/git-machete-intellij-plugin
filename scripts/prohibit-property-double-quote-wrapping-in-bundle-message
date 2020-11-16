@@ -7,7 +7,7 @@ source "$self_dir"/utils.sh
 
 
 # Find the strings that have the property value wrapped in double quotes (")
-values_wrapped_in_double_quotes=$(git grep -Ph -e '=".*"$' -- '*.properties')
+values_wrapped_in_double_quotes=$(git grep -h -e '=".*"$' -- '*.properties')
 
 if [[ $values_wrapped_in_double_quotes ]]; then
   echo "$values_wrapped_in_double_quotes"

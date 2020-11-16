@@ -22,7 +22,7 @@ public class RediscoverSuggester {
 
   private final GitRepository gitRepository;
 
-  private final Runnable discoverOperation;
+  private final Runnable queueDiscoverOperation;
 
   // TODO (#270): a candidate for custom settings tab
   private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
@@ -60,7 +60,7 @@ public class RediscoverSuggester {
     switch (yesNo.show()) {
       case Messages.YES :
         LOG.info("Enqueueing rediscover");
-        discoverOperation.run();
+        queueDiscoverOperation.run();
         break;
       case Messages.NO : // closing dialog goes here too
         LOG.info("Rediscover declined from dialog");
