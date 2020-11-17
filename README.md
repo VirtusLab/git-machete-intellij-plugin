@@ -184,8 +184,7 @@ Then reproduce the bug and go to `Help > Show Log in Files` to open the log file
 
 ## References
 
-You still don't know why and what for you might need a Git Machete?
-Take a look into our [slides presentation](http://slides.com/plipski/git-machete).
+For additional background on what we believe are good practices take a look into our [slides presentation](http://slides.com/plipski/git-machete).
 It explains our motivations and gives you an overview of main Git Machete objectives.
 
 See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
