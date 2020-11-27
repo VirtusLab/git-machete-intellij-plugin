@@ -1,28 +1,31 @@
 #!/usr/bin/env bash
 
 # Usage:
-# $ ./scripts/run-ui-tests [<intellij-version> [<only-tests>]]
+# $ ./scripts/run-ui-tests [<intellij-version-key> [<only-tests>]]
 
-# <intellij-version> can be a release (e.g. `2020.2`), build (e.g. `203.5419.21-EAP-SNAPSHOT`)
+# <intellij-version-key> can be a release (e.g. `2020.2`), build (e.g. `203.5419.21-EAP-SNAPSHOT`)
 # or a field of `ext.intellijVersions` from build.gradle (e.g. `earliestSupportedMajor`).
-# In case the file corresponds to list of versions (like `latestMinorsOfOldSupportedMajors`),
-# then the first version is taken.
+# If skipped, then `buildTarget` is assumed.
 
 # If <only-tests> is present and non-empty, only the UI test methods
 # whose names start with the given prefix will be executed (instead of all UI test methods).
 
 set -e -o pipefail -u
 
-intellij_version=${1-}
+intellij_version_key=${1-buildTarget}
 test_method_prefix=${2-}
 
 if [[ ${CI-} == true ]]; then
   export IDEPROBE_DISPLAY=xvfb
 fi
 
+versions=$(./gradlew -q resolveIntelliJVersions --versionKey="$intellij_version_key")
+echo -e "Running against IntelliJ version(s): \n${versions:-<none>}"
+
 only_tests_flag=${test_method_prefix:+--tests *.$test_method_prefix*}
-./gradlew \
-  -PenableUiTests \
-  -PintellijVersionForUiTests="$intellij_version" \
-  --info \
-  uiTests:test $only_tests_flag
+for version in $versions; do
+  ./gradlew \
+    -PintellijVersionForUiTests="$version" \
+    --info \
+    uiTests:test $only_tests_flag
+done

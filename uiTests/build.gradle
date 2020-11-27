@@ -5,9 +5,7 @@ plugins {
 ideProbe()
 jetbrainsAnnotations()
 junit()
-lombok()
 scala()
-vavr()
 
 dependencies {
   testImplementation project(':testCommon').sourceSets.test.output
@@ -20,8 +18,9 @@ task syncTestResults(type: Sync) {
 }
 
 test {
-  // Exclude UI tests when running `./gradlew test`, unless a `-PenableUiTests` Gradle flag is provided.
-  def enableUiTests = project.hasProperty('enableUiTests')
+  // Exclude UI tests when running `./gradlew test`,
+  // unless the version of IntelliJ to use for UI tests is explicitly specified.
+  def enableUiTests = intellijVersions.uiTestsTarget as boolean
 
   onlyIf {
     enableUiTests

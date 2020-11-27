@@ -24,7 +24,7 @@ public class GitMacheteErrorHandler extends ErrorReportSubmitter {
       IdeaLoggingEvent[] events,
       @Nullable String additionalInfo,
       Component parentComponent,
-      Consumer<SubmittedReportInfo> consumer) {
+      Consumer<? super SubmittedReportInfo> consumer) {
     GuiUtils.invokeLaterIfNeeded(() -> BrowserUtil.browse(
         "https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new?assignees=&labels=bug&template=bug_report.md"),
         ModalityState.NON_MODAL);

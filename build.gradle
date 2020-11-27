@@ -15,32 +15,28 @@ plugins {
 }
 
 ext {
-  // When any of the below is updated, also check:
-  // * the range of UI-tested versions in .circle/config.yml
-  // * the minimum required IDEA version mentioned in README.md
-  // Also, see https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
+  // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
   intellijVersions = [
+    // When this value is updated, remember to update the minimum required IDEA version in README.md.
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
-    latestMinorsOfOldSupportedMajors: ['2020.1.4'],
-    latestStable: '2020.2.3',
+    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4'],
+    latestStable: '2020.3',
     latestSupportedMajor: '2020.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT to ensure that the builds are reproducible.
     // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupportedMajor: ['203.5784.10-EAP-SNAPSHOT']
+    eapOfLatestSupportedMajor: []
   ]
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
-    ? parseUiTestsTarget(project.properties.intellijVersionForUiTests)
-    : intellijVersions.buildTarget
 
   archUnitVersion = '0.14.1'
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.7.0'
+  checkerFrameworkVersion = '3.8.0'
   checkstyleToolVersion = '8.33'
-  ideProbeVersion = '0.2.2+19-7b564b79-SNAPSHOT'
+  ideProbeVersion = '0.3.0'
   jetbrainsAnnotationsVersion = '19.0.0'
   jgitVersion = '5.9.0.202009080501-r'
   junitVersion = '4.13.1'
@@ -62,18 +58,28 @@ ext {
   shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
-String parseUiTestsTarget(String versionKey) {
-  if (versionKey =~ /^[0-9].*$/) {
-    return versionKey
-  } else {
-    def versionValue = intellijVersions.get(versionKey)
-    if (versionValue instanceof List) {
-      return versionValue.get(0)
+class ResolveIntelliJVersions extends DefaultTask {
+  @Input
+  @Option(option = 'versionKey', description = 'Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)')
+  String versionKey
+
+  @TaskAction
+  void print() {
+    if (versionKey =~ /^[0-9].*$/) {
+      println(versionKey)
     } else {
-      return versionValue
+      def versionValue = project.intellijVersions.get(versionKey)
+      if (versionValue instanceof List) {
+        println(String.join("\n", versionValue))
+      } else {
+        println(versionValue)
+      }
     }
   }
 }
+
+task resolveIntelliJVersions(type: ResolveIntelliJVersions)
+
 
 if (isCI) {
   gradle.startParameter.configureOnDemand = false

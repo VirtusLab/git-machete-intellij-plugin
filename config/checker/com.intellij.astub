@@ -188,7 +188,15 @@ class LanguageFileType {}
 
 @UIPackage package com.intellij.openapi.keymap;
 @UIPackage package com.intellij.openapi.module;
+
 @UIPackage package com.intellij.openapi.options;
+
+interface Scheme {
+  @SafeEffect
+  String getName();
+}
+
+
 @UIPackage package com.intellij.openapi.options.colors;
 @UIPackage package com.intellij.openapi.paths;
 

@@ -78,6 +78,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private final MyTableCellRenderer myTableCellRenderer;
 
   @UIEffect
+  @SuppressWarnings("keyfor:assignment.type.incompatible")
   public BranchOrCommitCellRendererComponent(
       JTable table,
       Object value,

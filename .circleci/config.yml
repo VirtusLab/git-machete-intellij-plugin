@@ -31,16 +31,16 @@ jobs:
             esac
 
       - restore_cache:
-          # Adding `-v1` suffix to enable easy cache invalidation when needed (just change to `-v2`)
+          # Adding `-v2` suffix to enable easy cache invalidation when needed (just change to `-v3`)
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v1-{{ checksum "build.gradle" }}-{{ .Branch }}
+            - gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v1-{{ checksum "build.gradle" }}-
+            - gradle-deps-v2-{{ checksum "build.gradle" }}-
             # If both above keys are not found, instead find the most recently generated cache from any branch.
-            - gradle-deps-v1-
+            - gradle-deps-v2-
 
       - run:
           name: Start Gradle daemon
@@ -84,7 +84,7 @@ jobs:
 
       - save_cache:
           paths: [ ~/.gradle/ ]
-          key: gradle-deps-v1-{{ checksum "build.gradle" }}-{{ .Branch }}
+          key: gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
 
       - run:
           name: Build plugin artifact
@@ -100,13 +100,13 @@ jobs:
           command: ./gradlew runPluginVerifier
 
       - run:
-          name: Run UI tests against earliest supported major IDEA version
+          name: Run UI tests against earlier supported major IntelliJ versions
           command: ./scripts/run-ui-tests latestMinorsOfOldSupportedMajors
       - run:
-          name: Run UI tests against latest stable IDEA version (our build target)
+          name: Run UI tests against the latest stable IntelliJ version (our build target)
           command: ./scripts/run-ui-tests latestStable
       - run:
-          name: Run UI tests against EAP of latest supported major IDEA version
+          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
           command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
       - store_test_results:
           path: uiTests/build/ui-test-results/
