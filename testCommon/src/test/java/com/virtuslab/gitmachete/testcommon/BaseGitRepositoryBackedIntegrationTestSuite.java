@@ -50,8 +50,7 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
         .start();
     var completed = process.waitFor(5, TimeUnit.SECONDS);
 
-    // In case of non 0 exit code print stdout and stderr
-    if (process.exitValue() != 0) {
+    if (!completed || process.exitValue() != 0) {
       System.out.println(new String(process.getInputStream().readAllBytes()));
       System.err.println(new String(process.getErrorStream().readAllBytes()));
     }
