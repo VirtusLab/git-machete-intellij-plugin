@@ -335,7 +335,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       }
 
       graphTable.selectedBranchName = graphItem.asBranchItem().getBranch().getName();
+      performActionAfterChecks(e, point);
+    }
 
+    @UIEffect
+    private void performActionAfterChecks(MouseEvent e, Point point) {
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
@@ -344,6 +348,16 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         popupMenu.addPopupMenuListener(popupMenuListener);
         popupMenu.show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
+
+        var gitMacheteRepositorySnapshot = graphTable.gitMacheteRepositorySnapshot;
+        if (gitMacheteRepositorySnapshot != null) {
+          var isSelectedEqualToCurrent = gitMacheteRepositorySnapshot
+              .getCurrentBranchIfManaged().map(b -> b.getName().equals(graphTable.selectedBranchName)).getOrElse(false);
+          if (isSelectedEqualToCurrent) {
+            return;
+          }
+        }
+
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
         var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
