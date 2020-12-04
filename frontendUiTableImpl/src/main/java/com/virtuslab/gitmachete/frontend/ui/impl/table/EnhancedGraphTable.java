@@ -40,7 +40,6 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
-import com.intellij.ui.table.JBTable;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
@@ -384,11 +383,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
-          GuiUtils.invokeLaterIfNeeded(() -> {
-            // So that the selection spans over the full width of the row (for better feeling)
-            graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);
-            graphTable.setRowSelectionAllowed(true);
-          }, NON_MODAL);
+          GuiUtils.invokeLaterIfNeeded(() -> graphTable.setRowSelectionAllowed(true), NON_MODAL);
         }
       }, /* delay */ 35);
     }
@@ -397,8 +392,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
       graphTable.setRowSelectionAllowed(false);
-      // So that the selection (and thus the area where tooltip is shown) has again the smallest possible size
-      graphTable.setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
     }
   }
 }

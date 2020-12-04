@@ -11,6 +11,7 @@ import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 public abstract class BaseGraphTable extends JBTable {
+  private static int GRAPH_COLUMN_RIGHT_PADDING = 25;
   @UIEffect
   private List<Integer> rowWidths = List.empty();
 
@@ -43,7 +44,7 @@ public abstract class BaseGraphTable extends JBTable {
     rowWidths = rowWidths.update(row, rendererWidth);
 
     TableColumn tableColumn = getColumnModel().getColumn(column);
-    tableColumn.setPreferredWidth(rowWidths.max().getOrElse(0));
+    tableColumn.setPreferredWidth(rowWidths.max().map(maxWidth -> maxWidth + GRAPH_COLUMN_RIGHT_PADDING).getOrElse(0));
     return component;
   }
 
