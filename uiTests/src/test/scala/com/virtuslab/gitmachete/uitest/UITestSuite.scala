@@ -89,7 +89,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
     // Let's slide out a root branch now
     intelliJ.machete.runJs("project.slideOutBranch('develop')")
-    intelliJ.probe.awaitIdle()
+    intelliJ.machete.runJs("project.acceptBranchDeletionOnSlideOut()")
     branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     // 5 branch rows (`develop` is no longer there) + 3 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
