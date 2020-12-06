@@ -26,6 +26,5 @@ only_tests_flag=${test_method_prefix:+--tests *.$test_method_prefix*}
 for version in $versions; do
   ./gradlew \
     -PintellijVersionForUiTests="$version" \
-    --info \
     uiTests:test $only_tests_flag
 done

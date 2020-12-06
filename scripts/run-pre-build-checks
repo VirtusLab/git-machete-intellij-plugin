@@ -10,7 +10,6 @@ export GIT_PAGER=cat
 ./scripts/enforce-indent-two-spaces-outside-java
 ./scripts/enforce-issue-number-for-todos
 ./scripts/enforce-newline-at-eof
-./scripts/enforce-onupdate-call-super-if-overridden
 ./scripts/enforce-property-keys-with-valid-class-names
 ./scripts/enforce-property-single-quote-in-bundle-message
 ./scripts/enforce-settings-gradle-match-directories

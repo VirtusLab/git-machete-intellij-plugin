@@ -2,16 +2,16 @@ plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
 
-  id 'com.github.ben-manes.versions' version '0.33.0'
+  id 'com.github.ben-manes.versions' version '0.36.0'
 
-  id 'com.diffplug.spotless' version '5.7.0' apply false
-  id 'io.freefair.lombok' version '5.2.1' apply false
+  id 'com.diffplug.spotless' version '5.8.2' apply false
+  id 'io.freefair.lombok' version '5.3.0' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id 'org.checkerframework' version '0.5.11' apply false
-  id 'org.jetbrains.grammarkit' version '2020.2.1' apply false
-  id 'org.jetbrains.intellij' version '0.6.2' apply false
-  id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false
-  id 'se.bjurr.violations.violations-gradle-plugin' version '1.47' apply false
+  id 'org.checkerframework' version '0.5.13' apply false
+  id 'org.jetbrains.grammarkit' version '2020.3.2' apply false
+  id 'org.jetbrains.intellij' version '0.6.5' apply false
+  id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false // version effectively enforced by the IntelliJ plugin
+  id 'se.bjurr.violations.violations-gradle-plugin' version '1.48' apply false
 }
 
 ext {
@@ -37,11 +37,11 @@ ext {
   checkerFrameworkVersion = '3.8.0'
   checkstyleToolVersion = '8.33'
   ideProbeVersion = '0.3.0'
-  jetbrainsAnnotationsVersion = '19.0.0'
+  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.9.0.202009080501-r'
   junitVersion = '4.13.1'
   lombokVersion = '1.18.16'
-  powerMockVersion = '2.0.7'
+  powerMockVersion = '2.0.9'
   reflectionsVersion = '0.9.12'
   scalaVersion = '2.12.10'
   slf4jLambdaApiVersion = '0.1'
@@ -81,12 +81,6 @@ class ResolveIntelliJVersions extends DefaultTask {
 task resolveIntelliJVersions(type: ResolveIntelliJVersions)
 
 
-if (isCI) {
-  gradle.startParameter.configureOnDemand = false
-  gradle.startParameter.logLevel = LogLevel.INFO
-  gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
-}
-
 dependencyUpdates {
   def isStableVersion = { String version ->
     def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { version.toUpperCase().contains(it) }
@@ -99,6 +93,9 @@ dependencyUpdates {
   }
 }
 
+
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 allprojects {
   repositories {
@@ -119,10 +116,8 @@ allprojects {
       ktfmt()
     }
   }
-}
 
 
-subprojects {
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
 
@@ -145,8 +140,21 @@ subprojects {
       options.addStringOption('Xwerror', '-quiet')
       options.addStringOption('Xdoclint:all', '-quiet')
     }
-  }
 
+    tasks.withType(Test) {
+      testLogging {
+        events TestLogEvent.FAILED
+        exceptionFormat TestExceptionFormat.FULL
+        showCauses true
+        showExceptions true
+        showStackTraces true
+      }
+    }
+  }
+}
+
+
+subprojects {
 
   apply plugin: 'org.checkerframework'
   checkerFramework {

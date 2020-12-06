@@ -9,6 +9,21 @@ jobs:
       - run:
           name: Run pre-compile checks
           command: ./scripts/run-pre-build-checks
+      - restore_cache:
+          # Adding `-v2` suffix to enable easy cache invalidation when needed (just change to `-v3`)
+          keys:
+            # First, try finding a cache entry with the same set of libraries
+            # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
+            - gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
+            # If the above key is not found, try finding a cache entry with the same set of libraries
+            # coming from another branch (Gradle compilation cache might then be less useful).
+            - gradle-deps-v2-{{ checksum "build.gradle" }}-
+            # If both above keys are not found, instead find the most recently generated cache from any branch.
+            - gradle-deps-v2-
+      - run:
+          name: Start Gradle daemon
+          command: ./gradlew
+
       - run:
           name: Validate Markdown ToCs
           command: |
@@ -29,22 +44,18 @@ jobs:
               develop|release/*|backport/*|master|hotfix/*) true ;;
               *) remark --use=lint-no-dead-urls --ignore-path=.gitignore --frail . ;;
             esac
-
-      - restore_cache:
-          # Adding `-v2` suffix to enable easy cache invalidation when needed (just change to `-v3`)
-          keys:
-            # First, try finding a cache entry with the same set of libraries
-            # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
-            # If the above key is not found, try finding a cache entry with the same set of libraries
-            # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v2-{{ checksum "build.gradle" }}-
-            # If both above keys are not found, instead find the most recently generated cache from any branch.
-            - gradle-deps-v2-
-
       - run:
-          name: Start Gradle daemon
-          command: ./gradlew
+          name: Validate Markdown values
+          # Currently, just check whether earliest supported IntelliJ version in README.md
+          # is up to date with the source of truth (Gradle config).
+          command: |
+            expected=$(./gradlew -q resolveIntelliJVersions --versionKey=earliestSupportedMajor)
+            actual=$(grep -Po '(?<=minimum required version is )[0-9.]+' README.md)
+            if [[ $actual != "$expected" ]]; then
+              echo "README.md indicates that the minimum required IntelliJ version is $actual, while in fact in Gradle config it is $expected"
+              echo "Please update README.md"
+              exit 1
+            fi
       - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
