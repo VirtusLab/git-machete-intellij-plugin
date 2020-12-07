@@ -80,8 +80,8 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.FastForwardParentToMatchSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardParentToMatchSelectedBranchAction"
+            <action id="GitMachete.FastForwardMergeSelectedBranchToParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardMergeSelectedBranchToParentAction"
                     icon="MacheteIcons.FAST_FORWARD">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
@@ -155,8 +155,8 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.FastForwardParentToMatchCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardParentToMatchCurrentBranchAction"
+            <action id="GitMachete.FastForwardMergeCurrentBranchToParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardMergeCurrentBranchToParentAction"
                     icon="MacheteIcons.FAST_FORWARD">
                 <override-text place="GitMacheteToolbar"/>
             </action>

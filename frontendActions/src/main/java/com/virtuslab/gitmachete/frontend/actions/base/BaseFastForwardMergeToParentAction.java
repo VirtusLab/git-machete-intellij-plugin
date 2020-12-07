@@ -22,7 +22,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBra
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {
@@ -34,12 +34,12 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
-    return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description-action-name");
+    return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description-action-name");
   }
 
   @Override
   public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.description");
+    return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description");
   }
 
   @Override
@@ -84,7 +84,7 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
       GitRepository gitRepository,
       INonRootManagedBranchSnapshot targetBranch) {
 
-    var taskTitle = getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title");
+    var taskTitle = getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title");
 
     new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, targetBranch.getName()).queue();
   }
@@ -101,10 +101,10 @@ public abstract class BaseFastForwardParentToMatchBranchAction extends BaseGitMa
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.task-title"),
-        format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.notification.title.ff-fail"),
+        getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
+        format(getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail"),
             targetBranch.getParent().getName(), targetBranch.getName()),
-        format(getString("action.GitMachete.BaseFastForwardParentToMatchBranchAction.notification.title.ff-success"),
+        format(getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-success"),
             targetBranch.getParent().getName(), targetBranch.getName()))
                 .queue();
   }

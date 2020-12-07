@@ -51,13 +51,13 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
         intelliJ.probe.awaitIdle()
       }
 
-      def fastForwardParentToMatchBranch(branch: String): Unit = {
-        runJs(s"project.fastForwardParentToMatchBranch('$branch')")
+      def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
+        runJs(s"project.fastForwardMergeSelectedBranchToParent('$branch')")
         intelliJ.probe.awaitIdle()
       }
 
-      def fastForwardParentToMatchCurrentBranch(): Unit = {
-        runJs(s"project.fastForwardParentToMatchCurrentBranch()")
+      def fastForwardMergeCurrentBranchToParent(): Unit = {
+        runJs(s"project.fastForwardMergeCurrentBranchToParent()")
         intelliJ.probe.awaitIdle()
       }
 

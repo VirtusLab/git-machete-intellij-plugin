@@ -122,7 +122,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    intelliJ.machete.fastForwardParentToMatchBranch("hotfix/add-trigger")
+    intelliJ.machete.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
     intelliJ.machete.assertWorkingTreeIsAtHead()
   }
@@ -130,7 +130,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
     intelliJ.machete.runJs("project.openGitMacheteTab()")
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
-    intelliJ.machete.fastForwardParentToMatchCurrentBranch()
+    intelliJ.machete.fastForwardMergeCurrentBranchToParent()
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
     intelliJ.machete.assertWorkingTreeIsAtHead()
   }
