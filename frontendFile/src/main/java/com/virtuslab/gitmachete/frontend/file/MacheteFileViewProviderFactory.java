@@ -2,15 +2,16 @@ package com.virtuslab.gitmachete.frontend.file;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.FileViewProviderFactory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.ui.GuiUtils;
+import com.intellij.util.FileContentUtil;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
@@ -43,8 +44,10 @@ final class MacheteFileViewProvider extends SingleRootFileViewProvider {
   private void subscribeToGitRepositoryChanges(Project project, Language language) {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> GuiUtils.invokeLaterIfNeeded(() -> {
-      DaemonCodeAnalyzer daemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
-      daemonCodeAnalyzer.restart(getCachedPsi(language));
+      PsiFile psiFile = getPsi(language);
+      if (psiFile != null) {
+        FileContentUtil.reparseFiles(project, java.util.List.of(psiFile.getVirtualFile()), true);
+      }
     }, NON_MODAL);
     project.getMessageBus().connect().subscribe(topic, listener);
   }
