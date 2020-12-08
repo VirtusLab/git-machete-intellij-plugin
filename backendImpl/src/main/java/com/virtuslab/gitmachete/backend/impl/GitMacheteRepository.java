@@ -20,7 +20,6 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
-import io.vavr.collection.SortedMap;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -818,20 +817,18 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throws GitCoreException, GitMacheteException {
 
       List<String> localBranchNames = localBranches.map(lb -> lb.getName());
-      List<String> fixedRootBranchNames;
-      List<String> nonFixedRootBranchNames;
+      List<String> fixedRootBranchNames = List.empty();
+      List<String> nonFixedRootBranchNames = localBranchNames;
       if (localBranchNames.contains(MASTER)) {
-        fixedRootBranchNames = List.of(MASTER);
-        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(MASTER));
+        fixedRootBranchNames = fixedRootBranchNames.append(MASTER);
+        nonFixedRootBranchNames = nonFixedRootBranchNames.remove(MASTER);
       } else if (localBranchNames.contains(MAIN)) {
-        fixedRootBranchNames = List.of(MAIN);
-        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(MAIN));
-      } else if (localBranchNames.contains(DEVELOP)) {
-        fixedRootBranchNames = List.of(DEVELOP);
-        nonFixedRootBranchNames = localBranchNames.reject(Predicate.isEqual(DEVELOP));
-      } else {
-        fixedRootBranchNames = List.empty();
-        nonFixedRootBranchNames = localBranchNames;
+        fixedRootBranchNames = fixedRootBranchNames.append(MAIN);
+        nonFixedRootBranchNames = nonFixedRootBranchNames.remove(MAIN);
+      }
+      if (localBranchNames.contains(DEVELOP)) {
+        fixedRootBranchNames = fixedRootBranchNames.append(DEVELOP);
+        nonFixedRootBranchNames = nonFixedRootBranchNames.remove(DEVELOP);
       }
       List<String> freshNonFixedRootBranchNames;
 
@@ -845,18 +842,18 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             .sortBy(branchName -> lastCheckoutTimestampByBranchName.getOrElse(branchName, Instant.MIN))
             .reverse()
             .splitAt(mostRecentlyCheckedOutBranchesCount);
-        freshNonFixedRootBranchNames = freshAndStaleNonFixedRootBranchNames._1;
+        freshNonFixedRootBranchNames = freshAndStaleNonFixedRootBranchNames._1.sorted();
 
         LOG.debug(() -> "Skipping stale branches from the discovered layout: "
             + freshAndStaleNonFixedRootBranchNames._2.mkString(", "));
       }
 
-      // Let's use SortedMaps to ensure a deterministic result.
-      SortedMap<String, MyBranchLayoutEntry> entryByFixedRootBranchNames = fixedRootBranchNames
-          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
-      SortedMap<String, MyBranchLayoutEntry> entryByFreshNonFixedRootBranch = freshNonFixedRootBranchNames
-          .toSortedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
-      SortedMap<String, MyBranchLayoutEntry> entryByIncludedBranchName = entryByFixedRootBranchNames
+      // Let's use linked maps to ensure a deterministic result.
+      Map<String, MyBranchLayoutEntry> entryByFixedRootBranchNames = fixedRootBranchNames
+          .toLinkedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
+      Map<String, MyBranchLayoutEntry> entryByFreshNonFixedRootBranch = freshNonFixedRootBranchNames
+          .toLinkedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
+      Map<String, MyBranchLayoutEntry> entryByIncludedBranchName = entryByFixedRootBranchNames
           .merge(entryByFreshNonFixedRootBranch);
       LOG.debug(() -> "Branches included in the discovered layout: " + entryByIncludedBranchName.keySet().mkString(", "));
 
