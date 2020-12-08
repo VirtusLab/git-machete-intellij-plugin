@@ -46,7 +46,7 @@ final class MacheteFileViewProvider extends SingleRootFileViewProvider {
     GitRepositoryChangeListener listener = repository -> GuiUtils.invokeLaterIfNeeded(() -> {
       PsiFile psiFile = getPsi(language);
       if (psiFile != null) {
-        FileContentUtil.reparseFiles(project, java.util.List.of(psiFile.getVirtualFile()), true);
+        FileContentUtil.reparseFiles(project, java.util.List.of(psiFile.getVirtualFile()), /* includeOpenFiles */true);
       }
     }, NON_MODAL);
     project.getMessageBus().connect().subscribe(topic, listener);
