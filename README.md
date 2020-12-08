@@ -138,7 +138,7 @@ The way to go is to [fast-forward merge](https://git-scm.com/docs/git-merge#_fas
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
-Note that `Fast Forward Parent to Match This Branch` does not require you to check out any specific branch beforehand.
+Note that `Fast-forward Merge To Parent` does not require you to check out any specific branch beforehand.
 You can perform it while some other branch is checked out &mdash; `fancy-footer` in our case.
 
 Once the fast-forward merge is complete, the edge between `master` and `sticky-header` gets gray, which means that the latter has been merged. <br/>

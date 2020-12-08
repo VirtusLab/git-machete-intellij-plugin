@@ -14,7 +14,7 @@
 - [Push](#push)
 - [Pull](#pull)
 - [Reset to remote](#reset-to-remote)
-- [Fast forward parent](#fast-forward-parent)
+- [Fast-forward merge to parent](#fast-forward-merge-to-parent)
 - [Slide out branch](#slide-out-branch)
 - [Slide in branch](#slide-in-branch)
 - [Override fork point](#override-fork-point)
@@ -109,14 +109,14 @@ The `--keep` option, as opposed to `--hard`, keeps your uncommitted changes safe
 ![](reset.gif)
 
 
-## Fast forward parent
+## Fast-forward merge to parent
 
 When you are done with the changes on the selected branch (e.g. PR has been approved and all required fixes are applied),
 you probably want to merge this branch to its parent branch.
-When these branches are in sync (green edge), you can do a fast forward merge.
-Fast forward merge is just equivalent to moving the tip of a branch to which you merge (`develop` in the sample below)
+When these branches are in sync (green edge), you can do a fast-forward merge.
+Fast-forward merge is just equivalent to moving the tip of a branch to which you merge (`develop` in the sample below)
 to the same commit as a tip of a merged branch (`call-ws` below).
-This is what `Fast Forward Parent To Match This Branch` context menu action does.
+This is what `Fast-forward Merge To Parent` context menu action does.
 As you can see, the edge between `develop` and `call-ws` changed to grey &mdash; it means that `call-ws` has been merged.
 
 ![](fast_forward.gif)
