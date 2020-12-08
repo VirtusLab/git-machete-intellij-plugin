@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.uitest
 
 import java.nio.file.Paths
 import java.util
-
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
 import org.virtuslab.ideprobe.RunningIntelliJFixture
@@ -22,7 +21,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
   }
 
   registerFixtureTransformer(_.withPlugin(machetePlugin))
-  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.machete.runJs("ide.configure(/* enableDebugLog */ false)")))
+  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.machete.configureIde()))
 
   private val rhinoCodebase = {
     def loadScript(baseName: String) = {
@@ -34,21 +33,59 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
 
   implicit class MacheteExtensions(intelliJ: RunningIntelliJFixture) {
     object machete {
-      def refreshModelAndGetRowCount(): Int = {
-        callJs("project.refreshGraphTableModel().getRowCount()")
+
+      def acceptBranchDeletionOnSlideOut(): Unit = {
+        runJs(s"project.acceptBranchDeletionOnSlideOut()")
+        intelliJ.probe.awaitIdle()
       }
 
-      def getHashOfCommitPointedByBranch(branch: String): String = {
-        callJs(s"project.getHashOfCommitPointedByBranch('$branch')")
+      def acceptSuggestedBranchLayout(): Unit = {
+        intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
+      }
+
+      def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
+        val hashA = intelliJ.machete.getHashOfCommitPointedByBranch(branchA)
+        val hashB = intelliJ.machete.getHashOfCommitPointedByBranch(branchB)
+        Assert.assertEquals(hashB, hashA)
+      }
+
+      def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
+        val localBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(branch)
+        val remoteBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(s"origin/$branch")
+        Assert.assertEquals(remoteBranchHash, localBranchHash)
+      }
+
+      def assertWorkingTreeIsAtHead(): Unit = {
+        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
+      }
+
+      def checkoutBranch(branch: String): Unit = {
+        runJs(s"project.checkoutBranch('$branch')")
+        intelliJ.probe.awaitIdle()
+      }
+
+      def configureIde(): Unit = {
+        intelliJ.machete.runJs("ide.configure(/* enableDebugLog */ false)")
+      }
+
+      def configureProject(): Unit = {
+        intelliJ.machete.runJs("project.configure()")
+      }
+
+      def discoverBranchLayout(): Unit = {
+        intelliJ.machete.runJs("project.discoverBranchLayout()")
+      }
+
+      def getCurrentBranchName(): String = {
+        callJs[String]("project.getCurrentBranchName()")
       }
 
       def getDiffOfWorkingTreeToHead(): Seq[String] = {
         callJs[util.ArrayList[String]]("project.getDiffOfWorkingTreeToHead()").asScala
       }
 
-      def checkoutBranch(branch: String): Unit = {
-        runJs(s"project.checkoutBranch('$branch')")
-        intelliJ.probe.awaitIdle()
+      def getHashOfCommitPointedByBranch(branch: String): String = {
+        callJs(s"project.getHashOfCommitPointedByBranch('$branch')")
       }
 
       def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
@@ -61,14 +98,22 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
         intelliJ.probe.awaitIdle()
       }
 
-      def pullCurrentBranch(): Unit = {
-        runJs(s"project.pullCurrentBranch()")
-        intelliJ.probe.awaitIdle()
+      def openGitMacheteTab(): Unit = {
+        intelliJ.machete.runJs("project.openGitMacheteTab()")
       }
 
       def pullBranch(branch: String): Unit = {
         runJs(s"project.pullBranch('$branch')")
         intelliJ.probe.awaitIdle()
+      }
+
+      def pullCurrentBranch(): Unit = {
+        runJs(s"project.pullCurrentBranch()")
+        intelliJ.probe.awaitIdle()
+      }
+
+      def refreshModelAndGetRowCount(): Int = {
+        callJs("project.refreshGraphTableModel().getRowCount()")
       }
 
       def resetCurrentBranchToRemote(): Unit = {
@@ -81,31 +126,20 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
         intelliJ.probe.awaitIdle()
       }
 
-      def getCurrentBranchName(): String = {
-        callJs[String]("project.getCurrentBranchName()")
+      def slideOutBranch(branch: String): Unit = {
+        runJs(s"project.slideOutBranch('$branch')")
+        intelliJ.probe.awaitIdle()
       }
 
-      def assertWorkingTreeIsAtHead(): Unit = {
-        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
+      def toggleListingCommits(): Unit = {
+        intelliJ.machete.runJs("project.toggleListingCommits()")
       }
 
-      def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
-        val localBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(branch)
-        val remoteBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(s"origin/$branch")
-        Assert.assertEquals(remoteBranchHash, localBranchHash)
-      }
-
-      def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
-        val hashA = intelliJ.machete.getHashOfCommitPointedByBranch(branchA)
-        val hashB = intelliJ.machete.getHashOfCommitPointedByBranch(branchB)
-        Assert.assertEquals(hashB, hashA)
-      }
-
-      def runJs(@Language("JS") statement: String): Unit = {
+      private def runJs(@Language("JS") statement: String): Unit = {
         intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
       }
 
-      def callJs[T](@Language("JS") expression: String): T = {
+      private def callJs[T](@Language("JS") expression: String): T = {
         intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
       }
     }

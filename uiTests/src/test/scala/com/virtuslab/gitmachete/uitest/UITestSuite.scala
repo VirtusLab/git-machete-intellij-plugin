@@ -53,7 +53,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Before
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(repositoryMainDir)
-    intelliJ.machete.runJs("project.configure()")
+    intelliJ.machete.configureProject()
     intelliJ.probe.awaitIdle()
   }
 
@@ -66,7 +66,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -82,14 +82,14 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file
     // non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(6, branchRowsCount)
-    intelliJ.machete.runJs("project.toggleListingCommits()")
+    intelliJ.machete.toggleListingCommits()
     var branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     // 6 branch rows + 7 commit rows
     Assert.assertEquals(13, branchAndCommitRowsCount)
 
     // Let's slide out a root branch now
-    intelliJ.machete.runJs("project.slideOutBranch('develop')")
-    intelliJ.machete.runJs("project.acceptBranchDeletionOnSlideOut()")
+    intelliJ.machete.slideOutBranch("develop")
+    intelliJ.machete.acceptBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     // 5 branch rows (`develop` is no longer there) + 3 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
@@ -99,8 +99,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
-    intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
+    intelliJ.machete.openGitMacheteTab()
+    intelliJ.machete.acceptSuggestedBranchLayout()
     intelliJ.probe.awaitIdle()
     var branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
@@ -111,7 +111,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
     // Now let's test an explicit discover instead
-    intelliJ.machete.runJs("project.discoverBranchLayout()")
+    intelliJ.machete.discoverBranchLayout()
     branchRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
@@ -121,7 +121,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     intelliJ.machete.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
     intelliJ.machete.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
@@ -130,7 +130,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.fastForwardMergeCurrentBranchToParent()
     intelliJ.machete.assertBranchesAreEqual("master", "hotfix/add-trigger")
@@ -138,7 +138,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullCurrentBranch(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
     intelliJ.machete.checkoutBranch("allow-ownership-link")
@@ -148,7 +148,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def pullNonCurrentBranch(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.pullBranch("allow-ownership-link")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
@@ -156,7 +156,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     intelliJ.machete.checkoutBranch("hotfix/add-trigger")
     intelliJ.machete.resetCurrentBranchToRemote()
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
@@ -166,7 +166,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def resetNonCurrentBranchToRemote(): Unit = {
-    intelliJ.machete.runJs("project.openGitMacheteTab()")
+    intelliJ.machete.openGitMacheteTab()
     intelliJ.machete.checkoutBranch("develop")
     intelliJ.machete.resetBranchToRemote("hotfix/add-trigger")
     intelliJ.machete.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
