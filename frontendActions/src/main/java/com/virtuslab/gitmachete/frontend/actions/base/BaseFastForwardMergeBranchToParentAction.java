@@ -22,7 +22,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBra
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
-public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {

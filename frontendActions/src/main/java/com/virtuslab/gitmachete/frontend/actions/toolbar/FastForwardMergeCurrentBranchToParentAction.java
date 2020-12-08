@@ -5,9 +5,9 @@ import io.vavr.control.Option;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardMergeToParentAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardMergeBranchToParentAction;
 
-public class FastForwardMergeCurrentBranchToParentAction extends BaseFastForwardMergeToParentAction {
+public class FastForwardMergeCurrentBranchToParentAction extends BaseFastForwardMergeBranchToParentAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
