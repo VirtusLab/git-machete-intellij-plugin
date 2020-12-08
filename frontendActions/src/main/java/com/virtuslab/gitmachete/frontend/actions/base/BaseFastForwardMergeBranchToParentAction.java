@@ -34,12 +34,12 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
-    return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description-action-name");
+    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description-action-name");
   }
 
   @Override
   public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description");
+    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description");
   }
 
   @Override
@@ -84,7 +84,7 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
       GitRepository gitRepository,
       INonRootManagedBranchSnapshot targetBranch) {
 
-    var taskTitle = getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title");
+    var taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
 
     new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, targetBranch.getName()).queue();
   }
@@ -101,10 +101,10 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
-        format(getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail"),
+        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"),
+        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
             targetBranch.getParent().getName(), targetBranch.getName()),
-        format(getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-success"),
+        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
             targetBranch.getParent().getName(), targetBranch.getName()))
                 .queue();
   }
