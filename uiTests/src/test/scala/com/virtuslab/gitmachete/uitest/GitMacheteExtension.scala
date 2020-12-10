@@ -74,6 +74,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
 
       def discoverBranchLayout(): Unit = {
         intelliJ.machete.runJs("project.discoverBranchLayout()")
+        intelliJ.probe.awaitIdle()
       }
 
       def getCurrentBranchName(): String = {

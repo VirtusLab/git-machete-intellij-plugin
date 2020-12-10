@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteF
 
 import java.nio.file.Path;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ModalityState;
@@ -40,7 +41,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
 
-  public static final String SLIDE_OUT_DELETION_SUGGESTION_SHOWN = "git-machete.slide-out.deletion-suggestion.shown";
+  public static final String SLIDE_OUT_DELETION_SUGGESTION_REMEMBERED = "git-machete.slide-out.deletion-suggestion.shown";
 
   private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
@@ -169,6 +170,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           project);
     }
 
+    var dialogResultRemembered = PropertiesComponent.getInstance().getBoolean(SLIDE_OUT_DELETION_SUGGESTION_REMEMBERED);
     int finalOkCancelDialogResult = okCancelDialogResult;
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
@@ -192,6 +194,11 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
         getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       }
     }.queue();
+
+    if (dialogResultRemembered) {
+      var value = String.valueOf(finalOkCancelDialogResult == Messages.OK);
+      setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
+    }
   }
 
   @NotUIThreadSafe
@@ -212,5 +219,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     }
 
     return false;
+  }
+
+  @NotUIThreadSafe
+  private void setDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root, String value) {
+    try {
+      GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value);
+    } catch (VcsException e) {
+      LOG.info("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed");
+    }
   }
 }
