@@ -10,6 +10,7 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @CustomLog
 public class FetchBackgroundable extends Task.Backgroundable {
@@ -20,6 +21,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   private final String refspec;
   private final String failureNotificationText;
   private final String successNotificationText;
+  private final @Nullable String taskSubtitle;
 
   /** Use as {@code remoteName} when referring to the local repository. */
   public static final String LOCAL_REPOSITORY_NAME = ".";
@@ -30,7 +32,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String refspec,
       String taskTitle,
       String failureNotificationText,
-      String successNotificationText) {
+      String successNotificationText,
+      @Nullable String taskSubtitle) {
     super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;
     this.gitRepository = gitRepository;
@@ -38,10 +41,26 @@ public class FetchBackgroundable extends Task.Backgroundable {
     this.refspec = refspec;
     this.failureNotificationText = failureNotificationText;
     this.successNotificationText = successNotificationText;
+    this.taskSubtitle = taskSubtitle;
+  }
+
+  public FetchBackgroundable(Project project,
+      GitRepository gitRepository,
+      String remoteName,
+      String refspec,
+      String taskTitle,
+      String failureNotificationText,
+      String successNotificationText) {
+    this(project, gitRepository, remoteName, refspec, taskTitle, failureNotificationText,
+        successNotificationText, /* taskSubtitle */ null);
   }
 
   @Override
   public void run(ProgressIndicator indicator) {
+    if (taskSubtitle != null) {
+      // This method set a text under a progress bar (despite of docstring)
+      indicator.setText(taskSubtitle);
+    }
     var fetchSupport = GitFetchSupport.fetchSupport(project);
     var remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
         ? GitRemote.DOT

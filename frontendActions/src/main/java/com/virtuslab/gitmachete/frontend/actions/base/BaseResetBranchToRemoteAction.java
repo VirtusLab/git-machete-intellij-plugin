@@ -191,8 +191,9 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail"),
             localBranch.getName()),
         format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success"),
-            localBranch.getName()))
-                .queue();
+            localBranch.getName()),
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"))
+            .queue();
   }
 
   protected void doResetCurrentBranchToRemoteWithKeep(

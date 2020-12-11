@@ -105,7 +105,8 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
         format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
             targetBranch.getParent().getName(), targetBranch.getName()),
         format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
-            targetBranch.getParent().getName(), targetBranch.getName()))
-                .queue();
+            targetBranch.getParent().getName(), targetBranch.getName()),
+        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-subtitle"))
+            .queue();
   }
 }
