@@ -23,3 +23,4 @@ export GIT_PAGER=cat
 ./scripts/prohibit-tab-character
 ./scripts/prohibit-trailing-whitespace
 ./scripts/prohibit-unused-custom-log
+./scripts/prohibit-unused-property-keys

@@ -228,7 +228,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
           VcsNotifier.getInstance(project)
-              .notifyInfo(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"));
+              .notifyInfo(format(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
+                  getString("action.GitMachete.OpenMacheteFileAction.description")));
         },
         NON_MODAL);
   }
