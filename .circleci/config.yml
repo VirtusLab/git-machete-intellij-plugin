@@ -25,37 +25,12 @@ jobs:
           command: ./gradlew
 
       - run:
-          name: Validate Markdown ToCs
+          name: Validate Markdown files
           command: |
-            git grep --files-with-matches 'START doctoc' | xargs doctoc
-            git --no-pager diff --exit-code HEAD || {
-              echo Tables of contents in the above Markdown files are not up to date
-              exit 1
-            }
-      - run:
-          name: Validate Markdown links
-          command: |
-            # Internal file & heading links
-            remark --use=validate-links --ignore-path=.gitignore --frail .
-
-            # External links
-            case $CIRCLE_BRANCH in
-              # We don't want some linked website being randomly down to fail a crucial (non-regular-PR) build.
-              develop|release/*|backport/*|master|hotfix/*) true ;;
-              *) remark --use=lint-no-dead-urls --ignore-path=.gitignore --frail . ;;
-            esac
-      - run:
-          name: Validate Markdown values
-          # Currently, just check whether earliest supported IntelliJ version in README.md
-          # is up to date with the source of truth (Gradle config).
-          command: |
-            expected=$(./gradlew -q resolveIntelliJVersions --versionKey=earliestSupportedMajor)
-            actual=$(grep -Po '(?<=minimum required version is )[0-9.]+' README.md)
-            if [[ $actual != "$expected" ]]; then
-              echo "README.md indicates that the minimum required IntelliJ version is $actual, while in fact in Gradle config it is $expected"
-              echo "Please update README.md"
-              exit 1
-            fi
+            set -x
+            ./scripts/validate-markdown-links
+            ./scripts/validate-markdown-tocs
+            ./scripts/validate-markdown-values
       - run:
           name: Check formatting
           command: ./gradlew spotlessCheck

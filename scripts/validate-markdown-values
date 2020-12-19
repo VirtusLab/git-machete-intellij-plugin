@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+# Currently, just check whether earliest supported IntelliJ version in README.md
+# is up to date with the source of truth (Gradle config).
+
+expected=$(./gradlew -q resolveIntelliJVersions --versionKey=earliestSupportedMajor)
+actual=$(grep -Po '(?<=minimum required version is )[0-9.]+' README.md)
+if [[ $actual != "$expected" ]]; then
+  error "README.md indicates that the minimum required IntelliJ version is $actual, while in fact in Gradle config it is $expected"
+  die "Please update README.md"
+fi
