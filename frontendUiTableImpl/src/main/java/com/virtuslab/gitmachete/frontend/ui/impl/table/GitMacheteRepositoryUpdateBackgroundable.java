@@ -113,7 +113,8 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
     String exceptionMessage = cause.getMessage();
 
-    VcsNotifier.getInstance(getProject()).notifyError("Repository instantiation failed",
+    VcsNotifier.getInstance(getProject()).notifyError(
+        getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
         exceptionMessage != null ? exceptionMessage : "");
   }
 

@@ -334,7 +334,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       // it's basically impossible to get these numbers correctly in a unambiguous manner.
       @Unique RevCommit mergeBase = walk.next();
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
-          "and ${c2.getHash().getHashString()} is ${mergeBase.getId().getName()}");
+          "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
         return Option.some(GitCoreCommitHash.of(mergeBase.getId()));
       } else {

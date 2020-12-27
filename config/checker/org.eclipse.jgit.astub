@@ -1,5 +1,6 @@
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.NonLeaked;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.checkerframework.common.value.qual.ArrayLen;
@@ -25,7 +26,7 @@ class RevWalk {
   // This comment applies everywhere in the codebase.
   // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
   // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
-  @Unique RevCommit next();
+  @Nullable @Unique RevCommit next();
 
   @NonNull @Unique RevCommit parseCommit(org.eclipse.jgit.lib.AnyObjectId id);
 }
