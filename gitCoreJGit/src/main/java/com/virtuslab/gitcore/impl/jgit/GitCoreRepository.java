@@ -25,6 +25,7 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -332,9 +333,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
       // This might NOT necessarily be OK from the perspective of remote tracking status
       // i.e. the number of commits ahead of/behind remote, but in case of criss-cross histories
       // it's basically impossible to get these numbers correctly in a unambiguous manner.
-      @Unique RevCommit mergeBase = walk.next();
-      LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
-          "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
+      @Nullable RevCommit mergeBase = walk.next();
+      LOG.debug(() -> "Detected merge base for " + c1.getHash().getHashString() + " and " + c2.getHash().getHashString()
+          + " is " + mergeBase.getId().getName());
       if (mergeBase != null) {
         return Option.some(GitCoreCommitHash.of(mergeBase.getId()));
       } else {

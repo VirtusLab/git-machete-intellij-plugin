@@ -179,6 +179,7 @@ subprojects {
       '-AshowSuppressWarningsStrings',
       "-Astubs=$rootDir/config/checker/",
       '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier',
+      '-AuseConservativeDefaultsForUncheckedCode=+bytecode',
     ]
     dependencies {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
