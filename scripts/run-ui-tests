@@ -5,14 +5,14 @@
 
 # <intellij-version-key> can be a release (e.g. `2020.2`), build (e.g. `203.5419.21-EAP-SNAPSHOT`)
 # or a field of `ext.intellijVersions` from build.gradle (e.g. `earliestSupportedMajor`).
-# If skipped, then `buildTarget` is assumed.
+# If skipped or empty, then `buildTarget` is assumed.
 
 # If <only-tests> is present and non-empty, only the UI test methods
 # whose names start with the given prefix will be executed (instead of all UI test methods).
 
 set -e -o pipefail -u
 
-intellij_version_key=${1-buildTarget}
+intellij_version_key=${1:-buildTarget}
 test_method_prefix=${2-}
 
 if [[ ${CI-} == true ]]; then

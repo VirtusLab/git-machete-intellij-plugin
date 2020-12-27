@@ -60,7 +60,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @After
   def afterEach(): Unit = {
     intelliJ.probe.awaitIdle()
-    intelliJ.probe.listOpenProjects.foreach(intelliJ.probe.closeProject)
+    // Note that we shouldn't wait for a response here (so we shouldn't call org.virtuslab.ideprobe.ProbeDriver#send),
+    // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
+    intelliJ.machete.runJs("ide.closeOpenedProjects()")
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {

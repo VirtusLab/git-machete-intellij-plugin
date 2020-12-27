@@ -42,7 +42,16 @@ function Ide() {
   this.soleOpenedProject = function () {
     const openProjects = ProjectUtil.getOpenProjects();
     return openProjects.length === 1 ? new Project(openProjects[0]) : null;
-  }
+  };
+
+  this.closeOpenedProjects = function () {
+    ProjectUtil.getOpenProjects().forEach(function (project) {
+      GuiUtils.runOrInvokeAndWait(function () {
+        System.out.println('project to close = ' + project.toString());
+        ProjectUtil.closeAndDispose(project);
+      });
+    });
+  };
 }
 
 const ide = new Ide();
