@@ -3,7 +3,9 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
+import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
@@ -26,6 +28,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 
 import com.intellij.ide.DataManager;
+import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -227,9 +231,20 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           gitMacheteRepositorySnapshot = repositorySnapshot;
           queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
-          VcsNotifier.getInstance(project)
-              .notifyInfo(format(getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
-                  getString("action.GitMachete.OpenMacheteFileAction.description")));
+          var notifier = VcsNotifier.getInstance(project);
+          var notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
+              NotificationType.INFORMATION);
+          notification.addAction(NotificationAction.createSimple(
+              () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+                notification.expire();
+
+                DataContext dataContext = DataManager.getInstance().getDataContext(this);
+                var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(),
+                    dataContext);
+                ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+              }));
+          notifier.notify(notification);
         },
         NON_MODAL);
   }

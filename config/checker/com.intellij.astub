@@ -110,6 +110,16 @@ class PushController {
 @UIPackage package com.intellij.ide.util.treeView.smartTree;
 @UIPackage package com.intellij.ide.wizard;
 @UIPackage package com.intellij.navigation;
+
+
+package com.intellij.notification;
+
+class NotificationAction {
+  // Experiments show that notification actions are executed on UI thread.
+  static NotificationAction createSimple(Supplier<String> dynamicText, @UI Runnable performAction);
+}
+
+
 @UIPackage package com.intellij.openapi;
 
 

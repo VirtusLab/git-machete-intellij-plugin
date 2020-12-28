@@ -5,4 +5,5 @@ public final class ActionPlaces {
 
   public static final String ACTION_PLACE_CONTEXT_MENU = "GitMacheteContextMenu";
   public static final String ACTION_PLACE_TOOLBAR = "GitMacheteToolbar";
+  public static final String ACTION_PLACE_VCS_NOTIFICATION = "Vcs.Notification";
 }
