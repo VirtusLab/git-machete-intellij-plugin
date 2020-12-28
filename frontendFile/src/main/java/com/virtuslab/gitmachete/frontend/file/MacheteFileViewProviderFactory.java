@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.ui.GuiUtils;
-import com.intellij.util.FileContentUtil;
+import com.intellij.util.FileContentUtilCore;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
@@ -46,7 +46,7 @@ final class MacheteFileViewProvider extends SingleRootFileViewProvider {
     GitRepositoryChangeListener listener = repository -> GuiUtils.invokeLaterIfNeeded(() -> {
       PsiFile psiFile = getPsi(language);
       if (psiFile != null) {
-        FileContentUtil.reparseFiles(project, java.util.List.of(psiFile.getVirtualFile()), /* includeOpenFiles */true);
+        FileContentUtilCore.reparseFiles(psiFile.getVirtualFile());
       }
     }, NON_MODAL);
     project.getMessageBus().connect().subscribe(topic, listener);

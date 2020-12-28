@@ -133,4 +133,15 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .should().callMethodWhere(name("println"))
         .check(importedClasses);
   }
+
+  @Test
+  public void no_classes_should_call_FileContentUtil_reparseFiles() {
+    noClasses()
+        .should().callMethodWhere(
+            target(nameMatching("reparseFiles"))
+                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
+        .because("com.intellij.util.FileContentUtil#reparseFiles can cause bad performance issues when called with " +
+            "includeOpenFiles parameter equal true. Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
+        .check(importedClasses);
+  }
 }
