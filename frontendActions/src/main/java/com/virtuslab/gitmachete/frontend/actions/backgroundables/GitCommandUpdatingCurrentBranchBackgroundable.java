@@ -41,7 +41,6 @@ import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
-import git4idea.util.GitUIUtil;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
@@ -159,7 +158,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
         VcsNotifier.getInstance(project).notify(notification);
 
       } else {
-        showUpdates(root, currentRev, beforeLabel);
+        showUpdates(currentRev, beforeLabel);
       }
 
     } else if (localChangesDetector.wasMessageDetected()) {
@@ -176,12 +175,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           /* description */ null);
 
     } else {
-      GitUIUtil.notifyError(project,
+      var notifier = VcsNotifier.getInstance(project);
+      notifier.notifyError(
           format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
               getOperationName()),
-          result.getErrorOutputAsJoinedString(),
-          /* important */ true,
-          /* error */ null);
+          result.getErrorOutputAsJoinedString());
       gitRepository.update();
     }
   }
@@ -201,7 +199,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     }
   }
 
-  private void showUpdates(VirtualFile root, GitRevisionNumber currentRev, Label beforeLabel) {
+  private void showUpdates(GitRevisionNumber currentRev, Label beforeLabel) {
     try {
       UpdatedFiles files = UpdatedFiles.create();
 

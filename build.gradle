@@ -22,8 +22,8 @@ ext {
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
     latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4'],
-    latestStable: '2020.3',
     latestSupportedMajor: '2020.3',
+    latestStable: '2020.3.1',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT to ensure that the builds are reproducible.
     // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea

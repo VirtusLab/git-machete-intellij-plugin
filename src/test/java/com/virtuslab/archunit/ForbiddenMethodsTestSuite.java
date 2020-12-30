@@ -3,7 +3,6 @@ package com.virtuslab.archunit;
 import static com.tngtech.archunit.core.domain.JavaCall.Predicates.target;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
 import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.name;
-import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.nameMatching;
 import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.With.owner;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -37,8 +36,8 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_FileContentUtil_reparseFiles() {
     noClasses()
         .should().callMethodWhere(
-            target(nameMatching("reparseFiles"))
-                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
+            target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))
+                .and(target(name("reparseFiles"))))
         .because("com.intellij.util.FileContentUtil#reparseFiles can cause bad performance issues when called with " +
             "includeOpenFiles parameter equal true. Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
         .check(importedClasses);
@@ -48,8 +47,8 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_FileContentUtil_reparseOpenedFiles() {
     noClasses()
         .should().callMethodWhere(
-            target(nameMatching("reparseOpenedFiles"))
-                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
+            target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))
+                .and(target(name("reparseOpenedFiles"))))
         .because("com.intellij.util.FileContentUtil#reparseOpenedFiles can cause bad performance issues." +
             "Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
         .check(importedClasses);
@@ -67,6 +66,17 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
+  public void no_classes_should_call_GitUIUtil_notifyError() {
+    noClasses()
+        .should()
+        .callMethodWhere(
+            target(owner(assignableTo(git4idea.util.GitUIUtil.class)))
+                .and(target(name("notifyError"))))
+        .because("due to the bug IDEA-258711, a valid invocation of notifyError can lead to an NPE (see issue #676)")
+        .check(importedClasses);
+  }
+
+  @Test
   public void no_classes_should_call_JComponent_updateUI() {
     noClasses()
         .should().callMethod(javax.swing.JComponent.class, "updateUI")
@@ -78,8 +88,8 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_Link_linkSomethingColor() {
     noClasses()
         .should().callMethodWhere(
-            target(nameMatching("link.*Color"))
-                .and(target(owner(assignableTo(com.intellij.util.ui.JBUI.CurrentTheme.Link.class)))))
+            target(owner(assignableTo(com.intellij.util.ui.JBUI.CurrentTheme.Link.class)))
+                .and(target(name("link.*Color"))))
         .because("links should be avoided since they are unreliable as of IDEA 2020.2")
         .check(importedClasses);
   }
@@ -124,8 +134,8 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_Value_collect() {
     noClasses()
         .should().callMethodWhere(
-            target(nameMatching("collect"))
-                .and(target(owner(assignableTo(io.vavr.Value.class)))))
+            target(owner(assignableTo(io.vavr.Value.class)))
+                .and(target(name("collect"))))
         .because("invocation of `collect` on a Vavr Value (including Array, List, Map, Set etc.) " +
             "is almost always avoidable and in many cases indicates that a redundant conversion " +
             "is being performed (like `collect`-ing a List into another List etc.). " +
@@ -138,8 +148,8 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_Value_peek() {
     noClasses()
         .should().callMethodWhere(
-            target(nameMatching("peek"))
-                .and(target(owner(assignableTo(io.vavr.Value.class)))))
+            target(owner(assignableTo(io.vavr.Value.class)))
+                .and(target(name("peek"))))
         .because("io.vavr.collection.<X>#peek and java.util.stream.Stream#peek unexpectedly differ in their behaviour. " +
             "`peek` from Vavr calls the given `Consumer` only for the first element in collection, " +
             "while `peek` from Java `Stream` calls the given `Consumer` for every element. " +
