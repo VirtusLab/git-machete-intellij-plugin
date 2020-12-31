@@ -34,6 +34,28 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
+  public void no_classes_should_call_FileContentUtil_reparseFiles() {
+    noClasses()
+        .should().callMethodWhere(
+            target(nameMatching("reparseFiles"))
+                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
+        .because("com.intellij.util.FileContentUtil#reparseFiles can cause bad performance issues when called with " +
+            "includeOpenFiles parameter equal true. Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
+        .check(importedClasses);
+  }
+
+  @Test
+  public void no_classes_should_call_FileContentUtil_reparseOpenedFiles() {
+    noClasses()
+        .should().callMethodWhere(
+            target(nameMatching("reparseOpenedFiles"))
+                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
+        .because("com.intellij.util.FileContentUtil#reparseOpenedFiles can cause bad performance issues." +
+            "Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
+        .check(importedClasses);
+  }
+
+  @Test
   public void no_classes_should_call_GitRepository_getBranchTrackInfo_s() {
     noClasses()
         .should().callMethod(git4idea.repo.GitRepository.class, "getBranchTrackInfo", String.class)
@@ -131,17 +153,6 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_println() {
     noClasses()
         .should().callMethodWhere(name("println"))
-        .check(importedClasses);
-  }
-
-  @Test
-  public void no_classes_should_call_FileContentUtil_reparseFiles() {
-    noClasses()
-        .should().callMethodWhere(
-            target(nameMatching("reparseFiles"))
-                .and(target(owner(assignableTo(com.intellij.util.FileContentUtil.class)))))
-        .because("com.intellij.util.FileContentUtil#reparseFiles can cause bad performance issues when called with " +
-            "includeOpenFiles parameter equal true. Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
         .check(importedClasses);
   }
 }
