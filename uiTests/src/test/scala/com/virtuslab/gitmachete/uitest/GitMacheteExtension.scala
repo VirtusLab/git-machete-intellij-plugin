@@ -52,7 +52,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
         val localBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(branch)
         val remoteBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(s"origin/$branch")
-        Assert.assertEquals(remoteBranchHash, localBranchHash)
+        assertBranchesAreEqual(remoteBranchHash, localBranchHash)
       }
 
       def assertWorkingTreeIsAtHead(): Unit = {
@@ -70,6 +70,10 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
 
       def configureProject(): Unit = {
         intelliJ.machete.runJs("project.configure()")
+      }
+
+      def closeOpenedProjects(): Unit = {
+        runJs("ide.closeOpenedProjects()")
       }
 
       def discoverBranchLayout(): Unit = {

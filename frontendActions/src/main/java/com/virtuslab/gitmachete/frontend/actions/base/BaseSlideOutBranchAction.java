@@ -7,15 +7,12 @@ import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteF
 
 import java.nio.file.Path;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageUtil;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -24,6 +21,7 @@ import com.intellij.ui.GuiUtils;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -41,9 +39,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
 
-  public static final String SLIDE_OUT_DELETION_SUGGESTION_REMEMBERED = "git-machete.slide-out.deletion-suggestion.shown";
-
-  private static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
+  public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -92,9 +88,85 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
     var project = getProject(anActionEvent);
+
+    LOG.debug("Refreshing repository state");
+    new Task.Backgroundable(project, "Deleting branch if required...") {
+      @Override
+      public void run(ProgressIndicator indicator) {
+        deleteBranchIfRequired(anActionEvent, branchName);
+      }
+    }.queue();
+  }
+
+  @NotUIThreadSafe
+  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
+    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    var project = getProject(anActionEvent);
+    var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+        .map(b -> b.equals(branchName))
+        .getOrElse(true);
+
+    if (slidOutBranchIsCurrent) {
+      LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+      VcsNotifier.getInstance(project)
+          .notifySuccess(
+              format(
+                  getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.of-current"),
+                  branchName));
+
+    } else if (gitRepository != null) {
+      var root = gitRepository.getRoot();
+      var configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
+      if (configValueOption.isEmpty()) {
+        GuiUtils.invokeLaterIfNeeded(
+            () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project),
+            ModalityState.NON_MODAL);
+      } else if (configValueOption.isDefined()) {
+        var decision = configValueOption.get();
+        handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, decision);
+      }
+
+    } else {
+      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+    }
+  }
+
+  @UIEffect
+  private void suggestBranchDeletion(AnActionEvent anActionEvent, String branchName, GitRepository gitRepository,
+      Project project) {
+    var slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project).showAndGetSlideOutOptions();
+
+    new Task.Backgroundable(project, "Deleting branch if required...") {
+      @Override
+      public void run(ProgressIndicator indicator) {
+        if (slideOutOptions != null) {
+          if (slideOutOptions.shouldDelete()) {
+            slideOutBranch(anActionEvent, branchName);
+          } else {
+            VcsNotifier.getInstance(project)
+                .notifyInfo(
+                    format(
+                        getString(
+                            "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled"),
+                        branchName));
+          }
+          handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, slideOutOptions.shouldDelete());
+        }
+      }
+    }.queue();
+
+    if (slideOutOptions != null && slideOutOptions.shouldRemember()) {
+      var value = String.valueOf(slideOutOptions.shouldDelete());
+      setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
+    }
+  }
+
+  private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
+    var project = getProject(anActionEvent);
+    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {
       return;
     }
@@ -116,117 +188,54 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-fail"), branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
-
-    LOG.debug("Refreshing repository state");
-    new Task.Backgroundable(project, "Deleting branch if required...") {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        deleteBranchIfRequired(anActionEvent, branchName);
-      }
-    }.queue();
   }
 
-  @NotUIThreadSafe
-  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    var gitRepository = getSelectedGitRepository(anActionEvent);
-    var project = getProject(anActionEvent);
-    var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-        .map(b -> b.equals(branchName))
-        .getOrElse(true);
-
-    if (slidOutBranchIsCurrent) {
-      LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+  private void handleBranchDeletionDecision(Project project, String branchName, GitRepository gitRepository,
+      AnActionEvent anActionEvent, boolean decision) {
+    if (decision) {
+      GitBrancher.getInstance(project).deleteBranch(branchName, java.util.List.of(gitRepository));
       VcsNotifier.getInstance(project)
           .notifySuccess(
               format(
-                  getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.of-current"),
+                  getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.with-delete"),
                   branchName));
-
-    } else if (gitRepository.isDefined()) {
-      var root = gitRepository.get().getRoot();
-      var shallDeleteLocalBranch = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
-      GuiUtils.invokeLaterIfNeeded(
-          () -> deleteBranchIfRequired(anActionEvent, branchName, gitRepository.get(), project, shallDeleteLocalBranch),
-          ModalityState.NON_MODAL);
-
+      return;
     } else {
-      getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+      VcsNotifier.getInstance(project)
+          .notifySuccess(
+              format(
+                  getString(
+                      "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.without-delete"),
+                  branchName));
     }
-  }
-
-  @UIEffect
-  private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName, GitRepository gitRepository,
-      Project project, boolean shallDeleteLocalBranch) {
-    int okCancelDialogResult = Messages.NO;
-    if (!shallDeleteLocalBranch) {
-      okCancelDialogResult = MessageUtil.showOkCancelDialog(
-          getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.title"),
-          getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.message"),
-          getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.ok-text"),
-          getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.no-text"),
-          Messages.getInformationIcon(),
-          new DeleteBranchOnSlideOutSuggestionDialog(),
-          project);
-    }
-
-    var dialogResultRemembered = PropertiesComponent.getInstance().getBoolean(SLIDE_OUT_DELETION_SUGGESTION_REMEMBERED);
-    int finalOkCancelDialogResult = okCancelDialogResult;
-    new Task.Backgroundable(project, "Deleting branch if required...") {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        if (shallDeleteLocalBranch || finalOkCancelDialogResult == Messages.OK) {
-          GitBrancher.getInstance(project).deleteBranch(branchName, java.util.List.of(gitRepository));
-          VcsNotifier.getInstance(project)
-              .notifySuccess(
-                  format(
-                      getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.with-delete"),
-                      branchName));
-          return; // repository update invoked via GIT_REPO_CHANGE topic
-        } else {
-          VcsNotifier.getInstance(project)
-              .notifySuccess(
-                  format(
-                      getString(
-                          "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.without-delete"),
-                      branchName));
-        }
-        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-      }
-    }.queue();
-
-    if (dialogResultRemembered) {
-      var value = String.valueOf(finalOkCancelDialogResult == Messages.OK);
-      setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
-    }
+    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
   @NotUIThreadSafe
-  private boolean getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
+  private Option<Boolean> getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
     try {
       ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
           DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
       var value = computable.compute();
-      boolean result = false;
       if (value != null) {
         Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
-        result = booleanValue != null && booleanValue;
+        return Option.of(booleanValue != null && booleanValue);
       }
-      return result;
     } catch (VcsException e) {
       LOG.info(
           "Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed: key may not exist");
     }
 
-    return false;
+    return Option.none();
   }
 
   @NotUIThreadSafe
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root, String value) {
     try {
-      GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value);
+      var additionalParameters = "--local";
+      GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);
     } catch (VcsException e) {
-      LOG.info("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed");
+      LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed");
     }
   }
 }

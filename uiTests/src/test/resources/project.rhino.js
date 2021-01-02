@@ -121,7 +121,7 @@ function Project(underlyingProject) {
   };
 
   this.acceptBranchDeletionOnSlideOut = function () {
-    findAndClickButton('Delete local branches');
+    findAndClickButton('Delete Local Branch');
   };
 
   const findAndClickButton = function (name) {
