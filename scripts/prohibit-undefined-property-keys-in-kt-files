@@ -1,0 +1,22 @@
+ #!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+bundle=frontendResourceBundles/src/main/resources/GitMacheteBundle.properties
+[[ -f $bundle ]] || die "Bundle file ($bundle) has been (re)moved"
+
+kt_files_with_used_keys=$(git grep -o '\".*\.GitMachete\..*\"' -- '*.kt')
+
+exit_code=0
+for file_with_key in $kt_files_with_used_keys; do
+  file=$(echo $file_with_key | cut -f1 -d:)
+  eval key=$(echo $file_with_key | cut -f2 -d:)
+  if ! git grep -q "^$key=" -- "$bundle"; then
+    echo "Property key \"$key\" used in file $file seem to be undefined in bundle $bundle"
+    exit_code=1
+  fi
+done
+exit $exit_code

@@ -22,5 +22,6 @@ export GIT_PAGER=cat
 ./scripts/prohibit-property-double-quote-wrapping-in-bundle-message
 ./scripts/prohibit-tab-character
 ./scripts/prohibit-trailing-whitespace
+./scripts/prohibit-undefined-property-keys-in-kt-files
 ./scripts/prohibit-unused-custom-log
 ./scripts/prohibit-unused-property-keys

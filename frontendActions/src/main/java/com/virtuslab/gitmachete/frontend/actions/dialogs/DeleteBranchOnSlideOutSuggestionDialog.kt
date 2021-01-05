@@ -17,7 +17,7 @@ data class SlideOutOptions(
     @get:JvmName("shouldDelete")
     val delete: Boolean = false)
 
-class DeleteBranchOnSlideOutSuggestionDialog constructor(project: Project) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
     DialogWrapper(project, /* canBeParent */ true) {
 
   private var remember = false
@@ -62,17 +62,17 @@ class DeleteBranchOnSlideOutSuggestionDialog constructor(project: Project) :
           cell {
             button(
                     getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.ok-text")) {
+                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
                   delete = true
-                  doOKAction()
+                  close(OK_EXIT_CODE)
                 }
                 .component
                 .apply { mnemonic = KeyEvent.VK_D }
             button(
                     getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.no-text")) {
+                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
                   delete = false
-                  doOKAction()
+                  close(OK_EXIT_CODE)
                 }
                 .component
                 .apply { mnemonic = KeyEvent.VK_K }

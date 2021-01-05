@@ -33,14 +33,13 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
 
   implicit class MacheteExtensions(intelliJ: RunningIntelliJFixture) {
     object machete {
-
       def acceptBranchDeletionOnSlideOut(): Unit = {
-        runJs(s"project.acceptBranchDeletionOnSlideOut()")
+        runJs("project.acceptBranchDeletionOnSlideOut()")
         intelliJ.probe.awaitIdle()
       }
 
       def acceptSuggestedBranchLayout(): Unit = {
-        intelliJ.machete.runJs("project.acceptSuggestedBranchLayout()")
+        runJs("project.acceptSuggestedBranchLayout()")
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {

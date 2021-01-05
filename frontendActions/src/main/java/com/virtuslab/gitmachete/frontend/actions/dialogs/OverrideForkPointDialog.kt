@@ -14,12 +14,11 @@ enum class OverrideOption {
   INFERRED
 }
 
-class OverrideForkPointDialog
-    constructor(
-        project: Project,
-        private val parentBranch: IManagedBranchSnapshot,
-        private val branch: INonRootManagedBranchSnapshot
-    ) : DialogWrapper(project, /* canBeParent */ true) {
+class OverrideForkPointDialog(
+    project: Project,
+    private val parentBranch: IManagedBranchSnapshot,
+    private val branch: INonRootManagedBranchSnapshot
+) : DialogWrapper(project, /* canBeParent */ true) {
 
   private var myOverrideOption = OverrideOption.PARENT
 
