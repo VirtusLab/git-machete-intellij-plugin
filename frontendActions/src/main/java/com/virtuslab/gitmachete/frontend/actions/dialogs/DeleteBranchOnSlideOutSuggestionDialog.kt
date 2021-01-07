@@ -2,14 +2,12 @@ package com.virtuslab.gitmachete.frontend.actions.dialogs
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.Messages
 import com.intellij.ui.layout.panel
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutBranchAction.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import java.awt.event.KeyEvent
 import javax.swing.Action
-import javax.swing.JTextPane
 
 data class SlideOutOptions(
     @get:JvmName("shouldRemember")
@@ -34,13 +32,19 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
   override fun createCenterPanel() =
       panel {
         row {
-          createNoteOrCommentRow(
-              Messages.configureMessagePaneUi(
-                  JTextPane(),
-                  format(
-                      getString(
-                          "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note"),
-                      DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY)))
+          row {
+            label(
+                format(
+                    getString(
+                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1")))
+          }
+          row {
+            label(
+                format(
+                    getString(
+                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-2"),
+                    DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
+          }
         }
       }
 
@@ -76,6 +80,14 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
                 }
                 .component
                 .apply { mnemonic = KeyEvent.VK_K }
+            button(
+                    getString(
+                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
+                  delete = true
+                  close(CANCEL_EXIT_CODE)
+                }
+                .component
+                .apply { mnemonic = KeyEvent.VK_C }
           }
         }
       }

@@ -143,15 +143,15 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
         if (slideOutOptions != null) {
           if (slideOutOptions.shouldDelete()) {
             slideOutBranch(anActionEvent, branchName);
-          } else {
-            VcsNotifier.getInstance(project)
-                .notifyInfo(
-                    format(
-                        getString(
-                            "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled"),
-                        branchName));
           }
           handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, slideOutOptions.shouldDelete());
+        } else {
+          VcsNotifier.getInstance(project)
+              .notifyInfo(
+                  format(
+                      getString(
+                          "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled"),
+                      branchName));
         }
       }
     }.queue();
