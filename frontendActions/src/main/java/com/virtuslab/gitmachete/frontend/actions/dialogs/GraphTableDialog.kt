@@ -7,10 +7,13 @@ import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.virtuslab.binding.RuntimeBinding
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider
 import java.awt.event.ActionEvent
+import java.awt.event.KeyEvent
 import java.util.function.Consumer
 import javax.swing.AbstractAction
+import javax.swing.Action
 
 class GraphTableDialog
     private constructor(
@@ -28,6 +31,8 @@ class GraphTableDialog
     super.init()
     title = windowTitle
     setOKButtonText(okButtonText)
+    setOKButtonMnemonic(KeyEvent.VK_S)
+    getCancelAction().putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C)
   }
 
   companion object {
@@ -89,7 +94,10 @@ class GraphTableDialog
   private fun getSaveAndEditAction() =
       if (saveAndEditAction == null) null
       else
-          object : AbstractAction("Save && Edit") { // "&&" required to display a single "&"
+          object :
+              AbstractAction(
+                  getString(
+                      "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text")) {
             override fun actionPerformed(e: ActionEvent?) {
               repositorySnapshot?.let { saveAndEditAction.accept(it) }
               close(OK_EXIT_CODE)
