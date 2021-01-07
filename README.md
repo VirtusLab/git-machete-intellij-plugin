@@ -7,24 +7,24 @@
 
 <img src="docs/logo.svg" style="width: 100%; display: block; margin-bottom: 10pt;"/>
 
-Git Machete plugin is a robust tool that **simplifies your git related workflow**.
+💪 Git Machete plugin is a robust tool that **simplifies your git related workflow**.
 It's a great complement to the JetBrains products' built-in version control system.<br/>
 
-The _bird's eye view_ provided by Git Machete makes **merges/rebases/push/pulls hassle-free**
+🦅 The _bird's eye view_ provided by Git Machete makes **merges/rebases/push/pulls hassle-free**
 even when **multiple branches** are present in the repository
 (master/develop, your topic branches, teammate's branches checked out for review, etc.).<br/>
 
-A look at a Git Machete tab gives an instant answer to the questions:
+👁 A look at a Git Machete tab gives an instant answer to the questions:
 
 * What branches are in this repository?
 * What is going to be merged (or rebased/pushed/pulled) and to what?
 
-With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
+🎯 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
-**It is compatible with all JetBrains products except Android Studio.
-The minimum required version is 2020.1**.
+⚙ It is compatible with all JetBrains products except Android Studio.
+The minimum required version is 2020.1.
 
-Git Machete IntelliJ Plugin is a port of a handy console tool &mdash; [git-machete](https://github.com/VirtusLab/git-machete#git-machete), into an IntelliJ plugin.
+🖥 For the console version, check [git-machete](https://github.com/VirtusLab/git-machete#git-machete).
 
 
 ## Table of contents

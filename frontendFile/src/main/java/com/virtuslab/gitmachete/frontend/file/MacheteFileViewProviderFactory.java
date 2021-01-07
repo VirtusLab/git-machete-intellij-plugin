@@ -33,7 +33,8 @@ final class MacheteFileViewProvider extends SingleRootFileViewProvider {
       boolean eventSystemEnabled,
       Language language) {
     super(manager, virtualFile, eventSystemEnabled, language);
-    subscribeToGitRepositoryChanges(manager.getProject(), language);
+    // TODO (#679): restore the subscription to git repo changes once we clarify why reparsing the files sometimes takes so long
+    // subscribeToGitRepositoryChanges(manager.getProject(), language)
   }
 
   @Override

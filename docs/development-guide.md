@@ -228,11 +228,14 @@ For instance:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `idea`)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP`:
-   `./scripts/verify-binary-compatibility 203-EAP-SNAPSHOT` (also see `ext.intellijVersions.eapOfLatestSupportedMajor` in [build.gradle](../build.gradle))
-   and `./scripts/run-ui-tests 203-EAP-SNAPSHOT`
+   set `ext.intellijVersions.eapOfLatestSupportedMajor` in [build.gradle](../build.gradle)
+   and see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we extend `untilBuild` in our plugin to `2020.3.*`
    (by setting `ext.intellijVersions.latestSupportedMajor` in [build.gradle](../build.gradle) to `2020.3`) and release it as `0.8.0`
-5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well
+5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
+   then, `latestStable` can be updated to `2020.3` and `eapOfLatestSupportedMajor` can be cleared (`[]`)
+6. since `latestStable` is used as the version to build against,
+   a few source incompatibilities might appear once `latestStable` is updated, even when the plugin was binary compatible with the new IDE version.
 
 ## PRs & releases
 
