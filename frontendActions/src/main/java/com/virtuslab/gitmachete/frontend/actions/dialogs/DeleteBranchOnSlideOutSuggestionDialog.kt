@@ -8,6 +8,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import java.awt.event.KeyEvent
 import javax.swing.Action
+import javax.swing.JComponent
 
 data class SlideOutOptions(
     @get:JvmName("shouldRemember")
@@ -29,6 +30,8 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
 
   fun showAndGetSlideOutOptions() = if (showAndGet()) SlideOutOptions(remember, delete) else null
 
+  override fun createActions(): Array<Action?> = emptyArray()
+
   override fun createCenterPanel() =
       panel {
         row {
@@ -46,12 +49,32 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
                     DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
           }
         }
-      }
-
-  override fun createActions(): Array<Action?> = emptyArray()
-
-  override fun createSouthPanel() =
-      panel {
+        row {
+          button(
+                  getString(
+                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
+                delete = true
+                doOKAction()
+              }
+              .component
+              .apply { mnemonic = KeyEvent.VK_D }
+          button(
+                  getString(
+                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
+                delete = false
+                doOKAction()
+              }
+              .component
+              .apply { mnemonic = KeyEvent.VK_K }
+          button(
+                  getString(
+                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
+                delete = true
+                close(CANCEL_EXIT_CODE)
+              }
+              .component
+              .apply { mnemonic = KeyEvent.VK_C }
+        }
         row {
           checkBox(
                   getString(
@@ -60,35 +83,10 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
               .component
               .apply {
             mnemonic = KeyEvent.VK_R
-            isEnabled = true
             isSelected = false
-          }(pushX)
-          cell {
-            button(
-                    getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
-                  delete = true
-                  close(OK_EXIT_CODE)
-                }
-                .component
-                .apply { mnemonic = KeyEvent.VK_D }
-            button(
-                    getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
-                  delete = false
-                  close(OK_EXIT_CODE)
-                }
-                .component
-                .apply { mnemonic = KeyEvent.VK_K }
-            button(
-                    getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
-                  delete = true
-                  close(CANCEL_EXIT_CODE)
-                }
-                .component
-                .apply { mnemonic = KeyEvent.VK_C }
           }
         }
       }
+
+  override fun createSouthPanel(): JComponent? = null
 }

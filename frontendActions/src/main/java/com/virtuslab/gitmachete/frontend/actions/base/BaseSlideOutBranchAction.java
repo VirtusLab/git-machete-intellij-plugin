@@ -141,9 +141,6 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       @Override
       public void run(ProgressIndicator indicator) {
         if (slideOutOptions != null) {
-          if (slideOutOptions.shouldDelete()) {
-            slideOutBranch(anActionEvent, branchName);
-          }
           handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, slideOutOptions.shouldDelete());
         } else {
           VcsNotifier.getInstance(project)
@@ -192,6 +189,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
   private void handleBranchDeletionDecision(Project project, String branchName, GitRepository gitRepository,
       AnActionEvent anActionEvent, boolean decision) {
+    slideOutBranch(anActionEvent, branchName);
     if (decision) {
       GitBrancher.getInstance(project).deleteBranch(branchName, java.util.List.of(gitRepository));
       VcsNotifier.getInstance(project)
