@@ -11,35 +11,39 @@ import com.intellij.openapi.util.IconLoader;
 public final class MacheteIcons {
   private MacheteIcons() {}
 
-  public static final Icon DISCOVER = IconLoader.getIcon("/discover.svg");
+  public static final Icon DISCOVER = loadIcon("/macheteLogoIcon.svg");
 
-  public static final Icon FAST_FORWARD = IconLoader.getIcon("/applyNotConflictsLeft.svg");
+  public static final Icon FAST_FORWARD = loadIcon("/applyNotConflictsLeft.svg");
 
-  public static final Icon FETCH = IconLoader.getIcon("/download.svg");
+  public static final Icon FETCH = loadIcon("/download.svg");
 
-  public static final Icon HELP = IconLoader.getIcon("/help.svg");
+  public static final Icon HELP = loadIcon("/help.svg");
 
-  public static final Icon MACHETE_FILE = IconLoader.getIcon("/macheteFileIcon.svg");
+  public static final Icon MACHETE_FILE = loadIcon("/macheteLogoIcon.svg");
 
-  public static final Icon MACHETE_LOAD_CHANGES = IconLoader.getIcon("/macheteLoadChanges.svg");
+  public static final Icon MACHETE_LOAD_CHANGES = loadIcon("/macheteLoadChanges.svg");
 
-  public static final Icon OVERRIDE_FORK_POINT = IconLoader.getIcon("/overrideForkPoint.svg");
+  public static final Icon OVERRIDE_FORK_POINT = loadIcon("/overrideForkPoint.svg");
 
-  public static final Icon PULL = IconLoader.getIcon("/incomingChangesOn.svg");
+  public static final Icon PULL = loadIcon("/incomingChangesOn.svg");
 
-  public static final Icon PUSH = IconLoader.getIcon("/outgoingChangesOn.svg");
+  public static final Icon PUSH = loadIcon("/outgoingChangesOn.svg");
 
-  public static final Icon REBASE = IconLoader.getIcon("/menu-cut.svg");
+  public static final Icon REBASE = loadIcon("/menu-cut.svg");
 
-  public static final Icon REFRESH_STATUS = IconLoader.getIcon("/refresh.svg");
+  public static final Icon REFRESH_STATUS = loadIcon("/refresh.svg");
 
-  public static final Icon RESET = IconLoader.getIcon("/reset.svg");
+  public static final Icon RESET = loadIcon("/reset.svg");
 
-  public static final Icon TEXT_FILE = IconLoader.getIcon("/text.svg");
+  public static final Icon TEXT_FILE = loadIcon("/text.svg");
 
-  public static final Icon TOGGLE_LISTING_COMMITS = IconLoader.getIcon("/showHiddens.svg");
+  public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/showHiddens.svg");
 
-  public static final Icon SLIDE_IN = IconLoader.getIcon("/branch.svg");
+  public static final Icon SLIDE_IN = loadIcon("/branch.svg");
 
-  public static final Icon SLIDE_OUT = IconLoader.getIcon("/gc.svg");
+  public static final Icon SLIDE_OUT = loadIcon("/gc.svg");
+
+  private static Icon loadIcon(String path) {
+    return IconLoader.getIcon(path, MacheteIcons.class);
+  }
 }
