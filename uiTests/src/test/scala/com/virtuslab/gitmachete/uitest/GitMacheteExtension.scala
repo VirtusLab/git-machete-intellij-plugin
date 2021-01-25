@@ -43,15 +43,13 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
-        val hashA = intelliJ.machete.getHashOfCommitPointedByBranch(branchA)
-        val hashB = intelliJ.machete.getHashOfCommitPointedByBranch(branchB)
+        val hashA = getHashOfCommitPointedByBranch(branchA)
+        val hashB = getHashOfCommitPointedByBranch(branchB)
         Assert.assertEquals(hashB, hashA)
       }
 
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
-        val localBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(branch)
-        val remoteBranchHash = intelliJ.machete.getHashOfCommitPointedByBranch(s"origin/$branch")
-        assertBranchesAreEqual(remoteBranchHash, localBranchHash)
+        assertBranchesAreEqual(branch, s"origin/$branch")
       }
 
       def assertWorkingTreeIsAtHead(): Unit = {
@@ -64,11 +62,11 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def configureIde(): Unit = {
-        intelliJ.machete.runJs("ide.configure(/* enableDebugLog */ false)")
+        runJs("ide.configure(/* enableDebugLog */ false)")
       }
 
       def configureProject(): Unit = {
-        intelliJ.machete.runJs("project.configure()")
+        runJs("project.configure()")
       }
 
       def closeOpenedProjects(): Unit = {
@@ -76,7 +74,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def discoverBranchLayout(): Unit = {
-        intelliJ.machete.runJs("project.discoverBranchLayout()")
+        runJs("project.discoverBranchLayout()")
         intelliJ.probe.awaitIdle()
       }
 
@@ -103,7 +101,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def openGitMacheteTab(): Unit = {
-        intelliJ.machete.runJs("project.openGitMacheteTab()")
+        runJs("project.openGitMacheteTab()")
       }
 
       def pullBranch(branch: String): Unit = {
@@ -136,7 +134,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
       }
 
       def toggleListingCommits(): Unit = {
-        intelliJ.machete.runJs("project.toggleListingCommits()")
+        runJs("project.toggleListingCommits()")
       }
 
       private def runJs(@Language("JS") statement: String): Unit = {
