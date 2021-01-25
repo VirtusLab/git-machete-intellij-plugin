@@ -42,7 +42,7 @@ class GraphTableDialog
     fun of(
         gitMacheteRepositorySnapshot: IGitMacheteRepositorySnapshot,
         windowTitle: String,
-        dimension: JBDimension = JBDimension(/* width */ 800, /* height */ 500),
+        dimension: JBDimension = JBDimension(/* width */ 400, /* height */ 250),
         emptyTableText: String?,
         saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
         saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
@@ -75,7 +75,7 @@ class GraphTableDialog
           GraphTableDialog(
               table = it,
               repositorySnapshot = null,
-              dimension = JBDimension(/* width */ 800, /* height */ 250),
+              dimension = JBDimension(/* width */ 850, /* height */ 250),
               saveAction = null,
               saveAndEditAction = null,
               cancelButtonVisible = false,

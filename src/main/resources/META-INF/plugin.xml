@@ -102,6 +102,12 @@
         </group>
 
         <group id="GitMachete.Toolbar">
+            <action id="GitMachete.DiscoverAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
+                    icon="MacheteIcons.DISCOVER">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
             <action id="GitMachete.RefreshStatusAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction"
                     icon="MacheteIcons.REFRESH_STATUS"
@@ -196,13 +202,6 @@
             <add-to-group group-id="GitRepositoryActions" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
-
-        <!-- GitMachete.DiscoverAction is not added to any group because it's only available
-            from `Search Everywhere` and by link displayed in graph table when `machete` file
-            is empty or absent -->
-        <action id="GitMachete.DiscoverAction"
-                class="com.virtuslab.gitmachete.frontend.actions.unanchored.DiscoverAction"
-                icon="MacheteIcons.DISCOVER"/>
     </actions>
 
 </idea-plugin>

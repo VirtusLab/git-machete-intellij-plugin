@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.unanchored;
+package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
