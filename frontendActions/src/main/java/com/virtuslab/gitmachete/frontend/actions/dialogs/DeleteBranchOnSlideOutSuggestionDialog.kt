@@ -88,5 +88,6 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
         }
       }
 
+  // this will lower the gap between the last row and the bottom border
   override fun createSouthPanel(): JComponent? = null
 }

@@ -108,6 +108,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
+      slideOutBranch(anActionEvent, branchName);
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project)
           .notifySuccess(
