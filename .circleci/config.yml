@@ -10,16 +10,16 @@ jobs:
           name: Run pre-compile checks
           command: ./scripts/run-pre-build-checks
       - restore_cache:
-          # Adding `-v2` suffix to enable easy cache invalidation when needed (just change to `-v3`)
+          # Adding `-v3` suffix to enable easy cache invalidation when needed (just change to `-v4`)
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
+            - gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v2-{{ checksum "build.gradle" }}-
+            - gradle-deps-v3-{{ checksum "build.gradle" }}-
             # If both above keys are not found, instead find the most recently generated cache from any branch.
-            - gradle-deps-v2-
+            - gradle-deps-v3-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -70,7 +70,7 @@ jobs:
 
       - save_cache:
           paths: [ ~/.gradle/ ]
-          key: gradle-deps-v2-{{ checksum "build.gradle" }}-{{ .Branch }}
+          key: gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
 
       - run:
           name: Build plugin artifact
@@ -86,14 +86,24 @@ jobs:
           command: ./gradlew runPluginVerifier
 
       - run:
-          name: Run UI tests against earlier supported major IntelliJ versions
-          command: ./scripts/run-ui-tests latestMinorsOfOldSupportedMajors
+          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
+          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
       - run:
           name: Run UI tests against the latest stable IntelliJ version (our build target)
           command: ./scripts/run-ui-tests latestStable
-      - run:
-          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
+      - when:
+          condition:
+            # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
+            # once both binary compatibility checks and UI tests for latest versions passed
+            # is close to zero.
+            # Hence, we only run them on develop & master and not on PRs to speed up the builds.
+            or:
+              - equal: [ develop, << pipeline.git.branch >> ]
+              - equal: [ master,  << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Run UI tests against earlier supported major IntelliJ versions
+                command: ./scripts/run-ui-tests latestMinorsOfOldSupportedMajors
       - store_test_results:
           path: uiTests/build/ui-test-results/
 

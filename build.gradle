@@ -22,13 +22,20 @@ ext {
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
     latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4'],
-    latestSupportedMajor: '2020.3',
     latestStable: '2020.3.2',
-    // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT
-    // rather than a "rolling snapshot" X-EAP-SNAPSHOT to ensure that the builds are reproducible.
-    // Also, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupportedMajor: []
+    // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
+    // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
+    // to ensure that the builds are reproducible.
+    // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
+    // but for some reason aren't resolved in UI tests.
+    // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
+    eapOfLatestSupportedMajor: '211.4961.33-EAP-SNAPSHOT'
   ]
+
+  intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
+    ? buildNumberToIntellijVersion(intellijVersions.eapOfLatestSupportedMajor)
+    : majorPartOfIntellijVersion(intellijVersions.latestStable)
+
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
 
@@ -58,6 +65,18 @@ ext {
   shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
+static String buildNumberToIntellijVersion(String buildNumber) {
+  return '20' + buildNumber.substring(0, 2) + '.' + buildNumber.substring(2, 3)
+}
+
+static String intellijVersionToBuildNumber(String version) {
+  return version.substring(2, 6).replace('.', '')
+}
+
+static String majorPartOfIntellijVersion(String version) {
+  return version.substring(0, 6)
+}
+
 class ResolveIntelliJVersions extends DefaultTask {
   @Input
   @Option(option = 'versionKey', description = 'Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)')
@@ -71,8 +90,10 @@ class ResolveIntelliJVersions extends DefaultTask {
       def versionValue = project.intellijVersions.get(versionKey)
       if (versionValue instanceof List) {
         println(String.join("\n", versionValue))
-      } else {
+      } else if (versionValue != null) {
         println(versionValue)
+      } else {
+        println()
       }
     }
   }
@@ -495,10 +516,6 @@ intellij {
   plugins 'git4idea' // Needed solely for ArchUnit
 }
 
-static String intellijVersionToBuildNumber(String version) {
-  return version.substring(2, 6).replace('.', '')
-}
-
 patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
   sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
@@ -520,10 +537,13 @@ runIde {
 import static org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel
 
 runPluginVerifier {
+  def maybeEap = intellijVersions.eapOfLatestSupportedMajor
+    ? [intellijVersions.eapOfLatestSupportedMajor.replaceAll('-EAP-(CANDIDATE-)?SNAPSHOT', '')]
+    : []
   ideVersions = [
     *intellijVersions.latestMinorsOfOldSupportedMajors,
     intellijVersions.latestStable,
-    *intellijVersions.eapOfLatestSupportedMajor*.replace('-EAP-SNAPSHOT', '')
+    *maybeEap
   ]
 
   def skippedFailureLevels = EnumSet.of(FailureLevel.DEPRECATED_API_USAGES, FailureLevel.NOT_DYNAMIC)
