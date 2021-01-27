@@ -41,6 +41,11 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
+  public List<String> getDuplicatedBranchNames() {
+    return List.empty();
+  }
+
+  @Override
   public List<String> getSkippedBranchNames() {
     return List.empty();
   }

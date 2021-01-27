@@ -21,6 +21,8 @@ public interface IGitMacheteRepositorySnapshot {
 
   Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName);
 
+  List<String> getDuplicatedBranchNames();
+
   List<String> getSkippedBranchNames();
 
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)

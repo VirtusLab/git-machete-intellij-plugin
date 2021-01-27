@@ -159,6 +159,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
+      List<String> duplicatedBranchNames,
       List<String> skippedBranchNames,
       @UI Runnable doOnUIThreadWhenReady) {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
@@ -209,6 +210,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       VcsNotifier.getInstance(project).notifyWarning(
           getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text"),
           String.join(", ", skippedBranchNames));
+    }
+
+    if (duplicatedBranchNames.nonEmpty()) {
+      // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
+      VcsNotifier.getInstance(project).notifyWarning(
+          getString("string.GitMachete.EnhancedGraphTable.duplicated-branches-text"),
+          String.join(", ", duplicatedBranchNames));
     }
 
     repaint();
@@ -263,7 +271,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
-      refreshModel(gitRepository.get(), /* skippedBranchNames */ List.empty(), /* doOnUIThreadWhenReady */ () -> {});
+      refreshModel(gitRepository.get(),
+          /* duplicatedBranchNames */ List.empty(),
+          /* skippedBranchNames */ List.empty(),
+          /* doOnUIThreadWhenReady */ () -> {});
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
     }
@@ -292,11 +303,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepositorySnapshot -> {
           this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot.getOrNull();
-          refreshModel(gitRepository,
-              this.gitMacheteRepositorySnapshot != null
-                  ? this.gitMacheteRepositorySnapshot.getSkippedBranchNames()
-                  : List.empty(),
-              doOnUIThreadWhenReady);
+          if (gitMacheteRepositorySnapshot != null) {
+            refreshModel(gitRepository,
+                this.gitMacheteRepositorySnapshot.getDuplicatedBranchNames(),
+                this.gitMacheteRepositorySnapshot.getSkippedBranchNames(),
+                doOnUIThreadWhenReady);
+
+          } else {
+            refreshModel(gitRepository, List.empty(), List.empty(), doOnUIThreadWhenReady);
+          }
         };
 
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));

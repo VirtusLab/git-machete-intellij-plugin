@@ -116,6 +116,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
+  public List<String> getDuplicatedBranchNames() {
+    return List.empty();
+  }
+
+  @Override
   public List<String> getSkippedBranchNames() {
     return List.empty();
   }
