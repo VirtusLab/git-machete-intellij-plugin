@@ -40,7 +40,6 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     var selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
     var selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
     var graphTable = getGraphTable();
-    graphTable.queueRepositoryUpdateAndModelRefresh();
 
     // This class is final, so the instance is `@Initialized` at this point.
 

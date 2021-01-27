@@ -27,7 +27,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
     var lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
-    if (backupOldFile && path.toFile().isFile()) {
+    if (backupOldFile && Files.isRegularFile(path)) {
       Path parentDir = path.getParent();
       assert parentDir != null : "Can't get parent directory of branch layout file";
       Path backupPath = parentDir.resolve(path.getFileName() + "~");
