@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +31,10 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   private final Map<String, IManagedBranchSnapshot> managedBranchByName;
 
   @Getter
-  private final List<String> duplicatedBranchNames;
+  private final Set<String> duplicatedBranchNames;
 
   @Getter
-  private final List<String> skippedBranchNames;
+  private final Set<String> skippedBranchNames;
 
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 

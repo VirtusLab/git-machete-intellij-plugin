@@ -20,6 +20,7 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
+import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -312,9 +313,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       var rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
       var rootBranches = rootBranchCreationResults.flatMap(creationResult -> creationResult.getCreatedBranches());
-      var skippedBranchNames = rootBranchCreationResults.flatMap(creationResult -> creationResult.getSkippedBranchNames());
+      var skippedBranchNames = rootBranchCreationResults.flatMap(creationResult -> creationResult.getSkippedBranchNames())
+          .toSet();
       var duplicatedBranchNames = rootBranchCreationResults
-          .flatMap(creationResult -> creationResult.getDuplicatedBranchNames()).toSet().toList();
+          .flatMap(creationResult -> creationResult.getDuplicatedBranchNames()).toSet();
 
       var managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
@@ -357,7 +359,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return branchByName;
     }
 
-    private CreatedAndSkippedAndDuplicatedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
+    private CreatedAndDuplicatedAndSkippedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
         IBranchLayoutEntry entry) throws GitCoreException {
 
       var branchName = entry.getName();
@@ -367,7 +369,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             .map(childEntry -> Try.of(() -> createGitMacheteRootBranch(childEntry)));
         var newRoots = Try.sequence(childBranchTries)
             .getOrElseThrow(GitCoreException::getOrWrap)
-            .fold(CreatedAndSkippedAndDuplicatedBranches.empty(), CreatedAndSkippedAndDuplicatedBranches::merge);
+            .fold(CreatedAndDuplicatedAndSkippedBranches.empty(), CreatedAndDuplicatedAndSkippedBranches::merge);
         return newRoots.withExtraSkippedBranch(branchName);
       }
 
@@ -376,7 +378,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             .map(childEntry -> Try.of(() -> createGitMacheteRootBranch(childEntry)));
         var newRoots = Try.sequence(childBranchTries)
             .getOrElseThrow(GitCoreException::getOrWrap)
-            .fold(CreatedAndSkippedAndDuplicatedBranches.empty(), CreatedAndSkippedAndDuplicatedBranches::merge);
+            .fold(CreatedAndDuplicatedAndSkippedBranches.empty(), CreatedAndDuplicatedAndSkippedBranches::merge);
         return newRoots.withExtraDuplicatedBranch(branchName);
       }
 
@@ -394,25 +396,25 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
           childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
           statusHookOutput);
-      return CreatedAndSkippedAndDuplicatedBranches.of(List.of(createdRootBranch),
+      return CreatedAndDuplicatedAndSkippedBranches.of(List.of(createdRootBranch),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
     }
 
-    private CreatedAndSkippedAndDuplicatedBranches<NonRootManagedBranchSnapshot> createGitMacheteNonRootBranch(
+    private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> createGitMacheteNonRootBranch(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         IBranchLayoutEntry entry) throws GitCoreException {
 
       var branchName = entry.getName();
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
       if (coreLocalBranch == null) {
-        CreatedAndSkippedAndDuplicatedBranches<NonRootManagedBranchSnapshot> childResult = deriveChildBranches(
+        CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> childResult = deriveChildBranches(
             parentCoreLocalBranch,
             entry.getChildren());
         return childResult.withExtraSkippedBranch(branchName);
       }
 
       if (!createdBranches.add(branchName)) {
-        CreatedAndSkippedAndDuplicatedBranches<NonRootManagedBranchSnapshot> childResult = deriveChildBranches(
+        CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> childResult = deriveChildBranches(
             parentCoreLocalBranch,
             entry.getChildren());
         return childResult.withExtraDuplicatedBranch(branchName);
@@ -449,7 +451,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       var result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint,
           commits.map(CommitOfManagedBranch::new), syncToParentStatus);
-      return CreatedAndSkippedAndDuplicatedBranches.of(List.of(result),
+      return CreatedAndDuplicatedAndSkippedBranches.of(List.of(result),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
     }
 
@@ -606,7 +608,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
-    private CreatedAndSkippedAndDuplicatedBranches<NonRootManagedBranchSnapshot> deriveChildBranches(
+    private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> deriveChildBranches(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         List<IBranchLayoutEntry> entries) throws GitCoreException {
 
@@ -614,7 +616,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           () -> createGitMacheteNonRootBranch(parentCoreLocalBranch, entry)));
       return Try.sequence(childBranchTries)
           .getOrElseThrow(GitCoreException::getOrWrap)
-          .fold(CreatedAndSkippedAndDuplicatedBranches.empty(), CreatedAndSkippedAndDuplicatedBranches::merge);
+          .fold(CreatedAndDuplicatedAndSkippedBranches.empty(), CreatedAndDuplicatedAndSkippedBranches::merge);
     }
 
     private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
@@ -951,37 +953,37 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Getter
   @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-  private static final class CreatedAndSkippedAndDuplicatedBranches<T extends BaseManagedBranchSnapshot> {
+  private static final class CreatedAndDuplicatedAndSkippedBranches<T extends BaseManagedBranchSnapshot> {
     private final List<T> createdBranches;
-    private final List<String> duplicatedBranchNames;
-    private final List<String> skippedBranchNames;
+    private final Set<String> duplicatedBranchNames;
+    private final Set<String> skippedBranchNames;
 
-    CreatedAndSkippedAndDuplicatedBranches<T> withExtraDuplicatedBranch(String duplicatedBranchName) {
-      return new CreatedAndSkippedAndDuplicatedBranches<T>(getCreatedBranches(),
-          getDuplicatedBranchNames().append(duplicatedBranchName),
+    CreatedAndDuplicatedAndSkippedBranches<T> withExtraDuplicatedBranch(String duplicatedBranchName) {
+      return new CreatedAndDuplicatedAndSkippedBranches<T>(getCreatedBranches(),
+          getDuplicatedBranchNames().add(duplicatedBranchName),
           getSkippedBranchNames());
     }
 
-    CreatedAndSkippedAndDuplicatedBranches<T> withExtraSkippedBranch(String skippedBranchName) {
-      return new CreatedAndSkippedAndDuplicatedBranches<T>(getCreatedBranches(), getDuplicatedBranchNames(),
-          getSkippedBranchNames().append(skippedBranchName));
+    CreatedAndDuplicatedAndSkippedBranches<T> withExtraSkippedBranch(String skippedBranchName) {
+      return new CreatedAndDuplicatedAndSkippedBranches<T>(getCreatedBranches(), getDuplicatedBranchNames(),
+          getSkippedBranchNames().add(skippedBranchName));
     }
 
-    static <T extends BaseManagedBranchSnapshot> CreatedAndSkippedAndDuplicatedBranches<T> of(List<T> createdBranches,
-        List<String> duplicatedBranchName, List<String> skippedBranchNames) {
-      return new CreatedAndSkippedAndDuplicatedBranches<T>(createdBranches, duplicatedBranchName, skippedBranchNames);
+    static <T extends BaseManagedBranchSnapshot> CreatedAndDuplicatedAndSkippedBranches<T> of(List<T> createdBranches,
+        Set<String> duplicatedBranchName, Set<String> skippedBranchNames) {
+      return new CreatedAndDuplicatedAndSkippedBranches<T>(createdBranches, duplicatedBranchName, skippedBranchNames);
     }
 
-    static <T extends BaseManagedBranchSnapshot> CreatedAndSkippedAndDuplicatedBranches<T> empty() {
-      return new CreatedAndSkippedAndDuplicatedBranches<T>(List.empty(), List.empty(), List.empty());
+    static <T extends BaseManagedBranchSnapshot> CreatedAndDuplicatedAndSkippedBranches<T> empty() {
+      return new CreatedAndDuplicatedAndSkippedBranches<T>(List.empty(), TreeSet.empty(), TreeSet.empty());
     }
 
-    static <T extends BaseManagedBranchSnapshot> CreatedAndSkippedAndDuplicatedBranches<T> merge(
-        CreatedAndSkippedAndDuplicatedBranches<T> prevResult1, CreatedAndSkippedAndDuplicatedBranches<T> prevResult2) {
-      return new CreatedAndSkippedAndDuplicatedBranches<T>(
+    static <T extends BaseManagedBranchSnapshot> CreatedAndDuplicatedAndSkippedBranches<T> merge(
+        CreatedAndDuplicatedAndSkippedBranches<T> prevResult1, CreatedAndDuplicatedAndSkippedBranches<T> prevResult2) {
+      return new CreatedAndDuplicatedAndSkippedBranches<T>(
           prevResult1.getCreatedBranches().appendAll(prevResult2.getCreatedBranches()),
-          prevResult1.getDuplicatedBranchNames().appendAll(prevResult2.getDuplicatedBranchNames()),
-          prevResult1.getSkippedBranchNames().appendAll(prevResult2.getSkippedBranchNames()));
+          prevResult1.getDuplicatedBranchNames().addAll(prevResult2.getDuplicatedBranchNames()),
+          prevResult1.getSkippedBranchNames().addAll(prevResult2.getSkippedBranchNames()));
     }
   }
 }

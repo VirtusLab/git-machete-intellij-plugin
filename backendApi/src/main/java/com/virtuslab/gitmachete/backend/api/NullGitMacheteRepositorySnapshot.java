@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
+import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -41,13 +43,13 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public List<String> getDuplicatedBranchNames() {
-    return List.empty();
+  public Set<String> getDuplicatedBranchNames() {
+    return TreeSet.empty();
   }
 
   @Override
-  public List<String> getSkippedBranchNames() {
-    return List.empty();
+  public Set<String> getSkippedBranchNames() {
+    return TreeSet.empty();
   }
 
   @Override

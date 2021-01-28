@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
@@ -21,9 +22,9 @@ public interface IGitMacheteRepositorySnapshot {
 
   Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName);
 
-  List<String> getDuplicatedBranchNames();
+  Set<String> getDuplicatedBranchNames();
 
-  List<String> getSkippedBranchNames();
+  Set<String> getSkippedBranchNames();
 
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;

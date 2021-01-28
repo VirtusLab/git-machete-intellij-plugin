@@ -48,7 +48,8 @@ import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import io.vavr.collection.List;
+import io.vavr.collection.Set;
+import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -159,8 +160,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
-      List<String> duplicatedBranchNames,
-      List<String> skippedBranchNames,
+      Set<String> duplicatedBranchNames,
+      Set<String> skippedBranchNames,
       @UI Runnable doOnUIThreadWhenReady) {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
@@ -272,8 +273,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
       refreshModel(gitRepository.get(),
-          /* duplicatedBranchNames */ List.empty(),
-          /* skippedBranchNames */ List.empty(),
+          /* duplicatedBranchNames */ TreeSet.empty(),
+          /* skippedBranchNames */ TreeSet.empty(),
           /* doOnUIThreadWhenReady */ () -> {});
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
@@ -310,7 +311,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
                 doOnUIThreadWhenReady);
 
           } else {
-            refreshModel(gitRepository, List.empty(), List.empty(), doOnUIThreadWhenReady);
+            refreshModel(gitRepository, TreeSet.empty(), TreeSet.empty(), doOnUIThreadWhenReady);
           }
         };
 

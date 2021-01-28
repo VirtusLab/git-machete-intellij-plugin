@@ -34,10 +34,7 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
 
     var graphTableProvider = Option.of(settings)
         .map(s -> s.getProject().getService(GraphTableProvider.class));
-    var hasSelectedGitMacheteTab = Option.of(settings)
-        .map(s -> s.getProject())
-        .map(this::hasSelectedGitMacheteTab)
-        .getOrElse(Boolean.FALSE);
+    var hasSelectedGitMacheteTab = settings != null && hasSelectedGitMacheteTab(settings.getProject());
 
     if (graphTableProvider.isEmpty()) {
       LOG.warn("Graph table provider is undefined");
@@ -55,15 +52,17 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
     return false;
   }
 
-  @SuppressWarnings({"guieffect:call.invalid.ui", "interning:not.interned"})
+  @SuppressWarnings("interning:not.interned")
   private Boolean hasSelectedGitMacheteTab(Project project) {
     var toolWindowManager = ToolWindowManager.getInstance(project);
     var toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
     if (toolWindow != null) {
-      var contentManager = toolWindow.getContentManager();
-      var gitMacheteContent = contentManager.findContent("Git Machete");
-      return contentManager.getSelectedContent() == gitMacheteContent;
+      var contentManager = toolWindow.getContentManagerIfCreated();
+      if (contentManager != null) {
+        var gitMacheteContent = contentManager.findContent("Git Machete");
+        return contentManager.getSelectedContent() == gitMacheteContent;
+      }
     }
-    return Boolean.FALSE;
+    return false;
   }
 }
