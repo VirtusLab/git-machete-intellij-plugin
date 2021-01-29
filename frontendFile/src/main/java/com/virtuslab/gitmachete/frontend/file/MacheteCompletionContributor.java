@@ -10,9 +10,12 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
 
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
+
 public class MacheteCompletionContributor extends CompletionContributor implements DumbAware {
 
   @Override
+  @UIThreadUnsafe
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 

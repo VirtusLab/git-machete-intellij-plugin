@@ -13,6 +13,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public class FetchAllRemotesAction extends BaseProjectDependentAction {
@@ -50,11 +51,13 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       private @MonotonicNonNull GitFetchResult result = null;
 
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
       }
 
       @Override
+      @UIEffect
       public void onFinished() {
         var result = this.result;
         if (result != null) {

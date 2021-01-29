@@ -13,7 +13,6 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,14 +23,13 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
-import com.virtuslab.qual.guieffect.NotUIThreadSafe;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -92,13 +90,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     LOG.debug("Refreshing repository state");
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         deleteBranchIfRequired(anActionEvent, branchName);
       }
     }.queue();
   }
 
-  @NotUIThreadSafe
+  @UIThreadUnsafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     var project = getProject(anActionEvent);
@@ -124,8 +123,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project),
             ModalityState.NON_MODAL);
       } else if (configValueOption.isDefined()) {
-        var decision = configValueOption.get();
-        handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, decision);
+        var shouldDelete = configValueOption.get();
+        handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, shouldDelete);
       }
 
     } else {
@@ -140,9 +139,15 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         if (slideOutOptions != null) {
           handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, slideOutOptions.shouldDelete());
+
+          if (slideOutOptions.shouldRemember()) {
+            var value = String.valueOf(slideOutOptions.shouldDelete());
+            setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
+          }
         } else {
           VcsNotifier.getInstance(project)
               .notifyInfo(
@@ -153,11 +158,6 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
         }
       }
     }.queue();
-
-    if (slideOutOptions != null && slideOutOptions.shouldRemember()) {
-      var value = String.valueOf(slideOutOptions.shouldDelete());
-      setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
-    }
   }
 
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
@@ -188,10 +188,11 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     }
   }
 
+  @UIThreadUnsafe
   private void handleBranchDeletionDecision(Project project, String branchName, GitRepository gitRepository,
-      AnActionEvent anActionEvent, boolean decision) {
+      AnActionEvent anActionEvent, boolean shouldDelete) {
     slideOutBranch(anActionEvent, branchName);
-    if (decision) {
+    if (shouldDelete) {
       GitBrancher.getInstance(project).deleteBranch(branchName, java.util.List.of(gitRepository));
       VcsNotifier.getInstance(project)
           .notifySuccess(
@@ -210,12 +211,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
-  @NotUIThreadSafe
+  @UIThreadUnsafe
   private Option<Boolean> getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
     try {
-      ThrowableComputable<@Nullable String, VcsException> computable = () -> GitConfigUtil.getValue(project, root,
-          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
-      var value = computable.compute();
+      var value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
       if (value != null) {
         Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
         return Option.of(booleanValue != null && booleanValue);
@@ -228,7 +227,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     return Option.none();
   }
 
-  @NotUIThreadSafe
+  @UIThreadUnsafe
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root, String value) {
     try {
       var additionalParameters = "--local";

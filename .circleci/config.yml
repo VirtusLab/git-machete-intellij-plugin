@@ -60,7 +60,7 @@ jobs:
             cli_version=$(grep -Po '(?<=referenceCliVersions=)[^,]*' backendImpl/src/test/resources/reference-cli-version.properties)
             pip3 install git-machete==$cli_version
       - run:
-          name: Run backend tests
+          name: Run unit & integration tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:

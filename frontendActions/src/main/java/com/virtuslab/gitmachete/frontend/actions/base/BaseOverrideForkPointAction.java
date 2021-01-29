@@ -21,7 +21,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
-import com.virtuslab.qual.guieffect.NotUIThreadSafe;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
@@ -81,13 +81,14 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     LOG.debug("Enqueueing fork point override");
     new Task.Backgroundable(project, "Overriding fork point...") {
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         overrideForkPoint(anActionEvent, branch, selectedCommit);
       }
     }.queue();
   }
 
-  @NotUIThreadSafe
+  @UIThreadUnsafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
     var gitRepository = getSelectedGitRepository(anActionEvent);
 
@@ -100,7 +101,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }
 
-  @NotUIThreadSafe
+  @UIThreadUnsafe
   private void setOverrideForkPointConfigValues(
       Project project,
       VirtualFile root,

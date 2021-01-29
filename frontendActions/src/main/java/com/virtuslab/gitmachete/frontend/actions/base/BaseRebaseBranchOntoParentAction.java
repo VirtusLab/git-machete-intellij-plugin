@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBra
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
@@ -175,6 +176,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
     new Task.Backgroundable(project, getString("action.GitMachete.BaseRebaseBranchOntoParentAction.hook.task-title")) {
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
 
         var wrapper = new Object() {
@@ -214,6 +216,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
         new Task.Backgroundable(project, getString("action.GitMachete.BaseRebaseBranchOntoParentAction.task-title")) {
           @Override
+          @UIThreadUnsafe
           public void run(ProgressIndicator indicator) {
             GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
             LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
@@ -240,6 +243,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     }.queue();
   }
 
+  @UIThreadUnsafe
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {
     GitVersion gitVersion = repository.getVcs().getVersion();
     String currentBranchName = gitRebaseParameters.getCurrentBranch().getName();

@@ -5,10 +5,12 @@ import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public final class MacheteFileUtils {
   private MacheteFileUtils() {}
 
+  @UIThreadUnsafe
   public static List<String> getBranchNamesForPsiFile(PsiFile psiFile) {
     var project = psiFile.getProject();
 

@@ -1,2 +1,6 @@
 lombok()
 vavr()
+
+dependencies {
+  api project(':qual')
+}

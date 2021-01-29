@@ -14,6 +14,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
@@ -40,6 +41,7 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
   }
 
   @Override
+  @UIThreadUnsafe
   protected @Nullable GitLineHandler createGitLineHandler() {
     var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
     String remoteName = remoteBranch.getRemoteName();

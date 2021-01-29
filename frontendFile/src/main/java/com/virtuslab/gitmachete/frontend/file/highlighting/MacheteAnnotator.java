@@ -29,11 +29,13 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean cantGetBranchesMessageWasShown = false;
 
   @Override
+  @UIThreadUnsafe
   public void annotate(PsiElement element, AnnotationHolder holder) {
     if (element instanceof MacheteGeneratedEntry) {
       processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
@@ -53,6 +55,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     cantGetBranchesMessageWasShown = true;
   }
 
+  @UIThreadUnsafe
   private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 

@@ -12,6 +12,8 @@ import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
+
 @CustomLog
 public class FetchBackgroundable extends Task.Backgroundable {
 
@@ -56,6 +58,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   }
 
   @Override
+  @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
     if (taskSubtitle != null) {
       // This method set a text under a progress bar (despite of docstring)

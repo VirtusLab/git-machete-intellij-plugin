@@ -41,6 +41,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
@@ -207,6 +208,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         /* canBeCancelled */ true) {
 
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         var localBranchName = localBranch.getName();
         var remoteTrackingBranchName = remoteTrackingBranch.getName();

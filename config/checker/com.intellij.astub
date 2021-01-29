@@ -217,6 +217,9 @@ class Task {
   void onCancel();
 
   @UIEffect
+  void onFinished();
+
+  @UIEffect
   void onThrowable(Throwable error);
 
   @UIEffect

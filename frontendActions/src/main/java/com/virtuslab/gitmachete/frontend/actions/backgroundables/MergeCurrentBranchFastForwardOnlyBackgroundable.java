@@ -10,6 +10,8 @@ import lombok.Getter;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
+
 public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
 
   @Getter
@@ -30,6 +32,7 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   }
 
   @Override
+  @UIThreadUnsafe
   protected @Nullable GitLineHandler createGitLineHandler() {
     var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.MERGE);
     handler.addParameters("--ff-only");

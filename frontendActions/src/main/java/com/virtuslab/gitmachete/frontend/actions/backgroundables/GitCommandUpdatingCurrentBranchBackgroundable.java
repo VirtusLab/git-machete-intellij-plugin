@@ -48,6 +48,8 @@ import lombok.SneakyThrows;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
+
 @CustomLog
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task.Backgroundable {
 
@@ -67,9 +69,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
   protected abstract String getTargetBranchName();
 
+  @UIThreadUnsafe
   protected abstract @Nullable GitLineHandler createGitLineHandler();
 
   @Override
+  @UIThreadUnsafe
   public final void run(ProgressIndicator indicator) {
     var handler = createGitLineHandler();
     if (handler == null) {
@@ -100,6 +104,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     }
   }
 
+  @UIThreadUnsafe
   private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String remoteBranchName) {
     GitUpdatedRanges updatedRanges = null;
     var currentBranch = gitRepository.getCurrentBranch();
@@ -116,6 +121,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     return updatedRanges;
   }
 
+  @UIThreadUnsafe
   private void handleResult(
       GitCommandResult result,
       GitLocalChangesWouldBeOverwrittenDetector localChangesDetector,
@@ -186,6 +192,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
   // TODO (#496): replace with a non-reflective constructor call
   @SneakyThrows
+  @UIThreadUnsafe
   private static MergeChangeCollector createMergeChangeCollector(
       Project project, GitRepository repository, GitRevisionNumber start) {
     try {
@@ -199,6 +206,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     }
   }
 
+  @UIThreadUnsafe
   private void showUpdates(GitRevisionNumber currentRev, Label beforeLabel) {
     try {
       UpdatedFiles files = UpdatedFiles.create();

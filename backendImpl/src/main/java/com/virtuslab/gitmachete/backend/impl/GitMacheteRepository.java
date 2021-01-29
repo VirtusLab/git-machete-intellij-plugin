@@ -60,6 +60,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -72,6 +73,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   private static final int NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER = 10;
 
   @Override
+  @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException {
     LOG.startTimer().debug("Entering");
     try {
@@ -85,6 +87,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public Option<ILocalBranchReference> inferParentForLocalBranch(
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
@@ -100,6 +103,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot() throws GitMacheteException {
     LOG.startTimer().debug("Entering");
 
@@ -245,6 +249,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return result;
     }
 
+    @UIThreadUnsafe
     Option<ILocalBranchReference> inferParentForLocalBranch(
         Set<String> eligibleLocalBranchNames,
         String localBranchName) throws GitCoreException {
@@ -309,6 +314,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
     }
 
+    @UIThreadUnsafe
     IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException {
       var rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       var rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
@@ -320,8 +326,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       var managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
-      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = Try.of(() -> gitCoreRepository.deriveHead().getTargetBranch())
-          .getOrElseThrow(e -> new GitMacheteException("Can't get current branch", e));
+      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = deriveCoreCurrentBranch();
+
       LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
           ? coreCurrentBranch.get().getName()
           : "<none> (detached HEAD)"));
@@ -346,6 +352,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor, ongoingOperation);
     }
 
+    @UIThreadUnsafe
+    private Option<IGitCoreLocalBranchSnapshot> deriveCoreCurrentBranch() throws GitMacheteException {
+      try {
+        return gitCoreRepository.deriveHead().getTargetBranch();
+      } catch (GitCoreException e) {
+        throw new GitMacheteException("Can't get current branch", e);
+      }
+    }
+
     private Map<String, IManagedBranchSnapshot> createManagedBranchByNameMap(List<RootManagedBranchSnapshot> rootBranches) {
       Map<String, IManagedBranchSnapshot> branchByName = HashMap.empty();
       Queue<IManagedBranchSnapshot> queue = Queue.ofAll(rootBranches);
@@ -359,6 +374,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return branchByName;
     }
 
+    @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
         IBranchLayoutEntry entry) throws GitCoreException {
 
@@ -400,6 +416,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
     }
 
+    @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> createGitMacheteNonRootBranch(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         IBranchLayoutEntry entry) throws GitCoreException {
@@ -464,6 +481,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return RemoteTrackingBranchReference.of(coreRemoteTrackingBranch, coreLocalBranch);
     }
 
+    @UIThreadUnsafe
     private @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
         IGitCoreLocalBranchSnapshot coreLocalBranch,
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch) throws GitCoreException {
@@ -521,6 +539,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return parentAgnosticForkPoint;
     }
 
+    @UIThreadUnsafe
     private @Nullable IGitCoreCommit deriveParentAgnosticOverriddenForkPoint(IGitCoreLocalBranchSnapshot coreLocalBranch)
         throws GitCoreException {
       String section = "machete";
@@ -576,6 +595,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return to;
     }
 
+    @UIThreadUnsafe
     private @Nullable ForkPointCommitOfManagedBranch deriveParentAgnosticInferredForkPoint(IGitCoreLocalBranchSnapshot branch)
         throws GitCoreException {
       LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
@@ -619,6 +639,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           .fold(CreatedAndDuplicatedAndSkippedBranches.empty(), CreatedAndDuplicatedAndSkippedBranches::merge);
     }
 
+    @UIThreadUnsafe
     private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
       String localBranchName = coreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
@@ -676,6 +697,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
     }
 
+    @UIThreadUnsafe
     protected SyncToParentStatus deriveSyncToParentStatus(
         IGitCoreLocalBranchSnapshot coreLocalBranch,
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
@@ -821,6 +843,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
+    @UIThreadUnsafe
     private Map<String, Instant> deriveLastCheckoutTimestampByBranchName() throws GitCoreException {
       java.util.Map<String, Instant> result = new java.util.HashMap<>();
 
@@ -837,6 +860,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       return HashMap.ofAll(result);
     }
 
+    @UIThreadUnsafe
     IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot(int mostRecentlyCheckedOutBranchesCount)
         throws GitCoreException, GitMacheteException {
 

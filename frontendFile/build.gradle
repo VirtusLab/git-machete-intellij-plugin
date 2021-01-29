@@ -2,6 +2,7 @@ lombok()
 vavr()
 
 dependencies {
+  api project(':qual')
   implementation project(':frontendIcons')
   implementation project(':frontendResourceBundles')
   implementation project(':frontendVfsUtils')

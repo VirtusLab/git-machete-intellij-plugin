@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.nio.file.Path;
-import java.util.function.Supplier;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -24,6 +23,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class SlideInBackgroundable extends Task.Backgroundable {
 
@@ -54,6 +54,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
   }
 
   @Override
+  @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
     preSlideInRunnable.run();
 
@@ -110,15 +111,18 @@ public class SlideInBackgroundable extends Task.Backgroundable {
             getMessageOrEmpty(t)));
   }
 
-  private void waitForCreationOfLocalBranch() {
-    Supplier<@Nullable GitLocalBranch> findLocalBranch = () -> gitRepository.getBranches()
-        .findLocalBranch(slideInOptions.getName());
+  @UIThreadUnsafe
+  private @Nullable GitLocalBranch findLocalBranch() {
+    return gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
+  }
 
+  @UIThreadUnsafe
+  private void waitForCreationOfLocalBranch() {
     try {
       //  6 attempts, usually 3 are enough
       final int TIMEOUT = 2048;
       long SLEEP_DURATION = 64;
-      while (findLocalBranch.get() == null && SLEEP_DURATION <= TIMEOUT) {
+      while (findLocalBranch() == null && SLEEP_DURATION <= TIMEOUT) {
         Thread.sleep(SLEEP_DURATION);
         SLEEP_DURATION *= 2;
       }
@@ -128,7 +132,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
               slideInOptions.getName()));
     }
 
-    if (findLocalBranch.get() == null) {
+    if (findLocalBranch() == null) {
       notifier
           .notifyWeakError(format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
               slideInOptions.getName()));

@@ -121,9 +121,20 @@ allprojects {
   apply plugin: 'org.gradle.java-library'
   sourceCompatibility = 11
 
+  // String interpolation support, see https://github.com/antkorwin/better-strings
+  // This needs to be enabled in each subproject by default because there's going to be no warning
+  // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
+  // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
+  dependencies {
+    def betterStringsCoords = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVersion ]
+    annotationProcessor(betterStringsCoords)
+    testAnnotationProcessor(betterStringsCoords)
+  }
+
   gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
       options.compilerArgs += [
+        '-AcallToStringExplicitlyInInterpolations', // Enforce explicit `.toString()` call in code generated for string interpolations
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
@@ -183,23 +194,6 @@ subprojects {
     dependencies {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
       checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
-    }
-  }
-
-
-  // String interpolation support, see https://github.com/antkorwin/better-strings
-  // This needs to be enabled in each subproject by default because there's going to be no warning
-  // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
-  // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
-  dependencies {
-    def betterStringsCoords = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVersion ]
-    annotationProcessor(betterStringsCoords)
-    testAnnotationProcessor(betterStringsCoords)
-  }
-
-  gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-      options.compilerArgs += '-AcallToStringExplicitlyInInterpolations'
     }
   }
 
@@ -485,7 +479,9 @@ if (ciBranch == 'master') {
 
 
 dependencies {
-  testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
+  testImplementation group: 'com.tngtech.archunit', name: 'archunit',     version: archUnitVersion
+  // Checker is needed on root project runtime (not just compile-time) classpath for ArchUnit tests
+  testImplementation group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
 }
 
 
