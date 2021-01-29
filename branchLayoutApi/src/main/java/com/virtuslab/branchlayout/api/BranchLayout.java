@@ -37,7 +37,14 @@ public class BranchLayout implements IBranchLayout {
     if (entryToSlideOut == null) {
       throw new EntryDoesNotExistException("Branch entry '${branchName}' does not exist");
     }
-    return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
+
+    var newBranchLayout = new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
+    try {
+      // TODO (#695): disable slide out for duplicated branches
+      return newBranchLayout.slideOut(branchName);
+    } catch (EntryDoesNotExistException e) {
+      return newBranchLayout;
+    }
   }
 
   private List<IBranchLayoutEntry> slideOut(
