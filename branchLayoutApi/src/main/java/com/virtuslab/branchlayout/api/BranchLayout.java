@@ -5,7 +5,6 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.Getter;
-import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 
 @UsesObjectEquals
@@ -37,9 +36,7 @@ public class BranchLayout implements IBranchLayout {
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, branchName)));
   }
 
-  private List<IBranchLayoutEntry> slideOut(
-      @FindDistinct IBranchLayoutEntry entry,
-      @FindDistinct String entryNameToSlideOut) {
+  private List<IBranchLayoutEntry> slideOut(IBranchLayoutEntry entry, String entryNameToSlideOut) {
     var children = entry.getChildren();
     if (entry.getName().equals(entryNameToSlideOut)) {
       return children;
