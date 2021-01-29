@@ -103,7 +103,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     var project = getProject(anActionEvent);
     var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
         .map(b -> b.equals(branchName))
-        .getOrElse(true);
+        .getOrElse(false);
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");

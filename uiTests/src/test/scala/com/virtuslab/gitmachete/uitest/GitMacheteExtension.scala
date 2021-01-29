@@ -118,6 +118,11 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
         callJs("project.refreshGraphTableModel().getRowCount()")
       }
 
+      def rejectBranchDeletionOnSlideOut(): Unit = {
+        runJs("project.rejectBranchDeletionOnSlideOut()")
+        intelliJ.probe.awaitIdle()
+      }
+
       def resetCurrentBranchToRemote(): Unit = {
         runJs(s"project.resetCurrentBranchToRemote()")
         intelliJ.probe.awaitIdle()

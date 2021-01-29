@@ -94,6 +94,13 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // 5 branch rows (`develop` is no longer there) + 3 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
     Assert.assertEquals(8, branchAndCommitRowsCount)
+
+    intelliJ.machete.checkoutBranch("develop")
+    intelliJ.machete.slideOutBranch("call-ws")
+    intelliJ.machete.rejectBranchDeletionOnSlideOut()
+    branchAndCommitRowsCount = intelliJ.machete.refreshModelAndGetRowCount()
+    // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
+    Assert.assertEquals(7, branchAndCommitRowsCount)
   }
 
   @Test def discoverBranchLayout(): Unit = {

@@ -124,6 +124,10 @@ function Project(underlyingProject) {
     findAndClickButton('Slide Out & Delete Local Branch');
   };
 
+  this.rejectBranchDeletionOnSlideOut = function () {
+    findAndClickButton('Slide Out & Keep Local Branch');
+  };
+
   const findAndClickButton = function (name) {
     const getButton = function () {
       // findAll() returns a LinkedHashSet
