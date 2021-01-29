@@ -304,7 +304,7 @@ interface ToolWindow {
   void activate(@Nullable @UI Runnable runnable);
 
   @SafeEffect
-  ContentManager getContentManagerIfCreated();
+  @Nullable ContentManager getContentManagerIfCreated();
 }
 
 class ToolWindowManager {
@@ -312,7 +312,7 @@ class ToolWindowManager {
   ToolWindowManager getInstance(com.intellij.openapi.project.Project project);
 
   @SafeEffect
-  ToolWindow getToolWindow(String id);
+  @Nullable ToolWindow getToolWindow(String id);
 }
 
 

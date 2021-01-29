@@ -11,5 +11,5 @@ public interface IBranchLayout {
   IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
       throws EntryDoesNotExistException, EntryIsDescendantOfException;
 
-  IBranchLayout slideOut(String branchName) throws EntryDoesNotExistException;
+  IBranchLayout slideOut(String branchName);
 }

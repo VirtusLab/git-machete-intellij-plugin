@@ -3,18 +3,18 @@ package com.virtuslab.branchlayout.unit;
 import static org.junit.Assert.assertEquals;
 
 import io.vavr.collection.List;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
-import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 public class BranchLayoutTestSuite {
 
   @Test
-  public void withBranchSlideOut_givenNonRootExistingBranch_slidesOut() throws BranchLayoutException {
+  public void withBranchSlideOut_givenNonRootExistingBranch_slidesOut() {
     // given
     String rootName = "root";
     String branchToSlideOutName = "parent";
@@ -49,7 +49,36 @@ public class BranchLayoutTestSuite {
   }
 
   @Test
-  public void withBranchSlideOut_givenRootBranchWithChildren_throwsException() throws BranchLayoutException {
+  public void withBranchSlideOut_givenDuplicatedBranch_slidesOut() {
+    // given
+    String rootName = "root";
+    String branchToSlideOutName = "child";
+
+    /*-
+        root                           root
+            child       slide out
+            child        ----->
+    */
+
+    List<IBranchLayoutEntry> childBranches = List.of(
+        new BranchLayoutEntry(branchToSlideOutName, /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry(branchToSlideOutName, /* customAnnotation */ null, List.empty()));
+
+    var rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, childBranches);
+    var branchLayoutFile = new BranchLayout(List.of(rootEntry));
+
+    // when
+    IBranchLayout result = branchLayoutFile.slideOut(branchToSlideOutName);
+
+    // then
+    assertEquals(result.getRootEntries().size(), 1);
+    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    var children = result.getRootEntries().get(0).getChildren();
+    assertEquals(children.size(), 0);
+  }
+
+  @Test
+  public void withBranchSlideOut_givenRootBranchWithChildren_throwsException() {
     // given
     String rootName = "root";
     String childName0 = "child0";
@@ -78,7 +107,7 @@ public class BranchLayoutTestSuite {
   }
 
   @Test
-  public void withBranchSlideOut_givenSingleRootBranch_throwsException() throws BranchLayoutException {
+  public void withBranchSlideOut_givenSingleRootBranch_throwsException() {
     // given
     var rootName = "root";
     IBranchLayoutEntry entry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, List.empty());
@@ -92,7 +121,7 @@ public class BranchLayoutTestSuite {
   }
 
   @Test
-  public void withBranchSlideOut_givenTwoRootBranches_throwsException() throws BranchLayoutException {
+  public void withBranchSlideOut_givenTwoRootBranches_throwsException() {
     // given
     var rootName = "root";
     var masterRootName = "master";
@@ -108,8 +137,8 @@ public class BranchLayoutTestSuite {
     assertEquals(result.getRootEntries().get(0).getName(), masterRootName);
   }
 
-  @Test(expected = BranchLayoutException.class)
-  public void withBranchSlideOut_givenNonExistingBranch_throwsException() throws BranchLayoutException {
+  @Test
+  public void withBranchSlideOut_givenNonExistingBranch_noExceptionThrown() {
     // given
     var branchToSlideOutName = "branch";
     var branchLayoutFile = new BranchLayout(List.empty());
@@ -117,6 +146,7 @@ public class BranchLayoutTestSuite {
     // when
     branchLayoutFile.slideOut(branchToSlideOutName);
 
-    // then exception is thrown
+    // then no exception thrown
+    Assert.assertTrue(branchLayoutFile.getRootEntries().isEmpty());
   }
 }

@@ -21,7 +21,7 @@ public interface IGitCoreRepository {
       IGitCoreCommit fromPerspectiveOf,
       IGitCoreCommit asComparedTo) throws GitCoreException;
 
-  List<String> deriveAllRemoteNames() throws GitCoreException;
+  List<String> deriveAllRemoteNames();
 
   boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 

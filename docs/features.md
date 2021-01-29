@@ -188,7 +188,7 @@ It can be the commit inferred by Git Machete (the one marked in commits list), o
 
 The `machete` file describes relations between branches in your repository.
 These relations are probably determined by the order of branch creation &mdash;
-which branch has been created from which &mdash; but this is not a strict rule).<br/>
+which branch has been created from which &mdash; but this is not a strict rule.<br/>
 It'll be located under `.git/machete` path in your repository.
 
 This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.

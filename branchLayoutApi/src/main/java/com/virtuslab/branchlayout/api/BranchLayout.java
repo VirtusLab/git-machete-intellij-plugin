@@ -32,29 +32,19 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public IBranchLayout slideOut(String branchName) throws EntryDoesNotExistException {
-    var entryToSlideOut = findEntryByName(branchName).getOrNull();
-    if (entryToSlideOut == null) {
-      throw new EntryDoesNotExistException("Branch entry '${branchName}' does not exist");
-    }
-
-    var newBranchLayout = new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, entryToSlideOut)));
-    try {
-      // TODO (#695): disable slide out for duplicated branches
-      return newBranchLayout.slideOut(branchName);
-    } catch (EntryDoesNotExistException e) {
-      return newBranchLayout;
-    }
+  public IBranchLayout slideOut(String branchName) {
+    // TODO (#695): disable slide out for duplicated branches
+    return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, branchName)));
   }
 
   private List<IBranchLayoutEntry> slideOut(
       @FindDistinct IBranchLayoutEntry entry,
-      @FindDistinct IBranchLayoutEntry entryToSlideOut) {
+      @FindDistinct String entryNameToSlideOut) {
     var children = entry.getChildren();
-    if (entry == entryToSlideOut) {
+    if (entry.getName().equals(entryNameToSlideOut)) {
       return children;
     } else {
-      return List.of(entry.withChildren(children.flatMap(child -> slideOut(child, entryToSlideOut))));
+      return List.of(entry.withChildren(children.flatMap(child -> slideOut(child, entryNameToSlideOut))));
     }
   }
 

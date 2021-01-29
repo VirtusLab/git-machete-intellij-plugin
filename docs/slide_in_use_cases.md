@@ -14,7 +14,7 @@ It should help to implement and understand the feature.
 
 ## Slide In - Logic
 
-This specification covers all of the cases.
+This specification covers all the cases.
 
 - When the **entry does not exist**, it must be added under the given branch.
 - When the **entry exists under the given parent**, branch layout must not be affected.
