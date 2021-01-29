@@ -57,11 +57,11 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
     Consumer<IGitMacheteRepositorySnapshot> saveAction = repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
-        getBranchLayoutWriter(anActionEvent));
-    Consumer<IGitMacheteRepositorySnapshot> saveAndEditAction = repositorySnapshot -> {
-      saveAction.accept(repositorySnapshot);
-      openMacheteFile(project, gitRepository);
-    };
+        getBranchLayoutWriter(anActionEvent), () -> {});
+    Consumer<IGitMacheteRepositorySnapshot> saveAndEditAction = repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
+        GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
+        getBranchLayoutWriter(anActionEvent),
+        () -> openMacheteFile(project, gitRepository));
 
     // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
     // This is still acceptable since it simplifies the flow (no background task needed)
@@ -99,7 +99,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter) {
+      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
@@ -114,7 +114,10 @@ public class DiscoverAction extends BaseProjectDependentAction {
             .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
                 /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
                 /* message */ e.getMessage() != null ? e.getMessage() : ""))
-            .onSuccess(__ -> baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh());
+            .onSuccess(__ -> {
+              baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
+              postWriteRunnable.run();
+            });
       }
     }.queue();
   }
