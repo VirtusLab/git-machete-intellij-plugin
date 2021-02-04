@@ -12,12 +12,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -82,24 +85,23 @@ public class DiscoverAction extends BaseProjectDependentAction {
             /* shouldDisplayActionToolTips */ false).show(), NON_MODAL));
   }
 
+  @UIEffect
   private static void openMacheteFile(Project project, GitRepository gitRepository) {
-    GuiUtils.invokeLaterIfNeeded(() -> {
-      val file = GitVfsUtils.getMacheteFile(gitRepository);
-      if (file.isDefined()) {
-        OpenFileAction.openFile(file.get(), project);
-      } else {
-        VcsNotifier.getInstance(project)
-            .notifyError(
-                /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-                /* message */ format(
-                    getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
-                    gitRepository.getRoot().getPath()));
-      }
-    }, NON_MODAL);
+    val file = GitVfsUtils.getMacheteFile(gitRepository);
+    if (file.isDefined()) {
+      OpenFileAction.openFile(file.get(), project);
+    } else {
+      VcsNotifier.getInstance(project)
+          .notifyError(
+              /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
+              /* message */ format(
+                  getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
+                  gitRepository.getRoot().getPath()));
+    }
   }
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, Runnable postWriteRunnable) {
+      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, @UI Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
@@ -107,18 +109,28 @@ public class DiscoverAction extends BaseProjectDependentAction {
           /* message */ "");
       return;
     }
+
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true))
-            .onFailure(e -> VcsNotifier.getInstance(project).notifyError(
-                /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
-                /* message */ e.getMessage() != null ? e.getMessage() : ""))
-            .onSuccess(__ -> {
-              baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
-              postWriteRunnable.run();
-            });
+        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true));
       }
+
+      @Override
+      public void onSuccess() {
+        baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
+        VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
+            ProjectRootManager.getInstance(project).getContentRoots());
+        postWriteRunnable.run();
+      }
+
+      @Override
+      public void onThrowable(Throwable e) {
+        VcsNotifier.getInstance(project).notifyError(
+            /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
+            /* message */ e.getMessage() != null ? e.getMessage() : "");
+      }
+
     }.queue();
   }
 }
