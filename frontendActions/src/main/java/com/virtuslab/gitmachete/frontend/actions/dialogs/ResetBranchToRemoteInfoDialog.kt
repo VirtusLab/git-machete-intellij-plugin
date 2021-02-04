@@ -4,7 +4,6 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.virtuslab.gitmachete.frontend.actions.base.BaseResetBranchToRemoteAction.RESET_INFO_SHOWN
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 
 class ResetBranchToRemoteInfoDialog : DialogWrapper.DoNotAskOption.Adapter() {
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {

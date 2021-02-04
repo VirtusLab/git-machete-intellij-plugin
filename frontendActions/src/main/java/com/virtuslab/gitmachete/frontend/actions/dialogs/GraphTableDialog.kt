@@ -16,16 +16,16 @@ import javax.swing.AbstractAction
 import javax.swing.Action
 
 class GraphTableDialog
-    private constructor(
-        private val table: JBTable,
-        private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
-        private val dimension: JBDimension,
-        private val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        private val cancelButtonVisible: Boolean,
-        private val windowTitle: String,
-        private val okButtonText: String
-    ) : DialogWrapper(/* canBeParent */ false) {
+private constructor(
+    private val table: JBTable,
+    private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
+    private val dimension: JBDimension,
+    private val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+    private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
+    private val cancelButtonVisible: Boolean,
+    private val windowTitle: String,
+    private val okButtonText: String
+) : DialogWrapper(/* canBeParent */ false) {
 
   init {
     super.init()
@@ -72,16 +72,16 @@ class GraphTableDialog
         RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
             .deriveDemoInstance()
             .let {
-          GraphTableDialog(
-              table = it,
-              repositorySnapshot = null,
-              dimension = JBDimension(/* width */ 850, /* height */ 250),
-              saveAction = null,
-              saveAndEditAction = null,
-              cancelButtonVisible = false,
-              windowTitle = "Git Machete Help",
-              okButtonText = "Close")
-        }
+              GraphTableDialog(
+                  table = it,
+                  repositorySnapshot = null,
+                  dimension = JBDimension(/* width */ 850, /* height */ 250),
+                  saveAction = null,
+                  saveAndEditAction = null,
+                  cancelButtonVisible = false,
+                  windowTitle = "Git Machete Help",
+                  okButtonText = "Close")
+            }
   }
 
   override fun createActions() =

@@ -11,10 +11,9 @@ import javax.swing.Action
 import javax.swing.JComponent
 
 data class SlideOutOptions(
-    @get:JvmName("shouldRemember")
-    val remember: Boolean = false,
-    @get:JvmName("shouldDelete")
-    val delete: Boolean = false)
+    @get:JvmName("shouldRemember") val remember: Boolean = false,
+    @get:JvmName("shouldDelete") val delete: Boolean = false
+)
 
 class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
     DialogWrapper(project, /* canBeParent */ true) {
@@ -51,40 +50,40 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
         }
         row {
           button(
-                  getString(
-                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
-                delete = true
-                doOKAction()
-              }
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
+            delete = true
+            doOKAction()
+          }
               .component
               .apply { mnemonic = KeyEvent.VK_D }
           button(
-                  getString(
-                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
-                delete = false
-                doOKAction()
-              }
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
+            delete = false
+            doOKAction()
+          }
               .component
               .apply { mnemonic = KeyEvent.VK_K }
           button(
-                  getString(
-                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
-                delete = true
-                close(CANCEL_EXIT_CODE)
-              }
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
+            delete = true
+            close(CANCEL_EXIT_CODE)
+          }
               .component
               .apply { mnemonic = KeyEvent.VK_C }
         }
         row {
           checkBox(
-                  getString(
-                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
-                  ::remember)
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
+              ::remember)
               .component
               .apply {
-            mnemonic = KeyEvent.VK_R
-            isSelected = false
-          }
+                mnemonic = KeyEvent.VK_R
+                isSelected = false
+              }
         }
       }
 

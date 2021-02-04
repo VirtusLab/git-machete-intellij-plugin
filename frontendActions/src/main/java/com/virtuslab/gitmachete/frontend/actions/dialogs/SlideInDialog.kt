@@ -18,11 +18,13 @@ import kotlin.text.trim
 
 data class SlideInOptions(
     val name: String,
-    @get:JvmName("shouldReattach")
-    val reattach: Boolean = true)
+    @get:JvmName("shouldReattach") val reattach: Boolean = true
+)
 
 class SlideInDialog(
-    project: Project, private val branchLayout: IBranchLayout, private val parentName: String
+    project: Project,
+    private val branchLayout: IBranchLayout,
+    private val parentName: String
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   // this field is only ever meant to be written on UI thread
@@ -63,15 +65,15 @@ class SlideInDialog(
         row {
           reattachCheckbox =
               checkBox(
-                      getString(
-                          "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
-                      ::reattach)
+                  getString(
+                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
+                  ::reattach)
                   .component
                   .apply {
-                mnemonic = KeyEvent.VK_R
-                isEnabled = false
-                isSelected = false
-              }
+                    mnemonic = KeyEvent.VK_R
+                    isEnabled = false
+                    isSelected = false
+                  }
         }
       }
 
@@ -87,7 +89,8 @@ class SlideInDialog(
                   "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
         } else {
           val entryByName = branchLayout.findEntryByName(insertedText)
-          if (entryByName.map(isDescendantOf(presumedDescendantName = parentName))
+          if (entryByName
+              .map(isDescendantOf(presumedDescendantName = parentName))
               .getOrElse(false)) {
             error(
                 getString(
@@ -110,14 +113,13 @@ class SlideInDialog(
 
   private fun CellBuilder<javax.swing.JTextField>.startTrackingValidationIfNeeded() {
     if (branchName.isEmpty()) {
-      component.document
-          .addDocumentListener(
-              object : DocumentAdapter() {
-                override fun textChanged(e: javax.swing.event.DocumentEvent) {
-                  startTrackingValidation()
-                  component.document.removeDocumentListener(this)
-                }
-              })
+      component.document.addDocumentListener(
+          object : DocumentAdapter() {
+            override fun textChanged(e: javax.swing.event.DocumentEvent) {
+              startTrackingValidation()
+              component.document.removeDocumentListener(this)
+            }
+          })
     } else {
       startTrackingValidation()
     }

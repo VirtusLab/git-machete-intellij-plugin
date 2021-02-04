@@ -69,13 +69,13 @@ class OverrideForkPointDialog(
                 format(
                     getString(
                         "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"),
-                    branch.forkPoint
-                        .map { it.shortHash }
-                        .getOrElse { "cannot resolve commit hash" }),
+                    branch.forkPoint.map { it.shortHash }.getOrElse {
+                      "cannot resolve commit hash"
+                    }),
                 OverrideOption.INFERRED,
-                /* comment */ branch.forkPoint
-                    .map { it.shortMessage }
-                    .getOrElse { "cannot resolve commit message" })
+                /* comment */ branch.forkPoint.map { it.shortMessage }.getOrElse {
+                  "cannot resolve commit message"
+                })
           }
         }
       }
