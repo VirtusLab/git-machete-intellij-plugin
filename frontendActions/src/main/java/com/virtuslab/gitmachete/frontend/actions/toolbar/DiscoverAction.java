@@ -19,6 +19,7 @@ import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -112,11 +113,13 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @Override
+      @SneakyThrows
       public void run(ProgressIndicator indicator) {
-        Try.run(() -> branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true));
+        branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
       }
 
       @Override
+      @UIEffect
       public void onSuccess() {
         baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
@@ -125,6 +128,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       }
 
       @Override
+      @UIEffect
       public void onThrowable(Throwable e) {
         VcsNotifier.getInstance(project).notifyError(
             /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
