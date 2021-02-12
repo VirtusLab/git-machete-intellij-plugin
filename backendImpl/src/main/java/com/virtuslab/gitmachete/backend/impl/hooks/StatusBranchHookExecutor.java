@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +12,9 @@ import io.vavr.Tuple2;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.val;
 
+import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 
 @CustomLog
@@ -27,10 +30,12 @@ public final class StatusBranchHookExecutor {
   // 2. this kind of caching is pretty useful wrt. performance.
   private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
 
-  public StatusBranchHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
+  public StatusBranchHookExecutor(IGitCoreRepository gitCoreRepository, Path mainDirectoryPath, Path gitDirectoryPath) {
+    val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
+    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitDirectoryPath.resolve("hooks"));
+
     this.mainDirectory = mainDirectoryPath.toFile();
-    // TODO (#289): first take `git config core.hooksPath` into account; possibly JGit has a helper for that
-    this.hookFile = gitDirectoryPath.resolve("hooks").resolve("machete-status-branch").toFile();
+    this.hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
   }
 
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
