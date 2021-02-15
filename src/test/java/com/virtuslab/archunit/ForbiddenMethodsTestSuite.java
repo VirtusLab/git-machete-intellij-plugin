@@ -33,6 +33,14 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
+  public void no_classes_should_call_File_exists() {
+    noClasses()
+        .should().callMethod(java.io.File.class, "exists")
+        .because("in most cases, the check you want to do is `isFile` rather than `exists` (what if this is a directory?)")
+        .check(importedClasses);
+  }
+
+  @Test
   public void no_classes_should_call_FileContentUtil_reparseFiles() {
     noClasses()
         .should().callMethodWhere(

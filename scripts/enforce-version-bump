@@ -67,14 +67,14 @@ parse_version_from_git_revision base "$base_commit_short_hash"
 
 (( $head_major > $base_major )) && exit 0
 (( $head_major == $base_major )) || \
-  die "Major version $head_major must not be lower than $base_major in $base_desc"
+  die "Major version $head_major in version.gradle must not be lower than $base_major in $base_desc"
 
 (( $head_minor > $base_minor )) && exit 0
 (( $head_minor == $base_minor )) || \
-  die "Minor version $head_minor must not be lower than $base_minor in $base_desc"
+  die "Minor version $head_minor in version.gradle must not be lower than $base_minor in $base_desc"
 
 (( $head_patch > $base_patch )) && exit 0
 (( $head_patch == $base_patch )) || \
-  die "Patch version $head_patch must not be lower than $base_patch in $base_desc"
+  die "Patch version $head_patch in version.gradle must not be lower than $base_patch in $base_desc"
 eval $allow_equal_version || \
-  die "Patch version $head_patch must be higher than $base_patch in $base_desc"
+  die "Patch version $head_patch in version.gradle must be higher than $base_patch in $base_desc"

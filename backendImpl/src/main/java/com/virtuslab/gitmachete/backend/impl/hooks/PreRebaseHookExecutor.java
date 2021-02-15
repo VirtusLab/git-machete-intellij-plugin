@@ -34,7 +34,7 @@ public final class PreRebaseHookExecutor {
    */
   public Option<IExecutionResult> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
     var hookFilePath = hookFile.getAbsolutePath();
-    if (!hookFile.exists()) {
+    if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-pre-rebase hook execution for ${gitRebaseParameters}: " +
           "${hookFilePath} does not exist");
       return Option.none();

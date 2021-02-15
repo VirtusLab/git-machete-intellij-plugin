@@ -35,7 +35,7 @@ public final class StatusBranchHookExecutor {
 
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
     var hookFilePath = hookFile.getAbsolutePath();
-    if (!hookFile.exists()) {
+    if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-status-branch hook execution for ${branchName}: " +
           "${hookFilePath} does not exist");
       return Option.none();
