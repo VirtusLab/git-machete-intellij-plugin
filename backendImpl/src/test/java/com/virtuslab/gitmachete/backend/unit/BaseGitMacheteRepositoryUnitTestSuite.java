@@ -6,6 +6,7 @@ import java.util.Arrays;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
@@ -31,13 +32,13 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
   protected Object aux(IGitCoreBranchSnapshot... localCoreBranches) {
     PowerMockito.doReturn(List.ofAll(Arrays.stream(localCoreBranches))).when(gitCoreRepository).deriveAllLocalBranches();
 
-    var iGitCoreHeadSnapshot = PowerMockito.mock(IGitCoreHeadSnapshot.class);
+    val iGitCoreHeadSnapshot = PowerMockito.mock(IGitCoreHeadSnapshot.class);
     PowerMockito.doReturn(Option.none()).when(iGitCoreHeadSnapshot).getTargetBranch();
     PowerMockito.doReturn(iGitCoreHeadSnapshot).when(gitCoreRepository).deriveHead();
     PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue("core", "hooksPath");
 
     // cannot be mocked as it is final
-    var statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, Paths.get("void"), Paths.get("void"));
+    val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, Paths.get("void"), Paths.get("void"));
 
     return Whitebox
         .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class, PreRebaseHookExecutor.class)

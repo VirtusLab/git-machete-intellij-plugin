@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettin
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListener;
 import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @Service
 public final class MacheteSettings
@@ -16,8 +17,8 @@ public final class MacheteSettings
 
   protected MacheteSettings(Project project) {
     super(IMacheteSettingsListener.TOPIC, project);
-    var macheteProjectSettings = new MacheteProjectSettings();
-    var projectFilePath = project.getBasePath();
+    val macheteProjectSettings = new MacheteProjectSettings();
+    val projectFilePath = project.getBasePath();
     assert projectFilePath != null : "Project path is null";
     macheteProjectSettings.setExternalProjectPath(projectFilePath);
     loadState(new MyState(macheteProjectSettings));

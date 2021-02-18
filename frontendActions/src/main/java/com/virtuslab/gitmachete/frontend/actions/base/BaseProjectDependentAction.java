@@ -5,6 +5,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -32,8 +33,8 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
 
     isUpdateInProgressOnUIThread = true;
 
-    var maybeProject = anActionEvent.getProject();
-    var presentation = anActionEvent.getPresentation();
+    val maybeProject = anActionEvent.getProject();
+    val presentation = anActionEvent.getPresentation();
     if (maybeProject == null) {
       presentation.setEnabledAndVisible(false);
     } else {
@@ -56,7 +57,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   public abstract IEnhancedLambdaLogger log();
 
   protected Project getProject(AnActionEvent anActionEvent) {
-    var project = anActionEvent.getProject();
+    val project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
     return project;
   }
@@ -70,7 +71,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   }
 
   protected Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
-    var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
+    val gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
     if (isLoggingAcceptable() && gitRepository.isEmpty()) {
       log().warn("No Git repository is selected");

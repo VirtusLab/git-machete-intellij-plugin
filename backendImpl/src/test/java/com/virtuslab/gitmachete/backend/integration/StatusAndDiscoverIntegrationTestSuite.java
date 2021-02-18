@@ -13,8 +13,12 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import java.nio.charset.StandardCharsets;
+
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
+import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -117,34 +121,32 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
-    var process = new ProcessBuilder()
+    val process = new ProcessBuilder()
         .command("git", "machete", "status", "--list-commits")
         .directory(repositoryMainDir.toFile())
         .start();
-    return new String(process.getInputStream().readAllBytes());
+    return IOUtils.toString(process.getInputStream());
   }
 
   @SneakyThrows
   private String gitMacheteCliDiscover() {
-    var process = new ProcessBuilder()
+    val process = new ProcessBuilder()
         .command("git", "machete", "discover", "--list-commits", "--yes")
         .directory(repositoryMainDir.toFile())
         .start();
 
-    return new String(process.getInputStream().readAllBytes())
-        .lines()
-        .collect(List.collector())
+    return List.ofAll(IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8))
         .drop(2) // Let's skip the informational output at the beginning and at the end.
         .dropRight(2)
         .mkString(System.lineSeparator());
   }
 
   private String ourGitMacheteRepositorySnapshotAsString() {
-    var sb = new StringBuilder();
-    var branches = gitMacheteRepositorySnapshot.getRootBranches();
+    val sb = new StringBuilder();
+    val branches = gitMacheteRepositorySnapshot.getRootBranches();
     int lastRootBranchIndex = branches.size() - 1;
     for (int currentRootBranch = 0; currentRootBranch <= lastRootBranchIndex; currentRootBranch++) {
-      var b = branches.get(currentRootBranch);
+      val b = branches.get(currentRootBranch);
       printRootBranch(b, sb);
       if (currentRootBranch < lastRootBranchIndex)
         sb.append(System.lineSeparator());
@@ -172,10 +174,10 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append("| ");
     sb.append(System.lineSeparator());
 
-    var commits = branch.getCommits().reverse();
-    var forkPoint = branch.getForkPoint().getOrNull();
+    val commits = branch.getCommits().reverse();
+    val forkPoint = branch.getForkPoint().getOrNull();
 
-    for (var c : commits) {
+    for (val c : commits) {
       sb.append("  ");
       sb.append(prefix);
       sb.append("| ");
@@ -192,7 +194,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append("  ");
     sb.append(prefix);
 
-    var parentStatus = branch.getSyncToParentStatus();
+    val parentStatus = branch.getSyncToParentStatus();
     if (parentStatus == SyncToParentStatus.InSync)
       sb.append("o");
     else if (parentStatus == SyncToParentStatus.OutOfSync)
@@ -209,20 +211,20 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   private void printCommonParts(IManagedBranchSnapshot branch, List<INonRootManagedBranchSnapshot> path, StringBuilder sb) {
     sb.append(branch.getName());
 
-    var currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
+    val currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
     if (currBranch.isDefined() && currBranch.get() == branch)
       sb.append(" *");
 
-    var customAnnotation = branch.getCustomAnnotation();
+    val customAnnotation = branch.getCustomAnnotation();
     if (customAnnotation.isDefined()) {
       sb.append("  ");
       sb.append(customAnnotation.get());
     }
-    var syncToRemote = branch.getSyncToRemoteStatus();
+    val syncToRemote = branch.getSyncToRemoteStatus();
 
     SyncToRemoteStatus.Relation relation = syncToRemote.getRelation();
     if (relation != NoRemotes && relation != InSyncToRemote) {
-      var remoteName = syncToRemote.getRemoteName();
+      val remoteName = syncToRemote.getRemoteName();
       sb.append(" (");
       sb.append(Match(relation).of(
           Case($(Untracked), "untracked"),
@@ -232,14 +234,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
           Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + remoteName)));
       sb.append(")");
     }
-    var statusHookOutput = branch.getStatusHookOutput();
+    val statusHookOutput = branch.getStatusHookOutput();
     if (statusHookOutput.isDefined()) {
       sb.append("  ");
       sb.append(statusHookOutput.get());
     }
     sb.append(System.lineSeparator());
 
-    for (var childBranch : branch.getChildren()) {
+    for (val childBranch : branch.getChildren()) {
       printNonRootBranch(childBranch, path.append(childBranch), sb);
     }
   }

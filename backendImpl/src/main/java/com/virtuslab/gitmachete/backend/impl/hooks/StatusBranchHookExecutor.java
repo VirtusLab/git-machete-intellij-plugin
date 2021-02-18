@@ -13,6 +13,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
@@ -39,7 +40,7 @@ public final class StatusBranchHookExecutor {
   }
 
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
-    var hookFilePath = hookFile.getAbsolutePath();
+    val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-status-branch hook execution for ${branchName}: " +
           "${hookFilePath} does not exist");
@@ -80,14 +81,14 @@ public final class StatusBranchHookExecutor {
 
     // It's quite likely that the hook's output will be terminated with a newline,
     // and we don't want that to be displayed.
-    String strippedStdout = new String(process.getInputStream().readAllBytes()).stripTrailing();
+    String strippedStdout = IOUtils.toString(process.getInputStream()).trim();
     LOG.withTimeElapsed().debug(() -> "Output of machete-status-branch hook (${hookFilePath}) " +
         "for ${branchName} is '${strippedStdout}'");
     return Option.some(strippedStdout);
   }
 
   public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
-    var key = Tuple.of(branchName, pointedCommit.getHash());
+    val key = Tuple.of(branchName, pointedCommit.getHash());
     return hookOutputByBranchNameAndCommitHash.computeIfAbsent(key,
         k -> Try.of(() -> executeHookFor(k._1)).getOrElse(Option.none()));
   }

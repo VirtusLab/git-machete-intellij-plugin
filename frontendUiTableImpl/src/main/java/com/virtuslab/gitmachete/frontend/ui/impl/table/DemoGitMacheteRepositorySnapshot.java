@@ -10,6 +10,7 @@ import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -37,8 +38,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   private final List<IRootManagedBranchSnapshot> roots;
 
   public DemoGitMacheteRepositorySnapshot() {
-    var nullPointedCommit = new Commit("");
-    var fp = new FpCommit("Fork point commit");
+    val nullPointedCommit = new Commit("");
+    val fp = new FpCommit("Fork point commit");
     NonRoot[] nonRoots = {
         new NonRoot(/* name */ "allow-ownership-link",
             /* fullName */ "refs/heads/allow-ownership-link",
@@ -75,13 +76,13 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
             SyncToParentStatus.OutOfSync)
     };
 
-    var root = new Root(/* name */ "develop",
+    val root = new Root(/* name */ "develop",
         /* fullName */ "refs/heads/develop",
         /* customAnnotation */ "# This is a root branch, the underline indicates that it is the currently checked out branch",
         nullPointedCommit,
         /* childBranches */ List.of(nonRoots));
 
-    for (var nr : nonRoots) {
+    for (val nr : nonRoots) {
       nr.setParent(root);
     }
 

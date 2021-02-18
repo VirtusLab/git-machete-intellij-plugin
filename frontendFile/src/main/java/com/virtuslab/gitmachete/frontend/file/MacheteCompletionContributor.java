@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
+import lombok.val;
 
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -19,7 +20,7 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 
-    var branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    val branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
     if (branchNames.isEmpty()) {
       return;
@@ -35,8 +36,8 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
     result.stopHere();
 
     String prefix = getCompletionPrefix(parameters);
-    var matcher = new PlainPrefixMatcher(prefix, /* prefixMatchesOnly */ true);
-    var completionResultSet = result.caseInsensitive().withPrefixMatcher(matcher);
+    val matcher = new PlainPrefixMatcher(prefix, /* prefixMatchesOnly */ true);
+    val completionResultSet = result.caseInsensitive().withPrefixMatcher(matcher);
     for (String branchName : branchNames) {
       ProgressManager.checkCanceled();
       completionResultSet.addElement(LookupElementBuilder.create(branchName));
@@ -57,7 +58,7 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
     int lastSpaceIdx = text.lastIndexOf(' ', offset - 1) + 1;
     int lastTabIdx = text.lastIndexOf('\t', offset - 1) + 1;
     int lastNewLine = text.lastIndexOf(System.lineSeparator(), offset - 1) + 1;
-    var max = Math.max(Math.max(lastSpaceIdx, lastTabIdx), lastNewLine);
+    val max = Math.max(Math.max(lastSpaceIdx, lastTabIdx), lastNewLine);
     assert max <= offset : "File offset less than max indent/new line character index";
     assert offset <= text.length() : "File text length less than offset";
     return text.substring(max, offset);

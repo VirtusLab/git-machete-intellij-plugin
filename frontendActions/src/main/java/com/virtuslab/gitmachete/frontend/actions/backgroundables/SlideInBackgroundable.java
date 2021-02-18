@@ -66,17 +66,15 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     Path macheteFilePath = getMacheteFilePath(gitRepository);
 
-    var childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
+    IBranchLayoutEntry childEntryByName = branchLayout.findEntryByName(slideInOptions.getName()).getOrNull();
     IBranchLayoutEntry entryToSlideIn;
     IBranchLayout targetBranchLayout;
-    if (childEntryByName.isDefined()) {
-      var entryByName = childEntryByName.get();
-
+    if (childEntryByName != null) {
       if (slideInOptions.shouldReattach()) {
-        entryToSlideIn = entryByName;
+        entryToSlideIn = childEntryByName;
         targetBranchLayout = branchLayout;
       } else {
-        entryToSlideIn = entryByName.withChildren(List.empty());
+        entryToSlideIn = childEntryByName.withChildren(List.empty());
         targetBranchLayout = branchLayout.slideOut(slideInOptions.getName());
       }
 
@@ -103,7 +101,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       return;
     }
 
-    final var finalNewBranchLayout = newBranchLayout;
+    final IBranchLayout finalNewBranchLayout = newBranchLayout;
     Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
         .onFailure(t -> notifier.notifyError(
             /* title */ getString(

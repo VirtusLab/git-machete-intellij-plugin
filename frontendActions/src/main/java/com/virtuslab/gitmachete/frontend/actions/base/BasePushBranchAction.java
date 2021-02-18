@@ -16,6 +16,7 @@ import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -61,10 +62,10 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation());
-    var project = getProject(anActionEvent);
+    val project = getProject(anActionEvent);
 
     if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
@@ -80,10 +81,10 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent);
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent);
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {

@@ -33,7 +33,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Objects;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -47,6 +46,7 @@ import com.intellij.vcs.log.ui.render.LabelPainter;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Data;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
@@ -92,10 +92,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     assert table instanceof IGitMacheteRepositorySnapshotProvider
         : "Table variable is not instance of ${IGitMacheteRepositorySnapshotProvider.class.getSimpleName()}";
-    var gitMacheteRepositorySnapshot = ((IGitMacheteRepositorySnapshotProvider) graphTable).getGitMacheteRepositorySnapshot();
+    val gitMacheteRepositorySnapshot = ((IGitMacheteRepositorySnapshotProvider) graphTable).getGitMacheteRepositorySnapshot();
 
     assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();
-    var cell = (BranchOrCommitCell) value;
+    val cell = (BranchOrCommitCell) value;
 
     IGraphItem graphItem = cell.getGraphItem();
     int maxGraphNodePositionInRow = getMaxGraphNodePositionInRow(graphItem);
@@ -107,7 +107,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     }
     this.graphImage = getGraphImage(graphTable, maxGraphNodePositionInRow);
     Graphics2D g2 = graphImage.createGraphics();
-    var graphCellPainter = graphCellPainterFactoryInstance.create(table);
+    val graphCellPainter = graphCellPainterFactoryInstance.create(table);
     graphCellPainter.draw(g2, renderParts);
 
     this.myTableCellRenderer = new MyTableCellRenderer();
@@ -129,9 +129,9 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     if (graphItem.isBranchItem() && graphItem.asBranchItem().isCurrentBranch()) {
       if (gitMacheteRepositorySnapshot != null) {
-        var ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
+        val ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
         if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
-          var ongoingOperationName = Match(ongoingRepositoryOperation).of(
+          val ongoingOperationName = Match(ongoingRepositoryOperation).of(
               Case($(OngoingRepositoryOperation.CHERRY_PICKING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
               Case($(OngoingRepositoryOperation.MERGING),
@@ -173,7 +173,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       }
 
       SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
-      var textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(syncToRemoteStatus));
+      val textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(syncToRemoteStatus));
       String remoteStatusLabel = getSyncToRemoteStatusBasedLabel(syncToRemoteStatus);
       append(" " + remoteStatusLabel, textAttributes);
     } else {
@@ -258,7 +258,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getSyncToRemoteStatusBasedLabel(SyncToRemoteStatus status) {
-    var remoteName = Objects.requireNonNullElse(status.getRemoteName(), "");
+    val maybeRemoteName = status.getRemoteName();
+    val remoteName = maybeRemoteName != null ? maybeRemoteName : "";
     return Match(status.getRelation()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
         Case($(Untracked),
@@ -283,8 +284,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
-    var currentBranchName = branch.getName();
-    var parentBranchName = branch.getParent().getName();
+    val currentBranchName = branch.getName();
+    val parentBranchName = branch.getParent().getName();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
             format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync"),
@@ -314,7 +315,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         int row,
         int column) {
       Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-      var backgroundColor = isSelected ? UIUtil.getListSelectionBackground(table.hasFocus()) : UIUtil.getListBackground();
+      val backgroundColor = isSelected ? UIUtil.getListSelectionBackground(table.hasFocus()) : UIUtil.getListBackground();
       component.setBackground(backgroundColor);
       return component;
     }
@@ -336,8 +337,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
     Component dummyRendererComponent = myTableCellRenderer.getTableCellRendererComponent(
         graphTable, /* value */ "", selected, hasFocus, row, column);
-    final var background = dummyRendererComponent.getBackground();
-    final var foreground = dummyRendererComponent.getForeground();
+    val background = dummyRendererComponent.getBackground();
+    val foreground = dummyRendererComponent.getForeground();
     // Theoretically the result of getBackground/getForeground can be null.
     // In our case, we have two factors that guarantee us non-null result.
     // - DefaultTableCellRenderer::getTableCellRendererComponent sets the non-null values for us

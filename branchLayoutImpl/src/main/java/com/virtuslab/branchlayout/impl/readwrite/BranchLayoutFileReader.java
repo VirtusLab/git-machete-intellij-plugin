@@ -7,6 +7,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -30,7 +31,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
         "code = ${(int)indentSpec.getIndentCharacter()} and indent width = ${indentSpec.getIndentWidth()}");
 
     List<String> lines = BranchLayoutFileUtils.readFileLines(path);
-    List<String> linesWithoutBlank = lines.reject(String::isBlank);
+    List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
@@ -91,7 +92,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       customAnnotation = null;
     }
 
-    var result = new BranchLayoutEntry(branchName, customAnnotation, children);
+    val result = new BranchLayoutEntry(branchName, customAnnotation, children);
     LOG.debug(() -> "Created ${result}");
     return result;
   }
@@ -103,7 +104,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
       throws BranchLayoutException {
 
-    List<String> linesWithoutBlank = lines.reject(String::isBlank);
+    List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
 
     if (linesWithoutBlank.nonEmpty() && BranchLayoutFileUtils.getIndentWidth(linesWithoutBlank.head(),
         indentSpec.getIndentCharacter()) > 0) {
@@ -121,7 +122,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     int lineIndex = 0;
     for (int realLineNumber = 0; realLineNumber < lines.length(); ++realLineNumber) {
       String line = lines.get(realLineNumber);
-      if (line.isBlank()) {
+      if (line.trim().isEmpty()) {
         // Can't use lambda because `realLineNumber` is not effectively final
         LOG.debug("Line no ${realLineNumber + 1} is blank. Skipping");
         continue;

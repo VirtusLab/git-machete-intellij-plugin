@@ -7,6 +7,7 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import lombok.Getter;
+import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -34,7 +35,7 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   @Override
   @UIThreadUnsafe
   protected @Nullable GitLineHandler createGitLineHandler() {
-    var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.MERGE);
+    val handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.MERGE);
     handler.addParameters("--ff-only");
     handler.addParameters(targetBranchName);
     return handler;

@@ -9,6 +9,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -23,9 +24,9 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
   @Override
   public void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
-    var indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
+    val indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
 
-    var lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
+    val lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 
     if (backupOldFile && Files.isRegularFile(path)) {
       Path parentDir = path.getParent();
@@ -50,10 +51,12 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
       @NonNegative int level) {
 
     List<String> stringList = List.empty();
-    for (var entry : entries) {
-      var sb = new StringBuilder();
-      sb.append(String.valueOf(indentSpec.getIndentCharacter()).repeat(level * indentSpec.getIndentWidth()))
-          .append(entry.getName());
+    for (val entry : entries) {
+      val sb = new StringBuilder();
+      for (int i = 0; i < level * indentSpec.getIndentWidth(); i++) {
+        sb.append(indentSpec.getIndentCharacter());
+      }
+      sb.append(entry.getName());
       Option<String> customAnnotation = entry.getCustomAnnotation();
       if (customAnnotation.isDefined()) {
         sb.append(" ").append(customAnnotation.get());

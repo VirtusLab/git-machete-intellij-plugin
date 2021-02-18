@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
@@ -18,12 +19,12 @@ public class FastForwardMergeCurrentBranchToParentAction extends BaseFastForward
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    var isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
+    val isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)

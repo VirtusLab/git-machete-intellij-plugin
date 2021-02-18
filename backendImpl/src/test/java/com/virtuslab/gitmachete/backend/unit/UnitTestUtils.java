@@ -47,7 +47,7 @@ class UnitTestUtils {
 
     @Override
     public String getHashString() {
-      return String.valueOf(id).repeat(40);
+      return String.format("%40d", id);
     }
 
     @Override

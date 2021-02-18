@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -69,7 +70,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(1, 1);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(1, 1);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
@@ -95,7 +96,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(1, 2);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(1, 2);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
@@ -121,7 +122,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(2, 1);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(2, 1);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
@@ -146,7 +147,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(3, 0);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(3, 0);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
@@ -167,7 +168,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(0, 3);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(0, 3);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
@@ -188,7 +189,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
 
     PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
     PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
-    var relativeCommitCount = GitCoreRelativeCommitCount.of(0, 0);
+    val relativeCommitCount = GitCoreRelativeCommitCount.of(0, 0);
     PowerMockito.doReturn(Option.some(relativeCommitCount)).when(gitCoreRepository)
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 

@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.nio.file.Path;
+import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -22,6 +23,7 @@ import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -54,8 +56,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var branch = branchName != null
+    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branch = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
@@ -74,8 +76,8 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent);
-    var branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
     if (branch.isDefined()) {
       doSlideOut(anActionEvent, branch.get());
     }
@@ -85,7 +87,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   private void doSlideOut(AnActionEvent anActionEvent, IManagedBranchSnapshot branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
     String branchName = branchToSlideOut.getName();
-    var project = getProject(anActionEvent);
+    val project = getProject(anActionEvent);
 
     LOG.debug("Refreshing repository state");
     new Task.Backgroundable(project, "Deleting branch if required...") {
@@ -99,9 +101,9 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
   @UIThreadUnsafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var project = getProject(anActionEvent);
-    var slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
+    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val project = getProject(anActionEvent);
+    val slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
         .map(b -> b.equals(branchName))
         .getOrElse(false);
 
@@ -116,14 +118,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
                   branchName));
 
     } else if (gitRepository != null) {
-      var root = gitRepository.getRoot();
-      var configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
+      val root = gitRepository.getRoot();
+      val configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (configValueOption.isEmpty()) {
         GuiUtils.invokeLaterIfNeeded(
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project),
             ModalityState.NON_MODAL);
       } else if (configValueOption.isDefined()) {
-        var shouldDelete = configValueOption.get();
+        val shouldDelete = configValueOption.get();
         handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, shouldDelete);
       }
 
@@ -135,7 +137,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   @UIEffect
   private void suggestBranchDeletion(AnActionEvent anActionEvent, String branchName, GitRepository gitRepository,
       Project project) {
-    var slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project).showAndGetSlideOutOptions();
+    val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project).showAndGetSlideOutOptions();
 
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
@@ -145,7 +147,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, slideOutOptions.shouldDelete());
 
           if (slideOutOptions.shouldRemember()) {
-            var value = String.valueOf(slideOutOptions.shouldDelete());
+            val value = String.valueOf(slideOutOptions.shouldDelete());
             setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
           }
         } else {
@@ -161,17 +163,17 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   }
 
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
-    var project = getProject(anActionEvent);
-    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
-    var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val project = getProject(anActionEvent);
+    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {
       return;
     }
 
     try {
       LOG.info("Sliding out '${branchName}' branch in memory");
-      var newBranchLayout = branchLayout.slideOut(branchName);
+      val newBranchLayout = branchLayout.slideOut(branchName);
 
       Path macheteFilePath = getMacheteFilePath(gitRepository);
       LOG.info("Writing new branch layout into ${macheteFilePath}");
@@ -193,7 +195,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       AnActionEvent anActionEvent, boolean shouldDelete) {
     slideOutBranch(anActionEvent, branchName);
     if (shouldDelete) {
-      GitBrancher.getInstance(project).deleteBranch(branchName, java.util.List.of(gitRepository));
+      GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
       VcsNotifier.getInstance(project)
           .notifySuccess(
               format(
@@ -214,7 +216,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   @UIThreadUnsafe
   private Option<Boolean> getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
     try {
-      var value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
+      val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
       if (value != null) {
         Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
         return Option.of(booleanValue != null && booleanValue);
@@ -230,7 +232,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   @UIThreadUnsafe
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root, String value) {
     try {
-      var additionalParameters = "--local";
+      val additionalParameters = "--local";
       GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);
     } catch (VcsException e) {
       LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed");

@@ -12,6 +12,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
@@ -58,21 +59,21 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var targetBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val targetBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     if (gitRepository == null || targetBranchName == null) {
       return;
     }
 
-    var targetBranch = getManagedBranchByName(anActionEvent, targetBranchName).getOrNull();
+    val targetBranch = getManagedBranchByName(anActionEvent, targetBranchName).getOrNull();
     if (targetBranch == null) {
       return;
     }
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
     assert targetBranch.isNonRoot() : "Target branch provided to fast forward is a root";
 
-    var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     if (targetBranch.asNonRoot().getParent().getName().equals(currentBranchName)) {
       doFastForwardCurrentBranch(project, gitRepository, targetBranch.asNonRoot());
     } else {
@@ -84,7 +85,7 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
       GitRepository gitRepository,
       INonRootManagedBranchSnapshot targetBranch) {
 
-    var taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
+    val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
 
     new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, targetBranch.getName()).queue();
   }
@@ -92,9 +93,9 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
   private void doFastForwardNonCurrentBranch(Project project,
       GitRepository gitRepository,
       INonRootManagedBranchSnapshot targetBranch) {
-    var localFullName = targetBranch.getFullName();
-    var parentLocalFullName = targetBranch.getParent().getFullName();
-    var refspecFromChildToParent = createRefspec(localFullName, parentLocalFullName, /* allowNonFastForward */ false);
+    val localFullName = targetBranch.getFullName();
+    val parentLocalFullName = targetBranch.getParent().getFullName();
+    val refspecFromChildToParent = createRefspec(localFullName, parentLocalFullName, /* allowNonFastForward */ false);
 
     new FetchBackgroundable(
         project,

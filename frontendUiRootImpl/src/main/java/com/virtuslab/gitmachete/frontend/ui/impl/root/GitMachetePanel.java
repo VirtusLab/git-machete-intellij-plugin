@@ -17,6 +17,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.AncestorListenerAdapter;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
@@ -37,9 +38,9 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiating");
     this.project = project;
 
-    var selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
-    var selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
-    var graphTable = getGraphTable();
+    val selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
+    val selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
+    val graphTable = getGraphTable();
 
     // This class is final, so the instance is `@Initialized` at this point.
 
@@ -51,11 +52,11 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
-        var gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
+        val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository != null) {
-          var macheteFilePath = getMacheteFilePath(gitRepository);
+          val macheteFilePath = getMacheteFilePath(gitRepository);
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
-          var rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
+          val rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
           graphTable.queueRepositoryUpdateAndModelRefresh(() -> rediscoverSuggester.perform());
         }
       }
@@ -68,9 +69,9 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
   @UIEffect
   private static ActionToolbar createGitMacheteVerticalToolbar(BaseEnhancedGraphTable graphTable) {
-    var actionManager = ActionManager.getInstance();
-    var toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
-    var toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
+    val actionManager = ActionManager.getInstance();
+    val toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
+    val toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
         /* horizontal */ false);
     toolbar.setTargetComponent(graphTable);
     return toolbar;

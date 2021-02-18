@@ -5,6 +5,7 @@ import javax.swing.ListSelectionModel;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -31,8 +32,8 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   @UIEffect
   private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
       boolean isListingCommitsEnabled) {
-    var repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
-    var repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, isListingCommitsEnabled);
+    val repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
+    val repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, isListingCommitsEnabled);
     return new GraphTableModel(repositoryGraph);
   }
 

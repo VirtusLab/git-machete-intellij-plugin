@@ -45,6 +45,7 @@ import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -75,12 +76,12 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   @Override
   @UIThreadUnsafe
   public final void run(ProgressIndicator indicator) {
-    var handler = createGitLineHandler();
+    val handler = createGitLineHandler();
     if (handler == null) {
       return;
     }
-    var localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
-    var untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
+    val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
+    val untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
     handler.addLineListener(localChangesDetector);
     handler.addLineListener(untrackedFilesDetector);
 
@@ -107,7 +108,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   @UIThreadUnsafe
   private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String remoteBranchName) {
     GitUpdatedRanges updatedRanges = null;
-    var currentBranch = gitRepository.getCurrentBranch();
+    val currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
       GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
       if (targetBranch != null) {
@@ -136,7 +137,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       if (updatedRanges != null &&
           AbstractCommonUpdateAction
               .showsCustomNotification(java.util.Collections.singletonList(GitVcs.getInstance(project)))) {
-        var ranges = updatedRanges.calcCurrentPositions();
+        val ranges = updatedRanges.calcCurrentPositions();
         GitUpdateInfoAsLog.NotificationData notificationData = new GitUpdateInfoAsLog(project, ranges)
             .calculateDataAndCreateLogTab();
 
@@ -181,7 +182,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           /* description */ null);
 
     } else {
-      var notifier = VcsNotifier.getInstance(project);
+      val notifier = VcsNotifier.getInstance(project);
       notifier.notifyError(
           format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
               getOperationName()),
@@ -197,11 +198,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       Project project, GitRepository repository, GitRevisionNumber start) {
     try {
       // Proper solution for 2020.2+
-      var constructor = MergeChangeCollector.class.getConstructor(Project.class, GitRepository.class, GitRevisionNumber.class);
+      val constructor = MergeChangeCollector.class.getConstructor(Project.class, GitRepository.class, GitRevisionNumber.class);
       return constructor.newInstance(project, repository, start);
     } catch (NoSuchMethodException e) {
       // Fallback for 2020.1 (also available on 2020.2, but scheduled for removal in 2020.3)
-      var constructor = MergeChangeCollector.class.getConstructor(Project.class, VirtualFile.class, GitRevisionNumber.class);
+      val constructor = MergeChangeCollector.class.getConstructor(Project.class, VirtualFile.class, GitRevisionNumber.class);
       return constructor.newInstance(project, repository.getRoot(), start);
     }
   }
@@ -211,11 +212,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
-      var collector = createMergeChangeCollector(project, gitRepository, currentRev);
+      val collector = createMergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
       GuiUtils.invokeLaterIfNeeded(() -> {
-        var manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
+        val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
         UpdateInfoTree tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
           tree.setBefore(beforeLabel);

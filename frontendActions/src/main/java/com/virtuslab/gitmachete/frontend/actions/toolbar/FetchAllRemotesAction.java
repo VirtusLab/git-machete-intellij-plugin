@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -28,8 +29,8 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    var project = getProject(anActionEvent);
-    var presentation = anActionEvent.getPresentation();
+    val project = getProject(anActionEvent);
+    val presentation = anActionEvent.getPresentation();
     if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
@@ -43,8 +44,8 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 
-    var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent);
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent);
 
     String title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
     new Task.Backgroundable(project, title, /* canBeCancelled */ true) {
@@ -59,7 +60,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       @Override
       @UIEffect
       public void onFinished() {
-        var result = this.result;
+        val result = this.result;
         if (result != null) {
           result.showNotification();
         }

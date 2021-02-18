@@ -54,6 +54,7 @@ import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -152,7 +153,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private void subscribeToSelectedGitRepositoryChange() {
     // The method reference is invoked when user changes repository in selection component menu
-    var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
@@ -240,8 +241,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           gitMacheteRepositorySnapshot = repositorySnapshot;
           queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
-          var notifier = VcsNotifier.getInstance(project);
-          var notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
+          val notifier = VcsNotifier.getInstance(project);
+          val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
               getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
               NotificationType.INFORMATION);
           notification.addAction(NotificationAction.createSimple(
@@ -249,7 +250,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
                 notification.expire();
 
                 DataContext dataContext = DataManager.getInstance().getDataContext(this);
-                var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(),
+                val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(),
                     dataContext);
                 ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
               }));
@@ -269,7 +270,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   @UIEffect
   public void refreshModel() {
-    var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
       refreshModel(gitRepository.get(),
@@ -295,8 +296,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!project.isDisposed()) {
       GuiUtils.invokeLaterIfNeeded(() -> {
-        var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-        var gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+        val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository == null) {
           LOG.warn("Selected repository is null");
           return;
@@ -374,15 +375,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
-        var actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
+        val actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         popupMenu.addPopupMenuListener(popupMenuListener);
         popupMenu.show(graphTable, (int) point.getX(), (int) point.getY());
       } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
 
-        var gitMacheteRepositorySnapshot = graphTable.gitMacheteRepositorySnapshot;
+        val gitMacheteRepositorySnapshot = graphTable.gitMacheteRepositorySnapshot;
         if (gitMacheteRepositorySnapshot != null) {
-          var isSelectedEqualToCurrent = gitMacheteRepositorySnapshot
+          val isSelectedEqualToCurrent = gitMacheteRepositorySnapshot
               .getCurrentBranchIfManaged().map(b -> b.getName().equals(graphTable.selectedBranchName)).getOrElse(false);
           if (isSelectedEqualToCurrent) {
             return;
@@ -391,7 +392,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
-        var actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
+        val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
     }

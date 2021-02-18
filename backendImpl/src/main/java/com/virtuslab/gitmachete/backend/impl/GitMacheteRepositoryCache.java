@@ -5,6 +5,7 @@ import java.util.WeakHashMap;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -28,12 +29,12 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
   @Override
   public IGitMacheteRepository getInstance(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
-    var key = Tuple.of(mainDirectoryPath, gitDirectoryPath);
+    val key = Tuple.of(mainDirectoryPath, gitDirectoryPath);
     if (!gitMacheteRepositoryCache.containsKey(key)) {
-      var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
-      var statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
-      var preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
-      var value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+      val gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
+      val statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
+      val preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
+      val value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
       gitMacheteRepositoryCache.put(key, value);
     }
     return gitMacheteRepositoryCache.get(key);

@@ -4,9 +4,13 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import org.junit.Test;
+
+import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
@@ -25,9 +29,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   public void actions_overriding_onUpdate_should_call_super_onUpdate() {
     classes()
         .that()
-        .areAssignableTo(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
+        .areAssignableTo(BaseProjectDependentAction.class)
         .and()
-        .areNotAssignableFrom(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
+        .areNotAssignableFrom(BaseProjectDependentAction.class)
         .and(new DescribedPredicate<JavaClass>("override onUpdate method") {
           @Override
           public boolean apply(JavaClass input) {
@@ -39,8 +43,8 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             new DescribedPredicate<JavaMethodCall>("name is onUpdate and owner is the direct superclass") {
               @Override
               public boolean apply(JavaMethodCall input) {
-                var origin = input.getOrigin(); // where is the method called from?
-                var target = input.getTarget(); // where is the method declared?
+                JavaCodeUnit origin = input.getOrigin(); // where is the method called from?
+                AccessTarget.MethodCallTarget target = input.getTarget(); // where is the method declared?
 
                 if (origin.getName().equals("onUpdate") && target.getName().equals("onUpdate")) {
                   return target.getOwner().equals(origin.getOwner().getSuperClass().orNull());

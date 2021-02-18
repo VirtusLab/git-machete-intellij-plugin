@@ -22,6 +22,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.ui.GuiUtils;
 import io.vavr.control.Option;
 import lombok.Data;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
@@ -60,7 +61,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
-    var branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    val branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
 
     if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {
@@ -70,7 +71,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
     cantGetBranchesMessageWasShown = false;
 
-    var processedBranchName = branch.getText();
+    val processedBranchName = branch.getText();
 
     if (!branchNames.contains(processedBranchName)) {
       holder
@@ -88,7 +89,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       return;
     }
 
-    var prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
+    val prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
     if (prevMacheteGeneratedEntryOption.isEmpty()) {
       holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.cannot-indent-first-entry"))
           .range(element).create();
@@ -115,17 +116,17 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
     }
 
-    var prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
+    val prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
     if (prevIndentationNodeOption.isEmpty()) {
       prevLevel = 0;
       hasPrevLevelCorrectWidth = true;
     } else {
-      var prevIndentationText = prevIndentationNodeOption.get().getText();
+      val prevIndentationText = prevIndentationNodeOption.get().getText();
       hasPrevLevelCorrectWidth = prevIndentationText.length() % indentationParameters.indentationWidth == 0;
       prevLevel = prevIndentationText.length() / indentationParameters.indentationWidth;
     }
 
-    var thisIndentationText = element.getText();
+    val thisIndentationText = element.getText();
 
     OptionalInt wrongIndentChar = thisIndentationText.chars().filter(c -> c != indentationParameters.indentationCharacter)
         .findFirst();
@@ -155,7 +156,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   }
 
   private IndentationParameters findIndentationParameters(PsiElement currentElement) {
-    var element = getFirstMacheteGeneratedEntry(currentElement);
+    Option<MacheteGeneratedEntry> element = getFirstMacheteGeneratedEntry(currentElement);
     while (element.isDefined() && getIndentationNodeFromMacheteGeneratedEntry(element.get()).isEmpty()) {
       element = getNextSiblingMacheteGeneratedEntry(element.get());
     }
@@ -165,13 +166,13 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       return new IndentationParameters(' ', 4);
     }
 
-    var indentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(element.get());
+    val indentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(element.get());
     if (indentationNodeOption.isEmpty()) {
       // Default - this also theoretically should never happen
       return new IndentationParameters(' ', 4);
     }
 
-    var indentationText = indentationNodeOption.get().getText();
+    val indentationText = indentationNodeOption.get().getText();
 
     @SuppressWarnings("index")
     // Indentation text is never empty (otherwise element does not exist)

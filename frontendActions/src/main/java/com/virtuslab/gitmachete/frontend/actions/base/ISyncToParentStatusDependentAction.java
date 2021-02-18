@@ -11,6 +11,7 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.collection.List;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
@@ -51,8 +52,8 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var gitMacheteBranchByName = branchName != null
+    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val gitMacheteBranchByName = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
@@ -74,21 +75,21 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRoot();
-    var syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
+    val gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRoot();
+    val syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
 
-    var isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
+    val isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
 
     if (isStatusEligible) {
-      var parentName = gitMacheteNonRootBranch.getParent().getName();
-      var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
+      val parentName = gitMacheteNonRootBranch.getParent().getName();
+      val enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
       presentation.setEnabled(false);
 
       // @formatter:off
-      var desc = Match(syncToParentStatus).of(
+      val desc = Match(syncToParentStatus).of(
           Case($(SyncToParentStatus.InSync),
               getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
           Case($(SyncToParentStatus.InSyncButForkPointOff),

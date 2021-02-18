@@ -14,6 +14,7 @@ import com.intellij.ui.GuiUtils;
 import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -33,7 +34,7 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
 
   public void enqueue(Path macheteFilePath) {
-    var selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+    val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;
@@ -44,11 +45,11 @@ public class GitMacheteRepositoryDiscoverer {
     new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        var discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+        val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
             .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot());
 
         if (discoverRunResult.isFailure()) {
-          var exception = discoverRunResult.getCause();
+          val exception = discoverRunResult.getCause();
           GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project).notifyError(
               getString(
                   "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
@@ -56,15 +57,15 @@ public class GitMacheteRepositoryDiscoverer {
           return;
         }
 
-        var repositorySnapshot = discoverRunResult.get();
+        val repositorySnapshot = discoverRunResult.get();
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           onFailurePathConsumer.accept(macheteFilePath);
           return;
         }
 
-        var branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
-        var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
+        val branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
+        val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
 
         if (branchLayout == null) {
           LOG.error("Can't get branch layout from repository snapshot");

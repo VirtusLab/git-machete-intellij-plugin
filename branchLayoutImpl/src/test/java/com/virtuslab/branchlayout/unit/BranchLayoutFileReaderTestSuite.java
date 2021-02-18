@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,14 +28,14 @@ import com.virtuslab.branchlayout.impl.readwrite.IndentSpec;
 @PrepareForTest({BranchLayoutFileUtils.class, Files.class})
 public class BranchLayoutFileReaderTestSuite {
 
-  private final Path path = Path.of("");
+  private final Path path = Paths.get("");
 
   @SneakyThrows
   private BranchLayoutFileReader getBranchLayoutFileReaderForLines(List<String> linesToReturn, int indentWidth) {
     BranchLayoutFileReader reader = new BranchLayoutFileReader();
 
     PowerMockito.mockStatic(BranchLayoutFileUtils.class);
-    var indentSpec = new IndentSpec(/* indentCharacter */ ' ', indentWidth);
+    val indentSpec = new IndentSpec(/* indentCharacter */ ' ', indentWidth);
     PowerMockito.when(BranchLayoutFileUtils.getDefaultSpec()).thenReturn(indentSpec);
     PowerMockito.when(BranchLayoutFileUtils.readFileLines(any())).thenReturn(linesToReturn);
     PowerMockito.when(BranchLayoutFileUtils.getIndentWidth(anyString(), anyChar())).thenCallRealMethod();

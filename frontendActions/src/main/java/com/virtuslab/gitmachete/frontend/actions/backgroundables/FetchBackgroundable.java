@@ -9,6 +9,7 @@ import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -64,8 +65,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
       // This method set a text under a progress bar (despite of docstring)
       indicator.setText(taskSubtitle);
     }
-    var fetchSupport = GitFetchSupport.fetchSupport(project);
-    var remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
+    val fetchSupport = GitFetchSupport.fetchSupport(project);
+    GitRemote remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
         ? GitRemote.DOT
         : GitUtil.findRemoteByName(gitRepository, remoteName);
     if (remote == null) {
@@ -74,7 +75,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       LOG.warn("Remote '${remoteName}' does not exist");
       return;
     }
-    var fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
+    val fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
     fetchResult.showNotificationIfFailed(failureNotificationText);
     fetchResult.throwExceptionIfFailed();
   }

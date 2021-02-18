@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.vfsutils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
@@ -25,7 +26,7 @@ public final class GitVfsUtils {
 
   public static Path getGitDirectoryPath(GitRepository gitRepository) {
     VirtualFile vfGitDir = getGitDirectory(gitRepository);
-    return Path.of(vfGitDir.getPath());
+    return Paths.get(vfGitDir.getPath());
   }
 
   public static VirtualFile getMainDirectory(GitRepository gitRepository) {
@@ -33,7 +34,7 @@ public final class GitVfsUtils {
   }
 
   public static Path getMainDirectoryPath(GitRepository gitRepository) {
-    return Path.of(getMainDirectory(gitRepository).getPath());
+    return Paths.get(getMainDirectory(gitRepository).getPath());
   }
 
   /**

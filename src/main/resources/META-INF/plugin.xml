@@ -3,7 +3,7 @@
     <name>Git Machete</name>
     <vendor email="gitmachete@virtuslab.com" url="https://virtuslab.com">VirtusLab</vendor>
 
-    <depends>com.intellij.modules.externalSystem</depends>
+    <depends optional="true" config-file="com.virtuslab.git-machete-withExternalSystem.xml">com.intellij.modules.externalSystem</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
@@ -19,12 +19,10 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="Machete"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-        <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
-        <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.externalsystem.MacheteIconProvider"/>
 
         <!-- See javadoc of com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isInProcessMode -->
         <registryKey key="MACHETE.system.in.process" defaultValue="true"
-                     description="Whether IDEA should use 'in-process' mode for interaction with machete api"/>
+                     description="Whether IDEA should use 'in-process' mode for interaction with machete API"/>
 
         <lang.parserDefinition language="Machete"
                                implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
@@ -50,15 +48,15 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.OverrideForkPointOfSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedBranchAction"
-                    icon="MacheteIcons.OVERRIDE_FORK_POINT">
-                <override-text place="GitMacheteContextMenu"/>
-            </action>
-
             <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RebaseSelectedBranchOntoParentAction"
                     icon="MacheteIcons.REBASE">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
+            <action id="GitMachete.OverrideForkPointOfSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedBranchAction"
+                    icon="MacheteIcons.OVERRIDE_FORK_POINT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 

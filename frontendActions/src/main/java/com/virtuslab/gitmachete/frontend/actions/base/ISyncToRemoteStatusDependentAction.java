@@ -11,6 +11,7 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.collection.List;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
@@ -51,8 +52,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var gitMacheteBranch = branchName != null
+    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val gitMacheteBranch = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
@@ -63,21 +64,21 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
               getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
-    var syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
+    val syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
 
     SyncToRemoteStatus.Relation relation = syncToRemoteStatus.getRelation();
-    var isRelationEligible = getEligibleRelations().contains(relation);
+    val isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
       // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
-      var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
+      val enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
       presentation.setEnabled(false);
 
       // @formatter:off
-      var desc = Match(relation).of(
+      val desc = Match(relation).of(
           Case($(SyncToRemoteStatus.Relation.AheadOfRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.ahead-of-remote")),
           Case($(SyncToRemoteStatus.Relation.BehindRemote),

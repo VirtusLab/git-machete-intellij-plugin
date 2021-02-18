@@ -5,6 +5,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.Getter;
+import lombok.val;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 
 @UsesObjectEquals
@@ -37,7 +38,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   private List<IBranchLayoutEntry> slideOut(IBranchLayoutEntry entry, String entryNameToSlideOut) {
-    var children = entry.getChildren();
+    val children = entry.getChildren();
     if (entry.getName().equals(entryNameToSlideOut)) {
       return children;
     } else {
@@ -48,12 +49,12 @@ public class BranchLayout implements IBranchLayout {
   @Override
   public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
       throws EntryDoesNotExistException, EntryIsDescendantOfException {
-    var parentEntry = findEntryByName(parentBranchName).getOrNull();
+    val parentEntry = findEntryByName(parentBranchName).getOrNull();
     if (parentEntry == null) {
       throw new EntryDoesNotExistException("Parent branch entry '${parentBranchName}' does not exist");
     }
-    var entry = findEntryByName(entryToSlideIn.getName());
-    var entryAlreadyExists = entry.isDefined();
+    val entry = findEntryByName(entryToSlideIn.getName());
+    val entryAlreadyExists = entry.isDefined();
 
     if (entry.map(e -> isDescendant(/* presumedAncestor */ e, /* presumedDescendant */ parentEntry)).getOrElse(false)) {
       throw new EntryIsDescendantOfException(
@@ -62,7 +63,7 @@ public class BranchLayout implements IBranchLayout {
           /* ancestor */ entryToSlideIn);
     }
 
-    var newRootEntries = entryAlreadyExists
+    val newRootEntries = entryAlreadyExists
         ? removeEntry(/* branchLayout */ this, entryToSlideIn.getName())
         : rootEntries;
     return new BranchLayout(newRootEntries.map(rootEntry -> slideIn(rootEntry, entryToSlideIn, parentEntry)));
@@ -77,7 +78,7 @@ public class BranchLayout implements IBranchLayout {
   }
 
   private static List<IBranchLayoutEntry> removeEntry(IBranchLayout branchLayout, String branchName) {
-    var rootEntries = branchLayout.getRootEntries();
+    val rootEntries = branchLayout.getRootEntries();
     if (rootEntries.map(e -> e.getName()).exists(name -> name.equals(branchName))) {
       return rootEntries.reject(e -> e.getName().equals(branchName));
     } else {
@@ -94,7 +95,7 @@ public class BranchLayout implements IBranchLayout {
       IBranchLayoutEntry entry,
       IBranchLayoutEntry entryToSlideIn,
       IBranchLayoutEntry parent) {
-    var children = entry.getChildren();
+    val children = entry.getChildren();
     if (entry.getName().equals(parent.getName())) {
       return entry.withChildren(children.append(entryToSlideIn));
     } else {

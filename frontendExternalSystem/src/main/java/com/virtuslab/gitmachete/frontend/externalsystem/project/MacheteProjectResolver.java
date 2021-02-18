@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService;
@@ -32,9 +33,9 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
       ExternalSystemTaskNotificationListener listener)
       throws ExternalSystemException, IllegalArgumentException, IllegalStateException {
 
-    var graphTableProvider = Option.of(settings)
+    val graphTableProvider = Option.of(settings)
         .map(s -> s.getProject().getService(GraphTableProvider.class));
-    var hasSelectedGitMacheteTab = settings != null && hasSelectedGitMacheteTab(settings.getProject());
+    val hasSelectedGitMacheteTab = settings != null && hasSelectedGitMacheteTab(settings.getProject());
 
     if (graphTableProvider.isEmpty()) {
       LOG.warn("Graph table provider is undefined");
@@ -43,7 +44,7 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
     }
 
     String projectName = new File(projectPath).getName();
-    var projectData = new ProjectData(MacheteProjectService.SYSTEM_ID, projectName, projectPath, projectPath);
+    val projectData = new ProjectData(MacheteProjectService.SYSTEM_ID, projectName, projectPath, projectPath);
     return new DataNode<>(ProjectKeys.PROJECT, projectData, /* parent */ null);
   }
 
@@ -54,12 +55,12 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
 
   @SuppressWarnings("interning:not.interned")
   private Boolean hasSelectedGitMacheteTab(Project project) {
-    var toolWindowManager = ToolWindowManager.getInstance(project);
-    var toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
+    val toolWindowManager = ToolWindowManager.getInstance(project);
+    val toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
     if (toolWindow != null) {
-      var contentManager = toolWindow.getContentManagerIfCreated();
+      val contentManager = toolWindow.getContentManagerIfCreated();
       if (contentManager != null) {
-        var gitMacheteContent = contentManager.findContent("Git Machete");
+        val gitMacheteContent = contentManager.findContent("Git Machete");
         return contentManager.getSelectedContent() == gitMacheteContent;
       }
     }

@@ -22,6 +22,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -52,8 +53,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var branch = branchName != null
+    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branch = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
         : null;
 
@@ -73,18 +74,18 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var branchLayout = getBranchLayout(anActionEvent).getOrNull();
-    var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    var notifier = VcsNotifier.getInstance(project);
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val notifier = VcsNotifier.getInstance(project);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
       return;
     }
 
-    var slideInOptions = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
+    val slideInOptions = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
     if (slideInOptions == null) {
       log().debug("Options of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
@@ -99,15 +100,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    var localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
+    val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
     Runnable preSlideInRunnable = () -> {};
     if (localBranch == null) {
       Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(project,
           gitRepository, parentName, slideInOptions.getName());
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
-      var branchName = branchNameAndPreSlideInRunnable._1();
+      val branchName = branchNameAndPreSlideInRunnable._1();
       if (!slideInOptions.getName().equals(branchName)) {
-        var branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
+        val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         notifier.notifyWeakError(
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.mismatched-names"),
                 slideInOptions.getName(), branchNameFromNewBranchDialog));
@@ -116,8 +117,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     }
 
     // TODO (#430): expose getParent from branch layout API
-    var parentEntry = branchLayout.findEntryByName(parentName);
-    var entryAlreadyExistsBelowGivenParent = parentEntry
+    val parentEntry = branchLayout.findEntryByName(parentName);
+    val entryAlreadyExistsBelowGivenParent = parentEntry
         .map(entry -> entry.getChildren())
         .map(children -> children.map(e -> e.getName()))
         .map(names -> names.contains(slideInOptions.getName()))
@@ -147,8 +148,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       GitRepository gitRepository,
       String startPoint,
       String initialName) {
-    var repositories = java.util.Collections.singletonList(gitRepository);
-    var gitNewBranchDialog = new GitNewBranchDialog(project,
+    val repositories = java.util.Collections.singletonList(gitRepository);
+    val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
         /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title"),
             startPoint),
@@ -165,20 +166,20 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return Tuple.of(null, () -> {});
     }
 
-    var branchName = options.getName();
+    val branchName = options.getName();
     if (!initialName.equals(branchName)) {
       return Tuple.of(branchName, () -> {});
     }
 
     Runnable preSlideInRunnable = () -> {};
-    var remoteBranch = getGitRemoteBranch(project, gitRepository, branchName);
+    val remoteBranch = getGitRemoteBranch(project, gitRepository, branchName);
 
     if (options.shouldCheckout() && remoteBranch != null) {
       preSlideInRunnable = () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName());
 
     } else if (!options.shouldCheckout() && remoteBranch != null) {
 
-      var refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
+      val refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
           "refs/heads/${branchName}", /* allowNonFastForward */ false);
       preSlideInRunnable = () -> new FetchBackgroundable(
           project,
@@ -204,10 +205,10 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
   private static @Nullable GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
 
-    var remotesWithBranch = List.ofAll(gitRepository.getRemotes())
+    val remotesWithBranch = List.ofAll(gitRepository.getRemotes())
         .flatMap(r -> {
-          var remoteBranchName = "${r.getName()}/${branchName}";
-          var remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
+          val remoteBranchName = "${r.getName()}/${branchName}";
+          GitRemoteBranch remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
           return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
         })
         // Note: false < true. Hence the pair with origin will be first (head) if exists.
@@ -217,7 +218,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return null;
     }
 
-    var chosen = remotesWithBranch.head();
+    val chosen = remotesWithBranch.head();
     if (remotesWithBranch.size() > 1) {
       VcsNotifier.getInstance(project).notifyInfo(format(
           getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),

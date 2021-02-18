@@ -6,6 +6,8 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
+import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 
 class IntegrationTestUtils {
@@ -13,19 +15,19 @@ class IntegrationTestUtils {
   @SneakyThrows
   static void ensureExpectedCliVersion() {
     Properties prop = new Properties();
-    try (var inputStream = IntegrationTestUtils.class.getResourceAsStream("/reference-cli-version.properties")) {
+    try (val inputStream = IntegrationTestUtils.class.getResourceAsStream("/reference-cli-version.properties")) {
       prop.load(inputStream);
     }
     List<String> referenceCliVersions = Arrays.asList(prop.getProperty("referenceCliVersions").split(","));
 
-    var process = new ProcessBuilder().command("git", "machete", "--version").start();
+    val process = new ProcessBuilder().command("git", "machete", "--version").start();
     process.waitFor(1, TimeUnit.SECONDS);
-    var exitValue = process.exitValue();
+    val exitValue = process.exitValue();
     if (exitValue != 0) {
       Assert.fail("git-machete CLI is not installed");
     }
-    var version = new String(process.getInputStream().readAllBytes())
-        .stripTrailing()
+    val version = IOUtils.toString(process.getInputStream())
+        .trim()
         .replace("git-machete version ", "");
     if (!referenceCliVersions.contains(version)) {
       Assert.fail("git-machete is expected in one of versions ${referenceCliVersions}, found ${version}");

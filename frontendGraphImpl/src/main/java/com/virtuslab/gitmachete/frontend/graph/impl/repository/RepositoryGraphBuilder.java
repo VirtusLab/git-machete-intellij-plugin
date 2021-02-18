@@ -22,6 +22,7 @@ import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.val;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -63,7 +64,7 @@ public class RepositoryGraphBuilder {
     java.util.List<IGraphItem> graphItems = new ArrayList<>();
     java.util.List<java.util.List<Integer>> positionsOfVisibleEdges = new ArrayList<>();
 
-    for (var rootBranch : rootBranches) {
+    for (val rootBranch : rootBranches) {
       int currentBranchIndex = graphItems.size();
       positionsOfVisibleEdges.add(Collections.emptyList()); // root branches have no visible edges
       addRootBranch(graphItems, rootBranch);
@@ -91,12 +92,12 @@ public class RepositoryGraphBuilder {
       @GTENegativeOne int parentBranchIndex,
       @NonNegative int indentLevel) {
     boolean isFirstBranch = true;
-    var lastChildBranch = childBranches.size() > 0
+    val lastChildBranch = childBranches.size() > 0
         ? childBranches.get(childBranches.size() - 1)
         : null;
 
     int previousBranchIndex = parentBranchIndex;
-    for (var nonRootBranch : childBranches) {
+    for (val nonRootBranch : childBranches) {
       if (!isFirstBranch) {
         graphItems.get(previousBranchIndex).setNextSiblingItemIndex(graphItems.size());
       }
@@ -148,7 +149,7 @@ public class RepositoryGraphBuilder {
       @NonNegative int indentLevel) {
     List<ICommitOfManagedBranch> commits = branchGetCommitsStrategy.getCommitsOf(branch).reverse();
 
-    var syncToParentStatus = branch.getSyncToParentStatus();
+    val syncToParentStatus = branch.getSyncToParentStatus();
     GraphItemColor graphItemColor = getGraphItemColor(syncToParentStatus);
     int branchItemIndex = graphItems.size() + commits.size();
     // We are building some non root branch here so some root branch item has been added already.
@@ -161,7 +162,7 @@ public class RepositoryGraphBuilder {
       assert lastItemIndex >= 0 : "Last node index is less than 0 but shouldn't be";
       int prevSiblingItemIndex = isFirstItemInBranch ? parentBranchIndex : lastItemIndex;
       int nextSiblingItemIndex = graphItems.size() + 1;
-      var c = new CommitItem(commit, branch, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
+      val c = new CommitItem(commit, branch, graphItemColor, prevSiblingItemIndex, nextSiblingItemIndex, indentLevel);
       graphItems.add(c);
       isFirstItemInBranch = false;
     }

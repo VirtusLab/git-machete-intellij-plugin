@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.U
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePushBranchAction;
@@ -21,12 +22,12 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-    var presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    var isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
+    val isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))

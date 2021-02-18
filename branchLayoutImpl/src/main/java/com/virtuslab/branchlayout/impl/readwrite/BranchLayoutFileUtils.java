@@ -10,6 +10,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
@@ -29,7 +30,7 @@ public final class BranchLayoutFileUtils {
   }
 
   public static @NonNegative int getIndentWidth(String line, char indentCharacter) {
-    return (int) line.chars().takeWhile(c -> c == indentCharacter).count();
+    return Stream.ofAll(line.chars().boxed()).takeWhile(c -> c == indentCharacter).size();
   }
 
   public static IndentSpec deriveIndentSpec(Path path) {
@@ -43,7 +44,7 @@ public final class BranchLayoutFileUtils {
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
-    var firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
+    val firstLineWithBlankPrefixOption = lines.reject(line -> line.trim().isEmpty())
         .find(line -> line.startsWith(String.valueOf(SPACE))
             || line.startsWith(String.valueOf(TAB)));
     char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;

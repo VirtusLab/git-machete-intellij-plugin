@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
@@ -38,7 +39,7 @@ public final class PreRebaseHookExecutor {
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
   public Option<IExecutionResult> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
-    var hookFilePath = hookFile.getAbsolutePath();
+    val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-pre-rebase hook execution for ${gitRebaseParameters}: " +
           "${hookFilePath} does not exist");
@@ -71,28 +72,28 @@ public final class PreRebaseHookExecutor {
       process = pb.start();
       boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-      strippedStdout = new String(process.getInputStream().readAllBytes()).stripTrailing();
-      strippedStderr = new String(process.getErrorStream().readAllBytes()).stripTrailing();
+      strippedStdout = IOUtils.toString(process.getInputStream()).trim();
+      strippedStderr = IOUtils.toString(process.getErrorStream()).trim();
 
       if (!completed) {
-        var message = "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
+        val message = "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
         LOG.withTimeElapsed().error(message);
         throw new GitMacheteException(message
-            + (!strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
-            + (!strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""));
+            + (!strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
+            + (!strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""));
       }
 
       // Can't use lambda because `strippedStdout` and `strippedStderr` are not effectively final
       LOG.debug("Stdout of machete-pre-rebase hook is '${strippedStdout}'");
       LOG.debug("Stderr of machete-pre-rebase hook is '${strippedStderr}'");
     } catch (IOException | InterruptedException e) {
-      var message = "An error occurred while running machete-pre-rebase hook (${hookFilePath})" +
+      val message = "An error occurred while running machete-pre-rebase hook (${hookFilePath})" +
           "for ${gitRebaseParameters}; aborting the rebase";
       LOG.withTimeElapsed().error(message, e);
       throw new GitMacheteException(message
-          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
-          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
 
     LOG.withTimeElapsed().info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +

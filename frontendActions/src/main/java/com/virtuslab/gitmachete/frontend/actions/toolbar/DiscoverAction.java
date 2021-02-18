@@ -17,6 +17,7 @@ import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -41,9 +42,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    var project = getProject(anActionEvent);
-    var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
-    var gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
+    val project = getProject(anActionEvent);
+    val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
+    val gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-get-current-repository-error"),
@@ -51,8 +52,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
       return;
     }
 
-    var mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
-    var gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
+    val mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
+    val gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
 
     Consumer<IGitMacheteRepositorySnapshot> saveAction = repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         GitVfsUtils.getMacheteFilePath(gitRepository), project, getGraphTable(anActionEvent),
@@ -83,7 +84,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   private static void openMacheteFile(Project project, GitRepository gitRepository) {
     GuiUtils.invokeLaterIfNeeded(() -> {
-      var file = GitVfsUtils.getMacheteFile(gitRepository);
+      val file = GitVfsUtils.getMacheteFile(gitRepository);
       if (file.isDefined()) {
         OpenFileAction.openFile(file.get(), project);
       } else {
@@ -99,7 +100,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
       BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter) {
-    var branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
+    val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
     if (branchLayout == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-discover-layout-error"),

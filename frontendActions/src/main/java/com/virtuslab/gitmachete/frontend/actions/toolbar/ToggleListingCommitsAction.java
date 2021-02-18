@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
@@ -28,14 +29,14 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     boolean selected = Toggleable.isSelected(presentation);
     Toggleable.setSelected(presentation, selected);
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
 
-    var branchLayout = getBranchLayout(anActionEvent);
+    val branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
@@ -63,11 +64,11 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     boolean newState = !Toggleable.isSelected(anActionEvent.getPresentation());
     log().debug("Triggered with newState = ${newState}");
 
-    var graphTable = getGraphTable(anActionEvent);
+    val graphTable = getGraphTable(anActionEvent);
     graphTable.setListingCommits(newState);
     graphTable.refreshModel();
 
-    var presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     Toggleable.setSelected(presentation, newState);
   }
 }

@@ -10,6 +10,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
@@ -62,20 +63,20 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 
-    var project = getProject(anActionEvent);
-    var gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    var localBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val localBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
 
     if (localBranchName != null && gitRepository != null && gitMacheteRepositorySnapshot != null) {
-      var localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName).getOrNull();
+      val localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName).getOrNull();
       if (localBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an unmanaged branch in the first place.
         log().warn("Branch '${localBranchName}' not found or not managed by Git Machete");
         return;
       }
-      var remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+      val remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
       if (remoteBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an untracked branch in the first place (see `getEligibleRelations`)
@@ -83,7 +84,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
         return;
       }
 
-      var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+      val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
       if (localBranchName.equals(currentBranchName)) {
         doPullCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch);
       } else {
@@ -96,7 +97,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch) {
 
-    var taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
+    val taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
 
     new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranch).queue();
   }
@@ -106,18 +107,18 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       IManagedBranchSnapshot localBranch,
       IRemoteTrackingBranchReference remoteBranch) {
 
-    var remoteName = remoteBranch.getRemoteName();
-    var remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
-    var remoteBranchFullName = remoteBranch.getFullName();
-    var localBranchFullName = localBranch.getFullName();
+    val remoteName = remoteBranch.getRemoteName();
+    val remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
+    val remoteBranchFullName = remoteBranch.getFullName();
+    val localBranchFullName = localBranch.getFullName();
 
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    var refspecFromRemoteRepoToOurRemoteBranch = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
+    val refspecFromRemoteRepoToOurRemoteBranch = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
         remoteBranchFullName, /* allowNonFastForward */ true);
 
     // We want a fetch from remote branch in our repository
     // to local branch in our repository to only ever be fast-forward.
-    var refspecFromOurRemoteBranchToOurLocalBranch = createRefspec(remoteBranchFullName,
+    val refspecFromOurRemoteBranchToOurLocalBranch = createRefspec(remoteBranchFullName,
         localBranchFullName, /* allowNonFastForward */ false);
 
     String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");

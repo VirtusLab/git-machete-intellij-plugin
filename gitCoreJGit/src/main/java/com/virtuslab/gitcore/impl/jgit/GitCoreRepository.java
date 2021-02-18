@@ -25,6 +25,7 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.val;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
@@ -145,7 +146,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
 
-    var reflog = deriveReflogByRefFullName(Constants.HEAD);
+    val reflog = deriveReflogByRefFullName(Constants.HEAD);
 
     String currentBranchName = null;
 
@@ -196,7 +197,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       IGitCoreCommit asComparedTo) throws GitCoreException {
 
     return withRevWalk(walk -> {
-      var mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
+      val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash.isEmpty()) {
         return Option.none();
       }
@@ -221,8 +222,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       return Option.none();
     }
 
-    var remoteBranch = Try.of(() -> deriveRemoteBranchForLocalBranch(localBranchName).getOrNull()).getOrNull();
-    var localBranch = new GitCoreLocalBranchSnapshot(
+    val remoteBranch = Try.of(() -> deriveRemoteBranchForLocalBranch(localBranchName).getOrNull()).getOrNull();
+    val localBranch = new GitCoreLocalBranchSnapshot(
         localBranchName,
         convertExistingRevisionToGitCoreCommit(localBranchFullName),
         deriveReflogByRefFullName(localBranchFullName),
@@ -239,7 +240,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     if (!isBranchPresent(remoteBranchFullName)) {
       return Option.none();
     }
-    var remoteBranch = new GitCoreRemoteBranchSnapshot(
+    val remoteBranch = new GitCoreRemoteBranchSnapshot(
         remoteBranchName,
         convertExistingRevisionToGitCoreCommit(remoteBranchFullName),
         deriveReflogByRefFullName(remoteBranchFullName),
@@ -251,7 +252,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   public List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
     LOG.debug("List of local branches:");
-    var result = Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
+    List<Try<GitCoreLocalBranchSnapshot>> result = Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -260,13 +261,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
           LOG.debug(() -> "* " + localBranchFullName);
 
           String localBranchName = localBranchFullName.replace(Constants.R_HEADS, /* replacement */ "");
-          var objectId = ref.getObjectId();
+          val objectId = ref.getObjectId();
           if (objectId == null) {
             throw new GitCoreException("Cannot access git object id corresponding to ${localBranchFullName}");
           }
-          var pointedCommit = convertObjectIdToGitCoreCommit(objectId);
-          var reflog = deriveReflogByRefFullName(localBranchFullName);
-          var remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName).getOrNull();
+          val pointedCommit = convertObjectIdToGitCoreCommit(objectId);
+          val reflog = deriveReflogByRefFullName(localBranchFullName);
+          val remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName).getOrNull();
 
           return new GitCoreLocalBranchSnapshot(localBranchName, pointedCommit, reflog, remoteBranch);
         }))
@@ -302,16 +303,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private Option<GitCoreRemoteBranchSnapshot> deriveInferredRemoteBranchForLocalBranch(String localBranchName)
       throws GitCoreException {
-    var remotes = deriveAllRemoteNames();
+    val remotes = deriveAllRemoteNames();
 
     if (remotes.contains(ORIGIN)) {
-      var maybeRemoteBranch = deriveRemoteBranchByName(ORIGIN, localBranchName);
+      val maybeRemoteBranch = deriveRemoteBranchByName(ORIGIN, localBranchName);
       if (maybeRemoteBranch.isDefined()) {
         return maybeRemoteBranch;
       }
     }
     for (String otherRemote : remotes.reject(r -> r.equals(ORIGIN))) {
-      var maybeRemoteBranch = deriveRemoteBranchByName(otherRemote, localBranchName);
+      val maybeRemoteBranch = deriveRemoteBranchByName(otherRemote, localBranchName);
       if (maybeRemoteBranch.isDefined()) {
         return maybeRemoteBranch;
       }
@@ -354,8 +355,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private Option<GitCoreCommitHash> deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
-    var abKey = Tuple.of(a, b);
-    var baKey = Tuple.of(b, a);
+    val abKey = Tuple.of(a, b);
+    val baKey = Tuple.of(b, a);
     if (mergeBaseCache.containsKey(abKey)) {
       LOG.debug(() -> "Merge base for ${a.getHash().getHashString()} and ${b.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(abKey);
@@ -363,7 +364,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
-      var result = deriveMergeBase(a, b);
+      val result = deriveMergeBase(a, b);
       mergeBaseCache.put(abKey, result);
       return result;
     }
@@ -378,7 +379,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug("presumedAncestor is equal to presumedDescendant");
       return true;
     }
-    var mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
+    val mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
     if (mergeBaseHash.isEmpty()) {
       LOG.debug("Merge base of presumedAncestor and presumedDescendant not found " +
           "=> presumedAncestor is not ancestor of presumedDescendant");
@@ -404,8 +405,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
       LOG.debug("Starting revwalk");
       return Iterator.ofAll(walk.iterator())
-          .toJavaStream()
           .takeWhile(revCommit -> !revCommit.getId().getName().equals(untilExclusive.getHash().getHashString()))
+          .toJavaStream()
           .peek(revCommit -> LOG.debug(() -> "* " + revCommit.getId().getName()))
           .map(GitCoreCommit::new)
           .collect(List.collector());

@@ -13,6 +13,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.Colors;
@@ -29,7 +30,7 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   protected int getRowHeight() {
-    var font = table.getFont();
+    val font = table.getFont();
     // The font (if missing) is being retrieved from parent. In the case of parent absence it could be null.
     if (font != null) {
       // The point is to scale the graph table content (text and graph) along with the font specified by settings.

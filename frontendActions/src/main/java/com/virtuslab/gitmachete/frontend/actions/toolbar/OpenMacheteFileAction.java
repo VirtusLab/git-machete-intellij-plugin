@@ -14,6 +14,7 @@ import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
@@ -35,7 +36,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    var gitDir = getSelectedGitRepository(anActionEvent)
+    val gitDir = getSelectedGitRepository(anActionEvent)
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))
@@ -46,7 +47,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
       return;
     }
 
-    var macheteFile = WriteAction.compute(() -> Try
+    val macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))

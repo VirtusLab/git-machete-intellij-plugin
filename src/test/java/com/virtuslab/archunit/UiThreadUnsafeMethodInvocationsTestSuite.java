@@ -4,6 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.Arrays;
 
+import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -38,14 +39,14 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             // This makes the check somewhat unsound (some non-UI-safe calls can slip under the radar in lambdas),
             // but annotating lambda methods isn't possible without expanding lambda into anonymous class...
             // which would in turn heavily reduce readability, hence potentially leading to bugs in the long run.
-            if (method.getName().startsWith("lambda$")) {
+            if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
               return;
             }
 
             method.getCallsFromSelf().forEach(access -> {
-              var accessTarget = access.getTarget();
+              AccessTarget accessTarget = access.getTarget();
               if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
-                var message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                     "calls a ${UIThreadUnsafeName} method ${accessTarget.getFullName()}";
                 events.add(SimpleConditionEvent.violated(method, message));
               }
@@ -63,13 +64,13 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea methods") {
           @Override
           public void check(JavaMethod method, ConditionEvents events) {
-            if (method.getName().startsWith("lambda$")) {
+            if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
               return;
             }
 
             method.getCallsFromSelf().forEach(call -> {
-              var callTarget = call.getTarget();
-              var callTargetPackageName = callTarget.getOwner().getPackageName();
+              AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
+              String callTargetPackageName = callTarget.getOwner().getPackageName();
               if (callTargetPackageName.startsWith("git4idea")) {
                 String[] whitelistedMethodFullNames = {
                     "git4idea.GitLocalBranch.getName()",
@@ -100,10 +101,10 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
                     "git4idea.repo.GitRepository.getVcs()",
                     "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)"
                 };
-                var calledMethodFullName = callTarget.getFullName();
+                String calledMethodFullName = callTarget.getFullName();
 
                 if (!Arrays.asList(whitelistedMethodFullNames).contains(calledMethodFullName)) {
-                  var message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                  String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                       "calls method ${calledMethodFullName} from git4idea";
                   events.add(SimpleConditionEvent.violated(method, message));
                 }

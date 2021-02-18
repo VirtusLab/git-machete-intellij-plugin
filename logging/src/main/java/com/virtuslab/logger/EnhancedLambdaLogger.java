@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import io.vavr.collection.Stream;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import kr.pe.kwonnam.slf4jlambda.LambdaLoggerFactory;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
@@ -16,8 +17,9 @@ public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
   private final ThreadLocal<@Nullable Long> timerStartMillis;
 
   EnhancedLambdaLogger(Class<?> clazz) {
-    String category = clazz
-        .getPackageName()
+    Package paccage = clazz.getPackage();
+    String packageName = paccage != null ? paccage.getName() : "<no-package>";
+    String category = packageName
         .replace("com.virtuslab.", "")
         .replaceAll("\\.[^.]+$", "")
         .replaceAll("\\.impl$", "");
@@ -42,7 +44,7 @@ public class EnhancedLambdaLogger implements IEnhancedLambdaLogger {
     // #4: kr.pe.kwonnam.slf4jlambda.LambdaLogger#debug
     // #5: com.virtuslab.logger.MacheteLogger#debug
     // #6: method from which IMacheteLogger.<logMethod> was called;
-    var stackTrace = Thread.currentThread().getStackTrace();
+    val stackTrace = Thread.currentThread().getStackTrace();
     String methodName = Stream.of(stackTrace)
         .find(se -> !isInternalLoggingClass(se.getClassName()))
         .map(se -> se.getMethodName())

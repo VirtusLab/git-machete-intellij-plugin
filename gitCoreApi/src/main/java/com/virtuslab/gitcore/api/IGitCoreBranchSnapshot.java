@@ -2,6 +2,7 @@ package com.virtuslab.gitcore.api;
 
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import lombok.val;
 import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -37,7 +38,7 @@ public interface IGitCoreBranchSnapshot {
     } else if (!(other instanceof IGitCoreBranchSnapshot)) {
       return false;
     } else {
-      var o = (IGitCoreBranchSnapshot) other;
+      val o = (IGitCoreBranchSnapshot) other;
       return self.getFullName().equals(o.getFullName())
           && Try.of(() -> self.getPointedCommit().equals(o.getPointedCommit())).getOrElse(false);
     }

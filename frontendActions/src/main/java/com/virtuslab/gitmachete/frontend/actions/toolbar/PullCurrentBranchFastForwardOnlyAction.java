@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.I
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchFastForwardOnlyAction;
@@ -21,12 +22,12 @@ public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastFo
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    var presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    var isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
+    val isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .map(b -> b.getSyncToRemoteStatus().getRelation())
         .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))

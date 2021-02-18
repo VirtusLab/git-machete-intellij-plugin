@@ -5,6 +5,7 @@ import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -81,7 +82,7 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
     if (forkPoint == null) {
       throw new GitMacheteMissingForkPointException("Cannot get fork point for branch '${getName()}'");
     }
-    var newBaseBranch = getParent();
+    val newBaseBranch = getParent();
 
     LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
         "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +

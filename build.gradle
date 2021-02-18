@@ -43,6 +43,7 @@ ext {
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.10.0'
   checkstyleToolVersion = '8.33'
+  commonsIOVersion = '2.5'
   ideProbeVersion = '0.3.0'
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.10.0.202012080955-r'
@@ -140,7 +141,7 @@ allprojects {
 
 
   apply plugin: 'org.gradle.java-library'
-  sourceCompatibility = 11
+  sourceCompatibility = 8
 
   // String interpolation support, see https://github.com/antkorwin/better-strings
   // This needs to be enabled in each subproject by default because there's going to be no warning
@@ -159,6 +160,7 @@ allprojects {
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
+      options.release = 8
       options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
     }
 
@@ -334,6 +336,12 @@ subprojects {
           def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
           extraJavacArgs += "-ASubtypingChecker_qualDirs=${qualClassDir}"
         }
+      }
+    }
+
+    commonsIO = { ->
+      dependencies {
+        implementation group: 'commons-io', name: 'commons-io', version: commonsIOVersion
       }
     }
 

@@ -12,6 +12,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -29,19 +30,19 @@ public class RediscoverSuggester {
 
   @UIEffect
   public void perform() {
-    var macheteFilePath = Option.of(gitRepository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
+    val macheteFilePath = Option.of(gitRepository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
     if (macheteFilePath == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - selected machete file is null");
       return;
     }
 
-    var lastModifiedTimeMillis = getFileModificationDate(macheteFilePath).getOrNull();
+    val lastModifiedTimeMillis = getFileModificationDate(macheteFilePath).getOrNull();
     if (lastModifiedTimeMillis == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - could not get file modification date");
       return;
     }
 
-    var daysDiff = daysDiffTillNow(lastModifiedTimeMillis);
+    val daysDiff = daysDiffTillNow(lastModifiedTimeMillis);
     LOG.info("Branch layout has not been modified within ${daysDiff} days");
     if (daysDiff > DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER) {
       LOG.info("Time diff above ${DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER}; Suggesting rediscover");
@@ -53,7 +54,7 @@ public class RediscoverSuggester {
 
   @UIEffect
   private void queueSuggestion(Path macheteFilePath) {
-    var yesNo = MessageDialogBuilder.YesNo.yesNo(
+    val yesNo = MessageDialogBuilder.YesNo.yesNo(
         getString("string.GitMachete.RediscoverSuggester.dialog.title"),
         getString("string.GitMachete.RediscoverSuggester.dialog.question"));
 
@@ -73,8 +74,8 @@ public class RediscoverSuggester {
   }
 
   private long daysDiffTillNow(long lastModifiedTimeMillis) {
-    var currentTimeMillis = System.currentTimeMillis();
-    var millisDiff = currentTimeMillis - lastModifiedTimeMillis;
+    val currentTimeMillis = System.currentTimeMillis();
+    val millisDiff = currentTimeMillis - lastModifiedTimeMillis;
     return millisDiff / (24 * 60 * 60 * 1000);
   }
 }

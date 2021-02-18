@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.reflections.Reflections;
 
 @CustomLog
@@ -34,13 +35,13 @@ public final class RuntimeBinding {
       throw new ClassNotFoundException("No viable class implementing " + interfaze.getCanonicalName() + " found");
     }
     if (classes.size() > 1) {
-      var classesString = String.join(", ",
+      val classesString = String.join(", ",
           classes.stream().map(c -> String.valueOf(c.getCanonicalName())).collect(Collectors.toSet()));
       throw new ClassNotFoundException(
           "More than one viable class implementing " + interfaze.getCanonicalName() + " found: " + classesString);
     }
 
-    var soleImplementingClass = classes.iterator().next();
+    val soleImplementingClass = classes.iterator().next();
     LOG.debug(() -> "Binding " + interfaze.getCanonicalName() + " to " + soleImplementingClass.getCanonicalName());
     return soleImplementingClass.getDeclaredConstructor().newInstance();
   }

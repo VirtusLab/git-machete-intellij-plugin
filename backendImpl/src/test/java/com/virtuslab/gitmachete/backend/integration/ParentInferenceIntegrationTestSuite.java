@@ -6,6 +6,7 @@ import static org.junit.runners.Parameterized.Parameters;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -55,8 +56,8 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
     this.forBranch = forBranch;
     this.expectedParent = expectedParent;
 
-    var branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-    var branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
+    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    val branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
 
     gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);

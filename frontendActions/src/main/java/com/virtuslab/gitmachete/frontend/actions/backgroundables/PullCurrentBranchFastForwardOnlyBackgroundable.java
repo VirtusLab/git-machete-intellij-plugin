@@ -10,6 +10,7 @@ import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
+import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -43,7 +44,7 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
   @Override
   @UIThreadUnsafe
   protected @Nullable GitLineHandler createGitLineHandler() {
-    var handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
+    val handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.PULL);
     String remoteName = remoteBranch.getRemoteName();
     GitRemote remote = GitUtil.findRemoteByName(gitRepository, remoteName);
     if (remote == null) {
@@ -55,8 +56,8 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
     handler.setUrls(remote.getUrls());
     handler.addParameters("--ff-only");
     handler.addParameters(remote.getName());
-    var remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
-    var remoteBranchFullName = remoteBranch.getFullName();
+    val remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
+    val remoteBranchFullName = remoteBranch.getFullName();
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
     String refspec = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
         remoteBranchFullName, /* allowNonFastForward */ true);

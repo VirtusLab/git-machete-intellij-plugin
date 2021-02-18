@@ -2,13 +2,17 @@ package com.virtuslab.gitmachete.testcommon;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
+import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 
 public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
@@ -39,20 +43,21 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
   private void copyScriptFromResources(String scriptName) {
     URL resourceUrl = getClass().getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
-    Files.copy(Path.of(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(Paths.get(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
   }
 
   @SneakyThrows
   private void prepareRepoFromScript(String scriptName) {
-    var process = new ProcessBuilder()
+    val process = new ProcessBuilder()
         .command("/bin/bash", parentDir.resolve(scriptName).toString())
         .directory(parentDir.toFile())
         .start();
-    var completed = process.waitFor(5, TimeUnit.SECONDS);
+    val completed = process.waitFor(5, TimeUnit.SECONDS);
 
     if (!completed || process.exitValue() != 0) {
-      System.out.println(new String(process.getInputStream().readAllBytes()));
-      System.err.println(new String(process.getErrorStream().readAllBytes()));
+
+      System.out.println(IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8));
+      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
     }
 
     Assert.assertTrue(completed);

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.val;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -40,7 +41,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
    * parent data somewhere outside of this class (e.g. in {@link GitMacheteRepositorySnapshot}).
    */
   protected void setParentForChildren() {
-    for (var child : children) {
+    for (val child : children) {
       child.setParent(this);
     }
   }
