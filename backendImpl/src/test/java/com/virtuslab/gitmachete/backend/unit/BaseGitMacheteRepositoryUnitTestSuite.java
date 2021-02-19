@@ -34,9 +34,10 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     var iGitCoreHeadSnapshot = PowerMockito.mock(IGitCoreHeadSnapshot.class);
     PowerMockito.doReturn(Option.none()).when(iGitCoreHeadSnapshot).getTargetBranch();
     PowerMockito.doReturn(iGitCoreHeadSnapshot).when(gitCoreRepository).deriveHead();
+    PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue("core", "hooksPath");
 
     // cannot be mocked as it is final
-    var statusBranchHookExecutor = new StatusBranchHookExecutor(Paths.get("void"), Paths.get("void"));
+    var statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, Paths.get("void"), Paths.get("void"));
 
     return Whitebox
         .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class, PreRebaseHookExecutor.class)

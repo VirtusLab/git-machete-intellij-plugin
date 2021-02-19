@@ -9,6 +9,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public interface IGitCoreRepository {
   @UIThreadUnsafe
   Option<String> deriveConfigValue(String section, String subsection, String name);
+  Option<String> deriveConfigValue(String section, String name);
 
   @UIThreadUnsafe
   Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;

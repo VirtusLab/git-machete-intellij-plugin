@@ -31,8 +31,8 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     var key = Tuple.of(mainDirectoryPath, gitDirectoryPath);
     if (!gitMacheteRepositoryCache.containsKey(key)) {
       var gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
-      var statusHookExecutor = new StatusBranchHookExecutor(mainDirectoryPath, gitDirectoryPath);
-      var preRebaseHookExecutor = new PreRebaseHookExecutor(mainDirectoryPath, gitDirectoryPath);
+      var statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
+      var preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
       var value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
       gitMacheteRepositoryCache.put(key, value);
     }

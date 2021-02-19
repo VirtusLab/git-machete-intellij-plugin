@@ -11,6 +11,9 @@ class AnyObjectId {
   @ArrayLen(40) String getName();
 }
 
+class Config {
+  String getString(final String section, @Nullable String subsection, final String name);
+}
 
 package org.eclipse.jgit.revwalk;
 

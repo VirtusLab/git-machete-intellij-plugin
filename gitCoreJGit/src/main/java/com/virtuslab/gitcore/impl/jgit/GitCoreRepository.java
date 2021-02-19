@@ -77,6 +77,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  public Option<String> deriveConfigValue(String section, String name) {
+    return Option.of(jgitRepo.getConfig().getString(section, null, name));
+  }
+
+  @Override
   public Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException {
     return Option.narrow(convertRevisionToGitCoreCommit(revision));
   }

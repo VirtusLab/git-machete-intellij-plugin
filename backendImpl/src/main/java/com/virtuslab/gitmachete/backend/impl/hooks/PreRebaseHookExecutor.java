@@ -3,11 +3,14 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import io.vavr.control.Option;
 import lombok.CustomLog;
+import lombok.val;
 
+import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -20,10 +23,12 @@ public final class PreRebaseHookExecutor {
   private final File mainDirectory;
   private final File hookFile;
 
-  public PreRebaseHookExecutor(Path mainDirectoryPath, Path gitDirectoryPath) {
+  public PreRebaseHookExecutor(IGitCoreRepository gitCoreRepository, Path mainDirectoryPath, Path gitDirectoryPath) {
+    val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
+    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitDirectoryPath.resolve("hooks"));
+
     this.mainDirectory = mainDirectoryPath.toFile();
-    // TODO (#289): first take `git config core.hooksPath` into account; possibly JGit has a helper for that
-    this.hookFile = gitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase").toFile();
+    this.hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();
   }
 
   /**

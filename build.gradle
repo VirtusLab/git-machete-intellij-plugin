@@ -183,6 +183,17 @@ allprojects {
       }
     }
   }
+
+  apply plugin: 'org.gradle.checkstyle'
+  checkstyle {
+    toolVersion checkstyleToolVersion
+
+    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
+    ignoreFailures = false
+    checkstyleTest.enabled = false
+
+    configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
+  }
 }
 
 
@@ -216,18 +227,6 @@ subprojects {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
       checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
     }
-  }
-
-
-  apply plugin: 'org.gradle.checkstyle'
-  checkstyle {
-    toolVersion checkstyleToolVersion
-
-    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
-    ignoreFailures = false
-    checkstyleTest.enabled = false
-
-    configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
   }
 
   apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
