@@ -53,7 +53,8 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
     List<String> stringList = List.empty();
     for (val entry : entries) {
       val sb = new StringBuilder();
-      for (int i = 0; i < level * indentSpec.getIndentWidth(); i++) {
+      val count = level * indentSpec.getIndentWidth();
+      for (int i = 0; i < count; i++) {
         sb.append(indentSpec.getIndentCharacter());
       }
       sb.append(entry.getName());

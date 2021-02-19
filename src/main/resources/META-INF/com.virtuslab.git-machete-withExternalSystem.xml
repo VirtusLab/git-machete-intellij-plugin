@@ -1,6 +1,11 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
         <externalIconProvider key="MACHETE" implementationClass="com.virtuslab.gitmachete.frontend.externalsystem.MacheteIconProvider"/>
+
+        <externalSystemManager implementation="com.virtuslab.gitmachete.frontend.externalsystem.MacheteProjectService"/>
+
+        <!-- See javadoc of com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isInProcessMode -->
+        <registryKey key="MACHETE.system.in.process" defaultValue="true"
+                     description="Whether IDEA should use 'in-process' mode for interaction with machete API"/>
     </extensions>
 </idea-plugin>

@@ -141,7 +141,13 @@ allprojects {
 
 
   apply plugin: 'org.gradle.java-library'
-  sourceCompatibility = 8
+
+  // We've consciously downgraded Java from 11 to 8 to provide compatibility with Android Studio,
+  // which as of 2020.3 still executes on Java 8-based runtime.
+  def javaMajorVersion = 8
+
+  sourceCompatibility = javaMajorVersion
+  targetCompatibility = javaMajorVersion // redundant, added for clarity
 
   // String interpolation support, see https://github.com/antkorwin/better-strings
   // This needs to be enabled in each subproject by default because there's going to be no warning
@@ -160,8 +166,17 @@ allprojects {
         '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
       ]
-      options.release = 8
+
       options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
+
+      // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
+      // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
+      // This will work fine, until we actually try to run those compiled classes under Java 8-compatible JVM,
+      // when we'll end up with NoSuchMethodError for APIs added between Java 9 and Java 11
+      // (most notably, InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
+      // `options.release = 8` makes sure that regardless of Java version installed in the system,
+      // only Java 8-compatible APIs are available to the compiled code.
+      options.release = javaMajorVersion
     }
 
     tasks.withType(Javadoc) {

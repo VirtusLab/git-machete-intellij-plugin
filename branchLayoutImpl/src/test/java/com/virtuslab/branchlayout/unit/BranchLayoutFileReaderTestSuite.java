@@ -1,5 +1,6 @@
 package com.virtuslab.branchlayout.unit;
 
+import static com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -35,7 +36,7 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayoutFileReader reader = new BranchLayoutFileReader();
 
     PowerMockito.mockStatic(BranchLayoutFileUtils.class);
-    val indentSpec = new IndentSpec(/* indentCharacter */ ' ', indentWidth);
+    val indentSpec = new IndentSpec(/* indentCharacter */ DEFAULT_INDENT_CHARACTER, indentWidth);
     PowerMockito.when(BranchLayoutFileUtils.getDefaultSpec()).thenReturn(indentSpec);
     PowerMockito.when(BranchLayoutFileUtils.readFileLines(any())).thenReturn(linesToReturn);
     PowerMockito.when(BranchLayoutFileUtils.getIndentWidth(anyString(), anyChar())).thenCallRealMethod();

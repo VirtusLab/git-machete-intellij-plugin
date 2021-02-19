@@ -3,10 +3,12 @@
     <name>Git Machete</name>
     <vendor email="gitmachete@virtuslab.com" url="https://virtuslab.com">VirtusLab</vendor>
 
-    <depends optional="true" config-file="com.virtuslab.git-machete-withExternalSystem.xml">com.intellij.modules.externalSystem</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
+    <!-- For some reason, out of all IntelliJ-based IDEs, externalSystem is NOT supported by Android Studio. -->
+    <!-- Without making this dependency optional, we can't be compatible with AS. -->
+    <depends optional="true" config-file="com.virtuslab.git-machete-withExternalSystem.xml">com.intellij.modules.externalSystem</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <changesViewContent tabName="Git Machete"
@@ -19,10 +21,6 @@
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="Machete"
                                 implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-
-        <!-- See javadoc of com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isInProcessMode -->
-        <registryKey key="MACHETE.system.in.process" defaultValue="true"
-                     description="Whether IDEA should use 'in-process' mode for interaction with machete API"/>
 
         <lang.parserDefinition language="Machete"
                                implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
