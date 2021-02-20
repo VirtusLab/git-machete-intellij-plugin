@@ -9,7 +9,7 @@ plugins {
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
   id 'org.checkerframework' version '0.5.16' apply false
   id 'org.jetbrains.grammarkit' version '2020.3.2' apply false
-  id 'org.jetbrains.intellij' version '0.6.5' apply false
+  id 'org.jetbrains.intellij' version '0.7.2' apply false
   id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false // version effectively enforced by the IntelliJ plugin
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.48' apply false
 }
@@ -29,7 +29,7 @@ ext {
     // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupportedMajor: '211.5787.15-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: '211.6085.26-EAP-SNAPSHOT'
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
@@ -44,7 +44,7 @@ ext {
   checkerFrameworkVersion = '3.10.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.5'
-  ideProbeVersion = '0.4.0'
+  ideProbeVersion = '0.3.0' // let's stick to this version until https://github.com/VirtusLab/ide-probe/issues/98 is resolved
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.10.0.202012080955-r'
   junitVersion = '4.13.1'
