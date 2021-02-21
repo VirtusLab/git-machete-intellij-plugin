@@ -124,7 +124,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     setRowSelectionAllowed(false);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    setDefaultRenderer(BranchOrCommitCell.class, new BranchOrCommitCellRenderer(/* hasBranchActionToolTips */ true));
+    setDefaultRenderer(BranchOrCommitCell.class, new BranchOrCommitCellRenderer(/* shouldDisplayActionToolTips */ true));
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);

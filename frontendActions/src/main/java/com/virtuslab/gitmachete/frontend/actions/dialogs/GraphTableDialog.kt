@@ -48,13 +48,13 @@ private constructor(
         saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
         okButtonText: String,
         cancelButtonVisible: Boolean,
-        hasBranchActionToolTips: Boolean
+        shouldDisplayActionToolTips: Boolean
     ) =
         RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
             .deriveInstance(
                 gitMacheteRepositorySnapshot,
                 /* isListingCommitsEnabled */ false,
-                hasBranchActionToolTips)
+                shouldDisplayActionToolTips)
             .apply { setTextForEmptyTable(emptyTableText ?: "") }
             .let {
               GraphTableDialog(

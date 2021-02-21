@@ -55,6 +55,7 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
@@ -86,7 +87,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       boolean hasFocus,
       int row,
       int column,
-      boolean hasBranchActionToolTips) {
+      boolean shouldDisplayActionToolTips) {
 
     this.graphTable = table;
 
@@ -158,8 +159,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       IBranchItem branchItem = graphItem.asBranchItem();
       IManagedBranchSnapshot branch = branchItem.getBranch();
 
-      if (hasBranchActionToolTips && branch.isNonRoot()) {
-        setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRoot()));
+      if (shouldDisplayActionToolTips) {
+        setBranchToolTipText(branch);
       }
 
       Option<String> customAnnotation = branch.getCustomAnnotation();
@@ -283,6 +284,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
                 remoteName)));
   }
 
+  @UIEffect
+  private void setBranchToolTipText(IManagedBranchSnapshot branch) {
+    if (branch.isRoot()) {
+      setToolTipText(getRootToolTipText(branch.asRoot()));
+    } else {
+      setToolTipText(getSyncToParentStatusBasedToolTipText(branch.asNonRoot()));
+    }
+  }
+
   private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
     val currentBranchName = branch.getName();
     val parentBranchName = branch.getParent().getName();
@@ -302,6 +312,11 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
                 getString(
                     "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent"),
                 currentBranchName, parentBranchName)));
+  }
+
+  private static String getRootToolTipText(IRootManagedBranchSnapshot branch) {
+    return format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root"),
+        branch.getName());
   }
 
   private static class MyTableCellRenderer extends DefaultTableCellRenderer {

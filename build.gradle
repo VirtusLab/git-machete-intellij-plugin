@@ -44,7 +44,7 @@ ext {
   checkerFrameworkVersion = '3.10.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.5'
-  ideProbeVersion = '0.3.0'
+  ideProbeVersion = '0.4.0'
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.10.0.202012080955-r'
   junitVersion = '4.13.1'
