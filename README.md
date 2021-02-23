@@ -4,6 +4,7 @@
 [![CircleCI](https://circleci.com/gh/VirtusLab/git-machete-intellij-plugin/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin?branch=master)
 [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
+![License: MIT](https://img.shields.io/github/license/VirtusLab/git-machete-intellij-plugin)
 
 <img src="docs/logo.svg" style="width: 100%; display: block; margin-bottom: 10pt;"/>
 
@@ -187,8 +188,8 @@ Then reproduce the bug and go to `Help > Show Log in Files` to open the log file
 For additional background on what we believe are good practices take a look into our [slides presentation](http://slides.com/plipski/git-machete).
 It explains our motivations and gives you an overview of main Git Machete objectives.
 
-See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.
+For more information about the plugin,
+see the [teaser blog post](https://medium.com/virtuslab/take-a-look-at-your-repository-from-a-new-perspective-with-git-machete-plugin-e2e5e4197a0b)
+and the [complete feature list](docs/features.md).
 
-For more information about the `git machete`,
-see the [teaser blog post for this plugin](https://medium.com/virtuslab/take-a-look-at-your-repository-from-a-new-perspective-with-git-machete-plugin-e2e5e4197a0b)
-and the [reference blog post for CLI](https://medium.com/virtuslab/make-your-way-through-the-git-rebase-jungle-with-git-machete-e2ed4dbacd02).
+See also [git-machete](https://github.com/VirtusLab/git-machete#git-machete) &mdash; a CLI version of this plugin.

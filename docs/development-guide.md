@@ -183,8 +183,8 @@ Other coding conventions include:
 To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
 
 ```
-docker build -t gitmachete/intellij-plugin-ci:<SEMANTIC-VERSION> .
-docker push gitmachete/intellij-plugin-ci:<SEMANTIC-VERSION>
+docker build -t gitmachete/intellij-plugin-ci:SEMANTIC-VERSION - < Dockerfile
+docker push gitmachete/intellij-plugin-ci:SEMANTIC-VERSION
 ```
 
 
