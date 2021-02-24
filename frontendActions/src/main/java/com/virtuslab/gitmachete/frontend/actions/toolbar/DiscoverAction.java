@@ -79,7 +79,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
             saveAndEditAction,
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
-            /* hasBranchActionToolTips */ false).show(), NON_MODAL));
+            /* shouldDisplayActionToolTips */ false).show(), NON_MODAL));
   }
 
   private static void openMacheteFile(Project project, GitRepository gitRepository) {

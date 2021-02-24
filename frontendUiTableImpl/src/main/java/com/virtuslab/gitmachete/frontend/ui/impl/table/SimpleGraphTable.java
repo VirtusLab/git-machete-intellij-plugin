@@ -22,11 +22,11 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
 
   @UIEffect
   public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
-      boolean isListingCommitsEnabled, boolean hasBranchActionToolTips) {
+      boolean isListingCommitsEnabled, boolean shouldDisplayActionToolTips) {
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
     return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled),
-        hasBranchActionToolTips);
+        shouldDisplayActionToolTips);
   }
 
   @UIEffect
@@ -38,7 +38,7 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   }
 
   @UIEffect
-  private SimpleGraphTable(GraphTableModel graphTableModel, boolean hasBranchActionToolTips) {
+  private SimpleGraphTable(GraphTableModel graphTableModel, boolean shouldDisplayActionToolTips) {
     super(graphTableModel);
 
     createDefaultColumnsFromModel();
@@ -51,7 +51,7 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
     setRowSelectionAllowed(true);
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    setDefaultRenderer(BranchOrCommitCell.class, new BranchOrCommitCellRenderer(hasBranchActionToolTips));
+    setDefaultRenderer(BranchOrCommitCell.class, new BranchOrCommitCellRenderer(shouldDisplayActionToolTips));
 
     setShowVerticalLines(false);
     setShowHorizontalLines(false);

@@ -2,10 +2,9 @@ package com.virtuslab.gitmachete.uitest
 
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
-
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite.SETUP_WITH_SINGLE_REMOTE
-import org.junit.{After, Assert, Before, Test}
+import org.junit.{ After, AfterClass, Assert, Before, BeforeClass, Test }
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
@@ -13,7 +12,30 @@ import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.config._
 import org.virtuslab.ideprobe.dependencies._
 import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
-import org.virtuslab.ideprobe.junit4.RunningIntelliJPerSuite
+
+trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
+  @BeforeClass override final def setup(): Unit = super.setup()
+
+  @AfterClass override final def teardown(): Unit = {
+    try {
+      super.teardown()
+    } catch {
+      case e: Exception =>
+        val filteredSuppressed = e.getSuppressed.filterNot { s =>
+          // A duct tape to ignore https://github.com/VirtusLab/ide-probe/issues/95
+          s.getMessage.contains("scala.MatchError: IDE_UPDATE (of class com.intellij.notification.NotificationType)") ||
+            // Another duct tape to ignore a spurious error in the IDEA itself (probably some race condition)
+            s.getMessage.contains("com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage")
+        }
+        if (filteredSuppressed.nonEmpty) {
+          // Following the approach taken by org.virtuslab.ideprobe.reporting.AfterTestChecks.apply
+          val e = new Exception("Test failed due to postcondition failures")
+          filteredSuppressed.foreach(e.addSuppressed)
+          throw e
+        }
+    }
+  }
+}
 
 object UITestSuite
   extends RunningIntelliJPerSuite

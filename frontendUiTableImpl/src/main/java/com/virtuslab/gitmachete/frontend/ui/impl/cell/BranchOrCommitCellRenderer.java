@@ -10,12 +10,13 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 @RequiredArgsConstructor
 public class BranchOrCommitCellRenderer implements TableCellRenderer {
-  private final boolean hasBranchActionToolTips;
+  private final boolean shouldDisplayActionToolTips;
 
   @Override
   @UIEffect
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
       int column) {
-    return new BranchOrCommitCellRendererComponent(table, value, isSelected, hasFocus, row, column, hasBranchActionToolTips);
+    return new BranchOrCommitCellRendererComponent(table, value, isSelected, hasFocus, row, column,
+        shouldDisplayActionToolTips);
   }
 }
