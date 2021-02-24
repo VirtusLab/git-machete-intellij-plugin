@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 
 import com.intellij.ide.DataManager;
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -49,7 +50,6 @@ import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.Set;
-import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -60,8 +60,12 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -90,6 +94,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private final Project project;
 
   private final IBranchLayoutReader branchLayoutReader;
+  private final IBranchLayoutWriter branchLayoutWriter;
   private final IRepositoryGraphCache repositoryGraphCache;
 
   @Getter
@@ -110,6 +115,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     this.project = project;
     this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    this.branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
     this.repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
     this.isListingCommits = false;
 
@@ -161,8 +167,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
-      Set<String> duplicatedBranchNames,
-      Set<String> skippedBranchNames,
+      IGitMacheteRepositorySnapshot repositorySnapshot,
       @UI Runnable doOnUIThreadWhenReady) {
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
@@ -207,13 +212,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setModel(new GraphTableModel(repositoryGraph));
 
+    Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
     if (skippedBranchNames.nonEmpty()) {
-      // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
-      VcsNotifier.getInstance(project).notifyWarning(
-          getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text"),
-          String.join(", ", skippedBranchNames));
+      val notification = getSkippedBranchesNotification(repositorySnapshot, gitRepository);
+      VcsNotifier.getInstance(project).notify(notification);
     }
 
+    Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
     if (duplicatedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
       VcsNotifier.getInstance(project).notifyWarning(
@@ -224,6 +229,53 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
+  }
+
+  private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
+      GitRepository gitRepository) {
+    val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
+        format(getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text"),
+            String.join(", ", repositorySnapshot.getSkippedBranchNames())),
+        NotificationType.WARNING);
+    notification.addAction(NotificationAction.createSimple(
+        () -> getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
+          notification.expire();
+          slideOutBranch(repositorySnapshot, gitRepository);
+        }));
+    notification.addAction(NotificationAction.createSimple(
+        () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+          val actionEvent = getAnActionEvent();
+          ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+        }));
+    return notification;
+  }
+
+  private void slideOutBranch(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
+    IBranchLayout branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
+    if (branchLayout == null) {
+      // todo: handle
+      return;
+    }
+
+    IBranchLayout newBranchLayout = branchLayout;
+    for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
+      newBranchLayout = newBranchLayout.slideOut(branchName);
+    }
+
+    try {
+      Path macheteFilePath = getMacheteFilePath(gitRepository);
+      LOG.info("Writing new branch layout into ${macheteFilePath}");
+      branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
+
+    } catch (BranchLayoutException e) {
+      String exceptionMessage = e.getMessage();
+      String errorMessage = "Error occurred while sliding out skipped branches" +
+          (exceptionMessage == null ? "" : ": " + exceptionMessage);
+      LOG.error(errorMessage);
+      VcsNotifier.getInstance(project).notifyError(
+          getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
+          exceptionMessage == null ? "" : exceptionMessage);
+    }
   }
 
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
@@ -247,16 +299,18 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
               NotificationType.INFORMATION);
           notification.addAction(NotificationAction.createSimple(
               () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-                notification.expire();
-
-                DataContext dataContext = DataManager.getInstance().getDataContext(this);
-                val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(),
-                    dataContext);
+                val actionEvent = getAnActionEvent();
                 ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
               }));
           notifier.notify(notification);
         },
         NON_MODAL);
+  }
+
+  @UIEffect
+  private AnActionEvent getAnActionEvent() {
+    val dataContext = DataManager.getInstance().getDataContext(this);
+    return AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(), dataContext);
   }
 
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
@@ -274,8 +328,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository.isDefined()) {
       refreshModel(gitRepository.get(),
-          /* duplicatedBranchNames */ TreeSet.empty(),
-          /* skippedBranchNames */ TreeSet.empty(),
+          NullGitMacheteRepositorySnapshot.getInstance(),
           /* doOnUIThreadWhenReady */ () -> {});
     } else {
       LOG.warn("Selected git repository is undefined; unable to refresh model");
@@ -304,15 +357,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         }
 
         @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepositorySnapshot -> {
-          this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot.getOrNull();
-          if (gitMacheteRepositorySnapshot != null) {
+          val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot.getOrNull();
+          this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
+          if (nullableRepositorySnapshot != null) {
             refreshModel(gitRepository,
-                this.gitMacheteRepositorySnapshot.getDuplicatedBranchNames(),
-                this.gitMacheteRepositorySnapshot.getSkippedBranchNames(),
+                nullableRepositorySnapshot,
                 doOnUIThreadWhenReady);
 
           } else {
-            refreshModel(gitRepository, TreeSet.empty(), TreeSet.empty(), doOnUIThreadWhenReady);
+            refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
           }
         };
 

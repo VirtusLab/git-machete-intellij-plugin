@@ -171,10 +171,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       return;
     }
 
-    try {
-      LOG.info("Sliding out '${branchName}' branch in memory");
-      val newBranchLayout = branchLayout.slideOut(branchName);
+    LOG.info("Sliding out '${branchName}' branch in memory");
+    val newBranchLayout = branchLayout.slideOut(branchName);
 
+    try {
       Path macheteFilePath = getMacheteFilePath(gitRepository);
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);

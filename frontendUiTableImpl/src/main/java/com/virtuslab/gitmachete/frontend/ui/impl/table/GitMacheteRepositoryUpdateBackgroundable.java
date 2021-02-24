@@ -85,7 +85,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
       return Try.of(() -> {
-        IBranchLayout branchLayout = createBranchLayout(macheteFilePath);
+        IBranchLayout branchLayout = readBranchLayout(macheteFilePath);
         return gitMacheteRepositoryCache.getInstance(mainDirectoryPath, gitDirectoryPath).createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).toOption();
     } else {
@@ -94,7 +94,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
   }
 
-  private IBranchLayout createBranchLayout(Path path) throws MacheteFileReaderException {
+  private IBranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     return Try.of(() -> branchLayoutReader.read(path))
         .getOrElseThrow(e -> {
           Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
