@@ -84,6 +84,16 @@ class PushController {
 @UIPackage package com.intellij.facet.ui;
 @UIPackage package com.intellij.framework;
 @UIPackage package com.intellij.ide;
+
+class DataManager {
+
+  @SafeEffect
+  public static DataManager getInstance();
+
+  @SafeEffect
+  public DataContext getDataContext(Component component);
+}
+
 @UIPackage package com.intellij.ide.actions;
 @UIPackage package com.intellij.ide.actions.exclusion;
 @UIPackage package com.intellij.ide.actions.searcheverywhere;
@@ -134,6 +144,10 @@ class AnAction {
 }
 
 class AnActionEvent {
+
+  @SafeEffect
+  static AnActionEvent createFromDataContext(String place, Presentation presentation, DataContext dataContext);
+
   @SafeEffect
   <T> T getData(DataKey<T> key);
 

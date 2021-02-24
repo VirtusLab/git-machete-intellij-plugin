@@ -18,8 +18,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<IBranchLayout> getBranchLayout() {
-    return Option.none();
+  public IBranchLayout getBranchLayout() {
+    return NullBranchLayout.getInstance();
   }
 
   @Override

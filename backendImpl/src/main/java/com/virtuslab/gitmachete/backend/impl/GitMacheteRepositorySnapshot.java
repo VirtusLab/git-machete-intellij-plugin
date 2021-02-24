@@ -24,7 +24,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   @Getter
   private final List<IRootManagedBranchSnapshot> rootBranches;
 
-  private final @Nullable IBranchLayout branchLayout;
+  private final IBranchLayout branchLayout;
 
   private final @Nullable IManagedBranchSnapshot currentBranchIfManaged;
 
@@ -42,8 +42,8 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   private final OngoingRepositoryOperation ongoingRepositoryOperation;
 
   @Override
-  public Option<IBranchLayout> getBranchLayout() {
-    return Option.of(branchLayout);
+  public IBranchLayout getBranchLayout() {
+    return branchLayout;
   }
 
   @Override

@@ -12,7 +12,7 @@ import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
  * Each {@code get...} method is guaranteed to return the same value each time it's called on a given object.
  */
 public interface IGitMacheteRepositorySnapshot {
-  Option<IBranchLayout> getBranchLayout();
+  IBranchLayout getBranchLayout();
 
   List<IRootManagedBranchSnapshot> getRootBranches();
 

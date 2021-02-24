@@ -244,22 +244,18 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         }));
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-          val actionEvent = getAnActionEvent();
+          val actionEvent = createAnActionEvent();
           ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
         }));
     return notification;
   }
 
   private void slideOutBranch(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
-    IBranchLayout branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
-    if (branchLayout == null) {
-      // todo: handle
-      return;
-    }
-
-    IBranchLayout newBranchLayout = branchLayout;
+    IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
-      newBranchLayout = newBranchLayout.slideOut(branchName);
+      do {
+        newBranchLayout = newBranchLayout.slideOut(branchName);
+      } while (newBranchLayout.findEntryByName(branchName).isDefined());
     }
 
     try {
@@ -299,7 +295,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
               NotificationType.INFORMATION);
           notification.addAction(NotificationAction.createSimple(
               () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-                val actionEvent = getAnActionEvent();
+                val actionEvent = createAnActionEvent();
                 ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
               }));
           notifier.notify(notification);
@@ -307,8 +303,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         NON_MODAL);
   }
 
-  @UIEffect
-  private AnActionEvent getAnActionEvent() {
+  private AnActionEvent createAnActionEvent() {
     val dataContext = DataManager.getInstance().getDataContext(this);
     return AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(), dataContext);
   }

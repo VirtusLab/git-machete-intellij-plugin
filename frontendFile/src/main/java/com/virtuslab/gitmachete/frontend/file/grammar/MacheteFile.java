@@ -8,12 +8,12 @@ import com.virtuslab.gitmachete.frontend.file.MacheteFileType;
 
 public class MacheteFile extends PsiFileBase {
   public MacheteFile(FileViewProvider viewProvider) {
-    super(viewProvider, MacheteLanguage.INSTANCE);
+    super(viewProvider, MacheteLanguage.instance);
   }
 
   @Override
   public FileType getFileType() {
-    return MacheteFileType.INSTANCE;
+    return MacheteFileType.instance;
   }
 
   @Override

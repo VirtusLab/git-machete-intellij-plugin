@@ -21,7 +21,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
 
   default Option<IBranchLayout> getBranchLayout(AnActionEvent anActionEvent) {
     val branchLayout = getGitMacheteRepositorySnapshot(anActionEvent)
-        .flatMap(repository -> repository.getBranchLayout());
+        .map(repository -> repository.getBranchLayout());
     if (isLoggingAcceptable() && branchLayout.isEmpty()) {
       log().warn("Branch layout is undefined");
     }

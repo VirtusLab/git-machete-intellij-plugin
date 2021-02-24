@@ -7,6 +7,6 @@ import org.jetbrains.annotations.NonNls;
 @ToString
 public class MacheteTokenType extends IElementType {
   public MacheteTokenType(@NonNls String debugName) {
-    super(debugName, MacheteLanguage.INSTANCE);
+    super(debugName, MacheteLanguage.instance);
   }
 }

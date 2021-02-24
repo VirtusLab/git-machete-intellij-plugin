@@ -113,14 +113,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
       BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, @UI Runnable postWriteRunnable) {
-    val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
-    if (branchLayout == null) {
-      VcsNotifier.getInstance(project).notifyError(
-          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-discover-layout-error"),
-          /* message */ "");
-      return;
-    }
-
+    val branchLayout = repositorySnapshot.getBranchLayout();
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @Override
       @SneakyThrows

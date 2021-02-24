@@ -65,12 +65,7 @@ public class GitMacheteRepositoryDiscoverer {
         }
 
         val branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
-        val branchLayout = repositorySnapshot.getBranchLayout().getOrNull();
-
-        if (branchLayout == null) {
-          LOG.error("Can't get branch layout from repository snapshot");
-          return;
-        }
+        val branchLayout = repositorySnapshot.getBranchLayout();
 
         try {
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);

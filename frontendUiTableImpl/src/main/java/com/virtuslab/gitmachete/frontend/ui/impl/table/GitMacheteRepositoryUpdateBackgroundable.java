@@ -95,12 +95,13 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   }
 
   private IBranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
-    return Try.of(() -> branchLayoutReader.read(path))
-        .getOrElseThrow(e -> {
-          Option<@Positive Integer> errorLine = ((BranchLayoutException) e).getErrorLine();
-          return new MacheteFileReaderException("Error occurred while parsing machete file" +
-              (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
-        });
+    try {
+      return branchLayoutReader.read(path);
+    } catch (BranchLayoutException e) {
+      Option<@Positive Integer> errorLine = e.getErrorLine();
+      throw new MacheteFileReaderException("Error occurred while parsing machete file" +
+          (errorLine.isDefined() ? " in line ${errorLine.get()}" : ""), e);
+    }
   }
 
   private void handleUpdateRepositoryException(Throwable t) {

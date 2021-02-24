@@ -8,10 +8,10 @@ import icons.MacheteIcons;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLanguage;
 
 public final class MacheteFileType extends LanguageFileType {
-  public static final MacheteFileType INSTANCE = new MacheteFileType();
+  public static final MacheteFileType instance = new MacheteFileType();
 
   private MacheteFileType() {
-    super(MacheteLanguage.INSTANCE);
+    super(MacheteLanguage.instance);
   }
 
   @Override

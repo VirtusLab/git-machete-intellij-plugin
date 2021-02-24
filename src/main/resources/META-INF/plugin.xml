@@ -16,7 +16,7 @@
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
 
         <fileType language="Machete" fileNames="machete" name="Machete File"
-                  implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="INSTANCE"/>
+                  implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="instance"/>
         <lang.fileViewProviderFactory language="Machete"
                                       implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
         <completion.contributor language="Machete"

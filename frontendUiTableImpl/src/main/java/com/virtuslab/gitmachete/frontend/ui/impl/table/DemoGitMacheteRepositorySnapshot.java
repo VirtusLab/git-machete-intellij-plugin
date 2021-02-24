@@ -94,7 +94,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<IBranchLayout> getBranchLayout() {
+  public IBranchLayout getBranchLayout() {
     throw new NotImplementedError();
   }
 

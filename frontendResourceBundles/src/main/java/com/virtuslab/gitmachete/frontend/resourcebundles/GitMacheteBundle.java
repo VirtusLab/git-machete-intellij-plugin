@@ -10,7 +10,7 @@ import org.jetbrains.annotations.PropertyKey;
 
 public final class GitMacheteBundle {
   public static final String BUNDLE = "GitMacheteBundle";
-  private static final ResourceBundle INSTANCE = ResourceBundle.getBundle(BUNDLE);
+  private static final ResourceBundle instance = ResourceBundle.getBundle(BUNDLE);
 
   private GitMacheteBundle() {}
 
@@ -31,6 +31,6 @@ public final class GitMacheteBundle {
 
   @I18nMakeFormat
   public static String getString(@PropertyKey(resourceBundle = BUNDLE) String key) {
-    return INSTANCE.getString(key);
+    return instance.getString(key);
   }
 }
