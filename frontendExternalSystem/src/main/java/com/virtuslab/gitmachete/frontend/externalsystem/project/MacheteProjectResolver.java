@@ -61,7 +61,8 @@ public class MacheteProjectResolver implements ExternalSystemProjectResolver<Mac
       val contentManager = toolWindow.getContentManagerIfCreated();
       if (contentManager != null) {
         val gitMacheteContent = contentManager.findContent("Git Machete");
-        return contentManager.getSelectedContent() == gitMacheteContent;
+        val selectedContent = contentManager.getSelectedContent();
+        return selectedContent != null && selectedContent == gitMacheteContent;
       }
     }
     return false;

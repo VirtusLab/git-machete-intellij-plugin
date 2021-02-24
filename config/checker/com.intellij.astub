@@ -425,10 +425,10 @@ interface Content {
 
 interface ContentManager {
   @SafeEffect
-  Content findContent(String displayName);
+  @Nullable Content findContent(String displayName);
 
   @SafeEffect
-  Content getSelectedContent();
+  @Nullable Content getSelectedContent();
 }
 
 @AlwaysSafe
