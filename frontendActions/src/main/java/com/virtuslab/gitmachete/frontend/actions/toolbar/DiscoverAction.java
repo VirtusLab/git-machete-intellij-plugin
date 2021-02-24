@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.intellij.ide.actions.OpenFileAction;
@@ -60,8 +59,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
     val gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
 
-    var graphTable = getGraphTable(anActionEvent);
-    var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val graphTable = getGraphTable(anActionEvent);
+    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
     // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
     // This is still acceptable since it simplifies the flow (no background task needed)
@@ -84,13 +83,13 @@ public class DiscoverAction extends BaseProjectDependentAction {
             /* shouldDisplayActionToolTips */ false).show(), NON_MODAL));
   }
 
-  public Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
+  private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         GitVfsUtils.getMacheteFilePath(gitRepository), project, graphTable, branchLayoutWriter, () -> {});
   }
 
-  public Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
+  private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         GitVfsUtils.getMacheteFilePath(gitRepository), project, graphTable,
@@ -143,7 +142,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       public void onThrowable(Throwable e) {
         VcsNotifier.getInstance(project).notifyError(
             /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
-            /* message */ Objects.requireNonNullElse(e.getMessage(), ""));
+            /* message */ e.getMessage() != null ? e.getMessage() : "");
       }
 
     }.queue();
