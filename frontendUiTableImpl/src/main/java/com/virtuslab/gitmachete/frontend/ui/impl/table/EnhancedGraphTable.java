@@ -240,7 +240,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
           notification.expire();
-          slideOutBranch(repositorySnapshot, gitRepository);
+          slideOutSkippedBranches(repositorySnapshot, gitRepository);
         }));
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
@@ -250,7 +250,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     return notification;
   }
 
-  private void slideOutBranch(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
+  private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
     IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
       do {

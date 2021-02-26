@@ -7,7 +7,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 
 public final class NullBranchLayout implements IBranchLayout {
-  public static final IBranchLayout instance = new NullBranchLayout();
+  private static final IBranchLayout instance = new NullBranchLayout();
 
   public static IBranchLayout getInstance() {
     return instance;
