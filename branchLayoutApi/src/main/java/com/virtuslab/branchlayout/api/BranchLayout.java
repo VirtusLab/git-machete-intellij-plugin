@@ -33,16 +33,15 @@ public class BranchLayout implements IBranchLayout {
 
   @Override
   public IBranchLayout slideOut(String branchName) {
-    // TODO (#695): disable slide out for duplicated branches
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, branchName)));
   }
 
   private List<IBranchLayoutEntry> slideOut(IBranchLayoutEntry entry, String entryNameToSlideOut) {
-    val children = entry.getChildren();
+    val newChildren = entry.getChildren().flatMap(child -> slideOut(child, entryNameToSlideOut));
     if (entry.getName().equals(entryNameToSlideOut)) {
-      return children;
+      return newChildren;
     } else {
-      return List.of(entry.withChildren(children.flatMap(child -> slideOut(child, entryNameToSlideOut))));
+      return List.of(entry.withChildren(newChildren));
     }
   }
 

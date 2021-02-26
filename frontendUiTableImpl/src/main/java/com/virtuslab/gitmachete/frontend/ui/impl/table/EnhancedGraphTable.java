@@ -253,9 +253,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
     IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
-      do {
-        newBranchLayout = newBranchLayout.slideOut(branchName);
-      } while (newBranchLayout.findEntryByName(branchName).isDefined());
+      newBranchLayout = newBranchLayout.slideOut(branchName);
     }
 
     try {
