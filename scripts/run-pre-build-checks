@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-set -e
-
 # We don't want `less` to open for `git grep` results in the below scripts when running locally.
 export GIT_PAGER=cat
 
-if [[ $CI = true ]]; then
-  # So that we have more clarity which check actually failed
-  # (rather than searching the right script by error message).
-  set -x
-fi
+# `-x`, so that we have more clarity which check actually failed
+# (rather than searching the right script by error message).
+set -e -x
 
 ./scripts/enforce-change-notes-updated-on-pr-to-master
 ./scripts/enforce-explicit-annotation-import-in-astubs

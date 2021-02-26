@@ -128,6 +128,10 @@ function Project(underlyingProject) {
     findAndClickButton('Slide Out & Keep Local Branch');
   };
 
+  this.confirmAsTrusted = function () {
+    findAndClickButton('Trust Project');
+  };
+
   const findAndClickButton = function (name) {
     const getButton = function () {
       // findAll() returns a LinkedHashSet

@@ -8,6 +8,7 @@ importClass(com.intellij.ide.GeneralSettings);
 importClass(com.intellij.ide.impl.ProjectUtil);
 importClass(com.intellij.ide.plugins.PluginManagerCore);
 importClass(com.intellij.ide.util.PropertiesComponent);
+importClass(com.intellij.openapi.application.ApplicationInfo);
 importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.progress.ProgressManager);
 importClass(com.intellij.ui.GuiUtils);
@@ -37,6 +38,10 @@ function Ide() {
       // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
       debugLogManager.applyCategories(logCategories);
     }
+  };
+
+  this.getMajorVersion = function() {
+    return ApplicationInfo.getInstance().getMajorVersion();
   };
 
   this.soleOpenedProject = function () {

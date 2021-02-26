@@ -10,7 +10,7 @@ import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
-trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =>
+trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdeProbeFixture =>
 
   private val machetePlugin: Plugin = {
     val cwd = Paths.get(System.getProperty("user.dir"))
@@ -21,7 +21,7 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
   }
 
   registerFixtureTransformer(_.withPlugin(machetePlugin))
-  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.machete.configureIde()))
+  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.ide.configure()))
 
   private val rhinoCodebase = {
     def loadScript(baseName: String) = {
@@ -31,8 +31,31 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
     Seq("common", "ide", "project").map(loadScript).mkString
   }
 
-  implicit class MacheteExtensions(intelliJ: RunningIntelliJFixture) {
-    object machete {
+  implicit class RunningIntelliJFixtureOps(intelliJ: RunningIntelliJFixture) {
+
+    private def runJs(@Language("JS") statement: String): Unit = {
+      intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
+    }
+
+    private def callJs[T](@Language("JS") expression: String): T = {
+      intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
+    }
+
+    object ide {
+      def configure(): Unit = {
+        runJs("ide.configure(/* enableDebugLog */ false)")
+      }
+
+      def closeOpenedProjects(): Unit = {
+        runJs("ide.closeOpenedProjects()")
+      }
+
+      def getMajorVersion(): String = {
+        callJs("ide.getMajorVersion()")
+      }
+    }
+
+    object project {
       def acceptBranchDeletionOnSlideOut(): Unit = {
         runJs("project.acceptBranchDeletionOnSlideOut()")
         intelliJ.probe.awaitIdle()
@@ -61,16 +84,12 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
         intelliJ.probe.awaitIdle()
       }
 
-      def configureIde(): Unit = {
-        runJs("ide.configure(/* enableDebugLog */ false)")
-      }
-
-      def configureProject(): Unit = {
+      def configure(): Unit = {
         runJs("project.configure()")
       }
 
-      def closeOpenedProjects(): Unit = {
-        runJs("ide.closeOpenedProjects()")
+      def confirmAsTrusted(): Unit = {
+        runJs("project.confirmAsTrusted()")
       }
 
       def discoverBranchLayout(): Unit = {
@@ -140,14 +159,6 @@ trait GitMacheteExtension extends RobotPluginExtension { this: IdeProbeFixture =
 
       def toggleListingCommits(): Unit = {
         runJs("project.toggleListingCommits()")
-      }
-
-      private def runJs(@Language("JS") statement: String): Unit = {
-        intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
-      }
-
-      private def callJs[T](@Language("JS") expression: String): T = {
-        intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
       }
     }
   }
