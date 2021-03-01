@@ -1,28 +1,25 @@
-<h3>v0.8.1</h3>
+<h3>v0.9.0</h3>
 
-Added support for IntelliJ 2020.3.
-<br/>
-<br/>
-Bug fixes/improvements:
 <ul>
-  <li>"Slide In Branch Below Current Branch" action is now hidden for unmanaged branches</li>
-  <li>Fixed faulty .git/machete file parsing when the last line has only whitespace</li>
-  <li>Improved UX of Override Fork Point dialog</li>
-  <li>Allowed fast forwarding parent when a branch is connected to the parent with a yellow edge</li>
-  <li>Fixed font size dependent graph scaling</li>
-  <li>Fixed incorrect indication of newly created branch after pulling its parent as merged</li>
-  <li>Allowed checkout and rebase on detached state</li>
-  <li>Improved fork point inference</li>
-  <li>Added rediscover suggestion after long Git Machete non-use time</li>
+  <li>Added support for IntelliJ 2021.1</li>
+  <li>Added dialog that suggests deleting local branches when sliding out</li>
+  <li>Added support for git config core.hooksPath property</li>
+  <li>Allowed slide out of currently checked out branch</li>
+  <li>Slide Out action slides out all occurrences of branch entry</li>
+  <li>Added slide out suggestion action link for the skipped branches to the skipped branches warning</li>
 </ul>
-
-<h3>v0.8.2</h3>
-
-Bug fixes/improvements:
+<br/>
+<br/>
+Improvements:
 <ul>
-  <li>Add link to Open Machete File action from discovery success notification</li>
-  <li>Improve stability of fast-forward pull action</li>
-  <li>Prohibit re-checking out the currently checked out with double click</li>
-  <li>Rename "fast-forward parent to match branch" action to "fast-forward merge branch to parent"</li>
-  <li>Treat develop branch as root in discovery, even if master branch is present</li>
+  <li>Add discover action to the toolbar</li>
+  <li>Do not show double-listed branches in graph table</li>
+  <li>Added tooltip for root branch as well as non-root branches</li>
+</ul>
+<br/>
+<br/>
+Bug fixes:
+<ul>
+  <li>Correctly check if Git Machete Tab is opened the project resolver (fixes premature discover)</li>
+  <li>Improve branch layout discover/write/backup reliability</li>
 </ul>
