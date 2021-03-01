@@ -21,8 +21,10 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
+  // TODO (#692): wrap write operation in WriteAction
   @Override
-  public void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
+  @SuppressWarnings("regexp") // to allow for `synchronized`
+  public synchronized void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
     val indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
 
