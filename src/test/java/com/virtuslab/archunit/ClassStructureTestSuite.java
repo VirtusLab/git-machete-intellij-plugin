@@ -10,8 +10,6 @@ import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import org.junit.Test;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
-
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
   @Test
@@ -29,9 +27,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   public void actions_overriding_onUpdate_should_call_super_onUpdate() {
     classes()
         .that()
-        .areAssignableTo(BaseProjectDependentAction.class)
+        .areAssignableTo(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
         .and()
-        .areNotAssignableFrom(BaseProjectDependentAction.class)
+        .areNotAssignableFrom(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
         .and(new DescribedPredicate<JavaClass>("override onUpdate method") {
           @Override
           public boolean apply(JavaClass input) {

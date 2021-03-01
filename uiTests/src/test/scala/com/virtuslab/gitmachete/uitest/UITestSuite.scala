@@ -16,16 +16,21 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   @BeforeClass override final def setup(): Unit = super.setup()
 
+  private val ignoredErrorMessages = Seq(
+    // Spurious errors in the IDEA itself (probably some race conditions)
+    "com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage",
+    "com.intellij.serviceContainer.AlreadyDisposedException: Already disposed: Project",
+    // https://github.com/VirtusLab/ide-probe/issues/95
+    "scala.MatchError: IDE_UPDATE (of class com.intellij.notification.NotificationType)"
+  )
+
   @AfterClass override final def teardown(): Unit = {
     try {
       super.teardown()
     } catch {
       case e: Exception =>
         val filteredSuppressed = e.getSuppressed.filterNot { s =>
-          // A duct tape to ignore https://github.com/VirtusLab/ide-probe/issues/95
-          s.getMessage.contains("scala.MatchError: IDE_UPDATE (of class com.intellij.notification.NotificationType)") ||
-            // Another duct tape to ignore a spurious error in the IDEA itself (probably some race condition)
-            s.getMessage.contains("com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage")
+          ignoredErrorMessages.exists(s.getMessage.contains)
         }
         if (filteredSuppressed.nonEmpty) {
           // Following the approach taken by org.virtuslab.ideprobe.reporting.AfterTestChecks.apply
