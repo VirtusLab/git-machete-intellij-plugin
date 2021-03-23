@@ -44,72 +44,66 @@ class SlideInDialog(
   fun showAndGetBranchName() =
       if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
 
-  override fun createCenterPanel() =
-      panel {
-        row(
-            getString(
-                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")) {
-          label(parentName, bold = true)
-        }
-        row {
-          label(
+  override fun createCenterPanel() = panel {
+    row(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")) {
+      label(parentName, bold = true)
+    }
+    row {
+      label(
+          getString(
+              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name"))
+    }
+    row {
+      textField(::branchName, { branchName = it })
+          .focused()
+          .withValidationOnApply(validateBranchName())
+          .apply { startTrackingValidationIfNeeded() }
+    }
+    row {
+      reattachCheckbox =
+          checkBox(
               getString(
-                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name"))
-        }
-        row {
-          textField(::branchName, { branchName = it })
-              .focused()
-              .withValidationOnApply(validateBranchName())
-              .apply { startTrackingValidationIfNeeded() }
-        }
-        row {
-          reattachCheckbox =
-              checkBox(
-                  getString(
-                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
-                  ::reattach)
-                  .component
-                  .apply {
-                    mnemonic = KeyEvent.VK_R
-                    isEnabled = false
-                    isSelected = false
-                  }
-        }
-      }
+                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
+              ::reattach)
+              .component
+              .apply {
+                mnemonic = KeyEvent.VK_R
+                isEnabled = false
+                isSelected = false
+              }
+    }
+  }
 
   private fun validateBranchName():
-      ValidationInfoBuilder.(javax.swing.JTextField) -> ValidationInfo? =
-      {
-        val insertedText = it.text
-        val errorInfo = git4idea.validators.checkRefName(insertedText)
-        if (errorInfo != null) error(errorInfo.message)
-        else if (insertedText == parentName) {
-          error(
-              getString(
-                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+      ValidationInfoBuilder.(javax.swing.JTextField) -> ValidationInfo? = {
+    val insertedText = it.text
+    val errorInfo = git4idea.validators.checkRefName(insertedText)
+    if (errorInfo != null) error(errorInfo.message)
+    else if (insertedText == parentName) {
+      error(
+          getString(
+              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+    } else {
+      val entryByName = branchLayout.findEntryByName(insertedText)
+      if (entryByName.map(isDescendantOf(presumedDescendantName = parentName)).getOrElse(false)) {
+        error(
+            getString(
+                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
+      } else {
+        if (insertedText in rootNames) { // the provided branch name refers to the root entry
+          reattachCheckbox?.isEnabled = false
+          reattachCheckbox?.isSelected = true
         } else {
-          val entryByName = branchLayout.findEntryByName(insertedText)
-          if (entryByName
-              .map(isDescendantOf(presumedDescendantName = parentName))
-              .getOrElse(false)) {
-            error(
-                getString(
-                    "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
-          } else {
-            if (insertedText in rootNames) { // the provided branch name refers to the root entry
-              reattachCheckbox?.isEnabled = false
-              reattachCheckbox?.isSelected = true
-            } else {
-              val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
-              reattachCheckbox?.isEnabled = existsAndHasAChild
-              reattachCheckbox?.isSelected =
-                  (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
-            }
-
-            null
-          }
+          val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
+          reattachCheckbox?.isEnabled = existsAndHasAChild
+          reattachCheckbox?.isSelected =
+              (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
         }
+
+        null
       }
+    }
+  }
 
   private fun CellBuilder<javax.swing.JTextField>.startTrackingValidationIfNeeded() {
     if (branchName.isEmpty()) {
