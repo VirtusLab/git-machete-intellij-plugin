@@ -31,61 +31,60 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
 
   override fun createActions(): Array<Action?> = emptyArray()
 
-  override fun createCenterPanel() =
-      panel {
-        row {
-          row {
-            label(
-                format(
-                    getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1")))
-          }
-          row {
-            label(
-                format(
-                    getString(
-                        "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-2"),
-                    DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
-          }
-        }
-        row {
-          button(
-              getString(
-                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
-            delete = true
-            doOKAction()
-          }
-              .component
-              .apply { mnemonic = KeyEvent.VK_D }
-          button(
-              getString(
-                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
-            delete = false
-            doOKAction()
-          }
-              .component
-              .apply { mnemonic = KeyEvent.VK_K }
-          button(
-              getString(
-                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
-            delete = true
-            close(CANCEL_EXIT_CODE)
-          }
-              .component
-              .apply { mnemonic = KeyEvent.VK_C }
-        }
-        row {
-          checkBox(
-              getString(
-                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
-              ::remember)
-              .component
-              .apply {
-                mnemonic = KeyEvent.VK_R
-                isSelected = false
-              }
-        }
+  override fun createCenterPanel() = panel {
+    row {
+      row {
+        label(
+            format(
+                getString(
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1")))
       }
+      row {
+        label(
+            format(
+                getString(
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-2"),
+                DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
+      }
+    }
+    row {
+      button(
+          getString(
+              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
+        delete = true
+        doOKAction()
+      }
+          .component
+          .apply { mnemonic = KeyEvent.VK_D }
+      button(
+          getString(
+              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
+        delete = false
+        doOKAction()
+      }
+          .component
+          .apply { mnemonic = KeyEvent.VK_K }
+      button(
+          getString(
+              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
+        delete = true
+        close(CANCEL_EXIT_CODE)
+      }
+          .component
+          .apply { mnemonic = KeyEvent.VK_C }
+    }
+    row {
+      checkBox(
+          getString(
+              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
+          ::remember)
+          .component
+          .apply {
+            mnemonic = KeyEvent.VK_R
+            isSelected = false
+          }
+    }
+  }
 
   // this will lower the gap between the last row and the bottom border
   override fun createSouthPanel(): JComponent? = null
