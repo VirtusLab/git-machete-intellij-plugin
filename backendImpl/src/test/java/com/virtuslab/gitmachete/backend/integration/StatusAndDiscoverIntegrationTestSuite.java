@@ -184,7 +184,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
-        sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} has been found in reflog of ");
+        sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} seems to be a part of the unique history of ");
         List<IBranchReference> uniqueBranchesContainingInReflog = forkPoint.getUniqueBranchesContainingInReflog();
         sb.append(uniqueBranchesContainingInReflog.map(b -> b.getName()).sorted().mkString(" and "));
       }
