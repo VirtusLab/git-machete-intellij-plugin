@@ -6,9 +6,6 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
-    <!-- For some reason, out of all IntelliJ-based IDEs, externalSystem is NOT supported by Android Studio. -->
-    <!-- Without making this dependency optional, we can't be compatible with AS. -->
-    <depends optional="true" config-file="com.virtuslab.git-machete-withExternalSystem.xml">com.intellij.modules.externalSystem</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <changesViewContent tabName="Git Machete"

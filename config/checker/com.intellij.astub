@@ -184,7 +184,6 @@ interface Application {
 @UIPackage package com.intellij.openapi.diff;
 @UIPackage package com.intellij.openapi.editor;
 @UIPackage package com.intellij.openapi.editor.colors;
-@UIPackage package com.intellij.openapi.externalSystem;
 @UIPackage package com.intellij.openapi.fileChooser;
 @UIPackage package com.intellij.openapi.fileEditor;
 

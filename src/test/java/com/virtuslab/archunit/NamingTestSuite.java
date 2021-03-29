@@ -27,16 +27,6 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
-  public void class_names_should_not_end_with_Manager() {
-    noClasses()
-        .that().areNotAssignableTo(com.virtuslab.gitmachete.frontend.externalsystem.project.MacheteTaskManager.class)
-        .should().haveSimpleNameEndingWith("Manager")
-        .because("classes called `...Manager` are an indicator of poor design; " +
-            "likely a redesign (and not just a rename) is needed")
-        .check(importedClasses);
-  }
-
-  @Test
   public void class_names_should_not_end_with_Util() {
     noClasses()
         .should().haveSimpleNameEndingWith("Util")

@@ -12,7 +12,6 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
         .that().resideOutsideOfPackages(
             "com.virtuslab.binding",
             "com.virtuslab.gitmachete.frontend.actions..",
-            "com.virtuslab.gitmachete.frontend.externalsystem..",
             "com.virtuslab.gitmachete.frontend.file..",
             "com.virtuslab..impl..")
         .should()

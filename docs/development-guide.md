@@ -135,7 +135,6 @@ branchlayout
 gitcore
 gitmachete.backend
 gitmachete.frontend.actions
-gitmachete.frontend.externalsystem
 gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
