@@ -31,8 +31,9 @@ RUN set -x \
   && echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n\
 <!DOCTYPE map SYSTEM "http://java.sun.com/dtd/preferences.dtd">\n\
 <map MAP_XML_VERSION="1.0">\n\
-  <entry key="accepted_version" value="2.1"/>\n\
-  <entry key="eua_accepted_version" value="1.1"/>\n\
+  <entry key="accepted_version" value="2.4"/>\n\
+  <entry key="eua_accepted_version" value="1.2"/>\n\
+  <entry key="ij_euaeap_accepted_version" value="3.0"/>\n\
   <entry key="privacyeap_accepted_version" value="2.1"/>\n\
 </map>' > "$dir/prefs.xml" \
   && cat "$dir/prefs.xml"
