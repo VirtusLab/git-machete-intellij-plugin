@@ -20,6 +20,6 @@ EOF
 
 git ls-files \
   ':!*.flex' ':!gradlew' ':!*.java' ':!*.kt' ':!*.md' \
-  ':!plugin-verifier.gradle' ':!scripts/setup-multiroot-sandbox' \
+  ':!plugin-verifier.gradle' '!*.scala' ':!scripts/setup-multiroot-sandbox' \
   ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml' \
    | xargs awk "$awk_script"

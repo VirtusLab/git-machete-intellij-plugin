@@ -57,24 +57,27 @@ object UITestSuite
   }
 
   override protected def baseFixture: IntelliJFixture = transformFixture {
-    val driverConfig = DriverConfig(
-      vmOptions = Seq("-Xmx1G"),
-      check = CheckConfig(errors = true)
-    )
     val config = Config.fromString(
       """
-        |probe.endpoints.awaitIdle {
-        |    initialWait = "1 second"
-        |    newTaskWait = "2 seconds"
-        |    checkFrequency = "250 millis"
+        |probe {
+        |  driver {
+        |    vmOptions = ["-Xmx1G"]
+        |    check {
+        |      errors = true
+        |    }
+        |  }
+        |
+        |  waitLogic.default {
+        |    type = "EmptyNamedBackgroundTasks"
+        |    basicCheckFrequency = "1s"
+        |    ensurePeriod = "1s"
+        |    ensureFrequency = "250ms"
+        |    atMost = "2 minutes"
+        |  }
         |}
         |""".stripMargin)
 
-    IntelliJFixture(
-      version = intelliJVersion,
-      factory = IntelliJFactory.Default.withConfig(driverConfig),
-      config = config
-    )
+    fixtureFromConfig(config).copy(version = intelliJVersion)
   }
 
 }
@@ -88,7 +91,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(repositoryMainDir)
     intelliJ.project.configure()
-    intelliJ.probe.awaitIdle()
+    intelliJ.probe.await()
 
     // Since 2021.1, IntelliJ introduced a mechanism of trusted projects... yet another dialog to accept in our case :/
     if (intelliJ.ide.getMajorVersion().toInt >= 2021) {
@@ -98,7 +101,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @After
   def afterEach(): Unit = {
-    intelliJ.probe.awaitIdle()
+    intelliJ.probe.await()
     // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
     // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
     intelliJ.ide.closeOpenedProjects()
@@ -147,7 +150,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     setLastModifiedDateOfMacheteFileToEpochStart()
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.acceptSuggestedBranchLayout()
-    intelliJ.probe.awaitIdle()
+    intelliJ.probe.await()
     var branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()

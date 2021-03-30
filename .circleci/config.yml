@@ -6,9 +6,9 @@ jobs:
     working_directory: ~/git-machete-intellij-plugin
     steps:
       - checkout
-      - run:
-          name: Run pre-compile checks
-          command: ./scripts/run-pre-build-checks
+#      - run:
+#          name: Run pre-compile checks
+#          command: ./scripts/run-pre-build-checks
       - restore_cache:
           # Adding `-v3` suffix to enable easy cache invalidation when needed (just change to `-v4`)
           keys:
@@ -20,74 +20,74 @@ jobs:
             - gradle-deps-v3-{{ checksum "build.gradle" }}-
             # If both above keys are not found, instead find the most recently generated cache from any branch.
             - gradle-deps-v3-
-      - run:
-          name: Start Gradle daemon
-          command: ./gradlew
-
-      - run:
-          name: Validate Markdown files
-          command: |
-            set -x
-            ./scripts/validate-markdown-links
-            ./scripts/validate-markdown-tocs
-            ./scripts/validate-markdown-values
-      - run:
-          name: Check formatting
-          command: ./gradlew spotlessCheck
-      - run:
-          name: Compile production code
-          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
-          command: ./gradlew --max-workers=2 compileJava
-      - run:
-          name: Run post-compile checks
-          command: ./scripts/verify-no-string-interpolation-leftovers
-      - run:
-          name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain
-      - run:
-          name: Check Javadoc correctness
-          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
-          command: ./gradlew --max-workers=2 javadoc
-
-      - run:
-          name: Compile tests
-          command: ./gradlew compileTestJava
-      - run:
-          name: Install git-machete CLI
-          # Let's install the *first* of the comma-separated versions -
-          # some of the later versions might not have been released yet and are only useful for the local development.
-          command: |
-            cli_version=$(grep -Po '(?<=referenceCliVersions=)[^,]*' backendImpl/src/test/resources/reference-cli-version.properties)
-            pip3 install git-machete==$cli_version
-      - run:
-          name: Run unit & integration tests
-          command: ./gradlew test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayoutImpl/build/test-results/
-      - store_test_results:
-          path: backendImpl/build/test-results/
-
-      - save_cache:
-          paths: [ ~/.gradle/ ]
-          key: gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
-
-      - run:
-          name: Build plugin artifact
-          command: ./gradlew buildPlugin
-      - store_artifacts:
-          path: build/distributions/
-          destination: .
-      - run:
-          name: Verify plugin artifact contents
-          command: ./scripts/verify-artifact-contents
-      - run:
-          name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew runPluginVerifier
-
-      - run:
-          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
+#      - run:
+#          name: Start Gradle daemon
+#          command: ./gradlew
+#
+#      - run:
+#          name: Validate Markdown files
+#          command: |
+#            set -x
+#            ./scripts/validate-markdown-links
+#            ./scripts/validate-markdown-tocs
+#            ./scripts/validate-markdown-values
+#      - run:
+#          name: Check formatting
+#          command: ./gradlew spotlessCheck
+#      - run:
+#          name: Compile production code
+#          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
+#          command: ./gradlew --max-workers=2 compileJava
+#      - run:
+#          name: Run post-compile checks
+#          command: ./scripts/verify-no-string-interpolation-leftovers
+#      - run:
+#          name: Run static code analyzer
+#          command: ./gradlew --warn checkstyleMain
+#      - run:
+#          name: Check Javadoc correctness
+#          # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
+#          command: ./gradlew --max-workers=2 javadoc
+#
+#      - run:
+#          name: Compile tests
+#          command: ./gradlew compileTestJava
+#      - run:
+#          name: Install git-machete CLI
+#          # Let's install the *first* of the comma-separated versions -
+#          # some of the later versions might not have been released yet and are only useful for the local development.
+#          command: |
+#            cli_version=$(grep -Po '(?<=referenceCliVersions=)[^,]*' backendImpl/src/test/resources/reference-cli-version.properties)
+#            pip3 install git-machete==$cli_version
+#      - run:
+#          name: Run unit & integration tests
+#          command: ./gradlew test
+#      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+#      - store_test_results:
+#          path: branchLayoutImpl/build/test-results/
+#      - store_test_results:
+#          path: backendImpl/build/test-results/
+#
+#      - save_cache:
+#          paths: [ ~/.gradle/ ]
+#          key: gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
+#
+#      - run:
+#          name: Build plugin artifact
+#          command: ./gradlew buildPlugin
+#      - store_artifacts:
+#          path: build/distributions/
+#          destination: .
+#      - run:
+#          name: Verify plugin artifact contents
+#          command: ./scripts/verify-artifact-contents
+#      - run:
+#          name: Verify binary compatibility with supported IntelliJ versions
+#          command: ./gradlew runPluginVerifier
+#
+#      - run:
+#          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
+#          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
       - run:
           name: Run UI tests against the latest stable IntelliJ version (our build target)
           command: ./scripts/run-ui-tests latestStable
