@@ -88,10 +88,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.configure()")
       }
 
-      def confirmAsTrusted(): Unit = {
-        runJs("project.confirmAsTrusted()")
-      }
-
       def discoverBranchLayout(): Unit = {
         runJs("project.discoverBranchLayout()")
         intelliJ.probe.awaitIdle()

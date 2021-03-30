@@ -89,11 +89,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.probe.openProject(repositoryMainDir)
     intelliJ.project.configure()
     intelliJ.probe.awaitIdle()
-
-    // Since 2021.1, IntelliJ introduced a mechanism of trusted projects... yet another dialog to accept in our case :/
-    if (intelliJ.ide.getMajorVersion().toInt >= 2021) {
-      intelliJ.project.confirmAsTrusted()
-    }
   }
 
   @After
