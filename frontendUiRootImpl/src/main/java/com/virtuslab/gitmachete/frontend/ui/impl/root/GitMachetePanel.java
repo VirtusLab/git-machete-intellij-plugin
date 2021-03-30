@@ -14,6 +14,10 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.AncestorListenerAdapter;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
@@ -22,6 +26,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileType;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
@@ -41,6 +46,19 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     val selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
     val selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
     val graphTable = getGraphTable();
+
+    project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+      @Override
+      public void after(java.util.List<? extends VFileEvent> events) {
+        for (val event : events) {
+          if (event instanceof VFileContentChangeEvent) {
+            if (MacheteFileType.instance.equals(((VFileContentChangeEvent) event).getFile().getFileType())) {
+              graphTable.queueRepositoryUpdateAndModelRefresh();
+            }
+          }
+        }
+      }
+    });
 
     // This class is final, so the instance is `@Initialized` at this point.
 

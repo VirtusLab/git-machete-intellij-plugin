@@ -6,6 +6,7 @@ dependencies {
   implementation project(':binding')
   implementation project(':frontendDefs')
   implementation project(':frontendDataKeys')
+  implementation project(':frontendFile')
   implementation project(':frontendVfsUtils')
   implementation project(':frontendProviderServices')
   implementation project(':frontendResourceBundles')
