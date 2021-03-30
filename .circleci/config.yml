@@ -18,8 +18,11 @@ jobs:
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
             - gradle-deps-v3-{{ checksum "build.gradle" }}-
-            # If both above keys are not found, instead find the most recently generated cache from any branch.
-            - gradle-deps-v3-
+            # Paradoxically, it's better NOT to got any further.
+            # We used to try `gradle-deps-v3-` if both above entries were missing...
+            # but the result was that the a lot of items were gradually accumulating in the cache,
+            # and the Restore/Save step were taking more and more time (the latter up to 5 minutes),
+            # which defied the original purpose of caching (speeding up the builds).
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -29,7 +32,6 @@ jobs:
           command: |
             set -x
             ./scripts/validate-markdown-links
-            ./scripts/validate-markdown-tocs
             ./scripts/validate-markdown-values
       - run:
           name: Check formatting

@@ -1,31 +1,5 @@
 # Git Machete Features
 
-## Table of contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-<!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path>` -->
-
-- [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-- [Branch layout graph](#branch-layout-graph)
-- [Check out branches](#check-out-branches)
-- [Toggle listing commits](#toggle-listing-commits)
-- [Rebase](#rebase)
-- [Push](#push)
-- [Pull](#pull)
-- [Reset to remote](#reset-to-remote)
-- [Fast-forward merge to parent](#fast-forward-merge-to-parent)
-- [Slide out branch](#slide-out-branch)
-- [Slide in branch](#slide-in-branch)
-- [Override fork point](#override-fork-point)
-- [Discover](#discover)
-- [Edit machete file](#edit-machete-file)
-- [Other actions](#other-actions)
-- [Multi-repository support](#multi-repository-support)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
 ## Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.

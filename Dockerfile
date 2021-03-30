@@ -47,7 +47,7 @@ RUN set -x \
 # Secondary packages needed in just one (or few) steps of the pipeline:
 # (package       => needed for command(s))
 # binutils       => strings
-# nodejs         => npm (Docker build only), doctoc, remark
+# nodejs         => npm (Docker build only), remark
 # procps         => kill (as a standalone command and not shell built-in, to be executed by ide-probe)
 # xxd            => xxd
 # unzip          => zipinfo
@@ -59,5 +59,5 @@ RUN set -x \
 # Markdown validation utilities
 RUN set -x \
   && curl -Lf https://npmjs.org/install.sh | sh \
-  && npm install --global doctoc remark-cli remark-lint-no-dead-urls remark-validate-links \
+  && npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links \
   && npm uninstall --global npm

@@ -28,27 +28,6 @@ The minimum required version is 2020.1.
 🖥 For the console version, check [git-machete](https://github.com/VirtusLab/git-machete#git-machete).
 
 
-## Table of contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-<!-- To install doctoc run `npm install -g doctoc`, to use it run `doctoc <this-file-path>` -->
-
-- [Installing from JetBrains Marketplace](#installing-from-jetbrains-marketplace)
-- [Where to find the plugin tab](#where-to-find-the-plugin-tab)
-- [Getting started with Git Machete](#getting-started-with-git-machete)
-  - [Scenario 1: Review](#scenario-1-review)
-  - [Scenario 2: Branch update](#scenario-2-branch-update)
-  - [Scenario 3: Commit to parent branch (sequential branch setup)](#scenario-3-commit-to-parent-branch-sequential-branch-setup)
-  - [Scenario 4: Merge (maintaining linear history)](#scenario-4-merge-maintaining-linear-history)
-- [Complete feature list](#complete-feature-list)
-- [Build](#build)
-- [Issue reporting](#issue-reporting)
-- [References](#references)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
 ## Installing from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
