@@ -58,7 +58,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
     object project {
       def acceptBranchDeletionOnSlideOut(): Unit = {
         runJs("project.acceptBranchDeletionOnSlideOut()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def acceptSuggestedBranchLayout(): Unit = {
@@ -81,7 +81,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def checkoutBranch(branch: String): Unit = {
         runJs(s"project.checkoutBranch('$branch')")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def configure(): Unit = {
@@ -90,7 +90,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def discoverBranchLayout(): Unit = {
         runJs("project.discoverBranchLayout()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def getCurrentBranchName(): String = {
@@ -107,12 +107,12 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
         runJs(s"project.fastForwardMergeSelectedBranchToParent('$branch')")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def fastForwardMergeCurrentBranchToParent(): Unit = {
         runJs(s"project.fastForwardMergeCurrentBranchToParent()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def openGitMacheteTab(): Unit = {
@@ -121,12 +121,12 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def pullBranch(branch: String): Unit = {
         runJs(s"project.pullBranch('$branch')")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def pullCurrentBranch(): Unit = {
         runJs(s"project.pullCurrentBranch()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def refreshModelAndGetRowCount(): Int = {
@@ -135,22 +135,22 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def rejectBranchDeletionOnSlideOut(): Unit = {
         runJs("project.rejectBranchDeletionOnSlideOut()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def resetCurrentBranchToRemote(): Unit = {
         runJs(s"project.resetCurrentBranchToRemote()")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def resetBranchToRemote(branch: String): Unit = {
         runJs(s"project.resetBranchToRemote('$branch')")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def slideOutBranch(branch: String): Unit = {
         runJs(s"project.slideOutBranch('$branch')")
-        intelliJ.probe.awaitIdle()
+        intelliJ.probe.await()
       }
 
       def toggleListingCommits(): Unit = {

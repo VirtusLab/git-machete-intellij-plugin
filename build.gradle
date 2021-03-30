@@ -46,7 +46,7 @@ ext {
   checkerFrameworkVersion = '3.10.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.5'
-  ideProbeVersion = '0.3.0' // let's stick to this version until https://github.com/VirtusLab/ide-probe/issues/98 is resolved
+  ideProbeVersion = '0.5.0+11-c291a948-SNAPSHOT'
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.10.0.202012080955-r'
   junitVersion = '4.13.1'
