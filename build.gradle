@@ -12,7 +12,7 @@ plugins {
   id 'org.jetbrains.intellij' version '0.7.2' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against;
   // e.g. 2020.x uses version 1.3.x amd 2021.1 uses 1.4.x
-  id 'org.jetbrains.kotlin.jvm' version '1.4.31' apply false
+  id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.48' apply false
 }
 
@@ -38,7 +38,7 @@ ext {
     ? buildNumberToIntellijVersion(intellijVersions.eapOfLatestSupportedMajor)
     : majorPartOfIntellijVersion(intellijVersions.latestStable)
 
-  intellijVersions.buildTarget = intellijVersions.eapOfLatestSupportedMajor
+  intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
 
   archUnitVersion = '0.17.0'
