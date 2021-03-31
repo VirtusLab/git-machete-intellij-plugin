@@ -24,19 +24,9 @@ RUN set -x \
   && dir=/root/.local/share/JetBrains/consentOptions \
   && mkdir -p "$dir" \
   && echo -n "rsch.send.usage.stat:1.1:0:$(date +%s)000" > "$dir/accepted"
-# Accept End User Agreement/privacy policy
-RUN set -x \
-  && dir="/root/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@==" \
-  && mkdir -p "$dir" \
-  && echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n\
-<!DOCTYPE map SYSTEM "http://java.sun.com/dtd/preferences.dtd">\n\
-<map MAP_XML_VERSION="1.0">\n\
-  <entry key="accepted_version" value="2.4"/>\n\
-  <entry key="eua_accepted_version" value="1.2"/>\n\
-  <entry key="ij_euaeap_accepted_version" value="3.0"/>\n\
-  <entry key="privacyeap_accepted_version" value="2.1"/>\n\
-</map>' > "$dir/prefs.xml" \
-  && cat "$dir/prefs.xml"
+# Note that if we were to run `./gradlew runIdeForUiTests`,
+# we'd need to populate /root/.java/.userPrefs/jetbrains/.../prefs.xml to accept End User Agreement/privacy policy.
+# But in our setup, it's sorted out by ide-probe instead (org.virtuslab.ideprobe.ide.intellij.IntellijPrivacyPolicy).
 
 # Tools necessary to run non-headless UI tests in the screen-less environment of CI
 RUN set -x \

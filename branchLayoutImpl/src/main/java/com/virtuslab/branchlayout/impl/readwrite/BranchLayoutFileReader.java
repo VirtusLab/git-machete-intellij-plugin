@@ -136,7 +136,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
       }
 
       int lineIndentWidth = BranchLayoutFileUtils.getIndentWidth(line, indentSpec.getIndentCharacter());
-      int level = getIndentLevel(path, indentSpec, lineIndentWidth, realLineNumber);
+      int level = getIndentLevel(path, indentSpec, line, lineIndentWidth, realLineNumber);
 
       if (level - previousLevel > 1) {
         throw new BranchLayoutException(realLineNumber + 1,
@@ -159,7 +159,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     return lineIndexToIndentLevelAndParentLineIndex;
   }
 
-  private @NonNegative int getIndentLevel(Path path, IndentSpec indentSpec, @NonNegative int indent,
+  private @NonNegative int getIndentLevel(Path path, IndentSpec indentSpec, String line, @NonNegative int indent,
       @NonNegative int lineNumber)
       throws BranchLayoutException {
     if (indent == 0) {
@@ -168,7 +168,8 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     if (indent % indentSpec.getIndentWidth() != 0) {
       throw new BranchLayoutException(lineNumber + 1,
-          "Levels of indentation are not matching in branch layout file (${path.toAbsolutePath()})");
+          "Levels of indentation are not matching in branch layout file (${path.toAbsolutePath()}): " +
+              "line `${line}` has ${indent} indent characters, but expected a multiply of ${indentSpec.getIndentWidth()}");
     }
 
     return indent / indentSpec.getIndentWidth();
