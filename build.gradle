@@ -31,7 +31,7 @@ ext {
     // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupportedMajor: null //'211.6556.14-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: '211.6693.14-EAP-SNAPSHOT'
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
