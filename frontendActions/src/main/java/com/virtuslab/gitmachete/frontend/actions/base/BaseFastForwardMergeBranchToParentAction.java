@@ -84,9 +84,7 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
   private void doFastForwardCurrentBranch(Project project,
       GitRepository gitRepository,
       INonRootManagedBranchSnapshot targetBranch) {
-
     val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
-
     new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, targetBranch.getName()).queue();
   }
 

@@ -18,8 +18,10 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.PullCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -86,7 +88,11 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
       val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
       if (localBranchName.equals(currentBranchName)) {
-        doPullCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch);
+        if (FetchAllRemotesAction.isUpToDate()) {
+          doPullCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch);
+        } else {
+          doMergeCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch.getFullName());
+        }
       } else {
         doPullNonCurrentBranchFastForwardOnly(project, gitRepository, localBranch, remoteBranch);
       }
@@ -96,10 +102,15 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
   private void doPullCurrentBranchFastForwardOnly(Project project,
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch) {
-
     val taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
-
     new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranch).queue();
+  }
+
+  private void doMergeCurrentBranchFastForwardOnly(Project project,
+      GitRepository gitRepository,
+      String remoteBranchFullName) {
+    val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranchFullName).queue();
   }
 
   private void doPullNonCurrentBranchFastForwardOnly(Project project,
@@ -123,7 +134,18 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
     String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
 
-    new FetchBackgroundable(
+    val ourRemoteToOurLocalBranchFetchBackgroundable = new FetchBackgroundable(
+        project,
+        gitRepository,
+        FetchBackgroundable.LOCAL_REPOSITORY_NAME,
+        refspecFromOurRemoteBranchToOurLocalBranch,
+        taskTitle,
+        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
+            localBranch.getName()),
+        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
+            localBranch.getName()));
+
+    val remoteRepoToOurRemoteBranchFetchBackgroundable = new FetchBackgroundable(
         project,
         gitRepository,
         remoteName,
@@ -137,18 +159,15 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       @Override
       @UIEffect
       public void onSuccess() {
-        new FetchBackgroundable(
-            project,
-            gitRepository,
-            LOCAL_REPOSITORY_NAME,
-            refspecFromOurRemoteBranchToOurLocalBranch,
-            taskTitle,
-            format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
-                localBranch.getName()),
-            format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
-                localBranch.getName()))
-                    .queue();
+        ourRemoteToOurLocalBranchFetchBackgroundable.queue();
       }
-    }.queue();
+    };
+
+    if (FetchAllRemotesAction.isUpToDate()) {
+      remoteRepoToOurRemoteBranchFetchBackgroundable.queue();
+    } else {
+      ourRemoteToOurLocalBranchFetchBackgroundable.queue();
+    }
+
   }
 }

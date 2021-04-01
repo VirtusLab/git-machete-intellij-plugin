@@ -19,6 +19,14 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @CustomLog
 public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
+  private static final long FETCH_ALL_UP_TO_DATE_TIMEOUT = 60 * 1000;
+
+  private static long lastFetchTimeMillis = 0;
+
+  public static boolean isUpToDate() {
+    return System.currentTimeMillis() > lastFetchTimeMillis + FETCH_ALL_UP_TO_DATE_TIMEOUT;
+  }
+
   @Override
   public IEnhancedLambdaLogger log() {
     return LOG;
@@ -55,6 +63,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
+        lastFetchTimeMillis = System.currentTimeMillis();
       }
 
       @Override
