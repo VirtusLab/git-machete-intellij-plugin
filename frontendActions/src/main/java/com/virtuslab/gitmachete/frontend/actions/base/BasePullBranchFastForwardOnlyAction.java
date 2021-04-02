@@ -18,8 +18,8 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.PullCurrentBranchFastForwardOnlyBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -85,16 +85,27 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
         log().warn("Branch '${localBranchName}' does not have a remote tracking branch");
         return;
       }
-
       val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
-      if (localBranchName.equals(currentBranchName)) {
-        if (FetchAllRemotesAction.isUpToDate()) {
+
+      if (FetchAllRemotesAction.isUpToDate(gitRepository)) {
+        val ffmProps = new FastForwardMergeProps(
+            localBranch.getName(),
+            localBranch.getFullName(),
+            remoteBranch.getName(),
+            remoteBranch.getFullName());
+
+        if (localBranchName.equals(currentBranchName)) {
+          BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository, ffmProps);
+        } else {
+          BaseFastForwardMergeBranchToParentAction.doFastForwardNonCurrentBranch(project, gitRepository, ffmProps);
+        }
+
+      } else {
+        if (localBranchName.equals(currentBranchName)) {
           doPullCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch);
         } else {
-          doMergeCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch.getFullName());
+          doPullNonCurrentBranchFastForwardOnly(project, gitRepository, localBranch, remoteBranch);
         }
-      } else {
-        doPullNonCurrentBranchFastForwardOnly(project, gitRepository, localBranch, remoteBranch);
       }
     }
   }
@@ -104,13 +115,6 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       IRemoteTrackingBranchReference remoteBranch) {
     val taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
     new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranch).queue();
-  }
-
-  private void doMergeCurrentBranchFastForwardOnly(Project project,
-      GitRepository gitRepository,
-      String remoteBranchFullName) {
-    val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranchFullName).queue();
   }
 
   private void doPullNonCurrentBranchFastForwardOnly(Project project,
@@ -145,7 +149,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
         format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
             localBranch.getName()));
 
-    val remoteRepoToOurRemoteBranchFetchBackgroundable = new FetchBackgroundable(
+    new FetchBackgroundable(
         project,
         gitRepository,
         remoteName,
@@ -161,13 +165,6 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       public void onSuccess() {
         ourRemoteToOurLocalBranchFetchBackgroundable.queue();
       }
-    };
-
-    if (FetchAllRemotesAction.isUpToDate()) {
-      remoteRepoToOurRemoteBranchFetchBackgroundable.queue();
-    } else {
-      ourRemoteToOurLocalBranchFetchBackgroundable.queue();
-    }
-
+    }.queue();
   }
 }

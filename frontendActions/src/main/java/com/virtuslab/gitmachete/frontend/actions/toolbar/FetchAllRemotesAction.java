@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
+import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -21,10 +22,12 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
   private static final long FETCH_ALL_UP_TO_DATE_TIMEOUT = 60 * 1000;
 
-  private static long lastFetchTimeMillis = 0;
+  private static final java.util.Map<String, Long> LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME = new java.util.TreeMap<>();
 
-  public static boolean isUpToDate() {
-    return System.currentTimeMillis() > lastFetchTimeMillis + FETCH_ALL_UP_TO_DATE_TIMEOUT;
+  public static boolean isUpToDate(GitRepository gitRepository) {
+    String repoName = gitRepository.getRoot().getName();
+    long lftm = LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME.getOrDefault(repoName, 0L);
+    return System.currentTimeMillis() < lftm + FETCH_ALL_UP_TO_DATE_TIMEOUT;
   }
 
   @Override
@@ -63,7 +66,10 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
-        lastFetchTimeMillis = System.currentTimeMillis();
+        if (gitRepository.isDefined()) {
+          val name = gitRepository.get().getRoot().getName();
+          LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME.put(name, System.currentTimeMillis());
+        }
       }
 
       @Override
