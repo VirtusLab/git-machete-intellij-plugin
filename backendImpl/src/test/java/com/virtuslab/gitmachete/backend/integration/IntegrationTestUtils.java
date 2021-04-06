@@ -21,7 +21,7 @@ class IntegrationTestUtils {
     List<String> referenceCliVersions = Arrays.asList(prop.getProperty("referenceCliVersions").split(","));
 
     val process = new ProcessBuilder().command("git", "machete", "--version").start();
-    process.waitFor(1, TimeUnit.SECONDS);
+    process.waitFor(5, TimeUnit.SECONDS);
     val exitValue = process.exitValue();
     if (exitValue != 0) {
       Assert.fail("git-machete CLI is not installed");
