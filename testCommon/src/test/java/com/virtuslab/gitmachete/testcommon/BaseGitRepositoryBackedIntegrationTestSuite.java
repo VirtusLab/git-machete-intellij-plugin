@@ -49,10 +49,10 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
   @SneakyThrows
   private void prepareRepoFromScript(String scriptName) {
     val process = new ProcessBuilder()
-        .command("/bin/bash", parentDir.resolve(scriptName).toString())
+        .command("bash", parentDir.resolve(scriptName).toString())
         .directory(parentDir.toFile())
         .start();
-    val completed = process.waitFor(5, TimeUnit.SECONDS);
+    val completed = process.waitFor(1, TimeUnit.MINUTES);
 
     if (!completed || process.exitValue() != 0) {
 
