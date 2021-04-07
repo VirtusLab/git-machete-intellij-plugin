@@ -13,7 +13,7 @@ for key in $(
   grep -Po '.*(?==)' -- $bundle \
   | grep -Evx 'action\.GitMachete\.[A-Za-z]+\.(description|GitMachete(ContextMenu|Toolbar).text|text)'
 ); do
-  if ! git grep -qF "$key" -- ":!$bundle"; then
+  if ! git grep -qF "$key" -- '*.java' '*.kt' ":!$bundle"; then
     echo "Property key $key defined in $bundle does not seem to be used anywhere"
     exit_code=1
   fi

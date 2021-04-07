@@ -12,7 +12,7 @@ plugins {
   id 'org.jetbrains.intellij' version '0.7.2' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against;
   // e.g. 2020.x uses version 1.3.x amd 2021.1 uses 1.4.x
-  id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false
+  id 'org.jetbrains.kotlin.jvm' version '1.4.32' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.48' apply false
 }
 
@@ -23,15 +23,15 @@ ext {
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
-    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4'],
-    latestStable: '2020.3.3',
+    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.3'],
+    latestStable: '2021.1',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
     // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
-    eapOfLatestSupportedMajor: '211.6693.65-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: null
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
@@ -51,6 +51,7 @@ ext {
   jgitVersion = '5.11.0.202103091610-r'
   junitVersion = '4.13.2'
   lombokVersion = '1.18.18'
+  kotlinVersion = '1.4.32'
   powerMockVersion = '2.0.9'
   reflectionsVersion = '0.9.12'
   scalaVersion = '2.12.10'
@@ -120,6 +121,7 @@ dependencyUpdates {
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
   repositories {
@@ -161,45 +163,51 @@ allprojects {
     testAnnotationProcessor(betterStringsCoords)
   }
 
-  gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-      options.compilerArgs += [
-        '-AcallToStringExplicitlyInInterpolations', // Enforce explicit `.toString()` call in code generated for string interpolations
-        '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
-        '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
-      ]
+  tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+      '-AcallToStringExplicitlyInInterpolations', // Enforce explicit `.toString()` call in code generated for string interpolations
+      '-Werror', // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
+      '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
+    ]
 
-      options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
+    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
 
-      // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
-      // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
-      // This will work fine, until we actually try to run those compiled classes under Java 8-compatible JVM,
-      // when we'll end up with NoSuchMethodError for APIs added between Java 9 and Java 11
-      // (most notably, InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
-      // `options.release = 8` makes sure that regardless of Java version installed in the system,
-      // only Java 8-compatible APIs are available to the compiled code.
-      options.release = javaMajorVersion
-    }
+    // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
+    // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
+    // This will work fine, until we actually try to run those compiled classes under Java 8-compatible JVM,
+    // when we'll end up with NoSuchMethodError for APIs added between Java 9 and Java 11
+    // (most notably, InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
+    // `options.release = 8` makes sure that regardless of Java version used to run the compiler,
+    // only Java 8-compatible APIs are available to the compiled code.
+    options.release = javaMajorVersion
+  }
 
-    tasks.withType(Javadoc) {
-      // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the `-Xwerror` option:
-      // this is needed to make sure that javadoc always fails on warnings
-      // (esp. important on CI since javadoc there for some reason seems to never raise any errors otherwise).
+  tasks.withType(Javadoc) {
+    // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the `-Xwerror` option:
+    // this is needed to make sure that javadoc always fails on warnings
+    // (esp. important on CI since javadoc there for some reason seems to never raise any errors otherwise).
 
-      // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
-      // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
-      options.addStringOption('Xwerror', '-quiet')
-      options.addStringOption('Xdoclint:all', '-quiet')
-    }
+    // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
+    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
+    options.addStringOption('Xwerror', '-quiet')
+    options.addStringOption('Xdoclint:all', '-quiet')
+  }
 
-    tasks.withType(Test) {
-      testLogging {
-        events TestLogEvent.FAILED
-        exceptionFormat TestExceptionFormat.FULL
-        showCauses true
-        showExceptions true
-        showStackTraces true
-      }
+  tasks.withType(KotlinCompile) {
+    // Note that unlike `options.release` for `JavaCompile` tasks,
+    // there seems to be no good way to prevent the compiled Kotlin code from using the APIs
+    // of whatever Java version is used to run the compiler
+    // (https://stackoverflow.com/questions/61266285/set-kotlins-java-api-version-with-gradle).
+    kotlinOptions.jvmTarget = javaMajorVersion
+  }
+
+  tasks.withType(Test) {
+    testLogging {
+      events TestLogEvent.FAILED
+      exceptionFormat TestExceptionFormat.FULL
+      showCauses true
+      showExceptions true
+      showStackTraces true
     }
   }
 
@@ -524,9 +532,14 @@ if (ciBranch == 'master') {
 
 
 dependencies {
-  testImplementation group: 'com.tngtech.archunit', name: 'archunit',     version: archUnitVersion
   // Checker is needed on root project runtime (not just compile-time) classpath for ArchUnit tests
   testImplementation group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
+
+  testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
+
+  // kotlin-reflect is NOT added by Gralde Kotlin plugin 1.4.x automatically,
+  // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
+  implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
 }
 
 

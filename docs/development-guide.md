@@ -214,9 +214,10 @@ For instance:
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
    via `ext.intellijVersions.latestSupportedMajor` in [build.gradle](../build.gradle))
 5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
-   then, `latestStable` can be updated to `2020.3` and `eapOfLatestSupportedMajor` can be set to `null`
+   then, `latestStable` can be updated to `2020.3`, `eapOfLatestSupportedMajor` can be set to `null`,
+   and `2020.2.x` can be added to `latestMinorsOfOldSupportedMajors`
 6. since `latestStable` is used as the version to build against,
-   a few source incompatibilities might appear once `latestStable` is updated, even when the plugin was binary compatible with the new IDE version.
+   a few _source_ incompatibilities might appear once `latestStable` is updated, even when the plugin was _binary_ compatible with the new IDE version.
 
 ## PRs & releases
 

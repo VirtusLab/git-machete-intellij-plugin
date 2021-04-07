@@ -30,14 +30,17 @@ for project in $gradle_projects; do
   fi
 done
 
-expected_libraries=(org.eclipse.jgit reflections slf4j-lambda-core vavr vavr-match)
+# Since Gradle Kotlin plugin 1.4.0, kotlin-stdlib is automatically packaged into the plugin zip
+# (https://kotlinlang.org/docs/whatsnew14.html#dependency-on-the-standard-library-added-by-default),
+# but kotlin-reflect needs to be added by us explicitly since it's required in the runtime.
+expected_libraries=(org.eclipse.jgit kotlin-reflect kotlin-stdlib reflections slf4j-lambda-core vavr vavr-match)
 for lib in ${expected_libraries[@]}; do
   grep -qEx "${lib//./\\.}-[0-9.]+.*\.jar" <<< "$jars_in_plugin_zip" || fail "$lib jar is expected but missing from $plugin_zip"
 done
 
 # We don't want either slf4j-api or any SLF4J implementation jars in the final plugin artifact
-# since this would lead to a linker error (for api) or an SLF4J error (for impl) in the runtime.
-forbidden_library_prefixes=(checker ide-probe idea junit-driver kotlin lombok remote-robot scala slf4j)
+# as this would lead to a linker error (for api) or an SLF4J error (for impl) in the runtime.
+forbidden_library_prefixes=(checker ide-probe idea junit-driver lombok remote-robot scala slf4j)
 for lib in ${forbidden_library_prefixes[@]}; do
   if matching_jars=$(grep "^$lib" <<< "$jars_in_plugin_zip"); then
     for jar in $matching_jars; do
