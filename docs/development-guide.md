@@ -18,6 +18,10 @@ For running tests of `backendImpl` (which are also run by `./gradlew test` task,
 install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
 in any of the versions listed in [backendImpl/src/test/resources/reference-cli-version.properties](../backendImpl/src/test/resources/reference-cli-version.properties).
 
+### Windows
+
+LongPathsEnabled Windows Registry key change from 0 to 1.
+
 ### Optional
 
 [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
