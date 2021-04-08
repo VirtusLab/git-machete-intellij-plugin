@@ -11,7 +11,7 @@
         <property name="files" value="^.*/build/generated/.*\.java$"/>
     </module>
 
-    <module name="SuppressionSingleFilter">
+    <module name="SuppressionSingleFilter"> //it's needed specifically for Windows because Windows, unlike Unix-like systems (Linux, MacOS etc.) uses \ and not / to separate path segments
         <property name="checks" value=".*"/>
         <property name="files" value="^.*\\build\\generated\\.*\.java$"/>
     </module>
