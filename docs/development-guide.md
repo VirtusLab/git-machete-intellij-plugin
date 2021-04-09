@@ -20,7 +20,10 @@ in any of the versions listed in [backendImpl/src/test/resources/reference-cli-v
 
 ### Windows
 
-LongPathsEnabled Windows Registry key change from 0 to 1.
+1. Open the Registry Editor (regedit.exe).
+2. Open path by clicking: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem.
+3. Find key named: LongPathsEnabled and double click.
+4. If the date value is 0, change it to 1.
 
 ### Optional
 
