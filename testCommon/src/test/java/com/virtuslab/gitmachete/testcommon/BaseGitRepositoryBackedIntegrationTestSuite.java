@@ -1,19 +1,16 @@
 package com.virtuslab.gitmachete.testcommon;
 
+import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
+
 import java.io.File;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
-import lombok.val;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 
 public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
 
@@ -46,22 +43,9 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
     Files.copy(Paths.get(resourceUrl.toURI()), parentDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
   }
 
-  @SneakyThrows
   private void prepareRepoFromScript(String scriptName) {
-    val process = new ProcessBuilder()
-        .command("bash", parentDir.resolve(scriptName).toString())
-        .directory(parentDir.toFile())
-        .start();
-    val completed = process.waitFor(1, TimeUnit.MINUTES);
-
-    if (!completed || process.exitValue() != 0) {
-
-      System.out.println(IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8));
-      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
-    }
-
-    Assert.assertTrue(completed);
-    Assert.assertEquals(0, process.exitValue());
+    runProcessAndReturnStdout(/* workingDirectory */ parentDir, /* timeoutSeconds */ 60,
+        /* command */ "bash", parentDir.resolve(scriptName).toString());
   }
 
   /**

@@ -5,7 +5,7 @@ import javax.swing.Icon;
 import com.intellij.openapi.util.IconLoader;
 
 /**
- * Icons must must be in package named "icons" based on
+ * Icons must be in package named "icons" based on
  * https://www.jetbrains.org/intellij/sdk/docs/reference_guide/work_with_icons_and_images.html
  */
 public final class MacheteIcons {

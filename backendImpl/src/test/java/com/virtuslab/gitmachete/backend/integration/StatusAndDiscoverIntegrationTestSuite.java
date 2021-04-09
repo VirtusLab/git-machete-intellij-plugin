@@ -8,17 +8,16 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.I
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
 import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
+import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
-import java.nio.charset.StandardCharsets;
-
 import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -121,21 +120,16 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
-    val process = new ProcessBuilder()
-        .command("git", "machete", "status", "--list-commits")
-        .directory(repositoryMainDir.toFile())
-        .start();
-    return IOUtils.toString(process.getInputStream());
+    return runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
+        /* command */ "git", "machete", "status", "--list-commits");
   }
 
   @SneakyThrows
   private String gitMacheteCliDiscover() {
-    val process = new ProcessBuilder()
-        .command("git", "machete", "discover", "--list-commits", "--yes")
-        .directory(repositoryMainDir.toFile())
-        .start();
+    String output = runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
+        /* command */ "git", "machete", "discover", "--list-commits", "--yes");
 
-    return List.ofAll(IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8))
+    return List.ofAll(Stream.of(output.split("\n")))
         .drop(2) // Let's skip the informational output at the beginning and at the end.
         .dropRight(2)
         .mkString(System.lineSeparator());

@@ -45,7 +45,7 @@ ext {
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.11.0'
   checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.5'
+  commonsIOVersion = '2.7'
   ideProbeVersion = '0.5.0+12-ce9efc96-SNAPSHOT'
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
   jgitVersion = '5.11.0.202103091610-r'
@@ -550,7 +550,6 @@ intellij {
   pluginName 'git-machete-intellij-plugin'
   version intellijVersions.buildTarget
 
-  buildSearchableOptions.enabled = false
   plugins 'git4idea' // Needed solely for ArchUnit
 }
 

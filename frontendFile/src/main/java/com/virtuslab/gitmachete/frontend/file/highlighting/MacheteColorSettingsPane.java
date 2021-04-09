@@ -12,13 +12,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MacheteColorSettingsPane implements ColorSettingsPage {
   private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
-      new AttributesDescriptor("Branch Prefix", MacheteSyntaxHighlighter.PREFIX),
-      new AttributesDescriptor("Branch Name", MacheteSyntaxHighlighter.NAME),
-      new AttributesDescriptor("Custom Annotation", MacheteSyntaxHighlighter.CUSTOM_ANNOTATION),
-      new AttributesDescriptor("Bad Value", MacheteSyntaxHighlighter.BAD_CHARACTER)
+      new AttributesDescriptor("Branch prefix", MacheteSyntaxHighlighter.PREFIX),
+      new AttributesDescriptor("Branch name", MacheteSyntaxHighlighter.NAME),
+      new AttributesDescriptor("Custom annotation", MacheteSyntaxHighlighter.CUSTOM_ANNOTATION),
+      new AttributesDescriptor("Bad value", MacheteSyntaxHighlighter.BAD_CHARACTER)
   };
 
-  public static final String NL = System.lineSeparator();
+  // We're deliberately using \n rather than `System.lineSeparator()` here
+  // since it turned out that even on Windows (which generally uses \r\n) IntelliJ expects \n in this context for some reason.
+  @SuppressWarnings("regexp")
+  public static final String NL = "\n";
 
   @Override
   public Icon getIcon() {
