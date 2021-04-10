@@ -537,7 +537,7 @@ dependencies {
 
   testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
 
-  // kotlin-reflect is NOT added by Gralde Kotlin plugin 1.4.x automatically,
+  // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4.x automatically,
   // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
   implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
 }

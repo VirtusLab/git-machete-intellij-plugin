@@ -3,27 +3,30 @@
 # We don't want `less` to open for `git grep` results in the below scripts when running locally.
 export GIT_PAGER=cat
 
+PATH=./scripts:$PATH
+
 # `-x`, so that we have more clarity which check actually failed
 # (rather than searching the right script by error message).
 set -e -x
 
-./scripts/enforce-change-notes-updated-on-pr-to-master
-./scripts/enforce-explicit-annotation-import-in-astubs
-./scripts/enforce-indent-two-spaces-outside-java
-./scripts/enforce-issue-number-for-todos
-./scripts/enforce-newline-at-eof
-./scripts/enforce-property-keys-with-valid-class-names
-./scripts/enforce-property-single-quote-in-bundle-message
-./scripts/enforce-settings-gradle-match-directories
-./scripts/enforce-version-bump
+enforce-change-notes-updated-on-pr-to-master
+enforce-astub-explicit-annotation-import
+enforce-indent-two-spaces-outside-java
+enforce-issue-number-for-todos
+enforce-newline-at-eof
+enforce-properties-keys-with-valid-class-names
+enforce-properties-single-quotes-consistent-with-format-elements
+enforce-settings-gradle-match-directories
+enforce-version-bump
 
-./scripts/prohibit-class-name-hardcode-in-strings
-./scripts/prohibit-java-code-commented-out
-./scripts/prohibit-java-lines-split-needlessly
-./scripts/prohibit-non-ascii-characters
-./scripts/prohibit-property-double-quote-wrapping-in-bundle-message
-./scripts/prohibit-tab-character
-./scripts/prohibit-trailing-whitespace
-./scripts/prohibit-undefined-property-keys-in-kt-files
-./scripts/prohibit-unused-custom-log
-./scripts/prohibit-unused-property-keys
+prohibit-java-class-name-hardcode-in-strings
+prohibit-java-code-commented-out
+prohibit-java-lines-split-needlessly
+prohibit-java-unused-custom-log
+prohibit-kotlin-private-fields
+prohibit-kotlin-undefined-property-keys
+prohibit-non-ascii-characters
+prohibit-properties-double-quote-wrapping
+prohibit-properties-unused-keys
+prohibit-tab-character
+prohibit-trailing-whitespace

@@ -21,17 +21,14 @@ data class SlideInOptions(
     @get:JvmName("shouldReattach") val reattach: Boolean = true
 )
 
-class SlideInDialog(
-    project: Project,
-    private val branchLayout: IBranchLayout,
-    private val parentName: String
-) : DialogWrapper(project, /* canBeParent */ true) {
+class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val parentName: String) :
+    DialogWrapper(project, /* canBeParent */ true) {
 
   // this field is only ever meant to be written on UI thread
-  private var branchName = ""
-  private var reattach = false
-  private var reattachCheckbox: JCheckBox? = null
-  private val rootNames = branchLayout.rootEntries.map { it.name }
+  var branchName = ""
+  var reattach = false
+  var reattachCheckbox: JCheckBox? = null
+  val rootNames = branchLayout.rootEntries.map { it.name }
 
   init {
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")

@@ -23,7 +23,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
   // kotlin.reflect.jvm.internal.calls.CallerImpl$FieldGetter$BoundInstance
   // cannot access a member of class ... with modifiers "private"
   var remember = false
-  private var delete = false
+  var delete = false
 
   init {
     title = getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.title")

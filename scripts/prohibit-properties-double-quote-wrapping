@@ -11,5 +11,5 @@ values_wrapped_in_double_quotes=$(git grep -h -e '=".*"$' -- '*.properties')
 
 if [[ $values_wrapped_in_double_quotes ]]; then
   echo "$values_wrapped_in_double_quotes"
-  die "The above property keys have a property value wrapped in double quotes (\"). Remove unnecessary wrapping"
+  die 'The above property keys have a property value wrapped in double quotes ("). Remove unnecessary wrapping'
 fi
