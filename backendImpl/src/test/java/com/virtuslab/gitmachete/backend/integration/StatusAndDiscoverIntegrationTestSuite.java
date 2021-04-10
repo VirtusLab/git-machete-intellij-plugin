@@ -129,7 +129,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     String output = runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
         /* command */ "git", "machete", "discover", "--list-commits", "--yes");
 
-    return List.ofAll(Stream.of(output.split("\n")))
+    return Stream.of(output.split(System.lineSeparator()))
         .drop(2) // Let's skip the informational output at the beginning and at the end.
         .dropRight(2)
         .mkString(System.lineSeparator());
