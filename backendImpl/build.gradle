@@ -14,8 +14,8 @@ dependencies {
   api project(':branchLayoutApi')
 
   testImplementation project(':testCommon').sourceSets.test.output
-  testRuntime project(':branchLayoutImpl')
-  testRuntime project(':gitCoreJGit')
+  testRuntimeOnly project(':branchLayoutImpl')
+  testRuntimeOnly project(':gitCoreJGit')
 }
 
 applySubtypingChecker()
