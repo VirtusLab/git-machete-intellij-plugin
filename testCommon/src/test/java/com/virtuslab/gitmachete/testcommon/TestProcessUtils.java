@@ -29,9 +29,9 @@ public final class TestProcessUtils {
       System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
     }
 
-    Assert.assertTrue("command `${commandRepr}` has not completed with ${timeoutSeconds} seconds", completed);
+    Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
     int exitValue = process.exitValue();
-    Assert.assertEquals("command `${commandRepr}` has completed with ${exitValue} exit code", 0, exitValue);
+    Assert.assertEquals("command ${commandRepr} has completed with exit code ${exitValue};", 0, exitValue);
 
     return stdout;
   }
