@@ -20,6 +20,9 @@ in any of the versions listed in [backendImpl/src/test/resources/reference-cli-v
 
 ### Windows
 
+Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).
+
+Additional setup:
 1. Open the Registry Editor (regedit.exe).
 2. Open path by clicking: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem.
 3. Find key named: LongPathsEnabled and double click.
