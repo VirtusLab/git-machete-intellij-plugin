@@ -1,3 +1,12 @@
+//pluginManagement {
+//  repositories {
+//    maven {
+//      url 'https://oss.sonatype.org/content/repositories/snapshots/'
+//    }
+//    gradlePluginPortal()
+//  }
+//}
+
 rootProject.name = 'git-machete-intellij-plugin'
 // Note: please keep the projects in a topological order
 include 'logging'
