@@ -28,6 +28,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -151,12 +152,10 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
             setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
           }
         } else {
-          VcsNotifier.getInstance(project)
-              .notifyInfo(
-                  format(
-                      getString(
-                          "action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled"),
-                      branchName));
+          val title = getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled");
+          val message = format(
+              getString("action.GitMachete.BaseSlideOutBranchAction.notification.message.slide-out-info.canceled"), branchName);
+          ActionUtils.notifyInfo(project, title, message);
         }
       }
     }.queue();

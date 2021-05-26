@@ -28,6 +28,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
@@ -220,9 +221,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     val chosen = remotesWithBranch.head();
     if (remotesWithBranch.size() > 1) {
-      VcsNotifier.getInstance(project).notifyInfo(format(
+      val title = getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.multiple-remotes");
+      val message = format(
           getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
-          chosen._2().getName(), chosen._1().getName()));
+          chosen._2().getName(), chosen._1().getName());
+      ActionUtils.notifyInfo(project, title, message);
     }
     return chosen._2();
   }
