@@ -1,4 +1,6 @@
 build/
 *.class
 /.gradle/
+*.hprof
+*.hprof.*/
 /.idea/
