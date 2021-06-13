@@ -17,7 +17,7 @@ public interface IGitCoreCommitHash {
   /**
    * @return hash string abbreviated to the first 7 characters, without a guarantee on being unique within the repository
    */
-  @SuppressWarnings({"index:argument.type.incompatible", "value:return.type.incompatible"})
+  @SuppressWarnings({"index:argument", "value:return"})
   @ArrayLen(7)
   default String getShortHashString() {
     return getHashString().substring(0, 7);

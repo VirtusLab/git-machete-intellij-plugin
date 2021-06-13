@@ -79,7 +79,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private final MyTableCellRenderer myTableCellRenderer;
 
   @UIEffect
-  @SuppressWarnings("keyfor:assignment.type.incompatible")
+  @SuppressWarnings("keyfor:assignment")
   public BranchOrCommitCellRendererComponent(
       JTable table,
       Object value,
@@ -232,7 +232,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   @UIEffect
-  @SuppressWarnings("nullness:argument.type.incompatible") // for GraphicsConfiguration param
+  @SuppressWarnings("nullness:argument") // for GraphicsConfiguration param
   private static BufferedImage getGraphImage(JTable table, @NonNegative int maxGraphNodePositionInRow) {
     return UIUtil.createImage(table.getGraphicsConfiguration(),
         /* width */ PaintParameters.getNodeWidth(table.getRowHeight()) * (maxGraphNodePositionInRow + 2),

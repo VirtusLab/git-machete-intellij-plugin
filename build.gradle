@@ -4,33 +4,34 @@ plugins {
 
   id 'com.github.ben-manes.versions' version '0.38.0'
 
-  id 'com.diffplug.spotless' version '5.11.0' apply false
-  id 'io.freefair.lombok' version '5.3.0' apply false
+  id 'com.diffplug.spotless' version '5.12.5' apply false
+  id 'io.freefair.lombok' version '5.3.3.3' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id 'org.checkerframework' version '0.5.17' apply false
-  id 'org.jetbrains.grammarkit' version '2021.1.1' apply false
+  id 'org.checkerframework' version '0.5.20' apply false
+  id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
   id 'org.jetbrains.intellij' version '0.7.3' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against;
   // e.g. 2020.x uses version 1.3.x amd 2021.1 uses 1.4.x
   id 'org.jetbrains.kotlin.jvm' version '1.4.32' apply false
-  id 'se.bjurr.violations.violations-gradle-plugin' version '1.48' apply false
+  id 'se.bjurr.violations.violations-gradle-plugin' version '1.50.14' apply false
 }
 
 ext {
-  // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F idea
+  // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
   intellijVersions = [
     // When this value is updated, remember to update the minimum required IDEA version in README.md.
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
-    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.3'],
-    latestStable: '2021.1',
+    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4'],
+    latestStable: '2021.1.2',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
     // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
     // but for some reason aren't resolved in UI tests.
-    // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F idea
+    // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
+    // Use `null` if the latest supported major has a stable release (and not just EAPs).
     eapOfLatestSupportedMajor: null
   ]
 
@@ -41,16 +42,16 @@ ext {
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
 
-  archUnitVersion = '0.17.0'
+  archUnitVersion = '0.18.0'
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.11.0'
+  checkerFrameworkVersion = '3.13.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.7'
-  ideProbeVersion = '0.5.0+12-ce9efc96-SNAPSHOT'
+  ideProbeVersion = '0.8.0'
   jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
-  jgitVersion = '5.11.0.202103091610-r'
+  jgitVersion = '5.11.1.202105131744-r'
   junitVersion = '4.13.2'
-  lombokVersion = '1.18.18'
+  lombokVersion = '1.18.20'
   kotlinVersion = '1.4.32'
   powerMockVersion = '2.0.9'
   reflectionsVersion = '0.9.12'
@@ -125,7 +126,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
   repositories {
-    jcenter()
     mavenCentral()
   }
 
@@ -170,7 +170,7 @@ allprojects {
       '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
     ]
 
-    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6g', '-XX:+HeapDumpOnOutOfMemoryError'])
+    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx8g', '-XX:+HeapDumpOnOutOfMemoryError'])
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
@@ -322,9 +322,9 @@ subprojects {
         version intellijVersions.buildTarget
         // No need to instrument Java classes with nullability assertions, we've got this covered much better by Checker
         // (and we don't plan to expose any part of the plugin as an API for other plugins).
-        instrumentCode false
+        instrumentCode = false
         if (params.withGit4Idea) {
-          plugins 'git4idea'
+          plugins = ['git4idea']
         }
       }
     }
@@ -372,7 +372,7 @@ subprojects {
 
     ideProbe = { ->
       repositories {
-        maven { url 'https://jetbrains.bintray.com/intellij-third-party-dependencies' }
+        maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
       }
 
@@ -546,25 +546,25 @@ dependencies {
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
-  instrumentCode false
-  pluginName 'git-machete-intellij-plugin'
-  version intellijVersions.buildTarget
+  instrumentCode = false
+  pluginName = 'git-machete-intellij-plugin'
+  version = intellijVersions.buildTarget
 
-  plugins 'git4idea' // Needed solely for ArchUnit
+  plugins = ['git4idea'] // Needed solely for ArchUnit
 }
 
 patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-  sinceBuild intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
+  sinceBuild = intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  untilBuild intellijVersionToBuildNumber(intellijVersions.latestSupportedMajor) + '.*'
+  untilBuild = intellijVersionToBuildNumber(intellijVersions.latestSupportedMajor) + '.*'
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
-  pluginDescription file("$rootDir/DESCRIPTION.html").text
+  pluginDescription = file("$rootDir/DESCRIPTION.html").text
 
-  changeNotes file("$rootDir/CHANGE-NOTES.html").text
+  changeNotes = file("$rootDir/CHANGE-NOTES.html").text
 }
 
 runIde {
@@ -588,5 +588,5 @@ runPluginVerifier {
 }
 
 publishPlugin {
-  token jetbrainsMarketplaceToken
+  token = jetbrainsMarketplaceToken
 }

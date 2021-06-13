@@ -20,10 +20,16 @@ even when **multiple branches** are present in the repository
 * What branches are in this repository?
 * What is going to be merged (or rebased/pushed/pulled) and to what?
 
+<p align="center">
+    <img src="https://raw.githubusercontent.com/VirtusLab/git-machete-intellij-plugin/master/docs/plugins.jetbrains.com/sample_status.png"
+        alt="sample status with master, develop and a few topic branches"/>
+</p>
+
 🎯 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
 ⚙ It is compatible with all JetBrains products (including Android Studio since plugin version 0.9.0).
 The minimum required version is 2020.1.
+
 
 🖥 For the console version, check [git-machete](https://github.com/VirtusLab/git-machete#git-machete).
 

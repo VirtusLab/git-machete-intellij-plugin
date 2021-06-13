@@ -59,7 +59,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    *
    * @return list of entries with recursively built lists of children
    */
-  @SuppressWarnings("index:argument.type.incompatible")
+  @SuppressWarnings("index:argument")
   private List<IBranchLayoutEntry> buildEntriesStructure(
       List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToParentLineIndex,
@@ -143,7 +143,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
             "One of branches in branch layout file (${path.toAbsolutePath()}) has incorrect level in relation to its parent branch");
       }
 
-      @SuppressWarnings("index:argument.type.incompatible") Integer parentLineIndex = level <= 0
+      @SuppressWarnings("index:argument") Integer parentLineIndex = level <= 0
           ? -1
           : levelToPresentParent.get(level - 1);
       Tuple2<Integer, Integer> levelAndParentLineIndex = new Tuple2<>(level, parentLineIndex);

@@ -36,7 +36,7 @@ public class RepositoryGraph implements IRepositoryGraph {
    */
   public List<GraphEdge> getAdjacentEdges(@NonNegative int itemIndex) {
     java.util.List<GraphEdge> adjacentEdges = new SmartList<>();
-    @SuppressWarnings("upperbound:argument.type.incompatible") IGraphItem currentItem = items.get(itemIndex);
+    @SuppressWarnings("upperbound:argument") IGraphItem currentItem = items.get(itemIndex);
 
     if (itemIndex > 0) {
       int upNodeIndex = currentItem.getPrevSiblingItemIndex();
@@ -55,7 +55,7 @@ public class RepositoryGraph implements IRepositoryGraph {
     return List.ofAll(adjacentEdges);
   }
 
-  @SuppressWarnings("upperbound:argument.type.incompatible")
+  @SuppressWarnings("upperbound:argument")
   public IGraphItem getGraphItem(@NonNegative int itemIndex) {
     return items.get(itemIndex);
   }
@@ -75,7 +75,7 @@ public class RepositoryGraph implements IRepositoryGraph {
    * @param itemIndex item index
    * @return list of visible edges in a given item index
    */
-  @SuppressWarnings({"lowerbound:return.type.incompatible", "value:return.type.incompatible"})
+  @SuppressWarnings({"lowerbound:return", "value:return"})
   public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int itemIndex) {
     assert itemIndex < positionsOfVisibleEdges.size() : "Bad itemIndex: " + itemIndex;
 

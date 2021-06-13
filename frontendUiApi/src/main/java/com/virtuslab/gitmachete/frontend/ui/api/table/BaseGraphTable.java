@@ -16,7 +16,7 @@ public abstract class BaseGraphTable extends JBTable {
   private List<Integer> rowWidths = List.empty();
 
   @UIEffect
-  @SuppressWarnings("nullness:method.invocation.invalid") // to allow for setAutoResizeMode despite the object isn't initialized yet
+  @SuppressWarnings("nullness:method.invocation") // to allow for setAutoResizeMode despite the object isn't initialized yet
   protected BaseGraphTable(TableModel model) {
     super(model);
 
