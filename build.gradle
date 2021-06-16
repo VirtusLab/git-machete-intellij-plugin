@@ -2,21 +2,39 @@ plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
 
-  id 'com.github.ben-manes.versions' version '0.38.0'
+  id 'com.github.ben-manes.versions' version '0.39.0'
 
-  id 'com.diffplug.spotless' version '5.12.5' apply false
+  id 'com.diffplug.spotless' version '5.13.0' apply false
   id 'io.freefair.lombok' version '5.3.3.3' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id 'org.checkerframework' version '0.5.20' apply false
+  id 'org.checkerframework' version '0.5.21' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
   id 'org.jetbrains.intellij' version '0.7.3' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against;
   // e.g. 2020.x uses version 1.3.x amd 2021.1 uses 1.4.x
   id 'org.jetbrains.kotlin.jvm' version '1.4.32' apply false
-  id 'se.bjurr.violations.violations-gradle-plugin' version '1.50.14' apply false
+  id 'se.bjurr.violations.violations-gradle-plugin' version '1.50.15' apply false
 }
 
 ext {
+  archUnitVersion = '0.19.0'
+  betterStringsVersion = '0.5'
+  checkerFrameworkVersion = '3.14.0'
+  checkstyleToolVersion = '8.33'
+  commonsIOVersion = '2.7'
+  ideProbeVersion = '0.9.1'
+  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
+  jgitVersion = '5.12.0.202106070339-r'
+  junitVersion = '4.13.2'
+  lombokVersion = '1.18.20'
+  kotlinVersion = '1.4.32'
+  powerMockVersion = '2.0.9'
+  reflectionsVersion = '0.9.12'
+  scalaVersion = '2.12.10'
+  slf4jLambdaApiVersion = '0.1'
+  slf4jVersion = '1.7.30'
+  vavrVersion = '0.10.3'
+
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
   intellijVersions = [
     // When this value is updated, remember to update the minimum required IDEA version in README.md.
@@ -41,24 +59,6 @@ ext {
 
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
-
-  archUnitVersion = '0.18.0'
-  betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.13.0'
-  checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.7'
-  ideProbeVersion = '0.8.0'
-  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
-  jgitVersion = '5.11.1.202105131744-r'
-  junitVersion = '4.13.2'
-  lombokVersion = '1.18.20'
-  kotlinVersion = '1.4.32'
-  powerMockVersion = '2.0.9'
-  reflectionsVersion = '0.9.12'
-  scalaVersion = '2.12.10'
-  slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.30'
-  vavrVersion = '0.10.3'
 
   ciBranch = System.getenv('CIRCLE_BRANCH')
   isCI = System.getenv('CI') == 'true'
@@ -248,6 +248,13 @@ subprojects {
       '-ArequirePrefixInWarningSuppressions',
       '-AshowSuppressWarningsStrings',
       "-Astubs=$rootDir/config/checker/",
+      // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
+      // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom stub files.
+      // Without this flag, we would end up with a lot of errors in subprojects where any of the stubbed libraries is NOT on the classpath:
+      // e.g. compilation of a subproject where Vavr is NOT a dependency would fail
+      // since for simplicity, we're providing the same set of stubs to Checker in each subproject
+      // (`$rootDir/config/checker/`, which includes e.g. Vavr).
+      '-AstubWarnIfNotFoundIgnoresClasses',
       '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier',
     ]
     dependencies {

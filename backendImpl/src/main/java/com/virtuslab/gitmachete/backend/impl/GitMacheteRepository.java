@@ -499,7 +499,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           "parentPointedCommit = ${parentPointedCommit.getHash().getHashString()}, " +
           "pointedCommit = ${pointedCommit.getHash().getHashString()}");
 
-      val isParentAncestorOfChild = gitCoreRepository.isAncestor(parentPointedCommit, pointedCommit);
+      val isParentAncestorOfChild = gitCoreRepository.isAncestorOrEqual(parentPointedCommit, pointedCommit);
 
       LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) " +
           "is${isParentAncestorOfChild ? \"\" : \" NOT\"} ancestor of commit " +
@@ -507,7 +507,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       if (isParentAncestorOfChild) {
         if (parentAgnosticForkPoint != null) {
-          val isParentAncestorOfForkPoint = gitCoreRepository.isAncestor(parentPointedCommit,
+          val isParentAncestorOfForkPoint = gitCoreRepository.isAncestorOrEqual(parentPointedCommit,
               parentAgnosticForkPoint.getCoreCommit());
 
           if (!isParentAncestorOfForkPoint) {
@@ -568,7 +568,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       // Yes, that's not a bug. We're checking whether `whileDescendantOf` is a descendant of `to`, not the other way round.
       // The `descendant of` part of `whileDescendantOf` refers to the *current branch* being a descendant
       // of whatever `whileDescendantOf` points to.
-      if (!gitCoreRepository.isAncestor(to, whileDescendantOf)) {
+      if (!gitCoreRepository.isAncestorOrEqual(to, whileDescendantOf)) {
         LOG.warn("Commit <to> (${to}) is NOT an ancestor of " +
             "<whileDescendantOf> (${whileDescendantOf}), ignoring faulty fork point override");
         return null;
@@ -577,7 +577,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       // Now we know that the override config is consistent, but it still doesn't mean
       // that it actually applies to the given branch AT THIS POINT (it could e.g. have applied earlier but now no longer applies).
       val branchCommit = coreLocalBranch.getPointedCommit();
-      if (!gitCoreRepository.isAncestor(whileDescendantOf, branchCommit)) {
+      if (!gitCoreRepository.isAncestorOrEqual(whileDescendantOf, branchCommit)) {
         LOG.debug(() -> "Branch ${branchName} (${branchCommit}) is NOT a descendant of " +
             "<whileDescendantOf> (${whileDescendantOf}), ignoring outdated fork point override");
         return null;
@@ -713,8 +713,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       if (pointedCommit.equals(parentPointedCommit)) {
         if (hasJustBeenCreated(coreLocalBranch)) {
-          LOG.debug(() -> "Branch '${branchName}' has been detected as just created, " +
-              "so we assume it's in sync");
+          LOG.debug(() -> "Branch '${branchName}' has been detected as just created, so we assume it's in sync");
           return SyncToParentStatus.InSync;
         } else {
           LOG.debug(
@@ -723,7 +722,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           return SyncToParentStatus.MergedToParent;
         }
       } else {
-        val isParentAncestorOfChild = gitCoreRepository.isAncestor(
+        val isParentAncestorOfChild = gitCoreRepository.isAncestorOrEqual(
             /* presumedAncestor */ parentPointedCommit, /* presumedDescendant */ pointedCommit);
 
         if (isParentAncestorOfChild) {
@@ -741,18 +740,25 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             return SyncToParentStatus.InSyncButForkPointOff;
           }
         } else {
-          val isChildAncestorOfParent = gitCoreRepository.isAncestor(
+          val isChildAncestorOfParent = gitCoreRepository.isAncestorOrEqual(
               /* presumedAncestor */ pointedCommit, /* presumedDescendant */ parentPointedCommit);
 
           if (isChildAncestorOfParent) {
-            LOG.debug(
-                () -> "For this branch (${branchName}) its parent's commit is not ancestor of this branch pointed commit "
-                    + "but this branch pointed commit is ancestor of Parent branch commit, so we assume that this branch is merged");
-            return SyncToParentStatus.MergedToParent;
+            if (hasJustBeenCreated(coreLocalBranch)) {
+              LOG.debug(() -> "Branch '${branchName}' has been detected as just created, so we assume it's out of sync");
+              return SyncToParentStatus.OutOfSync;
+            } else {
+              LOG.debug(
+                  () -> "For this branch (${branchName}) its parent's commit is not ancestor of this branch pointed commit "
+                      + "but this branch pointed commit is ancestor of parent branch commit, "
+                      + "and this branch hasn't been detected as just created, so we assume it's merged");
+              return SyncToParentStatus.MergedToParent;
+            }
           } else {
             LOG.debug(
                 () -> "For this branch (${branchName}) its parent's commit is not ancestor of this branch pointed commit "
-                    + "neither this branch pointed commit is ancestor of Parent branch commit, so we assume that this branch is out of sync");
+                    + "neither this branch pointed commit is ancestor of parent branch commit, "
+                    + "so we assume that this branch is out of sync");
             return SyncToParentStatus.OutOfSync;
           }
         }

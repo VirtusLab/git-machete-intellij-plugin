@@ -371,7 +371,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
+  public boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");
 
