@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
+import git4idea.rebase.GitRebaseEditorHandler;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFreezingProcess;
@@ -257,7 +258,24 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
     String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
-    return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName, /* upstream */ forkPointCommitHash,
-        /* interactive */ true, /* preserveMerges */ false);
+    // TODO (#743): replace with a non-reflective constructor call
+    try {
+      // Proper solution for 2020.3+
+      val constructor = GitRebaseParams.class.getConstructor(GitVersion.class, String.class, String.class, String.class,
+          java.util.Set.class, GitRebaseParams.AutoSquashOption.class, GitRebaseEditorHandler.class);
+
+      val gitRebaseOptionValueOf = Class.forName("git4idea.rebase.GitRebaseOption").getMethod("valueOf", String.class);
+      val INTERACTIVE = gitRebaseOptionValueOf.invoke(null, "INTERACTIVE");
+      val KEEP_EMPTY = gitRebaseOptionValueOf.invoke(null, "KEEP_EMPTY");
+
+      val options = kotlin.collections.SetsKt.hashSetOf(INTERACTIVE, KEEP_EMPTY);
+      return constructor.newInstance(gitVersion, currentBranchName, newBaseBranchFullName,
+          /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
+          /* editorHandler */ null);
+    } catch (ReflectiveOperationException e) {
+      // Fallback for 2020.1 and 2020.2
+      return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName, /* upstream */ forkPointCommitHash,
+          /* interactive */ true, /* preserveMerges */ false);
+    }
   }
 }

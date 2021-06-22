@@ -1,0 +1,11 @@
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+package java.lang.reflect;
+
+class Constructor<T> {
+  T newInstance(@Nullable Object... initargs);
+}
+
+class Method {
+  Object invoke(@Nullable Object obj, Object... args);
+}

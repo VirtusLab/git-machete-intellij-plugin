@@ -201,7 +201,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       val constructor = MergeChangeCollector.class.getConstructor(Project.class, GitRepository.class, GitRevisionNumber.class);
       return constructor.newInstance(project, repository, start);
     } catch (NoSuchMethodException e) {
-      // Fallback for 2020.1 (also available on 2020.2, but scheduled for removal in 2020.3)
+      // Fallback for 2020.1
       val constructor = MergeChangeCollector.class.getConstructor(Project.class, VirtualFile.class, GitRevisionNumber.class);
       return constructor.newInstance(project, repository.getRoot(), start);
     }

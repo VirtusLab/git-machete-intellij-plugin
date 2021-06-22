@@ -18,7 +18,7 @@ jobs:
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
             - gradle-deps-v3-{{ checksum "build.gradle" }}-
-            # Paradoxically, it's better NOT to got any further.
+            # Paradoxically, it's better NOT to go any further.
             # We used to try `gradle-deps-v3-` if both above entries were missing...
             # but the result was that the a lot of items were gradually accumulating in the cache,
             # and the Restore/Save step were taking more and more time (the latter up to 5 minutes),
