@@ -25,7 +25,8 @@ function Project(underlyingProject) {
 
   // Tab & model management
   this.openGitMacheteTab = function () {
-    openTab(ToolWindowId.VCS, 'Git Machete');
+    let tab = openTab(ToolWindowId.VCS, 'Git Machete');
+    global.put('gitMacheteTab', tab);
   }
 
   const openTab = function (toolWindowId, tabName) {
@@ -38,19 +39,18 @@ function Project(underlyingProject) {
 
     // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
+    let tab;
     GuiUtils.runOrInvokeAndWait(function () {
       toolWindow.activate(function () {});
       const contentManager = toolWindow.getContentManager();
-      const tab = contentManager.findContent(tabName);
+      tab = contentManager.findContent(tabName);
       contentManager.setSelectedContent(tab);
     });
+    return tab;
   };
 
   const getGraphTable = function () {
-    const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
-    const toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
-    const contentManager = toolWindow.getContentManager();
-    const tab = contentManager.findContent('Git Machete');
+    const tab = global.get('gitMacheteTab');
     const panel = tab.getComponent();
     return panel.getGraphTable();
   };
