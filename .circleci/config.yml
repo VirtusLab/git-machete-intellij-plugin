@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: Compile tests
-          command: ./gradlew compileTestJava
+          command: ./gradlew compileTestJava compileTestScala
       - run:
           name: Install git-machete CLI
           # Let's install the *first* of the comma-separated versions -
@@ -89,10 +89,10 @@ jobs:
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./scripts/run-ui-tests eapOfLatestSupportedMajor
+          command: ./scripts/run-ui-tests --headless eapOfLatestSupportedMajor
       - run:
           name: Run UI tests against the latest stable IntelliJ version (our build target)
-          command: ./scripts/run-ui-tests latestStable
+          command: ./scripts/run-ui-tests --headless latestStable
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -105,7 +105,7 @@ jobs:
           steps:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
-                command: ./scripts/run-ui-tests latestMinorsOfOldSupportedMajors
+                command: ./scripts/run-ui-tests --headless latestMinorsOfOldSupportedMajors
       - store_test_results:
           path: uiTests/build/ui-test-results/
 
