@@ -77,7 +77,7 @@ object UITestSuite
         |}
         |""".stripMargin)
 
-    fixtureFromConfig(config).withVersion(intelliJVersion)
+    fixtureFromConfig(config).copy(version = intelliJVersion)
   }
 
 }
