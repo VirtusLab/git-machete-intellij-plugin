@@ -24,16 +24,11 @@ function Project(underlyingProject) {
   };
 
   // Tab & model management
-  this.openGitMacheteTab = function () {
-    let tab = openTab(ToolWindowId.VCS, 'Git Machete');
-    global.put('gitMacheteTab', tab);
-  }
-
-  const openTab = function (toolWindowId, tabName) {
+  this.openTab = function () {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
     let toolWindow;
     do {
-      toolWindow = toolWindowManager.getToolWindow(toolWindowId);
+      toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
       sleep();
     } while (toolWindow === null);
 
@@ -43,20 +38,18 @@ function Project(underlyingProject) {
     GuiUtils.runOrInvokeAndWait(function () {
       toolWindow.activate(function () {});
       const contentManager = toolWindow.getContentManager();
-      tab = contentManager.findContent(tabName);
+      tab = contentManager.findContent('Git Machete');
       contentManager.setSelectedContent(tab);
     });
-    return tab;
-  };
+    global.put('tab', tab);
 
-  const getGraphTable = function () {
-    const tab = global.get('gitMacheteTab');
     const panel = tab.getComponent();
-    return panel.getGraphTable();
+    const graphTable = panel.getGraphTable();
+    global.put('graphTable', graphTable);
   };
 
   this.getManagedBranches = function () {
-    const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
+    const snapshot = global.get('graphTable').getGitMacheteRepositorySnapshot();
     if (snapshot != null) {
       return snapshot.getManagedBranches().map(function (b) { return b.getName() }).toJavaArray(java.lang.String);
     } else {
@@ -67,7 +60,7 @@ function Project(underlyingProject) {
   // Assumes that Git Machete tab is opened.
   // Returns the refreshed model.
   this.refreshGraphTableModel = function () {
-    const graphTable = getGraphTable();
+    const graphTable = global.get('graphTable');
 
     let refreshDone = false;
     graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ function () {
@@ -96,7 +89,7 @@ function Project(underlyingProject) {
       getData: function (dataId) {
         if (dataId in data) return data[dataId];
         if (dataId.equals('project')) return underlyingProject;
-        return getGraphTable().getData(dataId);
+        return global.get('graphTable').getData(dataId);
       }
     });
     return AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);

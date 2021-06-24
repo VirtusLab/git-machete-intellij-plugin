@@ -116,7 +116,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       }
 
       def openGitMacheteTab(): Unit = {
-        runJs("project.openGitMacheteTab()")
+        runJs("project.openTab()")
       }
 
       def pullBranch(branch: String): Unit = {
