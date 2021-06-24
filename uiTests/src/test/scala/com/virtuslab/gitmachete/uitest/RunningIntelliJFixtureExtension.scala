@@ -33,36 +33,65 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
   implicit class RunningIntelliJFixtureOps(intelliJ: RunningIntelliJFixture) {
 
-    private def runJs(@Language("JS") statement: String): Unit = {
+    private def runJs(@Language("JavaScript") statement: String): Unit = {
       intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
     }
 
-    private def callJs[T](@Language("JS") expression: String): T = {
+    private def callJs[T](@Language("JavaScript") expression: String): T = {
       intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
     }
 
     object ide {
+
       def configure(): Unit = {
-        runJs("ide.configure(/* enableDebugLog */ false)")
+        runJs("""
+          importClass(java.util.stream.Collectors);
+          importClass(java.util.stream.Stream);
+
+          importClass(com.intellij.diagnostic.DebugLogManager);
+          importClass(com.intellij.ide.GeneralSettings);
+          importClass(com.intellij.openapi.application.ApplicationInfo);
+          importClass(com.intellij.openapi.extensions.PluginId);
+          importClass(com.intellij.openapi.progress.ProgressManager);
+
+          const settings = GeneralSettings.getInstance();
+          settings.setConfirmExit(false);
+          settings.setShowTipsOnStartup(false);
+
+          const enableDebugLog = false;
+          if (enableDebugLog) {
+            const logCategories = Stream.of(
+              'binding',
+              'branchlayout',
+              'gitcore',
+              'gitmachete.backend',
+              'gitmachete.frontend.actions',
+              'gitmachete.frontend.graph',
+              'gitmachete.frontend.ui',
+            ).map(function (name) {
+              return new DebugLogManager.Category(name, DebugLogManager.DebugLogLevel.DEBUG);
+            }).collect(Collectors.toList());
+
+            const debugLogManager = DebugLogManager.getInstance();
+            // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
+            debugLogManager.applyCategories(logCategories);
+          }
+        """)
       }
 
       def closeOpenedProjects(): Unit = {
         runJs("ide.closeOpenedProjects()")
       }
-
-      def getMajorVersion(): String = {
-        callJs("ide.getMajorVersion()")
-      }
     }
 
     object project {
       def acceptBranchDeletionOnSlideOut(): Unit = {
-        runJs("project.acceptBranchDeletionOnSlideOut()")
+        runJs("project.findAndClickButton('Slide Out & Delete Local Branch')")
         intelliJ.probe.await()
       }
 
       def acceptSuggestedBranchLayout(): Unit = {
-        runJs("project.acceptSuggestedBranchLayout()")
+        runJs("project.findAndClickButton('Yes')")
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
@@ -138,7 +167,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       }
 
       def rejectBranchDeletionOnSlideOut(): Unit = {
-        runJs("project.rejectBranchDeletionOnSlideOut()")
+        runJs("project.findAndClickButton('Slide Out & Keep Local Branch')")
         intelliJ.probe.await()
       }
 

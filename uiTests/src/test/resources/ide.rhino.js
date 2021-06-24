@@ -15,34 +15,6 @@ importClass(com.intellij.ui.GuiUtils);
 
 // Do not run any of the methods on the UI thread.
 function Ide() {
-  this.configure = function (enableDebugLog) {
-    const settings = GeneralSettings.getInstance();
-    settings.setConfirmExit(false);
-    settings.setShowTipsOnStartup(false);
-
-    if (enableDebugLog) {
-      const logCategories = Stream.of(
-        'binding',
-        'branchlayout',
-        'gitcore',
-        'gitmachete.backend',
-        'gitmachete.frontend.actions',
-        'gitmachete.frontend.graph',
-        'gitmachete.frontend.ui',
-      ).map(function (name) {
-        return new DebugLogManager.Category(name, DebugLogManager.DebugLogLevel.DEBUG);
-      }).collect(Collectors.toList());
-
-      const debugLogManager = DebugLogManager.getInstance();
-      // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
-      debugLogManager.applyCategories(logCategories);
-    }
-  };
-
-  this.getMajorVersion = function() {
-    return ApplicationInfo.getInstance().getMajorVersion();
-  };
-
   this.soleOpenedProject = function () {
     const openProjects = ProjectUtil.getOpenProjects();
     return openProjects.length === 1 ? new Project(openProjects[0]) : null;

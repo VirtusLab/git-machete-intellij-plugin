@@ -41,7 +41,6 @@ function Project(underlyingProject) {
       tab = contentManager.findContent('Git Machete');
       contentManager.setSelectedContent(tab);
     });
-    global.put('tab', tab);
 
     const panel = tab.getComponent();
     const graphTable = panel.getGraphTable();
@@ -95,7 +94,7 @@ function Project(underlyingProject) {
     return AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
   };
 
-  const invokeActionAsync = function (actionName, actionPlace, data) {
+  this.invokeActionAsync = function (actionName, actionPlace, data) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
@@ -118,19 +117,7 @@ function Project(underlyingProject) {
     findAndClickButton('Save');
   }
 
-  this.acceptSuggestedBranchLayout = function () {
-    findAndClickButton('Yes');
-  };
-
-  this.acceptBranchDeletionOnSlideOut = function () {
-    findAndClickButton('Slide Out & Delete Local Branch');
-  };
-
-  this.rejectBranchDeletionOnSlideOut = function () {
-    findAndClickButton('Slide Out & Keep Local Branch');
-  };
-
-  const findAndClickButton = function (name) {
+  this.findAndClickButton = function (name) {
     const getButton = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(function (component) {
