@@ -55,6 +55,15 @@ function Project(underlyingProject) {
     return panel.getGraphTable();
   };
 
+  this.getManagedBranches = function () {
+    const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
+    if (snapshot != null) {
+      return snapshot.getManagedBranches().map(function (b) { return b.getName() }).toJavaArray(java.lang.String);
+    } else {
+      return java.lang.reflect.Array.newInstance(java.lang.String, 0);
+    }
+  }
+
   // Assumes that Git Machete tab is opened.
   // Returns the refreshed model.
   this.refreshGraphTableModel = function () {

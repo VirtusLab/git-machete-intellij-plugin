@@ -115,10 +115,11 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         |master
         |  hotfix/add-trigger""".stripMargin
     )
-    val branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    // There should be exactly 6 rows in the graph table, since there are 6 existing branches in machete file
-    // non-existent branches should be skipped while causing no error (only a low-severity notification).
-    Assert.assertEquals(6, branchRowsCount)
+    val managedBranches = intelliJ.project.refreshModelAndGetManagedBranches()
+    // Non-existent branches should be skipped while causing no error (only a low-severity notification).
+    Assert.assertEquals(
+      Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
+      Seq(managedBranches: _*).sorted)
     intelliJ.project.toggleListingCommits()
     var branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
     // 6 branch rows + 7 commit rows
@@ -147,17 +148,17 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.acceptSuggestedBranchLayout()
     intelliJ.probe.await()
     var branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()
     // When model is refreshed and machete file is empty, then autodiscover should occur
     branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    Assert.assertEquals(7, branchRowsCount)
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
     // Now let's test an explicit discover instead
     intelliJ.project.discoverBranchLayout()
     branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    Assert.assertEquals(7, branchRowsCount)
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
     overwriteMacheteFile("non-existent")
     branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()

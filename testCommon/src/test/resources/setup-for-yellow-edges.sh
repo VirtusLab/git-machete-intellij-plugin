@@ -37,6 +37,7 @@ cd machete-sandbox
     commit HOTFIX Add the trigger
     push
     git commit --amend -m 'HOTFIX Add the trigger (amended)'
+  git branch behind/hotfix/add-trigger HEAD~1
 
   git branch -d root
 
@@ -47,6 +48,7 @@ cd machete-sandbox
       call-ws PR #124
   master
       hotfix/add-trigger
+          behind/hotfix/add-trigger
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
 cd -
