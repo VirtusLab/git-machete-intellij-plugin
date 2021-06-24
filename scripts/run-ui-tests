@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # Usage:
-# $ ./scripts/run-ui-tests [<intellij-version-key> [<only-tests>]]
+# $ ./scripts/run-ui-tests [--headless] [<intellij-version-key> [<only-tests>]]
+
+# `--headless` causes ide-probe to use Xvfb as an underlying display, which effectively makes the IDE run in a headless mode.
 
 # <intellij-version-key> can be a release (e.g. `2020.2`), build (e.g. `203.5419.21-EAP-SNAPSHOT`)
 # or a field of `ext.intellijVersions` from build.gradle (e.g. `earliestSupportedMajor`).
@@ -12,12 +14,13 @@
 
 set -e -o pipefail -u
 
+if [[ $1 == "--headless" ]]; then
+  export IDEPROBE_DISPLAY=xvfb
+  shift
+fi
+
 intellij_version_key=${1:-buildTarget}
 test_method_prefix=${2-}
-
-if [[ ${CI-} == true ]]; then
-  export IDEPROBE_DISPLAY=xvfb
-fi
 
 versions=$(./gradlew -q resolveIntelliJVersions --versionKey="$intellij_version_key")
 echo -e "Running against IntelliJ version(s): \n${versions:-<none>}"

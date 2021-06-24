@@ -17,6 +17,24 @@ plugins {
 }
 
 ext {
+  archUnitVersion = '0.18.0'
+  betterStringsVersion = '0.5'
+  checkerFrameworkVersion = '3.14.0'
+  checkstyleToolVersion = '8.33'
+  commonsIOVersion = '2.7'
+  ideProbeVersion = '0.9.1'
+  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
+  jgitVersion = '5.11.1.202105131744-r'
+  junitVersion = '4.13.2'
+  lombokVersion = '1.18.20'
+  kotlinVersion = '1.4.32'
+  powerMockVersion = '2.0.9'
+  reflectionsVersion = '0.9.12'
+  scalaVersion = '2.12.10'
+  slf4jLambdaApiVersion = '0.1'
+  slf4jVersion = '1.7.30'
+  vavrVersion = '0.10.3'
+
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
   intellijVersions = [
     // When this value is updated, remember to update the minimum required IDEA version in README.md.
@@ -41,24 +59,6 @@ ext {
 
   intellijVersions.buildTarget = intellijVersions.latestStable
   intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
-
-  archUnitVersion = '0.18.0'
-  betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.14.0'
-  checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.7'
-  ideProbeVersion = '0.9.1'
-  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
-  jgitVersion = '5.11.1.202105131744-r'
-  junitVersion = '4.13.2'
-  lombokVersion = '1.18.20'
-  kotlinVersion = '1.4.32'
-  powerMockVersion = '2.0.9'
-  reflectionsVersion = '0.9.12'
-  scalaVersion = '2.12.10'
-  slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.30'
-  vavrVersion = '0.10.3'
 
   ciBranch = System.getenv('CIRCLE_BRANCH')
   isCI = System.getenv('CI') == 'true'
