@@ -49,6 +49,7 @@ cd machete-sandbox
     # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;
     # we'll need to match the local branch to its remote tracking branch by name.
     git branch --unset-upstream
+  git branch behind/hotfix/add-trigger HEAD~1
 
   git branch -d root
 
@@ -59,6 +60,7 @@ cd machete-sandbox
       call-ws PR #124
   master
       hotfix/add-trigger
+          behind/hotfix/add-trigger
   '
 
   sed 's/^  //' <<< "$machete_file" > .git/machete

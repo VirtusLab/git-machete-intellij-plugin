@@ -33,7 +33,7 @@ public interface IGitCoreRepository {
   List<String> deriveAllRemoteNames();
 
   @UIThreadUnsafe
-  boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
+  boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
   @UIThreadUnsafe
   Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
