@@ -20,14 +20,15 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @CustomLog
 public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
-  private static final long FETCH_ALL_UP_TO_DATE_TIMEOUT = 60 * 1000;
+  private static final long FETCH_ALL_UP_TO_DATE_TIMEOUT_MILLIS = 60 * 1000;
 
-  private static final java.util.Map<String, Long> LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME = new java.util.TreeMap<>();
+  @SuppressWarnings("ConstantName")
+  private static final java.util.concurrent.ConcurrentMap<String, Long> lastFetchTimeMillisByRepositoryName = new java.util.concurrent.ConcurrentHashMap<>();
 
   public static boolean isUpToDate(GitRepository gitRepository) {
     String repoName = gitRepository.getRoot().getName();
-    long lftm = LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME.getOrDefault(repoName, 0L);
-    return System.currentTimeMillis() < lftm + FETCH_ALL_UP_TO_DATE_TIMEOUT;
+    long lftm = lastFetchTimeMillisByRepositoryName.getOrDefault(repoName, 0L);
+    return System.currentTimeMillis() < lftm + FETCH_ALL_UP_TO_DATE_TIMEOUT_MILLIS;
   }
 
   @Override
@@ -68,7 +69,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
         if (gitRepository.isDefined()) {
           val name = gitRepository.get().getRoot().getName();
-          LAST_FETCH_TIME_MILLIS_BY_REPOSITORY_NAME.put(name, System.currentTimeMillis());
+          lastFetchTimeMillisByRepositoryName.put(name, System.currentTimeMillis());
         }
       }
 

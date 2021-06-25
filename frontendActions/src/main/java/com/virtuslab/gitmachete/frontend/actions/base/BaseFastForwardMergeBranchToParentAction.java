@@ -61,26 +61,26 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
 
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val targetBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    if (gitRepository == null || targetBranchName == null) {
+    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    if (gitRepository == null || stayingBranchName == null) {
       return;
     }
 
-    val targetBranch = getManagedBranchByName(anActionEvent, targetBranchName).getOrNull();
-    if (targetBranch == null) {
+    val stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
+    if (stayingBranch == null) {
       return;
     }
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
-    assert targetBranch.isNonRoot() : "Target branch provided to fast forward is a root";
+    assert stayingBranch.isNonRoot() : "Branch that would be fast-forwarded TO is a root";
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
-    val nonRootManagedBranchSnapshot = targetBranch.asNonRoot();
+    val nonRootStayingBranch = stayingBranch.asNonRoot();
     val ffmProps = new FastForwardMergeProps(
-        nonRootManagedBranchSnapshot.getName(),
-        nonRootManagedBranchSnapshot.getFullName(),
-        nonRootManagedBranchSnapshot.getParent().getName(),
-        nonRootManagedBranchSnapshot.getParent().getFullName());
-    if (targetBranch.asNonRoot().getParent().getName().equals(currentBranchName)) {
+        /* movingBranchName */ nonRootStayingBranch.getParent().getName(),
+        nonRootStayingBranch.getParent().getFullName(),
+        /* stayingBranchName */ nonRootStayingBranch.getName(),
+        nonRootStayingBranch.getFullName());
+    if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
       doFastForwardCurrentBranch(project, gitRepository, ffmProps);
     } else {
       doFastForwardNonCurrentBranch(project, gitRepository, ffmProps);
@@ -91,16 +91,16 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
       GitRepository gitRepository,
       FastForwardMergeProps ffmProps) {
     val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, ffmProps.getBranchName())
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, ffmProps.getStayingBranchName())
         .queue();
   }
 
   public static void doFastForwardNonCurrentBranch(Project project,
       GitRepository gitRepository,
       FastForwardMergeProps ffmProps) {
-    val localFullName = ffmProps.getBranchFullName();
-    val parentLocalFullName = ffmProps.getTargetBranchFullName();
-    val refspecFromChildToParent = createRefspec(localFullName, parentLocalFullName, /* allowNonFastForward */ false);
+    val stayingFullName = ffmProps.getStayingBranchFullName();
+    val movingFullName = ffmProps.getMovingBranchFullName();
+    val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
 
     new FetchBackgroundable(
         project,
@@ -109,9 +109,9 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
         refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"),
         format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
-            ffmProps.getTargetBranchName(), ffmProps.getBranchName()),
+            stayingFullName, movingFullName),
         format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
-            ffmProps.getTargetBranchName(), ffmProps.getBranchName()),
+            stayingFullName, movingFullName),
         getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-subtitle"))
             .queue();
   }
