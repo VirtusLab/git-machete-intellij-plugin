@@ -76,10 +76,8 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     val nonRootStayingBranch = stayingBranch.asNonRoot();
     val ffmProps = new FastForwardMergeProps(
-        /* movingBranchName */ nonRootStayingBranch.getParent().getName(),
-        nonRootStayingBranch.getParent().getFullName(),
-        /* stayingBranchName */ nonRootStayingBranch.getName(),
-        nonRootStayingBranch.getFullName());
+        /* movingBranchName */ nonRootStayingBranch.getParent(),
+        /* stayingBranchName */ nonRootStayingBranch);
     if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
       doFastForwardCurrentBranch(project, gitRepository, ffmProps);
     } else {
@@ -91,15 +89,16 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
       GitRepository gitRepository,
       FastForwardMergeProps ffmProps) {
     val taskTitle = getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title");
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, ffmProps.getStayingBranchName())
-        .queue();
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle,
+        ffmProps.getStayingBranch().getName())
+            .queue();
   }
 
   public static void doFastForwardNonCurrentBranch(Project project,
       GitRepository gitRepository,
       FastForwardMergeProps ffmProps) {
-    val stayingFullName = ffmProps.getStayingBranchFullName();
-    val movingFullName = ffmProps.getMovingBranchFullName();
+    val stayingFullName = ffmProps.getStayingBranch().getFullName();
+    val movingFullName = ffmProps.getMovingBranch().getFullName();
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
 
     new FetchBackgroundable(

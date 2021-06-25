@@ -21,7 +21,6 @@ import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -271,11 +270,6 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
     @Override
     public IGitRebaseParameters getParametersForRebaseOntoParent() {
-      throw new NotImplementedError();
-    }
-
-    @Override
-    public IGitMergeParameters getParametersForMergeIntoParent() {
       throw new NotImplementedError();
     }
 

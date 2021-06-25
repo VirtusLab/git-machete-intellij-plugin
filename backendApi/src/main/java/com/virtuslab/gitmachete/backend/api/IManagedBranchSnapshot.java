@@ -11,7 +11,7 @@ import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
 /**
  * The only criterion for equality of any instances of any class implementing this interface is reference equality
  */
-public interface IManagedBranchSnapshot {
+public interface IManagedBranchSnapshot extends ILocalBranchReference {
   @EnsuresQualifierIf(expression = "this", result = true, qualifier = ConfirmedRoot.class)
   @EnsuresQualifierIf(expression = "this", result = false, qualifier = ConfirmedNonRoot.class)
   boolean isRoot();

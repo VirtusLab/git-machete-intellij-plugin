@@ -89,10 +89,8 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
       if (FetchAllRemotesAction.isUpToDate(gitRepository)) {
         val ffmProps = new FastForwardMergeProps(
-            /* movingBranchName */ localBranch.getName(),
-            localBranch.getFullName(),
-            /* stayingBranchName */ remoteBranch.getName(),
-            remoteBranch.getFullName());
+            /* movingBranch */ localBranch,
+            /* stayingBranch */ remoteBranch);
 
         if (localBranchName.equals(currentBranchName)) {
           BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository, ffmProps);

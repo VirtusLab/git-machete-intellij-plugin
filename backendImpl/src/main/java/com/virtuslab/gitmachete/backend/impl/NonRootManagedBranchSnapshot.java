@@ -12,7 +12,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
-import com.virtuslab.gitmachete.backend.api.IGitMergeParameters;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
@@ -89,14 +88,5 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
         "forkPointCommit = ${forkPoint != null ? forkPoint.getHash() : null}");
 
     return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch, forkPoint);
-  }
-
-  @Override
-  public IGitMergeParameters getParametersForMergeIntoParent() {
-    LOG.debug(() -> "Entering: branch = '${getName()}'");
-    LOG.debug(() -> "Inferred merge parameters: currentBranch = ${getName()}, " +
-        "branchToMergeInto = ${getParent().getName()}");
-
-    return new GitMergeParameters(/* currentBranch */ this, /* branchToMergeInto */ getParent());
   }
 }

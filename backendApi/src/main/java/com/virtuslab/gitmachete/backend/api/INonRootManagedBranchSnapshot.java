@@ -30,6 +30,4 @@ public interface INonRootManagedBranchSnapshot extends IManagedBranchSnapshot {
   Option<IForkPointCommitOfManagedBranch> getForkPoint();
 
   IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
-
-  IGitMergeParameters getParametersForMergeIntoParent();
 }
