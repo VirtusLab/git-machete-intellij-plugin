@@ -6,25 +6,28 @@ import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
-import lombok.Getter;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
 
-  @Getter
-  private final String targetBranchName;
+  private final IBranchReference targetBranch;
+
+  @Override
+  public String getTargetBranchName() {
+    return targetBranch.getName();
+  }
 
   public MergeCurrentBranchFastForwardOnlyBackgroundable(
       Project project,
       GitRepository gitRepository,
-      String taskTitle,
-      String targetBranchName) {
-    super(project, gitRepository, taskTitle);
-    this.targetBranchName = targetBranchName;
+      IBranchReference targetBranch) {
+    super(project, gitRepository, getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"));
+    this.targetBranch = targetBranch;
   }
 
   @Override
@@ -37,7 +40,7 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   protected @Nullable GitLineHandler createGitLineHandler() {
     val handler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.MERGE);
     handler.addParameters("--ff-only");
-    handler.addParameters(targetBranchName);
+    handler.addParameters(targetBranch.getFullName());
     return handler;
   }
 }

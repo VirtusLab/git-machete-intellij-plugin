@@ -34,17 +34,17 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String remoteName,
       String refspec,
       String taskTitle,
+      @Nullable String taskSubtitle,
       String failureNotificationText,
-      String successNotificationText,
-      @Nullable String taskSubtitle) {
+      String successNotificationText) {
     super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;
     this.gitRepository = gitRepository;
     this.remoteName = remoteName;
     this.refspec = refspec;
+    this.taskSubtitle = taskSubtitle;
     this.failureNotificationText = failureNotificationText;
     this.successNotificationText = successNotificationText;
-    this.taskSubtitle = taskSubtitle;
   }
 
   public FetchBackgroundable(Project project,
@@ -54,8 +54,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String taskTitle,
       String failureNotificationText,
       String successNotificationText) {
-    this(project, gitRepository, remoteName, refspec, taskTitle, failureNotificationText,
-        successNotificationText, /* taskSubtitle */ null);
+    this(project, gitRepository, remoteName, refspec, taskTitle, /* taskSubtitle */ null, failureNotificationText,
+        successNotificationText);
   }
 
   @Override

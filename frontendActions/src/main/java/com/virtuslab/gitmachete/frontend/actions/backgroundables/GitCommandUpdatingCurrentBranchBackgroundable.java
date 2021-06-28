@@ -106,17 +106,17 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   }
 
   @UIThreadUnsafe
-  private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String remoteBranchName) {
+  private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String targetBranchName) {
     GitUpdatedRanges updatedRanges = null;
     val currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
-      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
+      GitBranch targetBranch = gitRepository.getBranches().findBranchByName(targetBranchName);
       if (targetBranch != null) {
         GitBranchPair refPair = new GitBranchPair(currentBranch, targetBranch);
         updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
             java.util.Collections.singletonMap(gitRepository, refPair));
       } else {
-        LOG.warn("Couldn't find the branch with name '${remoteBranchName}'");
+        LOG.warn("Couldn't find the branch with name '${targetBranchName}'");
       }
     }
     return updatedRanges;
