@@ -14,7 +14,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
-import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
@@ -117,7 +117,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
   private void doPullNonCurrentBranchFastForwardOnly(Project project,
       GitRepository gitRepository,
-      IManagedBranchSnapshot localBranch,
+      ILocalBranchReference localBranch,
       IRemoteTrackingBranchReference remoteBranch) {
 
     val remoteName = remoteBranch.getRemoteName();
