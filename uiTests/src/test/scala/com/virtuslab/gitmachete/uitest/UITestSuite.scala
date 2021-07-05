@@ -1,17 +1,16 @@
 package com.virtuslab.gitmachete.uitest
 
-import java.nio.file.Files
-import java.nio.file.attribute.FileTime
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite.SETUP_WITH_SINGLE_REMOTE
-import org.junit.{ After, AfterClass, Assert, Before, BeforeClass, Test }
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit._
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.config._
 import org.virtuslab.ideprobe.dependencies._
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
+
+import java.nio.file.Files
+import java.nio.file.attribute.FileTime
 
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   @BeforeClass override final def setup(): Unit = super.setup()

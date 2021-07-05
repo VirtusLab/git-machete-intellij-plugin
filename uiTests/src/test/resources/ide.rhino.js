@@ -29,9 +29,9 @@ function Ide() {
         'gitmachete.frontend.actions',
         'gitmachete.frontend.graph',
         'gitmachete.frontend.ui',
-      ).map(function (name) {
-        return new DebugLogManager.Category(name, DebugLogManager.DebugLogLevel.DEBUG);
-      }).collect(Collectors.toList());
+      ).map(name =>
+        new DebugLogManager.Category(name, DebugLogManager.DebugLogLevel.DEBUG)
+      ).collect(Collectors.toList());
 
       const debugLogManager = DebugLogManager.getInstance();
       // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
@@ -49,8 +49,8 @@ function Ide() {
   };
 
   this.closeOpenedProjects = function () {
-    ProjectUtil.getOpenProjects().forEach(function (project) {
-      GuiUtils.runOrInvokeAndWait(function () {
+    ProjectUtil.getOpenProjects().forEach(project => {
+      GuiUtils.runOrInvokeAndWait(() => {
         System.out.println('project to close = ' + project.toString());
         ProjectUtil.closeAndDispose(project);
       });

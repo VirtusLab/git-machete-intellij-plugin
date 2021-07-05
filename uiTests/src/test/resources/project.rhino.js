@@ -38,8 +38,8 @@ function Project(underlyingProject) {
 
     // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
-    GuiUtils.runOrInvokeAndWait(function () {
-      toolWindow.activate(function () {});
+    GuiUtils.runOrInvokeAndWait(() => {
+      toolWindow.activate(() => {});
       const contentManager = toolWindow.getContentManager();
       const tab = contentManager.findContent(tabName);
       contentManager.setSelectedContent(tab);
@@ -58,7 +58,7 @@ function Project(underlyingProject) {
   this.getManagedBranches = function () {
     const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
     if (snapshot != null) {
-      return snapshot.getManagedBranches().map(function (b) { return b.getName() }).toJavaArray(java.lang.String);
+      return snapshot.getManagedBranches().map(b => b.getName()).toJavaArray(java.lang.String);
     } else {
       return java.lang.reflect.Array.newInstance(java.lang.String, 0);
     }
@@ -70,7 +70,7 @@ function Project(underlyingProject) {
     const graphTable = getGraphTable();
 
     let refreshDone = false;
-    graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ function () {
+    graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ () => {
       refreshDone = true;
     });
     do {
@@ -93,7 +93,7 @@ function Project(underlyingProject) {
 
   const createActionEvent = function (actionPlace, data) {
     const dataContext = new DataContext({
-      getData: function (dataId) {
+      getData: dataId => {
         if (dataId in data) return data[dataId];
         if (dataId.equals('project')) return underlyingProject;
         return getGraphTable().getData(dataId);
@@ -106,18 +106,17 @@ function Project(underlyingProject) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
-    GuiUtils.invokeLaterIfNeeded(function () {
-      action.actionPerformed(actionEvent);
-    }, ModalityState.NON_MODAL);
+    GuiUtils.invokeLaterIfNeeded(
+      () => action.actionPerformed(actionEvent),
+      ModalityState.NON_MODAL
+    );
   };
 
   const invokeActionAndWait = function (actionName, actionPlace, data) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
-    GuiUtils.runOrInvokeAndWait(function () {
-      action.actionPerformed(actionEvent);
-    });
+    GuiUtils.runOrInvokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
   this.discoverBranchLayout = function () {
@@ -140,10 +139,10 @@ function Project(underlyingProject) {
   const findAndClickButton = function (name) {
     const getButton = function () {
       // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(function (component) {
-        return 'javax.swing.JButton'.equals(component.getClass().getName())
-            && name.equals(component.getText());
-      }).toArray();
+      const result = robot.finder().findAll(component =>
+        'javax.swing.JButton'.equals(component.getClass().getName())
+            && name.equals(component.getText())
+      ).toArray();
       return result.length === 1 ? result[0] : null;
     };
 
@@ -224,11 +223,9 @@ function Project(underlyingProject) {
     const getDiffWithWorkingTree = gitChangeUtilsClass.getMethod('getDiffWithWorkingTree', gitRepositoryClass, java.lang.String, java.lang.Boolean.TYPE);
 
     const diff = getDiffWithWorkingTree.invoke(/* (static method) */ null, getSelectedGitRepository(), 'HEAD', /* detectRenames */ false);
-    return diff.stream().map(function (change) {
-      // We can't return the com.intellij.openapi.vcs.changes.Change objects
-      // since they won't properly serialize for the transfer from Robot Remote plugin (in the IDE) back to the client (UI tests).
-      return change.toString();
-    }).collect(Collectors.toList());
+    // We can't return the com.intellij.openapi.vcs.changes.Change objects
+    // since they won't properly serialize for the transfer from Robot Remote plugin (in the IDE) back to the client (UI tests).
+    return diff.stream().map(change => change.toString()).collect(Collectors.toList());
   };
 
   this.getHashOfCommitPointedByBranch = function (branchName) {

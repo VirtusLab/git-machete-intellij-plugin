@@ -40,9 +40,9 @@ ext {
     // When this value is updated, remember to update the minimum required IDEA version in README.md.
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
-    // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks
+    // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks and UI tests
     latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4'],
-    latestStable: '2021.1.2',
+    latestStable: '2021.1.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
