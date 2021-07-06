@@ -33,11 +33,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
   implicit class RunningIntelliJFixtureOps(intelliJ: RunningIntelliJFixture) {
 
-    private def runJs(@Language("JS") statement: String): Unit = {
+    private def runJs(@Language("JavaScript") statement: String): Unit = {
       intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
     }
 
-    private def callJs[T](@Language("JS") expression: String): T = {
+    private def callJs[T](@Language("JavaScript") expression: String): T = {
       intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
     }
 
