@@ -10,8 +10,9 @@ plugins {
   id 'org.checkerframework' version '0.5.23' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
   id 'org.jetbrains.intellij' version '1.1.3' apply false
-  // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against;
-  // e.g. 2020.x uses version 1.3.x and 2021.1 uses 1.4.x
+  // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
+  // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
+  // every time `intellijVersions.buildTarget` is bumped.
   id 'org.jetbrains.kotlin.jvm' version '1.4.32' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.50.15' apply false
 }
@@ -20,23 +21,23 @@ ext {
   // We've consciously downgraded Java from 11 to 8 to provide compatibility with Android Studio,
   // which as of 2020.3 still executes on Java 8-based runtime.
   javaMajorVersion = JavaVersion.VERSION_1_8
+  kotlinVersion = '1.4.32'
+  scalaMajorVersion = '2.13'
 
   archUnitVersion = '0.20.1'
   betterStringsVersion = '0.5'
   checkerFrameworkVersion = '3.16.0'
   checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.7'
+  commonsIOVersion = '2.11.0'
   ideProbeVersion = '0.10.2'
-  jetbrainsAnnotationsVersion = '19.0.0' // version effectively enforced by the IntelliJ plugin
+  jetbrainsAnnotationsVersion = '21.0.0'
   jgitVersion = '5.12.0.202106070339-r'
   junitVersion = '4.13.2'
   lombokVersion = '1.18.20'
-  kotlinVersion = '1.4.32'
   powerMockVersion = '2.0.9'
   reflectionsVersion = '0.9.12'
-  scalaVersion = '2.12.10'
   slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.30'
+  slf4jVersion = '1.7.31'
   vavrVersion = '0.10.4'
 
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
@@ -368,6 +369,10 @@ subprojects {
       dependencies {
         // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4.x automatically,
         // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
+        // Note that kotlin-reflect pulls in kotlin-stdlib transitively, even if `kotlin.stdlib.default.dependency=false` is set in gradle.properties
+        // (see https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library)
+        // TODO (#743): since 2020.2 is the last version running on Kotlin 1.3.x,
+        //  probably once we drop support for 2020.2, we can also remove this dependency.
         implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
       }
 
@@ -391,22 +396,23 @@ subprojects {
       }
 
       dependencies {
-        testImplementation group: 'org.virtuslab.ideprobe', name: 'junit-driver_2.12', version: ideProbeVersion
-        testImplementation group: 'org.virtuslab.ideprobe', name: 'robot-driver_2.12', version: ideProbeVersion
+        testImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
+        testImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
       }
     }
 
     jetbrainsAnnotations = { ->
       dependencies {
-        implementation group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
+        compileOnly     group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
+        testCompileOnly group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
       }
     }
 
     jgit = { ->
       dependencies {
         implementation (group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion) {
-          // JGit transitively pulls in a version of slf4j-api (currently 1.7.2)
-          // that's incompatible with the slf4j-api version that IntelliJ depends in (currently 1.7.25).
+          // JGit transitively pulls in a version of slf4j-api
+          // that might be different from the slf4j-api version that IntelliJ depends on.
           // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
           // (http://www.slf4j.org/manual.html#compatibility).
           // We rely on that guarantee: JGit that our plugin depends on (via backendImpl and gitCoreJGit)
@@ -449,14 +455,6 @@ subprojects {
     reflections = { ->
       dependencies {
         implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
-      }
-    }
-
-    scala = { ->
-      dependencies {
-        def scalaCoords = [group: 'org.scala-lang', name: 'scala-library', version: scalaVersion]
-        compileOnly scalaCoords
-        testCompileOnly scalaCoords
       }
     }
 
@@ -574,7 +572,7 @@ patchPluginXml {
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
   pluginDescription = file("$rootDir/DESCRIPTION.html").text
 
-  changeNotes = file("$rootDir/CHANGE-NOTES.html").text
+  changeNotes = "<h3>v${rootProject.version}</h3>\n\n" + file("$rootDir/CHANGE-NOTES.html").text
 }
 
 runIde {

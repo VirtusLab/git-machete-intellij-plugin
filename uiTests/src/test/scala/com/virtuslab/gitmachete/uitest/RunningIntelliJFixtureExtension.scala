@@ -98,7 +98,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       }
 
       def getDiffOfWorkingTreeToHead(): Seq[String] = {
-        callJs[util.ArrayList[String]]("project.getDiffOfWorkingTreeToHead()").asScala
+        callJs[util.ArrayList[String]]("project.getDiffOfWorkingTreeToHead()").asScala.toSeq
       }
 
       def getHashOfCommitPointedByBranch(branch: String): String = {

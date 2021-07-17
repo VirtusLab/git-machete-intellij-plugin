@@ -18,9 +18,7 @@ trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   private val ignoredErrorMessages = Seq(
     // Spurious errors in the IDEA itself (probably some race conditions)
     "com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage",
-    "com.intellij.serviceContainer.AlreadyDisposedException: Already disposed: Project",
-    // https://github.com/VirtusLab/ide-probe/issues/95
-    "scala.MatchError: IDE_UPDATE (of class com.intellij.notification.NotificationType)"
+    "com.intellij.serviceContainer.AlreadyDisposedException: Already disposed: Project"
   )
 
   @AfterClass override final def teardown(): Unit = {
@@ -118,7 +116,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
       Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
-      Seq(managedBranches: _*).sorted)
+      managedBranches.toSeq.sorted)
     intelliJ.project.toggleListingCommits()
     var branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
     // 6 branch rows + 7 commit rows
