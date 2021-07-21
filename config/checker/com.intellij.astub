@@ -305,12 +305,6 @@ package com.intellij.openapi.vcs.history;
 
 
 @UIPackage package com.intellij.openapi.vcs.ui;
-
-class CommitMessage {
-  @SafeEffect
-  List<ChangeList> getChangeLists();
-}
-
 @UIPackage package com.intellij.openapi.vcs.ui.cloneDialog;
 @UIPackage package com.intellij.openapi.vcs.versionBrowser;
 

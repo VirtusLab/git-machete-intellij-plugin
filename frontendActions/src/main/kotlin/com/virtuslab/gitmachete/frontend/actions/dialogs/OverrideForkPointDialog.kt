@@ -25,7 +25,7 @@ class OverrideForkPointDialog(
   init {
     title =
         getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
-    setOKButtonMnemonic('O'.toInt())
+    setOKButtonMnemonic('O'.code)
     super.init()
   }
 

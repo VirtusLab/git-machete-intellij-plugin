@@ -3,7 +3,7 @@
 set -e -o pipefail -u
 
 exit_code=0
-for class in $(find . -name '*.class' -type f); do
+for class in $(find . -name '*.class' -type f | grep -vE '/classes/kotlin/|/classes/java/test/'); do
   strings_output=$(strings $class)
   # This is also catching would-be interpolations written without the leading `$`.
   grep_output=$(grep -E '^.+\{.*\}' <<< "$strings_output" || true)
