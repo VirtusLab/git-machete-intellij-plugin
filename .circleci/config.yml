@@ -10,19 +10,16 @@ jobs:
           name: Run pre-compile checks
           command: ./scripts/run-pre-build-checks
       - restore_cache:
-          # Adding `-v3` suffix to enable easy cache invalidation when needed (just change to `-v4`)
+          # Adding `-v4` suffix to enable easy cache invalidation when needed (just change to `-v<next-integer>`)
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
+            - gradle-deps-v4-{{ checksum "build.gradle" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v3-{{ checksum "build.gradle" }}-
-            # Paradoxically, it's better NOT to go any further.
-            # We used to try `gradle-deps-v3-` if both above entries were missing...
-            # but the result was that the a lot of items were gradually accumulating in the cache,
-            # and the Restore/Save step were taking more and more time (the latter up to 5 minutes),
-            # which defied the original purpose of caching (speeding up the builds).
+            - gradle-deps-v4-{{ checksum "build.gradle" }}-
+            # As a last resort, take any available cache entry.
+            - gradle-deps-v4-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -64,17 +61,13 @@ jobs:
       - run:
           name: Run unit & integration tests
           command: ./gradlew test
-#       Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
           path: branchLayoutImpl/build/test-results/test/
       - store_test_results:
           path: backendImpl/build/test-results/test/
       - store_test_results:
           path: build/test-results/test/
-
-      - save_cache:
-          paths: [ ~/.gradle/ ]
-          key: gradle-deps-v3-{{ checksum "build.gradle" }}-{{ .Branch }}
 
       - run:
           name: Build plugin artifact
@@ -98,18 +91,32 @@ jobs:
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
-            # once both binary compatibility checks and UI tests for latest versions passed
-            # is close to zero.
-            # Hence, we only run them on develop & master and not on PRs to speed up the builds.
-            or:
-              - equal: [ develop, << pipeline.git.branch >> ]
-              - equal: [ master,  << pipeline.git.branch >> ]
+            # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
+            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release and not on PRs.
+            matches:
+              pattern: "^(develop|hotfix/.+|master|release/.+)$"
+              value: << pipeline.git.branch >>
           steps:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
       - store_test_results:
           path: build/test-results/uiTest/
+
+      - when:
+          condition:
+            not:
+              equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Remove IntelliJ artifacts to reduce cache size
+                command: |
+                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
+                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains/
+                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
+            - save_cache:
+                paths: [ ~/.gradle/ ]
+                key: gradle-deps-v4-{{ checksum "build.gradle" }}-{{ .Branch }}
 
       - when:
           condition:

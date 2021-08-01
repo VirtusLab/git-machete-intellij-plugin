@@ -632,9 +632,6 @@ uiTestTargets.each { version ->
     systemProperty 'ui-test.intellij.version', version
     systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
 
-    // Always re-run the tests, never assume they're up to date.
-    outputs.upToDateWhen { false }
-
     if (project.properties.tests) {
       filter {
         includeTestsMatching "*.*${project.properties.tests}*"
