@@ -23,14 +23,15 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   @Override
   public BranchLayout read(Path path) throws BranchLayoutException {
     boolean isBranchLayoutPresent = Files.isRegularFile(path);
+    List<String> lines = BranchLayoutFileUtils.readFileLines(path);
+
     IndentSpec indentSpec = isBranchLayoutPresent
-        ? BranchLayoutFileUtils.deriveIndentSpec(path)
+        ? BranchLayoutFileUtils.deriveIndentSpec(lines)
         : BranchLayoutFileUtils.getDefaultSpec();
 
     LOG.debug(() -> "Entering: Reading branch layout from ${path} with indent character ASCII " +
         "code = ${(int)indentSpec.getIndentCharacter()} and indent width = ${indentSpec.getIndentWidth()}");
 
-    List<String> lines = BranchLayoutFileUtils.readFileLines(path);
     List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
 
     LOG.debug(() -> "${lines.length()} line(s) found");

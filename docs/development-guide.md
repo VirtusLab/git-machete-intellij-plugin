@@ -86,11 +86,10 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 ## Run UI tests
 
 ```
-./scripts/run-ui-tests [<intellij-version>]
+./gradlew [-Pagainst=<e.g. 2021.2>] [-Pheadless] [-Ptests=<e.g. toggle>] uiTest
 ```
 
-See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
-for more details.
+See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot) for more details.
 
 
 ## Check dependency updates

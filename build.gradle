@@ -1,6 +1,7 @@
 plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
+  id 'org.gradle.scala'
 
   id 'com.github.ben-manes.versions' version '0.39.0'
 
@@ -63,7 +64,6 @@ ext {
     : majorPartOfIntellijVersion(intellijVersions.latestStable)
 
   intellijVersions.buildTarget = intellijVersions.latestStable
-  intellijVersions.uiTestsTarget = project.properties.intellijVersionForUiTests
 
   ciBranch = System.getenv('CIRCLE_BRANCH')
   isCI = System.getenv('CI') == 'true'
@@ -87,30 +87,45 @@ static String majorPartOfIntellijVersion(String version) {
   return version.substring(0, 6)
 }
 
+/**
+ * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)
+ * @returns Corresponding release numbers.
+ */
+List<String> resolveIntelliJVersions(String versionKey) {
+  if (versionKey == null) {
+    return []
+  }
+  if (versionKey =~ /^[0-9].*$/) {
+    return [versionKey]
+  }
+
+  def versionValue = project.intellijVersions.get(versionKey)
+  if (versionValue == null) {
+    return []
+  }
+  if (versionValue instanceof List) {
+    return versionValue
+  }
+  return [versionValue]
+}
+
 class ResolveIntelliJVersions extends DefaultTask {
   @Input
-  @Option(option = 'versionKey', description = 'Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)')
+  @Option(option = 'version-key', description = 'Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)')
   String versionKey
+
+  @OptionValues('version-key')
+  List<String> getAvailableVersionKeys() {
+    return new ArrayList<>(project.intellijVersions.keySet())
+  }
 
   @TaskAction
   void print() {
-    if (versionKey =~ /^[0-9].*$/) {
-      println(versionKey)
-    } else {
-      def versionValue = project.intellijVersions.get(versionKey)
-      if (versionValue instanceof List) {
-        println(String.join("\n", versionValue))
-      } else if (versionValue != null) {
-        println(versionValue)
-      } else {
-        println()
-      }
-    }
+    println(String.join("\n", project.resolveIntelliJVersions(versionKey)))
   }
 }
 
-task resolveIntelliJVersions(type: ResolveIntelliJVersions)
-
+tasks.register('resolveIntelliJVersions', ResolveIntelliJVersions)
 
 dependencyUpdates {
   def isStableVersion = { String version ->
@@ -200,21 +215,6 @@ allprojects {
     }
   }
 
-  apply plugin: 'org.gradle.checkstyle'
-  checkstyle {
-    toolVersion checkstyleToolVersion
-
-    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
-    ignoreFailures = false
-    checkstyleTest.enabled = false
-
-    configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
-  }
-}
-
-
-subprojects {
-
   apply plugin: 'org.checkerframework'
   checkerFramework {
     excludeTests = true
@@ -252,6 +252,17 @@ subprojects {
     }
   }
 
+  apply plugin: 'org.gradle.checkstyle'
+  checkstyle {
+    toolVersion checkstyleToolVersion
+
+    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
+    ignoreFailures = false
+    checkstyleTest.enabled = false
+
+    configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
+  }
+
   apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
   task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
     // Optional config
@@ -273,7 +284,6 @@ subprojects {
       ['CHECKSTYLE', buildDir.path, '.*/checkstyle/.*\\.xml\$', 'Checkstyle']
     ]
   }
-
   // Run violations task after each checkstyleMain run
   checkstyleMain.finalizedBy(violations)
 
@@ -285,7 +295,6 @@ subprojects {
       generateLombokConfig.enabled = false
     }
   }
-
 
   ext {
     addIntellijToCompileClasspath = { Map params ->
@@ -386,18 +395,6 @@ subprojects {
     commonsIO = { ->
       dependencies {
         implementation group: 'commons-io', name: 'commons-io', version: commonsIOVersion
-      }
-    }
-
-    ideProbe = { ->
-      repositories {
-        maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-      }
-
-      dependencies {
-        testImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
-        testImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
       }
     }
 
@@ -561,6 +558,13 @@ intellij {
   plugins = ['git4idea'] // Needed solely for ArchUnit
 }
 
+if (!isCI) {
+  // The output of this task is for some reason very poorly cached,
+  // and the task takes a significant amount of time,
+  // while the index of searchable options is of little use for local development.
+  buildSearchableOptions.enabled = false
+}
+
 patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
   sinceBuild = intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
@@ -597,4 +601,68 @@ runPluginVerifier {
 
 publishPlugin {
   token = jetbrainsMarketplaceToken
+}
+
+
+def uiTest = sourceSets.create('uiTest')
+
+configurations {
+  uiTestImplementation.extendsFrom testImplementation
+  uiTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+List<String> uiTestTargets = project.properties.against \
+  ? resolveIntelliJVersions(project.properties.against)
+  : [intellijVersions.buildTarget]
+
+uiTestTargets.each { version ->
+  tasks.register("uiTest_${version}", Test) {
+    description = 'Runs UI tests.'
+    group = 'verification'
+
+    testClassesDirs = uiTest.output.classesDirs
+    classpath = sourceSets.main.output + configurations.uiTestRuntimeClasspath + uiTest.output
+    // Let's keep the XML test results in a per-version directory, this makes things easier in the CI
+    // where the UI tests are executed under a couple different IDE versions one after another.
+    // The results in the default directory (build/test-results/uiTest) would get overwritten which each subsequent test.
+    reports.junitXml.destination = file("$buildDir/test-results/uiTest/${version}")
+
+    dependsOn ':buildPlugin'
+
+    systemProperty 'ui-test.intellij.version', version
+    systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
+
+    // Always re-run the tests, never assume they're up to date.
+    outputs.upToDateWhen { false }
+
+    if (project.properties.tests) {
+      filter {
+        includeTestsMatching "*.*${project.properties.tests}*"
+      }
+    }
+
+    if (project.hasProperty('headless')) {
+      environment 'IDEPROBE_DISPLAY', 'xvfb'
+    }
+
+    testLogging {
+      events += [TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR]
+    }
+  }
+}
+
+// Cannot use `task uiTest(type: Test)` syntax due to the name conflict with `def uiTest` above.
+tasks.register('uiTest') {
+  dependsOn tasks.matching { Task task -> task.name.startsWith("uiTest_") }
+}
+
+
+dependencies {
+  repositories {
+    maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
+  }
+
+  uiTestImplementation project(':testCommon').sourceSets.test.output
+  uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
+  uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
 }

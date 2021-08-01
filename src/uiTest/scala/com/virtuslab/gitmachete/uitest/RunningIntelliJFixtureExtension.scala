@@ -13,11 +13,9 @@ import org.virtuslab.ideprobe.robot.RobotPluginExtension
 trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdeProbeFixture =>
 
   private val machetePlugin: Plugin = {
-    val cwd = Paths.get(System.getProperty("user.dir"))
-    val repositoryRoot = cwd.getParent
-    val distedPluginsDir = repositoryRoot.resolve("build/distributions")
-    val latestFileInDistDir = distedPluginsDir.toAbsolutePath.toFile.listFiles().maxBy(_.lastModified())
-    Plugin.Direct(latestFileInDistDir.toURI)
+    val pluginPath = sys.props.get("ui-test.plugin.path")
+      .filterNot(_.isEmpty).getOrElse(throw new Exception("Plugin path is not provided"))
+    Plugin.Direct(Paths.get(pluginPath).toUri)
   }
 
   registerFixtureTransformer(_.withPlugin(machetePlugin))

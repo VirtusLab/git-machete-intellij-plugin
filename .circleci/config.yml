@@ -39,7 +39,7 @@ jobs:
       - run:
           name: Compile production code
           # Given the RAM limits on CI (4GB), max-workers=2 is necessary to prevent OOMs.
-          command: ./gradlew --max-workers=2 compileJava
+          command: ./gradlew --max-workers=2 compileJava compileKotlin
       - run:
           name: Run post-compile checks
           command: ./scripts/verify-no-string-interpolation-leftovers
@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: Compile tests
-          command: ./gradlew compileTestJava compileTestScala
+          command: ./gradlew compileTestJava compileUiTestScala
       - run:
           name: Install git-machete CLI
           # Let's install the *first* of the comma-separated versions -
@@ -64,11 +64,13 @@ jobs:
       - run:
           name: Run unit & integration tests
           command: ./gradlew test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+#       Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
-          path: branchLayoutImpl/build/test-results/
+          path: branchLayoutImpl/build/test-results/test/
       - store_test_results:
-          path: backendImpl/build/test-results/
+          path: backendImpl/build/test-results/test/
+      - store_test_results:
+          path: build/test-results/test/
 
       - save_cache:
           paths: [ ~/.gradle/ ]
@@ -89,10 +91,10 @@ jobs:
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./scripts/run-ui-tests --headless eapOfLatestSupportedMajor
+          command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version (our build target)
-          command: ./scripts/run-ui-tests --headless latestStable
+          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -105,9 +107,9 @@ jobs:
           steps:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
-                command: ./scripts/run-ui-tests --headless latestMinorsOfOldSupportedMajors
+                command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
       - store_test_results:
-          path: uiTests/build/ui-test-results/
+          path: build/test-results/uiTest/
 
       - when:
           condition:

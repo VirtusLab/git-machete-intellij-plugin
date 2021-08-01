@@ -35,13 +35,15 @@ public final class BranchLayoutFileUtils {
 
   public static IndentSpec deriveIndentSpec(Path path) {
     LOG.debug("Entering: branch layout file path: ${path}");
-
     List<String> lines = Try.of(() -> BranchLayoutFileUtils.readFileLines(path))
         .getOrElse(() -> {
           LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling back to default indent definition.");
           return List.empty();
         });
+    return deriveIndentSpec(lines);
+  }
 
+  public static IndentSpec deriveIndentSpec(List<String> lines) {
     LOG.debug(() -> "${lines.length()} line(s) found");
 
     val firstLineWithBlankPrefixOption = lines.reject(line -> line.trim().isEmpty())
