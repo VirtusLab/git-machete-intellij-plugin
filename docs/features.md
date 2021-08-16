@@ -10,7 +10,7 @@ You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
 ## Branch layout graph
 
-For each branch, Git Machete indicates the relation to each of its child branches.
+For each branch, Git Machete indicates the syncToRemoteStatus to each of its child branches.
 If the edge between them is **green** that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
 But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) the child branch onto the parent.
 The **gray** color of the edge means that the branch was merged to the parent.
@@ -188,7 +188,7 @@ master
 Two of them, `allow-ownership-link` and `call-ws`, have a custom annotation &mdash;
 it's an arbitrary description displayed next to the given branch (in this case, pull request numbers).
 
-The relation between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
+The syncToRemoteStatus between these branches is determined by indentations &mdash; here single indent is 4 spaces, but a tab can be used as well.
 
 In the example above, branches `allow-ownership-link` and `call-ws` are children of `develop`, while `build-chain` is a child of `allow-ownership-link`. <br/>
 `master`, in turn, is the parent of `hotfix/add-trigger`. <br/>
@@ -217,7 +217,7 @@ On the left side bar you can find other actions (from top to bottom):
     - ![](left_bar_actions/rebase.png) **Rebase Current Branch Onto Parent**
     - ![](left_bar_actions/override_forkpoint.png) **Override Fork Point of Current Branch**
 
-  Available action is selected based on a relation between a current branch and its parent and remote branch.
+  Available action is selected based on a syncToRemoteStatus between a current branch and its parent and remote branch.
 - ![](left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
 - ![](left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
 

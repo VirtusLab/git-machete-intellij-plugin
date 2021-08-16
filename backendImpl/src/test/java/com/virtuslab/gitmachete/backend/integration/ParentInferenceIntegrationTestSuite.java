@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -24,6 +25,7 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
+@Ignore
 @RunWith(Parameterized.class)
 public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 

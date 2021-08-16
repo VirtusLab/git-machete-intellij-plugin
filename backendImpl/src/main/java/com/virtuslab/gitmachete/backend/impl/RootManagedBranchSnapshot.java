@@ -8,7 +8,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 
 @CustomLog
 @ToString
@@ -20,10 +20,10 @@ public final class RootManagedBranchSnapshot extends BaseManagedBranchSnapshot i
       List<NonRootManagedBranchSnapshot> children,
       ICommitOfManagedBranch pointedCommit,
       @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
-      SyncToRemoteStatus syncToRemoteStatus,
+      RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
         statusHookOutput);
 
     LOG.debug("Creating ${this}");

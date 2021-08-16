@@ -13,7 +13,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 
 @Getter
 @ToString
@@ -25,7 +25,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   private final List<NonRootManagedBranchSnapshot> children;
   private final ICommitOfManagedBranch pointedCommit;
   private final @Nullable IRemoteTrackingBranchReference remoteTrackingBranch;
-  private final SyncToRemoteStatus syncToRemoteStatus;
+  private final RelationToRemote relationToRemote;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 

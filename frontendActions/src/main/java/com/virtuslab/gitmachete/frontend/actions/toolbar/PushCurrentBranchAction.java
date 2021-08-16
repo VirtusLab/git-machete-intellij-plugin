@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
@@ -29,7 +29,7 @@ public class PushCurrentBranchAction extends BasePushBranchAction {
 
     val isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus().getRelation())
+        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus())
         .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))
         .getOrElse(false);
 

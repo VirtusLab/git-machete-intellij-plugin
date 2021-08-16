@@ -16,8 +16,8 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
 @CustomLog
 @Getter
@@ -40,13 +40,13 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       List<NonRootManagedBranchSnapshot> children,
       ICommitOfManagedBranch pointedCommit,
       @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
-      SyncToRemoteStatus syncToRemoteStatus,
+      RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
       @Nullable IForkPointCommitOfManagedBranch forkPoint,
       List<ICommitOfManagedBranch> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
         statusHookOutput);
 
     this.forkPoint = forkPoint;

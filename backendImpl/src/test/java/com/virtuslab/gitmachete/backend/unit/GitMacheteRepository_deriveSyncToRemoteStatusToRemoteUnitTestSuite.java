@@ -16,9 +16,10 @@ import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
+public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   private static final String ORIGIN = "origin";
 
@@ -28,7 +29,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
   private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
 
   @SneakyThrows
-  private SyncToRemoteStatus invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) {
+  private RelationToRemote invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) {
     return Whitebox.invokeMethod(aux(), "deriveSyncToRemoteStatus", coreLocalBranch);
   }
 
@@ -39,10 +40,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
     PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteNames();
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.NoRemotes, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.NoRemotes, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -54,10 +55,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
     PowerMockito.doReturn(Option.none()).when(coreLocalBranch).getRemoteTrackingBranch();
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.Untracked, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.Untracked, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -80,10 +81,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
     PowerMockito.doReturn(olderInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -106,10 +107,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
     PowerMockito.doReturn(newerInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndOlderThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -131,10 +132,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
     PowerMockito.doReturn(instant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -152,10 +153,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.AheadOfRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.AheadOfRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -173,10 +174,10 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.BehindRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.BehindRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -194,9 +195,9 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusUnitTestSuite extends 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    SyncToRemoteStatus syncToRemoteStatus = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Relation.InSyncToRemote, syncToRemoteStatus.getRelation());
+    Assert.assertEquals(SyncToRemoteStatus.InSyncToRemote, relationToRemote.getSyncToRemoteStatus());
   }
 }

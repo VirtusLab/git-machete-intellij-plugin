@@ -3,13 +3,13 @@ package com.virtuslab.gitmachete.frontend.graph.api.items;
 import io.vavr.NotImplementedError;
 
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 
 public interface IBranchItem extends IGraphItem {
 
   IManagedBranchSnapshot getBranch();
 
-  SyncToRemoteStatus getSyncToRemoteStatus();
+  RelationToRemote getRelationToRemote();
 
   boolean isCurrentBranch();
 

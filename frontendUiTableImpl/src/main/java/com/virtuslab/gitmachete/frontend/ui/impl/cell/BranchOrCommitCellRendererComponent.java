@@ -8,13 +8,13 @@ import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSync;
 import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButForkPointOff;
 import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.MergedToParent;
 import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.OutOfSync;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.NoRemotes;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
@@ -57,7 +57,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
@@ -173,9 +173,9 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput.get(), GRAY_ATTRIBUTES);
       }
 
-      SyncToRemoteStatus syncToRemoteStatus = branchItem.getSyncToRemoteStatus();
-      val textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(syncToRemoteStatus));
-      String remoteStatusLabel = getSyncToRemoteStatusBasedLabel(syncToRemoteStatus);
+      RelationToRemote relationToRemote = branchItem.getRelationToRemote();
+      val textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(relationToRemote));
+      String remoteStatusLabel = getSyncToRemoteStatusBasedLabel(relationToRemote);
       append(" " + remoteStatusLabel, textAttributes);
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
@@ -251,17 +251,17 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     return padding;
   }
 
-  private static JBColor getColor(SyncToRemoteStatus relation) {
-    return Match(relation.getRelation()).of(
+  private static JBColor getColor(RelationToRemote relation) {
+    return Match(relation.getSyncToRemoteStatus()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), TRANSPARENT),
         Case($(Untracked), ORANGE),
         Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
   }
 
-  private static String getSyncToRemoteStatusBasedLabel(SyncToRemoteStatus status) {
+  private static String getSyncToRemoteStatusBasedLabel(RelationToRemote status) {
     val maybeRemoteName = status.getRemoteName();
     val remoteName = maybeRemoteName != null ? maybeRemoteName : "";
-    return Match(status.getRelation()).of(
+    return Match(status.getSyncToRemoteStatus()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
         Case($(Untracked),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),

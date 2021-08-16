@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -57,8 +57,8 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -638,19 +638,19 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    private SyncToRemoteStatus deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
+    private RelationToRemote deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
       String localBranchName = coreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
 
       if (remoteNames.isEmpty()) {
         LOG.debug("There are no remotes");
-        return SyncToRemoteStatus.noRemotes();
+        return RelationToRemote.noRemotes();
       }
 
       IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
       if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${localBranchName}' is untracked");
-        return SyncToRemoteStatus.untracked();
+        return RelationToRemote.untracked();
       }
 
       GitCoreRelativeCommitCount relativeCommitCount = gitCoreRepository
@@ -658,36 +658,36 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           .getOrNull();
       if (relativeCommitCount == null) {
         LOG.debug(() -> "Relative commit count for '${localBranchName}' could not be determined");
-        return SyncToRemoteStatus.untracked();
+        return RelationToRemote.untracked();
       }
 
       String remoteName = coreRemoteBranch.getRemoteName();
-      SyncToRemoteStatus syncToRemoteStatus;
+      RelationToRemote relationToRemote;
 
       if (relativeCommitCount.getAhead() > 0 && relativeCommitCount.getBehind() > 0) {
         Instant localBranchCommitDate = coreLocalBranch.getPointedCommit().getCommitTime();
         Instant remoteBranchCommitDate = coreRemoteBranch.getPointedCommit().getCommitTime();
         // In case when commit dates are equal we assume that our relation is `DivergedFromAndNewerThanRemote`
         if (remoteBranchCommitDate.compareTo(localBranchCommitDate) > 0) {
-          syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndOlderThanRemote, remoteName);
+          relationToRemote = RelationToRemote.of(DivergedFromAndOlderThanRemote, remoteName);
         } else {
           if (remoteBranchCommitDate.compareTo(localBranchCommitDate) == 0) {
             LOG.debug("Commit dates of both local and remote branches are the same, so we assume " +
                 "${DivergedFromAndNewerThanRemote} sync to remote status");
           }
-          syncToRemoteStatus = SyncToRemoteStatus.of(DivergedFromAndNewerThanRemote, remoteName);
+          relationToRemote = RelationToRemote.of(DivergedFromAndNewerThanRemote, remoteName);
         }
       } else if (relativeCommitCount.getAhead() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(AheadOfRemote, remoteName);
+        relationToRemote = RelationToRemote.of(AheadOfRemote, remoteName);
       } else if (relativeCommitCount.getBehind() > 0) {
-        syncToRemoteStatus = SyncToRemoteStatus.of(BehindRemote, remoteName);
+        relationToRemote = RelationToRemote.of(BehindRemote, remoteName);
       } else {
-        syncToRemoteStatus = SyncToRemoteStatus.of(InSyncToRemote, remoteName);
+        relationToRemote = RelationToRemote.of(InSyncToRemote, remoteName);
       }
 
-      LOG.debug(() -> "Sync to remote status for branch '${localBranchName}': ${syncToRemoteStatus.toString()}");
+      LOG.debug(() -> "Relation to remote for branch '${localBranchName}': ${relationToRemote.toString()}");
 
-      return syncToRemoteStatus;
+      return relationToRemote;
     }
 
     private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) {

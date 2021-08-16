@@ -33,7 +33,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
   }
 
   /**
-   * This method provides a list of {@link SyncToRemoteStatus.Relation}s for which the action should be ENABLED.
+   * This method provides a list of {@link SyncToRemoteStatus}s for which the action should be ENABLED.
    * Note that this "enability" matches actions in any place (both toolbar and context menu in particular).
    * Visibility itself may be switched off (even though the action is enabled).
    *
@@ -42,7 +42,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
    *
    * @return a list of relations for which the action should be enabled (not necessarily visible)
    */
-  List<SyncToRemoteStatus.Relation> getEligibleRelations();
+  List<SyncToRemoteStatus> getEligibleRelations();
 
   @UIEffect
   default void syncToRemoteStatusDependentActionUpdate(AnActionEvent anActionEvent) {
@@ -64,9 +64,9 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
               getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
-    val syncToRemoteStatus = gitMacheteBranch.getSyncToRemoteStatus();
+    val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote();
 
-    SyncToRemoteStatus.Relation relation = syncToRemoteStatus.getRelation();
+    SyncToRemoteStatus relation = syncToRemoteStatus.getSyncToRemoteStatus();
     val isRelationEligible = getEligibleRelations().contains(relation);
 
     if (isRelationEligible) {
@@ -79,17 +79,17 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
 
       // @formatter:off
       val desc = Match(relation).of(
-          Case($(SyncToRemoteStatus.Relation.AheadOfRemote),
+          Case($(SyncToRemoteStatus.AheadOfRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.ahead-of-remote")),
-          Case($(SyncToRemoteStatus.Relation.BehindRemote),
+          Case($(SyncToRemoteStatus.BehindRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.behind-remote")),
-          Case($(SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote),
+          Case($(SyncToRemoteStatus.DivergedFromAndNewerThanRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.diverged-from.and-newer-than-remote")),
-          Case($(SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote),
+          Case($(SyncToRemoteStatus.DivergedFromAndOlderThanRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.diverged-from.and-older-than-remote")),
-          Case($(SyncToRemoteStatus.Relation.InSyncToRemote),
+          Case($(SyncToRemoteStatus.InSyncToRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.in-sync-to-remote")),
-          Case($(SyncToRemoteStatus.Relation.Untracked),
+          Case($(SyncToRemoteStatus.Untracked),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.untracked")),
           Case($(),
               format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.relation.unknown"), relation.toString())));

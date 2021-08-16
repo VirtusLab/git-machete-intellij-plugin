@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.AheadOfRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.Untracked;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -47,7 +47,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
   }
 
   @Override
-  public List<SyncToRemoteStatus.Relation> getEligibleRelations() {
+  public List<SyncToRemoteStatus> getEligibleRelations() {
     return List.of(
         AheadOfRemote,
         DivergedFromAndNewerThanRemote,
@@ -64,7 +64,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus().getRelation());
+        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
     val project = getProject(anActionEvent);
 
     if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
@@ -85,7 +85,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus().getRelation());
+        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
 
     if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
       boolean isForcePushRequired = isForcePushRequired(relation.get());
@@ -93,8 +93,8 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     }
   }
 
-  private boolean isForcePushRequired(SyncToRemoteStatus.Relation relation) {
-    return List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote).contains(relation);
+  private boolean isForcePushRequired(SyncToRemoteStatus syncToRemoteStatus) {
+    return List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote).contains(syncToRemoteStatus);
   }
 
   @UIEffect
