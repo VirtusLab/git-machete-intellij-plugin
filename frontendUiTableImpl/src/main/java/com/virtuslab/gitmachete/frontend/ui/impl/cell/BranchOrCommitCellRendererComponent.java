@@ -175,7 +175,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
       RelationToRemote relationToRemote = branchItem.getRelationToRemote();
       val textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(relationToRemote));
-      String remoteStatusLabel = getSyncToRemoteStatusBasedLabel(relationToRemote);
+      String remoteStatusLabel = getRelationToRemoteBasedLabel(relationToRemote);
       append(" " + remoteStatusLabel, textAttributes);
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
@@ -258,7 +258,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
   }
 
-  private static String getSyncToRemoteStatusBasedLabel(RelationToRemote status) {
+  private static String getRelationToRemoteBasedLabel(RelationToRemote status) {
     val maybeRemoteName = status.getRemoteName();
     val remoteName = maybeRemoteName != null ? maybeRemoteName : "";
     return Match(status.getSyncToRemoteStatus()).of(

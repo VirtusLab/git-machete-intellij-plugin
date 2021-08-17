@@ -89,7 +89,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     this.roots = List.of(root);
   }
 
-  static RelationToRemote getSTRSofRelation(SyncToRemoteStatus syncToRemoteStatus) {
+  static RelationToRemote getRelationofSTRS(SyncToRemoteStatus syncToRemoteStatus) {
     return RelationToRemote.of(syncToRemoteStatus, "origin");
   }
 
@@ -208,7 +208,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final RelationToRemote relationToRemote = getSTRSofRelation(SyncToRemoteStatus.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     @Override
@@ -235,7 +235,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
-    private final RelationToRemote relationToRemote = getSTRSofRelation(SyncToRemoteStatus.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     private final List<ICommitOfManagedBranch> commits;

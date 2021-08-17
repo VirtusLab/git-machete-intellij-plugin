@@ -76,7 +76,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   @Override
-  public List<SyncToRemoteStatus> getEligibleRelations() {
+  public List<SyncToRemoteStatus> getEligibleStatuses() {
     return List.of(
         SyncToRemoteStatus.AheadOfRemote,
         SyncToRemoteStatus.BehindRemote,

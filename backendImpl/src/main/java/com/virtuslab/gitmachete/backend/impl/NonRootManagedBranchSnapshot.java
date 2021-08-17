@@ -46,8 +46,7 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       @Nullable IForkPointCommitOfManagedBranch forkPoint,
       List<ICommitOfManagedBranch> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
-        statusHookOutput);
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;

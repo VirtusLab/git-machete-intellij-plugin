@@ -23,8 +23,7 @@ public final class RootManagedBranchSnapshot extends BaseManagedBranchSnapshot i
       RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
-        statusHookOutput);
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
 
     LOG.debug("Creating ${this}");
 

@@ -35,6 +35,8 @@ import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
+// TODO (#753): un-ignore this suite
+
 @Ignore
 @RunWith(Parameterized.class)
 public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
@@ -209,11 +211,11 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
       sb.append("  ");
       sb.append(customAnnotation.get());
     }
-    val syncToRemote = branch.getRelationToRemote();
+    val relationToRemote = branch.getRelationToRemote();
 
-    SyncToRemoteStatus syncToRemoteStatus = syncToRemote.getSyncToRemoteStatus();
+    SyncToRemoteStatus syncToRemoteStatus = relationToRemote.getSyncToRemoteStatus();
     if (syncToRemoteStatus != NoRemotes && syncToRemoteStatus != InSyncToRemote) {
-      val remoteName = syncToRemote.getRemoteName();
+      val remoteName = relationToRemote.getRemoteName();
       sb.append(" (");
       sb.append(Match(syncToRemoteStatus).of(
           Case($(Untracked), "untracked"),

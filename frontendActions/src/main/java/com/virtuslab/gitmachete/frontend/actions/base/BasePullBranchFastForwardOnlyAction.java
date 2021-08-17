@@ -47,7 +47,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
   }
 
   @Override
-  public List<SyncToRemoteStatus> getEligibleRelations() {
+  public List<SyncToRemoteStatus> getEligibleStatuses() {
     return List.of(
         SyncToRemoteStatus.BehindRemote,
         SyncToRemoteStatus.InSyncToRemote);

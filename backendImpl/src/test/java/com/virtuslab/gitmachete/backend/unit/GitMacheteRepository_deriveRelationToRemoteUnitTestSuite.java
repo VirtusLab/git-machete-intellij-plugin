@@ -19,7 +19,7 @@ import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 
-public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
+public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   private static final String ORIGIN = "origin";
 
@@ -29,18 +29,18 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
   private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
 
   @SneakyThrows
-  private RelationToRemote invokeDeriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) {
-    return Whitebox.invokeMethod(aux(), "deriveSyncToRemoteStatus", coreLocalBranch);
+  private RelationToRemote invokeDeriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) {
+    return Whitebox.invokeMethod(aux(), "deriveRelationToRemote", coreLocalBranch);
   }
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_NoRemotes() {
+  public void deriveRelationToRemote_NoRemotes() {
     // given
     PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteNames();
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.NoRemotes, relationToRemote.getSyncToRemoteStatus());
@@ -48,14 +48,14 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_Untracked() {
+  public void deriveRelationToRemote_Untracked() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
     PowerMockito.doReturn(Option.none()).when(coreLocalBranch).getRemoteTrackingBranch();
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.Untracked, relationToRemote.getSyncToRemoteStatus());
@@ -63,7 +63,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_DivergedAndNewerThan() {
+  public void deriveRelationToRemote_DivergedAndNewerThan() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -81,7 +81,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
     PowerMockito.doReturn(olderInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
@@ -89,7 +89,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_DivergedAndOlderThan() {
+  public void deriveRelationToRemote_DivergedAndOlderThan() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -107,7 +107,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
     PowerMockito.doReturn(newerInstant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndOlderThanRemote, relationToRemote.getSyncToRemoteStatus());
@@ -115,7 +115,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_DivergedAndNewerThan_theSameDates() {
+  public void deriveRelationToRemote_DivergedAndNewerThan_theSameDates() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -132,7 +132,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
     PowerMockito.doReturn(instant).when(coreRemoteBranchCommit).getCommitTime();
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
@@ -140,7 +140,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_Ahead() {
+  public void deriveRelationToRemote_Ahead() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -153,7 +153,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.AheadOfRemote, relationToRemote.getSyncToRemoteStatus());
@@ -161,7 +161,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_Behind() {
+  public void deriveRelationToRemote_Behind() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -174,7 +174,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.BehindRemote, relationToRemote.getSyncToRemoteStatus());
@@ -182,7 +182,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
 
   @Test
   @SneakyThrows
-  public void deriveSyncToRemoteStatus_InSync() {
+  public void deriveRelationToRemote_InSync() {
     // given
     PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
 
@@ -195,7 +195,7 @@ public class GitMacheteRepository_deriveSyncToRemoteStatusToRemoteUnitTestSuite 
         .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
 
     // when
-    RelationToRemote relationToRemote = invokeDeriveSyncToRemoteStatus(coreLocalBranch);
+    RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
     Assert.assertEquals(SyncToRemoteStatus.InSyncToRemote, relationToRemote.getSyncToRemoteStatus());

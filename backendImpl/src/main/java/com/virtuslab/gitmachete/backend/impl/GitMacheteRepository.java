@@ -401,7 +401,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
-      val syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
+      val syncToRemoteStatus = deriveRelationToRemote(coreLocalBranch);
       val customAnnotation = entry.getCustomAnnotation().getOrNull();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
@@ -457,7 +457,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
-      val syncToRemoteStatus = deriveSyncToRemoteStatus(coreLocalBranch);
+      val syncToRemoteStatus = deriveRelationToRemote(coreLocalBranch);
       val customAnnotation = entry.getCustomAnnotation().getOrNull();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
@@ -638,7 +638,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    private RelationToRemote deriveSyncToRemoteStatus(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
+    private RelationToRemote deriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
       String localBranchName = coreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
 

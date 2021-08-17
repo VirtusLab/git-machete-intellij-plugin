@@ -10,7 +10,7 @@ You can also use `Ctrl + Alt + Shift + M` shortcut to open it.
 
 ## Branch layout graph
 
-For each branch, Git Machete indicates the syncToRemoteStatus to each of its child branches.
+For each branch, Git Machete indicates the relation to each of its child branches.
 If the edge between them is **green** that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
 But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) the child branch onto the parent.
 The **gray** color of the edge means that the branch was merged to the parent.
