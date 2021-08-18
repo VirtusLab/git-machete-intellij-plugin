@@ -175,8 +175,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
       RelationToRemote relationToRemote = branchItem.getRelationToRemote();
       val textAttributes = new SimpleTextAttributes(STYLE_PLAIN, getColor(relationToRemote));
-      String remoteStatusLabel = getRelationToRemoteBasedLabel(relationToRemote);
-      append(" " + remoteStatusLabel, textAttributes);
+      String relationToRemoteLabel = getRelationToRemoteBasedLabel(relationToRemote);
+      append(" " + relationToRemoteLabel, textAttributes);
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
       INonRootManagedBranchSnapshot containingBranch = commitItem.getContainingBranch();
@@ -258,10 +258,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
   }
 
-  private static String getRelationToRemoteBasedLabel(RelationToRemote status) {
-    val maybeRemoteName = status.getRemoteName();
+  private static String getRelationToRemoteBasedLabel(RelationToRemote relation) {
+    val maybeRemoteName = relation.getRemoteName();
     val remoteName = maybeRemoteName != null ? maybeRemoteName : "";
-    return Match(status.getSyncToRemoteStatus()).of(
+    return Match(relation.getSyncToRemoteStatus()).of(
         Case($(isIn(NoRemotes, InSyncToRemote)), ""),
         Case($(Untracked),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),

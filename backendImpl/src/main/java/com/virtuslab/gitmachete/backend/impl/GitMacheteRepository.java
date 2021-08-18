@@ -401,14 +401,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
-      val syncToRemoteStatus = deriveRelationToRemote(coreLocalBranch);
+      val relationToRemote = deriveRelationToRemote(coreLocalBranch);
       val customAnnotation = entry.getCustomAnnotation().getOrNull();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
       val createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
-          childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation,
+          childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
           statusHookOutput);
       return CreatedAndDuplicatedAndSkippedBranches.of(List.of(createdRootBranch),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
@@ -457,14 +457,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
-      val syncToRemoteStatus = deriveRelationToRemote(coreLocalBranch);
+      val relationToRemote = deriveRelationToRemote(coreLocalBranch);
       val customAnnotation = entry.getCustomAnnotation().getOrNull();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
 
       val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
-          pointedCommit, remoteTrackingBranch, syncToRemoteStatus, customAnnotation, statusHookOutput, forkPoint,
+          pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,
           commits.map(CommitOfManagedBranch::new), syncToParentStatus);
       return CreatedAndDuplicatedAndSkippedBranches.of(List.of(result),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
