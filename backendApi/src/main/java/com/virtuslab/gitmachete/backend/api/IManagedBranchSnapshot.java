@@ -36,7 +36,7 @@ public interface IManagedBranchSnapshot extends ILocalBranchReference {
 
   List<? extends INonRootManagedBranchSnapshot> getChildren();
 
-  SyncToRemoteStatus getSyncToRemoteStatus();
+  RelationToRemote getRelationToRemote();
 
   Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch();
 

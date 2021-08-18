@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.BehindRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
@@ -29,7 +29,7 @@ public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastFo
 
     val isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus().getRelation())
+        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus())
         .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))
         .getOrElse(false);
 

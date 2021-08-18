@@ -10,14 +10,14 @@ import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 
 @Getter
 public final class BranchItem extends BaseGraphItem implements IBranchItem {
   private final IManagedBranchSnapshot branch;
-  private final SyncToRemoteStatus syncToRemoteStatus;
+  private final RelationToRemote relationToRemote;
   private final SimpleTextAttributes attributes;
   private final boolean isCurrentBranch;
 
@@ -27,14 +27,14 @@ public final class BranchItem extends BaseGraphItem implements IBranchItem {
   public BranchItem(
       IManagedBranchSnapshot branch,
       GraphItemColor graphItemColor,
-      SyncToRemoteStatus syncToRemoteStatus,
+      RelationToRemote relationToRemote,
       @GTENegativeOne int prevSiblingItemIndex,
       @NonNegative int indentLevel,
       boolean isCurrentBranch,
       boolean hasChildItem) {
     super(graphItemColor, prevSiblingItemIndex, indentLevel);
     this.branch = branch;
-    this.syncToRemoteStatus = syncToRemoteStatus;
+    this.relationToRemote = relationToRemote;
     this.attributes = isCurrentBranch ? UNDERLINE_BOLD_ATTRIBUTES : NORMAL_ATTRIBUTES;
     this.isCurrentBranch = isCurrentBranch;
     this.hasChildItem = hasChildItem;

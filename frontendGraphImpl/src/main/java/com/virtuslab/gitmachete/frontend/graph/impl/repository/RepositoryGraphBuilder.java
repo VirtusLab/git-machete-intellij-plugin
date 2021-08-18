@@ -32,8 +32,8 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.graph.api.items.GraphItemColor;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IBranchGetCommitsStrategy;
@@ -187,12 +187,12 @@ public class RepositoryGraphBuilder {
       @GTENegativeOne int prevSiblingItemIndex,
       GraphItemColor graphItemColor,
       @NonNegative int indentLevel) {
-    SyncToRemoteStatus syncToRemoteStatus = branch.getSyncToRemoteStatus();
+    RelationToRemote relationToRemote = branch.getRelationToRemote();
     Option<IManagedBranchSnapshot> currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
     boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
     boolean hasChildItem = !branch.getChildren().isEmpty();
 
-    return new BranchItem(branch, graphItemColor, syncToRemoteStatus, prevSiblingItemIndex, indentLevel,
+    return new BranchItem(branch, graphItemColor, relationToRemote, prevSiblingItemIndex, indentLevel,
         isCurrentBranch, hasChildItem);
   }
 }

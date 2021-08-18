@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Relation.DivergedFromAndOlderThanRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
@@ -26,7 +26,7 @@ public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAct
 
     val isDivergedFromAndOlderThanRemote = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getSyncToRemoteStatus().getRelation() == DivergedFromAndOlderThanRemote)
+        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus() == DivergedFromAndOlderThanRemote)
         .getOrElse(false);
 
     presentation.setVisible(isDivergedFromAndOlderThanRemote);

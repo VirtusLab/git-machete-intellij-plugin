@@ -28,6 +28,7 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -88,8 +89,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     this.roots = List.of(root);
   }
 
-  static SyncToRemoteStatus getSTRSofRelation(SyncToRemoteStatus.Relation relation) {
-    return SyncToRemoteStatus.of(relation, "origin");
+  static RelationToRemote getRelationofSTRS(SyncToRemoteStatus syncToRemoteStatus) {
+    return RelationToRemote.of(syncToRemoteStatus, "origin");
   }
 
   @Override
@@ -207,7 +208,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     @Override
@@ -234,7 +235,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
-    private final SyncToRemoteStatus syncToRemoteStatus = getSTRSofRelation(SyncToRemoteStatus.Relation.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     private final List<ICommitOfManagedBranch> commits;
