@@ -37,7 +37,7 @@ import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTes
 
 // TODO (#753): un-ignore this suite
 
-@Ignore
+
 @RunWith(Parameterized.class)
 public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
@@ -118,13 +118,13 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @SneakyThrows
   private String gitMacheteCliStatus() {
     return runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "git-machete", "status", "--list-commits");
+        /* command */ "python", "-m", "git_machete.cmd", "status", "--list-commits");
   }
 
   @SneakyThrows
   private String gitMacheteCliDiscover() {
     String output = runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "git-machete", "discover", "--list-commits", "--yes");
+        /* command */ "python", "-m", "git_machete.cmd", "--list-commits", "--yes");
 
     return Stream.of(output.split(System.lineSeparator()))
         .drop(2) // Let's skip the informational output at the beginning and at the end.

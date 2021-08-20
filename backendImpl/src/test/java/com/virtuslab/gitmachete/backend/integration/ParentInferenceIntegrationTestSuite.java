@@ -27,7 +27,7 @@ import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTes
 
 // TODO (#753): un-ignore this suite
 
-@Ignore
+
 @RunWith(Parameterized.class)
 public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
