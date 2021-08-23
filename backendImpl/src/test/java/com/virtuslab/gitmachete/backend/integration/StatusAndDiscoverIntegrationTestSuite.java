@@ -20,7 +20,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -36,7 +35,6 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
 // TODO (#753): un-ignore this suite
-
 
 @RunWith(Parameterized.class)
 public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
@@ -124,7 +122,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @SneakyThrows
   private String gitMacheteCliDiscover() {
     String output = runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "python", "-m", "git_machete.cmd", "--list-commits", "--yes");
+        /* command */ "python", "-m", "git_machete.cmd", "discover", "--list-commits", "--yes");
 
     return Stream.of(output.split(System.lineSeparator()))
         .drop(2) // Let's skip the informational output at the beginning and at the end.

@@ -36,10 +36,10 @@ function create_repo() {
   cd $dir
   shift
   git init $@
-  mkdir -p .git/hooks/
-  local hook_path=.git/hooks/machete-status-branch
-  echo "$status_branch_hook" > $hook_path
-  chmod +x $hook_path
+ # mkdir -p .git/hooks/
+ # local hook_path=.git/hooks/machete-status-branch
+ # echo "$status_branch_hook" > $hook_path
+ # chmod +x $hook_path
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"
   cd -
