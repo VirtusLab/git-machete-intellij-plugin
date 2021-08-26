@@ -4,8 +4,12 @@ vavr()
 dependencies {
   implementation project(':logging')
   implementation project(':binding')
+  implementation project(':branchLayoutApi')
+  implementation project(':backendApi')
   implementation project(':frontendDefs')
   implementation project(':frontendDataKeys')
+  implementation project(':frontendGraphApi')
+  implementation project(':frontendVfsUtils')
   implementation project(':frontendFile')
   implementation project(':frontendVfsUtils')
   implementation project(':frontendProviderServices')
@@ -16,3 +20,4 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 applyI18nFormatterChecker()
+applySubtypingChecker()
