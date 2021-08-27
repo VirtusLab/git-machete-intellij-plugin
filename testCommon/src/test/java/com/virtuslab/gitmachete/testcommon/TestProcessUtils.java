@@ -44,19 +44,4 @@ public final class TestProcessUtils {
     Path currentDir = Paths.get(".").toAbsolutePath().normalize();
     return runProcessAndReturnStdout(currentDir, timeoutSeconds, command);
   }
-
-  @SneakyThrows
-  public static void runProcess(Path workingDirectory, int timeoutSeconds, String... command) {
-    Process process = new ProcessBuilder()
-        .command(command)
-        .directory(workingDirectory.toFile())
-        .start();
-    boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
-
-    String commandRepr = Arrays.toString(command);
-
-    Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
-    int exitValue = process.exitValue();
-    Assert.assertEquals("command ${commandRepr} has completed with exit code ${exitValue};", 0, exitValue);
-  }
 }

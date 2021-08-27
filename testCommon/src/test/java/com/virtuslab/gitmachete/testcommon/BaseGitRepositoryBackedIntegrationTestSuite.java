@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.testcommon;
 
-import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcess;
+import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
 
 import java.io.File;
 import java.net.URL;
@@ -44,7 +44,7 @@ public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
   }
 
   private void prepareRepoFromScript(String scriptName) {
-    runProcess(/* workingDirectory */ parentDir, /* timeoutSeconds */ 60,
+    runProcessAndReturnStdout(/* workingDirectory */ parentDir, /* timeoutSeconds */ 60,
         /* command */ "bash", parentDir.resolve(scriptName).toString());
   }
 
