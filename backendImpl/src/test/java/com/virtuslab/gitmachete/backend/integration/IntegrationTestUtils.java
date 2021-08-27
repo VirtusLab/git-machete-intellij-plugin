@@ -21,7 +21,7 @@ class IntegrationTestUtils {
     List<String> referenceCliVersions = Arrays.asList(prop.getProperty("referenceCliVersions").split(","));
 
     String version = runProcessAndReturnStdout(/* timeoutSeconds */ 5,
-        /* command */ "python3", "-m", "git_machete.cmd", "--version")
+        /* command */ "python", "-m", "git_machete.cmd", "--version")
             .trim()
             .replace("git-machete version ", "");
     if (!referenceCliVersions.contains(version)) {

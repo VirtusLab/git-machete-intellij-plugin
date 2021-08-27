@@ -24,8 +24,6 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
-// TODO (#753): un-ignore this suite
-
 @RunWith(Parameterized.class)
 public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
