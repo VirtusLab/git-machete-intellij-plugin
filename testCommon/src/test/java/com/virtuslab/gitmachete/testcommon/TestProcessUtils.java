@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
@@ -20,10 +19,7 @@ public final class TestProcessUtils {
         .start();
     boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
-    //String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-    Scanner scan = new Scanner(process.getInputStream());
-    scan.useDelimiter("\\Z");
-    String stdout = scan.next();
+    String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
 
     String commandRepr = Arrays.toString(command);
     if (!completed || process.exitValue() != 0) {
