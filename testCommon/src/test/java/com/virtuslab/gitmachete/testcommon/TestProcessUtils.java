@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.testcommon;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 
 public final class TestProcessUtils {
@@ -27,8 +29,8 @@ public final class TestProcessUtils {
     if (!completed || process.exitValue() != 0) {
       System.out.println("Stdout of ${commandRepr}: \n");
       System.out.println(stdout);
-      //      System.err.println("Stderr of ${commandRepr}: \n");
-      //      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
+      System.err.println("Stderr of ${commandRepr}: \n");
+      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
     }
 
     Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
