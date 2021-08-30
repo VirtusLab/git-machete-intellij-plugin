@@ -54,6 +54,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
         SETUP_FOR_NO_REMOTES,
         SETUP_WITH_SINGLE_REMOTE,
         SETUP_WITH_MULTIPLE_REMOTES,
+        // TODO (#759): SETUP_FOR_DIVERGED_AND_OLDER_THAN is currently stalling the script on windows. Diagnose it and revert it back.
         //SETUP_FOR_DIVERGED_AND_OLDER_THAN,
         SETUP_FOR_YELLOW_EDGES,
         SETUP_FOR_OVERRIDDEN_FORK_POINT,
