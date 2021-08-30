@@ -38,36 +38,13 @@ public final class TestProcessUtils {
 
   @SneakyThrows
   public static String runGitMacheteCommandAndReturnStdout(Path workingDirectory, int timeoutSeconds, String... arguments) {
-    String[] gitMachete = {"python", "-m", "git_machete.cmd"};
-    int sizeOfGitMachete = gitMachete.length;
-    int sizeOfArguments = arguments.length;
-    int sizeOfNewGitMachete = sizeOfGitMachete + sizeOfArguments;
-    gitMachete = Arrays.copyOf(gitMachete, sizeOfNewGitMachete);
-    for (int i = 0; i < sizeOfArguments; i++) {
-      gitMachete[sizeOfNewGitMachete + (i - sizeOfArguments)] = arguments[i];
-    }
+    String gitMachete[] = {"python", "-m", "git_machete.cmd"};
+    int sizeOfNewGitMachete = gitMachete.length + arguments.length;
+    String[] newGitMachete = new String[sizeOfNewGitMachete];
+    System.arraycopy(gitMachete, 0, newGitMachete, 0, 3);
+    System.arraycopy(arguments, 0, newGitMachete, 3, arguments.length);
 
-    Process process = new ProcessBuilder()
-        .command(gitMachete)
-        .directory(workingDirectory.toFile())
-        .start();
-    boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
-
-    String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-
-    String commandRepr = Arrays.toString(gitMachete);
-    if (!completed || process.exitValue() != 0) {
-      System.out.println("Stdout of ${commandRepr}: \n");
-      System.out.println(stdout);
-      System.err.println("Stderr of ${commandRepr}: \n");
-      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
-    }
-
-    Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
-    int exitValue = process.exitValue();
-    Assert.assertEquals("command ${commandRepr} has completed with exit code ${exitValue};", 0, exitValue);
-
-    return stdout;
+    return runProcessAndReturnStdout(workingDirectory, timeoutSeconds, newGitMachete);
   }
 
   public static String runProcessAndReturnStdout(int timeoutSeconds, String... command) {
