@@ -8,7 +8,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRe
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
-import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
+import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runGitMacheteCommandAndReturnStdout;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -20,7 +20,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -35,9 +34,6 @@ import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
-// TODO (#753): un-ignore this suite
-
-@Ignore
 @RunWith(Parameterized.class)
 public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
@@ -58,7 +54,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
         SETUP_FOR_NO_REMOTES,
         SETUP_WITH_SINGLE_REMOTE,
         SETUP_WITH_MULTIPLE_REMOTES,
-        SETUP_FOR_DIVERGED_AND_OLDER_THAN,
+        // TODO (#759): SETUP_FOR_DIVERGED_AND_OLDER_THAN is currently stalling the script on windows. Diagnose it and revert it back.
+        //SETUP_FOR_DIVERGED_AND_OLDER_THAN,
         SETUP_FOR_YELLOW_EDGES,
         SETUP_FOR_OVERRIDDEN_FORK_POINT,
     };
@@ -85,7 +82,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     System.out.println("OUR OUTPUT:");
     System.out.println(ourStatus);
 
-    Assert.assertEquals(gitMacheteCliStatus, ourStatus);
+    Assert.assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
   }
 
   @Test
@@ -117,14 +114,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
   @SneakyThrows
   private String gitMacheteCliStatus() {
-    return runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "git-machete", "status", "--list-commits");
+    return runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
+        /* command */ "status", "--list-commits");
   }
 
   @SneakyThrows
   private String gitMacheteCliDiscover() {
-    String output = runProcessAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "git-machete", "discover", "--list-commits", "--yes");
+    String output = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
+        /* command */ "discover", "--list-commits", "--yes");
 
     return Stream.of(output.split(System.lineSeparator()))
         .drop(2) // Let's skip the informational output at the beginning and at the end.

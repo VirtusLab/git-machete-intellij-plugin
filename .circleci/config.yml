@@ -58,6 +58,7 @@ jobs:
           command: |
             cli_version=$(grep -Po '(?<=referenceCliVersions=)[^,]*' backendImpl/src/test/resources/reference-cli-version.properties)
             pip3 install git-machete==$cli_version
+            ln -s python3 /usr/bin/python
       - run:
           name: Run unit & integration tests
           command: ./gradlew test

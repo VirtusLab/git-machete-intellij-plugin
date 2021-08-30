@@ -36,8 +36,24 @@ public final class TestProcessUtils {
     return stdout;
   }
 
+  @SneakyThrows
+  public static String runGitMacheteCommandAndReturnStdout(Path workingDirectory, int timeoutSeconds, String... arguments) {
+    String gitMachete[] = {"python", "-m", "git_machete.cmd"};
+    int sizeOfNewGitMachete = gitMachete.length + arguments.length;
+    String[] newGitMachete = new String[sizeOfNewGitMachete];
+    System.arraycopy(gitMachete, 0, newGitMachete, 0, 3);
+    System.arraycopy(arguments, 0, newGitMachete, 3, arguments.length);
+
+    return runProcessAndReturnStdout(workingDirectory, timeoutSeconds, newGitMachete);
+  }
+
   public static String runProcessAndReturnStdout(int timeoutSeconds, String... command) {
     Path currentDir = Paths.get(".").toAbsolutePath().normalize();
     return runProcessAndReturnStdout(currentDir, timeoutSeconds, command);
+  }
+
+  public static String runGitMacheteCommandAndReturnStdout(int timeoutSeconds, String... command) {
+    Path currentDir = Paths.get(".").toAbsolutePath().normalize();
+    return runGitMacheteCommandAndReturnStdout(currentDir, timeoutSeconds, command);
   }
 }

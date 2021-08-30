@@ -36,10 +36,13 @@ function create_repo() {
   cd $dir
   shift
   git init $@
-  mkdir -p .git/hooks/
-  local hook_path=.git/hooks/machete-status-branch
-  echo "$status_branch_hook" > $hook_path
-  chmod +x $hook_path
+    # TODO (#760): Enable running machete-status-branch hook in tests on Windows.
+  if [ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" && "$(expr substr $(uname -s) 1 10)" != "MINGW32_NT" ]; then
+    mkdir -p .git/hooks/
+    local hook_path=.git/hooks/machete-status-branch
+    echo "$status_branch_hook" > $hook_path
+    chmod +x $hook_path
+  fi
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"
   cd -
