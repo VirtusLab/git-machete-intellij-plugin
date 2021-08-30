@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
+import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runGitMacheteCommandAndReturnStdout;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +20,8 @@ class IntegrationTestUtils {
     }
     List<String> referenceCliVersions = Arrays.asList(prop.getProperty("referenceCliVersions").split(","));
 
-    String version = runProcessAndReturnStdout(/* timeoutSeconds */ 5,
-        /* command */ "python", "-m", "git_machete.cmd", "--version")
+    String version = runGitMacheteCommandAndReturnStdout(/* timeoutSeconds */ 5,
+        /* command */ "--version")
             .trim()
             .replace("git-machete version ", "");
     if (!referenceCliVersions.contains(version)) {
