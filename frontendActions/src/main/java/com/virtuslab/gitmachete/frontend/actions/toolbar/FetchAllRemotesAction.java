@@ -47,7 +47,18 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       presentation.setEnabled(false);
       presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
-      presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description"));
+      val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+      if (gitRepository == null) {
+        presentation.setEnabled(false);
+        presentation
+            .setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-git-repository"));
+      } else if (gitRepository.getRemotes().isEmpty()) {
+        presentation.setEnabled(false);
+        presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-remotes"));
+      } else {
+        presentation.setEnabled(true);
+        presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description"));
+      }
     }
   }
 
