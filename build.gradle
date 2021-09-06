@@ -10,7 +10,7 @@ plugins {
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
   id 'org.checkerframework' version '0.5.24' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
-  id 'org.jetbrains.intellij' version '1.1.4' apply false
+  id 'org.jetbrains.intellij' version '1.1.6' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
