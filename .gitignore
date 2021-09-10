@@ -1,6 +1,7 @@
 build/
 *.class
-/.gradle/
+/.codetale.conf
+.gradle/
 *.hprof
 *.hprof.*/
 /.idea/

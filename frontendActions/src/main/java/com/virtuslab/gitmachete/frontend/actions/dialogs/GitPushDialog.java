@@ -98,7 +98,9 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     @Override
     @UIEffect
     public void updateOkActions() {
-      super.updateOkActions();
+      if (!project.isDisposed()) {
+        super.updateOkActions();
+      }
     }
 
     @Override
