@@ -5,8 +5,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static git4idea.ui.branch.GitBranchActionsUtilKt.checkoutOrReset;
-import static git4idea.ui.branch.GitBranchActionsUtilKt.createNewBranch;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -194,11 +192,29 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
               getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"), branchName))
                   .queue();
 
-    } else if (options.shouldCheckout() && remoteBranch == null) {
-      preSlideInRunnable = () -> checkoutOrReset(project, repositories, startPoint, options);
-
-    } else if (!options.shouldCheckout() && remoteBranch == null) {
-      preSlideInRunnable = () -> createNewBranch(project, repositories, startPoint, options);
+    } else if (remoteBranch == null) {
+      preSlideInRunnable = () -> {
+        // TODO (#772): switch to a non-reflective call to `GitBranchCheckoutOperation.perfrom(...)`
+        try {
+          // 2021.3 and later
+          val clazz = Class.forName("git4idea.ui.branch.GitBranchCheckoutOperation");
+          val constructor = clazz.getConstructor(Project.class, java.util.List.class);
+          val operation = constructor.newInstance(project, repositories);
+          val method = clazz.getMethod("perform", String.class, GitNewBranchOptions.class);
+          method.invoke(operation, startPoint, options);
+        } catch (ReflectiveOperationException e) {
+          // 2021.2 and earlier
+          try {
+            val clazz = git4idea.ui.branch.GitBranchActionsUtilKt.class;
+            val methodName = options.shouldCheckout() ? "checkoutOrReset" : "createNewBranch";
+            val method = clazz.getMethod(methodName, Project.class, java.util.List.class, String.class,
+                GitNewBranchOptions.class);
+            method.invoke(/* static methods */ null, project, repositories, startPoint, options);
+          } catch (ReflectiveOperationException e1) {
+            throw new RuntimeException(e1);
+          }
+        }
+      };
     }
 
     return Tuple.of(options.getName(), preSlideInRunnable);

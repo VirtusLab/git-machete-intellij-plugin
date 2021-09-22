@@ -73,7 +73,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         assertBranchesAreEqual(branch, s"origin/$branch")
       }
 
-      def assertWorkingTreeIsAtHead(): Unit = {
+      def assertNoUncommittedChanges(): Unit = {
         Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
       }
 
@@ -91,6 +91,16 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         intelliJ.probe.await()
       }
 
+      def fastForwardMergeCurrentBranchToParent(): Unit = {
+        runJs(s"project.fastForwardMergeCurrentBranchToParent()")
+        intelliJ.probe.await()
+      }
+
+      def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
+        runJs(s"project.fastForwardMergeSelectedBranchToParent('$branch')")
+        intelliJ.probe.await()
+      }
+
       def getCurrentBranchName(): String = {
         callJs[String]("project.getCurrentBranchName()")
       }
@@ -101,16 +111,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def getHashOfCommitPointedByBranch(branch: String): String = {
         callJs(s"project.getHashOfCommitPointedByBranch('$branch')")
-      }
-
-      def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
-        runJs(s"project.fastForwardMergeSelectedBranchToParent('$branch')")
-        intelliJ.probe.await()
-      }
-
-      def fastForwardMergeCurrentBranchToParent(): Unit = {
-        runJs(s"project.fastForwardMergeCurrentBranchToParent()")
-        intelliJ.probe.await()
       }
 
       def openGitMacheteTab(): Unit = {

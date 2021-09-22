@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.virtuslab.gitmachete.frontend.actions.base.BaseResetBranchToRemoteAction.RESET_INFO_SHOWN
 
+@Suppress("DEPRECATION")
 class ResetBranchToRemoteInfoDialog : DialogWrapper.DoNotAskOption.Adapter() {
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
     if (exitCode == Messages.OK && isSelected) {

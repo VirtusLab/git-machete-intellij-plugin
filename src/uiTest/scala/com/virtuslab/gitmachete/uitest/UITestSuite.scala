@@ -168,7 +168,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
     intelliJ.project.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
     intelliJ.project.assertBranchesAreEqual("master", "hotfix/add-trigger")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
@@ -176,7 +176,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.checkoutBranch("hotfix/add-trigger")
     intelliJ.project.fastForwardMergeCurrentBranchToParent()
     intelliJ.project.assertBranchesAreEqual("master", "hotfix/add-trigger")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
   }
 
   @Test def pullCurrentBranch(): Unit = {
@@ -186,7 +186,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.checkoutBranch("allow-ownership-link")
     intelliJ.project.pullCurrentBranch()
     intelliJ.project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
   }
 
   @Test def pullNonCurrentBranch(): Unit = {
@@ -194,7 +194,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.checkoutBranch("develop")
     intelliJ.project.pullBranch("allow-ownership-link")
     intelliJ.project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
@@ -202,7 +202,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.checkoutBranch("hotfix/add-trigger")
     intelliJ.project.resetCurrentBranchToRemote()
     intelliJ.project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
     val currentBranchName = intelliJ.project.getCurrentBranchName()
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
   }
@@ -212,7 +212,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.checkoutBranch("develop")
     intelliJ.project.resetBranchToRemote("hotfix/add-trigger")
     intelliJ.project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
-    intelliJ.project.assertWorkingTreeIsAtHead()
+    intelliJ.project.assertNoUncommittedChanges()
     val currentBranchName = intelliJ.project.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)
   }
