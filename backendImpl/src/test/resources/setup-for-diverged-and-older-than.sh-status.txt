@@ -1,0 +1,15 @@
+  develop (ahead of origin)
+  | 
+  | Allow ownership links
+  | 1st round of fixes
+  x-allow-ownership-link  PR #123 (diverged from & older than origin)
+  | | 
+  | | Build arbitrarily long chains
+  | x-build-chain (untracked)
+  | 
+  m-call-ws  PR #124 (ahead of origin)
+
+  master (behind origin)
+  | 
+  | HOTFIX Add the trigger (amended)
+  o-hotfix/add-trigger * (diverged from origin)

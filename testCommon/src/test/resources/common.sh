@@ -18,7 +18,8 @@ function set_fake_git_date() {
 
   local date=$1
   # Note that GIT_COMMITTER_DATE is recorded not only into the commits but also into reflog entries.
-  export GIT_COMMITTER_DATE="$date 12:34:56"
+  export GIT_COMMITTER_DATE="$date 12:34:56 +0000"
+  export GIT_AUTHOR_DATE="$GIT_COMMITTER_DATE"
 }
 
 commit_day_of_month=1
@@ -36,7 +37,7 @@ function create_repo() {
   cd $dir
   shift
   git init $@
-    # TODO (#760): Enable running machete-status-branch hook in tests on Windows.
+  # TODO (#760): Enable running machete-status-branch hook in tests on Windows
   if [ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" && "$(expr substr $(uname -s) 1 10)" != "MINGW32_NT" ]; then
     mkdir -p .git/hooks/
     local hook_path=.git/hooks/machete-status-branch

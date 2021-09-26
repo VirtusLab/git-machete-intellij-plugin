@@ -14,19 +14,15 @@ Consider increasing maximum heap size for the IDE (the default value is 2048 MB)
 
 For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-For running tests of `backendImpl` (which are also run by `./gradlew test` task, which is in turn itself run by `./gradlew build` task),
-install [`git-machete` CLI](https://github.com/VirtusLab/git-machete#install) (preferably via `pip install git-machete==<version>`)
-in any of the versions listed in [backendImpl/src/test/resources/reference-cli-version.properties](../backendImpl/src/test/resources/reference-cli-version.properties).
-
 ### Windows
 
 Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).
 
 Additional setup:
-1. Open the Registry Editor (regedit.exe).
-2. Open path by clicking: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem.
-3. Find key named: LongPathsEnabled and double click.
-4. If the date value is 0, change it to 1.
+1. Open the Registry Editor (`regedit.exe`).
+2. Open path by clicking: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem`.
+3. Find key named: `LongPathsEnabled` and double click.
+4. If the data value is 0, change it to 1.
 
 ### Optional
 

@@ -52,14 +52,6 @@ jobs:
           name: Compile tests
           command: ./gradlew compileTestJava compileUiTestScala
       - run:
-          name: Install git-machete CLI
-          # Let's install the *first* of the comma-separated versions -
-          # some of the later versions might not have been released yet and are only useful for the local development.
-          command: |
-            cli_version=$(grep -Po '(?<=referenceCliVersions=)[^,]*' backendImpl/src/test/resources/reference-cli-version.properties)
-            pip3 install git-machete==$cli_version
-            ln -s python3 /usr/bin/python
-      - run:
           name: Run unit & integration tests
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.

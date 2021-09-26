@@ -7,19 +7,20 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFr
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
-import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
-import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runGitMacheteCommandAndReturnStdout;
+import static com.virtuslab.gitmachete.testcommon.SetupScripts.ALL_SETUP_SCRIPTS;
+import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import java.nio.charset.StandardCharsets;
+
 import io.vavr.collection.List;
-import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -43,22 +44,9 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   private final IGitMacheteRepository gitMacheteRepository;
   private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
-  @BeforeClass
-  public static void doEnsureExpectedCliVersion() {
-    ensureExpectedCliVersion();
-  }
-
   @Parameters(name = "{0} (#{index})")
   public static String[] getScriptNames() {
-    return new String[]{
-        SETUP_FOR_NO_REMOTES,
-        SETUP_WITH_SINGLE_REMOTE,
-        SETUP_WITH_MULTIPLE_REMOTES,
-        // TODO (#759): SETUP_FOR_DIVERGED_AND_OLDER_THAN is currently stalling the script on windows. Diagnose it and revert it back.
-        //SETUP_FOR_DIVERGED_AND_OLDER_THAN,
-        SETUP_FOR_YELLOW_EDGES,
-        SETUP_FOR_OVERRIDDEN_FORK_POINT,
-    };
+    return ALL_SETUP_SCRIPTS;
   }
 
   @SneakyThrows
@@ -70,7 +58,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @Test
   @SneakyThrows
   public void yieldsSameStatusAsCli() {
-    String gitMacheteCliStatus = gitMacheteCliStatus();
+    String gitMacheteCliStatus = gitMacheteCliStatusOutput();
 
     IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
@@ -88,7 +76,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @Test
   @SneakyThrows
   public void discoversSameLayoutAsCli() {
-    String gitMacheteCliDiscoverOutput = gitMacheteCliDiscover();
+    String gitMacheteCliDiscoverOutput = gitMacheteCliDiscoverOutput();
 
     gitMacheteRepositorySnapshot = gitMacheteRepository.discoverLayoutAndCreateSnapshot();
     String ourDiscoverOutput = ourGitMacheteRepositorySnapshotAsString();
@@ -106,27 +94,20 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
     @Override
     protected void succeeded(Description description) {
-      cleanUpParentDir();
+      cleanUpDir(parentDir);
     }
 
     // After a failed test, keep the parent directory intact for further manual inspection.
   };
 
   @SneakyThrows
-  private String gitMacheteCliStatus() {
-    return runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "status", "--list-commits");
+  private String gitMacheteCliStatusOutput() {
+    return IOUtils.resourceToString("/${scriptName}-status.txt", StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
-  private String gitMacheteCliDiscover() {
-    String output = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir, /* timeoutSeconds */ 15,
-        /* command */ "discover", "--list-commits", "--yes");
-
-    return Stream.of(output.split(System.lineSeparator()))
-        .drop(2) // Let's skip the informational output at the beginning and at the end.
-        .dropRight(2)
-        .mkString(System.lineSeparator());
+  private String gitMacheteCliDiscoverOutput() {
+    return IOUtils.resourceToString("/${scriptName}-discover.txt", StandardCharsets.UTF_8);
   }
 
   private String ourGitMacheteRepositorySnapshotAsString() {

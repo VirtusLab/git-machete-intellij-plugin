@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite.SETUP_WITH_SINGLE_REMOTE
+import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit._

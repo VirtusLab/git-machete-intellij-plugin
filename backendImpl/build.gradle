@@ -19,3 +19,11 @@ dependencies {
 }
 
 applySubtypingChecker()
+
+task regenerateCliOutputs(type: JavaExec) {
+  group = "Execution"
+  description = "Regenerate CLI outputs used for comparison in tests"
+  classpath = sourceSets.test.runtimeClasspath
+  mainClass = "com.virtuslab.gitmachete.backend.integration.RegenerateCliOutputs"
+  args = sourceSets.test.resources.srcDirs
+}

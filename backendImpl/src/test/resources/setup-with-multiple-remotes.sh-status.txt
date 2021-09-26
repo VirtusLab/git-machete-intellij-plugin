@@ -1,0 +1,18 @@
+  develop
+  | 
+  | Allow ownership links
+  | 1st round of fixes
+  x-allow-ownership-link  PR #123 (ahead of remote1)
+  | | 
+  | | Build arbitrarily long chains
+  | x-build-chain (untracked)
+  | 
+  | Call web service
+  | 1st round of fixes
+  | 2nd round of fixes
+  o-call-ws  PR #124 (ahead of remote1)
+
+  master
+  | 
+  | HOTFIX Add the trigger (amended)
+  o-hotfix/add-trigger * (diverged from remote2)

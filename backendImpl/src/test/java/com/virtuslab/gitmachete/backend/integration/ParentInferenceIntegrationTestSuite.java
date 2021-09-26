@@ -1,6 +1,9 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.backend.integration.IntegrationTestUtils.ensureExpectedCliVersion;
+import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_FOR_OVERRIDDEN_FORK_POINT;
+import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_FOR_YELLOW_EDGES;
+import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE;
+import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.runners.Parameterized.Parameters;
 
 import io.vavr.collection.Set;
@@ -8,7 +11,6 @@ import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -33,11 +35,6 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
 
   private final String forBranch;
   private final String expectedParent;
-
-  @BeforeClass
-  public static void doEnsureExpectedCliVersion() {
-    ensureExpectedCliVersion();
-  }
 
   @Parameters(name = "{0}: inferred parent of {1} should be {2} (#{index})")
   public static String[][] getTestData() {
@@ -76,7 +73,7 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
   public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
     @Override
     protected void succeeded(Description description) {
-      cleanUpParentDir();
+      cleanUpDir(parentDir);
     }
 
     // After a failed test, keep the parent directory intact for further manual inspection.
