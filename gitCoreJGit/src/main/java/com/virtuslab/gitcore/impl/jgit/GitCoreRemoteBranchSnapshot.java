@@ -31,11 +31,6 @@ public class GitCoreRemoteBranchSnapshot extends BaseGitCoreBranchSnapshot imple
   }
 
   @Override
-  public String getFullNameAsLocalBranchOnRemote() {
-    return BranchFullNameUtils.getRemoteBranchFullNameAsLocalBranchOnRemote(shortName);
-  }
-
-  @Override
   public String getBranchTypeString(boolean capitalized) {
     return capitalized ? "Remote" : "remote";
   }

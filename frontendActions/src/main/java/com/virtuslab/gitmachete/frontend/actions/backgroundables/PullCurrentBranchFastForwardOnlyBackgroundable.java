@@ -56,11 +56,8 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
     handler.setUrls(remote.getUrls());
     handler.addParameters("--ff-only");
     handler.addParameters(remote.getName());
-    val remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
-    val remoteBranchFullName = remoteBranch.getFullName();
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    String refspec = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
-        remoteBranchFullName, /* allowNonFastForward */ true);
+    String refspec = createRefspec("refs/heads/*", "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
     handler.addParameters(refspec);
     // Updating the current local branch in our repository to the commit pointed by the just-fetched remote branch,
     // in turn, will happen fast-forward-only thanks to `--ff-only` flag.

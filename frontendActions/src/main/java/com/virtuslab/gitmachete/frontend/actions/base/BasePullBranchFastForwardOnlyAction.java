@@ -121,13 +121,12 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       IRemoteTrackingBranchReference remoteBranch) {
 
     val remoteName = remoteBranch.getRemoteName();
-    val remoteBranchFullNameAsLocalBranchOnRemote = remoteBranch.getFullNameAsLocalBranchOnRemote();
     val remoteBranchFullName = remoteBranch.getFullName();
     val localBranchFullName = localBranch.getFullName();
 
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    val refspecFromRemoteRepoToOurRemoteBranch = createRefspec(remoteBranchFullNameAsLocalBranchOnRemote,
-        remoteBranchFullName, /* allowNonFastForward */ true);
+    val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
+        "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
 
     // We want a fetch from remote branch in our repository
     // to local branch in our repository to only ever be fast-forward.

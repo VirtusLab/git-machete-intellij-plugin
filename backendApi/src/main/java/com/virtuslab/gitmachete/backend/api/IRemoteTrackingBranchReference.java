@@ -19,8 +19,6 @@ public interface IRemoteTrackingBranchReference extends IBranchReference {
     return this;
   }
 
-  String getFullNameAsLocalBranchOnRemote();
-
   String getRemoteName();
 
   ILocalBranchReference getTrackedLocalBranch();
