@@ -224,24 +224,19 @@ Stacked PRs (Y -> X -> `develop`) must never be merged until their base is final
 They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
 To create a release:
-* create a branch `release/v<version>` out of the current develop
-* fill up [CHANGE-NOTES.html](../CHANGE-NOTES.html) file with the updated change notes:
-    * for major/minor release - wipe existing file content and replace with a new one
-    * for patch release - append to the existing change notes
-      (although if a significant amount of time passed from the latest minor/major release, wiping out the existing notes is preferred as well)
-* commit the changes with the `Release v<version>` message
-* open PR from `release/v<version>` to `master`
+* make sure [CHANGE-NOTES.html](../CHANGE-NOTES.html) are updated
+* open PR from `develop` to `master`
 
 Once the release PR is merged, `master` is built. <br/>
 After manual approval, the `master` build:
 * pushes a tag (`v<version>`) back to the repository
-* opens a backport PR from `backport/v<version>` branch (created on the fly from `master`) to `develop`
+* creates a [GitHub release](https://github.com/VirtusLab/git-machete-intellij-plugin/releases)
 * **publishes the plugin to JetBrains marketplace**
 
 Backport PRs are recognized by the `backport/*` branch name.
 They must have `develop` as its base.
 
-Hotfix PRs are PRs to `master` but NOT from `develop` commit.
+Hotfix PRs (`hotfix/*` branch name) are PRs to `master` but NOT from `develop` commit.
 They always introduce a non-linear history on `develop` since after a hotfix PR is merged,
 a backport PR from hotfixed `master` to `develop` is opened, and it cannot be fast-forward merged.
 The alternative that would preserve linear history is to rebase the `develop` history

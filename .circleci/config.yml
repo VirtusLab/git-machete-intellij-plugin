@@ -142,18 +142,3 @@ jobs:
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
-            - deploy:
-                name: Open backport PR to develop
-                # Implicit usage of ${GITHUB_TOKEN} by hub
-                command: |
-                  source scripts/utils.sh
-                  version=$(extract_version_from_current_wd)
-                  branch=backport/v$version
-                  git checkout -b "$branch"
-                  git push origin "$branch"
-
-                  hub pull-request \
-                    --no-edit \
-                    --base=develop \
-                    --message="Backport release of v$version to develop" \
-                    --labels=backport \
