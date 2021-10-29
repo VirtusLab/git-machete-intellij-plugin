@@ -5,12 +5,12 @@ plugins {
 
   id 'com.github.ben-manes.versions' version '0.39.0'
 
-  id 'com.diffplug.spotless' version '5.16.0' apply false
+  id 'com.diffplug.spotless' version '5.17.1' apply false
   id 'io.freefair.lombok' version '6.2.0' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id 'org.checkerframework' version '0.6.1' apply false
+  id 'org.checkerframework' version '0.6.2' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
-  id 'org.jetbrains.intellij' version '1.2.0' apply false
+  id 'org.jetbrains.intellij' version '1.2.1' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
@@ -25,18 +25,18 @@ ext {
   kotlinVersion = '1.5.10'
   scalaMajorVersion = '2.13'
 
-  archUnitVersion = '0.21.0'
+  archUnitVersion = '0.22.0'
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.18.0'
+  checkerFrameworkVersion = '3.18.1'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.16.0'
-  jetbrainsAnnotationsVersion = '21.0.0'
+  ideProbeVersion = '0.18.0'
+  jetbrainsAnnotationsVersion = '22.0.0'
   jgitVersion = '5.13.0.202109080827-r'
   junitVersion = '4.13.2'
-  lombokVersion = '1.18.20'
+  lombokVersion = '1.18.22'
   powerMockVersion = '2.0.9'
-  reflectionsVersion = '0.9.12'
+  reflectionsVersion = '0.10.2'
   slf4jLambdaApiVersion = '0.1'
   slf4jVersion = '1.7.32'
   vavrVersion = '0.10.4'
@@ -451,7 +451,9 @@ allprojects {
 
     reflections = { ->
       dependencies {
-        implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
+        implementation (group: 'org.reflections', name: 'reflections', version: reflectionsVersion) {
+          exclude(group: 'org.slf4j')
+        }
       }
     }
 
