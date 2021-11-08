@@ -209,8 +209,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       // Yes, `walk` is leaked here.
       // `count()` calls `walk.reset()` at the very beginning but NOT at the end.
       // `walk` must NOT be used afterwards (or at least without a prior `reset()` call).
-      int aheadCount = RevWalkUtils.count(walk, fromPerspectiveOfCommit, mergeBase);
-      int behindCount = RevWalkUtils.count(walk, asComparedToCommit, mergeBase);
+      @SuppressWarnings("aliasing:unique.leaked") int aheadCount = RevWalkUtils.count(walk, fromPerspectiveOfCommit, mergeBase);
+      @SuppressWarnings("aliasing:unique.leaked") int behindCount = RevWalkUtils.count(walk, asComparedToCommit, mergeBase);
 
       return Option.some(GitCoreRelativeCommitCount.of(aheadCount, behindCount));
     });

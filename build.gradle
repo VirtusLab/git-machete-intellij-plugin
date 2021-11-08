@@ -56,7 +56,7 @@ ext {
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
-    eapOfLatestSupportedMajor: '213.5281.15-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: '213.5605.12-EAP-SNAPSHOT'
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
@@ -244,7 +244,7 @@ allprojects {
       // since for simplicity, we're providing the same set of stubs to Checker in each subproject
       // (`$rootDir/config/checker/`, which includes e.g. Vavr).
       '-AstubWarnIfNotFoundIgnoresClasses',
-      '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run',
+      '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation',
     ]
     dependencies {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
@@ -305,7 +305,7 @@ allprojects {
   // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
   // To avoid a clash between JGit&co.'s slf4j-api and Intellij's slf4j implementation
   // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former from ALL dependencies.
-  configurations.all {
+  configurations.runtimeClasspath {
     exclude group: 'org.slf4j', module: 'slf4j-api'
   }
 
@@ -455,15 +455,8 @@ allprojects {
       }
     }
 
-    slf4jApi = { ->
-      dependencies {
-        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
-      }
-    }
-
     slf4jLambdaApi = { ->
       dependencies {
-        slf4jApi()
         // It's so useful for us because we are using invocations of methods that potentially consume some time
         // also in debug messages, but this plugin allows us to use lambdas that generate log messages
         // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
@@ -474,14 +467,15 @@ allprojects {
 
     slf4jTestImpl = { ->
       // We only need to provide an SLF4J implementation in the contexts which depend on the plugin but don't depend on IntelliJ.
-      // In our case, that's solely the tests of backendImpl.
+      // In our case, that's solely the tests of backend modules.
       // In other contexts that require an SLF4J implementation (buildPlugin, runIde, UI tests),
       // an SLF4J implementation is provided by IntelliJ.
       // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version pulled in by our dependencies (like JGit)
       // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more nuances).
       // The below dependency provides both slf4j-api and an implementation, both already in the same version.
+      // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to `runtimeClasspath` configuration.
       dependencies {
-        testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+        testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
     }
 
