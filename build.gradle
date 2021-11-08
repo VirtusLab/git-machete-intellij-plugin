@@ -8,7 +8,7 @@ plugins {
   id 'com.diffplug.spotless' version '5.17.1' apply false
   id 'io.freefair.lombok' version '6.2.0' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id 'org.checkerframework' version '0.6.2' apply false
+  id 'org.checkerframework' version '0.6.3' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
   id 'org.jetbrains.intellij' version '1.2.1' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
@@ -27,10 +27,10 @@ ext {
 
   archUnitVersion = '0.22.0'
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.18.1'
+  checkerFrameworkVersion = '3.19.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.18.0'
+  ideProbeVersion = '0.19.0'
   jetbrainsAnnotationsVersion = '22.0.0'
   jgitVersion = '5.13.0.202109080827-r'
   junitVersion = '4.13.2'
@@ -296,6 +296,19 @@ allprojects {
     }
   }
 
+
+  // A few libraries (like JGit and reflections) transitively pull in a version of slf4j-api
+  // that might be different from the slf4j-api version that IntelliJ depends on.
+  // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
+  // (http://www.slf4j.org/manual.html#compatibility).
+  // We rely on that guarantee: our plugin effectively uses whatever slf4j-api version is provided by IntelliJ.
+  // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
+  // To avoid a clash between JGit&co.'s slf4j-api and Intellij's slf4j implementation
+  // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former from ALL dependencies.
+  configurations.all {
+    exclude group: 'org.slf4j', module: 'slf4j-api'
+  }
+
   ext {
     addIntellijToCompileClasspath = { Map params ->
       apply plugin: 'org.jetbrains.intellij'
@@ -376,12 +389,10 @@ allprojects {
       }
 
       dependencies {
-        // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4.x automatically,
+        // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4/1.5 automatically,
         // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
         // Note that kotlin-reflect pulls in kotlin-stdlib transitively, even if `kotlin.stdlib.default.dependency=false` is set in gradle.properties
         // (see https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library)
-        // TODO (#743): since 2020.2 is the last version running on Kotlin 1.3.x,
-        //  probably once we drop support for 2020.2, we can also remove this dependency.
         implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
       }
 
@@ -407,18 +418,7 @@ allprojects {
 
     jgit = { ->
       dependencies {
-        implementation (group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion) {
-          // JGit transitively pulls in a version of slf4j-api
-          // that might be different from the slf4j-api version that IntelliJ depends on.
-          // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
-          // (http://www.slf4j.org/manual.html#compatibility).
-          // We rely on that guarantee: JGit that our plugin depends on (via backendImpl and gitCoreJGit)
-          // effectively uses whatever slf4j-api version is provided by IntelliJ.
-          // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j implementation version Y for X != Y.
-          // To avoid a clash between JGit's slf4j-api and Intellij's slf4j implementation
-          // (and also between JGit's slf4j-api and Intellij's slf4j-api), we need to exclude the former.
-          exclude(group: 'org.slf4j')
-        }
+        implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
       }
     }
 
@@ -451,9 +451,7 @@ allprojects {
 
     reflections = { ->
       dependencies {
-        implementation (group: 'org.reflections', name: 'reflections', version: reflectionsVersion) {
-          exclude(group: 'org.slf4j')
-        }
+        implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
       }
     }
 
@@ -470,20 +468,18 @@ allprojects {
         // also in debug messages, but this plugin allows us to use lambdas that generate log messages
         // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
         // (i.e. when the given log level is active)
-        implementation(group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion) {
-          exclude(group: 'org.slf4j')
-        }
+        implementation group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion
       }
     }
 
     slf4jTestImpl = { ->
-      // We only need to provide an SLF4J implementation in the contexts which depend on JGit but don't depend on IntelliJ.
+      // We only need to provide an SLF4J implementation in the contexts which depend on the plugin but don't depend on IntelliJ.
       // In our case, that's solely the tests of backendImpl.
-      // In other contexts that require an SLF4J implementation (buildPlugin, runIde, possible but not yet present tests of frontend),
-      // an SLF4J implementation is pulled in by IntelliJ.
-      // Note that we don't need to agree the SLF4J implementation version here with JGit's slf4j-api version
-      // since the latter is excluded (see the comment to `jgit` for more nuances).
-      // The below dependency provides both slf4j-api and an implementation, both already in the same version (1.7.30 i.e. the current stable).
+      // In other contexts that require an SLF4J implementation (buildPlugin, runIde, UI tests),
+      // an SLF4J implementation is provided by IntelliJ.
+      // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version pulled in by our dependencies (like JGit)
+      // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more nuances).
+      // The below dependency provides both slf4j-api and an implementation, both already in the same version.
       dependencies {
         testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
       }
