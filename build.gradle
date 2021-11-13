@@ -148,17 +148,6 @@ allprojects {
     mavenCentral()
   }
 
-  apply plugin: 'com.diffplug.spotless'
-  spotless {
-    java {
-      importOrder 'java', 'javax', '', 'com.virtuslab'
-      // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
-      eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
-      removeUnusedImports()
-      targetExclude 'build/generated/**/*.*'
-    }
-  }
-
 
   apply plugin: 'org.gradle.java-library'
 
@@ -215,6 +204,23 @@ allprojects {
     }
   }
 
+
+  apply plugin: 'com.diffplug.spotless'
+  spotless {
+    java {
+      importOrder 'java', 'javax', '', 'com.virtuslab'
+      // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
+      eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
+      removeUnusedImports()
+      targetExclude 'build/generated/**/*.*'
+    }
+  }
+
+  if (!isCI) {
+    compileJava.dependsOn 'spotlessApply'
+  }
+
+
   apply plugin: 'org.checkerframework'
   checkerFramework {
     excludeTests = true
@@ -252,6 +258,7 @@ allprojects {
     }
   }
 
+
   apply plugin: 'org.gradle.checkstyle'
   checkstyle {
     toolVersion checkstyleToolVersion
@@ -262,6 +269,7 @@ allprojects {
 
     configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
   }
+
 
   apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
   task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
