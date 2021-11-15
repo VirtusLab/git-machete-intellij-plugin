@@ -5,12 +5,12 @@ plugins {
 
   id 'com.github.ben-manes.versions' version '0.39.0'
 
-  id 'com.diffplug.spotless' version '5.17.1' apply false
-  id 'io.freefair.lombok' version '6.2.0' apply false
+  id 'com.diffplug.spotless' version '6.0.0' apply false
+  id 'io.freefair.lombok' version '6.3.0' apply false
   id 'org.ajoberstar.grgit' version '4.1.0' apply false
   id 'org.checkerframework' version '0.6.3' apply false
   id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
-  id 'org.jetbrains.intellij' version '1.2.1' apply false
+  id 'org.jetbrains.intellij' version '1.3.0' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
@@ -31,7 +31,7 @@ ext {
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
   ideProbeVersion = '0.19.0'
-  jetbrainsAnnotationsVersion = '22.0.0'
+  jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '5.13.0.202109080827-r'
   junitVersion = '4.13.2'
   lombokVersion = '1.18.22'
@@ -56,7 +56,7 @@ ext {
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
-    eapOfLatestSupportedMajor: '213.5605.12-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: '213.5744.202-EAP-SNAPSHOT'
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
