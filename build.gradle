@@ -47,8 +47,8 @@ ext {
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks and UI tests
-    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4', '2021.1.3'],
-    latestStable: '2021.2.3',
+    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4', '2021.1.3', '2021.2.3'],
+    latestStable: '2021.3',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
@@ -56,7 +56,7 @@ ext {
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
-    eapOfLatestSupportedMajor: '213.5744.202-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: null
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
