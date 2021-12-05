@@ -30,7 +30,7 @@ ext {
   checkerFrameworkVersion = '3.19.0'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.19.0'
+  ideProbeVersion = '0.20.0'
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '5.13.0.202109080827-r'
   junitVersion = '4.13.2'

@@ -142,7 +142,7 @@ Please see the [feature list](docs/features.md) for more specific feature descri
 
 ## Build
 
-Please see the [development documentation](docs/development-guide.md) for instruction on how to build this plugin on your own.
+Please see the [development documentation](CONTRIBUTING.md) for instructions on how to build this plugin on your own.
 
 
 ## Issue reporting
