@@ -2,6 +2,7 @@ build/
 *.class
 /.codetale.conf
 .gradle/
+/gradlew.bat
 *.hprof
 *.hprof.*/
 /.idea/
