@@ -53,24 +53,24 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
     }
     row {
       button(
-          getString(
-              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
         delete = true
         doOKAction()
       }
           .component
           .apply { mnemonic = KeyEvent.VK_D }
       button(
-          getString(
-              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
         delete = false
         doOKAction()
       }
           .component
           .apply { mnemonic = KeyEvent.VK_K }
       button(
-          getString(
-              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
         delete = true
         close(CANCEL_EXIT_CODE)
       }
@@ -79,9 +79,9 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
     }
     row {
       checkBox(
-          getString(
-              "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
-          ::remember)
+              getString(
+                  "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
+              ::remember)
           .component
           .apply {
             mnemonic = KeyEvent.VK_R

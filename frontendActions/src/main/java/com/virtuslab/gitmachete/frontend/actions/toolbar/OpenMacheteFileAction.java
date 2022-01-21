@@ -8,7 +8,6 @@ import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
@@ -18,6 +17,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
@@ -49,21 +49,22 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
     val macheteFile = WriteAction.compute(() -> Try
         .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
-        .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(
+        .onFailure(e -> IntelliJNotificationCompat.notifyWeakError(project,
+            /* title */ "",
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
         .toOption());
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
     if (macheteFile.isEmpty()) {
-      VcsNotifier.getInstance(project).notifyError(
+      IntelliJNotificationCompat.notifyError(project,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ format(getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
               gitDir.get().getPath()));
     } else {
       VirtualFile file = macheteFile.get();
       if (file.isDirectory()) {
-        VcsNotifier.getInstance(project).notifyError(
+        IntelliJNotificationCompat.notifyError(project,
             /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.same-name-dir-exists"),
             /* message */ "");
       }

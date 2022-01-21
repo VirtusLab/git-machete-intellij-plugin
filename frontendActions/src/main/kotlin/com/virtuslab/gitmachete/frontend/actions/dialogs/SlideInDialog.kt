@@ -59,9 +59,9 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     row {
       reattachCheckbox =
           checkBox(
-              getString(
-                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
-              ::reattach)
+                  getString(
+                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
+                  ::reattach)
               .component
               .apply {
                 mnemonic = KeyEvent.VK_R

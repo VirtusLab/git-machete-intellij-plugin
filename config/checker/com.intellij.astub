@@ -477,6 +477,16 @@ package com.intellij.util;
 @UI class ContentsUtil {}
 @UI class EditSourceOnDoubleClickHandler {}
 @UI class EditSourceOnEnterKeyHandler {}
+
+class ModalityUiUtil {
+  @SafeEffect
+  void invokeLaterIfNeeded(ModalityState modalityState, @UI Runnable runnable);
+
+  @SafeEffect
+  void invokeLaterIfNeeded(ModalityState modalityState, Condition expired, @UI Runnable runnable);
+}
+
+
 @UI class PlatformIcons {}
 @UI class PsiIconUtil {}
 

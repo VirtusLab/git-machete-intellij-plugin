@@ -10,7 +10,6 @@ import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.Check
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
@@ -26,9 +25,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.ActionUtils;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -78,7 +77,6 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     val parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
     val branchLayout = getBranchLayout(anActionEvent).getOrNull();
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    val notifier = VcsNotifier.getInstance(project);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
       return;
@@ -92,7 +90,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
-      notifier.notifyError(
+      IntelliJNotificationCompat.notifyError(project,
           /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"), slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
@@ -108,8 +106,9 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       val branchName = branchNameAndPreSlideInRunnable._1();
       if (!slideInOptions.getName().equals(branchName)) {
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
-        notifier.notifyWeakError(
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.mismatched-names"),
+        IntelliJNotificationCompat.notifyWeakError(project,
+            /* title */ "",
+            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names"),
                 slideInOptions.getName(), branchNameFromNewBranchDialog));
         return;
       }
@@ -241,7 +240,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       val message = format(
           getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
           chosen._2().getName(), chosen._1().getName());
-      ActionUtils.notifyInfo(project, title, message);
+      IntelliJNotificationCompat.notifyInfo(project, title, message);
     }
     return chosen._2();
   }

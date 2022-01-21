@@ -133,7 +133,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_SwingUtilities_invokeLater() {
     noClasses()
         .should().callMethod(javax.swing.SwingUtilities.class, "invokeLater", Runnable.class)
-        .because("GuiUtils.invokeLaterIfNeeded(...) should be used instead. " +
+        .because("UiThreadExecutionUtils.invokeLaterIfNeeded(...) should be used instead. " +
             "See docs for " + com.intellij.openapi.application.ModalityState.class.getName() + " for the reasons")
         .check(importedClasses);
   }

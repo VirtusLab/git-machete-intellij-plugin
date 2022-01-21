@@ -15,7 +15,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseEditorHandler;
@@ -35,6 +34,7 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -171,8 +171,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       // TODO (#172): redirect the user to the manual fork-point
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
-      VcsNotifier.getInstance(project)
-          .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-fail"), message);
+      IntelliJNotificationCompat.notifyError(project,
+          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-fail"), message);
       return;
     }
 
@@ -200,9 +200,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         if (hookResult.isFailure()) {
           val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
-          VcsNotifier.getInstance(project)
-              .notifyError(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"),
-                  message);
+          IntelliJNotificationCompat.notifyError(project,
+              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"),
+              message);
           return;
         }
 
@@ -213,7 +213,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           val executionResult = maybeExecutionResult.get();
           val stdoutOption = executionResult.getStdout();
           val stderrOption = executionResult.getStderr();
-          VcsNotifier.getInstance(project).notifyError(
+          IntelliJNotificationCompat.notifyError(project,
               getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"), message
                   + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
                   + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));

@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
 import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
@@ -13,6 +12,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -83,7 +83,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   @UIEffect
   @Override
   public void onSuccess() {
-    VcsNotifier.getInstance(project).notifySuccess(successNotificationText);
+    IntelliJNotificationCompat.notifySuccess(project, /* title */ "", successNotificationText);
   }
 
   @Override

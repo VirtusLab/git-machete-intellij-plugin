@@ -1,5 +1,3 @@
 lombok()
 slf4jLambdaApi()
 vavr()
-
-addIntellijToCompileClasspath(withGit4Idea: false)

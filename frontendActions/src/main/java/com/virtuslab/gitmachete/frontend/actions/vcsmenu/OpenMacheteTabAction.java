@@ -4,7 +4,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -13,6 +12,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -34,7 +34,7 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
 
-    Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
+    Runnable warnNoGit = () -> IntelliJNotificationCompat.notifyWarning(project,
         getString("action.GitMachete.OpenMacheteTabAction.notification.title.could-not-open-tab"),
         getString("action.GitMachete.OpenMacheteTabAction.notification.message.no-git"));
 

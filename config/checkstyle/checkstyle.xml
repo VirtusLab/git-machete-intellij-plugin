@@ -115,7 +115,7 @@
             <property name="illegalPattern" value="true"/>
             <property name="ignoreComments" value="true"/>
             <property name="format" value="\bsynchronized\b"/>
-            <property name="message" value="Avoid lock-based synchronization, consider io.vavr.Lazy, Task.Backgroundable and/or GuiUtils.invokeLaterIfNeeded(...) instead"/>
+            <property name="message" value="Avoid lock-based synchronization, consider io.vavr.Lazy, Task.Backgroundable and/or UiThreadExecutionUtils.invokeLaterIfNeeded(...) instead"/>
         </module>
         <module name="Regexp">
             <property name="illegalPattern" value="true"/>

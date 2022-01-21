@@ -3,14 +3,14 @@ plugins {
   id 'org.gradle.java-library'
   id 'org.gradle.scala'
 
-  id 'com.github.ben-manes.versions' version '0.41.0'
+  id 'com.github.ben-manes.versions' version '0.42.0'
 
-  id 'com.diffplug.spotless' version '6.2.0' apply false
-  id 'io.freefair.lombok' version '6.3.0' apply false
-  id 'org.ajoberstar.grgit' version '4.1.1' apply false
-  id 'org.checkerframework' version '0.6.7' apply false
-  id 'org.jetbrains.grammarkit' version '2021.1.3' apply false
-  id 'org.jetbrains.intellij' version '1.3.1' apply false
+  id 'com.diffplug.spotless' version '6.3.0' apply false
+  id 'io.freefair.lombok' version '6.4.1' apply false
+  id 'org.ajoberstar.grgit' version '5.0.0' apply false
+  id 'org.checkerframework' version '0.6.8' apply false
+  id 'org.jetbrains.grammarkit' version '2021.2.1' apply false
+  id 'org.jetbrains.intellij' version '1.4.0' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
@@ -19,18 +19,16 @@ plugins {
 }
 
 ext {
-  // We've consciously downgraded Java from 11 to 8 to provide compatibility with Android Studio,
-  // which as of 2020.3 still executes on Java 8-based runtime.
-  javaMajorVersion = JavaVersion.VERSION_1_8
+  javaMajorVersion = JavaVersion.VERSION_11
   kotlinVersion = '1.5.10'
   scalaMajorVersion = '2.13'
 
   archUnitVersion = '0.22.0'
   betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.21.1'
+  checkerFrameworkVersion = '3.21.2'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.22.0'
+  ideProbeVersion = '0.23.0'
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '6.0.0.202111291000-r'
   junitVersion = '4.13.2'
@@ -38,7 +36,7 @@ ext {
   powerMockVersion = '2.0.9'
   reflectionsVersion = '0.10.2'
   slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.35'
+  slf4jVersion = '1.7.36'
   vavrVersion = '0.10.4'
 
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
@@ -48,7 +46,7 @@ ext {
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks and UI tests
     latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4', '2021.1.3', '2021.2.4'],
-    latestStable: '2021.3.1',
+    latestStable: '2021.3.2',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
@@ -56,14 +54,14 @@ ext {
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
-    eapOfLatestSupportedMajor: null
+    eapOfLatestSupportedMajor: '221.4501.155-EAP-SNAPSHOT'
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
     ? buildNumberToIntellijVersion(intellijVersions.eapOfLatestSupportedMajor)
     : majorPartOfIntellijVersion(intellijVersions.latestStable)
 
-  intellijVersions.buildTarget = intellijVersions.latestStable
+  intellijVersions.buildTarget = intellijVersions.eapOfLatestSupportedMajor ?: intellijVersions.latestStable
 
   ciBranch = System.getenv('CIRCLE_BRANCH')
   isCI = System.getenv('CI') == 'true'
@@ -171,7 +169,7 @@ allprojects {
       '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
     ]
 
-    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx8g', '-XX:+HeapDumpOnOutOfMemoryError'])
+    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx12G', '-XX:+HeapDumpOnOutOfMemoryError'])
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
@@ -392,7 +390,8 @@ allprojects {
 
     applyKotlinConfig = { ->
       compileKotlin {
-        kotlinOptions.allWarningsAsErrors = true
+        // TODO (#785): revert this setting
+        // kotlinOptions.allWarningsAsErrors = true
         kotlinOptions.jvmTarget = javaMajorVersion
       }
 

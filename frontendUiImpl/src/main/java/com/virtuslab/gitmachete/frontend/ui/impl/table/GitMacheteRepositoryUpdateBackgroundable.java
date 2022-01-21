@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -29,6 +27,8 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
+import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 
 @CustomLog
 public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgroundable {
@@ -64,7 +64,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    GuiUtils.invokeLaterIfNeeded(() -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot), NON_MODAL);
+    UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
   }
 
   /**
@@ -114,7 +114,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
     String exceptionMessage = cause.getMessage();
 
-    VcsNotifier.getInstance(getProject()).notifyError(
+    IntelliJNotificationCompat.notifyError(getProject(),
         getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
         exceptionMessage != null ? exceptionMessage : "");
   }

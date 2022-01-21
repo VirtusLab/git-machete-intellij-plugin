@@ -6,6 +6,7 @@ dependencies {
   implementation project(':binding')
   implementation project(':branchLayoutApi')
   implementation project(':backendApi')
+  implementation project(':frontendCompatibilityBridge')
   implementation project(':frontendDefs')
   implementation project(':frontendDataKeys')
   implementation project(':frontendGraphApi')

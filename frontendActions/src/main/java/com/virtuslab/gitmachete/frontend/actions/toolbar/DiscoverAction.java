@@ -13,9 +13,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.ui.GuiUtils;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -30,6 +28,8 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
+import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -50,7 +50,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
     val gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
     if (gitRepository == null) {
-      VcsNotifier.getInstance(project).notifyError(
+      IntelliJNotificationCompat.notifyError(project,
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-get-current-repository-error"),
           /* message */ "");
       return;
@@ -67,11 +67,12 @@ public class DiscoverAction extends BaseProjectDependentAction {
     // and this action is not going to be invoked frequently (probably just once for a given project).
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
-        .onFailure(e -> GuiUtils.invokeLaterIfNeeded(() -> VcsNotifier.getInstance(project)
-            .notifyError(/* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
-                /* message */ e.getMessage() != null ? e.getMessage() : ""),
-            NON_MODAL))
-        .onSuccess(repoSnapshot -> GuiUtils.invokeLaterIfNeeded(() -> GraphTableDialog.Companion.of(repoSnapshot,
+        .onFailure(e -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
+            () -> IntelliJNotificationCompat.notifyError(project,
+                /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
+                /* message */ e.getMessage() != null ? e.getMessage() : "")))
+        .onSuccess(repoSnapshot -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
+            repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
             /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, project, graphTable,
@@ -80,7 +81,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
                 branchLayoutWriter),
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
-            /* shouldDisplayActionToolTips */ false).show(), NON_MODAL));
+            /* shouldDisplayActionToolTips */ false).show()));
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
@@ -102,12 +103,11 @@ public class DiscoverAction extends BaseProjectDependentAction {
     if (file.isDefined()) {
       OpenFileAction.openFile(file.get(), project);
     } else {
-      VcsNotifier.getInstance(project)
-          .notifyError(
-              /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-              /* message */ format(
-                  getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
-                  gitRepository.getRoot().getPath()));
+      IntelliJNotificationCompat.notifyError(project,
+          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
+          /* message */ format(
+              getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
+              gitRepository.getRoot().getPath()));
     }
   }
 
@@ -133,7 +133,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @Override
       @UIEffect
       public void onThrowable(Throwable e) {
-        VcsNotifier.getInstance(project).notifyError(
+        IntelliJNotificationCompat.notifyError(project,
             /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
             /* message */ e.getMessage() != null ? e.getMessage() : "");
       }

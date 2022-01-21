@@ -42,7 +42,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.ui.GuiUtils;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.messages.Topic;
@@ -66,6 +65,8 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
+import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -221,7 +222,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
     if (duplicatedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
-      VcsNotifier.getInstance(project).notifyWarning(
+      IntelliJNotificationCompat.notifyWarning(project,
           getString("string.GitMachete.EnhancedGraphTable.duplicated-branches-text"),
           String.join(", ", duplicatedBranchNames));
     }
@@ -266,7 +267,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       String errorMessage = "Error occurred while sliding out skipped branches" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
-      VcsNotifier.getInstance(project).notifyError(
+      IntelliJNotificationCompat.notifyError(project,
           getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
           exceptionMessage == null ? "" : exceptionMessage);
     }
@@ -282,23 +283,21 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositoryConsumer(@UI Runnable doOnUIThreadWhenReady) {
-    return (IGitMacheteRepositorySnapshot repositorySnapshot) -> GuiUtils.invokeLaterIfNeeded(
-        () -> {
-          gitMacheteRepositorySnapshot = repositorySnapshot;
-          queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
+    return (IGitMacheteRepositorySnapshot repositorySnapshot) -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
+      gitMacheteRepositorySnapshot = repositorySnapshot;
+      queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
-          val notifier = VcsNotifier.getInstance(project);
-          val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
-              NotificationType.INFORMATION);
-          notification.addAction(NotificationAction.createSimple(
-              () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-                val actionEvent = createAnActionEvent();
-                ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
-              }));
-          notifier.notify(notification);
-        },
-        NON_MODAL);
+      val notifier = VcsNotifier.getInstance(project);
+      val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
+          getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
+          NotificationType.INFORMATION);
+      notification.addAction(NotificationAction.createSimple(
+          () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+            val actionEvent = createAnActionEvent();
+            ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+          }));
+      notifier.notify(notification);
+    });
   }
 
   private AnActionEvent createAnActionEvent() {
@@ -307,11 +306,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
-    return (Path macheteFilePath) -> GuiUtils.invokeLaterIfNeeded(
+    return (Path macheteFilePath) -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
         () -> setTextForEmptyTable(
             format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout"),
-                macheteFilePath.toString())),
-        NON_MODAL);
+                macheteFilePath.toString())));
   }
 
   @Override
@@ -341,7 +339,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     LOG.debug("Entering");
 
     if (!project.isDisposed()) {
-      GuiUtils.invokeLaterIfNeeded(() -> {
+      UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
         val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
         val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository == null) {
@@ -369,7 +367,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         GitVfsUtils.getMacheteFile(gitRepository).forEach(macheteFile -> VfsUtil.markDirtyAndRefresh(/* async */ true,
             /* recursive */ false, /* reloadChildren */ false, macheteFile));
-      }, NON_MODAL);
+      });
     } else {
       LOG.debug("Project is disposed");
     }
@@ -462,9 +460,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
-          GuiUtils.invokeLaterIfNeeded(() -> graphTable.setRowSelectionAllowed(true), NON_MODAL);
+          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> graphTable.setRowSelectionAllowed(true));
         }
-      }, /* delay */ 35);
+      }, /* delay in ms */ 35);
     }
 
     @Override

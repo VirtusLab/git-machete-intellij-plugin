@@ -3,6 +3,7 @@ vavr()
 
 dependencies {
   api project(':qual')
+  implementation project(':frontendCompatibilityBridge')
   implementation project(':frontendIcons')
   implementation project(':frontendResourceBundles')
   implementation project(':frontendVfsUtils')
@@ -23,7 +24,7 @@ def grammarJavaPackagePath = grammarJavaPackage.replace('.', '/')
 
 sourceSets.main.java.srcDirs += generatedJavaSourcesRoot
 
-task generateMacheteParser(type: GenerateParser) {
+task generateMacheteParser(type: GenerateParserTask) {
   source = "$grammarSourcesRoot/Machete.bnf"
   targetRoot = generatedJavaSourcesRoot
   pathToParser = "/$grammarJavaPackagePath/MacheteGeneratedParser.java"
@@ -31,7 +32,7 @@ task generateMacheteParser(type: GenerateParser) {
   purgeOldFiles = false
 }
 
-task generateMacheteLexer(type: GenerateLexer) {
+task generateMacheteLexer(type: GenerateLexerTask) {
   dependsOn generateMacheteParser
 
   source = "$grammarSourcesRoot/Machete.flex"

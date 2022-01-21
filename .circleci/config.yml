@@ -79,7 +79,7 @@ jobs:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
           command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
-          name: Run UI tests against the latest stable IntelliJ version (our build target)
+          name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
       - when:
           condition:
@@ -115,22 +115,22 @@ jobs:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
-            - deploy:
+            - run:
                 # Publishing should be the first step since if it fails, we should NOT proceed with opening backport PR/GitHub release, etc.
                 name: Publish plugin to Jetbrains Marketplace
                 command: ./gradlew publishPlugin
-            - deploy:
+            - run:
                 # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
                 name: Reconfigure origin remote to https
                 command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
-            - deploy:
+            - run:
                 name: Push git tag
                 command: |
                   source scripts/utils.sh
                   tag=v$(extract_version_from_current_wd)
                   git tag "$tag"
                   git push origin "$tag"
-            - deploy:
+            - run:
                 name: Create GitHub release
                 # Implicit usage of ${GITHUB_TOKEN} by hub
                 command: |

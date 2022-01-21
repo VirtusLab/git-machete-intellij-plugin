@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
+import static com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat.localChangesWouldBeOverwrittenHelper_showErrorNotification;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE;
@@ -26,7 +27,6 @@ import com.intellij.openapi.vcs.update.UpdateInfoTree;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.GuiUtils;
 import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
 import git4idea.GitRevisionNumber;
@@ -42,13 +42,14 @@ import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
 import git4idea.util.GitUntrackedFilesHelper;
-import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
+import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -169,7 +170,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       }
 
     } else if (localChangesDetector.wasMessageDetected()) {
-      LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
+      localChangesWouldBeOverwrittenHelper_showErrorNotification(project,
           gitRepository.getRoot(),
           getOperationName(),
           localChangesDetector.getRelativeFilePaths());
@@ -182,8 +183,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           /* description */ null);
 
     } else {
-      val notifier = VcsNotifier.getInstance(project);
-      notifier.notifyError(
+      IntelliJNotificationCompat.notifyError(project,
           format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
               getOperationName()),
           result.getErrorOutputAsJoinedString());
@@ -215,7 +215,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       val collector = createMergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
-      GuiUtils.invokeLaterIfNeeded(() -> {
+      UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
         val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
         UpdateInfoTree tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
@@ -223,7 +223,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));
           ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
         }
-      }, ModalityState.defaultModalityState());
+      });
     } catch (VcsException e) {
       GitVcs.getInstance(project).showErrors(java.util.Collections.singletonList(e), getOperationName());
     }

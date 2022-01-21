@@ -1,8 +1,9 @@
 build/
 *.class
 /.codetale.conf
-.gradle/
+/.gradle/
 /gradlew.bat
-*.hprof
-*.hprof.*/
+/*.hprof
+/*.hprof.*/
 /.idea/
+/.semanticgraphs/

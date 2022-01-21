@@ -92,7 +92,7 @@ public class RepositoryGraphBuilder {
       @GTENegativeOne int parentBranchIndex,
       @NonNegative int indentLevel) {
     boolean isFirstBranch = true;
-    val lastChildBranch = childBranches.size() > 0
+    @SuppressWarnings("nullness:conditional") val lastChildBranch = childBranches.size() > 0
         ? childBranches.get(childBranches.size() - 1)
         : null;
 

@@ -19,5 +19,5 @@ for file in $(git grep -Il '' -- ':!*.java' ':!*.kt'); do
 done
 
 if [[ $found -ne 0 ]]; then
-  die 'The above non-binary files do not end with a single newline character, please tidy up'
+  die 'The above non-binary file(s) do not end with a single newline character, please tidy up'
 fi

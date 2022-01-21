@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -23,17 +22,18 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class SlideInBackgroundable extends Task.Backgroundable {
 
+  private final Project project;
   private final GitRepository gitRepository;
   private final IBranchLayout branchLayout;
   private final IBranchLayoutWriter branchLayoutWriter;
   private final Runnable preSlideInRunnable;
   private final SlideInOptions slideInOptions;
   private final String parentName;
-  private final VcsNotifier notifier;
 
   public SlideInBackgroundable(
       Project project,
@@ -44,13 +44,13 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       SlideInOptions slideInOptions,
       String parentName) {
     super(project, getString("action.GitMachete.BaseSlideInBranchBelowAction.task-title"));
+    this.project = project;
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;
     this.preSlideInRunnable = preSlideInRunnable;
     this.slideInOptions = slideInOptions;
     this.parentName = parentName;
-    this.notifier = VcsNotifier.getInstance(project);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     final IBranchLayout finalNewBranchLayout = newBranchLayout;
     Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
-        .onFailure(t -> notifier.notifyError(
+        .onFailure(t -> IntelliJNotificationCompat.notifyError(project,
             /* title */ getString(
                 "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
             getMessageOrEmpty(t)));
@@ -125,20 +125,22 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         SLEEP_DURATION *= 2;
       }
     } catch (InterruptedException e) {
-      notifier.notifyWeakError(
+      IntelliJNotificationCompat.notifyWeakError(project,
+          /* title */ "",
           format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted"),
               slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
-      notifier
-          .notifyWeakError(format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
+      IntelliJNotificationCompat.notifyWeakError(project,
+          /* title */ "",
+          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
               slideInOptions.getName()));
     }
   }
 
   private void notifyError(@Nullable String message, Throwable throwable) {
-    notifier.notifyError(
+    IntelliJNotificationCompat.notifyError(project,
         /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
             slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));
