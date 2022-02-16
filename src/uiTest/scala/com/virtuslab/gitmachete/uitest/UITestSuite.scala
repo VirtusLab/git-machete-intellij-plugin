@@ -18,7 +18,8 @@ trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   private val ignoredErrorMessages = Seq(
     // Spurious errors in the IDEA itself (probably some race conditions)
     "com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage",
-    "com.intellij.serviceContainer.AlreadyDisposedException: Already disposed: Project"
+    "com.intellij.serviceContainer.AlreadyDisposedException: Already disposed: Project",
+    "at com.intellij.util.messages.impl.MessageBusConnectionImpl.deliverImmediately(MessageBusConnectionImpl.java:61)"
   )
 
   @AfterClass override final def teardown(): Unit = {
