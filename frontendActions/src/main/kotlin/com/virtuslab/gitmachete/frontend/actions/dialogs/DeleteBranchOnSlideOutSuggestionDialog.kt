@@ -15,7 +15,7 @@ data class SlideOutOptions(
     @get:JvmName("shouldDelete") val delete: Boolean = false
 )
 
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: String) :
     DialogWrapper(project, /* canBeParent */ true) {
 
   // Must NOT be private to prevent:
@@ -41,13 +41,20 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project) :
         label(
             format(
                 getString(
-                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1")))
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1"),
+                branchName))
       }
       row {
         label(
             format(
                 getString(
-                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-2"),
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-2")))
+      }
+      row {
+        label(
+            format(
+                getString(
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-3"),
                 DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
       }
     }

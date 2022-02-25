@@ -137,7 +137,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
   @UIEffect
   private void suggestBranchDeletion(AnActionEvent anActionEvent, String branchName, GitRepository gitRepository,
       Project project) {
-    val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project).showAndGetSlideOutOptions();
+    val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
     new Task.Backgroundable(project, "Deleting branch if required...") {
       @Override
