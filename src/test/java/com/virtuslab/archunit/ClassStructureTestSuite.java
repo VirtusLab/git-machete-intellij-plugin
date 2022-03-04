@@ -45,7 +45,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
                 AccessTarget.MethodCallTarget target = input.getTarget(); // where is the method declared?
 
                 if (origin.getName().equals("onUpdate") && target.getName().equals("onUpdate")) {
-                  return target.getOwner().equals(origin.getOwner().getSuperClass().orNull());
+                  return target.getOwner().equals(origin.getOwner().getSuperclass().orElse(null));
                 }
                 return false;
               }
