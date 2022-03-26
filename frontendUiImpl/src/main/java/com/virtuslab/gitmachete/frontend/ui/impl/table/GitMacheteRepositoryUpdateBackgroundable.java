@@ -2,9 +2,10 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getGitDirectoryPath;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainDirectoryPath;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainGitDirectoryPath;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectoryPath;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getWorktreeGitDirectoryPath;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,19 +75,21 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    * This method is heavyweight and must never be invoked on the UI thread.
    */
   private Option<IGitMacheteRepositorySnapshot> updateRepositorySnapshot() {
-    Path mainDirectoryPath = getMainDirectoryPath(gitRepository);
-    Path gitDirectoryPath = getGitDirectoryPath(gitRepository);
+    Path rootDirectoryPath = getRootDirectoryPath(gitRepository);
+    Path mainGitDirectoryPath = getMainGitDirectoryPath(gitRepository);
+    Path worktreeGitDirectoryPath = getWorktreeGitDirectoryPath(gitRepository);
     Path macheteFilePath = getMacheteFilePath(gitRepository);
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
-    LOG.debug(() -> "Entering: mainDirectoryPath = ${mainDirectoryPath}, gitDirectoryPath = ${gitDirectoryPath}, " +
+    LOG.debug(() -> "Entering: rootDirectoryPath = ${rootDirectoryPath}, mainGitDirectoryPath = ${mainGitDirectoryPath}, " +
         "macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
       return Try.of(() -> {
         IBranchLayout branchLayout = readBranchLayout(macheteFilePath);
-        return gitMacheteRepositoryCache.getInstance(mainDirectoryPath, gitDirectoryPath).createSnapshotForLayout(branchLayout);
+        return gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath)
+            .createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).toOption();
     } else {
       LOG.debug("Machete file is absent");

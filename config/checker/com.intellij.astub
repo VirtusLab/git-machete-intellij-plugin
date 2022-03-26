@@ -308,6 +308,14 @@ package com.intellij.openapi.vcs.history;
 @UIPackage package com.intellij.openapi.vcs.ui.cloneDialog;
 @UIPackage package com.intellij.openapi.vcs.versionBrowser;
 
+
+package com.intellij.openapi.vfs;
+
+class VirtualFile {
+  @Nullable VirtualFile getParent();
+}
+
+
 @UIPackage package com.intellij.openapi.wm;
 
 interface ToolWindow {

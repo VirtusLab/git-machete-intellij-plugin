@@ -15,4 +15,4 @@
   master
   | 
   | HOTFIX Add the trigger (amended)
-  o-hotfix/add-trigger * (diverged from origin)
+  o-hotfix/add-trigger (diverged from origin)

@@ -5,7 +5,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat.localChangesWouldBeOverwrittenHelper_showErrorNotification;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainDirectory;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -244,7 +244,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
             IntelliJNotificationCompat.notifyError(project, VCS_NOTIFIER_TITLE, result.getErrorOutputAsHtmlString());
           }
 
-          val repositoryRoot = getMainDirectory(gitRepository);
+          val repositoryRoot = getRootDirectory(gitRepository);
           GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
           VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
         }

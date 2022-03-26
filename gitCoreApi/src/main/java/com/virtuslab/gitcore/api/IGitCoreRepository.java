@@ -1,5 +1,7 @@
 package com.virtuslab.gitcore.api;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
@@ -7,6 +9,11 @@ import io.vavr.control.Option;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public interface IGitCoreRepository {
+
+  Path getRootDirectoryPath();
+  Path getMainGitDirectoryPath();
+  Path getWorktreeGitDirectoryPath();
+
   @UIThreadUnsafe
   Option<String> deriveConfigValue(String section, String subsection, String name);
   Option<String> deriveConfigValue(String section, String name);

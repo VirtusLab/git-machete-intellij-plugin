@@ -40,7 +40,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
         .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
             GitVcsSettings.getInstance(project).getRecentRootPath()))
-        .map(GitVfsUtils::getGitDirectory);
+        .map(GitVfsUtils::getMainGitDirectory);
 
     if (gitDir.isEmpty()) {
       log().warn("Skipping the action because Git repository directory is undefined");

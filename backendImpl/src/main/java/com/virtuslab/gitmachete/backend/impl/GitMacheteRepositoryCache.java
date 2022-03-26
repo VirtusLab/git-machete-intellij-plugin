@@ -28,24 +28,27 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   }
 
   @Override
-  public IGitMacheteRepository getInstance(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
-    val key = Tuple.of(mainDirectoryPath, gitDirectoryPath);
+  public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
+      throws GitMacheteException {
+    val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
     if (!gitMacheteRepositoryCache.containsKey(key)) {
-      val gitCoreRepository = createGitCoreRepository(mainDirectoryPath, gitDirectoryPath);
-      val statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
-      val preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository, mainDirectoryPath, gitDirectoryPath);
+      val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
+      val statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
+      val preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository);
       val value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
       gitMacheteRepositoryCache.put(key, value);
     }
     return gitMacheteRepositoryCache.get(key);
   }
 
-  private IGitCoreRepository createGitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitMacheteException {
+  private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
+      Path worktreeGitDirectoryPath) throws GitMacheteException {
     try {
-      return gitCoreRepositoryFactory.create(mainDirectoryPath, gitDirectoryPath);
+      return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
     } catch (GitCoreException e) {
       throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
-          "under ${mainDirectoryPath} (with git directory under ${gitDirectoryPath})", e);
+          "under ${rootDirectoryPath} (with main git directory under ${mainGitDirectoryPath} " +
+          "and worktree git directory under ${worktreeGitDirectoryPath})", e);
     }
   }
 }

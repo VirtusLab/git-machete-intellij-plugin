@@ -9,7 +9,7 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.dependencies._
 
-import java.nio.file.Files
+import java.nio.file.{ Files, Path }
 import java.nio.file.attribute.FileTime
 
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
@@ -87,7 +87,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Before
   def beforeEach(): Unit = {
-    intelliJ.probe.openProject(repositoryMainDir)
+    intelliJ.probe.openProject(rootDirectoryPath)
     intelliJ.project.configure()
     intelliJ.probe.await()
   }
@@ -218,16 +218,17 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals("develop", currentBranchName)
   }
 
+  private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
+
   private def deleteMacheteFile(): Unit = {
-    repositoryGitDir.resolve("machete").delete()
+    macheteFilePath.delete()
   }
 
   private def overwriteMacheteFile(content: String): Unit = {
-    repositoryGitDir.resolve("machete").write(content + "\n")
+    macheteFilePath.write(content + "\n")
   }
 
   private def setLastModifiedDateOfMacheteFileToEpochStart(): Unit = {
-    val path = repositoryGitDir.resolve("machete")
-    Files.setLastModifiedTime(path, FileTime.fromMillis(0))
+    Files.setLastModifiedTime(macheteFilePath, FileTime.fromMillis(0))
   }
 }

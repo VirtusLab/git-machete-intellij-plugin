@@ -39,14 +39,15 @@ public class GitMacheteRepositoryDiscoverer {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;
     }
-    Path mainDirPath = GitVfsUtils.getMainDirectoryPath(selectedRepository).toAbsolutePath();
-    Path gitDirPath = GitVfsUtils.getGitDirectoryPath(selectedRepository).toAbsolutePath();
+    Path rootDirPath = GitVfsUtils.getRootDirectoryPath(selectedRepository).toAbsolutePath();
+    Path mainGitDirPath = GitVfsUtils.getMainGitDirectoryPath(selectedRepository).toAbsolutePath();
+    Path worktreeGitDirPath = GitVfsUtils.getWorktreeGitDirectoryPath(selectedRepository).toAbsolutePath();
 
     new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
         val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-            .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot());
+            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
 
         if (discoverRunResult.isFailure()) {
           val exception = discoverRunResult.getCause();

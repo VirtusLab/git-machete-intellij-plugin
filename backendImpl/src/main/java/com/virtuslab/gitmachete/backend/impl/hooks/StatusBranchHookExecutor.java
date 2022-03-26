@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +21,7 @@ import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 public final class StatusBranchHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 1;
 
-  private final File mainDirectory;
+  private final File rootDirectory;
   private final File hookFile;
 
   // We're cheating a bit here: we're assuming that the hook's output is fixed for a given (branch-name, commit-hash) pair.
@@ -31,11 +30,11 @@ public final class StatusBranchHookExecutor {
   // 2. this kind of caching is pretty useful wrt. performance.
   private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
 
-  public StatusBranchHookExecutor(IGitCoreRepository gitCoreRepository, Path mainDirectoryPath, Path gitDirectoryPath) {
+  public StatusBranchHookExecutor(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitDirectoryPath.resolve("hooks"));
+    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
 
-    this.mainDirectory = mainDirectoryPath.toFile();
+    this.rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
     this.hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
   }
 
@@ -52,7 +51,7 @@ public final class StatusBranchHookExecutor {
     }
 
     LOG.startTimer().debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
-        "for ${branchName} in cwd=${mainDirectory}");
+        "for ${branchName} in cwd=${rootDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(hookFilePath, branchName);
     // According to machete-status-branch hook spec (`git machete help hooks`),
@@ -64,7 +63,7 @@ public final class StatusBranchHookExecutor {
     //   or the root of the working tree in a non-bare repository.
     //   An exception are hooks triggered during a push (...) which are always executed in $GIT_DIR.
     // We obviously assume a non-bare repository here, and machete-status-branch isn't related to push.
-    pb.directory(mainDirectory);
+    pb.directory(rootDirectory);
 
     Process process = pb.start();
     boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);

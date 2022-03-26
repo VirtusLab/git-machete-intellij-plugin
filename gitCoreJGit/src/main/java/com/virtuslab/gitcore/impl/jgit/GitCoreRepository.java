@@ -23,11 +23,11 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.val;
 import org.checkerframework.common.aliasing.qual.Unique;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
@@ -39,6 +39,7 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import com.virtuslab.gitcore.api.GitCoreCannotAccessGitDirectoryException;
 import com.virtuslab.gitcore.api.GitCoreException;
@@ -54,32 +55,59 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 public final class GitCoreRepository implements IGitCoreRepository {
+  @Getter
   @ToString.Include
-  private final Path mainDirectoryPath;
+  private final Path rootDirectoryPath;
+  @Getter
   @ToString.Include
-  private final Path gitDirectoryPath;
-  private final Repository jgitRepo;
+  private final Path mainGitDirectoryPath;
+  @Getter
+  @ToString.Include
+  private final Path worktreeGitDirectoryPath;
+
+  // As of early 2022, JGit still doesn't have a first-class support for multiple worktrees in a single repository.
+  // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=477475
+  // As a workaround, let's create two separate JGit Repositories:
+
+  // The one for main .git/ directory, used for most purposes, including as the target location for machete file:
+  private final Repository jgitRepoForMainGitDir;
+  // The one for per-worktree .git/worktrees/<worktree> directory,
+  // used for HEAD and checking repository state (rebasing/merging etc.):
+  private final Repository jgitRepoForWorktreeGitDir;
 
   private static final String ORIGIN = "origin";
 
-  public GitCoreRepository(Path mainDirectoryPath, Path gitDirectoryPath) throws GitCoreException {
-    this.mainDirectoryPath = mainDirectoryPath;
-    this.gitDirectoryPath = gitDirectoryPath;
+  public GitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
+      throws GitCoreException {
+    this.rootDirectoryPath = rootDirectoryPath;
+    this.mainGitDirectoryPath = mainGitDirectoryPath;
+    this.worktreeGitDirectoryPath = worktreeGitDirectoryPath;
 
-    this.jgitRepo = Try.of(() -> new FileRepository(gitDirectoryPath.toString())).getOrElseThrow(
-        e -> new GitCoreCannotAccessGitDirectoryException("Cannot access .git directory under ${gitDirectoryPath}", e));
+    val builderForMainGitDir = new FileRepositoryBuilder();
+    builderForMainGitDir.setWorkTree(rootDirectoryPath.toFile());
+    builderForMainGitDir.setGitDir(mainGitDirectoryPath.toFile());
+    this.jgitRepoForMainGitDir = Try.of(() -> builderForMainGitDir.build()).getOrElseThrow(
+        e -> new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
+            "rootDirectoryPath=${rootDirectoryPath}, mainGitDirectoryPath=${mainGitDirectoryPath}", e));
+
+    val builderForWorktreeGitDir = new FileRepositoryBuilder();
+    builderForWorktreeGitDir.setWorkTree(rootDirectoryPath.toFile());
+    builderForWorktreeGitDir.setGitDir(worktreeGitDirectoryPath.toFile());
+    this.jgitRepoForWorktreeGitDir = Try.of(() -> builderForWorktreeGitDir.build()).getOrElseThrow(
+        e -> new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
+            "rootDirectoryPath=${rootDirectoryPath}, worktreeGitDirectoryPath=${worktreeGitDirectoryPath}", e));
 
     LOG.debug(() -> "Created ${this})");
   }
 
   @Override
   public Option<String> deriveConfigValue(String section, String subsection, String name) {
-    return Option.of(jgitRepo.getConfig().getString(section, subsection, name));
+    return Option.of(jgitRepoForMainGitDir.getConfig().getString(section, subsection, name));
   }
 
   @Override
   public Option<String> deriveConfigValue(String section, String name) {
-    return Option.of(jgitRepo.getConfig().getString(section, null, name));
+    return Option.of(jgitRepoForMainGitDir.getConfig().getString(section, null, name));
   }
 
   @Override
@@ -89,7 +117,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @SuppressWarnings("IllegalCatch")
   private <T> T withRevWalk(CheckedFunction1<RevWalk, T> fun) throws GitCoreException {
-    try (RevWalk walk = new RevWalk(jgitRepo)) {
+    try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
       return fun.apply(walk);
     } catch (Throwable e) {
       throw new GitCoreException(e);
@@ -98,13 +126,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @SneakyThrows
   private <T> T withRevWalkUnchecked(CheckedFunction1<RevWalk, T> fun) {
-    try (RevWalk walk = new RevWalk(jgitRepo)) {
+    try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
       return fun.apply(walk);
     }
   }
 
   private boolean isBranchPresent(String branchFullName) {
-    return Try.of(() -> jgitRepo.resolve(branchFullName)).getOrNull() != null;
+    return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
   }
 
   private GitCoreCommit convertExistingRevisionToGitCoreCommit(String revision) throws GitCoreException {
@@ -127,7 +155,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private Option<ObjectId> convertRevisionToObjectId(String revision) throws GitCoreException {
     try {
-      return Option.of(jgitRepo.resolve(revision));
+      return Option.of(jgitRepoForMainGitDir.resolve(revision));
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
@@ -139,7 +167,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
-    Ref ref = Try.of(() -> jgitRepo.getRefDatabase().findRef(Constants.HEAD))
+    Ref ref = Try.of(() -> jgitRepoForWorktreeGitDir.getRefDatabase().findRef(Constants.HEAD))
         .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
 
     if (ref == null) {
@@ -154,7 +182,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
     } else {
       Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
-          .map(dir -> jgitRepo.getDirectory().toPath().resolve(dir).resolve("head-name"))
+          .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
           .find(path -> path.toFile().isFile());
 
       if (headNamePath.isDefined()) {
@@ -177,7 +205,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName) throws GitCoreException {
     try {
-      ReflogReader reflogReader = jgitRepo.getReflogReader(refFullName);
+      ReflogReader reflogReader = jgitRepoForMainGitDir.getReflogReader(refFullName);
       if (reflogReader == null) {
         throw new GitCoreNoSuchRevisionException("Ref '${refFullName}' does not exist in this repository");
       }
@@ -252,7 +280,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
   public List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
     LOG.debug("List of local branches:");
-    List<Try<GitCoreLocalBranchSnapshot>> result = Try.of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
+    List<Try<GitCoreLocalBranchSnapshot>> result = Try
+        .of(() -> jgitRepoForMainGitDir.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -277,7 +306,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public List<String> deriveAllRemoteNames() {
-    return List.ofAll(jgitRepo.getRemoteNames());
+    return List.ofAll(jgitRepoForMainGitDir.getRemoteNames());
   }
 
   private Option<GitCoreRemoteBranchSnapshot> deriveRemoteBranchForLocalBranch(String localBranchName) {
@@ -293,11 +322,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private Option<String> deriveConfiguredRemoteNameForLocalBranch(String localBranchName) {
-    return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_REMOTE));
+    return Option.of(jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_REMOTE));
   }
 
   private Option<String> deriveConfiguredRemoteBranchNameForLocalBranch(String localBranchName) {
-    return Option.of(jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_MERGE))
+    return Option.of(jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_MERGE))
         .map(branchFullName -> branchFullName.replace(Constants.R_HEADS, /* replacement */ ""));
   }
 
@@ -415,7 +444,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public GitCoreRepositoryState deriveRepositoryState() {
-    return Match(jgitRepo.getRepositoryState()).of(
+    return Match(jgitRepoForWorktreeGitDir.getRepositoryState()).of(
     // @formatter:off
         Case($(isIn(RepositoryState.CHERRY_PICKING, RepositoryState.CHERRY_PICKING_RESOLVED)),
             GitCoreRepositoryState.CHERRY_PICK),
@@ -435,7 +464,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException {
-    RevWalk walk = new RevWalk(jgitRepo);
+    RevWalk walk = new RevWalk(jgitRepoForMainGitDir);
     walk.sort(RevSort.TOPO);
 
     ObjectId objectId = convertGitCoreCommitToObjectId(commitInclusive);

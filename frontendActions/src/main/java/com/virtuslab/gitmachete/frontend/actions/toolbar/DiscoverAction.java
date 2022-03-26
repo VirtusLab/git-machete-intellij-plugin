@@ -56,8 +56,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
       return;
     }
 
-    val mainDirPath = GitVfsUtils.getMainDirectoryPath(gitRepository).toAbsolutePath();
-    val gitDirPath = GitVfsUtils.getGitDirectoryPath(gitRepository).toAbsolutePath();
+    val rootDirPath = GitVfsUtils.getRootDirectoryPath(gitRepository).toAbsolutePath();
+    val mainGitDirPath = GitVfsUtils.getMainGitDirectoryPath(gitRepository).toAbsolutePath();
+    val worktreeGitDirPath = GitVfsUtils.getWorktreeGitDirectoryPath(gitRepository).toAbsolutePath();
 
     val graphTable = getGraphTable(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
@@ -66,7 +67,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     // This is still acceptable since it simplifies the flow (no background task needed)
     // and this action is not going to be invoked frequently (probably just once for a given project).
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-        .getInstance(mainDirPath, gitDirPath).discoverLayoutAndCreateSnapshot())
+        .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
             () -> IntelliJNotificationCompat.notifyError(project,
                 /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),

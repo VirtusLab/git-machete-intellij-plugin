@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -21,14 +20,14 @@ public final class PreRebaseHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 10;
   private static final String NL = System.lineSeparator();
 
-  private final File mainDirectory;
+  private final File rootDirectory;
   private final File hookFile;
 
-  public PreRebaseHookExecutor(IGitCoreRepository gitCoreRepository, Path mainDirectoryPath, Path gitDirectoryPath) {
+  public PreRebaseHookExecutor(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitDirectoryPath.resolve("hooks"));
+    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
 
-    this.mainDirectory = mainDirectoryPath.toFile();
+    this.rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
     this.hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();
   }
 
@@ -51,7 +50,7 @@ public final class PreRebaseHookExecutor {
     }
 
     LOG.startTimer().debug(() -> "Executing machete-pre-rebase hook (${hookFilePath}) " +
-        "for ${gitRebaseParameters} in cwd=${mainDirectory}");
+        "for ${gitRebaseParameters} in cwd=${rootDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(
         hookFilePath,
@@ -63,7 +62,7 @@ public final class PreRebaseHookExecutor {
     //   or the root of the working tree in a non-bare repository.
     //   An exception are hooks triggered during a push (...) which are always executed in $GIT_DIR.
     // We obviously assume a non-bare repository here, and machete-pre-rebase isn't related to push.
-    pb.directory(mainDirectory);
+    pb.directory(rootDirectory);
 
     Process process;
     String strippedStdout = null;

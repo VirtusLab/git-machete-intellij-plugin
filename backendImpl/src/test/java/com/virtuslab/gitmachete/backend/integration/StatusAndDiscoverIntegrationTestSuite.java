@@ -52,7 +52,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @SneakyThrows
   public StatusAndDiscoverIntegrationTestSuite(String scriptName) {
     super(scriptName);
-    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath,
+        worktreeGitDirectoryPath);
   }
 
   @Test
@@ -60,7 +61,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   public void yieldsSameStatusAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatusOutput();
 
-    IBranchLayout branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
+    IBranchLayout branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
     String ourStatus = ourGitMacheteRepositorySnapshotAsString();
 
@@ -94,7 +95,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
     @Override
     protected void succeeded(Description description) {
-      cleanUpDir(parentDir);
+      cleanUpDir(parentDirectoryPath);
     }
 
     // After a failed test, keep the parent directory intact for further manual inspection.

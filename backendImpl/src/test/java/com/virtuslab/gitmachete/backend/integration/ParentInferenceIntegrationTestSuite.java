@@ -54,9 +54,10 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
     this.expectedParent = expectedParent;
 
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-    val branchLayout = branchLayoutReader.read(repositoryGitDir.resolve("machete"));
+    val branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
 
-    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repositoryMainDir, repositoryGitDir);
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath,
+        worktreeGitDirectoryPath);
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
   }
 
@@ -73,7 +74,7 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
   public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
     @Override
     protected void succeeded(Description description) {
-      cleanUpDir(parentDir);
+      cleanUpDir(parentDirectoryPath);
     }
 
     // After a failed test, keep the parent directory intact for further manual inspection.

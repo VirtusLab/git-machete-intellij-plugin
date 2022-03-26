@@ -62,4 +62,11 @@ cd machete-sandbox
   '
 
   sed 's/^  //' <<< "$machete_file" > .git/machete
+
+  # Let's specify HEAD as the revision to use; otherwise a new `machete-sandbox-worktree` branch would be created.
+  git worktree add ../machete-sandbox-worktree HEAD
+  # git doesn't allow for any branch to be checked out in more than one worktree at any moment.
+  # Let's force-switch to detached HEAD state in the main repository folder
+  # so that we have a freedom to check out any branch in the worktree.
+  git checkout "$(git rev-parse HEAD)"
 cd -
