@@ -10,6 +10,8 @@ import com.intellij.openapi.options.colors.ColorSettingsPage;
 import icons.MacheteIcons;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
+
 public class MacheteColorSettingsPane implements ColorSettingsPage {
   private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
       new AttributesDescriptor("Branch prefix", MacheteSyntaxHighlighter.PREFIX),
@@ -17,11 +19,6 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
       new AttributesDescriptor("Custom annotation", MacheteSyntaxHighlighter.CUSTOM_ANNOTATION),
       new AttributesDescriptor("Bad value", MacheteSyntaxHighlighter.BAD_CHARACTER)
   };
-
-  // We're deliberately using \n rather than `System.lineSeparator()` here
-  // since it turned out that even on Windows (which generally uses \r\n) IntelliJ expects \n in this context for some reason.
-  @SuppressWarnings("regexp")
-  public static final String NL = "\n";
 
   @Override
   public Icon getIcon() {
@@ -35,12 +32,7 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
 
   @Override
   public String getDemoText() {
-    return "develop" + NL +
-        "    allow-ownership-link PR #123" + NL +
-        "        build-chain" + NL +
-        "    call-ws PR #124" + NL +
-        "master" + NL +
-        "    hotfix/add-trigger PR #127";
+    return MacheteFileUtils.getSampleMacheteFileContents();
   }
 
   @Override
@@ -60,6 +52,6 @@ public class MacheteColorSettingsPane implements ColorSettingsPage {
 
   @Override
   public String getDisplayName() {
-    return "Machete";
+    return "Git Machete";
   }
 }

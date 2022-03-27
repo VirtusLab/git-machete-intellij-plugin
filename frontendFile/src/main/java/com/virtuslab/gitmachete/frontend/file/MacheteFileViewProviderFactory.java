@@ -25,32 +25,33 @@ public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
       boolean eventSystemEnabled) {
     return new MacheteFileViewProvider(manager, file, eventSystemEnabled, language);
   }
-}
 
-final class MacheteFileViewProvider extends SingleRootFileViewProvider {
+  private static class MacheteFileViewProvider extends SingleRootFileViewProvider {
 
-  protected MacheteFileViewProvider(PsiManager manager,
-      VirtualFile virtualFile,
-      boolean eventSystemEnabled,
-      Language language) {
-    super(manager, virtualFile, eventSystemEnabled, language);
-    // TODO (#679): restore the subscription to git repo changes once we clarify why reparsing the files sometimes takes so long
-    // subscribeToGitRepositoryChanges(manager.getProject(), language)
+    MacheteFileViewProvider(PsiManager manager,
+        VirtualFile virtualFile,
+        boolean eventSystemEnabled,
+        Language language) {
+      super(manager, virtualFile, eventSystemEnabled, language);
+      // TODO (#679): restore the subscription to git repo changes once we clarify why reparsing the files sometimes takes so long
+      // subscribeToGitRepositoryChanges(manager.getProject(), language)
+    }
+
+    @Override
+    protected boolean shouldCreatePsi() {
+      return true;
+    }
+
+    private void subscribeToGitRepositoryChanges(Project project, Language language) {
+      Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
+      GitRepositoryChangeListener listener = repository -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
+        PsiFile psiFile = getPsi(language);
+        if (psiFile != null) {
+          FileContentUtilCore.reparseFiles(psiFile.getVirtualFile());
+        }
+      });
+      project.getMessageBus().connect().subscribe(topic, listener);
+    }
   }
 
-  @Override
-  protected boolean shouldCreatePsi() {
-    return true;
-  }
-
-  private void subscribeToGitRepositoryChanges(Project project, Language language) {
-    Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener = repository -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
-      PsiFile psiFile = getPsi(language);
-      if (psiFile != null) {
-        FileContentUtilCore.reparseFiles(psiFile.getVirtualFile());
-      }
-    });
-    project.getMessageBus().connect().subscribe(topic, listener);
-  }
 }

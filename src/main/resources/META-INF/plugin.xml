@@ -11,25 +11,18 @@
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
-
-        <fileType language="Machete" fileNames="machete" name="Machete File"
-                  implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="instance"/>
-        <lang.fileViewProviderFactory language="Machete"
-                                      implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
-        <completion.contributor language="Machete"
-                                implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
-
-        <lang.parserDefinition language="Machete"
-                               implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
-
-        <lang.syntaxHighlighterFactory language="Machete"
-                                       implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteSyntaxHighlighterFactory"/>
-
-        <colorSettingsPage implementation="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteColorSettingsPane"/>
-
-        <annotator language="Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
-
         <errorHandler implementation="com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorHandler"/>
+
+        <!-- Git Machete file type/language -->
+        <annotator language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
+        <codeStyleSettingsProvider implementation="com.virtuslab.gitmachete.frontend.file.codestyle.MacheteCodeStyleSettingsProvider"/>
+        <colorSettingsPage implementation="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteColorSettingsPane"/>
+        <completion.contributor language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteCompletionContributor"/>
+        <fileType language="Git Machete" fileNames="machete" name="Machete File" implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileType" fieldName="instance"/>
+        <lang.fileViewProviderFactory language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.MacheteFileViewProviderFactory"/>
+        <lang.parserDefinition language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteSyntaxHighlighterFactory"/>
+        <langCodeStyleSettingsProvider implementation="com.virtuslab.gitmachete.frontend.file.codestyle.MacheteLanguageCodeStyleSettingsProvider"/>
     </extensions>
 
     <resource-bundle>GitMacheteBundle</resource-bundle>

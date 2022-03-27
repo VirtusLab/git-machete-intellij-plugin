@@ -26,10 +26,10 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
       return;
     }
 
-    /**
-     * {@link CompletionResultSet#stopHere} marks the result set as stopped.
-     * Completion service calls contributors as long as everyone gets called or result set get marked as stopped.
-     * The following call allows to avoid other contributor invocations (performance).
+    /*
+     * {@link CompletionResultSet#stopHere} marks the result set as stopped. Completion service calls contributors as long as
+     * everyone gets called or result set get marked as stopped. The following call allows to avoid other contributor
+     * invocations (performance).
      *
      * See {@link com.intellij.codeInsight.completion.CompletionService#getVariantsFromContributors}
      */

@@ -6,6 +6,6 @@ public final class MacheteLanguage extends Language {
   public static final MacheteLanguage instance = new MacheteLanguage();
 
   private MacheteLanguage() {
-    super("Machete");
+    super("Git Machete");
   }
 }

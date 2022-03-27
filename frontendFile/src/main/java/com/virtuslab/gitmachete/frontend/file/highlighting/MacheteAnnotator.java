@@ -6,7 +6,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.util.OptionalInt;
 
-import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
@@ -17,8 +16,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import io.vavr.control.Option;
 import lombok.Data;
 import lombok.val;
@@ -101,20 +98,6 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     boolean hasPrevLevelCorrectWidth;
 
     IndentationParameters indentationParameters = findIndentationParameters(element);
-
-    // Potentially unrelated - it's responsible of changing default TAB key behavior
-    // (insert real TAB or insert some number of spaces) depending on detected file indentation.
-    // In case of space insertion indent width (size) is also set
-    // This is not the best place for this action (because it is unnecessarily invoked on every
-    // indentation element processing) but for now we can't find better place
-    CodeStyleSettings codeStyleSettings = CodeStyle.getSettings(element.getContainingFile());
-    CommonCodeStyleSettings.IndentOptions indentOptions = codeStyleSettings.getIndentOptions();
-    indentOptions.USE_TAB_CHARACTER = indentationParameters.getIndentationCharacter() == '\t';
-    if (indentOptions.USE_TAB_CHARACTER) {
-      indentOptions.INDENT_SIZE = indentOptions.TAB_SIZE;
-    } else {
-      indentOptions.INDENT_SIZE = indentationParameters.getIndentationWidth();
-    }
 
     val prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
     if (prevIndentationNodeOption.isEmpty()) {
