@@ -174,7 +174,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException("Error occurred while getting current branch ref");
     }
 
-    val reflog = deriveReflogByRefFullName(Constants.HEAD);
+    // Unlike branches which are shared between all worktrees, HEAD is defined on per-worktree basis.
+    val reflog = deriveReflogByRefFullName(Constants.HEAD, jgitRepoForWorktreeGitDir);
 
     String currentBranchName = null;
 
@@ -203,9 +204,10 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 
-  private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName) throws GitCoreException {
+  private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName, Repository repository)
+      throws GitCoreException {
     try {
-      ReflogReader reflogReader = jgitRepoForMainGitDir.getReflogReader(refFullName);
+      ReflogReader reflogReader = repository.getReflogReader(refFullName);
       if (reflogReader == null) {
         throw new GitCoreNoSuchRevisionException("Ref '${refFullName}' does not exist in this repository");
       }
@@ -254,7 +256,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     val localBranch = new GitCoreLocalBranchSnapshot(
         localBranchName,
         convertExistingRevisionToGitCoreCommit(localBranchFullName),
-        deriveReflogByRefFullName(localBranchFullName),
+        deriveReflogByRefFullName(localBranchFullName, jgitRepoForMainGitDir),
         remoteBranch);
 
     return Option.some(localBranch);
@@ -271,7 +273,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
         remoteBranchName,
         convertExistingRevisionToGitCoreCommit(remoteBranchFullName),
-        deriveReflogByRefFullName(remoteBranchFullName),
+        deriveReflogByRefFullName(remoteBranchFullName, jgitRepoForMainGitDir),
         remoteName);
     return Option.some(remoteBranch);
   }
@@ -295,7 +297,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
             throw new GitCoreException("Cannot access git object id corresponding to ${localBranchFullName}");
           }
           val pointedCommit = convertObjectIdToGitCoreCommit(objectId);
-          val reflog = deriveReflogByRefFullName(localBranchFullName);
+          val reflog = deriveReflogByRefFullName(localBranchFullName, jgitRepoForMainGitDir);
           val remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName).getOrNull();
 
           return new GitCoreLocalBranchSnapshot(localBranchName, pointedCommit, reflog, remoteBranch);
