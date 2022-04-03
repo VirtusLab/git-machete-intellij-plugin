@@ -15,8 +15,9 @@ import com.virtuslab.gitcore.api.IGitCoreCheckoutEntry;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
-import com.virtuslab.gitcore.api.IGitCorePersonIdentity;
+import com.virtuslab.gitcore.api.IGitCoreObjectHash;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
+import com.virtuslab.gitcore.api.IGitCoreTreeHash;
 
 class UnitTestUtils {
 
@@ -52,12 +53,12 @@ class UnitTestUtils {
 
     @Override
     public boolean equals(@Nullable Object other) {
-      return IGitCoreCommitHash.defaultEquals(this, other);
+      return IGitCoreObjectHash.defaultEquals(this, other);
     }
 
     @Override
     public int hashCode() {
-      return IGitCoreCommitHash.defaultHashCode(this);
+      return IGitCoreObjectHash.defaultHashCode(this);
     }
   }
 
@@ -95,16 +96,6 @@ class UnitTestUtils {
     }
 
     @Override
-    public IGitCorePersonIdentity getAuthor() {
-      throw new NotImplementedError();
-    }
-
-    @Override
-    public IGitCorePersonIdentity getCommitter() {
-      throw new NotImplementedError();
-    }
-
-    @Override
     public Instant getCommitTime() {
       throw new NotImplementedError();
     }
@@ -112,6 +103,11 @@ class UnitTestUtils {
     @Override
     public IGitCoreCommitHash getHash() {
       return new TestGitCoreCommitHash();
+    }
+
+    @Override
+    public IGitCoreTreeHash getTreeHash() {
+      throw new NotImplementedError();
     }
 
     @Override

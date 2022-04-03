@@ -8,6 +8,7 @@ public final class SetupScripts {
   public final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
   public final static String SETUP_FOR_YELLOW_EDGES = "setup-for-yellow-edges.sh";
   public final static String SETUP_FOR_OVERRIDDEN_FORK_POINT = "setup-for-overridden-fork-point.sh";
+  public final static String SETUP_FOR_SQUASH_MERGE = "setup-for-squash-merge.sh";
 
   public final static String[] ALL_SETUP_SCRIPTS = {
       SETUP_FOR_NO_REMOTES,
@@ -15,7 +16,8 @@ public final class SetupScripts {
       SETUP_WITH_MULTIPLE_REMOTES,
       SETUP_FOR_DIVERGED_AND_OLDER_THAN,
       SETUP_FOR_YELLOW_EDGES,
-      SETUP_FOR_OVERRIDDEN_FORK_POINT
+      SETUP_FOR_OVERRIDDEN_FORK_POINT,
+      SETUP_FOR_SQUASH_MERGE
   };
 
 }

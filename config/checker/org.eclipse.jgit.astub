@@ -27,7 +27,8 @@ class RevWalk {
   // - reinstantiate instead of reuse; this method provides a "clean" instance based on the given String revision
   // - narrow the scope where a RevCommit is available; a use as a field is strongly discouraged.
   // This comment applies everywhere in the codebase.
-  // Note that both points are kind-of enforced by Checkstyle (every occurrence of "RevCommit" must be preceded with Checker's @Unique annotation),
+  // Note that both points are kind-of enforced by Checkstyle
+  // (every occurrence of "RevCommit" must be preceded with Checker's @Unique or @NonLeaked annotation),
   // but this is not perfect - for instance, it doesn't catch RevCommits declared as `var`s.
   @Nullable @Unique RevCommit next();
 

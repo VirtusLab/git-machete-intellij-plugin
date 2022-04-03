@@ -447,12 +447,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       if (forkPoint == null) {
         // That's a rare case in practice, mostly happens due to reflog expiry.
         commits = List.empty();
+      } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
+        commits = List.empty();
       } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
         // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
         // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
         commits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
       } else {
-        // We're handling the cases of green, gray and red edges here.
+        // We're handling the cases of green and red edges here.
         commits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
       }
 
@@ -696,13 +698,22 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
+    private boolean isEquivalentTreeReachable(IGitCoreCommit equivalentTo, IGitCoreCommit reachableFrom)
+        throws GitCoreException {
+      val applicableCommits = gitCoreRepository.deriveCommitRange(/* fromInclusive */ reachableFrom,
+          /* untilExclusive */ equivalentTo);
+      return applicableCommits.exists(commit -> commit.getTreeHash().equals(equivalentTo.getTreeHash()));
+    }
+
+    @UIThreadUnsafe
     protected SyncToParentStatus deriveSyncToParentStatus(
         IGitCoreLocalBranchSnapshot coreLocalBranch,
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         @Nullable ForkPointCommitOfManagedBranch forkPoint) throws GitCoreException {
       val branchName = coreLocalBranch.getName();
+      val parentBranchName = parentCoreLocalBranch.getName();
       LOG.debug(() -> "Entering: coreLocalBranch = '${branchName}', " +
-          "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}', " +
+          "parentCoreLocalBranch = '${parentBranchName}', " +
           "forkPoint = ${forkPoint})");
 
       IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
@@ -755,11 +766,17 @@ public class GitMacheteRepository implements IGitMacheteRepository {
               return SyncToParentStatus.MergedToParent;
             }
           } else {
-            LOG.debug(
-                () -> "For this branch (${branchName}) its parent's commit is not ancestor of this branch pointed commit "
-                    + "neither this branch pointed commit is ancestor of parent branch commit, "
-                    + "so we assume that this branch is out of sync");
-            return SyncToParentStatus.OutOfSync;
+            if (isEquivalentTreeReachable(/* equivalentTo */ pointedCommit, /* reachableFrom */ parentPointedCommit)) {
+              LOG.debug(
+                  () -> "Branch (${branchName}) is probably squash-merged into ${parentBranchName}");
+              return SyncToParentStatus.MergedToParent;
+            } else {
+              LOG.debug(
+                  () -> "For this branch (${branchName}) its parent's commit is not ancestor of this branch pointed commit "
+                      + "neither this branch pointed commit is ancestor of parent branch commit, "
+                      + "so we assume that this branch is out of sync");
+              return SyncToParentStatus.OutOfSync;
+            }
           }
         }
       }

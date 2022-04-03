@@ -121,6 +121,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
     PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
     PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(childCommit, parentCommit);
+    PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveCommitRange(parentCommit, childCommit);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);

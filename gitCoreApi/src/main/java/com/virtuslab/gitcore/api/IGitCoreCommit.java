@@ -12,13 +12,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public interface IGitCoreCommit {
   String getShortMessage();
 
-  IGitCorePersonIdentity getAuthor();
-
-  IGitCorePersonIdentity getCommitter();
-
   Instant getCommitTime();
 
   IGitCoreCommitHash getHash();
+
+  IGitCoreTreeHash getTreeHash();
 
   @EnsuresNonNullIf(expression = "#2", result = true)
   static boolean defaultEquals(@FindDistinct IGitCoreCommit self, @Nullable Object other) {
