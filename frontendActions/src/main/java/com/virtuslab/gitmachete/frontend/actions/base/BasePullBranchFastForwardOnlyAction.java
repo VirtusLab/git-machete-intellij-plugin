@@ -14,11 +14,9 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
-import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.PullCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
@@ -87,64 +85,38 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       }
       val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
 
-      if (FetchAllRemotesAction.isUpToDate(gitRepository)) {
-        val ffmProps = new FastForwardMergeProps(
-            /* movingBranch */ localBranch,
-            /* stayingBranch */ remoteBranch);
+      val ffmProps = new FastForwardMergeProps(
+          /* movingBranch */ localBranch,
+          /* stayingBranch */ remoteBranch);
 
-        if (localBranchName.equals(currentBranchName)) {
-          BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository, ffmProps);
-        } else {
-          BaseFastForwardMergeBranchToParentAction.doFastForwardNonCurrentBranch(project, gitRepository, ffmProps);
-        }
-
+      Runnable fastForwardRunnable = () -> {};
+      if (localBranchName.equals(currentBranchName)) {
+        fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository,
+            ffmProps);
       } else {
-        if (localBranchName.equals(currentBranchName)) {
-          doPullCurrentBranchFastForwardOnly(project, gitRepository, remoteBranch);
-        } else {
-          doPullNonCurrentBranchFastForwardOnly(project, gitRepository, localBranch, remoteBranch);
-        }
+        fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardNonCurrentBranch(project,
+            gitRepository, ffmProps);
+      }
+
+      if (FetchAllRemotesAction.isUpToDate(gitRepository)) {
+        fastForwardRunnable.run();
+      } else {
+        updateRepositoryBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
       }
     }
   }
 
-  private void doPullCurrentBranchFastForwardOnly(Project project,
+  private void updateRepositoryBackgroundable(Project project,
       GitRepository gitRepository,
-      IRemoteTrackingBranchReference remoteBranch) {
-    val taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
-    new PullCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, taskTitle, remoteBranch).queue();
-  }
-
-  private void doPullNonCurrentBranchFastForwardOnly(Project project,
-      GitRepository gitRepository,
-      ILocalBranchReference localBranch,
-      IRemoteTrackingBranchReference remoteBranch) {
-
+      IRemoteTrackingBranchReference remoteBranch,
+      Runnable onSuccessRunnable) {
     val remoteName = remoteBranch.getRemoteName();
-    val remoteBranchFullName = remoteBranch.getFullName();
-    val localBranchFullName = localBranch.getFullName();
 
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
     val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
         "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
 
-    // We want a fetch from remote branch in our repository
-    // to local branch in our repository to only ever be fast-forward.
-    val refspecFromOurRemoteBranchToOurLocalBranch = createRefspec(remoteBranchFullName,
-        localBranchFullName, /* allowNonFastForward */ false);
-
     String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
-
-    val ourRemoteToOurLocalBranchFetchBackgroundable = new FetchBackgroundable(
-        project,
-        gitRepository,
-        FetchBackgroundable.LOCAL_REPOSITORY_NAME,
-        refspecFromOurRemoteBranchToOurLocalBranch,
-        taskTitle,
-        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
-            localBranch.getName()),
-        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
-            localBranch.getName()));
 
     new FetchBackgroundable(
         project,
@@ -156,11 +128,13 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
             remoteBranch.getName()),
         format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
             remoteBranch.getName())) {
-      // We can only enqueue the update of local branch once the update of remote branch is completed.
+
       @Override
       @UIEffect
       public void onSuccess() {
-        ourRemoteToOurLocalBranchFetchBackgroundable.queue();
+        String repoName = gitRepository.getRoot().getName();
+        FetchAllRemotesAction.updateLastFetchTimeForRepo(repoName);
+        onSuccessRunnable.run();
       }
     }.queue();
   }

@@ -62,7 +62,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
     if (taskSubtitle != null) {
-      // This method set a text under a progress bar (despite of docstring)
+      // This method set a text under a progress bar (despite docstring)
       indicator.setText(taskSubtitle);
     }
     val fetchSupport = GitFetchSupport.fetchSupport(project);

@@ -79,8 +79,8 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       public void run(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
         if (gitRepository.isDefined()) {
-          val name = gitRepository.get().getRoot().getName();
-          lastFetchTimeMillisByRepositoryName.put(name, System.currentTimeMillis());
+          val repoName = gitRepository.get().getRoot().getName();
+          updateLastFetchTimeForRepo(repoName);
         }
       }
 
@@ -93,6 +93,10 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
         }
       }
     }.queue();
+  }
+
+  public static void updateLastFetchTimeForRepo(String repoName) {
+    lastFetchTimeMillisByRepositoryName.put(repoName, System.currentTimeMillis());
   }
 
 }
