@@ -85,6 +85,11 @@
                     icon="MacheteIcons.SLIDE_OUT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
+
+            <action class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ShowSelectedBranchInGitLogAction"
+                    id="GitMachete.ShowSelectedBranchInGitLogAction">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
         </group>
 
         <group id="GitMachete.Toolbar">
