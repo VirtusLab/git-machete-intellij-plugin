@@ -7,29 +7,18 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
-import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public class FetchAllRemotesAction extends BaseProjectDependentAction {
-
-  private static final long FETCH_ALL_UP_TO_DATE_TIMEOUT_MILLIS = 60 * 1000;
-
-  @SuppressWarnings("ConstantName")
-  private static final java.util.concurrent.ConcurrentMap<String, Long> lastFetchTimeMillisByRepositoryName = new java.util.concurrent.ConcurrentHashMap<>();
-
-  public static boolean isUpToDate(GitRepository gitRepository) {
-    String repoName = gitRepository.getRoot().getName();
-    long lftm = lastFetchTimeMillisByRepositoryName.getOrDefault(repoName, 0L);
-    return System.currentTimeMillis() < lftm + FETCH_ALL_UP_TO_DATE_TIMEOUT_MILLIS;
-  }
 
   @Override
   public IEnhancedLambdaLogger log() {
@@ -80,7 +69,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
         if (gitRepository.isDefined()) {
           val repoName = gitRepository.get().getRoot().getName();
-          updateLastFetchTimeForRepo(repoName);
+          FetchUpToDateTimeoutStatus.update(repoName);
         }
       }
 
@@ -94,9 +83,4 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       }
     }.queue();
   }
-
-  public static void updateLastFetchTimeForRepo(String repoName) {
-    lastFetchTimeMillisByRepositoryName.put(repoName, System.currentTimeMillis());
-  }
-
 }

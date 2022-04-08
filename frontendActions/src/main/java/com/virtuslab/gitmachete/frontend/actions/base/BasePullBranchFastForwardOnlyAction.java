@@ -18,8 +18,8 @@ import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMergeProps;
+import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction;
 import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
@@ -98,15 +98,15 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
             gitRepository, ffmProps);
       }
 
-      if (FetchAllRemotesAction.isUpToDate(gitRepository)) {
+      if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
         fastForwardRunnable.run();
       } else {
-        updateRepositoryBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
+        updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
       }
     }
   }
 
-  private void updateRepositoryBackgroundable(Project project,
+  private void updateRepositoryFetchBackgroundable(Project project,
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch,
       Runnable onSuccessRunnable) {
@@ -133,7 +133,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       @UIEffect
       public void onSuccess() {
         String repoName = gitRepository.getRoot().getName();
-        FetchAllRemotesAction.updateLastFetchTimeForRepo(repoName);
+        FetchUpToDateTimeoutStatus.update(repoName);
         onSuccessRunnable.run();
       }
     }.queue();
