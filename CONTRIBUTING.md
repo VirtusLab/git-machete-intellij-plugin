@@ -29,6 +29,8 @@ Additional setup:
 [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
 to manually generate grammar and lexer code from `.bnf` and `.flex` files.
 
+[Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
+
 When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer)
 can be helpful to see parsing result on the `machete` file.
 
@@ -57,7 +59,7 @@ To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
 
-By default, Lombok's annotation processor runs on the fly and Delomboked sources are not saved to <subproject>/build/delombok/...<br/>
+By default, Lombok's annotation processor runs on the fly and Delomboked sources are **not** saved to <subproject>/build/delombok/...<br/>
 To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
 
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>

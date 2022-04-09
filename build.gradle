@@ -5,8 +5,8 @@ plugins {
 
   id 'com.github.ben-manes.versions' version '0.42.0'
 
-  id 'com.diffplug.spotless' version '6.4.1' apply false
-  id 'io.freefair.lombok' version '6.4.1' apply false
+  id 'com.diffplug.spotless' version '6.4.2' apply false
+  id 'io.freefair.lombok' version '6.4.2' apply false
   id 'org.ajoberstar.grgit' version '5.0.0' apply false
   id 'org.checkerframework' version '0.6.10' apply false
   id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
@@ -14,13 +14,12 @@ plugins {
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
-  id 'org.jetbrains.kotlin.jvm' version '1.6.10' apply false
+  id 'org.jetbrains.kotlin.jvm' version '1.6.20' apply false
   id 'se.bjurr.violations.violations-gradle-plugin' version '1.51.0' apply false
 }
 
 ext {
   javaMajorVersion = JavaVersion.VERSION_11
-  kotlinVersion = '1.6.10'
   scalaMajorVersion = '2.13'
 
   archUnitVersion = '0.23.1'
@@ -45,8 +44,8 @@ ext {
     earliestSupportedMajor: '2020.1',
     // Most recent minor versions of all major releases
     // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility checks and UI tests
-    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4', '2021.1.3', '2021.2.4'],
-    latestStable: '2021.3.3',
+    latestMinorsOfOldSupportedMajors: ['2020.1.4', '2020.2.4', '2020.3.4', '2021.1.3', '2021.2.4', '2021.3.3'],
+    latestStable: '2022.1',
     // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
     // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
     // to ensure that the builds are reproducible.
@@ -54,7 +53,7 @@ ext {
     // but for some reason aren't resolved in UI tests.
     // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
-    eapOfLatestSupportedMajor: '221.5080.93-EAP-SNAPSHOT'
+    eapOfLatestSupportedMajor: null
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
@@ -169,15 +168,16 @@ allprojects {
       '-Xlint:unchecked', // Warn of type-unsafe operations on generics.
     ]
 
-    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx12G', '-XX:+HeapDumpOnOutOfMemoryError'])
+    options.fork = true
+    options.forkOptions.jvmArgs += jvmArgsForJavaCompilation ?: (isCI ? [] : ['-Xmx6G', '-XX:+HeapDumpOnOutOfMemoryError'])
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
-    // In fact, it's perfectly possible to compile Java 8 code that uses Java 11 APIs...
-    // This will work fine, until we actually try to run those compiled classes under Java 8-compatible JVM,
-    // when we'll end up with NoSuchMethodError for APIs added between Java 9 and Java 11
-    // (most notably, InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
-    // `options.release = 8` makes sure that regardless of Java version used to run the compiler,
-    // only Java 8-compatible APIs are available to the compiled code.
+    // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
+    // This will work fine, until we actually try to run those compiled classes under Java X-compatible JVM,
+    // when we'll end up with NoSuchMethodError for APIs added between Java X and Java Y
+    // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
+    // `options.release = X` makes sure that regardless of Java version used to run the compiler,
+    // only Java X-compatible APIs are available to the compiled code.
     options.release = Integer.parseInt(javaMajorVersion.majorVersion)
   }
 
@@ -395,8 +395,9 @@ allprojects {
         kotlinOptions.jvmTarget = javaMajorVersion
       }
 
+      def kotlinVersion = plugins.getPlugin(org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper.class).kotlinPluginVersion
       dependencies {
-        // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4/1.5 automatically,
+        // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4/1.5/1.6 automatically,
         // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
         // Note that kotlin-reflect pulls in kotlin-stdlib transitively, even if `kotlin.stdlib.default.dependency=false` is set in gradle.properties
         // (see https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library)
