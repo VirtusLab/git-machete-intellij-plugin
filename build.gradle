@@ -417,6 +417,24 @@ allprojects {
       }
     }
 
+    ideProbe = { ->
+      repositories {
+        maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
+      }
+
+      dependencies {
+        uiTestImplementation project(':testCommon').sourceSets.test.output
+        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
+        uiTestImplementation(group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion) {
+          // TODO (VirtusLab/ide-probe#162): use a version of ide-probe that doesn't depend on alredy non-existent remote-fixtures v1.1.18
+          exclude group: 'com.intellij.remoterobot', module: 'remote-fixtures'
+        }
+        // Let's use the same version of com.intellij.remoterobot:remote-fixtures
+        // as our version of org.virtuslab.ideprobe:robot-driver uses for com.intellij.remoterobot:remote-robot
+        uiTestImplementation group: 'com.intellij.remoterobot', name: 'remote-fixtures', version: '0.11.7'
+      }
+    }
+
     jetbrainsAnnotations = { ->
       dependencies {
         compileOnly     group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
@@ -653,13 +671,4 @@ tasks.register('uiTest') {
   dependsOn tasks.matching { Task task -> task.name.startsWith("uiTest_") }
 }
 
-
-dependencies {
-  repositories {
-    maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
-  }
-
-  uiTestImplementation project(':testCommon').sourceSets.test.output
-  uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
-  uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
-}
+ideProbe()
