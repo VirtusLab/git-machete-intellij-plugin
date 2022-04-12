@@ -13,7 +13,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
-import com.intellij.vcs.log.ui.VcsLogUiEx;
+import com.intellij.vcs.log.impl.VcsProjectLog;
 import git4idea.branch.GitBranchesCollection;
 import lombok.CustomLog;
 import lombok.val;
@@ -78,15 +78,20 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
         return;
       }
 
-      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, maybeHash.get(), logUi));
+      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, maybeHash.get()));
     }
   }
 
-  private void jumpToRevisionUnderProgress(Project project, Hash hash, VcsLogUiEx logUi) {
+  private void jumpToRevisionUnderProgress(Project project, Hash hash) {
     new Task.Backgroundable(project, getString("action.GitMachete.ShowSelectedBranchInGitLogAction.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
         try {
+          val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
+          if (logUi == null) {
+            log().error("Main log ui is null");
+            return;
+          }
           logUi.getVcsLog().jumpToReference(hash.asString()).get();
         } catch (CancellationException | InterruptedException ignored) {} catch (ExecutionException e) {
           String msg = "Error while showing branch in Git log";
