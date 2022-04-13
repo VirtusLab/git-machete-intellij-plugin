@@ -27,7 +27,7 @@ ext {
   checkerFrameworkVersion = '3.21.4'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.23.0'
+  ideProbeVersion = '0.24.0'
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '6.1.0.202203080745-r'
   junitVersion = '4.13.2'
@@ -425,13 +425,7 @@ allprojects {
       dependencies {
         uiTestImplementation project(':testCommon').sourceSets.test.output
         uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
-        uiTestImplementation(group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion) {
-          // TODO (VirtusLab/ide-probe#162): use a version of ide-probe that doesn't depend on alredy non-existent remote-fixtures v1.1.18
-          exclude group: 'com.intellij.remoterobot', module: 'remote-fixtures'
-        }
-        // Let's use the same version of com.intellij.remoterobot:remote-fixtures
-        // as our version of org.virtuslab.ideprobe:robot-driver uses for com.intellij.remoterobot:remote-robot
-        uiTestImplementation group: 'com.intellij.remoterobot', name: 'remote-fixtures', version: '0.11.7'
+        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
       }
     }
 
