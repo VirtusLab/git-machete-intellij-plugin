@@ -4,6 +4,7 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.FileViewProviderFactory;
@@ -11,6 +12,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.FileContentUtilCore;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
@@ -50,7 +52,9 @@ public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
           FileContentUtilCore.reparseFiles(psiFile.getVirtualFile());
         }
       });
-      project.getMessageBus().connect().subscribe(topic, listener);
+      MessageBusConnection messageBusConnection = project.getMessageBus().connect();
+      messageBusConnection.subscribe(topic, listener);
+      Disposer.register(project, messageBusConnection);
     }
   }
 

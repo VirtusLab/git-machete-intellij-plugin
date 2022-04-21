@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
@@ -47,7 +48,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     val selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
     val graphTable = getGraphTable();
 
-    project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+    val messageBusConnection = project.getMessageBus().connect();
+    messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
       @Override
       public void after(java.util.List<? extends VFileEvent> events) {
         for (val event : events) {
@@ -59,6 +61,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
         }
       }
     });
+    Disposer.register(project, messageBusConnection);
 
     // This class is final, so the instance is `@Initialized` at this point.
 

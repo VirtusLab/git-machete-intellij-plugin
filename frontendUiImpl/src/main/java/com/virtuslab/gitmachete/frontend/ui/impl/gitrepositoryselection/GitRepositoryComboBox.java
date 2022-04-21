@@ -7,9 +7,11 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.util.SmartList;
+import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -38,11 +40,13 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
     updateRepositories();
     setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", repo -> repo.getRoot().getName()));
 
-    project.getMessageBus().connect()
+    MessageBusConnection messageBusConnection = project.getMessageBus().connect();
+    messageBusConnection
         .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
           UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
         });
+    Disposer.register(project, messageBusConnection);
   }
 
   @Override
@@ -53,9 +57,6 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
 
   @UIEffect
   private void updateRepositories() {
-    if (project.isDisposed()) {
-      return;
-    }
     // A bit of a shortcut: we're accessing filesystem even though we are on the UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
     List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));

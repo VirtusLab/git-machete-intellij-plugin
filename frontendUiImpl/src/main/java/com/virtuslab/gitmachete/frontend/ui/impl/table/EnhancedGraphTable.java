@@ -40,6 +40,7 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.PopupMenuListenerAdapter;
@@ -155,7 +156,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
-    project.getMessageBus().connect().subscribe(topic, listener);
+    val messageBusConnection = project.getMessageBus().connect();
+    messageBusConnection.subscribe(topic, listener);
+    Disposer.register(project, messageBusConnection);
   }
 
   private void subscribeToSelectedGitRepositoryChange() {

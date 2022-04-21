@@ -592,7 +592,7 @@ patchPluginXml {
 }
 
 runIde {
-  maxHeapSize = '2G'
+  maxHeapSize = '4G'
 }
 
 import static org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel
