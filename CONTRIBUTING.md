@@ -7,31 +7,31 @@
 Use IntelliJ IDEA Community Edition/Ultimate.
 
 1. (optional) Set up a shortcut for `Plugins` setting, you'll need to access it pretty often.
-   Open `Search Actions` dialog (Ctrl+Shift+A), type `plugins`, press Alt+Enter, then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P).
+   Open `Search Actions` dialog (Ctrl+Shift+A, or Cmd+Shift+A on Mac),
+   type `plugins`, press Alt+Enter, then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P).
 
 2. Make sure the following bundled plugins are enabled:
-  * Git
-  * Gradle
-  * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
-  * Java Internationalization
-  * JUnit
-  * Lombok
-  * Markdown
-  * Plugin DevKit
-  * Properties
-  * Shell Script (also: agree to enable Shellcheck when asked)
-  * YAML
+   * Git
+   * Gradle
+   * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
+   * Java Internationalization
+   * JUnit
+   * Lombok
+   * Markdown
+   * Plugin DevKit
+   * Properties
+   * Shell Script (also: agree to enable Shellcheck when asked)
+   * YAML
 
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
 4. (optional) Install the following non-bundled plugins from Marketplace:
-
-    1. [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
-       to manually generate grammar and lexer code from `.bnf` and `.flex` files.
-    2. [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
-    3. [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
-       when running IntelliJ instance with the Git Machete plugin loaded.
-    4. [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
+   * [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
+     to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+   * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
+   * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
+     when running IntelliJ instance with the Git Machete plugin loaded.
+   * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
 5. Enable annotation processing (for Lombok):
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`.
@@ -104,7 +104,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 ```
 
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
-and [a preso on testing UI of IntelliJ  Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
+and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
 
 ## Check dependency updates
