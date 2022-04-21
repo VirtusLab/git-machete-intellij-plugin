@@ -2,42 +2,48 @@
 
 ## Prerequisites
 
-* git
-* latest IntelliJ Community Edition/Ultimate
+### IntelliJ
 
-  * Install [Lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok/)
-  * Enable annotation processing (for Lombok):
-    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
-  * Set Project SDK to JDK 11: `Project Structure > Project`
+Use IntelliJ IDEA Community Edition/Ultimate.
 
-Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
+1. (optional) Set up a shortcut for `Plugins` setting, you'll need to access it pretty often.
+   Open `Search Actions` dialog (Ctrl+Shift+A), type `plugins`, press Alt+Enter, then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P).
 
-For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
+2. Make sure the following bundled plugins are enabled:
+  * Git
+  * Gradle
+  * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
+  * Java Internationalization
+  * JUnit
+  * Lombok
+  * Markdown
+  * Plugin DevKit
+  * Properties
+  * Shell Script (also: agree to enable Shellcheck when asked)
+  * YAML
 
-### Windows
+3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
-Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).
+4. (optional) Install the following non-bundled plugins from Marketplace:
 
-Additional setup:
-1. Open the Registry Editor (`regedit.exe`).
-2. Open path by clicking: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem`.
-3. Find key named: `LongPathsEnabled` and double click.
-4. If the data value is 0, change it to 1.
+    1. [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
+       to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+    2. [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
+    3. [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
+       when running IntelliJ instance with the Git Machete plugin loaded.
+    4. [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
-### Optional
+5. Enable annotation processing (for Lombok):
+   `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`.
+   Select `Obtain annotation processors from classpath` radio box.
 
-[Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
-to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+6. Set Project SDK to JDK 11: `Project Structure > Project`
 
-[Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
+7. Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
-When running IntelliJ instance with a plugin loaded then [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer)
-can be helpful to see parsing result on the `machete` file.
+8. For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
-[Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
-
-
-## Set up git config/hooks
+### Git config/hooks
 
 From the main project folder, run the following commands:
 
@@ -48,6 +54,16 @@ ln -s ../../scripts/git-hooks/machete-status-branch .git/hooks/machete-status-br
 ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
+
+### (optional) Windows
+
+Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).
+
+Additional setup:
+1. Open the Registry Editor (`regedit.exe`).
+2. Open path by clicking: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem`.
+3. Find key named: `LongPathsEnabled` and double click.
+4. If the data value is 0, change it to 1.
 
 
 ## Build
@@ -87,7 +103,8 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 ./gradlew [-Pagainst=<e.g. 2021.2>] [-Pheadless] [-Ptests=<e.g. toggle>] uiTest
 ```
 
-See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot) for more details.
+See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
+and [a preso on testing UI of IntelliJ  Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
 
 ## Check dependency updates
@@ -95,21 +112,20 @@ See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot) for more
 `./gradlew dependencyUpdates`
 
 
-## Generate plugin zip
+## Generate and/or install snapshot build of the plugin
 
-To generate a plugin archive run `:buildPlugin` Gradle task (`Gradle panel > Tasks > intellij > buildPlugin` or `./gradlew buildPlugin`).<br/>
-The resulting file will be available under `build/distributions/`.
+To generate a plugin archive (zip), run `:buildPlugin` Gradle task (`Gradle panel > Tasks > intellij > buildPlugin` or `./gradlew buildPlugin`).<br/>
+The resulting file will be available under `build/distributions/`. <br/>
+Alternatively, download the plugin zip from the artifacts of the given build
+in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
 
-
-## Install snapshot build of the plugin from CI
-
-Download the zip file from the artifacts of the given build in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin). <br/>
-Go to `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`, select the zip and restart IDE.
+In either case (locally-built or CI-built), the zip can be installed via `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`.
+Select the zip and restart the IDE.
 
 
 ## Logging
 
-SLF4J logging in this plugin has the following categories:
+SLF4J logging in this plugin uses the following logger names (_categories_, as per IntelliJ's nomenclature):
 
 ```
 binding
@@ -240,7 +256,7 @@ They must have `develop` as its base.
 
 Hotfix PRs (`hotfix/*` branch name) are PRs to `master` but NOT from `develop` commit.
 They always introduce a non-linear history on `develop` since after a hotfix PR is merged,
-a backport PR from hotfixed `master` to `develop` is opened, and it cannot be fast-forward merged.
+a backport PR from hotfixed `master` to `develop` is opened, and it cannot be fast-forward merged. <br/>
 The alternative that would preserve linear history is to rebase the `develop` history
 since the latest release over the hotfixed `master`.
 This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
