@@ -7,8 +7,8 @@
 Use IntelliJ IDEA Community Edition/Ultimate.
 
 1. (optional) Set up a shortcut for `Plugins` setting, you'll need to access it pretty often.
-   Open `Search Actions` dialog (Ctrl+Shift+A, or Cmd+Shift+A on Mac),
-   type `plugins`, press Alt+Enter, then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P).
+   Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on Mac),
+   type `plugins`, press Alt+Enter (⌥↩ on Mac), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on Mac).
 
 2. Make sure the following bundled plugins are enabled:
    * Git
