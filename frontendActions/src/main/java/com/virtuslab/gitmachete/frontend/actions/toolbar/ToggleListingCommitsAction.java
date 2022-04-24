@@ -5,13 +5,13 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAction
@@ -20,7 +20,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
       IExpectsKeyGitMacheteRepository {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

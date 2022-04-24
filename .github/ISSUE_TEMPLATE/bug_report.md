@@ -11,25 +11,19 @@ assignees: ''
 Please include steps to reproduce (like `go to...`/`click on...` etc.) + expected and actual behavior.
 
 For more non-trivial issues, we would also appreciate if you included the following details:
-
-### Running environment
  - Git Machete plugin version
  - IDE type [e.g. IntelliJ, PyCharm]
  - IDE version [e.g. 2020.1.4]
  - Operating system [e.g. Windows]
 
+Note that this information will be included automatically when reporting an error directly from IDE's error dialog.
+
 ### Logs
-Enable logging on debug level for this plugin by adding
+Enable logging on DEBUG level for this plugin by adding
 ```
-binding
-branchlayout
-gitcore
-gitmachete.backend
-gitmachete.frontend.actions
-gitmachete.frontend.graph
-gitmachete.frontend.ui
+com.virtuslab
 ```
-to list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.<br/>
+to the list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.<br/>
 Then reproduce a bug and attach the logs to the issue.<br/>
 To find IntelliJ log file, go to `Help` -> `Show Log in Files`.
 

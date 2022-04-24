@@ -6,7 +6,8 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.42.0'
 
   id 'com.diffplug.spotless' version '6.4.2' apply false
-  id 'io.freefair.lombok' version '6.4.2' apply false
+  id 'io.freefair.aspectj.post-compile-weaving' version '6.4.3' apply false
+  id 'io.freefair.lombok' version '6.4.3' apply false
   id 'org.ajoberstar.grgit' version '5.0.0' apply false
   id 'org.checkerframework' version '0.6.10' apply false
   id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
@@ -15,7 +16,6 @@ plugins {
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
   id 'org.jetbrains.kotlin.jvm' version '1.6.20' apply false
-  id 'se.bjurr.violations.violations-gradle-plugin' version '1.51.0' apply false
 }
 
 ext {
@@ -28,6 +28,7 @@ ext {
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
   ideProbeVersion = '0.24.0'
+  jcabiAspectsVersion = '0.23.2'
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '6.1.0.202203080745-r'
   junitVersion = '4.13.2'
@@ -261,37 +262,10 @@ allprojects {
   checkstyle {
     toolVersion checkstyleToolVersion
 
-    // ignoreFailures here because we want to set conditions that will cause build fail in violations plugin
-    ignoreFailures = false
     checkstyleTest.enabled = false
 
     configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
   }
-
-
-  apply plugin: 'se.bjurr.violations.violations-gradle-plugin'
-  task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {
-    // Optional config
-    maxReporterColumnWidth = 0 // 0 means "no limit"
-    maxRuleColumnWidth = 60
-    maxSeverityColumnWidth = 0
-    maxLineColumnWidth = 0
-    maxMessageColumnWidth = 100
-
-    // Global configuration, remove if you don't want to report violations for the entire repo.
-    minSeverity = 'WARN' // INFO, WARN or ERROR
-    detailLevel = 'VERBOSE' // PER_FILE_COMPACT, COMPACT or VERBOSE
-    maxViolations = 0 // Will fail the build if total number of found violations is higher
-    printViolations = true // Will print violations found in diff
-
-    // This is mandatory regardless of if you want to report violations between revisions or the entire repo.
-    // Many more formats available, see: https://github.com/tomasbjerre/violations-lib
-    violations = [
-      ['CHECKSTYLE', buildDir.path, '.*/checkstyle/.*\\.xml\$', 'Checkstyle']
-    ]
-  }
-  // Run violations task after each checkstyleMain run
-  checkstyleMain.finalizedBy(violations)
 
 
   if (shouldUseDelombok) {
@@ -426,6 +400,19 @@ allprojects {
         uiTestImplementation project(':testCommon').sourceSets.test.output
         uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
         uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
+      }
+    }
+
+    jcabiAspects = { ->
+      apply plugin: 'io.freefair.aspectj.post-compile-weaving'
+
+      compileJava {
+        // Turn off `adviceDidNotMatch` spam warnings
+        ajc.options.compilerArgs += '-Xlint:ignore'
+      }
+
+      dependencies {
+        aspect group: 'com.jcabi', name: 'jcabi-aspects', version: jcabiAspectsVersion
       }
     }
 

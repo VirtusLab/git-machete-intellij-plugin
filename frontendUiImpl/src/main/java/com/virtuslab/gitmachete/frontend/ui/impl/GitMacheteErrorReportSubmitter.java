@@ -30,11 +30,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 
 @CustomLog
-public class GitMacheteErrorHandler extends ErrorReportSubmitter {
+public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   @Override
   public String getReportActionText() {
-    return getString("string.GitMachete.error-handler.report-action-text");
+    return getString("string.GitMachete.error-report-submitter.report-action-text");
   }
 
   @Override
@@ -88,9 +88,7 @@ public class GitMacheteErrorHandler extends ErrorReportSubmitter {
   }
 
   private String getBugTemplate() throws IOException, AssertionError {
-    val classLoader = GitMacheteErrorHandler.class.getClassLoader();
-    assert classLoader != null;
-    return IOUtils.resourceToString("bug_report.md", StandardCharsets.UTF_8, classLoader);
+    return IOUtils.resourceToString("bug_report.md", StandardCharsets.UTF_8);
   }
 
   private java.util.Map<String, String> getTemplateVariables(

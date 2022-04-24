@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -20,7 +21,6 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMergeProps;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMacheteRepositoryReadyAction
@@ -29,7 +29,7 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
       ISyncToParentStatusDependentAction {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

@@ -1,12 +1,13 @@
 commonsIO()
+jcabiAspects()
 junit()
 lombok()
 powerMock()
+slf4jLambdaApi()
 slf4jTestImpl()
 vavr()
 
 dependencies {
-  implementation project(':logging')
   implementation project(':binding')
   implementation project(':gitCoreApi')
 

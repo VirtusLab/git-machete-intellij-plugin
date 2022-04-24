@@ -2,10 +2,12 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Option;
@@ -38,6 +40,7 @@ public final class StatusBranchHookExecutor {
     this.hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
   }
 
+  @Loggable(value = Loggable.DEBUG)
   private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
@@ -50,7 +53,7 @@ public final class StatusBranchHookExecutor {
       return Option.none();
     }
 
-    LOG.startTimer().debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
+    LOG.debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
         "for ${branchName} in cwd=${rootDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(hookFilePath, branchName);
@@ -68,20 +71,20 @@ public final class StatusBranchHookExecutor {
     Process process = pb.start();
     boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     if (!completed) {
-      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+      LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
           "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
       return Option.none();
     }
     if (process.exitValue() != 0) {
-      LOG.withTimeElapsed().warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+      LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
           "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
       return Option.none();
     }
 
     // It's quite likely that the hook's output will be terminated with a newline,
     // and we don't want that to be displayed.
-    String strippedStdout = IOUtils.toString(process.getInputStream()).trim();
-    LOG.withTimeElapsed().debug(() -> "Output of machete-status-branch hook (${hookFilePath}) " +
+    String strippedStdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).trim();
+    LOG.debug(() -> "Output of machete-status-branch hook (${hookFilePath}) " +
         "for ${branchName} is '${strippedStdout}'");
     return Option.some(strippedStdout);
   }

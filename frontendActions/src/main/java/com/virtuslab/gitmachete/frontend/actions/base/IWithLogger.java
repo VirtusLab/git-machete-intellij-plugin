@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import com.virtuslab.logger.IEnhancedLambdaLogger;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 
 public interface IWithLogger {
-  IEnhancedLambdaLogger log();
+  LambdaLogger log();
 
   /**
    * @return {@code false} if the execution on the current thread is in a context where logging should be avoided

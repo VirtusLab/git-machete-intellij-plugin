@@ -5,6 +5,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -13,7 +14,6 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
   @UIEffect
@@ -54,7 +54,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   protected void onUpdate(AnActionEvent anActionEvent) {}
 
   @Override
-  public abstract IEnhancedLambdaLogger log();
+  public abstract LambdaLogger log();
 
   protected Project getProject(AnActionEvent anActionEvent) {
     val project = anActionEvent.getProject();

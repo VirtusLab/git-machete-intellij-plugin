@@ -11,7 +11,7 @@
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
-        <errorHandler implementation="com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorHandler"/>
+        <errorHandler implementation="com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter"/>
 
         <!-- Git Machete file type/language -->
         <annotator language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>

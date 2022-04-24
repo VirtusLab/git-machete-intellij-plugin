@@ -7,18 +7,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class OpenMacheteTabAction extends BaseProjectDependentAction {
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

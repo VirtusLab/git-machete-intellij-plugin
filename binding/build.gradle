@@ -1,6 +1,3 @@
 lombok()
 reflections()
-
-dependencies {
-  implementation project(':logging')
-}
+slf4jLambdaApi()

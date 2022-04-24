@@ -11,6 +11,7 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import io.vavr.collection.List;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -21,7 +22,6 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -32,7 +32,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
       ISyncToParentStatusDependentAction {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

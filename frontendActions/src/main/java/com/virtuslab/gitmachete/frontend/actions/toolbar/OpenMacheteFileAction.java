@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
 import io.vavr.control.Try;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -19,13 +20,12 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

@@ -29,6 +29,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -41,7 +42,6 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -56,7 +56,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       "action.GitMachete.BaseResetBranchToRemoteAction.notification.title");
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

@@ -18,6 +18,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -28,7 +29,6 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgrou
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
@@ -37,7 +37,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       IExpectsKeyGitMacheteRepository {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

@@ -1,8 +1,8 @@
 lombok()
+slf4jLambdaApi()
 vavr()
 
 dependencies {
-  implementation project(':logging')
   implementation project(':binding')
   implementation project(':backendApi')
   implementation project(':branchLayoutApi')

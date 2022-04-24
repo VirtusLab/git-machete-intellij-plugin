@@ -5,6 +5,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import java.util.Arrays;
 
 import com.tngtech.archunit.core.domain.AccessTarget;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -41,6 +42,35 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             // which would in turn heavily reduce readability, hence potentially leading to bugs in the long run.
             if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
               return;
+            }
+
+            // AspectJ puts the original method body within an `<original-method-name>_aroundBodyX` synthetic method,
+            // while the original method body is replaced with AspectJ-generated code
+            // that includes the woven-in action (e.g. logging, in case of @Loggable)
+            // and calls the actual logic in `..._aroundBodyX`.
+            if (method.getName().matches("^.*_aroundBody[0-9]$")) {
+              // An `..._aroundBodyX` method does NOT inherit the annotations of the original method,
+              // so it won't be filtered out by `.areNotAnnotatedWith(UIThreadUnsafe.class)` condition.
+              // This might cause a false positive: if the original method is annotated with @UIThreadUnsafe
+              // AND its body has a call to an @UIThreadUnsafe-annotated method,
+              // then ArchUnit will incorrectly report an error.
+
+              // To prevent such cases, let's get the original method...
+              Class<?>[] parameterClasses = method.getRawParameterTypes().stream()
+                  .map(JavaClass::reflect)
+                  // Let's skip `this` param
+                  .skip(1)
+                  // ...and the final param, both added by AspectJ to what's in the original method
+                  .filter(clazz -> !clazz.getName().equals("org.aspectj.lang.JoinPoint"))
+                  .toArray(Class[]::new);
+
+              JavaMethod originalMethod = method.getOwner()
+                  .tryGetMethod(method.getName().replaceAll("_aroundBody[0-9]$", ""), parameterClasses).orElse(null);
+
+              // ...and check if the original method qualifies under `.areNotAnnotatedWith(UIThreadUnsafe.class)` condition.
+              if (originalMethod != null && originalMethod.isAnnotatedWith(UIThreadUnsafe.class)) {
+                return;
+              }
             }
 
             method.getCallsFromSelf().forEach(access -> {

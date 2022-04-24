@@ -1,10 +1,10 @@
 lombok()
+slf4jLambdaApi()
 vavr()
 
 dependencies {
   api project(':frontendGraphApi')
 
-  implementation project(':logging')
   implementation project(':backendApi')
   implementation project(':frontendDefs')
 }

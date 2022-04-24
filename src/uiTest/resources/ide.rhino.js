@@ -1,7 +1,6 @@
 
 importClass(java.lang.System);
-importClass(java.util.stream.Collectors);
-importClass(java.util.stream.Stream);
+importClass(java.util.Collections);
 
 importClass(com.intellij.diagnostic.DebugLogManager);
 importClass(com.intellij.ide.GeneralSettings);
@@ -21,21 +20,10 @@ function Ide() {
     settings.setShowTipsOnStartup(false);
 
     if (enableDebugLog) {
-      const logCategories = Stream.of(
-        'binding',
-        'branchlayout',
-        'gitcore',
-        'gitmachete.backend',
-        'gitmachete.frontend.actions',
-        'gitmachete.frontend.graph',
-        'gitmachete.frontend.ui',
-      ).map(name =>
-        new DebugLogManager.Category(name, DebugLogManager.DebugLogLevel.DEBUG)
-      ).collect(Collectors.toList());
-
+      const logCategory = new DebugLogManager.Category('com.virtuslab', DebugLogManager.DebugLogLevel.DEBUG)
       const debugLogManager = DebugLogManager.getInstance();
       // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
-      debugLogManager.applyCategories(logCategories);
+      debugLogManager.applyCategories(Collections.singletonList(logCategory));
     }
   };
 

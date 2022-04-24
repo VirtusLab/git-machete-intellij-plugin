@@ -12,6 +12,7 @@ import static io.vavr.API.Match;
 import java.time.Instant;
 import java.util.function.Predicate;
 
+import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -75,13 +76,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
+  @Loggable(value = Loggable.DEBUG, prepend = true, skipArgs = true, skipResult = true)
   public IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException {
-    LOG.startTimer().debug("Entering");
     try {
       val aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      val result = aux.createSnapshot(branchLayout);
-      LOG.withTimeElapsed().info("Finished");
-      return result;
+      return aux.createSnapshot(branchLayout);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -89,15 +88,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
+  @Loggable(value = Loggable.DEBUG, prepend = true)
   public Option<ILocalBranchReference> inferParentForLocalBranch(
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
-    LOG.startTimer().debug(() -> "Entering: localBranchName = ${localBranchName}");
     try {
       val aux = new Aux(gitCoreRepository);
-      val result = aux.inferParentForLocalBranch(eligibleLocalBranchNames, localBranchName);
-      LOG.withTimeElapsed().info("Finished");
-      return result;
+      return aux.inferParentForLocalBranch(eligibleLocalBranchNames, localBranchName);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -105,14 +102,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
+  @Loggable(value = Loggable.DEBUG, prepend = true, skipResult = true)
   public IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot() throws GitMacheteException {
-    LOG.startTimer().debug("Entering");
-
     try {
       val aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      val result = aux.discoverLayoutAndCreateSnapshot(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
-      LOG.withTimeElapsed().info("Finished");
-      return result;
+      return aux.discoverLayoutAndCreateSnapshot(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -485,7 +479,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     private @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
         IGitCoreLocalBranchSnapshot coreLocalBranch,
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch) throws GitCoreException {
-      LOG.startTimer().debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
+      LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
           "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}'");
 
       IGitCoreCommit overriddenForkPointCommit = deriveParentAgnosticOverriddenForkPoint(coreLocalBranch);
@@ -532,9 +526,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         }
       }
 
-      // String interpolation caused some weird Nullness Checker issues (exception from `com.sun.tools.javac`) in this line.
-      LOG.withTimeElapsed().debug(() -> "Parent-aware fork point for branch " + coreLocalBranch.getName() +
-          " is " + parentAgnosticForkPointString);
+      LOG.debug(() -> "Parent-aware fork point for branch ${coreLocalBranch.getName()} is ${parentAgnosticForkPointString}");
 
       return parentAgnosticForkPoint;
     }

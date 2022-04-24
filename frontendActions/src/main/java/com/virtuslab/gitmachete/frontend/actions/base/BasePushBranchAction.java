@@ -15,6 +15,7 @@ import git4idea.config.GitSharedSettings;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -23,7 +24,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -32,7 +32,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
       ISyncToRemoteStatusDependentAction {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 

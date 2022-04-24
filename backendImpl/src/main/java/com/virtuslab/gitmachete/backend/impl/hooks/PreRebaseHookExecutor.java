@@ -2,9 +2,11 @@ package com.virtuslab.gitmachete.backend.impl.hooks;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import com.jcabi.aspects.Loggable;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.val;
@@ -37,6 +39,7 @@ public final class PreRebaseHookExecutor {
    *         or {@link Option.None} when the hook has not been executed (because it's absent or non-executable)
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
+  @Loggable(value = Loggable.DEBUG)
   public Option<IExecutionResult> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
@@ -49,7 +52,7 @@ public final class PreRebaseHookExecutor {
       return Option.none();
     }
 
-    LOG.startTimer().debug(() -> "Executing machete-pre-rebase hook (${hookFilePath}) " +
+    LOG.debug(() -> "Executing machete-pre-rebase hook (${hookFilePath}) " +
         "for ${gitRebaseParameters} in cwd=${rootDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(
@@ -71,13 +74,13 @@ public final class PreRebaseHookExecutor {
       process = pb.start();
       boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-      strippedStdout = IOUtils.toString(process.getInputStream()).trim();
-      strippedStderr = IOUtils.toString(process.getErrorStream()).trim();
+      strippedStdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).trim();
+      strippedStderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8).trim();
 
       if (!completed) {
         val message = "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
-        LOG.withTimeElapsed().error(message);
+        LOG.error(message);
         throw new GitMacheteException(message
             + (!strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
             + (!strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""));
@@ -89,13 +92,13 @@ public final class PreRebaseHookExecutor {
     } catch (IOException | InterruptedException e) {
       val message = "An error occurred while running machete-pre-rebase hook (${hookFilePath})" +
           "for ${gitRebaseParameters}; aborting the rebase";
-      LOG.withTimeElapsed().error(message, e);
+      LOG.error(message, e);
       throw new GitMacheteException(message
           + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
           + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
 
-    LOG.withTimeElapsed().info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
+    LOG.info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
         "returned with ${process.exitValue()} exit code");
     return Option.some(ExecutionResult.of(process.exitValue(), strippedStdout, strippedStderr));
   }
