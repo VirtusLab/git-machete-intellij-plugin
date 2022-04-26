@@ -71,7 +71,7 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
       log().debug(() -> "Queuing show '${selectedBranchName.get()}' branch in Git log background task");
 
       GitBranchesCollection branches = gitRepository.get().getBranches();
-      @SuppressWarnings({"nullness:argument", "nullness:return"}) val maybeHash = selectedBranchName
+      @SuppressWarnings("nullness:return") val maybeHash = selectedBranchName
           .map(branches::findBranchByName).filter(Objects::nonNull).map(branches::getHash);
       if (maybeHash.isEmpty()) {
         log().error("Unable to find commit hash for branch '${selectedBranchName.get()}'");
