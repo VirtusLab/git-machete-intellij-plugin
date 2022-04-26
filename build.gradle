@@ -607,7 +607,7 @@ runPluginVerifier {
     *maybeEap
   ]
 
-  def skippedFailureLevels = EnumSet.of(FailureLevel.DEPRECATED_API_USAGES, FailureLevel.NOT_DYNAMIC)
+  def skippedFailureLevels = EnumSet.of(FailureLevel.DEPRECATED_API_USAGES, FailureLevel.EXPERIMENTAL_API_USAGES, FailureLevel.NOT_DYNAMIC)
   failureLevel = EnumSet.complementOf(skippedFailureLevels)
 }
 
