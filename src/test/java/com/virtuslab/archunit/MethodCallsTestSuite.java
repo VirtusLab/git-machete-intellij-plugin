@@ -18,7 +18,7 @@ import org.junit.Test;
 public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
 
   @Test
-  public void methods_calling_messageBusConnection_subscribe_must_call_Disposer_register_later_too() {
+  public void methods_calling_MessageBusConnection_subscribe_must_call_Disposer_register_later_too() {
     String subscribeMethodCallString = "com.intellij.util.messages.MessageBusConnection.subscribe(com.intellij.util.messages.Topic, java.lang.Object)";
     String registerMethodCallString = "com.intellij.openapi.util.Disposer.register(com.intellij.openapi.Disposable, com.intellij.openapi.Disposable)";
 
@@ -26,7 +26,7 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
     for (GivenCodeUnits<? extends JavaCodeUnit> c : codeUnits) {
 
       c.should(new ArchCondition<JavaCodeUnit>(
-          "calling ${subscribeMethodCallString} must call ${registerMethodCallString} too") {
+          "call ${registerMethodCallString} if they call ${subscribeMethodCallString}") {
 
         @Override
         public void check(JavaCodeUnit item, ConditionEvents events) {
@@ -39,13 +39,10 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
           if (subscribeCall.isPresent()) {
             int subscribeCallLine = subscribeCall.map(methodCall -> methodCall.getLineNumber()).get();
             if (registerCall.isEmpty()) {
-              String message = String.format(
-                  "Method %s calls MessageBusConnection::subscribe without following Disposer::register",
-                  item.getFullName());
+              String message = "Method ${item.getFullName()} calls MessageBusConnection::subscribe without a following Disposer::register";
               events.add(SimpleConditionEvent.violated(item, message));
             } else if (registerCall.map(x -> x.getLineNumber() < subscribeCallLine).orElse(false)) {
-              String message = String.format("Method %s calls MessageBusConnection::subscribe after Disposer::register",
-                  item.getFullName());
+              String message = "Method ${item.getFullName()} calls MessageBusConnection::subscribe after Disposer::register";
               events.add(SimpleConditionEvent.violated(item, message));
             }
           }
