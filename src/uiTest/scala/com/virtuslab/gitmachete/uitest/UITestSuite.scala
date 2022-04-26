@@ -17,8 +17,7 @@ trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
 
   private val ignoredErrorMessages = Seq(
     // Spurious errors in the IDEA itself (probably some race conditions)
-    "com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage",
-    "at com.intellij.util.messages.impl.MessageBusConnectionImpl.deliverImmediately(MessageBusConnectionImpl.java:61)"
+    "com.intellij.diagnostic.PluginException: Cannot create class com.intellij.uast.UastMetaLanguage"
   )
 
   @AfterClass override final def teardown(): Unit = {

@@ -5,13 +5,13 @@ plugins {
 
   id 'com.github.ben-manes.versions' version '0.42.0'
 
-  id 'com.diffplug.spotless' version '6.4.2' apply false
+  id 'com.diffplug.spotless' version '6.5.0' apply false
   id 'io.freefair.aspectj.post-compile-weaving' version '6.4.3' apply false
   id 'io.freefair.lombok' version '6.4.3' apply false
   id 'org.ajoberstar.grgit' version '5.0.0' apply false
   id 'org.checkerframework' version '0.6.10' apply false
   id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
-  id 'org.jetbrains.intellij' version '1.5.2' apply false
+  id 'org.jetbrains.intellij' version '1.5.3' apply false
   // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
   // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
   // every time `intellijVersions.buildTarget` is bumped.
@@ -32,7 +32,7 @@ ext {
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '6.1.0.202203080745-r'
   junitVersion = '4.13.2'
-  lombokVersion = '1.18.22'
+  lombokVersion = '1.18.24'
   powerMockVersion = '2.0.9'
   reflectionsVersion = '0.10.2'
   slf4jLambdaApiVersion = '0.1'
