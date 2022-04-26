@@ -15,13 +15,13 @@ import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
 import git4idea.branch.GitBranchesCollection;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
-import com.virtuslab.logger.IEnhancedLambdaLogger;
 
 @CustomLog
 public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryReadyAction
@@ -29,7 +29,7 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
       IExpectsKeySelectedBranchName {
 
   @Override
-  public IEnhancedLambdaLogger log() {
+  public LambdaLogger log() {
     return LOG;
   }
 
