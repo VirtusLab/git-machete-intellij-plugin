@@ -18,7 +18,7 @@ For more non-trivial issues, we would also appreciate if you included the follow
 
 Note that this information will be included automatically when reporting an error directly from IDE's error dialog.
 
-### Logs
+## (optional) Logs
 Enable logging on DEBUG level for this plugin by adding
 ```
 com.virtuslab
@@ -34,6 +34,6 @@ Consider placing the logs within the `details` (aka "spoiler") tags as the may b
 Logs go here
 </details>
 
-### Screenshots
+## (optional) Screenshots
 If applicable, add screenshots (or screen recordings, see [Peek](https://github.com/phw/peek#peek---an-animated-gif-recorder) on Linux)
 to help explain your problem.
