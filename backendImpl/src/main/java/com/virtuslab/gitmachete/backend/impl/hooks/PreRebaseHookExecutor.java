@@ -18,19 +18,21 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 @CustomLog
-public final class PreRebaseHookExecutor {
+public final class PreRebaseHookExecutor extends BaseHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 10;
-  private static final String NL = System.lineSeparator();
 
-  private final File rootDirectory;
-  private final File hookFile;
+  private PreRebaseHookExecutor(File rootDirectory, File hookFile) {
+    super(rootDirectory, hookFile);
+  }
 
-  public PreRebaseHookExecutor(IGitCoreRepository gitCoreRepository) {
+  public static PreRebaseHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
     val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
 
-    this.rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
-    this.hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();
+    val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
+    val hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();
+
+    return new PreRebaseHookExecutor(rootDirectory, hookFile);
   }
 
   /**

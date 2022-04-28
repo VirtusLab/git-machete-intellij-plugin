@@ -33,8 +33,8 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
     if (!gitMacheteRepositoryCache.containsKey(key)) {
       val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
-      val statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
-      val preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository);
+      val statusHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
+      val preRebaseHookExecutor = PreRebaseHookExecutor.of(gitCoreRepository);
       val value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
       gitMacheteRepositoryCache.put(key, value);
     }

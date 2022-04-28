@@ -17,14 +17,12 @@ import lombok.val;
 import org.apache.commons.io.IOUtils;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 
 @CustomLog
-public final class StatusBranchHookExecutor {
+public final class StatusBranchHookExecutor extends BaseHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 1;
-
-  private final File rootDirectory;
-  private final File hookFile;
 
   // We're cheating a bit here: we're assuming that the hook's output is fixed for a given (branch-name, commit-hash) pair.
   // machete-status-branch hook spec doesn't impose any requirements like that, but:
@@ -32,16 +30,22 @@ public final class StatusBranchHookExecutor {
   // 2. this kind of caching is pretty useful wrt. performance.
   private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
 
-  public StatusBranchHookExecutor(IGitCoreRepository gitCoreRepository) {
+  private StatusBranchHookExecutor(File rootDirectory, File hookFile) {
+    super(rootDirectory, hookFile);
+  }
+
+  public static StatusBranchHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
     val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
 
-    this.rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
-    this.hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
+    val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
+    val hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
+
+    return new StatusBranchHookExecutor(rootDirectory, hookFile);
   }
 
   @Loggable(value = Loggable.DEBUG)
-  private Option<String> executeHookFor(String branchName) throws IOException, InterruptedException {
+  private Option<String> executeHookFor(String branchName) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-status-branch hook execution for ${branchName}: " +
@@ -68,25 +72,40 @@ public final class StatusBranchHookExecutor {
     // We obviously assume a non-bare repository here, and machete-status-branch isn't related to push.
     pb.directory(rootDirectory);
 
-    Process process = pb.start();
-    boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    if (!completed) {
-      LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
-          "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
-      return Option.none();
-    }
-    if (process.exitValue() != 0) {
-      LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
-          "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
-      return Option.none();
-    }
+    Process process;
+    String strippedStdout = null;
+    String strippedStderr = null;
+    try {
+      process = pb.start();
+      boolean completed = process.waitFor(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-    // It's quite likely that the hook's output will be terminated with a newline,
-    // and we don't want that to be displayed.
-    String strippedStdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).trim();
-    LOG.debug(() -> "Output of machete-status-branch hook (${hookFilePath}) " +
-        "for ${branchName} is '${strippedStdout}'");
-    return Option.some(strippedStdout);
+      if (!completed) {
+        LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+            "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
+        return Option.none();
+      }
+      if (process.exitValue() != 0) {
+        LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+            "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
+        return Option.none();
+      }
+
+      // It's quite likely that the hook's output will be terminated with a newline,
+      // and we don't want that to be displayed.
+      strippedStdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).trim();
+      strippedStderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8).trim();
+
+      LOG.debug("Output of machete-status-branch hook (${hookFilePath}) " +
+          "for ${branchName} is '${strippedStdout}'");
+      return Option.some(strippedStdout);
+    } catch (IOException | InterruptedException e) {
+      val message = "An error occurred while running machete-status-branch hook (${hookFilePath})" +
+          "for ${branchName}; ignoring the hook";
+      LOG.error(message, e);
+      throw new GitMacheteException(message
+          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+    }
   }
 
   public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {

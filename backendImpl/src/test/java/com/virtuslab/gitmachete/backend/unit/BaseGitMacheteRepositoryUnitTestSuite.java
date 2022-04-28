@@ -40,7 +40,7 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     PowerMockito.doReturn(Paths.get("void")).when(gitCoreRepository).getMainGitDirectoryPath();
 
     // cannot be mocked as it is final
-    val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
+    val statusBranchHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
 
     return Whitebox
         .getConstructor(AUX_CLASS, IGitCoreRepository.class, StatusBranchHookExecutor.class, PreRebaseHookExecutor.class)
