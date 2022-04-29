@@ -18,8 +18,8 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMergeProps;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 
 @CustomLog
@@ -85,7 +85,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       }
       val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
 
-      val ffmProps = new FastForwardMergeProps(
+      val ffmProps = new MergeProps(
           /* movingBranch */ localBranch,
           /* stayingBranch */ remoteBranch);
 

@@ -73,6 +73,12 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.MergeParentIntoSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.MergeParentIntoSelectedBranchAction"
+                    icon="MacheteIcons.MACHETE_MERGE_PARENT">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <separator/>
 
             <action id="GitMachete.SlideInBranchBelowSelectedBranchAction"
@@ -156,6 +162,12 @@
             <action id="GitMachete.FastForwardMergeCurrentBranchToParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardMergeCurrentBranchToParentAction"
                     icon="MacheteIcons.FAST_FORWARD">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
+            <action id="GitMachete.MergeParentIntoCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.MergeParentIntoCurrentBranchAction"
+                    icon="MacheteIcons.MACHETE_MERGE_PARENT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 

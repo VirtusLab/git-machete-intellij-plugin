@@ -6,7 +6,7 @@ import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 
 @Value
-public class FastForwardMergeProps {
+public class MergeProps {
   ILocalBranchReference movingBranch;
   IBranchReference stayingBranch;
 }

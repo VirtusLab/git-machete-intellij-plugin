@@ -21,7 +21,7 @@ public final class MacheteIcons {
 
   public static final Icon MACHETE_FILE = loadIcon("/macheteLogoIcon.svg");
 
-  public static final Icon MACHETE_LOAD_CHANGES = loadIcon("/macheteLoadChanges.svg");
+  public static final Icon MACHETE_MERGE_PARENT = loadIcon("/merge.svg");
 
   public static final Icon OVERRIDE_FORK_POINT = loadIcon("/overrideForkPoint.svg");
 
