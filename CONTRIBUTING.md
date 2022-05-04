@@ -55,6 +55,9 @@ ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
 ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 
+**The hooks do not work on Windows** (however their execution seems to be possible theoretically).
+This is because one may not be emulating bash environment in any way or doing it in some specific way.
+
 ### (optional) Windows
 
 Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).

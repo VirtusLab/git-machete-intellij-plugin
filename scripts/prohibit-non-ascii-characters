@@ -11,7 +11,7 @@ source "$self_dir"/utils.sh
 # Excluding tab (detected in a separate script for a clearer error message and a different set of whitelisted files).
 # gradlew is whitelisted since it contains e.g. a copyright character.
 # README.md is whitelisted since it contains emojis.
-# CONTRIBUTING.md is whitelisted since it contains Mac key symbols.
+# CONTRIBUTING.md is whitelisted since it contains Mac OS key symbols.
 if LC_ALL=C git grep -PIn '[^\x09\x20-\x7F]' -- ':!gradlew' ':!README.md' ':!CONTRIBUTING.md'; then
   die 'The above lines contain character(s) outside of 0x20-0x7F range, please tidy up'
 fi
