@@ -1,14 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -21,8 +20,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
+import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -37,17 +37,17 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
-    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description-action-name");
+    return getString("action.GitMachete.BaseMergeParentIntoBranchAction.description-action-name");
   }
 
   @Override
   public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description");
+    return getString("action.GitMachete.BaseMergeParentIntoBranchAction.description");
   }
 
   @Override
   public List<SyncToParentStatus> getEligibleStatuses() {
-    return List.of(SyncToParentStatus.InSync, SyncToParentStatus.InSyncButForkPointOff);
+    return List.of(SyncToParentStatus.OutOfSync);
   }
 
   @Override
@@ -68,64 +68,64 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
       return;
     }
 
-    val stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
-    if (stayingBranch == null) {
+    val movingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
+    if (movingBranch == null) {
       return;
     }
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
-    assert stayingBranch.isNonRoot() : "Branch that would be fast-forwarded TO is a root";
+    assert movingBranch.isNonRoot() : "Branch that would be merged INTO is a root";
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
-    val nonRootStayingBranch = stayingBranch.asNonRoot();
+    val nonRootMovingBranch = movingBranch.asNonRoot();
     val mergeProps = new MergeProps(
-        /* movingBranchName */ nonRootStayingBranch,
-        /* stayingBranchName */ nonRootStayingBranch.getParent());
-    if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
+        /* movingBranchName */ nonRootMovingBranch,
+        /* stayingBranchName */ nonRootMovingBranch.getParent());
+
+    if (nonRootMovingBranch.getName().equals(currentBranchName)) {
       doMergeIntoCurrentBranch(project, gitRepository, mergeProps);
     } else {
       doMergeIntoNonCurrentBranch(project, gitRepository, mergeProps);
     }
   }
 
-  public static void doMergeIntoCurrentBranch(Project project,
-      GitRepository gitRepository,
-      MergeProps branchToCheckoutName) {
+  @UIEffect
+  public static void doMergeIntoCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
+    String stayingBranch = mergeProps.getStayingBranch().getName();
+    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
+        " stayingBranch = ${stayingBranch}");
 
-    //    log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
-    //    new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedBranchAction.task-title")) {
-    //      @Override
-    //      @UIThreadUnsafe
-    //      public void run(ProgressIndicator indicator) {
-    // TODO (#772): switch to constructor that does not take git once we no longer support 2021.2
-    String movingBranchName = branchToCheckoutName.getMovingBranch().getName();
-    GitBrancher.getInstance(project)
-        .merge(movingBranchName, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseMergeParentIntoBranchAction.task-title.current")) {
+      @Override
+      @UIThreadUnsafe
+      public void run(ProgressIndicator indicator) {
+        LOG.info("Merging ${stayingBranch} into current branch");
 
-    //      }
-    //    }.queue();
+        GitBrancher.getInstance(project)
+            .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
+      }
+    }.queue();
 
   }
 
-  public static void doMergeIntoNonCurrentBranch(Project project,
-      GitRepository gitRepository,
-      MergeProps ffmProps) {
-    val stayingFullName = ffmProps.getStayingBranch().getFullName();
-    val movingFullName = ffmProps.getMovingBranch().getFullName();
-    val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
+  @UIEffect
+  private void doMergeIntoNonCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
+    val stayingBranch = mergeProps.getStayingBranch().getName();
+    val movingBranch = mergeProps.getMovingBranch().getName();
+    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
+        " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 
-    val stayingName = ffmProps.getStayingBranch().getName();
-    val movingName = ffmProps.getMovingBranch().getName();
-    new FetchBackgroundable(
-        project,
-        gitRepository,
-        LOCAL_REPOSITORY_NAME,
-        refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"),
-        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-subtitle"),
-        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
-            stayingName, movingName),
-        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
-            stayingName, movingName))
-                .queue();
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseMergeParentIntoBranchAction.task-title.non-current")) {
+      @Override
+      @UIThreadUnsafe
+      public void run(ProgressIndicator indicator) {
+        LOG.info("Checking out '${movingBranch}' branch and merging ${stayingBranch} into it");
+
+        CheckoutSelectedBranchAction.doCheckout(project, indicator, movingBranch, gitRepository);
+        GitBrancher.getInstance(project)
+            .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
+      }
+
+    }.queue();
   }
+
 }

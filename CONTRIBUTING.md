@@ -64,7 +64,10 @@ Some hooks use `grep`. The Mac OS version of `grep` (FreeBSD) differs from GNU `
 In order to make `grep` and eventually the hooks working one must:
 1. Install `grep` via `brew` (it will not override system's `grep` - it can be executed as `ggrep`)
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/3.7/libexec/gnubin/grep`
-3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/3.7/libexec/gnubin` in that case)
+3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/3.7/libexec/gnubin` in that case).
+You may want to add the following `PATH="/opt/homebrew/Cellar/grep/3.7/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`)
+
+Also, some issues with `bash` itself has been reported. Make sure that the version you are using is 5.1 or later.
 
 ### (optional) Windows
 

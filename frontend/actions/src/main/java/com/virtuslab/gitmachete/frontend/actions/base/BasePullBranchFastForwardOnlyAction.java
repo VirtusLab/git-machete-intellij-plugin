@@ -85,17 +85,17 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
       }
       val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
 
-      val ffmProps = new MergeProps(
+      val mergeProps = new MergeProps(
           /* movingBranch */ localBranch,
           /* stayingBranch */ remoteBranch);
 
       Runnable fastForwardRunnable = () -> {};
       if (localBranchName.equals(currentBranchName)) {
         fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository,
-            ffmProps);
+            mergeProps);
       } else {
         fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardNonCurrentBranch(project,
-            gitRepository, ffmProps);
+            gitRepository, mergeProps);
       }
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {

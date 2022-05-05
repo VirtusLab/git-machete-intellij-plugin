@@ -75,31 +75,31 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     val nonRootStayingBranch = stayingBranch.asNonRoot();
-    val ffmProps = new MergeProps(
+    val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
     if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
-      doFastForwardCurrentBranch(project, gitRepository, ffmProps);
+      doFastForwardCurrentBranch(project, gitRepository, mergeProps);
     } else {
-      doFastForwardNonCurrentBranch(project, gitRepository, ffmProps);
+      doFastForwardNonCurrentBranch(project, gitRepository, mergeProps);
     }
   }
 
   public static void doFastForwardCurrentBranch(Project project,
       GitRepository gitRepository,
-      MergeProps ffmProps) {
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, ffmProps.getStayingBranch()).queue();
+      MergeProps mergeProps) {
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
   }
 
   public static void doFastForwardNonCurrentBranch(Project project,
       GitRepository gitRepository,
-      MergeProps ffmProps) {
-    val stayingFullName = ffmProps.getStayingBranch().getFullName();
-    val movingFullName = ffmProps.getMovingBranch().getFullName();
+      MergeProps mergeProps) {
+    val stayingFullName = mergeProps.getStayingBranch().getFullName();
+    val movingFullName = mergeProps.getMovingBranch().getFullName();
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
 
-    val stayingName = ffmProps.getStayingBranch().getName();
-    val movingName = ffmProps.getMovingBranch().getName();
+    val stayingName = mergeProps.getStayingBranch().getName();
+    val movingName = mergeProps.getMovingBranch().getName();
     new FetchBackgroundable(
         project,
         gitRepository,
