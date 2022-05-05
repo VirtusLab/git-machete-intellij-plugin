@@ -3,7 +3,7 @@
 ## Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
-You can also use `Ctrl + Alt + Shift + M` (`Ctrl + Option + Shift + M` on Mac OS) shortcut to open it.
+You can also use `Ctrl + Alt + Shift + M` (`Command + Option + Shift + M` on Mac OS) shortcut to open it.
 
 ![](open_git_machete.gif)
 

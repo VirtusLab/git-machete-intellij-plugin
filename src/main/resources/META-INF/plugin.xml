@@ -193,8 +193,6 @@
                  We can consider `VcsGroups` that seems to be more stable and place this action in VCS menu -->
             <add-to-group group-id="GitRepositoryActions" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
-            <keyboard-shortcut first-keystroke="control alt shift M" keymap="Mac OS X" replace-all="true"/>
-            <keyboard-shortcut first-keystroke="control alt shift M" keymap="Mac OS X 10.5+" replace-all="true"/>
         </action>
     </actions>
 
