@@ -1,5 +1,6 @@
 commonsIO()
 jcabiAspects()
+jgit()
 junit()
 lombok()
 powerMock()

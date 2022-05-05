@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.backend.impl.hooks;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +14,9 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.util.FS;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
@@ -30,8 +32,8 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
   // 2. this kind of caching is pretty useful wrt. performance.
   private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
 
-  private StatusBranchHookExecutor(File rootDirectory, File hookFile) {
-    super(rootDirectory, hookFile);
+  private StatusBranchHookExecutor(File rootDirectory, File mainGitDirectory, File hookFile) {
+    super(rootDirectory, mainGitDirectory, hookFile);
   }
 
   public static StatusBranchHookExecutor of(IGitCoreRepository gitCoreRepository) {
@@ -39,9 +41,10 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
 
     val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
+    val mainGitDirectory = gitCoreRepository.getMainGitDirectoryPath().toFile();
     val hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
 
-    return new StatusBranchHookExecutor(rootDirectory, hookFile);
+    return new StatusBranchHookExecutor(rootDirectory, mainGitDirectory, hookFile);
   }
 
   @Loggable(value = Loggable.DEBUG)
@@ -59,6 +62,25 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
     LOG.debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
         "for ${branchName} in cwd=${rootDirectory}");
+
+    val builderForMainGitDir = new FileRepositoryBuilder();
+    builderForMainGitDir.setWorkTree(this.rootDirectory);
+    builderForMainGitDir.setGitDir(this.mainGitDirectory);
+    Repository jgitRepoForMainGitDir = Try.of(() -> builderForMainGitDir.build()).getOrElseThrow(
+        e -> new GitMacheteException("Cannot create a repository object for " +
+            "rootDirectoryPath=${this.rootDirectory}, mainGitDirectoryPath=${this.mainGitDirectory}", e));
+
+    OutputStream outRedirect = new ByteArrayOutputStream();
+    OutputStream errRedirect = new ByteArrayOutputStream();
+
+    @SuppressWarnings("nullness:argument") val x = FS.DETECTED.runHookIfPresent(jgitRepoForMainGitDir, "machete-status-branch",
+        new String[]{branchName}, outRedirect,
+        errRedirect, null);
+
+    if (true) {
+      return Option.of("Test");
+    }
+
     ProcessBuilder pb = new ProcessBuilder();
     pb.command(hookFilePath, branchName);
     // According to machete-status-branch hook spec (`git machete help hooks`),
