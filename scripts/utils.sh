@@ -59,7 +59,7 @@ function parse_version() {
   local var_prefix=$1
   local version=$2
 
-  declare -g "$var_prefix"_version="$version"
+  eval ${var_prefix}_version=\"$version\"
   IFS=.- read -r ${var_prefix}_major ${var_prefix}_minor ${var_prefix}_patch <<< "$version"
 }
 
