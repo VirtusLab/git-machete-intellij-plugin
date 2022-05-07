@@ -35,9 +35,9 @@ public final class MacheteIcons {
 
   public static final Icon RESET = loadIcon("/reset.svg");
 
-  public static final Icon TEXT_FILE = loadIcon("/text.svg");
+  public static final Icon EDIT = loadIcon("/edit.svg");
 
-  public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/showHiddens.svg");
+  public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/toggleListingCommits.svg");
 
   public static final Icon SLIDE_IN = loadIcon("/slideIn.svg");
 

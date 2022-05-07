@@ -121,7 +121,7 @@
 
             <action id="GitMachete.OpenMacheteFileAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
-                    icon="MacheteIcons.TEXT_FILE">
+                    icon="MacheteIcons.EDIT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
