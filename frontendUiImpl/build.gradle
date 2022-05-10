@@ -5,7 +5,7 @@ vavr()
 dependencies {
   implementation project(':binding')
   implementation project(':branchLayoutApi')
-  implementation project(':backendApi')
+  implementation project(':backend:backendApi')
   implementation project(':frontendCompatibilityBridge')
   implementation project(':frontendDefs')
   implementation project(':frontendDataKeys')

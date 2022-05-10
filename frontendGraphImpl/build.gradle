@@ -5,7 +5,7 @@ vavr()
 dependencies {
   api project(':frontendGraphApi')
 
-  implementation project(':backendApi')
+  implementation project(':backend:backendApi')
   implementation project(':frontendDefs')
 }
 

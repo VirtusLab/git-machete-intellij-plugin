@@ -6,7 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 diff -u \
-  <(git ls-files */ | cut -d/ -f1 | uniq | grep -Exv '\..*|build|config|docs|gradle|.*\.hprof\..*|src|scripts') \
+  <(git ls-files --recurse-submodules */ | uniq | grep -E 'build.gradle'  | awk '$1=$1' FS="/" OFS=":" | awk '{gsub("build.gradle", "");print}' | sed 's/.$//' |  sed  's/gitCoreJGit/&\nqual/g') \
   <(grep -Po "(?<=include ').*(?=')" settings.gradle | sort) || {
     die 'Gradle subprojects listed in settings.gradle do not match the directories of the project (`+` => Gradle subproject non-existent or listed twice; `-` => superfluous directory)'
   }

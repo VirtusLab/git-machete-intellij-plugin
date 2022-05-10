@@ -3,7 +3,7 @@ vavr()
 
 dependencies {
   api project(':qual')
-  api project(':backendApi')
+  api project(':backend:backendApi')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: false)

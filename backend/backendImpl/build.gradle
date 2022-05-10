@@ -11,7 +11,7 @@ dependencies {
   implementation project(':binding')
   implementation project(':gitCoreApi')
 
-  api project(':backendApi')
+  api project(':backend:backendApi')
   api project(':branchLayoutApi')
 
   testImplementation project(':testCommon').sourceSets.test.output
