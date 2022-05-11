@@ -5,8 +5,8 @@ vavr()
 dependencies {
   implementation project(':binding')
 
-  api project(':branchLayoutApi')
-  api project(':frontendUiApi')
+  api project(':branchLayout:api')
+  api project(':frontend:ui:api')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

@@ -3,10 +3,10 @@ vavr()
 
 dependencies {
   api project(':qual')
-  implementation project(':frontendCompatibilityBridge')
-  implementation project(':frontendIcons')
-  implementation project(':frontendResourceBundles')
-  implementation project(':frontendVfsUtils')
+  implementation project(':frontend:compatibilityBridge')
+  implementation project(':frontend:icons')
+  implementation project(':frontend:resourceBundles')
+  implementation project(':frontend:vfsUtils')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

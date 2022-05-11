@@ -6,5 +6,5 @@ slf4jTestImpl()
 vavr()
 
 dependencies {
-  api project(':branchLayoutApi')
+  api project(':branchLayout:api')
 }

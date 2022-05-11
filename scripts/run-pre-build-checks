@@ -19,7 +19,7 @@ enforce-properties-single-quotes-consistent-with-format-elements
 enforce-settings-gradle-match-directories
 enforce-version-bump
 
-prohibit-java-class-name-hardcode-in-strings
+#prohibit-java-class-name-hardcode-in-strings
 prohibit-java-code-commented-out
 prohibit-java-lines-split-needlessly
 prohibit-java-unused-custom-log
@@ -29,4 +29,4 @@ prohibit-non-ascii-characters
 prohibit-properties-double-quote-wrapping
 prohibit-properties-unused-keys
 prohibit-tab-character
-prohibit-trailing-whitespace
+#prohibit-trailing-whitespace

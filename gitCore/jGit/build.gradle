@@ -4,7 +4,7 @@ slf4jLambdaApi()
 vavr()
 
 dependencies {
-  api project(':gitCoreApi')
+  api project(':gitCore:api')
 }
 
 applyAliasingChecker()

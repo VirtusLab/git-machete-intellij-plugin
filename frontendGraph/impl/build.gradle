@@ -3,10 +3,10 @@ slf4jLambdaApi()
 vavr()
 
 dependencies {
-  api project(':frontendGraphApi')
+  api project(':frontendGraph:api')
 
-  implementation project(':backend:backendApi')
-  implementation project(':frontendDefs')
+  implementation project(':backend:api')
+  implementation project(':frontend:defs')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: false)

@@ -4,21 +4,20 @@ vavr()
 
 dependencies {
   implementation project(':binding')
-  implementation project(':backend:api')
   implementation project(':branchLayout:api')
+  implementation project(':backend:api')
   implementation project(':frontend:compatibilityBridge')
-  implementation project(':frontend:resourceBundles')
   implementation project(':frontend:defs')
-  implementation project(':frontend:ui:api')
   implementation project(':frontend:dataKeys')
-  implementation project(':frontendFile')
+  implementation project(':frontendGraph:api')
   implementation project(':frontend:vfsUtils')
+  implementation project(':frontendFile')
   implementation project(':frontend:providerServices')
+  implementation project(':frontend:resourceBundles')
+
+  api project(':frontend:ui:api')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 applyI18nFormatterChecker()
 applySubtypingChecker()
-
-apply plugin: 'org.jetbrains.kotlin.jvm'
-applyKotlinConfig()

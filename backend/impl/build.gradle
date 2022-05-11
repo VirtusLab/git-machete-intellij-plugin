@@ -9,14 +9,14 @@ vavr()
 
 dependencies {
   implementation project(':binding')
-  implementation project(':gitCoreApi')
+  implementation project(':gitCore:api')
 
-  api project(':backend:backendApi')
-  api project(':branchLayoutApi')
+  api project(':backend:api')
+  api project(':branchLayout:api')
 
   testImplementation project(':testCommon').sourceSets.test.output
-  testRuntimeOnly project(':branchLayoutImpl')
-  testRuntimeOnly project(':gitCoreJGit')
+  testRuntimeOnly project(':branchLayout:impl')
+  testRuntimeOnly project(':gitCore:jGit')
 }
 
 applySubtypingChecker()

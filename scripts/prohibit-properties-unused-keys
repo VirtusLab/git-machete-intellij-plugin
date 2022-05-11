@@ -5,7 +5,7 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-bundle=frontendResourceBundles/src/main/resources/GitMacheteBundle.properties
+bundle=frontend/resourceBundles/src/main/resources/GitMacheteBundle.properties
 [[ -f $bundle ]] || die "Bundle file ($bundle) has been (re)moved"
 
 exit_code=0
