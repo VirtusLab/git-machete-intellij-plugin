@@ -11,7 +11,7 @@ dependencies {
   implementation project(':frontend:defs')
   implementation project(':frontend:ui:api')
   implementation project(':frontend:dataKeys')
-  implementation project(':frontendFile')
+  implementation project(':frontend:file')
   implementation project(':frontend:vfsUtils')
   implementation project(':frontend:providerServices')
 }

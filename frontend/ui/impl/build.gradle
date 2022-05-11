@@ -9,13 +9,13 @@ dependencies {
   implementation project(':frontend:compatibilityBridge')
   implementation project(':frontend:defs')
   implementation project(':frontend:dataKeys')
-  implementation project(':frontendGraph:api')
+  implementation project(':frontend:graph:api')
   implementation project(':frontend:vfsUtils')
-  implementation project(':frontendFile')
+  implementation project(':frontend:file')
   implementation project(':frontend:providerServices')
   implementation project(':frontend:resourceBundles')
 
-  api project(':frontend:ui:api')
+  implementation project(':frontend:ui:api')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)
