@@ -37,7 +37,7 @@ jobs:
           command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
-          # Given the RAM limits on CI (8GB), max-workers=4 is necessary to prevent OOMs.
+          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
           command: ./gradlew --max-workers=4 compileJava compileKotlin
       - run:
           name: Run post-compile checks
@@ -47,7 +47,7 @@ jobs:
           command: ./gradlew --warn checkstyleMain
       - run:
           name: Check Javadoc correctness
-          # Given the RAM limits on CI (8GB), max-workers=4 is necessary to prevent OOMs.
+          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
           command: ./gradlew --max-workers=4 javadoc
 
       - run:
