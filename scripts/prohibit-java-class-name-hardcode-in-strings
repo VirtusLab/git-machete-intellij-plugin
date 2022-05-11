@@ -8,6 +8,6 @@ source "$self_dir"/utils.sh
 class_names=$(git ls-files '*.java' | xargs basename -s .java | sort | tr '\n' '|' | sed 's/.$//')
 
 # Let's allow for class names preceded with `action.GitMachete.` (for property keys).
-if git grep -PHn '^[^"]*"[^"$]*(?<!(action|string)\.GitMachete\.)\b('"$class_names"')\b' -- '*.java' ':!frontendDefs' ':!frontendResourceBundles'; then
+if git grep -PHn '^[^"]*"[^"$]*(?<!(action|string)\.GitMachete\.)\b('"$class_names"')\b' -- '*.java' ':!frontend/defs' ':!frontend/resourceBundles'; then
   die 'Avoid hardcoding class names in string literals, use more refactor-friendly Class#getSimpleName() instead'
 fi
