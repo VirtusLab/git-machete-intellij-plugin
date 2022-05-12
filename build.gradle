@@ -146,6 +146,17 @@ allprojects {
     mavenCentral()
   }
 
+  def checkJavaVersion = { task ->
+    if(JavaVersion.current() != JavaVersion.VERSION_11){
+       throw new GradleException("Project must be build with version 11")
+    }
+  }
+
+  afterEvaluate {
+    for(def task in it.tasks.build)
+      task.dependsOn  checkJavaVersion
+  }
+
 
   apply plugin: 'org.gradle.java-library'
 
