@@ -146,9 +146,9 @@ allprojects {
     mavenCentral()
   }
 
-  def checkJavaVersion = { task ->
-    if(JavaVersion.current() != JavaVersion.VERSION_11){
-       throw new GradleException("Project must be build with version 11")
+  def checkJavaVersion = {
+    if(JavaVersion.current() != JavaVersion.VERSION_11) {
+       throw new GradleException("Project must be built with version 11")
     }
   }
 
