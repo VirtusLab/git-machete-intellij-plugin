@@ -6,15 +6,9 @@ dependencies {
   implementation project(':binding')
   implementation project(':branchLayout:api')
   implementation project(':backend:api')
-  implementation project(':frontend:compatibilityBridge')
-  implementation project(':frontend:defs')
-  implementation project(':frontend:dataKeys')
   implementation project(':frontend:graph:api')
-  implementation project(':frontend:vfsUtils')
   implementation project(':frontend:file')
-  implementation project(':frontend:providerServices')
-  implementation project(':frontend:resourceBundles')
-
+  implementation project(':frontend:base')
   implementation project(':frontend:ui:api')
 }
 

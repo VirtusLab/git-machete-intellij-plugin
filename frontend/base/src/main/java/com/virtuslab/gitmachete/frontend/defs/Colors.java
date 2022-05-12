@@ -17,7 +17,7 @@ public final class Colors {
   private static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, /* alpha */ 0);
 
   /**
-   * {@link com.intellij.ui.JBColor} are pairs of colors for light and dark IDE theme. LHS colors names are their
+   * {@link JBColor} are pairs of colors for light and dark IDE theme. LHS colors names are their
    * "general" description. They may differ from RHS (which are actual and specific colors).
    */
   public static final JBColor RED = new JBColor(RED_COLOR, RED_COLOR);

@@ -1,5 +1,6 @@
 lombok()
 slf4jLambdaApi()
+jetbrainsAnnotations()
 vavr()
 
 dependencies {
@@ -7,6 +8,8 @@ dependencies {
 
   api project(':branchLayout:api')
   api project(':frontend:ui:api')
+  api project(':qual')
+  api project(':backend:api')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: true)

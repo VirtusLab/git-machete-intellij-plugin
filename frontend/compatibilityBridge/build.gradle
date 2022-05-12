@@ -1,5 +1,0 @@
-addIntellijToCompileClasspath(withGit4Idea: true)
-
-dependencies {
-  api project(':qual')
-}

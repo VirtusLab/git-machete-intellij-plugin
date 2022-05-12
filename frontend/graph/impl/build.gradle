@@ -6,7 +6,7 @@ dependencies {
   api project(':frontend:graph:api')
 
   implementation project(':backend:api')
-  implementation project(':frontend:defs')
+  implementation project(':frontend:base')
 }
 
 addIntellijToCompileClasspath(withGit4Idea: false)
