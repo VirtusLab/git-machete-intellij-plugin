@@ -1,7 +1,12 @@
 vavr()
+slf4jLambdaApi()
+lombok()
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 
 dependencies {
+  implementation project(':binding')
+
+  api project(':branchLayout:api')
   api project(':backend:api')
 }

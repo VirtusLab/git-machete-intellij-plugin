@@ -1,13 +1,7 @@
-lombok()
-slf4jLambdaApi()
 jetbrainsAnnotations()
 vavr()
 
 dependencies {
-  implementation project(':binding')
-
-  api project(':branchLayout:api')
-  api project(':frontend:ui:api')
   api project(':qual')
   api project(':backend:api')
 }
