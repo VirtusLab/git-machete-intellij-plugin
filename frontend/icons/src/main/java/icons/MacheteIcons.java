@@ -13,6 +13,8 @@ public final class MacheteIcons {
 
   public static final Icon DISCOVER = loadIcon("/macheteLogoIcon.svg");
 
+  public static final Icon EDIT = loadIcon("/edit.svg");
+
   public static final Icon FAST_FORWARD = loadIcon("/applyNotConflictsLeft.svg");
 
   public static final Icon FETCH = loadIcon("/fetch.svg");
@@ -21,7 +23,7 @@ public final class MacheteIcons {
 
   public static final Icon MACHETE_FILE = loadIcon("/macheteLogoIcon.svg");
 
-  public static final Icon MACHETE_MERGE_PARENT = loadIcon("/merge.svg");
+  public static final Icon MERGE_PARENT = loadIcon("/merge.svg");
 
   public static final Icon OVERRIDE_FORK_POINT = loadIcon("/overrideForkPoint.svg");
 
@@ -35,13 +37,11 @@ public final class MacheteIcons {
 
   public static final Icon RESET = loadIcon("/reset.svg");
 
-  public static final Icon EDIT = loadIcon("/edit.svg");
-
-  public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/toggleListingCommits.svg");
-
   public static final Icon SLIDE_IN = loadIcon("/slideIn.svg");
 
   public static final Icon SLIDE_OUT = loadIcon("/slideOut.svg");
+
+  public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/toggleListingCommits.svg");
 
   private static Icon loadIcon(String path) {
     return IconLoader.getIcon(path, MacheteIcons.class);

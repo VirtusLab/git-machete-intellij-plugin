@@ -27,7 +27,7 @@ public class MergeParentIntoCurrentBranchAction extends BaseMergeParentIntoBranc
     val isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
-        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
+        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.OutOfSync)
         .getOrElse(false);
 
     presentation.setVisible(isInSyncToParent);
