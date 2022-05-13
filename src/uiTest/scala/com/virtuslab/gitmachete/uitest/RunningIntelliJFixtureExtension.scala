@@ -69,6 +69,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         Assert.assertEquals(hashB, hashA)
       }
 
+      def assertIsSyncToParentStatus(branchA: String, branchB: String, status: String): Unit = {
+        val bool = isInSyncToParentStatus(branchA, branchB, status)
+        Assert.assertTrue(bool)
+      }
+
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
         assertBranchesAreEqual(branch, s"origin/$branch")
       }
@@ -113,12 +118,26 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getHashOfCommitPointedByBranch('$branch')")
       }
 
+      def isInSyncToParentStatus(parent: String, child: String, status: String): Boolean = {
+        callJs(s"project.isInSyncToParentStatus('$parent', '$child', '$status')")
+      }
+
+      def mergeParentIntoSelectedBranchAction(branch: String): Unit = {
+        runJs(s"project.mergeParentIntoSelectedBranchAction('$branch')")
+        intelliJ.probe.await()
+      }
+
+      def mergeParentIntoCurrentBranchAction(): Unit = {
+        runJs(s"project.mergeParentIntoCurrentBranchAction()")
+        intelliJ.probe.await()
+      }
+
       def openGitMacheteTab(): Unit = {
         runJs("project.openGitMacheteTab()")
       }
 
-      def pullBranch(branch: String): Unit = {
-        runJs(s"project.pullBranch('$branch')")
+      def pullSelectedBranch(branch: String): Unit = {
+        runJs(s"project.pullSelectedBranch('$branch')")
         intelliJ.probe.await()
       }
 

@@ -171,7 +171,15 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.FastForwardMergeCurrentBranchToParentAction', ACTION_PLACE_TOOLBAR, {});
   };
 
-  this.pullBranch = function (branchName) {
+  this.mergeParentIntoSelectedBranchAction = function (branchName) {
+    invokeActionAndWait('GitMachete.MergeParentIntoSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.mergeParentIntoCurrentBranchAction = function () {
+    invokeActionAndWait('GitMachete.MergeParentIntoCurrentBranchAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.pullSelectedBranch = function (branchName) {
     invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
@@ -236,5 +244,16 @@ function Project(underlyingProject) {
     const hash = branchesCollection.getHash(branch);
     if (hash === null) return null;
     return hash.asString();
+  };
+
+  this.isInSyncToParentStatus = function (parent, child, status) {
+    const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
+    const syncToParentStatusClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.backend.api.SyncToParentStatus');
+    const valueOf = syncToParentStatusClass.getMethod('valueOf', java.lang.String);
+    const statusEnum = valueOf.invoke(/* (static method) */ null, status);
+
+    return snapshot.getManagedBranchByName(parent)
+      .flatMap(p => p.getChildren().find(c => c.getName().equals(child)))
+      .map(b => b.getSyncToParentStatus().equals(statusEnum)).getOrElse(false);
   };
 }

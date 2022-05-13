@@ -178,6 +178,20 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.assertNoUncommittedChanges()
   }
 
+  @Test def mergeParentIntoCurrentBranch(): Unit = {
+    intelliJ.project.openGitMacheteTab()
+    intelliJ.project.checkoutBranch("allow-ownership-link")
+    intelliJ.project.mergeParentIntoCurrentBranchAction()
+    intelliJ.project.assertIsSyncToParentStatus("develop", "allow-ownership-link", "InSync")
+  }
+
+  @Test def mergeParentIntoNonCurrentBranch(): Unit = {
+    intelliJ.project.openGitMacheteTab()
+    intelliJ.project.checkoutBranch("develop")
+    intelliJ.project.mergeParentIntoSelectedBranchAction("allow-ownership-link")
+    intelliJ.project.assertIsSyncToParentStatus("develop", "allow-ownership-link", "InSync")
+  }
+
   @Test def pullCurrentBranch(): Unit = {
     intelliJ.project.openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
@@ -191,7 +205,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def pullNonCurrentBranch(): Unit = {
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.checkoutBranch("develop")
-    intelliJ.project.pullBranch("allow-ownership-link")
+    intelliJ.project.pullSelectedBranch("allow-ownership-link")
     intelliJ.project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
     intelliJ.project.assertNoUncommittedChanges()
   }
