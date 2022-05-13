@@ -1,11 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
+import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIME_UNIT;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -21,7 +23,6 @@ import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -92,9 +93,10 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps);
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
-        IntelliJNotificationCompat.notifyInfo(project,
-            getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"),
-            "No new fetch has been performed since the latest fetch happened less than a minute ago");
+        VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null,
+            getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"), format(
+                getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.fetch-up-to-date"),
+                FETCH_ALL_UP_TO_DATE_TIME_UNIT));
         fastForwardRunnable.run();
       } else {
         updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
