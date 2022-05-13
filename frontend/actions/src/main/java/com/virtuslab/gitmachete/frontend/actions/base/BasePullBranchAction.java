@@ -21,6 +21,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
@@ -91,6 +92,9 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps);
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
+        IntelliJNotificationCompat.notifyInfo(project,
+            getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"),
+            "No new fetch has been performed since the latest fetch happened less than a minute ago");
         fastForwardRunnable.run();
       } else {
         updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
