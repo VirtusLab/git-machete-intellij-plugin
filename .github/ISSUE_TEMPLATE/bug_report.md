@@ -13,7 +13,7 @@ Please include steps to reproduce (like `go to...`/`click on...` etc.) + expecte
 For more non-trivial issues, we would also appreciate if you included the following details:
  - Git Machete plugin version
  - IDE type [e.g. IntelliJ, PyCharm]
- - IDE version [e.g. 2020.1.4]
+ - IDE version [e.g. 2020.3.4]
  - Operating system [e.g. Windows]
 
 Note that this information will be included automatically when reporting an error directly from IDE's error dialog.

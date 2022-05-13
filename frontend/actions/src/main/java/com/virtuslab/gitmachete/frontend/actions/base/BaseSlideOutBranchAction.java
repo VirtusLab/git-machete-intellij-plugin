@@ -15,6 +15,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
@@ -29,7 +30,6 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -111,7 +111,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
       slideOutBranch(anActionEvent, branchName);
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-      IntelliJNotificationCompat.notifySuccess(project,
+      VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           format(
               getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.of-current"),
@@ -154,7 +154,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           val title = getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled");
           val message = format(
               getString("action.GitMachete.BaseSlideOutBranchAction.notification.message.slide-out-info.canceled"), branchName);
-          IntelliJNotificationCompat.notifyInfo(project, title, message);
+          VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
         }
       }
     }.queue();
@@ -182,7 +182,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           format(getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-fail"), branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
@@ -194,14 +194,14 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     slideOutBranch(anActionEvent, branchName);
     if (shouldDelete) {
       GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
-      IntelliJNotificationCompat.notifySuccess(project,
+      VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           format(
               getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.with-delete"),
               branchName));
       return;
     } else {
-      IntelliJNotificationCompat.notifySuccess(project,
+      VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           format(
               getString(

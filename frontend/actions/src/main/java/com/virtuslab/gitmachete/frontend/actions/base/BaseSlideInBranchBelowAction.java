@@ -10,6 +10,7 @@ import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.Check
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
@@ -28,7 +29,6 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 
 @CustomLog
 public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
@@ -90,7 +90,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"), slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
@@ -106,7 +106,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       val branchName = branchNameAndPreSlideInRunnable._1();
       if (!slideInOptions.getName().equals(branchName)) {
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
-        IntelliJNotificationCompat.notifyWeakError(project,
+        VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names"),
                 slideInOptions.getName(), branchNameFromNewBranchDialog));
@@ -240,7 +240,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       val message = format(
           getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
           chosen._2().getName(), chosen._1().getName());
-      IntelliJNotificationCompat.notifyInfo(project, title, message);
+      VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
     }
     return chosen._2();
   }

@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -28,7 +29,6 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 
 @CustomLog
@@ -117,7 +117,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
     String exceptionMessage = cause.getMessage();
 
-    IntelliJNotificationCompat.notifyError(getProject(),
+    VcsNotifier.getInstance(getProject()).notifyError(/* displayId */ null,
         getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
         exceptionMessage != null ? exceptionMessage : "");
   }

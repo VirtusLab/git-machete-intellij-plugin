@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
-import static com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat.localChangesWouldBeOverwrittenHelper_showErrorNotification;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE;
@@ -42,13 +41,12 @@ import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
 import git4idea.util.GitUntrackedFilesHelper;
+import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -170,7 +168,8 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       }
 
     } else if (localChangesDetector.wasMessageDetected()) {
-      localChangesWouldBeOverwrittenHelper_showErrorNotification(project,
+      LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
+          /* displayId */ null,
           gitRepository.getRoot(),
           getOperationName(),
           localChangesDetector.getRelativeFilePaths());
@@ -183,27 +182,12 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           /* description */ null);
 
     } else {
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(
+          /* displayId */ null,
           format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
               getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();
-    }
-  }
-
-  // TODO (#496): replace with a non-reflective constructor call
-  @SneakyThrows
-  @UIThreadUnsafe
-  private static MergeChangeCollector createMergeChangeCollector(
-      Project project, GitRepository repository, GitRevisionNumber start) {
-    try {
-      // Proper solution for 2020.2+
-      val constructor = MergeChangeCollector.class.getConstructor(Project.class, GitRepository.class, GitRevisionNumber.class);
-      return constructor.newInstance(project, repository, start);
-    } catch (NoSuchMethodException e) {
-      // Fallback for 2020.1
-      val constructor = MergeChangeCollector.class.getConstructor(Project.class, VirtualFile.class, GitRevisionNumber.class);
-      return constructor.newInstance(project, repository.getRoot(), start);
     }
   }
 
@@ -212,7 +196,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
-      val collector = createMergeChangeCollector(project, gitRepository, currentRev);
+      val collector = new MergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
       UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {

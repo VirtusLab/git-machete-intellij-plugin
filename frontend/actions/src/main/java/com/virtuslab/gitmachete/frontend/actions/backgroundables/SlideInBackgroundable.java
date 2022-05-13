@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -22,7 +23,6 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class SlideInBackgroundable extends Task.Backgroundable {
@@ -103,7 +103,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     final IBranchLayout finalNewBranchLayout = newBranchLayout;
     Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
-        .onFailure(t -> IntelliJNotificationCompat.notifyError(project,
+        .onFailure(t -> VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             /* title */ getString(
                 "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
             getMessageOrEmpty(t)));
@@ -125,14 +125,14 @@ public class SlideInBackgroundable extends Task.Backgroundable {
         SLEEP_DURATION *= 2;
       }
     } catch (InterruptedException e) {
-      IntelliJNotificationCompat.notifyWeakError(project,
+      VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
           format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted"),
               slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
-      IntelliJNotificationCompat.notifyWeakError(project,
+      VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
           format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
               slideInOptions.getName()));
@@ -140,7 +140,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
   }
 
   private void notifyError(@Nullable String message, Throwable throwable) {
-    IntelliJNotificationCompat.notifyError(project,
+    VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
             slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));

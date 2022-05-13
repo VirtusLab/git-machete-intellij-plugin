@@ -63,11 +63,7 @@ object UITestSuite
       |  }
       |
       |  resolvers.jbr.repositories = [
-      |    official,
-      |
-      |    # Let's fall back to 2020.2's JBR for 2020.1's builds.
-      |    # The original 2020.1's JBR (11_0_7-linux-x64-b765.65) is no longer available since around Nov 2021.
-      |    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-11_0_9-linux-x64-b944.49.tar.gz"
+      |    official
       |  ]
       |}
       |""".stripMargin)

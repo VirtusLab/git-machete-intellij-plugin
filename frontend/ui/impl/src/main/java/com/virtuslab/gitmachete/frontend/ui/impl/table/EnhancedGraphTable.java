@@ -66,7 +66,6 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
@@ -225,7 +224,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
     if (duplicatedBranchNames.nonEmpty()) {
       // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
-      IntelliJNotificationCompat.notifyWarning(project,
+      VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null,
           getString("string.GitMachete.EnhancedGraphTable.duplicated-branches-text"),
           String.join(", ", duplicatedBranchNames));
     }
@@ -270,7 +269,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       String errorMessage = "Error occurred while sliding out skipped branches" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
           exceptionMessage == null ? "" : exceptionMessage);
     }

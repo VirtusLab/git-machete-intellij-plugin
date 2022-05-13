@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -18,7 +19,6 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
@@ -51,10 +51,12 @@ public class GitMacheteRepositoryDiscoverer {
 
         if (discoverRunResult.isFailure()) {
           val exception = discoverRunResult.getCause();
-          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> IntelliJNotificationCompat.notifyError(project,
-              getString(
-                  "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-              exception.getMessage() != null ? exception.getMessage() : ""));
+          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+              .notifyError(
+                  /* displayId */ null,
+                  getString(
+                      "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
+                  exception.getMessage() != null ? exception.getMessage() : ""));
           return;
         }
 
@@ -72,10 +74,12 @@ public class GitMacheteRepositoryDiscoverer {
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
           onSuccessRepositoryConsumer.accept(repositorySnapshot);
         } catch (BranchLayoutException exception) {
-          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> IntelliJNotificationCompat.notifyError(project,
-              getString(
-                  "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-              exception.getMessage() != null ? exception.getMessage() : ""));
+          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+              .notifyError(
+                  /* displayId */ null,
+                  getString(
+                      "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
+                  exception.getMessage() != null ? exception.getMessage() : ""));
         }
       }
     }.queue();

@@ -15,9 +15,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersion;
-import git4idea.rebase.GitRebaseEditorHandler;
+import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFreezingProcess;
@@ -35,7 +36,6 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -171,7 +171,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       // TODO (#172): redirect the user to the manual fork-point
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-fail"), message);
       return;
     }
@@ -200,7 +200,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         if (hookResult.isFailure()) {
           val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
-          IntelliJNotificationCompat.notifyError(project,
+          VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"),
               message);
           return;
@@ -213,7 +213,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           val executionResult = maybeExecutionResult.get();
           val stdoutOption = executionResult.getStdout();
           val stderrOption = executionResult.getStderr();
-          IntelliJNotificationCompat.notifyError(project,
+          VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"), message
                   + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
                   + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));
@@ -258,24 +258,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
     String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
-    // TODO (#743): replace with a non-reflective constructor call
-    try {
-      // Proper solution for 2020.3+
-      val constructor = GitRebaseParams.class.getConstructor(GitVersion.class, String.class, String.class, String.class,
-          java.util.Set.class, GitRebaseParams.AutoSquashOption.class, GitRebaseEditorHandler.class);
-
-      val gitRebaseOptionValueOf = Class.forName("git4idea.rebase.GitRebaseOption").getMethod("valueOf", String.class);
-      val INTERACTIVE = gitRebaseOptionValueOf.invoke(null, "INTERACTIVE");
-      val KEEP_EMPTY = gitRebaseOptionValueOf.invoke(null, "KEEP_EMPTY");
-
-      val options = kotlin.collections.SetsKt.hashSetOf(INTERACTIVE, KEEP_EMPTY);
-      return constructor.newInstance(gitVersion, currentBranchName, newBaseBranchFullName,
-          /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
-          /* editorHandler */ null);
-    } catch (ReflectiveOperationException e) {
-      // Fallback for 2020.1 and 2020.2
-      return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName, /* upstream */ forkPointCommitHash,
-          /* interactive */ true, /* preserveMerges */ false);
-    }
+    val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE, GitRebaseOption.KEEP_EMPTY);
+    return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
+        /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
+        /* editorHandler */ null);
   }
 }

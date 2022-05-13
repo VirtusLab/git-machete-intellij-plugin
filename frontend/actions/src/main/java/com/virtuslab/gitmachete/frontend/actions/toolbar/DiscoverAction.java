@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
@@ -29,7 +30,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
-import com.virtuslab.gitmachete.frontend.compat.IntelliJNotificationCompat;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -50,7 +50,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
     val gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
     if (gitRepository == null) {
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(
+          /* displayId */ null,
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.cannot-get-current-repository-error"),
           /* message */ "");
       return;
@@ -69,7 +70,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot())
         .onFailure(e -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
-            () -> IntelliJNotificationCompat.notifyError(project,
+            () -> VcsNotifier.getInstance(project).notifyError(
+                /* displayId */ null,
                 /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
                 /* message */ e.getMessage() != null ? e.getMessage() : "")))
         .onSuccess(repoSnapshot -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
@@ -104,7 +106,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
     if (file.isDefined()) {
       OpenFileAction.openFile(file.get(), project);
     } else {
-      IntelliJNotificationCompat.notifyError(project,
+      VcsNotifier.getInstance(project).notifyError(
+          /* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ format(
               getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
@@ -134,7 +137,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @Override
       @UIEffect
       public void onThrowable(Throwable e) {
-        IntelliJNotificationCompat.notifyError(project,
+        VcsNotifier.getInstance(project).notifyError(
+            /* displayId */ null,
             /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
             /* message */ e.getMessage() != null ? e.getMessage() : "");
       }
