@@ -138,6 +138,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     return OngoingRepositoryOperation.NO_OPERATION;
   }
 
+  @Override
+  public Option<String> getRebaseBranchName() {
+    return Option.none();
+  }
+
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {
 

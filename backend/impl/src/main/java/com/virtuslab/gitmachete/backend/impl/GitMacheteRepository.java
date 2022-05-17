@@ -307,7 +307,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException {
+    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException, GitCoreException {
       val rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       val rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
       val rootBranches = rootBranchCreationResults.flatMap(creationResult -> creationResult.getCreatedBranches());
@@ -341,7 +341,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           Case($(), OngoingRepositoryOperation.NO_OPERATION));
 
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
-          managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor, ongoingOperation);
+          managedBranchByName, duplicatedBranchNames, skippedBranchNames, gitCoreRepository.deriveRebaseBranch(),
+          preRebaseHookExecutor,
+          ongoingOperation);
     }
 
     @UIThreadUnsafe
@@ -875,7 +877,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     @UIThreadUnsafe
     IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot(int mostRecentlyCheckedOutBranchesCount)
-        throws GitCoreException, GitMacheteException {
+        throws GitMacheteException, GitCoreException {
 
       List<String> localBranchNames = localBranches.map(lb -> lb.getName());
       List<String> fixedRootBranchNames = List.empty();
@@ -982,7 +984,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           parentEntry.removeChild(branchEntry);
         }
       }
-
       return createSnapshot(new BranchLayout(List.narrow(roots)));
     }
 

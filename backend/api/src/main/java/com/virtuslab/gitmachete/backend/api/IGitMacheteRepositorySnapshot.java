@@ -30,4 +30,6 @@ public interface IGitMacheteRepositorySnapshot {
       throws GitMacheteException;
 
   OngoingRepositoryOperation getOngoingRepositoryOperation();
+
+  Option<String> getRebaseBranchName();
 }

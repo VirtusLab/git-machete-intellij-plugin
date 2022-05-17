@@ -61,4 +61,9 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   public OngoingRepositoryOperation getOngoingRepositoryOperation() {
     return OngoingRepositoryOperation.NO_OPERATION;
   }
+
+  @Override
+  public Option<String> getRebaseBranchName() {
+    return Option.none();
+  }
 }

@@ -311,6 +311,18 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return List.ofAll(jgitRepoForMainGitDir.getRemoteNames());
   }
 
+  @Override
+  public Option<String> deriveRebaseBranch() throws GitCoreException {
+    Path pathToRebasingBranchName = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("rebase-merge")
+        .resolve("head-name");
+    return pathToRebasingBranchName.toFile().isFile()
+        ? Try.of(() -> Stream.ofAll(Files.readAllLines(pathToRebasingBranchName)))
+            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current rebasing branch name", e))
+            .headOption()
+            .map(Repository::shortenRefName)
+        : Option.none();
+  }
+
   private Option<GitCoreRemoteBranchSnapshot> deriveRemoteBranchForLocalBranch(String localBranchName) {
     return deriveConfiguredRemoteBranchForLocalBranch(localBranchName)
         .orElse(() -> Try.of(() -> deriveInferredRemoteBranchForLocalBranch(localBranchName)).getOrElse(Option.none()));

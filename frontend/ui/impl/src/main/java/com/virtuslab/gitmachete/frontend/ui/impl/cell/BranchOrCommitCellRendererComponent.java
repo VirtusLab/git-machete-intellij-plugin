@@ -33,6 +33,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -128,27 +129,32 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     int textPadding = calculateTextPadding(graphTable, maxGraphNodePositionInRow);
     appendTextPadding(textPadding);
 
-    if (graphItem.isBranchItem() && graphItem.asBranchItem().isCurrentBranch()) {
-      if (gitMacheteRepositorySnapshot != null) {
-        val ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
-        if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
-          val ongoingOperationName = Match(ongoingRepositoryOperation).of(
-              Case($(OngoingRepositoryOperation.CHERRY_PICKING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
-              Case($(OngoingRepositoryOperation.MERGING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging")),
-              Case($(OngoingRepositoryOperation.REBASING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing")),
-              Case($(OngoingRepositoryOperation.REVERTING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting")),
-              Case($(OngoingRepositoryOperation.APPLYING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying")),
-              Case($(OngoingRepositoryOperation.BISECTING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
-              Case($(), ""));
+    if (gitMacheteRepositorySnapshot != null && graphItem.isBranchItem()) {
+      val ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
+      if ((ongoingRepositoryOperation == OngoingRepositoryOperation.REBASING)
+          && !gitMacheteRepositorySnapshot.getRebaseBranchName().isEmpty()) {
+        String rebasingBranchName = gitMacheteRepositorySnapshot.getRebaseBranchName().get();
+        if (Objects.equals(rebasingBranchName, graphItem.getValue())) {
           SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
-          append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
+          append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing")
+              + CELL_TEXT_FRAGMENTS_SPACING, attributes);
         }
+      } else if (graphItem.asBranchItem().isCurrentBranch()
+          && ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
+        val ongoingOperationName = Match(ongoingRepositoryOperation).of(
+            Case($(OngoingRepositoryOperation.CHERRY_PICKING),
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
+            Case($(OngoingRepositoryOperation.MERGING),
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging")),
+            Case($(OngoingRepositoryOperation.REVERTING),
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting")),
+            Case($(OngoingRepositoryOperation.APPLYING),
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying")),
+            Case($(OngoingRepositoryOperation.BISECTING),
+                getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
+            Case($(), ""));
+        SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
+        append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
       }
     }
 

@@ -40,6 +40,9 @@ public interface IGitCoreRepository {
   List<String> deriveAllRemoteNames();
 
   @UIThreadUnsafe
+  Option<String> deriveRebaseBranch() throws GitCoreException;
+
+  @UIThreadUnsafe
   boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
   @UIThreadUnsafe
