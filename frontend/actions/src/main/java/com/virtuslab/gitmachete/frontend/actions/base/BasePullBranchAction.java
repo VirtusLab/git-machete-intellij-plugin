@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIME_UNIT;
+import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -94,9 +94,9 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
         VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null,
-            getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"), format(
-                getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.fetch-up-to-date"),
-                FETCH_ALL_UP_TO_DATE_TIME_UNIT));
+            getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title"),
+            format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.fetch-up-to-date"),
+                FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING));
         fastForwardRunnable.run();
       } else {
         updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);

@@ -6,7 +6,7 @@ public final class FetchUpToDateTimeoutStatus {
   private FetchUpToDateTimeoutStatus() {}
 
   public static final long FETCH_ALL_UP_TO_DATE_TIMEOUT_MILLIS = 60 * 1000;
-  public static final String FETCH_ALL_UP_TO_DATE_TIME_UNIT = "a minute";
+  public static final String FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING = "a minute";
 
   @SuppressWarnings("ConstantName")
   private static final java.util.concurrent.ConcurrentMap<String, Long> lastFetchTimeMillisByRepositoryName = new java.util.concurrent.ConcurrentHashMap<>();
