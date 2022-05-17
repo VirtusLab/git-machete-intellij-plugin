@@ -246,11 +246,10 @@ function Project(underlyingProject) {
     return hash.asString();
   };
 
-  this.getSyncToParentStatus = function (parent, child, status) {
+  this.getSyncToParentStatus = function (child) {
     const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
-
-    return snapshot.getManagedBranchByName(parent)
-      .flatMap(p => p.getChildren().find(c => c.getName().equals(child)))
-      .map(b => b.getSyncToParentStatus().name()).getOrElse('');
+    return snapshot.getManagedBranchByName(child)
+      .map(p => p.asNonRoot().getSyncToParentStatus().name())
+      .getOrElse('');
   };
 }

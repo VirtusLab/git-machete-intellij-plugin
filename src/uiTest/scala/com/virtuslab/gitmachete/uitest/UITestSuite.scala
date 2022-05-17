@@ -179,17 +179,17 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.assertNoUncommittedChanges()
   }
 
-  @Test def mergeParentIntoCurrentBranch(): Unit = {
+  @Test def mergeParentIntoBranch(): Unit = {
 
     // mergeParentIntoCurrentBranch
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.checkoutBranch("allow-ownership-link")
     intelliJ.project.mergeParentIntoCurrentBranchAction()
-    intelliJ.project.assertSyncToParentStatus("develop", "allow-ownership-link", "InSync")
+    intelliJ.project.assertSyncToParentStatus("allow-ownership-link", "InSync")
 
     // mergeParentIntoNonCurrentBranch
     intelliJ.project.mergeParentIntoSelectedBranchAction("build-chain")
-    intelliJ.project.assertSyncToParentStatus("allow-ownership-link", "build-chain", "InSync")
+    intelliJ.project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
   @Test def pullCurrentBranch(): Unit = {
