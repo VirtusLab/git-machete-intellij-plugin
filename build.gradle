@@ -127,7 +127,13 @@ List<String> resolveIntelliJVersions(String versionKey) {
   return [versionValue]
 }
 
-String checkForNewEap (String intellijMajorVersion) {
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Document
+
+String checkForNewerEap(String intellijMajorVersion) {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
   Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/'+intellijMajorVersion+'.][href$="-EAP-SNAPSHOT.pom"]')[0]
   if (link) {
@@ -136,39 +142,28 @@ String checkForNewEap (String intellijMajorVersion) {
     Matcher matcher = pattern.matcher(attr)
     matcher.find()
     return matcher.group(1)
+  } else {
+    return null
   }
+}
+
+String newEapVersion() {
+  char[] latestStable = project.intellijVersions.latestStable.toCharArray()
+  return Character.getNumericValue(latestStable[5]) == 3 ? Character.toString(latestStable[2]) + Character.toString(latestStable[3] + 1) + "1":
+                Character.toString(latestStable[2]) + Character.toString(latestStable[3]) + Character.toString(latestStable[5]+1)
 }
 
 task updateEapOfLatestSupportedMajor {
   Properties properties = intellijVersionsProperties()
   File propFile = intellijVersionsFile()
   String latestEap = project.intellijVersions.eapOfLatestSupportedMajor
-  char[] latestStable = project.intellijVersions.latestStable.toCharArray()
-  String newerVersion = latestEap ? project.checkForNewEap(latestEap.split("\\.")[0]) :
-            project.checkForNewEap(Character.toString(latestStable[2]) + Character.toString(latestStable[3]) + Character.toString(latestStable[5]+1))
+  String newerVersion = latestEap ? project.checkForNewerEap(latestEap.split("\\.")[0]) :
+            project.checkForNewerEap(project.newEapVersion())
   if (newerVersion && latestEap != newerVersion) {
     properties.setProperty("eapOfLatestSupportedMajor", newerVersion)
     properties.store(propFile.newWriter(), /*comments*/ null)
   }
 }
-
-class ResolveIntelliJVersions extends DefaultTask {
-  @Input
-  @Option(option = 'version-key', description = 'Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)')
-  String versionKey
-
-  @OptionValues('version-key')
-  List<String> getAvailableVersionKeys() {
-    return new ArrayList<>(project.intellijVersions.keySet())
-  }
-
-  @TaskAction
-  void print() {
-    println(String.join("\n", project.resolveIntelliJVersions(versionKey)))
-  }
-}
-
-tasks.register('resolveIntelliJVersions', ResolveIntelliJVersions)
 
 dependencyUpdates {
   def isStableVersion = { String version ->
@@ -185,12 +180,6 @@ dependencyUpdates {
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.Document
 
 allprojects {
   repositories {
