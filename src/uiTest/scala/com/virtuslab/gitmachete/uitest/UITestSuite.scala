@@ -161,6 +161,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(0, branchRowsCount)
   }
 
+  // TODO (#843): merge current/non-current branch ui test cases (for the other actions too!)
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.checkoutBranch("master")
@@ -179,17 +180,16 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def mergeParentIntoCurrentBranch(): Unit = {
+
+    // mergeParentIntoCurrentBranch
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.checkoutBranch("allow-ownership-link")
     intelliJ.project.mergeParentIntoCurrentBranchAction()
-    intelliJ.project.assertIsSyncToParentStatus("develop", "allow-ownership-link", "InSync")
-  }
+    intelliJ.project.assertSyncToParentStatus("develop", "allow-ownership-link", "InSync")
 
-  @Test def mergeParentIntoNonCurrentBranch(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("develop")
-    intelliJ.project.mergeParentIntoSelectedBranchAction("allow-ownership-link")
-    intelliJ.project.assertIsSyncToParentStatus("develop", "allow-ownership-link", "InSync")
+    // mergeParentIntoNonCurrentBranch
+    intelliJ.project.mergeParentIntoSelectedBranchAction("build-chain")
+    intelliJ.project.assertSyncToParentStatus("allow-ownership-link", "build-chain", "InSync")
   }
 
   @Test def pullCurrentBranch(): Unit = {

@@ -246,14 +246,11 @@ function Project(underlyingProject) {
     return hash.asString();
   };
 
-  this.isInSyncToParentStatus = function (parent, child, status) {
+  this.getSyncToParentStatus = function (parent, child, status) {
     const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
-    const syncToParentStatusClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.backend.api.SyncToParentStatus');
-    const valueOf = syncToParentStatusClass.getMethod('valueOf', java.lang.String);
-    const statusEnum = valueOf.invoke(/* (static method) */ null, status);
 
     return snapshot.getManagedBranchByName(parent)
       .flatMap(p => p.getChildren().find(c => c.getName().equals(child)))
-      .map(b => b.getSyncToParentStatus().equals(statusEnum)).getOrElse(false);
+      .map(b => b.getSyncToParentStatus().name()).getOrElse('');
   };
 }

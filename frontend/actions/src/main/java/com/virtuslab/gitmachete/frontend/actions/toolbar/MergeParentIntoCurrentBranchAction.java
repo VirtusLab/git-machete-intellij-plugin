@@ -24,12 +24,12 @@ public class MergeParentIntoCurrentBranchAction extends BaseMergeParentIntoBranc
       return;
     }
 
-    val isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
+    val isOutOfSyncWithParent = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
         .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.OutOfSync)
         .getOrElse(false);
 
-    presentation.setVisible(isInSyncToParent);
+    presentation.setVisible(isOutOfSyncWithParent);
   }
 }

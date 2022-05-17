@@ -69,9 +69,9 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         Assert.assertEquals(hashB, hashA)
       }
 
-      def assertIsSyncToParentStatus(branchA: String, branchB: String, status: String): Unit = {
-        val bool = isInSyncToParentStatus(branchA, branchB, status)
-        Assert.assertTrue(bool)
+      def assertSyncToParentStatus(branchA: String, branchB: String, status: String): Unit = {
+        val actual = getSyncToParentStatus(branchA, branchB)
+        Assert.assertEquals(actual, status)
       }
 
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
@@ -118,8 +118,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getHashOfCommitPointedByBranch('$branch')")
       }
 
-      def isInSyncToParentStatus(parent: String, child: String, status: String): Boolean = {
-        callJs(s"project.isInSyncToParentStatus('$parent', '$child', '$status')")
+      def getSyncToParentStatus(parent: String, child: String): String = {
+        callJs(s"project.getSyncToParentStatus('$parent', '$child')")
       }
 
       def mergeParentIntoSelectedBranchAction(branch: String): Unit = {

@@ -43,6 +43,12 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.MergeParentIntoSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.MergeParentIntoSelectedBranchAction"
+                    icon="MacheteIcons.MERGE_PARENT">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.OverrideForkPointOfSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedBranchAction"
                     icon="MacheteIcons.OVERRIDE_FORK_POINT">
@@ -70,12 +76,6 @@
             <action id="GitMachete.FastForwardMergeSelectedBranchToParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardMergeSelectedBranchToParentAction"
                     icon="MacheteIcons.FAST_FORWARD">
-                <override-text place="GitMacheteContextMenu"/>
-            </action>
-
-            <action id="GitMachete.MergeParentIntoSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.MergeParentIntoSelectedBranchAction"
-                    icon="MacheteIcons.MERGE_PARENT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
@@ -159,15 +159,15 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.FastForwardMergeCurrentBranchToParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardMergeCurrentBranchToParentAction"
-                    icon="MacheteIcons.FAST_FORWARD">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
             <action id="GitMachete.MergeParentIntoCurrentBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.MergeParentIntoCurrentBranchAction"
                     icon="MacheteIcons.MERGE_PARENT">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
+            <action id="GitMachete.FastForwardMergeCurrentBranchToParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardMergeCurrentBranchToParentAction"
+                    icon="MacheteIcons.FAST_FORWARD">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 

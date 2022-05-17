@@ -15,7 +15,7 @@ public final class MacheteIcons {
 
   public static final Icon EDIT = loadIcon("/edit.svg");
 
-  public static final Icon FAST_FORWARD = loadIcon("/applyNotConflictsLeft.svg");
+  public static final Icon FAST_FORWARD = loadIcon("/fastForward.svg");
 
   public static final Icon FETCH = loadIcon("/fetch.svg");
 
@@ -31,7 +31,7 @@ public final class MacheteIcons {
 
   public static final Icon PUSH = loadIcon("/push.svg");
 
-  public static final Icon REBASE = loadIcon("/menuCut.svg");
+  public static final Icon REBASE = loadIcon("/rebase.svg");
 
   public static final Icon REFRESH_STATUS = loadIcon("/refresh.svg");
 
@@ -44,6 +44,7 @@ public final class MacheteIcons {
   public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/toggleListingCommits.svg");
 
   private static Icon loadIcon(String path) {
+    // TODO (#842): check if file is present
     return IconLoader.getIcon(path, MacheteIcons.class);
   }
 }
