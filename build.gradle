@@ -45,7 +45,7 @@ ext {
   slf4jVersion = '1.7.36'
   vavrVersion = '0.10.4'
 
-  intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/"
+  intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/snapshots/"
 
   Properties intellijVersionsProp = intellijVersionsProperties()
 
@@ -128,8 +128,8 @@ List<String> resolveIntelliJVersions(String versionKey) {
 }
 
 String checkForNewEap (String intellijMajorVersion) {
-  Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl+"snapshots/").get()
-  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'snapshots/com/jetbrains/intellij/idea/ideaIC/'+intellijMajorVersion+'.][href$="-EAP-SNAPSHOT.pom"]')[0]
+  Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
+  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/'+intellijMajorVersion+'.][href$="-EAP-SNAPSHOT.pom"]')[0]
   if (link) {
     String attr = link.attr("href")
     Pattern pattern = Pattern.compile("ideaIC-(.*?).pom")
@@ -142,8 +142,8 @@ String checkForNewEap (String intellijMajorVersion) {
 task updateEapOfLatestSupportedMajor {
   Properties properties = intellijVersionsProperties()
   File propFile = intellijVersionsFile()
-  String latestEap = properties.getProperty("eapOfLatestSupportedMajor")
-  char[] latestStable = properties.getProperty("latestStable").toCharArray()
+  String latestEap = project.intellijVersions.eapOfLatestSupportedMajor
+  char[] latestStable = project.intellijVersions.latestStable.toCharArray()
   String newerVersion = latestEap ? project.checkForNewEap(latestEap.split("\\.")[0]) :
             project.checkForNewEap(Character.toString(latestStable[2]) + Character.toString(latestStable[3]) + Character.toString(latestStable[5]+1))
   if (newerVersion && latestEap != newerVersion) {
