@@ -1,3 +1,9 @@
+buildscript {
+  dependencies {
+    classpath group: 'org.jsoup', name: 'jsoup', version: '1.15.1'
+  }
+}
+
 plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
@@ -39,6 +45,8 @@ ext {
   slf4jVersion = '1.7.36'
   vavrVersion = '0.10.4'
 
+  intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/"
+
   Properties intellijVersionsProp = intellijVersionsProperties()
 
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
@@ -75,13 +83,13 @@ ext {
   shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
-Properties intellijVersionsProperties(){
+Properties intellijVersionsProperties() {
   Properties properties = new Properties()
   properties.load(intellijVersionsFile().newDataInputStream())
   return properties
 }
 
-File intellijVersionsFile(){
+File intellijVersionsFile() {
   return file("intellijVersions.properties")
 }
 
@@ -110,7 +118,7 @@ List<String> resolveIntelliJVersions(String versionKey) {
   }
 
   def versionValue = project.intellijVersions.get(versionKey)
-  if (versionValue == null || !versionValue) {
+  if (!versionValue) {
     return []
   }
   if (versionValue instanceof List) {
@@ -119,26 +127,28 @@ List<String> resolveIntelliJVersions(String versionKey) {
   return [versionValue]
 }
 
-String checkForNewEap (String gradleMajor){
-  Document htmlContent = Jsoup.connect("https://www.jetbrains.com/intellij-repository/snapshots/").get()
-  String link = htmlContent.select('a[href^=\"https://www.jetbrains.com/intellij-repository/snapshots/com/jetbrains/intellij/idea/ideaIC/'+gradleMajor+'.\"][href$="-EAP-SNAPSHOT.pom"]')[0].attr("href")
-  Pattern pattern = Pattern.compile("ideaIC-(.*?).pom")
-  Matcher matcher = pattern.matcher(link)
-  matcher.find()
-  return matcher.group(1)
+String checkForNewEap (String intellijMajorVersion) {
+  Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl+"snapshots/").get()
+  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'snapshots/com/jetbrains/intellij/idea/ideaIC/'+intellijMajorVersion+'.][href$="-EAP-SNAPSHOT.pom"]')[0]
+  if (link) {
+    String attr = link.attr("href")
+    Pattern pattern = Pattern.compile("ideaIC-(.*?).pom")
+    Matcher matcher = pattern.matcher(attr)
+    matcher.find()
+    return matcher.group(1)
+  }
 }
 
 task updateEapOfLatestSupportedMajor {
   Properties properties = intellijVersionsProperties()
   File propFile = intellijVersionsFile()
-  properties.load(propFile.newDataInputStream())
-  String latest = properties.getProperty("eapOfLatestSupportedMajor")
-  if (latest){
-    String newerVersion = project.checkForNewEap(latest.split("\\.")[0])
-    if(!newerVersion.equals(latest)){
-      properties.setProperty("eapOfLatestSupportedMajor", newerVersion)
-      properties.store(propFile.newWriter(), null)
-    }
+  String latestEap = properties.getProperty("eapOfLatestSupportedMajor")
+  char[] latestStable = properties.getProperty("latestStable").toCharArray()
+  String newerVersion = latestEap ? project.checkForNewEap(latestEap.split("\\.")[0]) :
+            project.checkForNewEap(Character.toString(latestStable[2]) + Character.toString(latestStable[3]) + Character.toString(latestStable[5]+1))
+  if (newerVersion && latestEap != newerVersion) {
+    properties.setProperty("eapOfLatestSupportedMajor", newerVersion)
+    properties.store(propFile.newWriter(), /*comments*/ null)
   }
 }
 
@@ -179,6 +189,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import org.jsoup.nodes.Document
 
 allprojects {
