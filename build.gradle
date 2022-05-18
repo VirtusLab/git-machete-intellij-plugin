@@ -135,22 +135,22 @@ import org.jsoup.nodes.Document
 
 String checkForNewerEap(String intellijMajorVersion) {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
-  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/'+intellijMajorVersion+'.][href$="-EAP-SNAPSHOT.pom"]')[0]
-  if (link) {
+  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')[0]
+  if (link){
     String attr = link.attr("href")
     Pattern pattern = Pattern.compile("ideaIC-(.*?).pom")
     Matcher matcher = pattern.matcher(attr)
     matcher.find()
-    return matcher.group(1)
-  } else {
-    return null
+    String foundVersion = matcher.group(1)
+    if (!intellijMajorVersion){
+      if (Integer.parseInt(foundVersion.substring(0,3)) > Integer.parseInt(intellijVersionToBuildNumber(project.intellijVersions.latestStable))) {
+        return foundVersion
+      }
+    } else {
+      return foundVersion
+    }
   }
-}
-
-String newEapVersion() {
-  char[] latestStable = project.intellijVersions.latestStable.toCharArray()
-  return Character.getNumericValue(latestStable[5]) == 3 ? Character.toString(latestStable[2]) + Character.toString(latestStable[3] + 1) + "1":
-                Character.toString(latestStable[2]) + Character.toString(latestStable[3]) + Character.toString(latestStable[5]+1)
+  return null
 }
 
 task updateEapOfLatestSupportedMajor {
@@ -158,7 +158,7 @@ task updateEapOfLatestSupportedMajor {
   File propFile = intellijVersionsFile()
   String latestEap = project.intellijVersions.eapOfLatestSupportedMajor
   String newerVersion = latestEap ? project.checkForNewerEap(latestEap.split("\\.")[0]) :
-            project.checkForNewerEap(project.newEapVersion())
+            project.checkForNewerEap(/*intellijMajorVersion*/ null)
   if (newerVersion && latestEap != newerVersion) {
     properties.setProperty("eapOfLatestSupportedMajor", newerVersion)
     properties.store(propFile.newWriter(), /*comments*/ null)
