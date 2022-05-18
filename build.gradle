@@ -24,6 +24,10 @@ plugins {
   id 'org.jetbrains.kotlin.jvm' version '1.6.20' apply false
 }
 
+if(JavaVersion.current() != JavaVersion.VERSION_11) {
+  throw new GradleException("Project must be built with version 11")
+}
+
 ext {
   javaMajorVersion = JavaVersion.VERSION_11
   scalaMajorVersion = '2.13'
@@ -97,6 +101,10 @@ static String buildNumberToIntellijVersion(String buildNumber) {
   return '20' + buildNumber.substring(0, 2) + '.' + buildNumber.substring(2, 3)
 }
 
+static String majorPartOfBuildNumber(String buildNumber){
+  return buildNumber.substring(0,3)
+}
+
 static String intellijVersionToBuildNumber(String version) {
   return version.substring(2, 6).replace('.', '')
 }
@@ -143,7 +151,7 @@ String checkForNewerEap(String intellijMajorVersion) {
     matcher.find()
     String foundVersion = matcher.group(1)
     if (!intellijMajorVersion){
-      if (Integer.parseInt(foundVersion.substring(0,3)) > Integer.parseInt(intellijVersionToBuildNumber(project.intellijVersions.latestStable))) {
+      if (Integer.parseInt(majorPartOfBuildNumber(foundVersion)) > Integer.parseInt(intellijVersionToBuildNumber(project.intellijVersions.latestStable))) {
         return foundVersion
       }
     } else {
@@ -153,11 +161,11 @@ String checkForNewerEap(String intellijMajorVersion) {
   return null
 }
 
-task updateEapOfLatestSupportedMajor {
+task updateEapVersion {
   Properties properties = intellijVersionsProperties()
   File propFile = intellijVersionsFile()
   String latestEap = project.intellijVersions.eapOfLatestSupportedMajor
-  String newerVersion = latestEap ? project.checkForNewerEap(latestEap.split("\\.")[0]) :
+  String newerVersion = latestEap ? project.checkForNewerEap(majorPartOfBuildNumber(latestEap)) :
             project.checkForNewerEap(/*intellijMajorVersion*/ null)
   if (newerVersion && latestEap != newerVersion) {
     properties.setProperty("eapOfLatestSupportedMajor", newerVersion)
@@ -185,18 +193,6 @@ allprojects {
   repositories {
     mavenCentral()
   }
-
-  def checkJavaVersion = {
-    if(JavaVersion.current() != JavaVersion.VERSION_11) {
-       throw new GradleException("Project must be built with version 11")
-    }
-  }
-
-  afterEvaluate {
-    for(def task in it.tasks.build)
-      task.dependsOn  checkJavaVersion
-  }
-
 
   apply plugin: 'org.gradle.java-library'
 
