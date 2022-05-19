@@ -145,7 +145,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Document
 
-String checkForEapWithVersionHigherThan(String intellijMajorVersion) {
+String checkForEapForFutureRelease(String intellijMajorVersion) {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
   Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')[0]
   if (link) {
@@ -154,14 +154,24 @@ String checkForEapWithVersionHigherThan(String intellijMajorVersion) {
     Matcher matcher = pattern.matcher(attr)
     matcher.find()
     String foundVersion = matcher.group(1)
-    if (!project.intellijVersions.eapOfLatestSupportedMajor) {
-      if (Integer.parseInt(project.majorPartOfBuildNumber(foundVersion)) > Integer.parseInt(intellijMajorVersion)) {
-        return foundVersion
-      }
-    } else {
-      if (project.fullIntellijVersionToNumber(foundVersion) > project.fullIntellijVersionToNumber(intellijMajorVersion)) {
-        return foundVersion
-      }
+    if (Integer.parseInt(project.majorPartOfBuildNumber(foundVersion)) > Integer.parseInt(intellijMajorVersion)) {
+      return foundVersion
+    }
+  }
+  return null
+}
+
+String checkForEapWithVersionHigherThan(String eapOfLatestSupportedMajor) {
+  Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
+  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')[0]
+  if (link) {
+    String attr = link.attr("href")
+    Pattern pattern = Pattern.compile("ideaIC-(.*?)-EAP-SNAPSHOT.pom")
+    Matcher matcher = pattern.matcher(attr)
+    matcher.find()
+    String foundVersion = matcher.group(1)
+    if (project.fullIntellijVersionToNumber(foundVersion) > project.fullIntellijVersionToNumber(eapOfLatestSupportedMajor)) {
+      return foundVersion
     }
   }
   return null
@@ -172,7 +182,7 @@ task updateEapVersion {
   File propFile = intellijVersionsFile()
   String latestEapVersion = project.intellijVersions.eapOfLatestSupportedMajor
   String newerVersion = latestEapVersion ? project.checkForEapWithVersionHigherThan(latestEapVersion.split('-')[0]) :
-            project.checkForEapWithVersionHigherThan(project.intellijVersionToBuildNumber(project.intellijVersions.latestStable))
+            project.checkForEapForFutureRelease(project.intellijVersionToBuildNumber(project.intellijVersions.latestStable))
   if (newerVersion && latestEapVersion != newerVersion) {
     properties.setProperty("eapOfLatestSupportedMajor", newerVersion+"-EAP-SNAPSHOT")
     properties.store(propFile.newWriter(), /*comments*/ null)
