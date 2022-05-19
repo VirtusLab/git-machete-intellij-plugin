@@ -22,6 +22,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -55,6 +56,17 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
+    val presentation = anActionEvent.getPresentation();
+    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branch = branchName != null
+        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        : null;
+    val isMergingIntoCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
+        .map(bn -> bn.equals(branch.getName())).getOrElse(false);
+    if (isCalledFromContextMenu && isMergingIntoCurrent) {
+      presentation.setText(getString("action.GitMachete.BaseMergeParentIntoBranchAction.text"));
+    }
   }
 
   @Override
