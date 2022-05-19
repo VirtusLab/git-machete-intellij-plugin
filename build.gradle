@@ -90,10 +90,6 @@ static String buildNumberToIntellijVersion(String buildNumber) {
   return '20' + buildNumber.substring(0, 2) + '.' + buildNumber.substring(2, 3)
 }
 
-static Integer buildNumberToNumericValue(String buildNumber) {
-  return Integer.parseInt(buildNumber.replace('.',''))
-}
-
 static String majorPartOfBuildNumber(String buildNumber){
   return buildNumber.substring(0,3)
 }
@@ -170,7 +166,7 @@ String checkForEapOfFutureRelease(String intellijMajorPartOfBuildNumber) {
 String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
   String foundBuildNumber = project.findNewestEapBuildNumber()
   if (foundBuildNumber) {
-    if (buildNumberToNumericValue(foundBuildNumber) > buildNumberToNumericValue(latestEapBuildNumber)) {
+    if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
       return foundBuildNumber
     }
   }
