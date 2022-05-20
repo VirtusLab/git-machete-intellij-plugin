@@ -31,5 +31,5 @@ public interface IGitMacheteRepositorySnapshot {
 
   OngoingRepositoryOperation getOngoingRepositoryOperation();
 
-  Option<String> getRebaseBranchName();
+  Option<String> getRebasedBranchName();
 }

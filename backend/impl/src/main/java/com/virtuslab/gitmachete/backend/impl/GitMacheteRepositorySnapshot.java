@@ -37,7 +37,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   private final Set<String> skippedBranchNames;
 
   @Getter
-  private final Option<String> rebaseBranchName;
+  private final Option<String> rebasedBranchName;
 
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 

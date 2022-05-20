@@ -341,7 +341,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           Case($(), OngoingRepositoryOperation.NO_OPERATION));
 
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
-          managedBranchByName, duplicatedBranchNames, skippedBranchNames, gitCoreRepository.deriveRebaseBranch(),
+          managedBranchByName, duplicatedBranchNames, skippedBranchNames, gitCoreRepository.deriveRebasedBranch(),
           preRebaseHookExecutor,
           ongoingOperation);
     }

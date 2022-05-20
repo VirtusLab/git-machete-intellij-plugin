@@ -63,7 +63,7 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<String> getRebaseBranchName() {
+  public Option<String> getRebasedBranchName() {
     return Option.none();
   }
 }

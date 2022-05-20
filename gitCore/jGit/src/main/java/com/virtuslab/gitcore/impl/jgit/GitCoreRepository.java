@@ -312,11 +312,12 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
-  public Option<String> deriveRebaseBranch() throws GitCoreException {
-    Path pathToRebasingBranchName = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("rebase-merge")
-        .resolve("head-name");
-    return pathToRebasingBranchName.toFile().isFile()
-        ? Try.of(() -> Stream.ofAll(Files.readAllLines(pathToRebasingBranchName)))
+  public Option<String> deriveRebasedBranch() throws GitCoreException {
+    Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
+        .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
+        .find(path -> path.toFile().isFile());
+    return !headNamePath.isEmpty()
+        ? Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
             .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current rebasing branch name", e))
             .headOption()
             .map(Repository::shortenRefName)
