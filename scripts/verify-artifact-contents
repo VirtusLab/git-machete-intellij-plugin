@@ -19,13 +19,15 @@ jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intell
 
 gradle_projects=$(cat settings.gradle | grep -Po "(?<=^include ').*(?=')" | sort)
 for project in $gradle_projects; do
-  if [[ -d $project/src/main ]]; then
-    if ! grep -qx "$project.jar" <<< "$jars_in_plugin_zip"; then
-      fail "$project.jar is expected but missing from $plugin_zip"
+  project_path=${project//:/\/}
+  project_jar_name=${project//:/-}
+  if [[ -d ${project_path}/src/main ]]; then
+    if ! grep -qx "${project_jar_name}.jar" <<< "$jars_in_plugin_zip"; then
+      fail "${project_jar_name}.jar is expected but missing from $plugin_zip"
     fi
   else
-    if grep -qx "$project.jar" <<< "$jars_in_plugin_zip"; then
-      fail "$project.jar is present in $plugin_zip even though $project does not contain any production code ($project/src/main not found)"
+    if grep -qx "${project_jar_name}.jar" <<< "$jars_in_plugin_zip"; then
+      fail "${project_jar_name}.jar is present in $plugin_zip even though $project does not contain any production code (${project_path}/src/main not found)"
     fi
   fi
 done

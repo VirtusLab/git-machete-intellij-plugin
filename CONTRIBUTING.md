@@ -28,6 +28,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 4. (optional) Install the following non-bundled plugins from Marketplace:
    * [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
      to manually generate grammar and lexer code from `.bnf` and `.flex` files.
+   * [HOCON plugin](https://plugins.jetbrains.com/plugin/10481-hocon) for `.conf` file support in UI tests
    * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
    * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
      when running IntelliJ instance with the Git Machete plugin loaded.

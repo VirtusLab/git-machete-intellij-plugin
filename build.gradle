@@ -37,7 +37,7 @@ ext {
   checkerFrameworkVersion = '3.21.4'
   checkstyleToolVersion = '8.33'
   commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.24.0'
+  ideProbeVersion = '0.26.0'
   jcabiAspectsVersion = '0.23.2'
   jetbrainsAnnotationsVersion = '23.0.0'
   jgitVersion = '6.1.0.202203080745-r'
@@ -544,19 +544,26 @@ allprojects {
 }
 
 
-// Root project config
-
-// This is necessary to make sure that `buildPlugin` task puts jars of all relevant subprojects into the final zip.
-subprojects.each { subproject ->
+subprojects {
+  // This is necessary to make sure that `buildPlugin` task puts jars of all relevant subprojects into the final zip.
   // No need to include near-empty (only with META-INF/MANIFEST.MF) jars
   // for subprojects that don't have any production code.
-  if (!subproject.sourceSets.main.allSource.srcDirs.findAll { file(it).exists() }.isEmpty()) {
-    dependencies {
-      implementation(subproject)
+  if (sourceSets.main.allSource.srcDirs.findAll { file(it).exists() }) {
+    rootProject.dependencies {
+      implementation(project)
     }
   }
+
+  // By default, the jar name will be formed only from the last segment of subproject path.
+  // Since these last segments are NOT unique (there are many `api`s and `impl`s),
+  // the effective jar name will be something like api.jar, api_1.jar, api_2.jar etc.,
+  // which is suboptimal.
+  // Let's use full name like frontend-ui-api.jar instead.
+  archivesBaseName = path.replaceFirst(":", "").replaceAll(":", "-")
 }
 
+
+// Root project config
 
 group 'com.virtuslab'
 
