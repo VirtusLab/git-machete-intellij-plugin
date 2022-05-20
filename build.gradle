@@ -142,23 +142,14 @@ import org.jsoup.nodes.Document
 
 String findNewestEapBuildNumber() {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
-  Element link = htmlContent.select('a[href^='+project.intellijSnapshotsUrl+'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')[0]
+  Element link = htmlContent.select('a[href~=('+ project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/)\\d+\\.\\d+\\.\\d+][href$="-EAP-SNAPSHOT.pom"]')[0]
   if (link) {
     String attr = link.attr("href")
-    Pattern pattern = Pattern.compile("ideaIC-(.*?)-EAP-SNAPSHOT.pom")
+    Pattern pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
     Matcher matcher = pattern.matcher(attr)
     matcher.find()
-    return matcher.group(1)
-  }
-  return null
-}
-
-String checkForEapOfFutureRelease(String intellijMajorPartOfBuildNumber) {
-  String foundBuildNumber = project.findNewestEapBuildNumber()
-  if (foundBuildNumber) {
-    if (Integer.parseInt(majorPartOfBuildNumber(foundBuildNumber)) > Integer.parseInt(intellijMajorPartOfBuildNumber)) {
-      return foundBuildNumber
-    }
+    println matcher.group()
+    return matcher.group()
   }
   return null
 }
@@ -178,8 +169,8 @@ task updateEapBuildNumber {
   File propFile = project.intellijVersionsFile()
   String latestEapBuildNumber = project.intellijVersions.eapOfLatestSupportedMajor
   String newerEapBuildNumber = latestEapBuildNumber ? project.checkForEapWithBuildNumberHigherThan(latestEapBuildNumber.split('-')[0]) :
-            project.checkForEapOfFutureRelease(intellijVersionToBuildNumber(project.intellijVersions.latestStable))
-  if (newerEapBuildNumber && latestEapBuildNumber != newerEapBuildNumber) {
+          project.checkForEapWithBuildNumberHigherThan(intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999')
+  if (newerEapBuildNumber) {
     properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
     properties.store(propFile.newWriter(), /*comments*/ null)
   }
