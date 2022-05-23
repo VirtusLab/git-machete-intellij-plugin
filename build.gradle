@@ -139,15 +139,16 @@ import org.jsoup.nodes.Document
 
 String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
-  Elements links = htmlContent.select('a[href~=' + project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/\\d+\\.\\d+\\.\\d+][href$="-EAP-SNAPSHOT.pom"]')
+  Elements links = htmlContent.select('a[href^=' + project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')
   for (Element link : links) {
     String attr = link.attr("href")
     Pattern pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
     Matcher matcher = pattern.matcher(attr)
-    matcher.find()
-    String foundBuildNumber = matcher.group()
-    if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
-      return foundBuildNumber
+    if (matcher.find()) {
+      String foundBuildNumber = matcher.group()
+      if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
+        return foundBuildNumber
+      }
     }
   }
   return null
