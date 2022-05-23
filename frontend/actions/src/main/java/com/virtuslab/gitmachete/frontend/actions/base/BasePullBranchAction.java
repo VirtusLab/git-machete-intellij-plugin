@@ -18,6 +18,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -89,12 +90,8 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           /* movingBranch */ localBranch,
           /* stayingBranch */ remoteBranch);
 
-      Runnable fastForwardRunnable = () -> {};
-      if (localBranchName.equals(currentBranchName)) {
-        fastForwardRunnable = () -> BaseFastForwardMerge.doCurrentBranch(project, gitRepository, mergeProps);
-      } else {
-        fastForwardRunnable = () -> BaseFastForwardMerge.doNonCurrentBranch(project, gitRepository, mergeProps);
-      }
+      Runnable fastForwardRunnable = () -> FastForwardMerge.doAction(currentBranchName, localBranchName, project, gitRepository,
+          mergeProps);
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
         fastForwardRunnable.run();

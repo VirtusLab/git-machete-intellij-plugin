@@ -13,6 +13,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 
 @CustomLog
@@ -71,10 +72,7 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
     val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
-    if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
-      BaseFastForwardMerge.doCurrentBranch(project, gitRepository, mergeProps);
-    } else {
-      BaseFastForwardMerge.doNonCurrentBranch(project, gitRepository, mergeProps);
-    }
+    FastForwardMerge.doAction(currentBranchName, nonRootStayingBranch.getParent().getName(), project, gitRepository,
+        mergeProps);
   }
 }

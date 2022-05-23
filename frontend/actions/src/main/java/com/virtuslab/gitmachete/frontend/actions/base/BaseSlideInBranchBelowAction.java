@@ -193,7 +193,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     } else if (remoteBranch == null) {
       preSlideInRunnable = () -> {
-        // TODO (#772): switch to a non-reflective call to `GitBranchCheckoutOperation.perfrom(...)`
+        // TODO (#772): switch to a non-reflective call to `GitBranchCheckoutOperation.perform(...)`
         try {
           // 2021.3 and later
           val clazz = Class.forName("git4idea.ui.branch.GitBranchCheckoutOperation");
