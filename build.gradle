@@ -134,24 +134,18 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import org.jsoup.nodes.Document
 
-String findNewestEapBuildNumber() {
+String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
   Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
-  Element link = htmlContent.select('a[href~=' + project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/\\d+\\.\\d+\\.\\d+][href$="-EAP-SNAPSHOT.pom"]')[0]
-  if (link) {
+  Elements links = htmlContent.select('a[href~=' + project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/\\d+\\.\\d+\\.\\d+][href$="-EAP-SNAPSHOT.pom"]')
+  for (Element link : links) {
     String attr = link.attr("href")
     Pattern pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
     Matcher matcher = pattern.matcher(attr)
     matcher.find()
-    return matcher.group()
-  }
-  return null
-}
-
-String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
-  String foundBuildNumber = project.findNewestEapBuildNumber()
-  if (foundBuildNumber) {
+    String foundBuildNumber = matcher.group()
     if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
       return foundBuildNumber
     }
