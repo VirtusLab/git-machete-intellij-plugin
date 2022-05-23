@@ -180,11 +180,11 @@ function Project(underlyingProject) {
   };
 
   this.pullSelectedBranch = function (branchName) {
-    invokeActionAndWait('GitMachete.PullSelectedBranchFastForwardOnlyAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+    invokeActionAndWait('GitMachete.PullSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   this.pullCurrentBranch = function () {
-    invokeActionAndWait('GitMachete.PullCurrentBranchFastForwardOnlyAction', ACTION_PLACE_TOOLBAR, {});
+    invokeActionAndWait('GitMachete.PullCurrentBranchAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.resetBranchToRemote = function (branchName) {
