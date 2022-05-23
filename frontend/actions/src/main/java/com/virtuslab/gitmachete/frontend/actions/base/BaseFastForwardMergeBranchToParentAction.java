@@ -4,7 +4,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
@@ -13,6 +12,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 
 @CustomLog
