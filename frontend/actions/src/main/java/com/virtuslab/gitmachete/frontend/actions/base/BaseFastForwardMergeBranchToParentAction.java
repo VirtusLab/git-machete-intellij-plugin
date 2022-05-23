@@ -1,14 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -18,8 +13,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 
 @CustomLog
@@ -79,38 +72,9 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
     if (nonRootStayingBranch.getParent().getName().equals(currentBranchName)) {
-      doFastForwardCurrentBranch(project, gitRepository, mergeProps);
+      BaseFastForwardMerge.doCurrentBranch(project, gitRepository, mergeProps);
     } else {
-      doFastForwardNonCurrentBranch(project, gitRepository, mergeProps);
+      BaseFastForwardMerge.doNonCurrentBranch(project, gitRepository, mergeProps);
     }
-  }
-
-  public static void doFastForwardCurrentBranch(Project project,
-      GitRepository gitRepository,
-      MergeProps mergeProps) {
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
-  }
-
-  public static void doFastForwardNonCurrentBranch(Project project,
-      GitRepository gitRepository,
-      MergeProps mergeProps) {
-    val stayingFullName = mergeProps.getStayingBranch().getFullName();
-    val movingFullName = mergeProps.getMovingBranch().getFullName();
-    val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
-
-    val stayingName = mergeProps.getStayingBranch().getName();
-    val movingName = mergeProps.getMovingBranch().getName();
-    new FetchBackgroundable(
-        project,
-        gitRepository,
-        LOCAL_REPOSITORY_NAME,
-        refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"),
-        getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-subtitle"),
-        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
-            stayingName, movingName),
-        format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
-            stayingName, movingName))
-                .queue();
   }
 }

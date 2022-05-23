@@ -9,9 +9,9 @@ import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchFastForwardOnlyAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
 
-public class PullCurrentBranchFastForwardOnlyAction extends BasePullBranchFastForwardOnlyAction {
+public class PullCurrentBranchAction extends BasePullBranchAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);

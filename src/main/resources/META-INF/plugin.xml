@@ -55,8 +55,8 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.PullSelectedBranchFastForwardOnlyAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedBranchFastForwardOnlyAction"
+            <action id="GitMachete.PullSelectedBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedBranchAction"
                     icon="MacheteIcons.PULL">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
@@ -141,8 +141,8 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.PullCurrentBranchFastForwardOnlyAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchFastForwardOnlyAction"
+            <action id="GitMachete.PullCurrentBranchAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentBranchAction"
                     icon="MacheteIcons.PULL">
                 <override-text place="GitMacheteToolbar"/>
             </action>

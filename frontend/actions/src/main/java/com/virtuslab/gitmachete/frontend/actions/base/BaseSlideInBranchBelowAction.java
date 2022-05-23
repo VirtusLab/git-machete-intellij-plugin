@@ -186,9 +186,9 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           refspec,
           "Fetching Remote Branch",
           format(
-              getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"), branchName),
+              getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail"), branchName),
           format(
-              getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"), branchName))
+              getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success"), branchName))
                   .queue();
 
     } else if (remoteBranch == null) {

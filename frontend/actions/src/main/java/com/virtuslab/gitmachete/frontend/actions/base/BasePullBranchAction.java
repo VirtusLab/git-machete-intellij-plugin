@@ -23,7 +23,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 
 @CustomLog
-public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
@@ -36,12 +36,12 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
   @Override
   public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.action-name");
+    return getString("action.GitMachete.BasePullBranchAction.action-name");
   }
 
   @Override
   public @I18nFormat({}) String getActionNameForDescription() {
-    return getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.description-action-name");
+    return getString("action.GitMachete.BasePullBranchAction.description-action-name");
   }
 
   @Override
@@ -91,11 +91,9 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
 
       Runnable fastForwardRunnable = () -> {};
       if (localBranchName.equals(currentBranchName)) {
-        fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardCurrentBranch(project, gitRepository,
-            mergeProps);
+        fastForwardRunnable = () -> BaseFastForwardMerge.doCurrentBranch(project, gitRepository, mergeProps);
       } else {
-        fastForwardRunnable = () -> BaseFastForwardMergeBranchToParentAction.doFastForwardNonCurrentBranch(project,
-            gitRepository, mergeProps);
+        fastForwardRunnable = () -> BaseFastForwardMerge.doNonCurrentBranch(project, gitRepository, mergeProps);
       }
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
@@ -116,7 +114,7 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
     val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
         "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
 
-    String taskTitle = getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.task-title");
+    String taskTitle = getString("action.GitMachete.BasePullBranchAction.task-title");
 
     new FetchBackgroundable(
         project,
@@ -124,10 +122,9 @@ public abstract class BasePullBranchFastForwardOnlyAction extends BaseGitMachete
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-fail"),
+        format(getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail"),
             remoteBranch.getName()),
-        format(getString("action.GitMachete.BasePullBranchFastForwardOnlyAction.notification.title.pull-success"),
-            remoteBranch.getName())) {
+        format(getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success"), remoteBranch.getName())) {
 
       @Override
       @UIEffect
