@@ -45,10 +45,10 @@ public final class FastForwardMerge {
                 .queue();
   }
 
-  public static void perform(@Nullable String currentBranchName, String movingBranchName, Project project,
+  public static void perform(@Nullable String currentBranchName, Project project,
       GitRepository gitRepository,
       MergeProps mergeProps) {
-    if (movingBranchName.equals(currentBranchName)) {
+    if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
       mergeCurrentBranch(project, gitRepository, mergeProps);
     } else {
       mergeNonCurrentBranch(project, gitRepository, mergeProps);
