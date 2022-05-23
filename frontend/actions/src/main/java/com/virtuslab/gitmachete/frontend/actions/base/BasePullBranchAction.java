@@ -90,7 +90,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           /* movingBranch */ localBranch,
           /* stayingBranch */ remoteBranch);
 
-      Runnable fastForwardRunnable = () -> FastForwardMerge.doAction(currentBranchName, localBranchName, project, gitRepository,
+      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(currentBranchName, localBranchName, project, gitRepository,
           mergeProps);
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {

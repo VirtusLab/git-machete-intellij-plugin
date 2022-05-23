@@ -243,8 +243,8 @@ For instance:
 
 ## PRs & releases
 
-The base branch of the repository is `master`, but each regular (non-hotfix, non-release, non-backport) PR must be merged to `develop`. <br/>
-Due to the fact that base branch is not `develop`, merged PRs do not close linked issues (you have to do it manually). <br/>
+The default branch of the repository is `master`, but each regular (non-hotfix, non-release, non-backport) PR must be merged to `develop`. <br/>
+Due to the fact that the default branch is not `develop`, merging of PRs does not close linked issues (you have to close the issues manually). <br/>
 Stacked PRs (Y -> X -> `develop`) must never be merged until their base is finally changed to `develop`.
 They must instead be retargeted to its base's base once their base branch is merged itself (Y -> X -> `develop` => X gets merged => Y -> `develop`).
 
