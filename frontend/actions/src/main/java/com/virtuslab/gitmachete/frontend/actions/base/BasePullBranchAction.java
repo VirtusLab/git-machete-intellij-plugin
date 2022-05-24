@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
@@ -84,13 +83,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         log().warn("Branch '${localBranchName}' does not have a remote tracking branch");
         return;
       }
-      val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
 
       val mergeProps = new MergeProps(
-          /* movingBranch */ localBranch,
-          /* stayingBranch */ remoteBranch);
+          /* movingBranchName */ localBranch,
+          /* stayingBranchName */ remoteBranch);
 
-      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(currentBranchName, project, gitRepository, mergeProps);
+      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps);
 
       if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
         fastForwardRunnable.run();

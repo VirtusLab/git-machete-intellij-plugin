@@ -7,8 +7,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import lombok.val;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
@@ -45,9 +45,10 @@ public final class FastForwardMerge {
                 .queue();
   }
 
-  public static void perform(@Nullable String currentBranchName, Project project,
+  public static void perform(Project project,
       GitRepository gitRepository,
       MergeProps mergeProps) {
+    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
       mergeCurrentBranch(project, gitRepository, mergeProps);
     } else {

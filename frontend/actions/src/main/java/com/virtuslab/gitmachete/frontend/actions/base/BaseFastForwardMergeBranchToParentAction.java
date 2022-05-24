@@ -5,7 +5,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
@@ -67,11 +66,10 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
     assert stayingBranch.isNonRoot() : "Branch that would be fast-forwarded TO is a root";
 
-    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     val nonRootStayingBranch = stayingBranch.asNonRoot();
     val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
-    FastForwardMerge.perform(currentBranchName, project, gitRepository, mergeProps);
+    FastForwardMerge.perform(project, gitRepository, mergeProps);
   }
 }
