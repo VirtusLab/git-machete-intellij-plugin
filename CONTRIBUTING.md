@@ -177,7 +177,7 @@ Other coding conventions include:
 
 So far created UI conventions:
 
-* Add `...`  at the end of an action name if it is not executed immediately after clicking e.q. `Sync to Parent by Rebase...` (after this operation the interactive rebase window opens)
+* Add `...`  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase...` (after this operation the interactive rebase window opens)
 * Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
   On the other hand, **context-menu** actions text names should be kept short (no `This`/`Selected`).
 
