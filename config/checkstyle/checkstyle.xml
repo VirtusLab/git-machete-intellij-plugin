@@ -12,7 +12,7 @@
     </module>
 
     <!-- it's needed specifically for Windows because Windows,
-    unlike Unix-like systems (Linux, MacOS etc.)
+    unlike Unix-like systems (Linux, macOS etc.)
     uses \ and not / to separate path segments -->
     <module name="SuppressionSingleFilter">
         <property name="checks" value=".*"/>
