@@ -21,7 +21,7 @@ even when **multiple branches** are present in the repository
 * What is going to be merged (or rebased/pushed/pulled) and to what?
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/VirtusLab/git-machete-intellij-plugin/refactor/update-doc-files/docs/plugins.jetbrains.com/sample_status.png"
+    <img src="https://raw.githubusercontent.com/VirtusLab/git-machete-intellij-plugin/develop/docs/plugins.jetbrains.com/sample_status.png"
         alt="sample status with master, develop and a few topic branches"/>
 </p>
 
