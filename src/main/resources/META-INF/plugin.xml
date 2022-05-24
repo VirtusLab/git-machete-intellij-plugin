@@ -204,7 +204,7 @@
             <!-- In future IntelliJ releases this group-id will probably be `Git.MainMenu`
                  We can consider `VcsGroups` that seems to be more stable and place this action in VCS menu -->
             <add-to-group group-id="GitRepositoryActions" anchor="last"/>
-            <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on Mac OS -->
+            <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on macOS -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
     </actions>

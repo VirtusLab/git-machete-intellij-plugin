@@ -60,8 +60,8 @@ ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 **The hooks do not work on Windows** (however their execution seems to be possible theoretically).
 This is because one may not be emulating bash environment in any way or doing it in some specific way.
 
-#### Mac OS
-Some hooks use `grep`. The Mac OS version of `grep` (FreeBSD) differs from GNU `grep`.
+#### macOS
+Some hooks use `grep`. The macOS version of `grep` (FreeBSD) differs from GNU `grep`.
 In order to make `grep` and eventually the hooks working one must:
 1. Install `grep` via `brew` (it will not override system's `grep` - it can be executed as `ggrep`)
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/3.7/libexec/gnubin/grep`
