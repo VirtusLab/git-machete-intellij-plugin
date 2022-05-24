@@ -44,7 +44,7 @@ public final class MacheteIcons {
   public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("/toggleListingCommits.svg");
 
   private static Icon loadIcon(String path) {
-    // TODO (#842): check if file is present
     return IconLoader.getIcon(path, MacheteIcons.class);
   }
+
 }
