@@ -216,13 +216,13 @@ On the left side bar you can find other actions (from top to bottom):
 - ![](left_bar_actions/edit.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
 - ![](left_bar_actions/fetch.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
 - The most suitable actions (each is equivalent to one of the context menu actions) for a current branch that include one or more of:
-    - ![](left_bar_actions/rebase.png) **Sync Current to Parent by Rebase...**
-    - ![](left_bar_actions/merge.png) **Sync Current to Parent by Merge**
+    - ![](left_bar_actions/rebase.png) **Sync Current Branch to Parent by Rebase...**
+    - ![](left_bar_actions/merge.png) **Sync Current Branch to Parent by Merge**
     - ![](left_bar_actions/push.png) **Push Current Branch**
     - ![](left_bar_actions/pull.png) **Pull Current Branch**
     - ![](left_bar_actions/reset.png) **Reset Current Branch to Remote**
     - ![](left_bar_actions/slideOut.png) **Slide Out Current Branch**
-    - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current...**
+    - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current Branch...**
 
   Available action is selected based on a relation between a current branch and its parent and remote branch.
 - ![](left_bar_actions/slideIn.png) **Slide In Branch Below Current Branch...** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
