@@ -172,6 +172,9 @@ Other coding conventions include:
   containing the name of the param.
 * Avoid running code outside of IDE-managed threads.
   Use either UI thread (for lightweight operations) or `Task.Backgroundable` (for heavyweight operations).
+* Use `...` after action name texts that result with a dialog (like `Push...` or `Slide In Branch Below...`).
+* Toolbar name texts of a toolbar actions that refer a branch should indicate the branch under action with a word `Current`.
+  On the other hand, context-menu actions text names should be kept short (no `This`/`Selected`).
 
 ## UI conventions
 
