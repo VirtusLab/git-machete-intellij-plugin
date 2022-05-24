@@ -70,6 +70,6 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
     val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
-    FastForwardMerge.perform(project, gitRepository, mergeProps);
+    FastForwardMerge.perform(project, gitRepository, mergeProps, /* fetchNotification */ "");
   }
 }

@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
+import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -88,9 +89,14 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           /* movingBranchName */ localBranch,
           /* stayingBranchName */ remoteBranch);
 
-      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps);
+      boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
+      String fetchNotification = isUpToDate
+          ? format(getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform"),
+              FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
+          : format(getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform"));
+      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps, fetchNotification);
 
-      if (FetchUpToDateTimeoutStatus.isUpToDate(gitRepository)) {
+      if (isUpToDate) {
         fastForwardRunnable.run();
       } else {
         updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
