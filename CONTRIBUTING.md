@@ -170,17 +170,16 @@ Other coding conventions include:
   Use `derive...` method names for methods that actually compute their result and/or can return a different value every time when accessed.
 * Non-obvious method params that have values like `false`, `true`, `0`, `1`, `null`, `""` should be preceded with a `/* comment */ `
   containing the name of the param.
-* Avoid running code outside of IDE-managed threads.
+* Avoid running code outside IDE-managed threads.
   Use either UI thread (for lightweight operations) or `Task.Backgroundable` (for heavyweight operations).
-* Use `...` after action name texts that result with a dialog (like `Push...` or `Slide In Branch Below...`).
-* Toolbar name texts of a toolbar actions that refer a branch should indicate the branch under action with a word `Current`.
-  On the other hand, context-menu actions text names should be kept short (no `This`/`Selected`).
 
 ## UI conventions
 
 So far created UI conventions:
 
 * Add `...`  at the end of an action name if it is not executed immediately after clicking e.q. `Sync to Parent by Rebase...` (after this operation the interactive rebase window opens)
+* Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
+  On the other hand, **context-menu** actions text names should be kept short (no `This`/`Selected`).
 
 ## Rebuild the CI base image
 
