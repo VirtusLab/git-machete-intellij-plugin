@@ -173,6 +173,11 @@ Other coding conventions include:
 * Avoid running code outside of IDE-managed threads.
   Use either UI thread (for lightweight operations) or `Task.Backgroundable` (for heavyweight operations).
 
+## UI conventions
+
+So far created UI conventions:
+
+* Add `...`  at the end of an action name if it is not executed immediately after clicking e.q. `Sync to Parent by Rebase...` (after this operation the interactive rebase window opens)
 
 ## Rebuild the CI base image
 

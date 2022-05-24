@@ -21,7 +21,7 @@ even when **multiple branches** are present in the repository
 * What is going to be merged (or rebased/pushed/pulled) and to what?
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/VirtusLab/git-machete-intellij-plugin/master/docs/plugins.jetbrains.com/sample_status.png"
+    <img src="https://raw.githubusercontent.com/VirtusLab/git-machete-intellij-plugin/refactor/update-doc-files/docs/plugins.jetbrains.com/sample_status.png"
         alt="sample status with master, develop and a few topic branches"/>
 </p>
 
@@ -71,7 +71,7 @@ Git Machete allows you to check out the remote branch with `Slide In`.
 Alternatively, you could check out it via git CLI or Git Branches widget in IntelliJ.
 Once the review is complete, you can simply check out any other branch from the right-click menu or by a double click &mdash; `master` in the example.
 
-Once the branch `common-scripts` is no longer needed for review, it can be slid out (`Slide Out`) &mdash; deleted from the branch layout.
+Once the branch `common-scripts` is no longer needed for review, it can be slid out (`Slide Out`) &mdash; deleted from the branch layout and optionally the branch can be removed from the local repository.
 
 
 ### Scenario 2: Branch update
@@ -89,9 +89,9 @@ The edge between `master` and `sticky-header` turned red.
 It means that there are some commits belonging to the parent (`master`) branch that are not reachable from the child (`sticky-header`).
 In case of `master`, these commits came from the recently merged `common-scripts`.
 
-Let's `Checkout and Rebase onto Parent...` to put `sticky-header` back in sync to `master`.
+To put `sticky-header` back in sync to `master` two options are available &mdash; `Checkout and Sync to Parent by Rebase ...` or `Checkout and Sync to Parent by Merge ...`
 Fortunately, there are no conflicts to resolve. <br/>
-Once `sticky-header` is rebased, you can do the same for `fancy-footer`.
+Once `sticky-header` is rebased or merged, you can do the same for `fancy-footer`.
 
 You may want to update the remotes as well.
 To do so, perform `Push...` for both of the branches.
