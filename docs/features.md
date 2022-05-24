@@ -47,11 +47,17 @@ When you click on the eye button on the left side of the plugin, you can toggle 
 ## Rebase
 
 Rebase with Git Machete plugin is easy!
-Just right-click on the child branch and from a context menu select `(Checkout and) Rebase Branch onto Parent`.
+Just right-click on the child branch and from a context menu select `(Checkout and) Sync to Parent by Rebase...`.
 Standard IntelliJ dialog for interactive rebase will appear.
 
 ![](rebase.gif)
 
+## Merge
+
+The other way to get a branch in sync to its parent is merge of a parent branch into it.
+If you prefer that, right-click on the child branch and from a context menu select `(Checkout and) Sync to Parent by Merge`.
+
+[//]: # (TODO #850: add merge gif)
 
 ## Push
 
@@ -206,19 +212,20 @@ For more information about the `machete` file, look at the [reference blog post]
 
 On the left side bar you can find other actions (from top to bottom):
 - ![](left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
-- ![](left_bar_actions/toggle_listing_commits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
-- ![](left_bar_actions/open_machete_file.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
-- ![](left_bar_actions/fetch_all_remotes.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
+- ![](left_bar_actions/toggleListingCommits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
+- ![](left_bar_actions/edit.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
+- ![](left_bar_actions/fetch.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
 - The most suitable actions (each is equivalent to one of the context menu actions) for a current branch that include one or more of:
+    - ![](left_bar_actions/rebase.png) **Sync to Parent by Rebase...**
+    - ![](left_bar_actions/merge.png) **Sync to Parent by Merge**
     - ![](left_bar_actions/push.png) **Push Current Branch**
     - ![](left_bar_actions/pull.png) **Pull Current Branch**
     - ![](left_bar_actions/reset.png) **Reset Current Branch to Remote**
-    - ![](left_bar_actions/slide_out.png) **Slide Out Current Branch**
-    - ![](left_bar_actions/rebase.png) **Rebase Current Branch Onto Parent**
-    - ![](left_bar_actions/override_forkpoint.png) **Override Fork Point of Current Branch**
+    - ![](left_bar_actions/slideOut.png) **Slide Out Current Branch**
+    - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current Branch**
 
   Available action is selected based on a relation between a current branch and its parent and remote branch.
-- ![](left_bar_actions/slide_in.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
+- ![](left_bar_actions/slideIn.png) **Slide In Branch Below Current Branch** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
 - ![](left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
 
 
