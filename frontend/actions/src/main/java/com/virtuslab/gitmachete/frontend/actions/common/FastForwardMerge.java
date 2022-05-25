@@ -25,16 +25,16 @@ public final class FastForwardMerge {
 
   private static void mergeNonCurrentBranch(Project project,
       GitRepository gitRepository,
-      MergeProps mergeProps, String fetchNotification) {
+      MergeProps mergeProps, String fetchNotificationPrefix) {
     val stayingFullName = mergeProps.getStayingBranch().getFullName();
     val movingFullName = mergeProps.getMovingBranch().getFullName();
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
-    val successFfMergeNotification = fetchNotification
+    val successFFMergeNotification = fetchNotificationPrefix
         + format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
             stayingName, movingName);
-    val failFfMergeNotification = fetchNotification
+    val failFFMergeNotification = fetchNotificationPrefix
         + format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
             stayingName, movingName);
     new FetchBackgroundable(
@@ -44,18 +44,18 @@ public final class FastForwardMerge {
         refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"),
         getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-subtitle"),
-        successFfMergeNotification,
-        failFfMergeNotification).queue();
+        successFFMergeNotification,
+        failFFMergeNotification).queue();
   }
 
   public static void perform(Project project,
       GitRepository gitRepository,
-      MergeProps mergeProps, String fetchNotification) {
+      MergeProps mergeProps, String fetchNotificationPrefix) {
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
       mergeCurrentBranch(project, gitRepository, mergeProps);
     } else {
-      mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotification);
+      mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotificationPrefix);
     }
   }
 }

@@ -90,11 +90,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           /* stayingBranchName */ remoteBranch);
 
       boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
-      String fetchNotification = isUpToDate
+      String fetchNotificationPrefix = isUpToDate
           ? format(getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform"),
               FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : format(getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform"));
-      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps, fetchNotification);
+      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
+          fetchNotificationPrefix);
 
       if (isUpToDate) {
         fastForwardRunnable.run();
