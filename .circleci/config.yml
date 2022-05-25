@@ -82,7 +82,9 @@ jobs:
           command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
+          command: |
+            ./gradlew -Pheadless -Pagainst=latestStable uiTest
+            echo $(pgrep idea)
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
