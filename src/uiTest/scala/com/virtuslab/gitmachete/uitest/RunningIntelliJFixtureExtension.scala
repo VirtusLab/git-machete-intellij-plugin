@@ -59,6 +59,14 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         intelliJ.probe.await()
       }
 
+      def acceptCreateNewBranch(): Unit = {
+        runJs("project.acceptCreateNewBranch()")
+      }
+
+      def acceptSlideIn(): Unit = {
+        runJs("project.acceptSlideIn()")
+      }
+
       def acceptSuggestedBranchLayout(): Unit = {
         runJs("project.acceptSuggestedBranchLayout()")
       }
@@ -89,6 +97,79 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def configure(): Unit = {
         runJs("project.configure()")
+      }
+
+      object contextMenu {
+
+        def openContextMenu(branch: String): Unit = {
+          runJs(s"project.findCellAndRightClick('$branch')")
+          intelliJ.probe.await()
+        }
+
+        def checkout(): Unit = {
+          runJs(s"project.contextMenu.checkout()")
+          intelliJ.probe.await()
+        }
+
+        def checkoutAndSyncByRebase(): Unit = {
+          runJs(s"project.contextMenu.checkoutAndSyncByRebase()")
+          intelliJ.probe.await()
+        }
+
+        def syncByRebase(): Unit = {
+          runJs(s"project.contextMenu.syncByRebase()")
+          intelliJ.probe.await()
+        }
+
+        def checkoutAndSyncByMerge(): Unit = {
+          runJs(s"project.contextMenu.checkoutAndSyncByMerge()")
+          intelliJ.probe.await()
+        }
+
+        def syncByMerge(): Unit = {
+          runJs(s"project.contextMenu.syncByMerge()")
+          intelliJ.probe.await()
+        }
+
+        def overrideForkPoint(): Unit = {
+          runJs(s"project.contextMenu.overrideForkPoint()")
+          intelliJ.probe.await()
+        }
+
+        def push(): Unit = {
+          runJs(s"project.contextMenu.push()")
+          intelliJ.probe.await()
+        }
+
+        def pull(): Unit = {
+          runJs(s"project.contextMenu.pull()")
+          intelliJ.probe.await()
+        }
+
+        def resetToRemote(): Unit = {
+          runJs(s"project.contextMenu.resetToRemote()")
+          intelliJ.probe.await()
+        }
+
+        def fastForwardMerge(): Unit = {
+          runJs(s"project.contextMenu.fastForwardMerge()")
+          intelliJ.probe.await()
+        }
+
+        def slideIn(): Unit = {
+          runJs(s"project.contextMenu.slideIn()")
+          intelliJ.probe.await()
+        }
+
+        def slideOut(): Unit = {
+          runJs(s"project.contextMenu.slideOut()")
+          intelliJ.probe.await()
+        }
+
+        def showInGitLog(): Unit = {
+          runJs(s"project.contextMenu.showInGitLog()")
+          intelliJ.probe.await()
+        }
       }
 
       def discoverBranchLayout(): Unit = {
@@ -169,16 +250,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         intelliJ.probe.await()
       }
 
-      def openContextMenu(branch: String): Unit = {
-        runJs(s"project.findCellAndRightClick('$branch')")
-        intelliJ.probe.await()
-      }
-
-      def contextMenuCheckout(branch: String): Unit = {
-        runJs(s"project.contextMenuCheckout()")
-        intelliJ.probe.await()
-      }
-
       def slideOutBranch(branch: String): Unit = {
         runJs(s"project.slideOutBranch('$branch')")
         intelliJ.probe.await()
@@ -186,6 +257,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def toggleListingCommits(): Unit = {
         runJs("project.toggleListingCommits()")
+      }
+
+      def writeToTextField(text: String): Unit = {
+        runJs(s"project.findTextFieldAndWrite('$text', /* instant */ false)")
       }
     }
   }

@@ -4,6 +4,7 @@ public final class SetupScripts {
   private SetupScripts() {}
   public final static String SETUP_FOR_NO_REMOTES = "setup-with-no-remotes.sh";
   public final static String SETUP_WITH_SINGLE_REMOTE = "setup-with-single-remote.sh";
+  public final static String SETUP_README_SCENARIOS = "setup-readme-scenarios.sh";
   public final static String SETUP_WITH_MULTIPLE_REMOTES = "setup-with-multiple-remotes.sh";
   public final static String SETUP_FOR_DIVERGED_AND_OLDER_THAN = "setup-for-diverged-and-older-than.sh";
   public final static String SETUP_FOR_YELLOW_EDGES = "setup-for-yellow-edges.sh";
