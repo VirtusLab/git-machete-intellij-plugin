@@ -125,7 +125,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       Assert.assertEquals(7, branchAndCommitRowsCount)
     } catch {
       case e: Exception =>
-        saveToFileThreadDump()
+        saveThreadDumpToFile()
         throw e
     }
   }
@@ -223,7 +223,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals("develop", currentBranchName)
   }
 
-  private def saveToFileThreadDump(): Unit = {
+  private def saveThreadDumpToFile(): Unit = {
     val pid = intelliJ.probe.pid()
     val threadStackTrace: String = Process("jstack " + pid) !!
     val file: File = new File("build/thread-dump/thread_dump_" + pid + ".txt")
