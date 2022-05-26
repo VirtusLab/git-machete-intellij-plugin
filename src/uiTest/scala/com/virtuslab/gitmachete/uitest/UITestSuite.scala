@@ -87,7 +87,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     //TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
-      throw new Exception()
       intelliJ.project.openGitMacheteTab()
       overwriteMacheteFile(
         """develop
@@ -130,7 +129,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         throw e
     }
   }
-/*
+
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
@@ -222,7 +221,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     intelliJ.project.assertNoUncommittedChanges()
     val currentBranchName = intelliJ.project.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)
-  }*/
+  }
 
   private def saveToFileThreadDump(): Unit = {
     val pid = intelliJ.probe.pid()
