@@ -154,20 +154,33 @@ String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
   return null
 }
 
-task updateEapBuildNumber {
-  doLast {
+class UpdateEapBuildNumber extends DefaultTask {
+
+  @Input
+  @Optional
+  @Option(option = 'exit-code', description = 'Return the exit code 0 when the new eap build number is found and 1 otherwise')
+  Boolean exitCode
+
+  @TaskAction
+  void execute() {
     Properties properties = project.intellijVersionsProperties()
     File propFile = project.intellijVersionsFile()
     String latestEapBuildNumber = project.intellijVersions.eapOfLatestSupportedMajor
-    String newerEapBuildNumber = latestEapBuildNumber ? project.checkForEapWithBuildNumberHigherThan(latestEapBuildNumber.replace('-EAP-SNAPSHOT', '')) :
-            project.checkForEapWithBuildNumberHigherThan(intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999')
+    String buildNumberThreshold = latestEapBuildNumber ? latestEapBuildNumber.replace('-EAP-SNAPSHOT', '') :
+            project.intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999'
+    String newerEapBuildNumber = project.checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
     if (newerEapBuildNumber) {
       project.logger.lifecycle("EapOfLatestSupportedMajor is updated to " + newerEapBuildNumber + " build number")
       properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
       properties.store(propFile.newWriter(), /*comments*/ null)
     }
+    if (exitCode && !newerEapBuildNumber) {
+      throw new Exception("New eap build number not found")
+    }
   }
 }
+
+tasks.register('updateEapBuildNumber', UpdateEapBuildNumber)
 
 dependencyUpdates {
   def isStableVersion = { String version ->
