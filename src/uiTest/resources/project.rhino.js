@@ -1,6 +1,7 @@
 importClass(java.lang.System);
 importClass(java.lang.Thread);
 importClass(java.util.stream.Collectors);
+importClass(java.util.stream.IntStream);
 
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
@@ -12,6 +13,10 @@ importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.ui.GuiUtils);
+
+importClass(org.assertj.swing.fixture.JTableFixture);
+importClass(org.assertj.swing.data.TableCell);
+importClass(javax.swing.JMenuItem);
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
@@ -131,6 +136,14 @@ function Project(underlyingProject) {
     findAndClickButton('Save');
   }
 
+  this.acceptCreateNewBranch = function () {
+    findAndClickButton('Create');
+  };
+
+  this.acceptSlideIn = function () {
+    findAndClickButton('Slide In');
+  };
+
   this.acceptSuggestedBranchLayout = function () {
     findAndClickButton('Yes');
   };
@@ -141,6 +154,98 @@ function Project(underlyingProject) {
 
   this.rejectBranchDeletionOnSlideOut = function () {
     findAndClickButton('Slide Out & Keep Local Branch');
+  };
+
+  this.contextMenu = {
+    checkout: function () {
+      findAndClickContextMenuAction('Checkout');
+    },
+    checkoutAndSyncByRebase: function () {
+      findAndClickContextMenuAction('Checkout and Sync to Parent by Rebase...');
+    },
+    syncByRebase: function () {
+      findAndClickContextMenuAction('Sync to Parent by Rebase...');
+    },
+    checkoutAndSyncByMerge: function () {
+      findAndClickContextMenuAction('Checkout and Sync to Parent by Merge');
+    },
+    syncByMerge: function () {
+      findAndClickContextMenuAction('Sync to Parent by Merge');
+    },
+    overrideForkPoint: function () {
+      findAndClickContextMenuAction('Override Fork Point...');
+    },
+    push: function () {
+      findAndClickContextMenuAction('Push...');
+    },
+    pull: function () {
+      findAndClickContextMenuAction('Pull');
+    },
+    resetToRemote: function () {
+      findAndClickContextMenuAction('Reset to Remote');
+    },
+    fastForwardMerge: function () {
+      findAndClickContextMenuAction('Fast-forward Merge into Parent');
+    },
+    slideIn: function () {
+      findAndClickContextMenuAction('Slide In Branch Below...');
+    },
+    slideOut: function () {
+      findAndClickContextMenuAction('Slide Out');
+    },
+    showInGitLog: function () {
+      findAndClickContextMenuAction('Show in Git Log');
+    }
+  };
+
+  this.findTextFieldAndWrite = function (text, instant) {
+    const getTextField = function () {
+          // findAll() returns a LinkedHashSet
+          const result = robot.finder().findAll(component =>
+            'com.intellij.ui.components.JBTextField'
+            .equals(component.getClass().getName()))
+            .toArray();
+
+          return result.length === 1 ? result[0] : null;
+        };
+
+    let textField = getTextField();
+    if (instant) {
+        textField.setText(text);
+    } else {
+        for (var i = 0; i < text.length; i++) {
+            sleep();
+            let t = textField.getText() + text[i];
+            textField.setText(t);
+        }
+    }
+  }
+
+  this.findCellAndRightClick = function (name) {
+    const getTable = function () {
+          // findAll() returns a LinkedHashSet
+          const result = robot.finder().findAll(component =>
+            'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'
+            .equals(component.getClass().getName()))
+            .toArray();
+
+          return result.length === 1 ? result[0] : null;
+        };
+
+    let table = getTable();
+    let fixture = new JTableFixture(robot, table);
+    let contents = fixture.contents();
+
+    const getCellRow = function () {
+        const result = IntStream.range(0, contents.length)
+          .filter(idx => contents[idx][0].includes('text=' + name))
+          .toArray();
+        return result.length === 1 ? result[0] : null;
+    };
+
+    let cellRow = getCellRow();
+    let tableCell = TableCell.row(cellRow).column(0);
+    fixture.cell(tableCell).click(MouseButton.RIGHT_BUTTON);
   };
 
   const findAndClickButton = function (name) {
@@ -160,6 +265,25 @@ function Project(underlyingProject) {
       button = getButton();
     }
     robot.click(button);
+  }
+
+  const findAndClickContextMenuAction = function (name) {
+    const getActionMenuItem = function () {
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(component =>
+        'com.intellij.openapi.actionSystem.impl.ActionMenuItem'.equals(component.getClass().getName())
+            && name.equals(component.getText())
+      ).toArray();
+      return result.length === 1 ? result[0] : null;
+    };
+
+    // The action is invoked asynchronously, let's first make sure the action menu has already appeared.
+    let actionMenuItem = getActionMenuItem();
+    while (actionMenuItem === null) {
+      sleep();
+      actionMenuItem = getActionMenuItem();
+    }
+    robot.click(actionMenuItem);
   }
 
   this.toggleListingCommits = function () {

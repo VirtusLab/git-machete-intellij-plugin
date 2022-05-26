@@ -169,6 +169,16 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         intelliJ.probe.await()
       }
 
+      def openContextMenu(branch: String): Unit = {
+        runJs(s"project.findCellAndRightClick('$branch')")
+        intelliJ.probe.await()
+      }
+
+      def contextMenuCheckout(branch: String): Unit = {
+        runJs(s"project.contextMenuCheckout()")
+        intelliJ.probe.await()
+      }
+
       def slideOutBranch(branch: String): Unit = {
         runJs(s"project.slideOutBranch('$branch')")
         intelliJ.probe.await()
