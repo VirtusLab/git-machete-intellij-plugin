@@ -2,6 +2,10 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
+import com.virtuslab.gitmachete.uitest.UITestSuite.intelliJ
+
+import scala.language.postfixOps
+import scala.sys.process._
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit._
@@ -9,7 +13,8 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.dependencies._
 
-import java.nio.file.{ Files, Path }
+import java.io._
+import java.nio.file.{Files, Path}
 import java.nio.file.attribute.FileTime
 
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
@@ -80,42 +85,55 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    overwriteMacheteFile(
-      """develop
-        |  non-existent
-        |    allow-ownership-link
-        |      build-chain
-        |    non-existent-leaf
-        |  call-ws
-        |non-existent-root
-        |master
-        |  hotfix/add-trigger""".stripMargin
-    )
-    val managedBranches = intelliJ.project.refreshModelAndGetManagedBranches()
-    // Non-existent branches should be skipped while causing no error (only a low-severity notification).
-    Assert.assertEquals(
-      Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
-      managedBranches.toSeq.sorted)
-    intelliJ.project.toggleListingCommits()
-    var branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    // 6 branch rows + 7 commit rows
-    Assert.assertEquals(13, branchAndCommitRowsCount)
+    try {
+      intelliJ.project.openGitMacheteTab()
+      overwriteMacheteFile(
+        """develop
+          |  non-existent
+          |    allow-ownership-link
+          |      build-chain
+          |    non-existent-leaf
+          |  call-ws
+          |non-existent-root
+          |master
+          |  hotfix/add-trigger""".stripMargin
+      )
+      val managedBranches = intelliJ.project.refreshModelAndGetManagedBranches()
+      // Non-existent branches should be skipped while causing no error (only a low-severity notification).
+      Assert.assertEquals(
+        Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
+        managedBranches.toSeq.sorted)
+      intelliJ.project.toggleListingCommits()
+      var branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      // 6 branch rows + 7 commit rows
+      Assert.assertEquals(13, branchAndCommitRowsCount)
 
-    // Let's slide out a root branch now
-    intelliJ.project.slideOutBranch("develop")
-    intelliJ.project.acceptBranchDeletionOnSlideOut()
-    branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    // 5 branch rows (`develop` is no longer there) + 3 commit rows
-    // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-    Assert.assertEquals(8, branchAndCommitRowsCount)
+      // Let's slide out a root branch now
+      intelliJ.project.slideOutBranch("develop")
+      intelliJ.project.acceptBranchDeletionOnSlideOut()
+      branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      // 5 branch rows (`develop` is no longer there) + 3 commit rows
+      // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
+      Assert.assertEquals(8, branchAndCommitRowsCount)
 
-    intelliJ.project.checkoutBranch("develop")
-    intelliJ.project.slideOutBranch("call-ws")
-    intelliJ.project.rejectBranchDeletionOnSlideOut()
-    branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
-    // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
-    Assert.assertEquals(7, branchAndCommitRowsCount)
+      intelliJ.project.checkoutBranch("develop")
+      intelliJ.project.slideOutBranch("call-ws")
+      intelliJ.project.rejectBranchDeletionOnSlideOut()
+      branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
+      Assert.assertEquals(7, branchAndCommitRowsCount)
+    } catch {
+      case e: Exception =>
+        val pid = intelliJ.probe.pid()
+        val threadStackTrace: String = Process("jstack " + pid) !!
+        val file: File = new File("build/threadDump/thread_dump_" + pid + ".txt")
+        if (file.getParentFile.mkdirs()) {
+          val pw = new PrintWriter(file)
+          pw.write(threadStackTrace)
+          pw.close()
+        }
+        throw e
+    }
   }
 
   @Test def discoverBranchLayout(): Unit = {

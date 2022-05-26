@@ -80,11 +80,15 @@ jobs:
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
           command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
+      - store_artifacts:
+          path: build/threadDump/
+          destination: .
       - run:
           name: Run UI tests against the latest stable IntelliJ version
-          command: |
-            ./gradlew -Pheadless -Pagainst=latestStable uiTest
-            echo $(pgrep idea)
+          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
+      - store_artifacts:
+          path: build/threadDump/
+          destination: .
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -97,6 +101,9 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+      - store_artifacts:
+          path: build/threadDump/
+          destination: .
       - store_test_results:
           path: build/test-results/uiTest/
       - when:
