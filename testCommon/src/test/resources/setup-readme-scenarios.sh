@@ -3,16 +3,17 @@
 set -e -o pipefail -u
 
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
-source "$self_dir"/sandbox-setup-utils.sh
+source "$self_dir"/common.sh
 
 sandboxDir=machete-sandbox
-
-init
+mkdir $sandboxDir
+cd $sandboxDir
 
 # Review
-newremote scenario-1
+create_repo scenario-1-remote --bare
 create_repo scenario-1
-git remote add origin ~/$sandboxDir/scenario-1-remote
+cd scenario-1
+git remote add origin ../scenario-1-remote
 
 create_branch master
   commit 'Init'
@@ -38,9 +39,11 @@ master
 EOF
 
 # Branch update
-newremote scenario-2
+cd ..
+create_repo scenario-2-remote --bare
 create_repo scenario-2
-git remote add origin ~/$sandboxDir/scenario-2-remote
+cd scenario-2
+git remote add origin ../scenario-2-remote
 
 create_branch master
   commit 'Init'
@@ -52,9 +55,9 @@ git checkout master
   git merge --ff-only -
   git branch -d common-scripts
   git reset --hard HEAD~1
-  git rev-parse HEAD > ~/$sandboxDir/scenario-2/.git/refs/remotes/origin/master
+  git rev-parse HEAD > ../scenario-2/.git/refs/remotes/origin/master
   git rev-parse HEAD
-  git rev-parse origin/common-scripts > ~/$sandboxDir/scenario-2-remote/refs/heads/master
+  git rev-parse origin/common-scripts > ../scenario-2-remote/refs/heads/master
 create_branch sticky-header
   commit 'Add sticky-header'
   push
@@ -68,9 +71,11 @@ master
 EOF
 
 # Stacker PRs
-newremote scenario-3
+cd ..
+create_repo scenario-3-remote --bare
 create_repo scenario-3
-git remote add origin ~/$sandboxDir/scenario-3-remote
+cd scenario-3
+git remote add origin ../scenario-3-remote
 
 create_branch master
   commit 'Init'
@@ -92,9 +97,11 @@ master
 EOF
 
 # Merge (ff)
-newremote scenario-4
+cd ..
+create_repo scenario-4-remote --bare
 create_repo scenario-4
-git remote add origin ~/$sandboxDir/scenario-4-remote
+cd scenario-4
+git remote add origin ../scenario-4-remote
 
 create_branch master
   commit 'Init'
