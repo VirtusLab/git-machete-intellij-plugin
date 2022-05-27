@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.OptionalInt;
@@ -18,6 +17,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import io.vavr.control.Option;
 import lombok.Data;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -27,8 +27,10 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean cantGetBranchesMessageWasShown = false;
 
@@ -73,7 +75,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (!branchNames.contains(processedBranchName)) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
-              format(getString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo"), processedBranchName))
+              getString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo").format(processedBranchName))
           .range(branch).create();
     }
   }
@@ -115,9 +117,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
         .findFirst();
     if (wrongIndentChar.isPresent()) {
       holder.newAnnotation(HighlightSeverity.ERROR,
-          format(getString("string.GitMachete.MacheteAnnotator.indent-char-not-match"),
-              indentCharToName((char) wrongIndentChar.getAsInt()),
-              indentCharToName(indentationParameters.indentationCharacter)))
+          getString("string.GitMachete.MacheteAnnotator.indent-char-not-match")
+              .format(indentCharToName((char) wrongIndentChar.getAsInt()),
+                  indentCharToName(indentationParameters.indentationCharacter)))
           .range(element).create();
       return;
     }
@@ -125,8 +127,8 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (thisIndentationText.length() % indentationParameters.indentationWidth != 0) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
-              format(getString("string.GitMachete.MacheteAnnotator.indent-width-not-match"),
-                  String.valueOf(indentationParameters.indentationWidth)))
+              getString("string.GitMachete.MacheteAnnotator.indent-width-not-match")
+                  .format(String.valueOf(indentationParameters.indentationWidth)))
           .range(element).create();
     }
 

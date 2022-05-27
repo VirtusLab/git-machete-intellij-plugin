@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 
@@ -21,6 +20,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -29,7 +29,9 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -61,11 +63,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       presentation.setDescription(getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch == null) {
       presentation.setEnabled(false);
-      presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
-          "Slide In", getQuotedStringOrCurrent(branchName)));
+      presentation.setDescription(getString("action.GitMachete.description.disabled.undefined.machete-branch")
+          .format("Slide In", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation.setDescription(
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.description"), branchName));
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.description").format(branchName));
     }
   }
 
@@ -91,7 +93,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"), slideInOptions.getName()),
+          /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail").format(slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
@@ -108,8 +110,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
-            format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names"),
-                slideInOptions.getName(), branchNameFromNewBranchDialog));
+            getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names")
+                .format(slideInOptions.getName(), branchNameFromNewBranchDialog));
         return;
       }
     }
@@ -149,8 +151,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     val repositories = java.util.Collections.singletonList(gitRepository);
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
-        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title"),
-            startPoint),
+        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title")
+            .format(startPoint),
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
@@ -185,11 +187,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           LOCAL_REPOSITORY_NAME,
           refspec,
           "Fetching Remote Branch",
-          format(
-              getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail"), branchName),
-          format(
-              getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success"), branchName))
-                  .queue();
+          getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(branchName),
+          getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(branchName)).queue();
 
     } else if (remoteBranch == null) {
       preSlideInRunnable = () -> {
@@ -237,9 +236,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     val chosen = remotesWithBranch.head();
     if (remotesWithBranch.size() > 1) {
       val title = getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.multiple-remotes");
-      val message = format(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes"),
-          chosen._2().getName(), chosen._1().getName());
+      val message = getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.multiple-remotes")
+          .format(chosen._2().getName(), chosen._1().getName());
       VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
     }
     return chosen._2();

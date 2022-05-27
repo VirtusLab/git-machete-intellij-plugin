@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Objects;
@@ -17,12 +16,15 @@ import com.intellij.vcs.log.impl.VcsProjectLog;
 import git4idea.branch.GitBranchesCollection;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -53,7 +55,7 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
     }
 
     presentation.setDescription(
-        format(getString("action.GitMachete.ShowSelectedBranchInGitLogAction.description.precise"), selectedBranchName.get()));
+        getString("action.GitMachete.ShowSelectedBranchInGitLogAction.description.precise").format(selectedBranchName.get()));
   }
 
   @Override

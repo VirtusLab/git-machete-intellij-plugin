@@ -4,7 +4,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRem
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,6 +16,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -24,7 +24,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -70,8 +72,9 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
     if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
         Presentation presentation = anActionEvent.getPresentation();
-        presentation.setDescription(format(
-            getString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch"), branchName.get()));
+        presentation.setDescription(
+            getString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch")
+                .format(branchName.get()));
         presentation.setEnabled(false);
       }
     }

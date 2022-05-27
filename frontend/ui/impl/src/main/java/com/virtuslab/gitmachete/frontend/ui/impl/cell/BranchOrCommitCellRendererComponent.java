@@ -18,7 +18,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -47,6 +46,7 @@ import com.intellij.vcs.log.ui.render.LabelPainter;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.Data;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -66,8 +66,10 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory;
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnapshotProvider;
 
+@ExtensionMethod(GitMacheteBundle.class)
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
@@ -272,22 +274,19 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         Case($(Untracked),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),
         Case($(AheadOfRemote),
-            format(
-                getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote"),
-                remoteName)),
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote")
+                .format(remoteName)),
         Case($(BehindRemote),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote"),
-                remoteName)),
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote")
+                .format(remoteName)),
         Case($(DivergedFromAndNewerThanRemote),
-            format(
-                getString(
-                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote"),
-                remoteName)),
+            getString(
+                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote")
+                    .format(remoteName)),
         Case($(DivergedFromAndOlderThanRemote),
-            format(
-                getString(
-                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote"),
-                remoteName)));
+            getString(
+                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote")
+                    .format(remoteName)));
   }
 
   @UIEffect
@@ -304,25 +303,23 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     val parentBranchName = branch.getParent().getName();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync"),
-                currentBranchName, parentBranchName)),
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync")
+                .format(currentBranchName, parentBranchName)),
         Case($(InSyncButForkPointOff),
-            format(getString(
-                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off"),
-                currentBranchName, parentBranchName)),
+            getString(
+                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off")
+                    .format(currentBranchName, parentBranchName)),
         Case($(OutOfSync),
-            format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync"),
-                currentBranchName, parentBranchName)),
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync")
+                .format(currentBranchName, parentBranchName)),
         Case($(MergedToParent),
-            format(
-                getString(
-                    "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent"),
-                currentBranchName, parentBranchName)));
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent")
+                .format(currentBranchName, parentBranchName)));
   }
 
   private static String getRootToolTipText(IRootManagedBranchSnapshot branch) {
-    return format(getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root"),
-        branch.getName());
+    return getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root")
+        .format(branch.getName());
   }
 
   private static class MyTableCellRenderer extends DefaultTableCellRenderer {

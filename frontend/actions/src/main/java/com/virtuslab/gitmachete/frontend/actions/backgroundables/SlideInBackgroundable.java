@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
@@ -14,6 +13,7 @@ import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
@@ -23,8 +23,10 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 public class SlideInBackgroundable extends Task.Backgroundable {
 
   private final Project project;
@@ -89,14 +91,14 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
     } catch (EntryDoesNotExistException e) {
       notifyError(
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist"),
-              parentName),
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist")
+              .format(parentName),
           e);
       return;
     } catch (EntryIsDescendantOfException e) {
       notifyError(
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of"),
-              entryToSlideIn.getName(), parentName),
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of")
+              .format(entryToSlideIn.getName(), parentName),
           e);
       return;
     }
@@ -127,22 +129,22 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     } catch (InterruptedException e) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted"),
-              slideInOptions.getName()));
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted")
+              .format(slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout"),
-              slideInOptions.getName()));
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout")
+              .format(slideInOptions.getName()));
     }
   }
 
   private void notifyError(@Nullable String message, Throwable throwable) {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-        /* title */ format(getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail"),
-            slideInOptions.getName()),
+        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail")
+            .format(slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));
   }
 

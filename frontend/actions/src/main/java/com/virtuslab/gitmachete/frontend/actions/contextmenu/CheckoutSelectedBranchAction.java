@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Collections;
@@ -15,13 +14,16 @@ import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -56,12 +58,12 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out"),
-              selectedBranchName.get()));
+          getString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out")
+              .format(selectedBranchName.get()));
 
     } else {
       presentation.setDescription(
-          format(getString("action.GitMachete.CheckoutSelectedBranchAction.description.precise"), selectedBranchName.get()));
+          getString("action.GitMachete.CheckoutSelectedBranchAction.description.precise").format(selectedBranchName.get()));
     }
   }
 

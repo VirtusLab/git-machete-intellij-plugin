@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
@@ -32,6 +31,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -42,8 +42,10 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -153,7 +155,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
       final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
-          format(getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message"),
+          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message").format(
               branchName,
               remoteTrackingBranch.getName(),
               currentCommitSha),
@@ -192,10 +194,10 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         refspecFromRemoteToLocal,
         getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
         getString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"),
-        format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail"),
-            localBranch.getName()),
-        format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success"),
-            localBranch.getName()))
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail")
+            .format(localBranch.getName()),
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success")
+            .format(localBranch.getName()))
                 .queue();
   }
 
@@ -231,8 +233,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           if (result.success()) {
             VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
                 /* title */ "",
-                format(getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success"),
-                    localBranchName));
+                getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success")
+                    .format(localBranchName));
             log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
           } else if (localChangesDetector.wasMessageDetected()) {

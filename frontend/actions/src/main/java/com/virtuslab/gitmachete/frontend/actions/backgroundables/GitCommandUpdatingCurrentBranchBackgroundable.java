@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE;
 import static git4idea.update.GitUpdateSessionKt.getBodyForUpdateNotification;
@@ -43,13 +42,16 @@ import git4idea.update.GitUpdatedRanges;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task.Backgroundable {
 
@@ -184,8 +186,8 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     } else {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
-          format(getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
-              getOperationName()),
+          getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail")
+              .format(getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();
     }

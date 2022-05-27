@@ -6,7 +6,6 @@ import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static io.vavr.API.$;
@@ -54,6 +53,7 @@ import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -73,6 +73,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGraph;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
@@ -86,6 +87,7 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
  *  repository for actions
  */
 // TODO (#99): consider applying SpeedSearch for branches and commits
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
@@ -197,8 +199,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           return;
         } else {
           setTextForEmptyTable(
-              format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file"),
-                  macheteFilePath.toString()));
+              getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
+                  .format(macheteFilePath.toString()));
         }
       }
     }
@@ -237,8 +239,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
       GitRepository gitRepository) {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-        format(getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text"),
-            String.join(", ", repositorySnapshot.getSkippedBranchNames())),
+        getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text")
+            .format(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
         NotificationType.WARNING);
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
@@ -310,8 +312,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
     return (Path macheteFilePath) -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
         () -> setTextForEmptyTable(
-            format(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout"),
-                macheteFilePath.toString())));
+            getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
+                .format(macheteFilePath.toString())));
   }
 
   @Override

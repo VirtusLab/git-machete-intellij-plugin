@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -11,6 +10,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -22,7 +22,9 @@ import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -91,9 +93,9 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
       String fetchNotificationPrefix = isUpToDate
-          ? format(getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform"),
-              FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-          : format(getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform"));
+          ? getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
+              .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
+          : getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform").format();
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
           fetchNotificationPrefix);
 
@@ -123,9 +125,8 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        format(getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail"),
-            remoteBranch.getName()),
-        format(getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success"), remoteBranch.getName())) {
+        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(remoteBranch.getName()),
+        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(remoteBranch.getName())) {
 
       @Override
       @UIEffect

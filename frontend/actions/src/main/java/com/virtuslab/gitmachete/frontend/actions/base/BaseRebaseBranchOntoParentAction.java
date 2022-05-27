@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -26,6 +25,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -37,8 +37,10 @@ import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -86,8 +88,9 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           Case($(), ": " + state.get().name().toLowerCase()));
 
       presentation.setEnabled(false);
-      presentation.setDescription(format(
-          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status"), stateName));
+      presentation.setDescription(
+          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status")
+              .format(stateName));
     } else {
 
       val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
@@ -97,15 +100,15 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
       if (branch == null) {
         presentation.setEnabled(false);
-        presentation.setDescription(format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
-            "Rebase", getQuotedStringOrCurrent(branchName)));
+        presentation.setDescription(getString("action.GitMachete.description.disabled.undefined.machete-branch")
+            .format("Rebase", getQuotedStringOrCurrent(branchName)));
       } else if (branch.isRoot()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
-              format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch"),
-                  branch.getName()));
+              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch")
+                  .format(branch.getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
@@ -114,8 +117,8 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         IManagedBranchSnapshot upstream = nonRootBranch.getParent();
-        presentation.setDescription(format(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description"),
-            branch.getName(), upstream.getName()));
+        presentation.setDescription(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description")
+            .format(branch.getName(), upstream.getName()));
       }
 
       val isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)

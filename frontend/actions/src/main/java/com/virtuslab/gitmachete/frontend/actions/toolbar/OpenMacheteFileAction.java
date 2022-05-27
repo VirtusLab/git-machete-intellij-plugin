@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -15,12 +14,15 @@ import git4idea.config.GitVcsSettings;
 import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
@@ -59,8 +61,8 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     if (macheteFile.isEmpty()) {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-          /* message */ format(getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
-              gitDir.get().getPath()));
+          /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
+              .format(gitDir.get().getPath()));
     } else {
       VirtualFile file = macheteFile.get();
       if (file.isDirectory()) {
