@@ -156,25 +156,25 @@ jobs:
           name: Reconfigure origin remote to https
           command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
       - run:
-          name: Configure email and name
+          name: Configure github user information
           command: |
-            git config user.email "cron_job@example.com"
-            git config user.name "cron_job"
+            git config user.email "gitmachete@virtuslab.com"
+            git config user.name "Git Machete Bot"
       - run:
           # language=sh
           command: |
             ./gradlew updateEapBuildNumber
-            if [[ `git status --porcelain` ]]; then
-              newEapBuildNumber=$(git diff intellijVersions.properties | grep -o '+eapOfLatestSupportedMajor.*' | cut -d= -f2)
-              branch=updateEap/$newEapBuildNumber
+            if ! git diff --exit-code --quiet intellijVersions.properties ; then
+              newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
+              branch=update-eap/$newEapBuildNumber
               git checkout -b "$branch"
               git add .
-              git commit -m "New eap build number $newEapBuildNumber"
+              git commit -m "Add new eap build number $newEapBuildNumber"
               git push origin "$branch"
               hub pull-request \
                 --no-edit \
                 --base=develop \
-                --labels=ci
+                --labels=intellij-support
             fi
 
 workflows:
@@ -185,7 +185,7 @@ workflows:
   updateEapBuildNumber:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: "* * * * *"
           filters:
             branches:
               only:
