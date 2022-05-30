@@ -63,6 +63,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.acceptCreateNewBranch()")
       }
 
+      def acceptRebase(): Unit = {
+        runJs("project.acceptRebase()")
+        intelliJ.probe.await()
+      }
+
       def acceptSlideIn(): Unit = {
         runJs("project.acceptSlideIn()")
       }
