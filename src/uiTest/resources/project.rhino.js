@@ -18,6 +18,9 @@ importClass(org.assertj.swing.fixture.JTableFixture);
 importClass(org.assertj.swing.data.TableCell);
 importClass(javax.swing.JMenuItem);
 
+importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
+importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
+
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
 
@@ -198,6 +201,12 @@ function Project(underlyingProject) {
     }
   };
 
+  this.toolbar = {
+      fetchAll: function () {
+          findAndClickToolbarButton('Fetch All Remotes');
+      }
+  }
+
   this.findTextFieldAndWrite = function (text, instant) {
     const getTextField = function () {
           // findAll() returns a LinkedHashSet
@@ -266,6 +275,25 @@ function Project(underlyingProject) {
     }
     robot.click(button);
   }
+
+  const findAndClickToolbarButton = function (name) {
+    let fullName = 'Git Machete: ' + name;
+    const getButton = function () {
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(component =>
+        component instanceof ActionButton && fullName.equals(component.getAction().getTemplatePresentation().getText())
+      ).toArray();
+      return result.length === 1 ? result[0] : null;
+    };
+
+    // The action is invoked asynchronously, let's first make sure the button has already appeared.
+    let button = getButton();
+    while (button === null) {
+      sleep();
+      button = getButton();
+    }
+    robot.click(button);
+ }
 
   const findAndClickContextMenuAction = function (name) {
     const getActionMenuItem = function () {
