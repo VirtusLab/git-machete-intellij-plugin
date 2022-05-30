@@ -172,6 +172,14 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
       }
 
+      object toolbar {
+
+        def fetchAll(): Unit = {
+          runJs(s"project.toolbar.fetchAll()")
+          intelliJ.probe.await()
+        }
+      }
+
       def discoverBranchLayout(): Unit = {
         runJs("project.discoverBranchLayout()")
         intelliJ.probe.await()

@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
-import com.virtuslab.gitmachete.uitest.UITestSuite.intelliJ
 
 import scala.language.postfixOps
 import scala.sys.process._
@@ -10,38 +9,16 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit._
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.dependencies._
 
 import java.io._
 import java.nio.file.{Files, Path}
 import java.nio.file.attribute.FileTime
 
-object UITestSuite
-  extends RunningIntelliJPerSuite
-    with IdeProbeFixture
-    with RunningIntelliJFixtureExtension {
-
-  lazy val intelliJVersion: IntelliJVersion = {
-    val version = sys.props.get("ui-test.intellij.version")
-      .filterNot(_.isEmpty).getOrElse(throw new Exception("IntelliJ version is not provided"))
-    // We're cheating here a bit since `version` might be either a build number or a release number,
-    // while we're always treating it as a build number.
-    // Still, as of ide-probe 0.26.0, even when release number like `2020.3` is passed as `build`, UI tests work just fine.
-    IntelliJVersion(build = version, release = None)
-  }
-
-  override protected def baseFixture: IntelliJFixture = {
-    // By default, the config is taken from <class-name>.conf resource, see org.virtuslab.ideprobe.IdeProbeFixture.resolveConfig
-    fixtureFromConfig().withVersion(intelliJVersion)
-  }
-
-}
-
 @RunWith(classOf[JUnit4])
 class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH_SINGLE_REMOTE) {
 
-  import UITestSuite._
+  import UISuite._
+  UISuite.setup()
 
   @Before
   def beforeEach(): Unit = {
