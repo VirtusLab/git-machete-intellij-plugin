@@ -202,54 +202,54 @@ function Project(underlyingProject) {
   };
 
   this.toolbar = {
-      fetchAll: function () {
-          findAndClickToolbarButton('Fetch All Remotes');
-      }
+    fetchAll: function () {
+      findAndClickToolbarButton('Fetch All Remotes');
+    }
   }
 
   this.findTextFieldAndWrite = function (text, instant) {
     const getTextField = function () {
-          // findAll() returns a LinkedHashSet
-          const result = robot.finder().findAll(component =>
-            'com.intellij.ui.components.JBTextField'
-            .equals(component.getClass().getName()))
-            .toArray();
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(component =>
+        'com.intellij.ui.components.JBTextField'
+        .equals(component.getClass().getName()))
+        .toArray();
 
-          return result.length === 1 ? result[0] : null;
-        };
+      return result.length === 1 ? result[0] : null;
+    };
 
     let textField = getTextField();
     if (instant) {
-        textField.setText(text);
+      textField.setText(text);
     } else {
-        for (var i = 0; i < text.length; i++) {
-            sleep();
-            let t = textField.getText() + text[i];
-            textField.setText(t);
-        }
+      for (var i = 0; i < text.length; i++) {
+        sleep();
+        let t = textField.getText() + text[i];
+        textField.setText(t);
+      }
     }
   }
 
   this.findCellAndRightClick = function (name) {
     const getTable = function () {
-          // findAll() returns a LinkedHashSet
-          const result = robot.finder().findAll(component =>
-            'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'
-            .equals(component.getClass().getName()))
-            .toArray();
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(component =>
+        'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'
+        .equals(component.getClass().getName()))
+        .toArray();
 
-          return result.length === 1 ? result[0] : null;
-        };
+      return result.length === 1 ? result[0] : null;
+    };
 
     let table = getTable();
     let fixture = new JTableFixture(robot, table);
     let contents = fixture.contents();
 
     const getCellRow = function () {
-        const result = IntStream.range(0, contents.length)
-          .filter(idx => contents[idx][0].includes('text=' + name))
-          .toArray();
-        return result.length === 1 ? result[0] : null;
+      const result = IntStream.range(0, contents.length)
+        .filter(idx => contents[idx][0].includes('text=' + name))
+        .toArray();
+      return result.length === 1 ? result[0] : null;
     };
 
     let cellRow = getCellRow();
@@ -262,7 +262,7 @@ function Project(underlyingProject) {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(component =>
         'javax.swing.JButton'.equals(component.getClass().getName())
-            && name.equals(component.getText())
+          && name.equals(component.getText())
       ).toArray();
       return result.length === 1 ? result[0] : null;
     };
@@ -300,7 +300,7 @@ function Project(underlyingProject) {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(component =>
         'com.intellij.openapi.actionSystem.impl.ActionMenuItem'.equals(component.getClass().getName())
-            && name.equals(component.getText())
+          && name.equals(component.getText())
       ).toArray();
       return result.length === 1 ? result[0] : null;
     };
