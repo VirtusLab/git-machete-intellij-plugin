@@ -10,7 +10,7 @@ public final class GitCoreTreeHash extends GitCoreObjectHash implements IGitCore
     super(objectId);
   }
 
-  static IGitCoreTreeHash of(ObjectId objectId) {
+  public static IGitCoreTreeHash of(ObjectId objectId) {
     return new GitCoreTreeHash(objectId);
   }
 

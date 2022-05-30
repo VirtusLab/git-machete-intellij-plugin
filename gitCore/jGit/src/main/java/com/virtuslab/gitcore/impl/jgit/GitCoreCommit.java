@@ -3,6 +3,7 @@ package com.virtuslab.gitcore.impl.jgit;
 import java.time.Instant;
 
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.NonLeaked;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -11,6 +12,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreTreeHash;
 
+@ExtensionMethod(GitCoreTreeHash.class)
 @Getter
 public class GitCoreCommit implements IGitCoreCommit {
   private final String shortMessage;
@@ -22,7 +24,7 @@ public class GitCoreCommit implements IGitCoreCommit {
     this.shortMessage = commit.getShortMessage();
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
     this.hash = GitCoreCommitHash.of(commit.getId());
-    this.treeHash = GitCoreTreeHash.of(commit.getTree().getId());
+    this.treeHash = commit.getTree().getId().of();
   }
 
   @Override

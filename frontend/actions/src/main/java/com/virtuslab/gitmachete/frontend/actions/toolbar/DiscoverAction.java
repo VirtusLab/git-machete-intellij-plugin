@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -20,6 +19,7 @@ import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -31,10 +31,12 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class DiscoverAction extends BaseProjectDependentAction {
 
@@ -90,13 +92,13 @@ public class DiscoverAction extends BaseProjectDependentAction {
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        GitVfsUtils.getMacheteFilePath(gitRepository), project, graphTable, branchLayoutWriter, () -> {});
+        gitRepository.getMacheteFilePath(), project, graphTable, branchLayoutWriter, () -> {});
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        GitVfsUtils.getMacheteFilePath(gitRepository), project, graphTable,
+        gitRepository.getMacheteFilePath(), project, graphTable,
         branchLayoutWriter, () -> openMacheteFile(project, gitRepository));
   }
 
@@ -109,9 +111,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-          /* message */ format(
-              getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found"),
-              gitRepository.getRoot().getPath()));
+          /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
+              .format(gitRepository.getRoot().getPath()));
     }
   }
 

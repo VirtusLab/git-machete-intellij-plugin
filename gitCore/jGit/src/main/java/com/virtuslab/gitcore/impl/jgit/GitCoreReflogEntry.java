@@ -6,6 +6,7 @@ import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.eclipse.jgit.lib.ReflogEntry;
 
@@ -14,6 +15,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
 @RequiredArgsConstructor(access = AccessLevel.MODULE)
+@ExtensionMethod(GitCoreCommitHash.class)
 @ToString(onlyExplicitlyIncluded = true)
 @UsesObjectEquals
 public class GitCoreReflogEntry implements IGitCoreReflogEntry {
@@ -35,13 +37,13 @@ public class GitCoreReflogEntry implements IGitCoreReflogEntry {
   @Override
   @ToString.Include(name = "oldCommitHash")
   public Option<IGitCoreCommitHash> getOldCommitHash() {
-    return GitCoreCommitHash.ofZeroable(reflogEntry.getOldId());
+    return reflogEntry.getOldId().ofZeroable();
   }
 
   @Override
   @ToString.Include(name = "newCommitHash")
   public IGitCoreCommitHash getNewCommitHash() {
-    return GitCoreCommitHash.of(reflogEntry.getNewId());
+    return reflogEntry.getNewId().of();
   }
 
   @Override

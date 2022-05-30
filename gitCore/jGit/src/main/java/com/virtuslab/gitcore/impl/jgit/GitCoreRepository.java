@@ -26,6 +26,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.eclipse.jgit.lib.Constants;
@@ -52,6 +53,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
+@ExtensionMethod(GitCoreCommitHash.class)
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 public final class GitCoreRepository implements IGitCoreRepository {
@@ -386,7 +388,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
-        return Option.some(GitCoreCommitHash.of(mergeBase.getId()));
+        return Option.some(mergeBase.getId().of());
       } else {
         return Option.none();
       }
