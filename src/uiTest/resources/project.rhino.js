@@ -147,6 +147,10 @@ function Project(underlyingProject) {
     findAndClickButton('Slide In');
   };
 
+  this.acceptRebase = function () {
+    findAndClickButton('Start Rebasing');
+  };
+
   this.acceptSuggestedBranchLayout = function () {
     findAndClickButton('Yes');
   };

@@ -51,8 +51,10 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.project.contextMenu.pull()
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.checkoutAndSyncByRebase()
+    intelliJ.project.acceptRebase()
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
     intelliJ.project.contextMenu.checkoutAndSyncByRebase()
+    intelliJ.project.acceptRebase()
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.push()
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
@@ -62,6 +64,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   @Test def scenario_3(): Unit = {
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
     intelliJ.project.contextMenu.syncByRebase() // todo: consider using merge in this example
+    intelliJ.project.acceptRebase()
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.push()
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
