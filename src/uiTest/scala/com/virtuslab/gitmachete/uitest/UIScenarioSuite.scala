@@ -5,6 +5,7 @@ import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_README_SCENARIOS
 import org.junit._
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.virtuslab.ideprobe.ProbeDriver
 
 @RunWith(classOf[JUnit4])
 class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_README_SCENARIOS) {
@@ -14,17 +15,19 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   private val project = intelliJ.project
 
+  private val probe: ProbeDriver = intelliJ.probe
+
   @Before
   def beforeEach(): Unit = {
-    intelliJ.probe.openProject(rootDirectoryPath)
+    probe.openProject(rootDirectoryPath)
     project.configure()
-    intelliJ.probe.await()
+    probe.await()
     project.openGitMacheteTab()
   }
 
   @After
   def afterEach(): Unit = {
-    intelliJ.probe.await()
+    probe.await()
     // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
     // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
     intelliJ.ide.closeOpenedProjects()

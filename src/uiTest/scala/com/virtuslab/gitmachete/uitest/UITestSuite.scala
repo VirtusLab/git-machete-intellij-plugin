@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit._
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.ProbeDriver
 
 import java.io._
 import java.nio.file.{Files, Path}
@@ -22,16 +23,18 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   private val project = intelliJ.project
 
+  private val probe: ProbeDriver = intelliJ.probe
+
   @Before
   def beforeEach(): Unit = {
-    intelliJ.probe.openProject(rootDirectoryPath)
+    probe.openProject(rootDirectoryPath)
     project.configure()
-    intelliJ.probe.await()
+    probe.await()
   }
 
   @After
   def afterEach(): Unit = {
-    intelliJ.probe.await()
+    probe.await()
     // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
     // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
     intelliJ.ide.closeOpenedProjects()
@@ -88,7 +91,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     setLastModifiedDateOfMacheteFileToEpochStart()
     project.openGitMacheteTab()
     project.acceptSuggestedBranchLayout()
-    intelliJ.probe.await()
+    probe.await()
     var branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()
@@ -193,7 +196,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   private def saveThreadDumpToFile(): Unit = {
-    val pid = intelliJ.probe.pid()
+    val pid = probe.pid()
     val threadStackTrace: String = Process("jstack " + pid) !!
     val file: File = new File("build/thread-dump/thread_dump_" + pid + ".txt")
     if (file.getParentFile.mkdirs()) {
