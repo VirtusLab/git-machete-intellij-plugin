@@ -20,10 +20,12 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   import UISuite._
   UISuite.setup()
 
+  private val project = intelliJ.project
+
   @Before
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(rootDirectoryPath)
-    intelliJ.project.configure()
+    project.configure()
     intelliJ.probe.await()
   }
 
@@ -38,7 +40,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     //TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
-      intelliJ.project.openGitMacheteTab()
+      project.openGitMacheteTab()
       overwriteMacheteFile(
         """develop
           |  non-existent
@@ -50,28 +52,28 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
           |master
           |  hotfix/add-trigger""".stripMargin
       )
-      val managedBranches = intelliJ.project.refreshModelAndGetManagedBranches()
+      val managedBranches = project.refreshModelAndGetManagedBranches()
       // Non-existent branches should be skipped while causing no error (only a low-severity notification).
       Assert.assertEquals(
         Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
         managedBranches.toSeq.sorted)
-      intelliJ.project.toggleListingCommits()
-      var branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      project.toggleListingCommits()
+      var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 6 branch rows + 7 commit rows
       Assert.assertEquals(13, branchAndCommitRowsCount)
 
       // Let's slide out a root branch now
-      intelliJ.project.slideOutBranch("develop")
-      intelliJ.project.acceptBranchDeletionOnSlideOut()
-      branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      project.slideOutBranch("develop")
+      project.acceptBranchDeletionOnSlideOut()
+      branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 5 branch rows (`develop` is no longer there) + 3 commit rows
       // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
       Assert.assertEquals(8, branchAndCommitRowsCount)
 
-      intelliJ.project.checkoutBranch("develop")
-      intelliJ.project.slideOutBranch("call-ws")
-      intelliJ.project.rejectBranchDeletionOnSlideOut()
-      branchAndCommitRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+      project.checkoutBranch("develop")
+      project.slideOutBranch("call-ws")
+      project.rejectBranchDeletionOnSlideOut()
+      branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
       Assert.assertEquals(7, branchAndCommitRowsCount)
     } catch {
@@ -84,93 +86,109 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.acceptSuggestedBranchLayout()
+    project.openGitMacheteTab()
+    project.acceptSuggestedBranchLayout()
     intelliJ.probe.await()
-    var branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+    var branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     deleteMacheteFile()
     // When model is refreshed and machete file is empty, then autodiscover should occur
-    branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+    branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
     // Now let's test an explicit discover instead
-    intelliJ.project.discoverBranchLayout()
-    branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+    project.discoverBranchLayout()
+    branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(7, branchRowsCount)
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
     overwriteMacheteFile("non-existent")
-    branchRowsCount = intelliJ.project.refreshModelAndGetRowCount()
+    branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(0, branchRowsCount)
   }
 
   // TODO (#843): merge current/non-current branch ui test cases (for the other actions too!)
   @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("master")
+    project.openGitMacheteTab()
+    project.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    intelliJ.project.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
-    intelliJ.project.assertBranchesAreEqual("master", "hotfix/add-trigger")
-    intelliJ.project.assertNoUncommittedChanges()
+    project.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
+    project.assertBranchesAreEqual("master", "hotfix/add-trigger")
+    project.assertNoUncommittedChanges()
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("hotfix/add-trigger")
-    intelliJ.project.fastForwardMergeCurrentBranchToParent()
-    intelliJ.project.assertBranchesAreEqual("master", "hotfix/add-trigger")
-    intelliJ.project.assertNoUncommittedChanges()
+    project.openGitMacheteTab()
+    project.checkoutBranch("hotfix/add-trigger")
+    project.fastForwardMergeCurrentBranchToParent()
+    project.assertBranchesAreEqual("master", "hotfix/add-trigger")
+    project.assertNoUncommittedChanges()
   }
 
-  @Test def mergeParentIntoBranch(): Unit = {
+  @Ignore("UI tests are time-consuming and sync by rebase is used so frequently that any issues will be found quickly anyway")
+  @Test def syncToParentByRebaseAction(): Unit = {
 
-    // mergeParentIntoCurrentBranch
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("allow-ownership-link")
-    intelliJ.project.syncCurrentToParentByMergeAction()
-    intelliJ.project.assertSyncToParentStatus("allow-ownership-link", "InSync")
+    // syncCurrentToParentByRebase
+    project.openGitMacheteTab()
+    project.checkoutBranch("allow-ownership-link")
+    project.syncCurrentToParentByRebaseAction()
+    project.acceptRebase()
+    project.assertSyncToParentStatus("allow-ownership-link", "InSync")
 
-    // mergeParentIntoNonCurrentBranch
-    intelliJ.project.syncSelectedToParentByMergeAction("build-chain")
-    intelliJ.project.assertSyncToParentStatus("build-chain", "InSync")
+    // syncSelectedToParentByRebase
+    project.syncSelectedToParentByRebaseAction("build-chain")
+    project.acceptRebase()
+    project.assertSyncToParentStatus("build-chain", "InSync")
+  }
+
+  @Test def syncToParentByMergeAction(): Unit = {
+
+    // syncCurrentToParentByMerge
+    project.openGitMacheteTab()
+    project.checkoutBranch("allow-ownership-link")
+    project.syncCurrentToParentByMergeAction()
+    project.assertSyncToParentStatus("allow-ownership-link", "InSync")
+
+    // syncSelectedToParentByMerge
+    project.syncSelectedToParentByMergeAction("build-chain")
+    project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
   @Test def pullCurrentBranch(): Unit = {
-    intelliJ.project.openGitMacheteTab()
+    project.openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
-    intelliJ.project.checkoutBranch("allow-ownership-link")
-    intelliJ.project.pullCurrentBranch()
-    intelliJ.project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
-    intelliJ.project.assertNoUncommittedChanges()
+    project.checkoutBranch("allow-ownership-link")
+    project.pullCurrentBranch()
+    project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
+    project.assertNoUncommittedChanges()
   }
 
   @Test def pullNonCurrentBranch(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("develop")
-    intelliJ.project.pullSelectedBranch("allow-ownership-link")
-    intelliJ.project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
-    intelliJ.project.assertNoUncommittedChanges()
+    project.openGitMacheteTab()
+    project.checkoutBranch("develop")
+    project.pullSelectedBranch("allow-ownership-link")
+    project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
+    project.assertNoUncommittedChanges()
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("hotfix/add-trigger")
-    intelliJ.project.resetCurrentBranchToRemote()
-    intelliJ.project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
-    intelliJ.project.assertNoUncommittedChanges()
-    val currentBranchName = intelliJ.project.getCurrentBranchName()
+    project.openGitMacheteTab()
+    project.checkoutBranch("hotfix/add-trigger")
+    project.resetCurrentBranchToRemote()
+    project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
+    project.assertNoUncommittedChanges()
+    val currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
   }
 
   @Test def resetNonCurrentBranchToRemote(): Unit = {
-    intelliJ.project.openGitMacheteTab()
-    intelliJ.project.checkoutBranch("develop")
-    intelliJ.project.resetBranchToRemote("hotfix/add-trigger")
-    intelliJ.project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
-    intelliJ.project.assertNoUncommittedChanges()
-    val currentBranchName = intelliJ.project.getCurrentBranchName()
+    project.openGitMacheteTab()
+    project.checkoutBranch("develop")
+    project.resetBranchToRemote("hotfix/add-trigger")
+    project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
+    project.assertNoUncommittedChanges()
+    val currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)
   }
 

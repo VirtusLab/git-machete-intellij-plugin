@@ -135,12 +135,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
         def checkoutAndSyncByRebase(): Unit = {
           runJs(s"project.contextMenu.checkoutAndSyncByRebase()")
-          intelliJ.probe.await()
         }
 
         def syncByRebase(): Unit = {
           runJs(s"project.contextMenu.syncByRebase()")
-          intelliJ.probe.await()
         }
 
         def checkoutAndSyncByMerge(): Unit = {
@@ -236,6 +234,14 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def getSyncToParentStatus(child: String): String = {
         callJs(s"project.getSyncToParentStatus('$child')")
+      }
+
+      def syncSelectedToParentByRebaseAction(branch: String): Unit = {
+        runJs(s"project.syncSelectedToParentByRebaseAction('$branch')")
+      }
+
+      def syncCurrentToParentByRebaseAction(): Unit = {
+        runJs(s"project.syncCurrentToParentByRebaseAction()")
       }
 
       def syncSelectedToParentByMergeAction(branch: String): Unit = {
