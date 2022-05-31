@@ -1,10 +1,23 @@
 version: 2.1
-jobs:
-  build:
+commands:
+  reconfigure_origin_remote:
+    steps:
+    - run:
+        name: Reconfigure origin remote to https
+        command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+executors:
+  docker_executor:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:6.1.0'
+      - image: "gitmachete/intellij-plugin-ci:6.1.0"
     working_directory: ~/git-machete-intellij-plugin
     resource_class: large
+parameters:
+  image-name:
+    type: string
+    default: "gitmachete/intellij-plugin-ci:6.1.0"
+jobs:
+  build:
+    executor: docker_executor
     steps:
       - checkout
       - run:
@@ -24,6 +37,7 @@ jobs:
       - run:
           name: Start Gradle daemon
           command: ./gradlew
+
       - run:
           name: Validate Markdown files
           # language=sh
@@ -116,14 +130,12 @@ jobs:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
+            - checkout
+            - reconfigure_origin_remote
             - run:
                 # Publishing should be the first step since if it fails, we should NOT proceed with opening backport PR/GitHub release, etc.
                 name: Publish plugin to Jetbrains Marketplace
                 command: ./gradlew publishPlugin
-            - run:
-                # It was hard to make `git push`/`hub pull-request` to work with SSH repo access in CI.
-                name: Reconfigure origin remote to https
-                command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
             - run:
                 name: Push git tag
                 # language=sh
@@ -145,16 +157,13 @@ jobs:
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
+
+
   checkForNewEapBuildNumber:
-    docker:
-      - image: 'gitmachete/intellij-plugin-ci:6.1.0'
-    working_directory: ~/git-machete-intellij-plugin
-    resource_class: large
+    executor: docker_executor
     steps:
       - checkout
-      - run:
-          name: Reconfigure origin remote to https
-          command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+      - reconfigure_origin_remote
       - run:
           name: Configure github user information
           command: |
@@ -166,15 +175,17 @@ jobs:
             ./gradlew updateEapBuildNumber
             if ! git diff --exit-code --quiet intellijVersions.properties ; then
               newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
-              branch=update-eap/$newEapBuildNumber
-              git checkout -b "$branch"
-              git add .
-              git commit -m "Add new eap build number $newEapBuildNumber"
-              git push origin "$branch"
-              hub pull-request \
-                --no-edit \
-                --base=develop \
-                --labels=intellij-support
+              branch_name=update-eap/$newEapBuildNumber
+              if ! git ls-remote --exit-code --heads origin $branch_name ; then
+                git checkout -b "$branch_name"
+                git add intellijVersions.properties
+                git commit -m "Add new eap build number $newEapBuildNumber"
+                git push origin "$branch_name"
+                hub pull-request \
+                  --no-edit \
+                  --base=develop \
+                  --labels=intellij-support
+              fi
             fi
 
 workflows:
@@ -182,7 +193,7 @@ workflows:
   build:
     jobs:
       - build
-  updateEapBuildNumber:
+  checkForNewEapBuildNumber:
     triggers:
       - schedule:
           cron: "0 0 * * *"
