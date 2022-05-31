@@ -12,12 +12,14 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   import UISuite._
   UISuite.setup()
 
+  private val project = intelliJ.project
+
   @Before
   def beforeEach(): Unit = {
     intelliJ.probe.openProject(rootDirectoryPath)
-    intelliJ.project.configure()
+    project.configure()
     intelliJ.probe.await()
-    intelliJ.project.openGitMacheteTab()
+    project.openGitMacheteTab()
   }
 
   @After
@@ -29,63 +31,63 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   }
 
   @Test def scenario_1(): Unit = {
-    intelliJ.project.switchRepo(0)
-    intelliJ.project.toolbar.toggleListingCommits()
-    intelliJ.project.contextMenu.openContextMenu("master")
-    intelliJ.project.contextMenu.slideIn()
-    intelliJ.project.writeToTextField("common-scripts")
-    intelliJ.project.acceptSlideIn()
-    intelliJ.project.acceptCreateNewBranch()
-    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
-    intelliJ.project.contextMenu.checkout()
-    intelliJ.project.contextMenu.openContextMenu("common-scripts")
-    intelliJ.project.contextMenu.slideOut()
+    project.switchRepo(0)
+    project.toolbar.toggleListingCommits()
+    project.contextMenu.openContextMenu("master")
+    project.contextMenu.slideIn()
+    project.writeToTextField("common-scripts")
+    project.acceptSlideIn()
+    project.acceptCreateNewBranch()
+    project.contextMenu.openContextMenu("fancy-footer")
+    project.contextMenu.checkout()
+    project.contextMenu.openContextMenu("common-scripts")
+    project.contextMenu.slideOut()
   }
 
   @Test def scenario_2(): Unit = {
-    intelliJ.project.switchRepo(1)
-    intelliJ.project.toolbar.toggleListingCommits()
-    intelliJ.project.toolbar.fetchAll()
-    intelliJ.project.contextMenu.openContextMenu("master")
-    intelliJ.project.contextMenu.pull()
-    intelliJ.project.contextMenu.openContextMenu("sticky-header")
-    intelliJ.project.contextMenu.checkoutAndSyncByRebase()
-    intelliJ.project.acceptRebase()
-    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
-    intelliJ.project.contextMenu.checkoutAndSyncByRebase()
-    intelliJ.project.acceptRebase()
-    intelliJ.project.contextMenu.openContextMenu("sticky-header")
-    intelliJ.project.contextMenu.push()
-    intelliJ.project.acceptForcePush()
-    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
-    intelliJ.project.contextMenu.push()
-    intelliJ.project.acceptForcePush()
+    project.switchRepo(1)
+    project.toolbar.toggleListingCommits()
+    project.toolbar.fetchAll()
+    project.contextMenu.openContextMenu("master")
+    project.contextMenu.pull()
+    project.contextMenu.openContextMenu("sticky-header")
+    project.contextMenu.checkoutAndSyncByRebase()
+    project.acceptRebase()
+    project.contextMenu.openContextMenu("fancy-footer")
+    project.contextMenu.checkoutAndSyncByRebase()
+    project.acceptRebase()
+    project.contextMenu.openContextMenu("sticky-header")
+    project.contextMenu.push()
+    project.acceptForcePush()
+    project.contextMenu.openContextMenu("fancy-footer")
+    project.contextMenu.push()
+    project.acceptForcePush()
   }
 
   @Test def scenario_3(): Unit = {
-    intelliJ.project.switchRepo(2)
-    intelliJ.project.toolbar.toggleListingCommits()
-    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
-    intelliJ.project.contextMenu.syncByRebase() // consider using merge in this example
-    intelliJ.project.acceptRebase()
-    intelliJ.project.contextMenu.openContextMenu("sticky-header")
-    intelliJ.project.contextMenu.push()
-    intelliJ.project.acceptPush()
-    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
-    intelliJ.project.contextMenu.push()
-    intelliJ.project.acceptForcePush()
+    project.switchRepo(2)
+    project.toolbar.toggleListingCommits()
+    project.contextMenu.openContextMenu("fancy-footer")
+    project.contextMenu.checkoutAndSyncByRebase() // consider using merge in this example
+    project.acceptRebase()
+    project.contextMenu.openContextMenu("sticky-header")
+    project.contextMenu.push()
+    project.acceptPush()
+    project.contextMenu.openContextMenu("fancy-footer")
+    project.contextMenu.push()
+    project.acceptForcePush()
   }
 
   @Test def scenario_4(): Unit = {
-    intelliJ.project.switchRepo(3)
-    intelliJ.project.toolbar.toggleListingCommits()
-    intelliJ.project.contextMenu.openContextMenu("sticky-header")
-    intelliJ.project.contextMenu.fastForwardMerge()
-    intelliJ.project.contextMenu.openContextMenu("master")
-    intelliJ.project.contextMenu.push()
-    intelliJ.project.acceptPush()
-    intelliJ.project.contextMenu.openContextMenu("sticky-header")
-    intelliJ.project.contextMenu.slideOut()
+    project.switchRepo(3)
+    project.toolbar.toggleListingCommits()
+    project.contextMenu.openContextMenu("sticky-header")
+    project.contextMenu.fastForwardMerge()
+    project.contextMenu.openContextMenu("master")
+    project.contextMenu.push()
+    project.acceptPush()
+    project.contextMenu.openContextMenu("sticky-header")
+    project.contextMenu.slideOut()
   }
 
 }

@@ -359,6 +359,14 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.FastForwardMergeCurrentBranchToParentAction', ACTION_PLACE_TOOLBAR, {});
   };
 
+  this.syncSelectedToParentByRebaseAction = function (branchName) {
+    invokeActionAsync('GitMachete.SyncSelectedToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.syncCurrentToParentByRebaseAction = function (branchName) {
+    invokeActionAsync('GitMachete.SyncCurrentToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, {});
+  };
+
   this.syncSelectedToParentByMergeAction = function (branchName) {
     invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
