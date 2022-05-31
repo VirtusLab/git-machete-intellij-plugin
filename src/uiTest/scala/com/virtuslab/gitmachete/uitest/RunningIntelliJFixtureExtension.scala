@@ -122,13 +122,13 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getSyncToParentStatus('$child')")
       }
 
-      def mergeParentIntoSelectedBranchAction(branch: String): Unit = {
-        runJs(s"project.mergeParentIntoSelectedBranchAction('$branch')")
+      def syncSelectedToParentByMergeAction(branch: String): Unit = {
+        runJs(s"project.syncSelectedToParentByMergeAction('$branch')")
         intelliJ.probe.await()
       }
 
-      def mergeParentIntoCurrentBranchAction(): Unit = {
-        runJs(s"project.mergeParentIntoCurrentBranchAction()")
+      def syncCurrentToParentByMergeAction(): Unit = {
+        runJs(s"project.syncCurrentToParentByMergeAction()")
         intelliJ.probe.await()
       }
 

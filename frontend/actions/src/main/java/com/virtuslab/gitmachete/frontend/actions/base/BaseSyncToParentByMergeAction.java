@@ -26,7 +26,7 @@ import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {
@@ -38,12 +38,12 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
-    return getString("action.GitMachete.BaseMergeParentIntoBranchAction.description-action-name");
+    return getString("action.GitMachete.BaseSyncToParentByMergeAction.description-action-name");
   }
 
   @Override
   public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseMergeParentIntoBranchAction.description");
+    return getString("action.GitMachete.BaseSyncToParentByMergeAction.description");
   }
 
   @Override
@@ -65,7 +65,7 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
     val isMergingIntoCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
         .map(bn -> bn.equals(branch.getName())).getOrElse(false);
     if (isCalledFromContextMenu && isMergingIntoCurrent) {
-      presentation.setText(getString("action.GitMachete.BaseMergeParentIntoBranchAction.text"));
+      presentation.setText(getString("action.GitMachete.BaseSyncToParentByMergeAction.text"));
     }
   }
 
@@ -106,7 +106,7 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}");
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseMergeParentIntoBranchAction.task-title.current")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByMergeAction.task-title.current")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
@@ -126,7 +126,7 @@ public abstract class BaseMergeParentIntoBranchAction extends BaseGitMacheteRepo
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseMergeParentIntoBranchAction.task-title.non-current")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByMergeAction.task-title.non-current")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
