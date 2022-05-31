@@ -14,6 +14,7 @@ create_repo scenario-1-remote --bare
 create_repo scenario-1
 cd scenario-1
 git remote add origin ../scenario-1-remote
+git config --add machete.slideOut.deleteLocalBranch true
 
 create_branch master
   commit 'Init'
@@ -44,6 +45,7 @@ create_repo scenario-2-remote --bare
 create_repo scenario-2
 cd scenario-2
 git remote add origin ../scenario-2-remote
+git config --add machete.slideOut.deleteLocalBranch true
 
 create_branch master
   commit 'Init'
@@ -76,6 +78,7 @@ create_repo scenario-3-remote --bare
 create_repo scenario-3
 cd scenario-3
 git remote add origin ../scenario-3-remote
+git config --add machete.slideOut.deleteLocalBranch true
 
 create_branch master
   commit 'Init'
@@ -102,6 +105,7 @@ create_repo scenario-4-remote --bare
 create_repo scenario-4
 cd scenario-4
 git remote add origin ../scenario-4-remote
+git config --add machete.slideOut.deleteLocalBranch true
 
 create_branch master
   commit 'Init'
