@@ -42,9 +42,8 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.project.acceptBranchDeletionOnSlideOut() // consider setting up the git config to
   }
 
-  // consider to merge scenarios? or select from combobox?
   @Test def scenario_2(): Unit = {
-    // t0d0: switch repo (in the other scenarios too!)
+    intelliJ.project.switchRepo(1)
     intelliJ.project.toolbar.fetchAll()
     intelliJ.project.contextMenu.openContextMenu("master")
     intelliJ.project.contextMenu.pull()
@@ -63,6 +62,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   }
 
   @Test def scenario_3(): Unit = {
+    intelliJ.project.switchRepo(2)
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
     intelliJ.project.contextMenu.syncByRebase() // consider using merge in this example
     intelliJ.project.acceptRebase()
@@ -75,6 +75,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   }
 
   @Test def scenario_4(): Unit = {
+    intelliJ.project.switchRepo(3)
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.fastForwardMerge()
     intelliJ.project.contextMenu.openContextMenu("master")

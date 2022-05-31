@@ -14,10 +14,9 @@ importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.ui.GuiUtils);
 
+importClass(org.assertj.swing.fixture.JComboBoxFixture);
 importClass(org.assertj.swing.fixture.JTableFixture);
 importClass(org.assertj.swing.data.TableCell);
-importClass(javax.swing.JButton);
-importClass(javax.swing.JMenuItem);
 
 importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
 importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
@@ -241,6 +240,22 @@ function Project(underlyingProject) {
       }
     }
   }
+
+  this.findComboBoxAndSwitchRepo = function (idx) {
+    const getComboBox = function () {
+      // findAll() returns a LinkedHashSet
+      const result = robot.finder().findAll(component =>
+        'com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox'.equals(component.getClass().getName()))
+        .toArray();
+
+      return result.length === 1 ? result[0] : null;
+    };
+
+    let comboBox = getComboBox();
+    let fixture = new JComboBoxFixture(robot, comboBox);
+    let newSelection = fixture.valueAt(idx);
+    fixture.selectItem(newSelection);
+  };
 
   this.findCellAndRightClick = function (name) {
     const getTable = function () {
