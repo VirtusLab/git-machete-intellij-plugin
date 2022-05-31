@@ -16,10 +16,11 @@ importClass(com.intellij.ui.GuiUtils);
 
 importClass(org.assertj.swing.fixture.JTableFixture);
 importClass(org.assertj.swing.data.TableCell);
+importClass(javax.swing.JButton);
 importClass(javax.swing.JMenuItem);
 
-importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
+importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
@@ -143,6 +144,14 @@ function Project(underlyingProject) {
     findAndClickButton('Create');
   };
 
+  this.acceptPush = function () {
+    findAndClickButton('Push');
+  };
+
+  this.acceptForcePush = function () {
+    findAndClickButton('Force Push');
+  };
+
   this.acceptSlideIn = function () {
     findAndClickButton('Slide In');
   };
@@ -215,8 +224,7 @@ function Project(underlyingProject) {
     const getTextField = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(component =>
-        'com.intellij.ui.components.JBTextField'
-        .equals(component.getClass().getName()))
+        'com.intellij.ui.components.JBTextField'.equals(component.getClass().getName()))
         .toArray();
 
       return result.length === 1 ? result[0] : null;
@@ -238,8 +246,7 @@ function Project(underlyingProject) {
     const getTable = function () {
       // findAll() returns a LinkedHashSet
       const result = robot.finder().findAll(component =>
-        'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'
-        .equals(component.getClass().getName()))
+        'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'.equals(component.getClass().getName()))
         .toArray();
 
       return result.length === 1 ? result[0] : null;

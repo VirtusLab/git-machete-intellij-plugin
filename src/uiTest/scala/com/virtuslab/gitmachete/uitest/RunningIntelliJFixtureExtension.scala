@@ -61,6 +61,17 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def acceptCreateNewBranch(): Unit = {
         runJs("project.acceptCreateNewBranch()")
+        intelliJ.probe.await()
+      }
+
+      def acceptPush(): Unit = {
+        runJs("project.acceptPush()")
+        intelliJ.probe.await()
+      }
+
+      def acceptForcePush(): Unit = {
+        runJs("project.acceptForcePush()")
+        intelliJ.probe.await()
       }
 
       def acceptRebase(): Unit = {
@@ -70,10 +81,12 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def acceptSlideIn(): Unit = {
         runJs("project.acceptSlideIn()")
+        intelliJ.probe.await()
       }
 
       def acceptSuggestedBranchLayout(): Unit = {
         runJs("project.acceptSuggestedBranchLayout()")
+        intelliJ.probe.await()
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
