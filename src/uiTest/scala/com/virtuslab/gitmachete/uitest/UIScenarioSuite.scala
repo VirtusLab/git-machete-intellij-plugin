@@ -39,7 +39,6 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.project.contextMenu.checkout()
     intelliJ.project.contextMenu.openContextMenu("common-scripts")
     intelliJ.project.contextMenu.slideOut()
-    intelliJ.project.acceptBranchDeletionOnSlideOut() // consider setting up the git config to
   }
 
   @Test def scenario_2(): Unit = {
@@ -83,7 +82,6 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.project.acceptPush()
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.slideOut()
-    intelliJ.project.acceptBranchDeletionOnSlideOut() // consider setting up the git config to
   }
 
 }
