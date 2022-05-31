@@ -18,7 +18,6 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.project.configure()
     intelliJ.probe.await()
     intelliJ.project.openGitMacheteTab()
-    intelliJ.project.toggleListingCommits()
   }
 
   @After
@@ -30,6 +29,8 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   }
 
   @Test def scenario_1(): Unit = {
+    intelliJ.project.switchRepo(0)
+    intelliJ.project.toolbar.toggleListingCommits()
     intelliJ.project.contextMenu.openContextMenu("master")
     intelliJ.project.contextMenu.slideIn()
     intelliJ.project.writeToTextField("common-scripts")
@@ -43,6 +44,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   @Test def scenario_2(): Unit = {
     intelliJ.project.switchRepo(1)
+    intelliJ.project.toolbar.toggleListingCommits()
     intelliJ.project.toolbar.fetchAll()
     intelliJ.project.contextMenu.openContextMenu("master")
     intelliJ.project.contextMenu.pull()
@@ -62,6 +64,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   @Test def scenario_3(): Unit = {
     intelliJ.project.switchRepo(2)
+    intelliJ.project.toolbar.toggleListingCommits()
     intelliJ.project.contextMenu.openContextMenu("fancy-footer")
     intelliJ.project.contextMenu.syncByRebase() // consider using merge in this example
     intelliJ.project.acceptRebase()
@@ -75,6 +78,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   @Test def scenario_4(): Unit = {
     intelliJ.project.switchRepo(3)
+    intelliJ.project.toolbar.toggleListingCommits()
     intelliJ.project.contextMenu.openContextMenu("sticky-header")
     intelliJ.project.contextMenu.fastForwardMerge()
     intelliJ.project.contextMenu.openContextMenu("master")

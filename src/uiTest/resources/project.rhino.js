@@ -216,6 +216,9 @@ function Project(underlyingProject) {
   this.toolbar = {
     fetchAll: function () {
       findAndClickToolbarButton('Fetch All Remotes');
+    },
+    toggleListingCommits: function () {
+      findAndClickToolbarButton('Toggle Listing Commits');
     }
   }
 
