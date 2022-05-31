@@ -196,6 +196,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       object toolbar {
 
+        def toggleListingCommits(): Unit = {
+          runJs(s"project.toolbar.toggleListingCommits()")
+          intelliJ.probe.await()
+        }
+
         def fetchAll(): Unit = {
           runJs(s"project.toolbar.fetchAll()")
           intelliJ.probe.await()
