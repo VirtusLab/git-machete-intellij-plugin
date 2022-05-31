@@ -177,11 +177,11 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // mergeParentIntoCurrentBranch
     intelliJ.project.openGitMacheteTab()
     intelliJ.project.checkoutBranch("allow-ownership-link")
-    intelliJ.project.mergeParentIntoCurrentBranchAction()
+    intelliJ.project.syncCurrentToParentByMergeAction()
     intelliJ.project.assertSyncToParentStatus("allow-ownership-link", "InSync")
 
     // mergeParentIntoNonCurrentBranch
-    intelliJ.project.mergeParentIntoSelectedBranchAction("build-chain")
+    intelliJ.project.syncSelectedToParentByMergeAction("build-chain")
     intelliJ.project.assertSyncToParentStatus("build-chain", "InSync")
   }
 

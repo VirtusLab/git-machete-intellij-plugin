@@ -3,10 +3,10 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BaseMergeParentIntoBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 
-public class MergeParentIntoSelectedBranchAction extends BaseMergeParentIntoBranchAction
+public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAction
     implements
       IExpectsKeySelectedBranchName {
   @Override

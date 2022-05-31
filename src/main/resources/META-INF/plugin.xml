@@ -37,14 +37,14 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.RebaseSelectedBranchOntoParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RebaseSelectedBranchOntoParentAction"
+            <action id="GitMachete.SyncSelectedToParentByRebaseAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByRebaseAction"
                     icon="MacheteIcons.REBASE">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
-            <action id="GitMachete.MergeParentIntoSelectedBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.MergeParentIntoSelectedBranchAction"
+            <action id="GitMachete.SyncSelectedToParentByMergeAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByMergeAction"
                     icon="MacheteIcons.MERGE_PARENT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
@@ -153,14 +153,14 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.RebaseCurrentBranchOntoParentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.RebaseCurrentBranchOntoParentAction"
+            <action id="GitMachete.SyncCurrentToParentByRebaseAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SyncCurrentToParentByRebaseAction"
                     icon="MacheteIcons.REBASE">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.MergeParentIntoCurrentBranchAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.MergeParentIntoCurrentBranchAction"
+            <action id="GitMachete.SyncCurrentToParentByMergeAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SyncCurrentToParentByMergeAction"
                     icon="MacheteIcons.MERGE_PARENT">
                 <override-text place="GitMacheteToolbar"/>
             </action>

@@ -42,7 +42,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
@@ -69,27 +69,27 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
     if (state.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.unknown-state"));
+          getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.unknown-state"));
 
     } else if (state.get() != Repository.State.NORMAL
         && !(isCalledFromContextMenu && state.get() == Repository.State.DETACHED)) {
 
       val stateName = Match(state.get()).of(
           Case($(Repository.State.GRAFTING),
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.cherry-pick")),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.cherry-pick")),
           Case($(Repository.State.DETACHED),
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.detached-head")),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.detached-head")),
           Case($(Repository.State.MERGING),
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.merge")),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.merge")),
           Case($(Repository.State.REBASING),
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.rebase")),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.rebase")),
           Case($(Repository.State.REVERTING),
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.repository.state.ongoing.revert")),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.revert")),
           Case($(), ": " + state.get().name().toLowerCase()));
 
       presentation.setEnabled(false);
       presentation.setDescription(
-          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.repository.status")
+          getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.status")
               .format(stateName));
     } else {
 
@@ -107,7 +107,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description.disabled.root-branch")
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.root-branch")
                   .format(branch.getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
@@ -117,14 +117,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         IManagedBranchSnapshot upstream = nonRootBranch.getParent();
-        presentation.setDescription(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.description")
+        presentation.setDescription(getString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
             .format(branch.getName(), upstream.getName()));
       }
 
       val isRebasingCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
           .map(bn -> bn.equals(branch.getName())).getOrElse(false);
       if (isCalledFromContextMenu && isRebasingCurrent) {
-        presentation.setText(getString("action.GitMachete.BaseRebaseBranchOntoParentAction.text"));
+        presentation.setText(getString("action.GitMachete.BaseSyncToParentByRebaseAction.text"));
       }
     }
   }
@@ -175,14 +175,14 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-fail"), message);
+          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
       return;
     }
 
     val gitRebaseParameters = tryGitRebaseParameters.get();
     LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseRebaseBranchOntoParentAction.hook.task-title")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByRebaseAction.hook.task-title")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
@@ -204,7 +204,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"),
               message);
           return;
         }
@@ -217,7 +217,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
           val stdoutOption = executionResult.getStdout();
           val stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-              getString("action.GitMachete.BaseRebaseBranchOntoParentAction.notification.title.rebase-abort"), message
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
                   + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
                   + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
@@ -225,7 +225,7 @@ public abstract class BaseRebaseBranchOntoParentAction extends BaseGitMacheteRep
 
         LOG.debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
 
-        new Task.Backgroundable(project, getString("action.GitMachete.BaseRebaseBranchOntoParentAction.task-title")) {
+        new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title")) {
           @Override
           @UIThreadUnsafe
           public void run(ProgressIndicator indicator) {
