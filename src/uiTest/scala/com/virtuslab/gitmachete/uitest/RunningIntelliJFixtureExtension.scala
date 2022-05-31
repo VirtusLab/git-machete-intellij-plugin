@@ -117,6 +117,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.configure()")
       }
 
+      def switchRepo(idx: Int): Unit = {
+        runJs(s"project.findComboBoxAndSwitchRepo('$idx')")
+      }
+
       object contextMenu {
 
         def openContextMenu(branch: String): Unit = {
