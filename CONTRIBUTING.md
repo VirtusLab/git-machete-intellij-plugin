@@ -44,6 +44,10 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 8. For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
 
+9. Consider [enabling internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
+   It can be significantly useful while working with UI components (or tests).
+   To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
+
 ### Git config/hooks
 
 From the main project folder, run the following commands:
