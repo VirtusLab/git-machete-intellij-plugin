@@ -159,7 +159,7 @@ jobs:
                     $tag
 
 
-  checkForNewEapBuildNumber:
+  updateEapBuildNumber:
     executor: docker_executor
     steps:
       - checkout
@@ -172,8 +172,7 @@ jobs:
       - run:
           # language=sh
           command: |
-            ./gradlew updateEapBuildNumber
-            if ! git diff --exit-code --quiet intellijVersions.properties ; then
+            if ./gradlew updateEapBuildNumber --exit-code ; then
               newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
               branch_name=update-eap/$newEapBuildNumber
               if ! git ls-remote --exit-code --heads origin $branch_name ; then
@@ -193,7 +192,7 @@ workflows:
   build:
     jobs:
       - build
-  checkForNewEapBuildNumber:
+  updateEapBuildNumber:
     triggers:
       - schedule:
           cron: "0 0 * * *"
@@ -202,4 +201,4 @@ workflows:
               only:
                 - feature/circleCI-job-for-new-eap
     jobs:
-      - checkForNewEapBuildNumber
+      - updateEapBuildNumber
