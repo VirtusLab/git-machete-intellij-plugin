@@ -166,8 +166,9 @@ class UpdateEapBuildNumber extends DefaultTask {
     Properties properties = project.intellijVersionsProperties()
     File propFile = project.intellijVersionsFile()
     String latestEapBuildNumber = project.intellijVersions.eapOfLatestSupportedMajor
-    String newerEapBuildNumber = latestEapBuildNumber ? project.checkForEapWithBuildNumberHigherThan(latestEapBuildNumber.replace('-EAP-SNAPSHOT', '')) :
-            project.checkForEapWithBuildNumberHigherThan(project.intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999')
+    String buildNumberThreshold = latestEapBuildNumber ? latestEapBuildNumber.replace('-EAP-SNAPSHOT', '') :
+            project.intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999'
+    String newerEapBuildNumber = project.checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
     if (newerEapBuildNumber) {
       project.logger.lifecycle("EapOfLatestSupportedMajor is updated to " + newerEapBuildNumber + " build number")
       properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
