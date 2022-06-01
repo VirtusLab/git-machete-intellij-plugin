@@ -163,6 +163,7 @@ jobs:
       - checkout
       - run:
           name: Configure git user information
+          # language=sh
           command: |
             git config user.email "gitmachete@virtuslab.com"
             git config user.name "Git Machete Bot"
@@ -174,7 +175,7 @@ jobs:
             if ! ./gradlew updateEapBuildNumber --exit-code ; then exit 0; fi
             newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
             branch_name=update-eap/$newEapBuildNumber
-            if git ls-remote --exit-code --heads origin $branch_name ; then exit 0; fi
+            if git ls-remote --exit-code --heads origin $branch_name &> /dev/null ; then exit 0; fi
             git checkout -b "$branch_name"
             git add intellijVersions.properties
             git commit -m "Update EAP build number to $newEapBuildNumber"
@@ -193,7 +194,7 @@ workflows:
   updateEapBuildNumber:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: "* * * * *"
           filters:
             branches:
               only:

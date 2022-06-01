@@ -158,7 +158,7 @@ class UpdateEapBuildNumber extends DefaultTask {
 
   @Input
   @Optional
-  @Option(option = 'exit-code', description = 'Option to return the exit code from task')
+  @Option(option = 'exit-code', description = 'Return the exit code 0 when the new eap build number is found and 1 otherwise')
   Boolean exitCode
 
   @TaskAction
@@ -174,7 +174,7 @@ class UpdateEapBuildNumber extends DefaultTask {
       properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
       properties.store(propFile.newWriter(), /*comments*/ null)
     }
-    if(exitCode && !newerEapBuildNumber) {
+    if (exitCode && !newerEapBuildNumber) {
       throw new Exception("New eap build number not found")
     }
   }
