@@ -24,7 +24,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
-@ExtensionMethod({FetchUpToDateTimeoutStatus.class, GitMacheteBundle.class})
+@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -91,7 +91,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
           /* movingBranchName */ localBranch,
           /* stayingBranchName */ remoteBranch);
 
-      boolean isUpToDate = gitRepository.isUpToDate();
+      boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
       String fetchNotificationPrefix = isUpToDate
           ? getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
@@ -132,7 +132,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       @UIEffect
       public void onSuccess() {
         String repoName = gitRepository.getRoot().getName();
-        repoName.update();
+        FetchUpToDateTimeoutStatus.update(repoName);
         onSuccessRunnable.run();
       }
     }.queue();

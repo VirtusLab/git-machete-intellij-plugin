@@ -22,7 +22,7 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 
-    val branchNames = file.getBranchNamesForPsiFile();
+    val branchNames = file.getBranchNamesForPsiMacheteFile();
 
     if (branchNames.isEmpty()) {
       return;

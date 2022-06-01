@@ -9,7 +9,6 @@ import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -18,7 +17,6 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(FetchUpToDateTimeoutStatus.class)
 @CustomLog
 public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
@@ -71,7 +69,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
         if (gitRepository.isDefined()) {
           val repoName = gitRepository.get().getRoot().getName();
-          repoName.update();
+          FetchUpToDateTimeoutStatus.update(repoName);
         }
       }
 

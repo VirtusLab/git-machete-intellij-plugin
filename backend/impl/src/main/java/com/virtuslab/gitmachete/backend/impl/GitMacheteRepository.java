@@ -31,7 +31,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.With;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
@@ -287,7 +286,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
   }
-  @ExtensionMethod(ForkPointCommitOfManagedBranch.class)
+
   @CustomLog
   private static class CreateGitMacheteRepositoryAux extends Aux {
 
@@ -516,7 +515,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
                 "commit (${pointedCommit.getHash().getHashString()}) but parent branch commit " +
                 "is NOT ancestor of parent-agnostic fork point (${parentAgnosticForkPointString}), " +
                 "so we assume that parent-aware fork point = parent branch commit");
-            return parentPointedCommit.fallbackToParent();
+            return ForkPointCommitOfManagedBranch.fallbackToParent(parentPointedCommit);
           }
 
         } else {
@@ -525,7 +524,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           LOG.debug(() -> "Parent branch commit (${parentPointedCommit.getHash().getHashString()}) is ancestor of " +
               "commit (${pointedCommit.getHash().getHashString()}) and parent-agnostic fork point is missing, " +
               "so we assume that parent-aware fork point = parent branch commit");
-          return parentPointedCommit.fallbackToParent();
+          return ForkPointCommitOfManagedBranch.fallbackToParent(parentPointedCommit);
         }
       }
 
@@ -616,7 +615,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         val containingBranches = forkPointAndContainingBranches._2.toList();
         LOG.debug(() -> "Commit ${forkPoint} found in filtered reflog(s) of ${containingBranches.mkString(\", \")}; " +
             "returning as fork point for branch '${branch.getFullName()}'");
-        return forkPoint.inferred(containingBranches);
+        return ForkPointCommitOfManagedBranch.inferred(forkPoint, containingBranches);
       } else {
         LOG.debug(() -> "Fork for branch '${branch.getFullName()}' not found ");
         return null;

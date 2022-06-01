@@ -60,7 +60,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
-    val branchNames = file.getBranchNamesForPsiFile();
+    val branchNames = file.getBranchNamesForPsiMacheteFile();
 
     if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {

@@ -29,7 +29,7 @@ public final class MacheteFileUtils {
   }
 
   @UIThreadUnsafe
-  public static List<String> getBranchNamesForPsiFile(PsiFile psiFile) {
+  public static List<String> getBranchNamesForPsiMacheteFile(PsiFile psiFile) {
     val project = psiFile.getProject();
 
     val gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
