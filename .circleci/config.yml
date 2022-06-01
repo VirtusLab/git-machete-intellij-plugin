@@ -2,19 +2,17 @@ version: 2.1
 commands:
   reconfigure_origin_remote:
     steps:
-    - run:
-        name: Reconfigure origin remote to https
-        command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+      - run:
+          name: Reconfigure origin remote to https
+          command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
 executors:
   docker_executor:
     docker:
       - image: "gitmachete/intellij-plugin-ci:6.1.0"
     working_directory: ~/git-machete-intellij-plugin
     resource_class: large
-parameters:
-  image-name:
-    type: string
-    default: "gitmachete/intellij-plugin-ci:6.1.0"
+
+
 jobs:
   build:
     executor: docker_executor
@@ -163,29 +161,29 @@ jobs:
     executor: docker_executor
     steps:
       - checkout
-      - reconfigure_origin_remote
       - run:
-          name: Configure github user information
+          name: Configure git user information
           command: |
             git config user.email "gitmachete@virtuslab.com"
             git config user.name "Git Machete Bot"
+      - reconfigure_origin_remote
       - run:
+          name: Check if new eap build number has appeared
           # language=sh
           command: |
-            if ./gradlew updateEapBuildNumber --exit-code ; then
-              newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
-              branch_name=update-eap/$newEapBuildNumber
-              if ! git ls-remote --exit-code --heads origin $branch_name ; then
-                git checkout -b "$branch_name"
-                git add intellijVersions.properties
-                git commit -m "Add new eap build number $newEapBuildNumber"
-                git push origin "$branch_name"
-                hub pull-request \
-                  --no-edit \
-                  --base=develop \
-                  --labels=intellij-support
-              fi
-            fi
+            if ! ./gradlew updateEapBuildNumber --exit-code ; then exit 0; fi
+            newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
+            branch_name=update-eap/$newEapBuildNumber
+            if git ls-remote --exit-code --heads origin $branch_name ; then exit 0; fi
+            git checkout -b "$branch_name"
+            git add intellijVersions.properties
+            git commit -m "Update EAP build number to $newEapBuildNumber"
+            git push origin "$branch_name"
+            hub pull-request \
+              --no-edit \
+              --base=develop \
+              --labels=intellij-support
+
 
 workflows:
   version: 2
@@ -195,7 +193,7 @@ workflows:
   updateEapBuildNumber:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: "* * * * *"
           filters:
             branches:
               only:
