@@ -11,12 +11,12 @@ public final class GitCoreCommitHash extends GitCoreObjectHash implements IGitCo
     super(objectId);
   }
 
-  public static GitCoreCommitHash of(ObjectId objectId) {
+  public static GitCoreCommitHash toGitCoreCommitHash(ObjectId objectId) {
     return new GitCoreCommitHash(objectId);
   }
 
-  public static Option<IGitCoreCommitHash> ofZeroable(ObjectId objectId) {
-    return objectId.equals(ObjectId.zeroId()) ? Option.none() : Option.some(of(objectId));
+  public static Option<IGitCoreCommitHash> toOptionable(ObjectId objectId) {
+    return objectId.equals(ObjectId.zeroId()) ? Option.none() : Option.some(toGitCoreCommitHash(objectId));
   }
 
   @Override

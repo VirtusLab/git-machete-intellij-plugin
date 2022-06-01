@@ -12,7 +12,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreTreeHash;
 
-@ExtensionMethod(GitCoreTreeHash.class)
+@ExtensionMethod({GitCoreCommitHash.class, GitCoreTreeHash.class})
 @Getter
 public class GitCoreCommit implements IGitCoreCommit {
   private final String shortMessage;
@@ -23,8 +23,8 @@ public class GitCoreCommit implements IGitCoreCommit {
   public GitCoreCommit(@NonLeaked RevCommit commit) {
     this.shortMessage = commit.getShortMessage();
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
-    this.hash = GitCoreCommitHash.of(commit.getId());
-    this.treeHash = commit.getTree().getId().of();
+    this.hash = commit.getId().toGitCoreCommitHash();
+    this.treeHash = commit.getTree().getId().toGitCoreTreeHash();
   }
 
   @Override

@@ -95,7 +95,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
       String fetchNotificationPrefix = isUpToDate
           ? getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-          : getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform").format();
+          : getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform");
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
           fetchNotificationPrefix);
 

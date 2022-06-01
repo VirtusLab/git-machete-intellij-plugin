@@ -388,7 +388,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
-        return Option.some(mergeBase.getId().of());
+        return Option.some(mergeBase.getId().toGitCoreCommitHash());
       } else {
         return Option.none();
       }

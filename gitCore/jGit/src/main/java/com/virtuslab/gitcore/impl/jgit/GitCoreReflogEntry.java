@@ -37,13 +37,13 @@ public class GitCoreReflogEntry implements IGitCoreReflogEntry {
   @Override
   @ToString.Include(name = "oldCommitHash")
   public Option<IGitCoreCommitHash> getOldCommitHash() {
-    return reflogEntry.getOldId().ofZeroable();
+    return reflogEntry.getOldId().toOptionable();
   }
 
   @Override
   @ToString.Include(name = "newCommitHash")
   public IGitCoreCommitHash getNewCommitHash() {
-    return reflogEntry.getNewId().of();
+    return reflogEntry.getNewId().toGitCoreCommitHash();
   }
 
   @Override
