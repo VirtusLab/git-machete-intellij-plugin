@@ -13,7 +13,7 @@ public final class LocalBranchReference extends BaseBranchReference implements I
     super(name, fullName);
   }
 
-  static LocalBranchReference of(IGitCoreLocalBranchSnapshot coreLocalBranch) {
+  public static LocalBranchReference toLocalBranchReference(IGitCoreLocalBranchSnapshot coreLocalBranch) {
     return new LocalBranchReference(
         coreLocalBranch.getName(),
         coreLocalBranch.getFullName());

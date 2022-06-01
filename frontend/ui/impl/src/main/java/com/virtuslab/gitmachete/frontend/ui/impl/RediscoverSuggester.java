@@ -1,8 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getFileModificationDate;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.setFileModificationDate;
 
 import java.nio.file.Path;
 
@@ -12,11 +10,13 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod(GitVfsUtils.class)
 @CustomLog
 @RequiredArgsConstructor
 public class RediscoverSuggester {
@@ -36,7 +36,7 @@ public class RediscoverSuggester {
       return;
     }
 
-    val lastModifiedTimeMillis = getFileModificationDate(macheteFilePath).getOrNull();
+    val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate().getOrNull();
     if (lastModifiedTimeMillis == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - could not get file modification date");
       return;
@@ -65,7 +65,7 @@ public class RediscoverSuggester {
         break;
       case Messages.NO : // closing dialog goes here too
         LOG.info("Rediscover declined from dialog");
-        setFileModificationDate(macheteFilePath, System.currentTimeMillis());
+        macheteFilePath.setFileModificationDate(System.currentTimeMillis());
         break;
       default :
         LOG.info("Unknown response message");

@@ -59,9 +59,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
       return;
     }
 
-    val rootDirPath = GitVfsUtils.getRootDirectoryPath(gitRepository).toAbsolutePath();
-    val mainGitDirPath = GitVfsUtils.getMainGitDirectoryPath(gitRepository).toAbsolutePath();
-    val worktreeGitDirPath = GitVfsUtils.getWorktreeGitDirectoryPath(gitRepository).toAbsolutePath();
+    val rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
+    val mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
+    val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     val graphTable = getGraphTable(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
@@ -104,7 +104,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @UIEffect
   private static void openMacheteFile(Project project, GitRepository gitRepository) {
-    val file = GitVfsUtils.getMacheteFile(gitRepository);
+    val file = gitRepository.getMacheteFile();
     if (file.isDefined()) {
       OpenFileAction.openFile(file.get(), project);
     } else {

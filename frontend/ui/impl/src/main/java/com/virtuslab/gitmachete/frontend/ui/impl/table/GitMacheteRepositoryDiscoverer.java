@@ -13,6 +13,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -24,6 +25,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod(GitVfsUtils.class)
 @AllArgsConstructor
 @CustomLog
 public class GitMacheteRepositoryDiscoverer {
@@ -39,9 +41,9 @@ public class GitMacheteRepositoryDiscoverer {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;
     }
-    Path rootDirPath = GitVfsUtils.getRootDirectoryPath(selectedRepository).toAbsolutePath();
-    Path mainGitDirPath = GitVfsUtils.getMainGitDirectoryPath(selectedRepository).toAbsolutePath();
-    Path worktreeGitDirPath = GitVfsUtils.getWorktreeGitDirectoryPath(selectedRepository).toAbsolutePath();
+    Path rootDirPath = selectedRepository.getRootDirectoryPath().toAbsolutePath();
+    Path mainGitDirPath = selectedRepository.getMainGitDirectoryPath().toAbsolutePath();
+    Path worktreeGitDirPath = selectedRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
       @Override

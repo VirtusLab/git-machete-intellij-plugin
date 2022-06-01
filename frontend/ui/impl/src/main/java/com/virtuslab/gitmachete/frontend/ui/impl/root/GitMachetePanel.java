@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
-
 import java.awt.BorderLayout;
 
 import javax.swing.Box;
@@ -22,6 +20,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.AncestorListenerAdapter;
 import com.intellij.ui.ScrollPaneFactory;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -32,7 +31,9 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod(GitVfsUtils.class)
 @CustomLog
 public final class GitMachetePanel extends SimpleToolWindowPanel {
 
@@ -75,7 +76,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
       public void ancestorAdded(AncestorEvent event) {
         val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository != null) {
-          val macheteFilePath = getMacheteFilePath(gitRepository);
+          val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
           val rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
           graphTable.queueRepositoryUpdateAndModelRefresh(() -> rediscoverSuggester.perform());

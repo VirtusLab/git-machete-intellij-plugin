@@ -1,5 +1,7 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getLocalBranchFullName;
+
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.eclipse.jgit.annotations.Nullable;
@@ -28,7 +30,7 @@ public class GitCoreLocalBranchSnapshot extends BaseGitCoreBranchSnapshot implem
 
   @Override
   public String getFullName() {
-    return BranchFullNameUtils.getLocalBranchFullName(shortName);
+    return getLocalBranchFullName(shortName);
   }
 
   @Override

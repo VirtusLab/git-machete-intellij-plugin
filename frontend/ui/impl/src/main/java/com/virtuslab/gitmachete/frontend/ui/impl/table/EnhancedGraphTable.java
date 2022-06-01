@@ -7,7 +7,6 @@ import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHE
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -87,7 +86,7 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
  *  repository for actions
  */
 // TODO (#99): consider applying SpeedSearch for branches and commits
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
@@ -181,7 +180,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     // A bit of a shortcut: we're accessing filesystem even though we're on the UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Path macheteFilePath = gitRepository.getMacheteFilePath();
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
     LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
@@ -262,7 +261,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
 
     try {
-      Path macheteFilePath = getMacheteFilePath(gitRepository);
+      Path macheteFilePath = gitRepository.getMacheteFilePath();
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
 
@@ -369,7 +368,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
 
-        GitVfsUtils.getMacheteFile(gitRepository).forEach(macheteFile -> VfsUtil.markDirtyAndRefresh(/* async */ true,
+        gitRepository.getMacheteFile().forEach(macheteFile -> VfsUtil.markDirtyAndRefresh(/* async */ true,
             /* recursive */ false, /* reloadChildren */ false, macheteFile));
       });
     } else {

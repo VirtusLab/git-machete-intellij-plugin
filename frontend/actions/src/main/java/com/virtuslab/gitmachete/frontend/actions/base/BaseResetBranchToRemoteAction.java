@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -43,9 +42,10 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackground
 import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
 public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -250,7 +250,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
                 result.getErrorOutputAsHtmlString());
           }
 
-          val repositoryRoot = getRootDirectory(gitRepository);
+          val repositoryRoot = gitRepository.getRootDirectory();
           GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
           VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
         }

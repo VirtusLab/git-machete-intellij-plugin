@@ -2,10 +2,6 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMainGitDirectoryPath;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectoryPath;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getWorktreeGitDirectoryPath;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +15,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 
@@ -30,7 +27,9 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
+@ExtensionMethod(GitVfsUtils.class)
 @CustomLog
 public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgroundable {
 
@@ -75,10 +74,10 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    * This method is heavyweight and must never be invoked on the UI thread.
    */
   private Option<IGitMacheteRepositorySnapshot> updateRepositorySnapshot() {
-    Path rootDirectoryPath = getRootDirectoryPath(gitRepository);
-    Path mainGitDirectoryPath = getMainGitDirectoryPath(gitRepository);
-    Path worktreeGitDirectoryPath = getWorktreeGitDirectoryPath(gitRepository);
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Path rootDirectoryPath = gitRepository.getRootDirectoryPath();
+    Path mainGitDirectoryPath = gitRepository.getMainGitDirectoryPath();
+    Path worktreeGitDirectoryPath = gitRepository.getWorktreeGitDirectoryPath();
+    Path macheteFilePath = gitRepository.getMacheteFilePath();
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
     LOG.debug(() -> "Entering: rootDirectoryPath = ${rootDirectoryPath}, mainGitDirectoryPath = ${mainGitDirectoryPath}, " +

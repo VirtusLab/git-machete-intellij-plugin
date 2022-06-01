@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.nio.file.Path;
 
@@ -24,9 +23,10 @@ import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 public class SlideInBackgroundable extends Task.Backgroundable {
 
   private final Project project;
@@ -66,7 +66,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     // Hence we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch();
 
-    Path macheteFilePath = getMacheteFilePath(gitRepository);
+    Path macheteFilePath = gitRepository.getMacheteFilePath();
 
     IBranchLayoutEntry childEntryByName = branchLayout.findEntryByName(slideInOptions.getName()).getOrNull();
     IBranchLayoutEntry entryToSlideIn;

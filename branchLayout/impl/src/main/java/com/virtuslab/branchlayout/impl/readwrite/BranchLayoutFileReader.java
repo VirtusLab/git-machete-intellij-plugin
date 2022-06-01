@@ -7,6 +7,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.List;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.index.qual.GTENegativeOne;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -17,16 +18,17 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 
+@ExtensionMethod(BranchLayoutFileUtils.class)
 @CustomLog
 public class BranchLayoutFileReader implements IBranchLayoutReader {
 
   @Override
   public BranchLayout read(Path path) throws BranchLayoutException {
     boolean isBranchLayoutPresent = Files.isRegularFile(path);
-    List<String> lines = BranchLayoutFileUtils.readFileLines(path);
+    List<String> lines = path.readFileLines();
 
     IndentSpec indentSpec = isBranchLayoutPresent
-        ? BranchLayoutFileUtils.deriveIndentSpec(lines)
+        ? lines.deriveIndentSpec()
         : BranchLayoutFileUtils.getDefaultSpec();
 
     LOG.debug(() -> "Entering: Reading branch layout from ${path} with indent character ASCII " +
@@ -107,8 +109,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
 
-    if (linesWithoutBlank.nonEmpty() && BranchLayoutFileUtils.getIndentWidth(linesWithoutBlank.head(),
-        indentSpec.getIndentCharacter()) > 0) {
+    if (linesWithoutBlank.nonEmpty() && linesWithoutBlank.head().getIndentWidth(indentSpec.getIndentCharacter()) > 0) {
       int firstNonEmptyLineIndex = lines.indexOf(linesWithoutBlank.head());
       assert firstNonEmptyLineIndex >= 0 : "Non-empty line not found";
       throw new BranchLayoutException(firstNonEmptyLineIndex + 1,
@@ -129,14 +130,14 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
         continue;
       }
 
-      if (!BranchLayoutFileUtils.hasProperIndentationCharacter(line, indentSpec.getIndentCharacter())) {
+      if (!line.hasProperIndentationCharacter(indentSpec.getIndentCharacter())) {
         LOG.error("Line no ${realLineNumber + 1} has unexpected indentation character inconsistent with previous one");
         throw new BranchLayoutException(realLineNumber + 1,
             "Line no ${realLineNumber + 1} in branch layout file (${path.toAbsolutePath()}) has unexpected indentation "
                 + "character inconsistent with previous one");
       }
 
-      int lineIndentWidth = BranchLayoutFileUtils.getIndentWidth(line, indentSpec.getIndentCharacter());
+      int lineIndentWidth = line.getIndentWidth(indentSpec.getIndentCharacter());
       int level = getIndentLevel(path, indentSpec, line, lineIndentWidth, realLineNumber);
 
       if (level - previousLevel > 1) {

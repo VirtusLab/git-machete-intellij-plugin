@@ -3,11 +3,13 @@ package com.virtuslab.gitmachete.frontend.file;
 import com.intellij.psi.PsiFile;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitVfsUtils.class)
 public final class MacheteFileUtils {
   private MacheteFileUtils() {}
 
@@ -31,7 +33,7 @@ public final class MacheteFileUtils {
     val project = psiFile.getProject();
 
     val gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
-        .find(repository -> GitVfsUtils.getMacheteFile(repository)
+        .find(repository -> repository.getMacheteFile()
             .map(macheteFile -> macheteFile.equals(psiFile.getVirtualFile())).getOrElse(false));
 
     if (gitRepository.isEmpty()) {

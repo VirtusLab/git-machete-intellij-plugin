@@ -35,7 +35,7 @@ public final class BranchLayoutFileUtils {
 
   public static IndentSpec deriveIndentSpec(Path path) {
     LOG.debug("Entering: branch layout file path: ${path}");
-    List<String> lines = Try.of(() -> BranchLayoutFileUtils.readFileLines(path))
+    List<String> lines = Try.of(() -> readFileLines(path))
         .getOrElse(() -> {
           LOG.debug(() -> "Failed to read branch layout file from ${path}. Falling back to default indent definition.");
           return List.empty();
@@ -55,7 +55,7 @@ public final class BranchLayoutFileUtils {
     // Redundant non-emptiness check to satisfy IndexChecker
     if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
       indentCharacter = firstLineWithBlankPrefixOption.get().charAt(0);
-      indentWidth = BranchLayoutFileUtils.getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
+      indentWidth = getIndentWidth(firstLineWithBlankPrefixOption.get(), indentCharacter);
       // we are processing a line satisfying `line.startsWith(" ") || line.startsWith("\t")`
       assert indentWidth > 0 : "indent width is ${indentWidth} <= 0";
     }

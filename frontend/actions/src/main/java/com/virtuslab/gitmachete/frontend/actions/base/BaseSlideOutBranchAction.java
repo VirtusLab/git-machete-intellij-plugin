@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -32,9 +31,10 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutS
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
 public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -173,7 +173,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
     val newBranchLayout = branchLayout.slideOut(branchName);
 
     try {
-      Path macheteFilePath = getMacheteFilePath(gitRepository);
+      Path macheteFilePath = gitRepository.getMacheteFilePath();
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
 

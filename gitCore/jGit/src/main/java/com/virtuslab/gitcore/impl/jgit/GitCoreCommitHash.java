@@ -15,7 +15,7 @@ public final class GitCoreCommitHash extends GitCoreObjectHash implements IGitCo
     return new GitCoreCommitHash(objectId);
   }
 
-  public static Option<IGitCoreCommitHash> toOptionable(ObjectId objectId) {
+  public static Option<IGitCoreCommitHash> toGitCoreCommitHashOption(ObjectId objectId) {
     return objectId.equals(ObjectId.zeroId()) ? Option.none() : Option.some(toGitCoreCommitHash(objectId));
   }
 

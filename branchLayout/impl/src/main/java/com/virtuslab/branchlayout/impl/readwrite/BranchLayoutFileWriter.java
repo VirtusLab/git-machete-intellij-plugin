@@ -9,6 +9,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -17,6 +18,7 @@ import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 
+@ExtensionMethod(BranchLayoutFileUtils.class)
 @CustomLog
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
@@ -26,7 +28,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
   @SuppressWarnings("regexp") // to allow for `synchronized`
   public synchronized void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
-    val indentSpec = BranchLayoutFileUtils.deriveIndentSpec(path);
+    val indentSpec = path.deriveIndentSpec();
 
     val lines = printEntriesOntoStringList(branchLayout.getRootEntries(), indentSpec, /* level */ 0);
 

@@ -2,12 +2,14 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 
+@ExtensionMethod(LocalBranchReference.class)
 @Getter
 @ToString
 public final class RemoteTrackingBranchReference extends BaseBranchReference implements IRemoteTrackingBranchReference {
@@ -28,6 +30,6 @@ public final class RemoteTrackingBranchReference extends BaseBranchReference imp
         coreRemoteBranch.getName(),
         coreRemoteBranch.getFullName(),
         coreRemoteBranch.getRemoteName(),
-        LocalBranchReference.of(coreTrackedLocalBranch));
+        coreTrackedLocalBranch.toLocalBranchReference());
   }
 }

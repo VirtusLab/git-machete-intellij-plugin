@@ -30,7 +30,7 @@ import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitMacheteBundle.class, MacheteFileUtils.class})
 public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean cantGetBranchesMessageWasShown = false;
 
@@ -60,7 +60,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
-    val branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    val branchNames = file.getBranchNamesForPsiFile();
 
     if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {

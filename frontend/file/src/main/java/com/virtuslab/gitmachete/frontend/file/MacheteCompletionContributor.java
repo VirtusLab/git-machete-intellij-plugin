@@ -9,10 +9,12 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod({MacheteFileUtils.class})
 public class MacheteCompletionContributor extends CompletionContributor implements DumbAware {
 
   @Override
@@ -20,7 +22,7 @@ public class MacheteCompletionContributor extends CompletionContributor implemen
   public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
     PsiFile file = parameters.getOriginalFile();
 
-    val branchNames = MacheteFileUtils.getBranchNamesForPsiFile(file);
+    val branchNames = file.getBranchNamesForPsiFile();
 
     if (branchNames.isEmpty()) {
       return;
