@@ -55,27 +55,24 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
       button(
               getString(
                   "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.delete-text")) {
-        delete = true
-        doOKAction()
-      }
-          .component
-          .apply { mnemonic = KeyEvent.VK_D }
+            delete = true
+            doOKAction()
+          }
+          .component.apply { mnemonic = KeyEvent.VK_D }
       button(
               getString(
                   "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.keep-text")) {
-        delete = false
-        doOKAction()
-      }
-          .component
-          .apply { mnemonic = KeyEvent.VK_K }
+            delete = false
+            doOKAction()
+          }
+          .component.apply { mnemonic = KeyEvent.VK_K }
       button(
               getString(
                   "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.cancel-text")) {
-        delete = true
-        close(CANCEL_EXIT_CODE)
-      }
-          .component
-          .apply { mnemonic = KeyEvent.VK_C }
+            delete = true
+            close(CANCEL_EXIT_CODE)
+          }
+          .component.apply { mnemonic = KeyEvent.VK_C }
     }
     row {
       checkBox(
@@ -84,8 +81,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
                       "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
                   DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY),
               ::remember)
-          .component
-          .apply {
+          .component.apply {
             mnemonic = KeyEvent.VK_R
             isSelected = false
           }
