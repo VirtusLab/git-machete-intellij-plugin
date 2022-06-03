@@ -36,7 +36,7 @@ public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
   public void run(ProgressIndicator indicator) {
     GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
     if (targetBranch == null) {
-      throw new GitMacheteException(getString("action.GitMachete.BasePullBranchAction.notification.fail.text"));
+      throw new GitMacheteException(getString("action.GitMachete.CheckRemoteBranchBackgroundable.notification.fail.text"));
     }
   }
 
