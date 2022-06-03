@@ -2,12 +2,12 @@ package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -36,11 +36,11 @@ public final class FastForwardMerge {
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
     val successFFMergeNotification = fetchNotificationPrefix
-        + format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success"),
-            stayingName, movingName);
+        + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success")
+            .format(stayingName, movingName);
     val failFFMergeNotification = fetchNotificationPrefix
-        + format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
-            stayingName, movingName);
+        + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail").format(stayingName,
+            movingName);
     new FetchBackgroundable(
         project,
         gitRepository,
@@ -59,8 +59,8 @@ public final class FastForwardMerge {
     val movingName = mergeProps.getMovingBranch().getName();
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
     val failFFMergeNotification = fetchNotificationPrefix + "<br/>"
-        + format(getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail"),
-            stayingName, movingName);
+        + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail").format(stayingName,
+            movingName);
     new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFFMergeNotification) {
       @Override
       @UIEffect
