@@ -21,27 +21,27 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
   registerFixtureTransformer(_.withPlugin(machetePlugin))
   registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.ide.configure()))
 
-  private val rhinoCodebase = {
-    def loadScript(baseName: String) = {
-      Paths.get(getClass.getResource(s"/$baseName.rhino.js").toURI).content()
-    }
-
-    Seq("common", "ide", "project").map(loadScript).mkString
+  private def loadScript(baseName: String) = {
+    Paths.get(getClass.getResource(s"/$baseName.rhino.js").toURI).content()
   }
+
+  private val initialCodebase = Seq("ide", "project", "common").map(loadScript).mkString
+
+  private val commonCodebase = loadScript("common")
 
   implicit class RunningIntelliJFixtureOps(intelliJ: RunningIntelliJFixture) {
 
-    private def runJs(@Language("JavaScript") statement: String): Unit = {
-      intelliJ.probe.withRobot.robot.runJs(rhinoCodebase + statement, /* runInEdt */ false)
+    private def runJs(@Language("JavaScript") statement: String, codebase: String = commonCodebase): Unit = {
+      intelliJ.probe.withRobot.robot.runJs(codebase + statement, /* runInEdt */ false)
     }
 
-    private def callJs[T](@Language("JavaScript") expression: String): T = {
-      intelliJ.probe.withRobot.robot.callJs(rhinoCodebase + expression, /* runInEdt */ false)
+    private def callJs[T](@Language("JavaScript") expression: String, codebase: String = commonCodebase): T = {
+      intelliJ.probe.withRobot.robot.callJs(codebase + expression, /* runInEdt */ false)
     }
 
     object ide {
       def configure(): Unit = {
-        runJs("ide.configure(/* enableDebugLog */ false)")
+        runJs("ide.configure(/* enableDebugLog */ false)", codebase = initialCodebase)
       }
 
       def closeOpenedProjects(): Unit = {

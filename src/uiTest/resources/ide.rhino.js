@@ -46,7 +46,5 @@ function Ide() {
   };
 }
 
-const ide = new Ide();
-const pluginId = PluginId.getId('com.virtuslab.git-machete');
-const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
-const project = ide.soleOpenedProject();
+// See https://github.com/JetBrains/intellij-ui-test-robot#store-data-between-runjscalljs-requests
+global.put('ide', new Ide());

@@ -1,5 +1,5 @@
-
 importClass(java.lang.System);
+importClass(java.lang.Thread);
 importClass(java.util.stream.Collectors);
 
 importClass(com.intellij.ide.util.PropertiesComponent);
@@ -15,6 +15,13 @@ importClass(com.intellij.ui.GuiUtils);
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
+
+  const pluginId = PluginId.getId('com.virtuslab.git-machete');
+  const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
+
+  const sleep = function() {
+    Thread.sleep(100);
+  }
 
   this.configure = function () {
     // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
