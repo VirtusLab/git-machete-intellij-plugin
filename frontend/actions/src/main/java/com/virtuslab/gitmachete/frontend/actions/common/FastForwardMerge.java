@@ -27,7 +27,6 @@ public final class FastForwardMerge {
     new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
   }
 
-  @SuppressWarnings("regexp")
   private static void mergeNonCurrentBranch(Project project,
       GitRepository gitRepository,
       MergeProps mergeProps, String fetchNotificationPrefix) {
@@ -39,7 +38,7 @@ public final class FastForwardMerge {
     val successFFMergeNotification = fetchNotificationPrefix
         + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success")
             .format(stayingName, movingName);
-    val failFFMergeNotification = fetchNotificationPrefix.replaceAll("<br/>", "\n")
+    @SuppressWarnings("regexp") val failFFMergeNotification = fetchNotificationPrefix.replaceAll("<br/>", "\n")
         + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail").format(stayingName,
             movingName);
     new FetchBackgroundable(
