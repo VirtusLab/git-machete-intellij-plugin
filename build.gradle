@@ -267,7 +267,7 @@ allprojects {
       // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing and exporting settings from Eclipse
       eclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
       removeUnusedImports()
-      targetExclude 'build/generated/**/*.*'
+      targetExclude '**/build/generated/**/*.*'
     }
   }
 
