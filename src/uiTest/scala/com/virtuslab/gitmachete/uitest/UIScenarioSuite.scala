@@ -23,6 +23,8 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     project.configure()
     probe.await()
     project.openGitMacheteTab()
+    project.toggleListingCommits()
+    intelliJ.ide.findAndResizeIdeFrame()
   }
 
   @After
@@ -33,23 +35,27 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     intelliJ.ide.closeOpenedProjects()
   }
 
-  @Test def scenario_1(): Unit = {
+  @Ignore
+  @Test def scenarios(): Unit = {
+    // scenario 1
     project.switchRepo(0)
-    project.toolbar.toggleListingCommits()
+    project.moveMouseToTheMiddleAndWait(15)
     project.contextMenu.openContextMenu("master")
     project.contextMenu.slideIn()
     project.writeToTextField("common-scripts")
     project.acceptSlideIn()
     project.acceptCreateNewBranch()
+    project.moveMouseToTheMiddleAndWait(0)
     project.contextMenu.openContextMenu("fancy-footer")
     project.contextMenu.checkout()
     project.contextMenu.openContextMenu("common-scripts")
     project.contextMenu.slideOut()
-  }
+    project.moveMouseToTheMiddleAndWait(15)
+    probe
 
-  @Test def scenario_2(): Unit = {
+    // scenario 2
     project.switchRepo(1)
-    project.toolbar.toggleListingCommits()
+    project.moveMouseToTheMiddleAndWait(0)
     project.toolbar.fetchAll()
     project.contextMenu.openContextMenu("master")
     project.contextMenu.pull()
@@ -65,11 +71,11 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     project.contextMenu.openContextMenu("fancy-footer")
     project.contextMenu.push()
     project.acceptForcePush()
-  }
+    project.moveMouseToTheMiddleAndWait(15)
 
-  @Test def scenario_3(): Unit = {
+    // scenario 3
     project.switchRepo(2)
-    project.toolbar.toggleListingCommits()
+    project.moveMouseToTheMiddleAndWait(0)
     project.contextMenu.openContextMenu("fancy-footer")
     project.contextMenu.checkoutAndSyncByRebase() // consider using merge in this example
     project.acceptRebase()
@@ -79,11 +85,11 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     project.contextMenu.openContextMenu("fancy-footer")
     project.contextMenu.push()
     project.acceptForcePush()
-  }
+    project.moveMouseToTheMiddleAndWait(15)
 
-  @Test def scenario_4(): Unit = {
+    // scenario 4
     project.switchRepo(3)
-    project.toolbar.toggleListingCommits()
+    project.moveMouseToTheMiddleAndWait(0)
     project.contextMenu.openContextMenu("sticky-header")
     project.contextMenu.fastForwardMerge()
     project.contextMenu.openContextMenu("master")
@@ -91,6 +97,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     project.acceptPush()
     project.contextMenu.openContextMenu("sticky-header")
     project.contextMenu.slideOut()
+    project.moveMouseToTheMiddleAndWait(15)
   }
 
 }

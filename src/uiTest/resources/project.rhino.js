@@ -9,17 +9,19 @@ importClass(com.intellij.openapi.actionSystem.ActionPlaces);
 importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
+importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
+importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
+importClass(com.intellij.toolWindow.ToolWindowPane);
 importClass(com.intellij.ui.GuiUtils);
 
 importClass(org.assertj.swing.fixture.JComboBoxFixture);
+importClass(org.assertj.swing.fixture.JPanelFixture);
 importClass(org.assertj.swing.fixture.JTableFixture);
 importClass(org.assertj.swing.data.TableCell);
 
-importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
-importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
@@ -220,19 +222,10 @@ function Project(underlyingProject) {
     toggleListingCommits: function () {
       findAndClickToolbarButton('Toggle Listing Commits');
     }
-  }
+  };
 
   this.findTextFieldAndWrite = function (text, instant) {
-    const getTextField = function () {
-      // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        'com.intellij.ui.components.JBTextField'.equals(component.getClass().getName()))
-        .toArray();
-
-      return result.length === 1 ? result[0] : null;
-    };
-
-    let textField = getTextField();
+    const textField = getComponentByClass('com.intellij.ui.components.JBTextField');
     if (instant) {
       textField.setText(text);
     } else {
@@ -242,36 +235,18 @@ function Project(underlyingProject) {
         textField.setText(t);
       }
     }
-  }
+  };
 
   this.findComboBoxAndSwitchRepo = function (idx) {
-    const getComboBox = function () {
-      // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        'com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox'.equals(component.getClass().getName()))
-        .toArray();
-
-      return result.length === 1 ? result[0] : null;
-    };
-
-    let comboBox = getComboBox();
+    const comboBox = getComponentByClass('com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox');
     let fixture = new JComboBoxFixture(robot, comboBox);
     let newSelection = fixture.valueAt(idx);
     fixture.selectItem(newSelection);
   };
 
   this.findCellAndRightClick = function (name) {
-    const getTable = function () {
-      // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        'com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable'.equals(component.getClass().getName()))
-        .toArray();
-
-      return result.length === 1 ? result[0] : null;
-    };
-
-    let table = getTable();
-    let fixture = new JTableFixture(robot, table);
+    const graphTable = getComponentByClass('com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable');
+    let fixture = new JTableFixture(robot, graphTable);
     let contents = fixture.contents();
 
     const getCellRow = function () {
@@ -286,24 +261,18 @@ function Project(underlyingProject) {
     fixture.cell(tableCell).click(MouseButton.RIGHT_BUTTON);
   };
 
-  const findAndClickButton = function (name) {
-    const getButton = function () {
-      // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        'javax.swing.JButton'.equals(component.getClass().getName())
-          && name.equals(component.getText())
-      ).toArray();
-      return result.length === 1 ? result[0] : null;
-    };
-
-    // The action is invoked asynchronously, let's first make sure the button has already appeared.
-    let button = getButton();
-    while (button === null) {
+  this.moveMouseToTheMiddleAndWait = function (secondsToWait) {
+    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    robot.moveMouse(ideFrame);
+    for (var i = 0; i < 10 * secondsToWait; i++) {
       sleep();
-      button = getButton();
     }
-    robot.click(button);
   }
+
+  const findAndClickButton = function (name) {
+    const button = getComponentByClassAndText('javax.swing.JButton', name);
+    prettyClick(button, MouseButton.LEFT_BUTTON);
+  };
 
   const findAndClickToolbarButton = function (name) {
     let fullName = 'Git Machete: ' + name;
@@ -321,26 +290,59 @@ function Project(underlyingProject) {
       sleep();
       button = getButton();
     }
-    robot.click(button);
- }
+    prettyClick(button, MouseButton.LEFT_BUTTON);
+  };
 
   const findAndClickContextMenuAction = function (name) {
-    const getActionMenuItem = function () {
-      // findAll() returns a LinkedHashSet
+    const actionMenuItem = getComponentByClassAndText('com.intellij.openapi.actionSystem.impl.ActionMenuItem', name);
+    prettyClick(actionMenuItem, MouseButton.LEFT_BUTTON);
+  };
+
+  this.findAndResizeIdeFrame = function () {
+    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    let ideFrameFixture = new FrameFixture(ideFrame);
+    let dimension = new Dimension(1024, 768);
+    ideFrameFixture.resizeTo(dimension);
+  };
+
+  const getComponentByClass = function (className) {
+    return getComponent(
+        className,
+        /* text */ null,
+        /* textCmp */ function (_, _) { return true; }
+    );
+  };
+
+  const getComponentByClassAndText = function (className, text, cmpText) {
+    if (cmpText === undefined) { // default
+      cmpText = function (t, c) { return t.equals(c.getText()); };
+    }
+    return getComponent(className, text, cmpText);
+  };
+
+  const getComponent = function (className, text, textCmp) {
+    const searchForComponent = function () {
       const result = robot.finder().findAll(component =>
-        'com.intellij.openapi.actionSystem.impl.ActionMenuItem'.equals(component.getClass().getName())
-          && name.equals(component.getText())
+        className.equals(component.getClass().getName()) && textCmp(text, component)
       ).toArray();
       return result.length === 1 ? result[0] : null;
-    };
-
-    // The action is invoked asynchronously, let's first make sure the action menu has already appeared.
-    let actionMenuItem = getActionMenuItem();
-    while (actionMenuItem === null) {
-      sleep();
-      actionMenuItem = getActionMenuItem();
     }
-    robot.click(actionMenuItem);
+    // The action is invoked asynchronously, let's first make sure the component has already appeared.
+    let component = searchForComponent();
+    while (component === null) {
+      sleep();
+      component = searchForComponent();
+    }
+    return component;
+  };
+
+  const prettyClick = function (component, mouseButton) {
+    robot.moveMouse(component);
+    // wait for a while before clicking
+    for (var i = 0; i < 5; i++) {
+      sleep();
+    }
+    robot.click(component, mouseButton);
   }
 
   this.toggleListingCommits = function () {

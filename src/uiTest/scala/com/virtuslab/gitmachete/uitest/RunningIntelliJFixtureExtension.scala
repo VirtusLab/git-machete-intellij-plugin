@@ -52,6 +52,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       def getMajorVersion(): String = {
         callJs("ide.getMajorVersion()")
       }
+
+      def findAndResizeIdeFrame(): Unit = {
+        runJs("project.findAndResizeIdeFrame()")
+      }
     }
 
     object project {
@@ -116,6 +120,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def configure(): Unit = {
         runJs("project.configure()")
+      }
+
+      def moveMouseToTheMiddleAndWait(secondsToWait: Int): Unit = {
+        runJs(s"project.moveMouseToTheMiddleAndWait('$secondsToWait')");
       }
 
       def switchRepo(idx: Int): Unit = {
