@@ -17,6 +17,9 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphE
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.LooseHtml;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.NonHtml;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.WrappedHtml;
 
 @Retention(RetentionPolicy.CLASS)
 // There needs to be single subtyping hierarchy with single bottom and top annotation,
@@ -34,6 +37,10 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
 
     ConfirmedBranchItem.class,
     ConfirmedCommitItem.class,
+
+    NonHtml.class,
+    WrappedHtml.class,
+    LooseHtml.class
 })
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
 @TargetLocations({TypeUseLocation.EXPLICIT_LOWER_BOUND, TypeUseLocation.EXPLICIT_UPPER_BOUND})

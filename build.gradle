@@ -311,6 +311,17 @@ allprojects {
       compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
       checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
     }
+
+    if (project.name != 'qual') {
+      dependencies {
+        implementation project(':qual')
+        checkerFramework project(':qual')
+      }
+      checkerFramework {
+        def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
+        extraJavacArgs += "-AqualDirs=${qualClassDir}"
+      }
+    }
   }
 
 
@@ -406,15 +417,10 @@ allprojects {
     }
 
     applySubtypingChecker = { ->
-      if (shouldRunAllCheckers) {
-        dependencies {
-          checkerFramework project(':qual')
-        }
-        checkerFramework {
-          checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
-          def qualClassDir = project(':qual').sourceSets.main.output.classesDirs.asPath
-          extraJavacArgs += "-ASubtypingChecker_qualDirs=${qualClassDir}"
-        }
+      // SubtypingChecker, like GuiEffectChecker and NullnessChecker, is enabled
+      // regardless of `CI` env var/`runAllCheckers` Gradle project property.
+      checkerFramework {
+        checkers += 'org.checkerframework.common.subtyping.SubtypingChecker'
       }
     }
 
