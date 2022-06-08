@@ -143,6 +143,10 @@ class NotificationAction {
 
 @UIPackage package com.intellij.openapi.actionSystem;
 
+class Presentation {
+    void setDescription(@Untainted String description);
+}
+
 class AnAction {
   @SafeEffect
   AnAction();

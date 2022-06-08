@@ -11,6 +11,11 @@ dependencies {
   implementation project(':frontend:base')
 }
 
+checkerFramework {
+  checkers += 'org.checkerframework.checker.tainting.TaintingChecker'
+}
+
+
 addIntellijToCompileClasspath(withGit4Idea: true)
 applyI18nFormatterChecker()
 applySubtypingChecker()
