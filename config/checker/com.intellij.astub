@@ -7,6 +7,7 @@ import org.checkerframework.checker.guieffect.qual.UIPackage;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 @UIPackage package com.intellij.application.options;
 
@@ -119,8 +120,15 @@ class DataManager {
 @UIPackage package com.intellij.ide.util.treeView;
 @UIPackage package com.intellij.ide.util.treeView.smartTree;
 @UIPackage package com.intellij.ide.wizard;
-@UIPackage package com.intellij.navigation;
 
+package com.intellij.lang.annotation;
+
+interface AnnotationHolder {
+  default AnnotationBuilder newAnnotation(HighlightSeverity severity, @Untainted String message);
+}
+
+
+@UIPackage package com.intellij.navigation;
 
 package com.intellij.notification;
 

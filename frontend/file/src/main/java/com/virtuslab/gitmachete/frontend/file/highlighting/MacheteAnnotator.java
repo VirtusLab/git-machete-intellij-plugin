@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.OptionalInt;
@@ -75,7 +76,8 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (!branchNames.contains(processedBranchName)) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
-              getString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo").format(processedBranchName))
+              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
+                  .format(processedBranchName))
           .range(branch).create();
     }
   }

@@ -10,6 +10,10 @@ dependencies {
 addIntellijToCompileClasspath(withGit4Idea: true)
 applyI18nFormatterChecker()
 
+checkerFramework {
+  checkers += 'org.checkerframework.checker.tainting.TaintingChecker'
+}
+
 
 apply plugin: 'org.jetbrains.grammarkit'
 
