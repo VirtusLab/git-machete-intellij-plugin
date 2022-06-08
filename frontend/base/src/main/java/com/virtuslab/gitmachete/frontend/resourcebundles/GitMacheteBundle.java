@@ -9,6 +9,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MinLen;
 import org.jetbrains.annotations.PropertyKey;
 
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.LooseHtml;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.NonHtml;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.WrappedHtml;
+
 public final class GitMacheteBundle {
   public static final String BUNDLE = "GitMacheteBundle";
   private static final ResourceBundle instance = ResourceBundle.getBundle(BUNDLE);
@@ -34,4 +38,20 @@ public final class GitMacheteBundle {
   public static String getString(@PropertyKey(resourceBundle = BUNDLE) String key) {
     return instance.getString(key);
   }
+
+  @I18nMakeFormat
+  public static @LooseHtml String getLooseHtmlString(@PropertyKey(resourceBundle = BUNDLE) String key) {
+    return instance.getString(key);
+  }
+
+  @I18nMakeFormat
+  public static @WrappedHtml String getHtmlWrappedString(@PropertyKey(resourceBundle = BUNDLE) String key) {
+    return instance.getString(key);
+  }
+
+  @I18nMakeFormat
+  public static @NonHtml String getNonHtmlString(@PropertyKey(resourceBundle = BUNDLE) String key) {
+    return instance.getString(key);
+  }
+
 }

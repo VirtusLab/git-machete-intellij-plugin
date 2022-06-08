@@ -2,6 +2,7 @@
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
+import com.virtuslab.qual.gitmachete.frontend.resourcebundles.NonHtml;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.guieffect.qual.UIPackage;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -129,6 +130,14 @@ class NotificationAction {
   static NotificationAction createSimple(Supplier<String> dynamicText, @UI Runnable performAction);
 }
 
+
+package com.intellij.lang.annotation;
+
+
+interface AnnotationHolder {
+
+  default AnnotationBuilder newAnnotation(HighlightSeverity severity, @NonHtml String message);
+}
 
 @UIPackage package com.intellij.openapi;
 
