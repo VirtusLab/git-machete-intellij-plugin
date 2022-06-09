@@ -6,12 +6,12 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import git4idea.GitBranch;
 import git4idea.repo.GitRepository;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
@@ -36,7 +36,7 @@ public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
   public void run(ProgressIndicator indicator) {
     GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
     if (targetBranch == null) {
-      throw new GitMacheteException(getString("action.GitMachete.CheckRemoteBranchBackgroundable.notification.fail.text"));
+     throw new GitMacheteException(getString("action.GitMachete.CheckRemoteBranchBackgroundable.notification.fail.text"));
     }
   }
 

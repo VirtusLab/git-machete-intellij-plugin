@@ -1,23 +1,19 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+@Getter
 public class SlideInOptions {
 
   @Untainted
   private String name;
-  private boolean reattach;
+  @Accessors(fluent = true)
+  private Boolean shouldReattach;
 
   public SlideInOptions(@Untainted String name, boolean shouldReattach) {
     this.name = name;
-    this.reattach = shouldReattach;
-  }
-
-  public @Untainted String getName() {
-    return name;
-  }
-
-  public boolean shouldReattach() {
-    return reattach;
+    this.shouldReattach = shouldReattach;
   }
 }

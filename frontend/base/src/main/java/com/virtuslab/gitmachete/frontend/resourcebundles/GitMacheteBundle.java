@@ -41,8 +41,4 @@ public final class GitMacheteBundle {
   public static @Untainted String getNonHtmlString(@PropertyKey(resourceBundle = BUNDLE) String key) {
     return instance.getString(key);
   }
-
-  public static @Untainted @SuppressWarnings("regexp") String changeNewLineSign(@Untainted String text) {
-    return text.replaceAll("<br/>", "\n");
-  }
 }
