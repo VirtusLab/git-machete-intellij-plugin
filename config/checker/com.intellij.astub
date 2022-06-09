@@ -1,13 +1,18 @@
-
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.guieffect.qual.UIPackage;
 import org.checkerframework.checker.index.qual.NonNegative;
+import com.intellij.codeInspection.util.InspectionMessage;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import org.checkerframework.checker.tainting.qual.Untainted;
+
+import static com.intellij.openapi.util.NlsActions.ActionDescription;
+
 
 @UIPackage package com.intellij.application.options;
 
@@ -124,7 +129,7 @@ class DataManager {
 package com.intellij.lang.annotation;
 
 interface AnnotationHolder {
-  default AnnotationBuilder newAnnotation(HighlightSeverity severity, @Untainted String message);
+  default AnnotationBuilder newAnnotation(@NotNull HighlightSeverity severity, @NotNull @InspectionMessage @Untainted String message);
 }
 
 
@@ -144,7 +149,7 @@ class NotificationAction {
 @UIPackage package com.intellij.openapi.actionSystem;
 
 class Presentation {
-    void setDescription(@Untainted String description);
+    public void setDescription(@ActionDescription @Untainted String description);
 }
 
 class AnAction {
@@ -236,6 +241,12 @@ interface Scheme {
 @UIPackage package com.intellij.openapi.paths;
 
 package com.intellij.openapi.progress;
+
+import static com.intellij.openapi.util.NlsContexts.ProgressText;
+
+interface ProgressIndicator {
+    void setText(@ProgressText @Untainted String text);
+}
 
 class Task {
   @UIEffect

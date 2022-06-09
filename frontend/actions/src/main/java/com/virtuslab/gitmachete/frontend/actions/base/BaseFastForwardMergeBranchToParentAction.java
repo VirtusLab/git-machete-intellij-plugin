@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
@@ -10,6 +11,7 @@ import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
@@ -32,8 +34,8 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
   }
 
   @Override
-  public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description");
+  public @Untainted @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
+    return getNonHtmlString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description");
   }
 
   @Override

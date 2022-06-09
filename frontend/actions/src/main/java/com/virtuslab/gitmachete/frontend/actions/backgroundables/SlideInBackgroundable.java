@@ -21,7 +21,7 @@ import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;

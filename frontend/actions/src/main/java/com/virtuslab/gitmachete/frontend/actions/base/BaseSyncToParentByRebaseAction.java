@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -69,7 +70,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     if (state.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.unknown-state"));
+          getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.unknown-state"));
 
     } else if (state.get() != Repository.State.NORMAL
         && !(isCalledFromContextMenu && state.get() == Repository.State.DETACHED)) {
@@ -89,7 +90,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
       presentation.setEnabled(false);
       presentation.setDescription(
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.status")
+          getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.status")
               .format(stateName));
     } else {
 
@@ -100,14 +101,14 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
       if (branch == null) {
         presentation.setEnabled(false);
-        presentation.setDescription(getString("action.GitMachete.description.disabled.undefined.machete-branch")
+        presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
             .format("Rebase", getQuotedStringOrCurrent(branchName)));
       } else if (branch.isRoot()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.root-branch")
+              getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.root-branch")
                   .format(branch.getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
@@ -117,7 +118,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         IManagedBranchSnapshot upstream = nonRootBranch.getParent();
-        presentation.setDescription(getString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
+        presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
             .format(branch.getName(), upstream.getName()));
       }
 

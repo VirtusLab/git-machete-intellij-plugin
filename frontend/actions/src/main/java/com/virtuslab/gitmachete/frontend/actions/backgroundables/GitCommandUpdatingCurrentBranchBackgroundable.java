@@ -46,6 +46,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -67,7 +68,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     this.gitRepository = gitRepository;
   }
 
-  protected abstract @I18nFormat({}) String getOperationName();
+  protected abstract @Untainted @I18nFormat({}) String getOperationName();
 
   protected abstract String getTargetBranchName();
 

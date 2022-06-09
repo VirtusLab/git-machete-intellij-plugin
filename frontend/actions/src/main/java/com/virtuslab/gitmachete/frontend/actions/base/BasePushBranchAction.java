@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRem
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -73,7 +74,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
         Presentation presentation = anActionEvent.getPresentation();
         presentation.setDescription(
-            getString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch")
+            getNonHtmlString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch")
                 .format(branchName.get()));
         presentation.setEnabled(false);
       }

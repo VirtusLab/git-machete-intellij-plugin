@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.project.Project;
@@ -9,6 +10,7 @@ import git4idea.repo.GitRepository;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -31,8 +33,8 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   }
 
   @Override
-  protected @I18nFormat({}) String getOperationName() {
-    return getString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.operation-name");
+  protected @I18nFormat({}) @Untainted String getOperationName() {
+    return getNonHtmlString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.operation-name");
   }
 
   @Override

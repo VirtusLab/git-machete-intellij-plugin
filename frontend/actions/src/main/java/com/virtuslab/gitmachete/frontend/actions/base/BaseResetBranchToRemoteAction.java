@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
@@ -34,6 +35,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
@@ -73,8 +75,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   }
 
   @Override
-  public @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.BaseResetBranchToRemoteAction.description.enabled");
+  public @Untainted @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
+    return getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.description.enabled");
   }
 
   @Override
@@ -193,8 +195,8 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         LOCAL_REPOSITORY_NAME,
         refspecFromRemoteToLocal,
         getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"),
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail")
+        getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"),
+        getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail")
             .format(localBranch.getName()),
         getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success")
             .format(localBranch.getName()))

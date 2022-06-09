@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Toggleable;
@@ -39,7 +39,8 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     val branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
@@ -50,10 +51,11 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
 
     if (anyCommitExists) {
       presentation.setEnabled(true);
-      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.ToggleListingCommitsAction.description"));
     } else {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-commits"));
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-commits"));
     }
 
   }

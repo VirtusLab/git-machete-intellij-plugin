@@ -9,17 +9,13 @@ import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.panel
 import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
+import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import java.awt.event.KeyEvent
 import javax.swing.JCheckBox
 import kotlin.apply
 import kotlin.text.isEmpty
 import kotlin.text.trim
-
-data class SlideInOptions(
-    val name: String,
-    @get:JvmName("shouldReattach") val reattach: Boolean = true
-)
 
 class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val parentName: String) :
     DialogWrapper(project, /* canBeParent */ true) {

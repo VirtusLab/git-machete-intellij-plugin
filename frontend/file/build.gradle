@@ -7,13 +7,12 @@ dependencies {
   implementation project(':frontend:icons')
 }
 
-addIntellijToCompileClasspath(withGit4Idea: true)
-applyI18nFormatterChecker()
-
 checkerFramework {
   checkers += 'org.checkerframework.checker.tainting.TaintingChecker'
 }
 
+addIntellijToCompileClasspath(withGit4Idea: true)
+applyI18nFormatterChecker()
 
 apply plugin: 'org.jetbrains.grammarkit'
 

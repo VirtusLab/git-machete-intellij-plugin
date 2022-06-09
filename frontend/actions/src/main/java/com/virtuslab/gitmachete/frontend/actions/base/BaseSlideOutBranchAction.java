@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -65,10 +66,11 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
 
     if (branch == null) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.description.disabled.undefined.machete-branch")
+      presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
           .format("Slide out", getQuotedStringOrCurrent(branchName)));
     } else {
-      presentation.setDescription(getString("action.GitMachete.BaseSlideOutBranchAction.description").format(branch.getName()));
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideOutBranchAction.description").format(branch.getName()));
     }
   }
 

@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 
@@ -24,6 +25,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
@@ -60,14 +62,15 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
 
     if (branchName == null) {
       presentation.setVisible(false);
-      presentation.setDescription(getString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideInBranchBelowAction.description.disabled.no-parent"));
     } else if (branch == null) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.description.disabled.undefined.machete-branch")
+      presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
           .format("Slide In", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation.setDescription(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.description").format(branchName));
+          getNonHtmlString("action.GitMachete.BaseSlideInBranchBelowAction.description").format(branchName));
     }
   }
 
@@ -102,8 +105,8 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
     Runnable preSlideInRunnable = () -> {};
     if (localBranch == null) {
-      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(project,
-          gitRepository, parentName, slideInOptions.getName());
+      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
+          project, gitRepository, parentName, slideInOptions.getName());
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
       val branchName = branchNameAndPreSlideInRunnable._1();
       if (!slideInOptions.getName().equals(branchName)) {
@@ -147,11 +150,11 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       Project project,
       GitRepository gitRepository,
       String startPoint,
-      String initialName) {
+      @Untainted String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
-        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title")
+        /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.create-new-branch.title")
             .format(startPoint),
         initialName,
         /* showCheckOutOption */ true,
@@ -187,7 +190,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           LOCAL_REPOSITORY_NAME,
           refspec,
           "Fetching Remote Branch",
-          getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(branchName),
+          getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(branchName),
           getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(branchName)).queue();
 
     } else if (remoteBranch == null) {

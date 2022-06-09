@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -14,6 +15,7 @@ import io.vavr.collection.List;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -28,8 +30,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
   }
 
   @I18nFormat({GENERAL, GENERAL})
-  default String getEnabledDescriptionFormat() {
-    return getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.enabled");
+  default @Untainted String getEnabledDescriptionFormat() {
+    return getNonHtmlString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.enabled");
   }
 
   /**
@@ -60,7 +62,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (branchName == null || gitMacheteBranch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
+          format(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch"),
               getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
@@ -96,7 +98,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       // @formatter:on
 
       presentation.setDescription(
-          format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),
+          format(getNonHtmlString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),
               getActionNameForDescription(), desc));
     }
   }

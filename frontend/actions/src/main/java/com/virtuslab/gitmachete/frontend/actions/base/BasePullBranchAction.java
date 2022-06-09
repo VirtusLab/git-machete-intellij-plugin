@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -93,11 +94,11 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
       String fetchNotificationPrefix = isUpToDate
-          ? getString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
+          ? getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-          : getString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform");
+          : getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform");
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
-          fetchNotificationPrefix);
+          fetchNotificationPrefix + "<br/>");
 
       if (isUpToDate) {
         fastForwardRunnable.run();
@@ -125,7 +126,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(remoteBranch.getName()),
+        getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(remoteBranch.getName()),
         getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(remoteBranch.getName())) {
 
       @Override

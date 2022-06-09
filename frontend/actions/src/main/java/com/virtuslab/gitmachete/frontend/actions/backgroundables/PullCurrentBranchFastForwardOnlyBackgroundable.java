@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
@@ -13,6 +13,7 @@ import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -32,8 +33,8 @@ public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUp
   }
 
   @Override
-  protected @I18nFormat({}) String getOperationName() {
-    return getString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.operation-name");
+  protected @I18nFormat({}) @Untainted String getOperationName() {
+    return getNonHtmlString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.operation-name");
   }
 
   @Override

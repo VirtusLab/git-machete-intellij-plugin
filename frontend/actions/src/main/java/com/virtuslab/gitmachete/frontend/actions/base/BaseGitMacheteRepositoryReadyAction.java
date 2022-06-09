@@ -1,11 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDependentAction
     implements
@@ -21,7 +22,7 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDep
 
     if (!isEnabled) {
       anActionEvent.getPresentation().setDescription(
-          GitMacheteBundle.getString(
+          getNonHtmlString(
               "action.GitMachete.BaseGitMacheteRepositoryReadyAction.description.disabled.undefined.git-machete-repository"));
     }
   }

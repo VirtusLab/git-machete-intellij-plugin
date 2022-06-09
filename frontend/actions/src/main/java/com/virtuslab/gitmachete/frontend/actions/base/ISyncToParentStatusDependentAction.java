@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -14,6 +15,7 @@ import io.vavr.collection.List;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -29,6 +31,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
    *         where {@code {1}} corresponds to branch name as returned by {@link #getNameOfBranchUnderAction}
    *         and {@code {0}} corresponds to name of its parent branch
    */
+  @Untainted
   @I18nFormat({GENERAL, GENERAL})
   String getEnabledDescriptionFormat();
 
@@ -60,14 +63,15 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
     if (branchName == null || gitMacheteBranchByName == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getString("action.GitMachete.description.disabled.undefined.machete-branch"),
+          format(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch"),
               getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     } else if (gitMacheteBranchByName.isRoot()) {
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
         presentation.setEnabled(false);
         presentation.setDescription(
-            format(getString("action.GitMachete.description.disabled.branch-is-root"), getActionNameForDisabledDescription()));
+            format(getNonHtmlString("action.GitMachete.description.disabled.branch-is-root"),
+                getActionNameForDisabledDescription()));
       } else { // contextmenu
         // in case of root branch we do not want to show this option at all
         presentation.setEnabledAndVisible(false);
@@ -103,7 +107,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       // @formatter:on
 
       presentation.setDescription(
-          format(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.disabled.branch-status"),
+          format(getNonHtmlString("action.GitMachete.ISyncToParentStatusDependentAction.description.disabled.branch-status"),
               getActionNameForDisabledDescription(), desc));
     }
   }

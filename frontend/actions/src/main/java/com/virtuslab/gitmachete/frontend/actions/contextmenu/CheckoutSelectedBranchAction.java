@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Collections;
@@ -49,7 +50,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.CheckoutSelectedBranchAction.undefined.branch-name"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.undefined.branch-name"));
       return;
     }
 
@@ -58,12 +59,13 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          getString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out")
+          getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out")
               .format(selectedBranchName.get()));
 
     } else {
       presentation.setDescription(
-          getString("action.GitMachete.CheckoutSelectedBranchAction.description.precise").format(selectedBranchName.get()));
+          getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.description.precise")
+              .format(selectedBranchName.get()));
     }
   }
 

@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Objects;
@@ -50,12 +51,13 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.ShowSelectedBranchInGitLogAction.undefined.branch-name"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.ShowSelectedBranchInGitLogAction.undefined.branch-name"));
       return;
     }
 
     presentation.setDescription(
-        getString("action.GitMachete.ShowSelectedBranchInGitLogAction.description.precise").format(selectedBranchName.get()));
+        getNonHtmlString("action.GitMachete.ShowSelectedBranchInGitLogAction.description.precise")
+            .format(selectedBranchName.get()));
   }
 
   @Override

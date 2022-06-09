@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -34,19 +35,21 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
     val presentation = anActionEvent.getPresentation();
     if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
       val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
       if (gitRepository == null) {
         presentation.setEnabled(false);
         presentation
-            .setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-git-repository"));
+            .setDescription(getNonHtmlString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-git-repository"));
       } else if (gitRepository.getRemotes().isEmpty()) {
         presentation.setEnabled(false);
-        presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-remotes"));
+        presentation
+            .setDescription(getNonHtmlString("action.GitMachete.FetchAllRemotesAction.description.disabled.no-remotes"));
       } else {
         presentation.setEnabled(true);
-        presentation.setDescription(getString("action.GitMachete.FetchAllRemotesAction.description"));
+        presentation.setDescription(getNonHtmlString("action.GitMachete.FetchAllRemotesAction.description"));
       }
     }
   }

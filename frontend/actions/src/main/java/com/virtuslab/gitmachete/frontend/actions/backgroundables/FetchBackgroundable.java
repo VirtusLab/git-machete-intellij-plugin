@@ -12,6 +12,7 @@ import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -22,9 +23,9 @@ public class FetchBackgroundable extends Task.Backgroundable {
   private final GitRepository gitRepository;
   private final String remoteName;
   private final String refspec;
-  private final String failureNotificationText;
+  private final @Untainted String failureNotificationText;
   private final String successNotificationText;
-  private final @Nullable String taskSubtitle;
+  private final @Nullable @Untainted String taskSubtitle;
 
   /** Use as {@code remoteName} when referring to the local repository. */
   public static final String LOCAL_REPOSITORY_NAME = ".";
@@ -34,8 +35,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String remoteName,
       String refspec,
       String taskTitle,
-      @Nullable String taskSubtitle,
-      String failureNotificationText,
+      @Nullable @Untainted String taskSubtitle,
+      @Untainted String failureNotificationText,
       String successNotificationText) {
     super(project, taskTitle, /* canBeCancelled */ true);
     this.project = project;
@@ -52,7 +53,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String remoteName,
       String refspec,
       String taskTitle,
-      String failureNotificationText,
+      @Untainted String failureNotificationText,
       String successNotificationText) {
     this(project, gitRepository, remoteName, refspec, taskTitle, /* taskSubtitle */ null, failureNotificationText,
         successNotificationText);

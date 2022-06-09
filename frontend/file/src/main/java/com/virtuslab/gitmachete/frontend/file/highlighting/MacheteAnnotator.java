@@ -92,7 +92,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     val prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
     if (prevMacheteGeneratedEntryOption.isEmpty()) {
-      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.cannot-indent-first-entry"))
+      holder
+          .newAnnotation(HighlightSeverity.ERROR,
+              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-indent-first-entry"))
           .range(element).create();
       return;
     }
@@ -119,7 +121,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
         .findFirst();
     if (wrongIndentChar.isPresent()) {
       holder.newAnnotation(HighlightSeverity.ERROR,
-          getString("string.GitMachete.MacheteAnnotator.indent-char-not-match")
+          getNonHtmlString("string.GitMachete.MacheteAnnotator.indent-char-not-match")
               .format(indentCharToName((char) wrongIndentChar.getAsInt()),
                   indentCharToName(indentationParameters.indentationCharacter)))
           .range(element).create();
@@ -129,7 +131,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (thisIndentationText.length() % indentationParameters.indentationWidth != 0) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
-              getString("string.GitMachete.MacheteAnnotator.indent-width-not-match")
+              getNonHtmlString("string.GitMachete.MacheteAnnotator.indent-width-not-match")
                   .format(String.valueOf(indentationParameters.indentationWidth)))
           .range(element).create();
     }
@@ -137,7 +139,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     thisLevel = thisIndentationText.length() / indentationParameters.indentationWidth;
 
     if (hasPrevLevelCorrectWidth && thisLevel > prevLevel + 1) {
-      holder.newAnnotation(HighlightSeverity.ERROR, getString("string.GitMachete.MacheteAnnotator.too-much-indent"))
+      holder.newAnnotation(HighlightSeverity.ERROR, getNonHtmlString("string.GitMachete.MacheteAnnotator.too-much-indent"))
           .range(element).create();
     }
   }
