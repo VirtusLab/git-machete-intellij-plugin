@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.uitest
 
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.{Config, IdeProbeFixture, IntelliJFixture}
+import org.virtuslab.ideprobe.{IdeProbeFixture, IntelliJFixture}
 
 
-object UISuite
+trait UISuite
   extends RunningIntelliJPerSuite
     with IdeProbeFixture
     with RunningIntelliJFixtureExtension {
