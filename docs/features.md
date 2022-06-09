@@ -12,7 +12,7 @@ You can also use `Ctrl + Alt + Shift + M` (`Command + Option + Shift + M` on mac
 
 For each branch, Git Machete indicates the relation to each of its child branches.
 If the edge between them is **green** that means the child branch is in sync with its parent branch &mdash; in other words, there are no commits in the parent branch that don't belong to the child.
-But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#rebase) the child branch onto the parent.
+But if there are some commits in the parent branch that are **not** reachable from the child, then the edge is **red** &mdash; you need to [rebase](#Sync by rebase) the child branch onto the parent ([merge](#Sync by merge) is an alternative).
 The **gray** color of the edge means that the branch was merged to the parent.
 In some (rare) cases you may encounter a **yellow** edge which means that a fork point can't be determined automatically
 (see [Override fork point section](#override-fork-point) to learn how to fix that).
@@ -44,7 +44,7 @@ When you click on the eye button on the left side of the plugin, you can toggle 
 ![](toggle_listing_commits.gif)
 
 
-## Rebase
+## Sync by rebase
 
 Rebase with Git Machete plugin is easy!
 Just right-click on the child branch and from a context menu select `(Checkout and) Sync to Parent by Rebase...`.
@@ -52,12 +52,14 @@ Standard IntelliJ dialog for interactive rebase will appear.
 
 ![](rebase.gif)
 
-## Merge
+
+## Sync by merge
 
 The other way to get a branch in sync to its parent is merging of a parent branch into it.
 If you prefer that, right-click on the child branch and from a context menu select `(Checkout and) Sync to Parent by Merge`.
 
-[//]: # (TODO #850: add merge gif)
+![](merge.gif)
+
 
 ## Push
 
@@ -89,14 +91,14 @@ The `--keep` option, as opposed to `--hard`, keeps your uncommitted changes safe
 ![](reset.gif)
 
 
-## Fast-forward merge to parent
+## Fast-forward merge into parent
 
 When you are done with the changes on the selected branch (e.g. PR has been approved and all required fixes are applied),
 you probably want to merge this branch to its parent branch.
 When these branches are in sync (green edge), you can do a fast-forward merge.
 Fast-forward merge is just equivalent to moving the tip of a branch to which you merge (`develop` in the sample below)
 to the same commit as a tip of a merged branch (`call-ws` below).
-This is what `Fast-forward Merge To Parent` context menu action does.
+This is what `Fast-forward Merge into Parent` context menu action does.
 As you can see, the edge between `develop` and `call-ws` changed to grey &mdash; it means that `call-ws` has been merged.
 
 ![](fast_forward.gif)
@@ -162,6 +164,13 @@ Now you can use the `Override Fork Point...` action to choose the fork point of 
 It can be the commit inferred by Git Machete (the one marked in commits list), or the one that the parent branch is pointing to.
 
 ![](override_forkpoint.gif)
+
+
+## Show in Git log
+
+You can navigate to the commit in **Git log** that is a tip of a branch.
+
+![](show_in_git_log.gif)
 
 
 ## Discover

@@ -110,7 +110,7 @@ The solution to this situation will not differ much from the previous scenario..
 
 ![](docs/plugins.jetbrains.com/scenario-3-stacked-prs.gif)
 
-You can start with `Checkout and Rebase Onto Parent...` to place `fancy-footer` back on top of `sticky-header`.
+You can start with `Checkout and Sync to Parent by Rebase...` to place `fancy-footer` back on top of `sticky-header`.
 Now `Push...` both branches.
 Everything is back in sync again.
 
@@ -124,7 +124,7 @@ The way to go is to [fast-forward merge](https://git-scm.com/docs/git-merge#_fas
 
 ![](docs/plugins.jetbrains.com/scenario-4-ff-merge.gif)
 
-Note that `Fast-forward Merge To Parent` does not require you to check out the branch getting merged (or its parent) beforehand.
+Note that `Fast-forward Merge into Parent` does not require you to check out the branch getting merged (or its parent) beforehand.
 You can perform it while some other branch is checked out &mdash; `fancy-footer` in our case.
 
 Once the fast-forward merge is complete, the edge between `master` and `sticky-header` gets gray, which means that the latter has been merged. <br/>

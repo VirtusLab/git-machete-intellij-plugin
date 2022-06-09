@@ -275,3 +275,17 @@ The alternative that would preserve linear history is to rebase the `develop` hi
 since the latest release over the hotfixed `master`.
 This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
 which is rather unacceptable.
+
+
+## Scenario recordings
+
+The most effective way to record all scenarios (probably) is to record all scenarios and trim the video.
+To record the screen you can use Quick Time Player (on macOS).
+The scenario suite **is not** fully automatic.
+The following steps shall be performed manually at the beginning:
+- resize the tool window to ~4/5 of IDE window height (to show all toolbar actions and avoid the context-menu exceeding the window area)
+- increase the font size to 16
+- resize the rebase dialog (to fit inside the window area)
+- sometimes an IDE internal error occurs - clear it
+
+Gifs can optimized with https://www.xconvert.com/ - over 50% size reduction.
