@@ -391,11 +391,13 @@ allprojects {
       }
     }
 
-    applyI18nFormatterChecker = { ->
+    applyI18nFormatterAndTaintingCheckers = { ->
       // I18nFormatterChecker, like GuiEffectChecker and NullnessChecker, is enabled
       // regardless of `CI` env var/`runAllCheckers` Gradle project property.
       checkerFramework {
-        checkers += 'org.checkerframework.checker.i18nformatter.I18nFormatterChecker'
+        checkers += [
+                'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
+                'org.checkerframework.checker.tainting.TaintingChecker']
         extraJavacArgs += '-Abundlenames=GitMacheteBundle'
       }
 

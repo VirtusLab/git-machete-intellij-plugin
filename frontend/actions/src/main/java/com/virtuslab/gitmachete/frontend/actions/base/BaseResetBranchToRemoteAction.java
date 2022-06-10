@@ -157,7 +157,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
       final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
           getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
-          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message").format(
+          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message.HTML").format(
               branchName,
               remoteTrackingBranch.getName(),
               currentCommitSha),
@@ -198,7 +198,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"),
         getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail")
             .format(localBranch.getName()),
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success")
+        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success.HTML")
             .format(localBranch.getName()))
                 .queue();
   }
@@ -235,7 +235,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           if (result.success()) {
             VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
                 /* title */ "",
-                getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success")
+                getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success.HTML")
                     .format(localBranchName));
             log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 

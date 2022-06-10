@@ -126,8 +126,10 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(remoteBranch.getName()),
-        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(remoteBranch.getName())) {
+        getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail")
+            .format(remoteBranch.getName()),
+        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success.HTML")
+            .format(remoteBranch.getName())) {
 
       @Override
       @UIEffect

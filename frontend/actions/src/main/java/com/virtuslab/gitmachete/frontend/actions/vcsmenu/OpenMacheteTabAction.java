@@ -36,7 +36,7 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
 
     Runnable warnNoGit = () -> VcsNotifier.getInstance(project).notifyWarning(
         /* displayId */ null,
-        getString("action.GitMachete.OpenMacheteTabAction.notification.title.could-not-open-tab"),
+        getString("action.GitMachete.OpenMacheteTabAction.notification.title.could-not-open-tab.HTML"),
         getString("action.GitMachete.OpenMacheteTabAction.notification.message.no-git"));
 
     if (toolWindow == null) {

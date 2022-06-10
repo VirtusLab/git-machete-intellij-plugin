@@ -41,7 +41,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
         label(
             format(
                 getString(
-                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1"),
+                    "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.note-1.HTML"),
                 branchName))
       }
       row {
@@ -78,7 +78,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
       checkBox(
               format(
                   getString(
-                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice"),
+                      "action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.remember-choice.HTML"),
                   DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY),
               ::remember)
           .component.apply {

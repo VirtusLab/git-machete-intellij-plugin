@@ -91,13 +91,13 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
     } catch (EntryDoesNotExistException e) {
       notifyError(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist")
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist.HTML")
               .format(parentName),
           e);
       return;
     } catch (EntryIsDescendantOfException e) {
       notifyError(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of")
+          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of.HTML")
               .format(entryToSlideIn.getName(), parentName),
           e);
       return;
@@ -143,7 +143,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
   private void notifyError(@Nullable String message, Throwable throwable) {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail")
+        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail.HTML")
             .format(slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));
   }

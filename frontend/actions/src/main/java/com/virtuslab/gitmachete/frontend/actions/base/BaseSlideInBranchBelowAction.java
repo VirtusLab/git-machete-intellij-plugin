@@ -96,7 +96,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail").format(slideInOptions.getName()),
+          /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail.HTML").format(slideInOptions.getName()),
           /* message */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
@@ -113,7 +113,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
-            getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names")
+            getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.mismatched-names.HTML")
                 .format(slideInOptions.getName(), branchNameFromNewBranchDialog));
         return;
       }
@@ -191,7 +191,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           refspec,
           "Fetching Remote Branch",
           getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail").format(branchName),
-          getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success").format(branchName)).queue();
+          getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success.HTML").format(branchName)).queue();
 
     } else if (remoteBranch == null) {
       preSlideInRunnable = () -> {

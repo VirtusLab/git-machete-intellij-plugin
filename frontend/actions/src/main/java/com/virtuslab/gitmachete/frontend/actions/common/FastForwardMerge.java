@@ -40,7 +40,7 @@ public final class FastForwardMerge {
     val newLineSymbolHtml = insertNewlineAfterPrefix ? "<br/>" : "";
     @SuppressWarnings("regexp") val newLineSymbolNonHtml = insertNewlineAfterPrefix ? "\n" : "";
     val successFFMergeNotification = fetchNotificationPrefix + newLineSymbolHtml
-        + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success")
+        + getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-success.HTML")
             .format(stayingName, movingName);
     String failFFMergeNotification = fetchNotificationPrefix + newLineSymbolNonHtml
         + getNonHtmlString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.notification.title.ff-fail").format(

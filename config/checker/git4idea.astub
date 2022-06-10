@@ -1,16 +1,12 @@
 import org.checkerframework.checker.tainting.qual.Untainted;
-import org.jetbrains.annotations.Nls;
-import com.intellij.openapi.util.NlsContexts.DialogTitle;
-import com.intellij.openapi.util.NlsContexts.DetailedDescription;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 package git4idea.branch;
 
 class GitNewBranchDialog {
-    GitNewBranchDialog(com.intellij.openapi.project.Project  project,
-                       java.util.Collection<? extends git4idea.repo.GitRepository> repositories ,
-                       @DialogTitle @Untainted String dialogTitle,
+    GitNewBranchDialog(Project  project,
+                       Collection repositories ,
+                       @Untainted String dialogTitle,
                        @Untainted String initialName,
                        boolean showCheckOutOption,
                        boolean showResetOption,
@@ -20,15 +16,15 @@ class GitNewBranchDialog {
 package git4idea.fetch;
 
 interface GitFetchResult {
-  boolean showNotificationIfFailed(@NotNull @Nls @Untainted String title);
+  boolean showNotificationIfFailed(@Untainted String title);
 }
 
 package git4idea.util;
 
 class GitUntrackedFilesHelper {
-  public static void notifyUntrackedFilesOverwrittenBy(@NotNull Project project,
-                                                       @NotNull VirtualFile root,
-                                                       @NotNull Collection<String> relativePaths,
-                                                       @NotNull @Nls @Untainted String operation,
-                                                       @Nullable @DetailedDescription String description);
+  public static void notifyUntrackedFilesOverwrittenBy(Project project,
+                                                       VirtualFile root,
+                                                       Collection<String> relativePaths,
+                                                       @Untainted String operation,
+                                                       @Nullable String description);
 }
