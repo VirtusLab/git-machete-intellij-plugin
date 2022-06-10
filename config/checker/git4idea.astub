@@ -1,5 +1,12 @@
+import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
 import org.jetbrains.annotations.Nullable;
+
+package git4idea;
+
+class GitVcs {
+    void showErrors(List list, @Tainted String action);
+}
 
 package git4idea.branch;
 
@@ -26,5 +33,5 @@ class GitUntrackedFilesHelper {
                                                        VirtualFile root,
                                                        Collection<String> relativePaths,
                                                        @Untainted String operation,
-                                                       @Nullable String description);
+                                                       @Tainted @Nullable String description);
 }

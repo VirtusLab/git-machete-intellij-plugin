@@ -9,7 +9,6 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea: true)
 applyI18nFormatterAndTaintingCheckers()
-applySubtypingChecker()
 
 apply plugin: 'org.jetbrains.grammarkit'
 

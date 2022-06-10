@@ -6,6 +6,7 @@ import org.checkerframework.checker.guieffect.qual.UIPackage;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 
@@ -135,6 +136,10 @@ package com.intellij.notification;
 class NotificationAction {
   // Experiments show that notification actions are executed on UI thread.
   static NotificationAction createSimple(Supplier<String> dynamicText, @UI Runnable performAction);
+}
+
+class NotificationGroup {
+      Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type, @Nullable NotificationListener listener);
 }
 
 
@@ -276,11 +281,18 @@ package com.intellij.openapi.project;
 class DialogWrapper {
   // `this` in the below method is @UnknownInitialization since this methods is called from DialogWrapper's c'tor
   @Nullable javax.swing.JRootPane getRootPane(@UnknownInitialization DialogWrapper this);
+
+  void setOKButtonText(@Tainted String text);
 }
 
 class MessageDialogBuilder<T extends MessageDialogBuilder> {
   @SafeEffect
-  YesNo yesNo(String title, String message);
+  YesNo yesNo(@Tainted String title, @Tainted String message);
+}
+
+class MessageUtil {
+    int showOkCancelDialog(@Tainted String title, @Tainted String message, @Tainted String okText, @Tainted String cancelText,
+                           Icon icon, DoNotAskOption doNotAskOption, Project project);
 }
 
 
@@ -295,6 +307,14 @@ class MessageDialogBuilder<T extends MessageDialogBuilder> {
 package com.intellij.openapi.vcs;
 
 @UI class CheckinProjectPanel {}
+
+class VcsNotifier {
+      Notification notifyError(@Nullable String displayId, @Tainted String title, @Tainted String message);
+      Notification notifySuccess(@Nullable String displayId, @Tainted String title, @Tainted String message);
+      Notification notifyWeakError(@Nullable String displayId, @Tainted String title, @Tainted String message);
+      Notification notifyWarning(@Nullable String displayId, @Tainted String title, @Tainted String message);
+      Notification notifyInfo(@Nullable String displayId, @Tainted String title, @Tainted String message);
+}
 
 
 package com.intellij.openapi.vcs.changes;

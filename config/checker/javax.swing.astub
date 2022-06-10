@@ -1,9 +1,9 @@
-
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Tainted;
 
 package javax.swing;
 
@@ -21,6 +21,7 @@ class JComboBox<E> {
 
 class JComponent {
   void setBorder(@Nullable Border border);
+  void setToolTipText(@Tainted String text);
 }
 
 class JTable {

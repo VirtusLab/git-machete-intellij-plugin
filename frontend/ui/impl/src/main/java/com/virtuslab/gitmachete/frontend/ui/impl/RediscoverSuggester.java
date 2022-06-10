@@ -54,7 +54,7 @@ public class RediscoverSuggester {
 
   @UIEffect
   private void queueSuggestion(Path macheteFilePath) {
-    val yesNo = MessageDialogBuilder.YesNo.yesNo(
+    val yesNo = MessageDialogBuilder.yesNo(
         getString("string.GitMachete.RediscoverSuggester.dialog.title"),
         getString("string.GitMachete.RediscoverSuggester.dialog.question"));
 
