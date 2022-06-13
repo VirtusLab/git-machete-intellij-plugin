@@ -30,7 +30,7 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
-    setOKButtonMnemonic('S'.code)
+    setOKButtonMnemonic('S'.toInt())
     super.init()
   }
 

@@ -70,9 +70,11 @@ jobs:
           command: ./gradlew test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
-          path: branchLayoutImpl/build/test-results/test/
+          path: branchLayout/impl/build/test-results/test/
       - store_test_results:
-          path: backendImpl/build/test-results/test/
+          path: backend/impl/build/test-results/test/
+      - store_test_results:
+          path: frontend/base/build/test-results/test/
       - store_test_results:
           path: build/test-results/test/
 

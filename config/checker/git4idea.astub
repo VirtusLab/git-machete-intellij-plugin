@@ -1,6 +1,6 @@
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
-import org.jetbrains.annotations.Nullable;
 
 
 package git4idea;

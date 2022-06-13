@@ -18,10 +18,10 @@ plugins {
   id 'org.checkerframework' version '0.6.11' apply false
   id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
   id 'org.jetbrains.intellij' version '1.6.0' apply false
-  // Minor Kotlin version is effectively enforced by the IntelliJ version we're building against,
-  // check https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library
-  // every time `intellijVersions.buildTarget` is bumped.
-  id 'org.jetbrains.kotlin.jvm' version '1.6.20' apply false
+  // As per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
+  //   If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version
+  // which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
+  id 'org.jetbrains.kotlin.jvm' version '1.4.0' apply false
 }
 
 if (JavaVersion.current() != JavaVersion.VERSION_11) {
@@ -424,16 +424,16 @@ allprojects {
       compileKotlin {
         // TODO (#785): revert this setting
         // kotlinOptions.allWarningsAsErrors = true
-        kotlinOptions.jvmTarget = javaMajorVersion
-      }
 
-      def kotlinVersion = plugins.getPlugin(org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper.class).kotlinPluginVersion
-      dependencies {
-        // kotlin-reflect is NOT added by Gradle Kotlin plugin 1.4/1.5/1.6 automatically,
-        // even though it turns out to be needed in the runtime (e.g. in `DeleteBranchOnSlideOutSuggestionDialog`).
-        // Note that kotlin-reflect pulls in kotlin-stdlib transitively, even if `kotlin.stdlib.default.dependency=false` is set in gradle.properties
-        // (see https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library)
-        implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
+        // Supress the warnings about different version of Kotlin used for compilation
+        // than bundled into the `buildTarget` version of IntelliJ.
+        // For compilation we use the Kotlin version from the earliest support IntelliJ,
+        // and as per https://kotlinlang.org/docs/components-stability.html,
+        // code compiled against an older version of kotlin-stdlib should work
+        // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
+        kotlinOptions.freeCompilerArgs += '-Xskip-metadata-version-check'
+
+        kotlinOptions.jvmTarget = javaMajorVersion
       }
 
       spotless {
