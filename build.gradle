@@ -197,6 +197,7 @@ dependencyUpdates {
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
   repositories {
@@ -269,10 +270,24 @@ allprojects {
       removeUnusedImports()
       targetExclude '**/build/generated/**/*.*'
     }
+    kotlin {
+      ktfmt()
+    }
+    scala {
+      scalafmt().configFile("$rootDir/scalafmt.conf")
+    }
   }
 
   if (!isCI) {
-    compileJava.dependsOn 'spotlessApply'
+    tasks.withType(JavaCompile) {
+      dependsOn 'spotlessJavaApply'
+    }
+    tasks.withType(KotlinCompile) {
+      dependsOn 'spotlessKotlinApply'
+    }
+    tasks.withType(ScalaCompile) {
+      dependsOn 'spotlessScalaApply'
+    }
   }
 
 
@@ -434,12 +449,6 @@ allprojects {
         kotlinOptions.freeCompilerArgs += '-Xskip-metadata-version-check'
 
         kotlinOptions.jvmTarget = javaMajorVersion
-      }
-
-      spotless {
-        kotlin {
-          ktfmt()
-        }
       }
     }
 
