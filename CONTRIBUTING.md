@@ -171,6 +171,10 @@ Other coding conventions include:
   containing the name of the param.
 * Avoid running code outside IDE-managed threads.
   Use either UI thread (for lightweight operations) or `Task.Backgroundable` (for heavyweight operations).
+* Properties in `GitMacheteBundle.properties` that use HTML should be wrapped in tags `<html>` ... `</html>`.
+  Additionally, their keys should have a `.HTML` suffix.
+* `@Tainted` and `@Untainted` annotations are used in the context of method parameters that may or may not use HTML. Those annotated with `@Untainted` should not contain HTML tags, whereas values annotated with
+  `@Tainted` can contain HTML (but they don't have to).
 
 ## UI conventions
 

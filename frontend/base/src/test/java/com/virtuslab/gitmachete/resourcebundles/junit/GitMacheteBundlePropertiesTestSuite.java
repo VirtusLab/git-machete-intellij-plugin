@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.resourcebundles.junit;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.*;
 import java.util.Properties;
@@ -20,16 +20,12 @@ public class GitMacheteBundlePropertiesTestSuite {
 
     property.entrySet().stream()
         .filter(prop -> ((String) prop.getValue()).contains("<"))
-        .forEach(t -> assertTrue(isCorrectHtmlPropertyFormat((String) t.getKey(), (String) t.getValue())));
-  }
-
-  private boolean isCorrectHtmlPropertyFormat(String key, String value) {
-    if (value.contains(Character.toString('<'))) {
-      String beginHtmlTag = value.substring(0, 6);
-      String endHtmlTag = value.substring(value.length() - 7);
-      String htmlSuffix = key.substring(key.length() - 5);
-      return beginHtmlTag.equals("<html>") && endHtmlTag.equals("</html>") && htmlSuffix.equals(".HTML");
-    }
-    return true;
+        .forEach(t -> {
+          String key = (String) t.getKey();
+          String value = (String) t.getValue();
+          assertEquals("HTML property should start with <html>", "<html>", value.substring(0, 6));
+          assertEquals("HTML property should end with </html>", "</html>", value.substring(value.length() - 7));
+          assertEquals("HTML property key should have a .HTML suffix", ".HTML", key.substring(key.length() - 5));
+        });
   }
 }
