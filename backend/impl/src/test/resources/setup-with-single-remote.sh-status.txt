@@ -4,6 +4,11 @@
   x-allow-ownership-link  PR #123 (behind origin)
   | | 
   | | 1st round of fixes -> fork point ??? commit 9d422de seems to be a part of the unique history of allow-ownership-link
+  | | Use new icons
+  | ?-update-icons (behind origin)
+  | | 
+  | | 1st round of fixes
+  | | Use new icons -> fork point ??? commit 89fd9a5 seems to be a part of the unique history of update-icons
   | | Build arbitrarily long chains
   | ?-build-chain (untracked)
   | 

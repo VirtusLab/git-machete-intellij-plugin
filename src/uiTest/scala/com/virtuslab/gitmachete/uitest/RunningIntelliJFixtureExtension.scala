@@ -86,6 +86,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         probe.await()
       }
 
+      def acceptResetToRemote(): Unit = {
+        runJs("project.acceptResetToRemote()")
+        probe.await()
+      }
+
       def acceptSlideIn(): Unit = {
         runJs("project.acceptSlideIn()")
         probe.await()
@@ -93,6 +98,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def acceptSuggestedBranchLayout(): Unit = {
         runJs("project.acceptSuggestedBranchLayout()")
+        probe.await()
+      }
+
+      def saveDiscoveredBranchLayout(): Unit = {
+        runJs("project.saveDiscoveredBranchLayout()")
         probe.await()
       }
 
@@ -208,6 +218,35 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       object toolbar {
 
+        def syncByRebase(): Unit = {
+          runJs(s"project.toolbar.syncByRebase()")
+        }
+
+        def syncByMerge(): Unit = {
+          runJs(s"project.toolbar.syncByMerge()")
+          probe.await()
+        }
+
+        def pull(): Unit = {
+          runJs(s"project.toolbar.pull()")
+          probe.await()
+        }
+
+        def resetToRemote(): Unit = {
+          runJs(s"project.toolbar.resetToRemote()")
+          probe.await()
+        }
+
+        def fastForwardMerge(): Unit = {
+          runJs(s"project.toolbar.fastForwardMerge()")
+          probe.await()
+        }
+
+        def discoverBranchLayout(): Unit = {
+          runJs(s"project.toolbar.discoverBranchLayout()")
+          probe.await()
+        }
+
         def toggleListingCommits(): Unit = {
           runJs(s"project.toolbar.toggleListingCommits()")
           probe.await()
@@ -217,21 +256,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs(s"project.toolbar.fetchAll()")
           probe.await()
         }
-      }
-
-      def discoverBranchLayout(): Unit = {
-        runJs("project.discoverBranchLayout()")
-        probe.await()
-      }
-
-      def fastForwardMergeCurrentBranchToParent(): Unit = {
-        runJs(s"project.fastForwardMergeCurrentBranchToParent()")
-        probe.await()
-      }
-
-      def fastForwardMergeSelectedBranchToParent(branch: String): Unit = {
-        runJs(s"project.fastForwardMergeSelectedBranchToParent('$branch')")
-        probe.await()
       }
 
       def getCurrentBranchName(): String = {
@@ -250,36 +274,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getSyncToParentStatus('$child')")
       }
 
-      def syncSelectedToParentByRebaseAction(branch: String): Unit = {
-        runJs(s"project.syncSelectedToParentByRebaseAction('$branch')")
-      }
-
-      def syncCurrentToParentByRebaseAction(): Unit = {
-        runJs(s"project.syncCurrentToParentByRebaseAction()")
-      }
-
-      def syncSelectedToParentByMergeAction(branch: String): Unit = {
-        runJs(s"project.syncSelectedToParentByMergeAction('$branch')")
-        probe.await()
-      }
-
-      def syncCurrentToParentByMergeAction(): Unit = {
-        runJs(s"project.syncCurrentToParentByMergeAction()")
-        probe.await()
-      }
-
       def openGitMacheteTab(): Unit = {
         runJs("project.openGitMacheteTab()")
-      }
-
-      def pullSelectedBranch(branch: String): Unit = {
-        runJs(s"project.pullSelectedBranch('$branch')")
-        probe.await()
-      }
-
-      def pullCurrentBranch(): Unit = {
-        runJs(s"project.pullCurrentBranch()")
-        probe.await()
       }
 
       def refreshModelAndGetManagedBranches(): Array[String] = {
@@ -293,25 +289,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       def rejectBranchDeletionOnSlideOut(): Unit = {
         runJs("project.rejectBranchDeletionOnSlideOut()")
         probe.await()
-      }
-
-      def resetCurrentBranchToRemote(): Unit = {
-        runJs(s"project.resetCurrentBranchToRemote()")
-        probe.await()
-      }
-
-      def resetBranchToRemote(branch: String): Unit = {
-        runJs(s"project.resetBranchToRemote('$branch')")
-        probe.await()
-      }
-
-      def slideOutBranch(branch: String): Unit = {
-        runJs(s"project.slideOutBranch('$branch')")
-        probe.await()
-      }
-
-      def toggleListingCommits(): Unit = {
-        runJs("project.toggleListingCommits()")
       }
 
       def writeToTextField(text: String): Unit = {
