@@ -5,7 +5,6 @@ import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_README_SCENARIOS
 import org.junit._
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.ProbeDriver
 
 @RunWith(classOf[JUnit4])
 class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_README_SCENARIOS) {
@@ -13,23 +12,19 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   import UISuite._
   UISuite.setup()
 
-  private val project = intelliJ.project
-
-  private val probe: ProbeDriver = intelliJ.probe
-
   @Before
   def beforeEach(): Unit = {
-    probe.openProject(rootDirectoryPath)
-    project.configure()
-    probe.await()
-    project.openGitMacheteTab()
-    project.toggleListingCommits()
+    intelliJ.probe.openProject(rootDirectoryPath)
+    intelliJ.project.configure()
+    intelliJ.probe.await()
+    intelliJ.project.openGitMacheteTab()
+    intelliJ.project.toggleListingCommits()
     intelliJ.ide.findAndResizeIdeFrame()
   }
 
   @After
   def afterEach(): Unit = {
-    probe.await()
+    intelliJ.probe.await()
     // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
     // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
     intelliJ.ide.closeOpenedProjects()
@@ -38,66 +33,66 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
   @Ignore
   @Test def scenarios(): Unit = {
     // scenario 1
-    project.switchRepo(0)
-    project.moveMouseToTheMiddleAndWait(15)
-    project.contextMenu.openContextMenu("master")
-    project.contextMenu.slideIn()
-    project.writeToTextField("common-scripts")
-    project.acceptSlideIn()
-    project.acceptCreateNewBranch()
-    project.moveMouseToTheMiddleAndWait(0)
-    project.contextMenu.openContextMenu("fancy-footer")
-    project.contextMenu.checkout()
-    project.contextMenu.openContextMenu("common-scripts")
-    project.contextMenu.slideOut()
-    project.moveMouseToTheMiddleAndWait(15)
-    probe
+    intelliJ.project.switchRepo(0)
+    intelliJ.project.moveMouseToTheMiddleAndWait(15)
+    intelliJ.project.contextMenu.openContextMenu("master")
+    intelliJ.project.contextMenu.slideIn()
+    intelliJ.project.writeToTextField("common-scripts")
+    intelliJ.project.acceptSlideIn()
+    intelliJ.project.acceptCreateNewBranch()
+    intelliJ.project.moveMouseToTheMiddleAndWait(0)
+    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
+    intelliJ.project.contextMenu.checkout()
+    intelliJ.project.contextMenu.openContextMenu("common-scripts")
+    intelliJ.project.contextMenu.slideOut()
+    intelliJ.project.moveMouseToTheMiddleAndWait(15)
+    intelliJ.probe
 
     // scenario 2
-    project.switchRepo(1)
-    project.moveMouseToTheMiddleAndWait(0)
-    project.toolbar.fetchAll()
-    project.contextMenu.openContextMenu("master")
-    project.contextMenu.pull()
-    project.contextMenu.openContextMenu("sticky-header")
-    project.contextMenu.checkoutAndSyncByRebase()
-    project.acceptRebase()
-    project.contextMenu.openContextMenu("fancy-footer")
-    project.contextMenu.checkoutAndSyncByRebase()
-    project.acceptRebase()
-    project.contextMenu.openContextMenu("sticky-header")
-    project.contextMenu.push()
-    project.acceptForcePush()
-    project.contextMenu.openContextMenu("fancy-footer")
-    project.contextMenu.push()
-    project.acceptForcePush()
-    project.moveMouseToTheMiddleAndWait(15)
+    intelliJ.project.switchRepo(1)
+    intelliJ.project.moveMouseToTheMiddleAndWait(0)
+    intelliJ.project.toolbar.fetchAll()
+    intelliJ.project.contextMenu.openContextMenu("master")
+    intelliJ.project.contextMenu.pull()
+    intelliJ.project.contextMenu.openContextMenu("sticky-header")
+    intelliJ.project.contextMenu.checkoutAndSyncByRebase()
+    intelliJ.project.acceptRebase()
+    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
+    intelliJ.project.contextMenu.checkoutAndSyncByRebase()
+    intelliJ.project.acceptRebase()
+    intelliJ.project.contextMenu.openContextMenu("sticky-header")
+    intelliJ.project.contextMenu.push()
+    intelliJ.project.acceptForcePush()
+    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
+    intelliJ.project.contextMenu.push()
+    intelliJ.project.acceptForcePush()
+    intelliJ.project.moveMouseToTheMiddleAndWait(15)
 
     // scenario 3
-    project.switchRepo(2)
-    project.moveMouseToTheMiddleAndWait(0)
-    project.contextMenu.openContextMenu("fancy-footer")
-    project.contextMenu.checkoutAndSyncByRebase() // consider using merge in this example
-    project.acceptRebase()
-    project.contextMenu.openContextMenu("sticky-header")
-    project.contextMenu.push()
-    project.acceptPush()
-    project.contextMenu.openContextMenu("fancy-footer")
-    project.contextMenu.push()
-    project.acceptForcePush()
-    project.moveMouseToTheMiddleAndWait(15)
+    intelliJ.project.switchRepo(2)
+    intelliJ.project.moveMouseToTheMiddleAndWait(0)
+    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
+    intelliJ.project.contextMenu.checkoutAndSyncByRebase() // consider using merge in this example
+    intelliJ.project.acceptRebase()
+    intelliJ.project.contextMenu.openContextMenu("sticky-header")
+    intelliJ.project.contextMenu.push()
+    intelliJ.project.acceptPush()
+    intelliJ.project.contextMenu.openContextMenu("fancy-footer")
+    intelliJ.project.contextMenu.push()
+    intelliJ.project.acceptForcePush()
+    intelliJ.project.moveMouseToTheMiddleAndWait(15)
 
     // scenario 4
-    project.switchRepo(3)
-    project.moveMouseToTheMiddleAndWait(0)
-    project.contextMenu.openContextMenu("sticky-header")
-    project.contextMenu.fastForwardMerge()
-    project.contextMenu.openContextMenu("master")
-    project.contextMenu.push()
-    project.acceptPush()
-    project.contextMenu.openContextMenu("sticky-header")
-    project.contextMenu.slideOut()
-    project.moveMouseToTheMiddleAndWait(15)
+    intelliJ.project.switchRepo(3)
+    intelliJ.project.moveMouseToTheMiddleAndWait(0)
+    intelliJ.project.contextMenu.openContextMenu("sticky-header")
+    intelliJ.project.contextMenu.fastForwardMerge()
+    intelliJ.project.contextMenu.openContextMenu("master")
+    intelliJ.project.contextMenu.push()
+    intelliJ.project.acceptPush()
+    intelliJ.project.contextMenu.openContextMenu("sticky-header")
+    intelliJ.project.contextMenu.slideOut()
+    intelliJ.project.moveMouseToTheMiddleAndWait(15)
   }
 
 }

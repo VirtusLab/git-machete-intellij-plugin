@@ -126,8 +126,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs(s"project.moveMouseToTheMiddleAndWait('$secondsToWait')");
       }
 
-      def switchRepo(idx: Int): Unit = {
-        runJs(s"project.findComboBoxAndSwitchRepo('$idx')")
+      def switchRepo(indexInComboBox: Int): Unit = {
+        runJs(s"project.findComboBoxAndSwitchRepo('$indexInComboBox')")
       }
 
       object contextMenu {
@@ -144,7 +144,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
         def checkoutAndSyncByRebase(): Unit = {
           runJs(s"project.contextMenu.checkoutAndSyncByRebase()")
-          // Consciously not calling probe.await() after triggering rebase action. The method freezes UI
+          // Deliberately not calling probe.await() after triggering rebase action. The method freezes UI
           // and makes impossible to proceed with actions (e.g. findAndClickButton('Start Rebasing')).
           // This comment applies here, below and to project level counterparts.
         }
