@@ -135,8 +135,7 @@ function Project(underlyingProject) {
     GuiUtils.runOrInvokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
-  this.discoverBranchLayout = function () {
-    invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
+  this.saveDiscoveredBranchLayout = function () {
     findAndClickButton('Save');
   }
 
@@ -158,6 +157,10 @@ function Project(underlyingProject) {
 
   this.acceptRebase = function () {
     findAndClickButton('Start Rebasing');
+  };
+
+  this.acceptResetToRemote = function () {
+    findAndClickButton('Reset');
   };
 
   this.acceptSuggestedBranchLayout = function () {
@@ -215,6 +218,24 @@ function Project(underlyingProject) {
   };
 
   this.toolbar = {
+    syncByRebase: function () {
+      findAndClickToolbarButton('Sync Current Branch to Parent by Rebase...');
+    },
+    syncByMerge: function () {
+      findAndClickToolbarButton('Sync Current Branch to Parent by Merge');
+    },
+    pull: function () {
+      findAndClickToolbarButton('Pull Current Branch');
+    },
+    resetToRemote: function () {
+      findAndClickToolbarButton('Reset Current Branch to Remote');
+    },
+    fastForwardMerge: function () {
+      findAndClickToolbarButton('Fast-forward Merge Current Branch into Parent');
+    },
+    discoverBranchLayout: function () {
+      findAndClickToolbarButton('Discover Branch Layout...');
+    },
     fetchAll: function () {
       findAndClickToolbarButton('Fetch All Remotes');
     },

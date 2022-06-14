@@ -44,6 +44,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         """develop
           |  non-existent
           |    allow-ownership-link
+          |      update-icons
           |      build-chain
           |    non-existent-leaf
           |  call-ws
@@ -54,28 +55,39 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       val managedBranches = project.refreshModelAndGetManagedBranches()
       // Non-existent branches should be skipped while causing no error (only a low-severity notification).
       Assert.assertEquals(
-        Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
+        Seq(
+          "allow-ownership-link",
+          "build-chain",
+          "call-ws",
+          "develop",
+          "hotfix/add-trigger",
+          "master",
+          "update-icons"
+        ),
         managedBranches.toSeq.sorted
       )
-      project.toggleListingCommits()
+      project.toolbar.toggleListingCommits()
       var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 6 branch rows + 7 commit rows
-      Assert.assertEquals(13, branchAndCommitRowsCount)
+      // 7 branch rows + 8 commit rows
+      Assert.assertEquals(15, branchAndCommitRowsCount)
 
       // Let's slide out a root branch now
-      project.slideOutBranch("develop")
+      project.contextMenu.openContextMenu("develop")
+      project.contextMenu.slideOut()
       project.acceptBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 5 branch rows (`develop` is no longer there) + 3 commit rows
       // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-      Assert.assertEquals(8, branchAndCommitRowsCount)
+      Assert.assertEquals(9, branchAndCommitRowsCount)
 
+      project.contextMenu.openContextMenu("develop")
       project.checkoutBranch("develop")
-      project.slideOutBranch("call-ws")
+      project.contextMenu.openContextMenu("call-ws")
+      project.contextMenu.slideOut()
       project.rejectBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
-      Assert.assertEquals(7, branchAndCommitRowsCount)
+      Assert.assertEquals(8, branchAndCommitRowsCount)
     } catch {
       case e: Exception =>
         saveThreadDumpToFile()
@@ -90,17 +102,18 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptSuggestedBranchLayout()
     probe.await()
     var branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(7, branchRowsCount)
+    Assert.assertEquals(8, branchRowsCount)
     deleteMacheteFile()
     // When model is refreshed and machete file is empty, then autodiscover should occur
     branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(7, branchRowsCount)
+    Assert.assertEquals(8, branchRowsCount)
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
     // Now let's test an explicit discover instead
-    project.discoverBranchLayout()
+    project.toolbar.discoverBranchLayout()
+    project.saveDiscoveredBranchLayout()
     branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(7, branchRowsCount)
+    Assert.assertEquals(8, branchRowsCount)
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
     overwriteMacheteFile("non-existent")
     branchRowsCount = project.refreshModelAndGetRowCount()
@@ -112,16 +125,17 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.openGitMacheteTab()
     project.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
-    project.fastForwardMergeSelectedBranchToParent("hotfix/add-trigger")
+    project.contextMenu.openContextMenu("hotfix/add-trigger")
+    project.contextMenu.fastForwardMerge()
     project.assertBranchesAreEqual("master", "hotfix/add-trigger")
     project.assertNoUncommittedChanges()
   }
 
   @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
     project.openGitMacheteTab()
-    project.checkoutBranch("hotfix/add-trigger")
-    project.fastForwardMergeCurrentBranchToParent()
-    project.assertBranchesAreEqual("master", "hotfix/add-trigger")
+    project.checkoutBranch("call-ws")
+    project.toolbar.fastForwardMerge()
+    project.assertBranchesAreEqual("develop", "call-ws")
     project.assertNoUncommittedChanges()
   }
 
@@ -130,12 +144,13 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // syncCurrentToParentByRebase
     project.openGitMacheteTab()
     project.checkoutBranch("allow-ownership-link")
-    project.syncCurrentToParentByRebaseAction()
+    project.toolbar.syncByRebase()
     project.acceptRebase()
     project.assertSyncToParentStatus("allow-ownership-link", "InSync")
 
     // syncSelectedToParentByRebase
-    project.syncSelectedToParentByRebaseAction("build-chain")
+    project.contextMenu.openContextMenu("build-chain")
+    project.contextMenu.checkoutAndSyncByRebase()
     project.acceptRebase()
     project.assertSyncToParentStatus("build-chain", "InSync")
   }
@@ -145,11 +160,12 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // syncCurrentToParentByMerge
     project.openGitMacheteTab()
     project.checkoutBranch("allow-ownership-link")
-    project.syncCurrentToParentByMergeAction()
+    project.toolbar.syncByMerge()
     project.assertSyncToParentStatus("allow-ownership-link", "InSync")
 
     // syncSelectedToParentByMerge
-    project.syncSelectedToParentByMergeAction("build-chain")
+    project.contextMenu.openContextMenu("build-chain")
+    project.contextMenu.checkoutAndSyncByMerge()
     project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
@@ -158,7 +174,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
     project.checkoutBranch("allow-ownership-link")
-    project.pullCurrentBranch()
+    project.toolbar.pull()
     project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
     project.assertNoUncommittedChanges()
   }
@@ -166,15 +182,17 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def pullNonCurrentBranch(): Unit = {
     project.openGitMacheteTab()
     project.checkoutBranch("develop")
-    project.pullSelectedBranch("allow-ownership-link")
-    project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
+    project.contextMenu.openContextMenu("update-icons")
+    project.contextMenu.pull()
+    project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
   }
 
   @Test def resetCurrentBranchToRemote(): Unit = {
     project.openGitMacheteTab()
     project.checkoutBranch("hotfix/add-trigger")
-    project.resetCurrentBranchToRemote()
+    project.toolbar.resetToRemote()
+    project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
     val currentBranchName = project.getCurrentBranchName()
@@ -184,8 +202,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def resetNonCurrentBranchToRemote(): Unit = {
     project.openGitMacheteTab()
     project.checkoutBranch("develop")
-    project.resetBranchToRemote("hotfix/add-trigger")
-    project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
+    project.contextMenu.openContextMenu("update-icons")
+    project.contextMenu.resetToRemote()
+    project.acceptResetToRemote()
+    project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
     val currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)

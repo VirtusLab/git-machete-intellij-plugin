@@ -22,6 +22,11 @@ cd machete-sandbox
     # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;
     # we'll need to match the local branch to its remote tracking branch by name.
     git branch --unset-upstream
+  create_branch update-icons
+    commit Use new icons
+    commit Resize icons
+    push
+    git reset --keep HEAD~1
   create_branch build-chain
     commit Build arbitrarily long chains
   git checkout allow-ownership-link
@@ -55,6 +60,7 @@ cd machete-sandbox
   machete_file='
   develop
       allow-ownership-link PR #123
+          update-icons
           build-chain
       call-ws PR #124
   master
