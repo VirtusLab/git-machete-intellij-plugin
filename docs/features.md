@@ -168,7 +168,7 @@ It can be the commit inferred by Git Machete (the one marked in commits list), o
 
 ## Show in Git log
 
-You can navigate to the commit in **Git log** that is a tip of a branch.
+You can navigate to the commit that is the tip of a branch in **Git log**.
 
 ![](show_in_git_log.gif)
 

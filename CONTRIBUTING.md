@@ -279,6 +279,7 @@ which is rather unacceptable.
 
 ## Scenario recordings
 
+There is a test suite `com.virtuslab.gitmachete.uitest.UIScenarioSuite` that helps to re-record the scenario recordings.
 The most effective way to record all scenarios (probably) is to record all scenarios and trim the video.
 To record the screen you can use Quick Time Player (on macOS).
 The scenario suite **is not** fully automatic.
@@ -288,4 +289,5 @@ The following steps shall be performed manually at the beginning:
 - resize the rebase dialog (to fit inside the window area)
 - sometimes an IDE internal error occurs - clear it
 
+The suite covers only scenarios - recordings for [features](docs/features.md) must be updated manually.
 Gifs can optimized with https://www.xconvert.com/ - over 50% size reduction.
