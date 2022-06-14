@@ -146,7 +146,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs(s"project.contextMenu.checkoutAndSyncByRebase()")
           // Deliberately not calling probe.await() after triggering rebase action. The method freezes UI
           // and makes impossible to proceed with actions (e.g. findAndClickButton('Start Rebasing')).
-          // This comment applies here, below and to project level counterparts.
+          // This comment applies here, below and to toolbar counterparts.
         }
 
         def syncByRebase(): Unit = {

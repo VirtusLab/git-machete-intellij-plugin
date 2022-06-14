@@ -33,10 +33,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @After
   def afterEach(): Unit = {
-    probe.await()
-    // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
-    // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
-    intelliJ.ide.closeOpenedProjects()
+    waitAndCloseProject()
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
@@ -127,7 +124,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertNoUncommittedChanges()
   }
 
-  @Ignore("UI tests are time-consuming and sync by rebase is used so frequently that any issues will be found quickly anyway")
   @Test def syncToParentByRebaseAction(): Unit = {
 
     // syncCurrentToParentByRebase

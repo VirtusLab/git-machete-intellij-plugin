@@ -313,11 +313,11 @@ function Project(underlyingProject) {
     );
   };
 
-  const getComponentByClassAndText = function (className, text, cmpText) {
-    if (cmpText === undefined) { // default
-      cmpText = function (t, c) { return t.equals(c.getText()); };
+  const getComponentByClassAndText = function (className, text, textCmp) {
+    if (textCmp === undefined) { // default
+      textCmp = function (t, c) { return t.equals(c.getText()); };
     }
-    return getComponent(className, text, cmpText);
+    return getComponent(className, text, textCmp);
   };
 
   const getComponent = function (className, text, textCmp) {
@@ -338,7 +338,7 @@ function Project(underlyingProject) {
 
   const prettyClick = function (component, mouseButton) {
     robot.moveMouse(component);
-    // wait for a while before clicking
+    // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
     for (var i = 0; i < 5; i++) {
       sleep();
     }
