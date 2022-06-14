@@ -5,76 +5,10 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-function current_branch() {
-  git symbolic-ref --quiet --short HEAD 2>/dev/null || true  # no output in case of a detached HEAD
-}
+last_tag=$(git describe --tags --abbrev=0)
+last_tag_version=${last_tag#v}
+current_version=$(extract_version_from_current_wd)
 
-function local_base_revision_fallback() {
-  cb=$(current_branch)
-  if [[ $cb == develop || $cb == release/* || $cb == hotfix/* ]]; then
-    echo master
-  else  # including backport/*
-    echo develop
-  fi
-}
-
-allow_equal_version=true
-
-if [[ ${CI_PULL_REQUEST-} ]]; then
-  # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
-  pr_num=${CI_PULL_REQUEST##*/}
-  # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads).
-  # Implicit usage of ${GITHUB_TOKEN} by hub
-  base_revision="origin/$(hub pr show --format=%B "$pr_num")"
-
-elif [[ ${CIRCLE_BRANCH-} == release/* || ${CIRCLE_BRANCH-} == hotfix/* ]]; then
-  # Release or hotfix build on CI, let's compare to master and require a higher version (not just equal or higher).
-  base_revision=origin/master
-  allow_equal_version=false
-
-elif [[ ${CIRCLE_BRANCH-} == master || ${CIRCLE_BRANCH-} == develop ]]; then
-  # Master or develop build on CI, no version check needed.
-  exit 0
-
-elif [[ ${CIRCLE_BRANCH-} ]]; then  # including backport/*
-  # Non-PR, non-master/develop, non-release/hotfix branch build on CI, let's compare to develop.
-  base_revision=origin/develop
-
-elif command -v git-machete &>/dev/null; then
-  # A local run.
-  base_revision=$(git machete show up 2>/dev/null || local_base_revision_fallback)
-
-elif command -v hub &>/dev/null; then
-  # A local run.
-  cb=$(current_branch)
-  if [[ $cb ]]; then
-    # Implicit usage of ${GITHUB_TOKEN} by hub
-    base_revision=$(hub pr show --format=%B --head="$cb" 2>/dev/null || local_base_revision_fallback)
-  else
-    base_revision=$(local_base_revision_fallback)
-  fi
-else
-  # A local run.
-  base_revision=$(local_base_revision_fallback)
+if [[ $(printf "$current_version\n$last_tag_version" | sort --version-sort | tail -n 1) == "$last_tag_version" ]]; then
+  die "Please increment version with new release! Last released version: $last_tag_version"
 fi
-
-
-base_commit_short_hash=$(git rev-parse --short "$base_revision")
-base_desc="$base_revision (commit $base_commit_short_hash)"
-
-parse_version_from_current_wd head
-parse_version_from_git_revision base "$base_commit_short_hash"
-
-(( $head_major > $base_major )) && exit 0
-(( $head_major == $base_major )) || \
-  die "Major version $head_major in version.gradle must not be lower than $base_major in $base_desc"
-
-(( $head_minor > $base_minor )) && exit 0
-(( $head_minor == $base_minor )) || \
-  die "Minor version $head_minor in version.gradle must not be lower than $base_minor in $base_desc"
-
-(( $head_patch > $base_patch )) && exit 0
-(( $head_patch == $base_patch )) || \
-  die "Patch version $head_patch in version.gradle must not be lower than $base_patch in $base_desc"
-eval $allow_equal_version || \
-  die "Patch version $head_patch in version.gradle must be higher than $base_patch in $base_desc"

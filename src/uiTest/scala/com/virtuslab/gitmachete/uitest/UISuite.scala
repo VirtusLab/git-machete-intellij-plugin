@@ -17,11 +17,10 @@ trait UISuite extends RunningIntelliJPerSuite with IdeProbeFixture with RunningI
   }
 
   override protected def baseFixture: IntelliJFixture = {
-    // By default, the config is taken from <class-name>.conf resource, see org.virtuslab.ideprobe.IdeProbeFixture.resolveConfig
-    fixtureFromConfig().withVersion(intelliJVersion)
+    fixtureFromConfig("ideprobe.conf").withVersion(intelliJVersion)
   }
 
-  def waitAndCloseProject() = {
+  def waitAndCloseProject(): Unit = {
     intelliJ.probe.await()
     // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
     // since the response sometimes never comes (due to the project being closed), depending on the specific timing.

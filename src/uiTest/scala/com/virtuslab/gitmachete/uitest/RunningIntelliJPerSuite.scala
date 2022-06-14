@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.uitest
 import org.junit.{AfterClass, BeforeClass}
 import org.virtuslab.ideprobe.RunningIntelliJPerSuiteBase
 
-import scala.collection.Seq
-
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   @BeforeClass override final def setup(): Unit = super.setup()
 
