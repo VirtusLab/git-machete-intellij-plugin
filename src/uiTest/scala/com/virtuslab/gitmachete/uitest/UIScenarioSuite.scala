@@ -9,7 +9,6 @@ import org.virtuslab.ideprobe.ProbeDriver
 
 object UIScenarioSuite extends UISuite {}
 
-
 @RunWith(classOf[JUnit4])
 class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_README_SCENARIOS) {
   import UIScenarioSuite._

@@ -12,8 +12,10 @@ import org.virtuslab.ideprobe.robot.RobotPluginExtension
 trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdeProbeFixture =>
 
   private val machetePlugin: Plugin = {
-    val pluginPath = sys.props.get("ui-test.plugin.path")
-      .filterNot(_.isEmpty).getOrElse(throw new Exception("Plugin path is not provided"))
+    val pluginPath = sys.props
+      .get("ui-test.plugin.path")
+      .filterNot(_.isEmpty)
+      .getOrElse(throw new Exception("Plugin path is not provided"))
     Plugin.Direct(Paths.get(pluginPath).toUri)
   }
 

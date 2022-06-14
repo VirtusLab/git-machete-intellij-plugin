@@ -37,7 +37,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    //TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
+    // TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
       project.openGitMacheteTab()
       overwriteMacheteFile(
@@ -55,7 +55,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       // Non-existent branches should be skipped while causing no error (only a low-severity notification).
       Assert.assertEquals(
         Seq("allow-ownership-link", "build-chain", "call-ws", "develop", "hotfix/add-trigger", "master"),
-        managedBranches.toSeq.sorted)
+        managedBranches.toSeq.sorted
+      )
       project.toggleListingCommits()
       var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 6 branch rows + 7 commit rows

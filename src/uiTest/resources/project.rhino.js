@@ -14,7 +14,6 @@ importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
-importClass(com.intellij.toolWindow.ToolWindowPane);
 importClass(com.intellij.ui.GuiUtils);
 
 importClass(org.assertj.swing.fixture.JComboBoxFixture);
