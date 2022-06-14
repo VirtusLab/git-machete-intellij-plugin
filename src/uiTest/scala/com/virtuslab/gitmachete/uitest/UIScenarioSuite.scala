@@ -30,10 +30,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   @After
   def afterEach(): Unit = {
-    probe.await()
-    // Note that we shouldn't wait for a response here (so we shouldn't use org.virtuslab.ideprobe.ProbeDriver#closeProject),
-    // since the response sometimes never comes (due to the project being closed), depending on the specific timing.
-    intelliJ.ide.closeOpenedProjects()
+    waitAndCloseProject()
   }
 
   @Ignore
