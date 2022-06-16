@@ -49,8 +49,11 @@ cd machete-sandbox
     push
   create_branch hotfix/add-trigger
     commit HOTFIX Add the trigger
+    commit HOTFIX Add the trigger - fixes
     push
-    git commit --amend -m 'HOTFIX Add the trigger (amended)'
+    git reset --keep HEAD~1
+    set_fake_git_date 2020-01-$((commit_day_of_month-2))
+    commit HOTFIX Add the trigger - fixes
     # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;
     # we'll need to match the local branch to its remote tracking branch by name.
     git branch --unset-upstream
