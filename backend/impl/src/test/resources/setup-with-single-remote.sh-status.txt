@@ -19,5 +19,6 @@
 
   master
   | 
-  | HOTFIX Add the trigger (amended)
-  o-hotfix/add-trigger (diverged from origin)
+  | HOTFIX Add the trigger
+  | HOTFIX Add the trigger - fixes
+  o-hotfix/add-trigger (diverged from & older than origin)

@@ -68,26 +68,25 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       )
       project.toolbar.toggleListingCommits()
       var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 7 branch rows + 8 commit rows
-      Assert.assertEquals(15, branchAndCommitRowsCount)
+      // 7 branch rows + 11 commit rows
+      Assert.assertEquals(18, branchAndCommitRowsCount)
 
       // Let's slide out a root branch now
       project.contextMenu.openContextMenu("develop")
       project.contextMenu.slideOut()
       project.acceptBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 5 branch rows (`develop` is no longer there) + 3 commit rows
+      // 5 branch rows (`develop` is no longer there) + 7 commit rows
       // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-      Assert.assertEquals(9, branchAndCommitRowsCount)
+      Assert.assertEquals(13, branchAndCommitRowsCount)
 
-      project.contextMenu.openContextMenu("develop")
-      project.checkoutBranch("develop")
+      project.checkoutBranch("master")
       project.contextMenu.openContextMenu("call-ws")
       project.contextMenu.slideOut()
       project.rejectBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 4 branch rows (`call-ws` is also no longer there) + 3 commit rows
-      Assert.assertEquals(8, branchAndCommitRowsCount)
+      // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
+      Assert.assertEquals(12, branchAndCommitRowsCount)
     } catch {
       case e: Exception =>
         saveThreadDumpToFile()
