@@ -120,8 +120,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(0, branchRowsCount)
   }
 
-  // TODO (#843): merge current/non-current branch ui test cases (for the other actions too!)
-  @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
+  @Test def fastForwardParentOfBranch(): Unit = {
+
+    // fastForwardParentOfBranch_parentIsCurrentBranch
     project.openGitMacheteTab()
     project.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
@@ -129,9 +130,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.contextMenu.fastForwardMerge()
     project.assertBranchesAreEqual("master", "hotfix/add-trigger")
     project.assertNoUncommittedChanges()
-  }
 
-  @Test def fastForwardParentOfBranch_childIsCurrentBranch(): Unit = {
+    // fastForwardParentOfBranch_childIsCurrentBranch
     project.openGitMacheteTab()
     project.checkoutBranch("call-ws")
     project.toolbar.fastForwardMerge()
@@ -169,7 +169,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
-  @Test def pullCurrentBranch(): Unit = {
+  @Test def pullBranch(): Unit = {
+
+    // pullCurrentBranch
     project.openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
     // Our plugin should infer the remote tracking branch based on its name.
@@ -177,9 +179,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.toolbar.pull()
     project.assertLocalAndRemoteBranchesAreEqual("allow-ownership-link")
     project.assertNoUncommittedChanges()
-  }
 
-  @Test def pullNonCurrentBranch(): Unit = {
+    // pullNonCurrentBranch
     project.openGitMacheteTab()
     project.checkoutBranch("develop")
     project.contextMenu.openContextMenu("update-icons")
@@ -188,18 +189,19 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertNoUncommittedChanges()
   }
 
-  @Test def resetCurrentBranchToRemote(): Unit = {
+  @Test def resetBranchToRemote(): Unit = {
+
+    // resetCurrentBranchToRemote
     project.openGitMacheteTab()
     project.checkoutBranch("hotfix/add-trigger")
     project.toolbar.resetToRemote()
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
-    val currentBranchName = project.getCurrentBranchName()
+    var currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
-  }
 
-  @Test def resetNonCurrentBranchToRemote(): Unit = {
+    // resetNonCurrentBranchToRemote
     project.openGitMacheteTab()
     project.checkoutBranch("develop")
     project.contextMenu.openContextMenu("update-icons")
@@ -207,7 +209,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
-    val currentBranchName = project.getCurrentBranchName()
+    currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("develop", currentBranchName)
   }
 
