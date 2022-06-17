@@ -287,7 +287,12 @@ function Project(underlyingProject) {
     for (var i = 0; i < 10 * secondsToWait; i++) {
       sleep();
     }
-  }
+  };
+
+  const clickMouseInTheMiddle = function () {
+    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    robot.click(ideFrame);
+  };
 
   const findAndClickButton = function (name) {
     const button = getComponentByClassAndText('javax.swing.JButton', name);
@@ -298,16 +303,26 @@ function Project(underlyingProject) {
     let fullName = 'Git Machete: ' + name;
     const getButton = function () {
       // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        component instanceof ActionButton && fullName.equals(component.getAction().getTemplatePresentation().getText())
-      ).toArray();
+      const result = robot.finder().findAll(component => {
+         const componentFound = component instanceof ActionButton
+           && fullName.equals(component.getAction().getTemplatePresentation().getText());
+         if (componentFound) {
+           if (component.isEnabled()) {
+             return true;
+           } else {
+            component.update();
+            component.updateUI();
+           }
+         }
+         return false;
+      }).toArray();
       return result.length === 1 ? result[0] : null;
     };
 
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
     let button = getButton();
     while (button === null) {
-      sleep();
+      clickMouseInTheMiddle();
       button = getButton();
     }
     prettyClick(button, MouseButton.LEFT_BUTTON);
