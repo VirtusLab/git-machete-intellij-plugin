@@ -33,7 +33,7 @@ RUN \
 # Tools necessary to run non-headless UI tests in the screen-less environment of CI
 RUN \
   apt-get update; \
-  apt-get install --no-install-recommends -y libx11-6 libxrender1 libxtst6 xauth xvfb; \
+  apt-get install --no-install-recommends -y libxtst6 xvfb xauth x11-apps imagemagick zip; \
   `# libraries needed by JCEF` \
   apt-get install --no-install-recommends -y libatk1.0-0 libatk-bridge2.0-0 libgbm1 libglib2.0 libxcomposite1 libxkbcommon0 libxrandr2; \
   rm -rf /var/lib/apt/lists/*
