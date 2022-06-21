@@ -34,12 +34,23 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
     private val probe: ProbeDriver = intelliJ.probe
 
-    private def runJs(@Language("JavaScript") statement: String, codebase: String = commonCodebase): Unit = {
+    private def runJs(
+        @Language("JavaScript") statement: String,
+        codebase: String = commonCodebase
+    ): Unit = {
+      println(s"runJs: executing `$statement`")
       probe.withRobot.robot.runJs(codebase + statement, /* runInEdt */ false)
+      println(s"runJs: executed `$statement`")
     }
 
-    private def callJs[T](@Language("JavaScript") expression: String, codebase: String = commonCodebase): T = {
-      probe.withRobot.robot.callJs(codebase + expression, /* runInEdt */ false)
+    private def callJs[T <: java.io.Serializable](
+        @Language("JavaScript") expression: String,
+        codebase: String = commonCodebase
+    ): T = {
+      println(s"callJs: evaluating `$expression`")
+      val result = probe.withRobot.robot.callJs[T](codebase + expression, /* runInEdt */ false)
+      println(s"callJs: evaluated `$expression` to `$result`")
+      result
     }
 
     object ide {
@@ -207,6 +218,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
         def slideOut(): Unit = {
           runJs(s"project.contextMenu.slideOut()")
+          probe.await()
+        }
+
+        def slideOutDefensive(branch: String): Unit = {
+          runJs(s"project.contextMenu.slideOutDefensive('$branch')")
           probe.await()
         }
 

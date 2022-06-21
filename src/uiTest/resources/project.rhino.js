@@ -175,6 +175,8 @@ function Project(underlyingProject) {
     findAndClickButton('Slide Out & Keep Local Branch');
   };
 
+  const outer = this;
+
   this.contextMenu = {
     checkout: function () {
       findAndClickContextMenuAction('Checkout');
@@ -210,7 +212,16 @@ function Project(underlyingProject) {
       findAndClickContextMenuAction('Slide In Branch Below...');
     },
     slideOut: function () {
+      System.out.println("slideOut()");
       findAndClickContextMenuAction('Slide Out');
+    },
+    slideOutDefensive: function (branch) {
+      System.out.println("slideOutDefensive(branch=" + branch + ")");
+      outer.findCellAndRightClick(branch);
+      while (!findAndClickContextMenuActionNoWait('Slide Out')) {
+        outer.clickMouseInTheMiddle();
+        outer.findCellAndRightClick(branch);
+      }
     },
     showInGitLog: function () {
       findAndClickContextMenuAction('Show in Git Log');
@@ -278,6 +289,7 @@ function Project(underlyingProject) {
 
     let cellRow = getCellRow();
     let tableCell = TableCell.row(cellRow).column(0);
+    System.out.println("findCellAndRightClick(" + name + "): cellRow = " + cellRow + ", tableCell = " + tableCell);
     fixture.cell(tableCell).click(MouseButton.RIGHT_BUTTON);
   };
 
@@ -289,7 +301,7 @@ function Project(underlyingProject) {
     }
   };
 
-  const clickMouseInTheMiddle = function () {
+  this.clickMouseInTheMiddle = function () {
     const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
     robot.click(ideFrame);
   };
@@ -314,7 +326,7 @@ function Project(underlyingProject) {
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
     let button = getButton();
     while (button === null) {
-      clickMouseInTheMiddle();
+      outer.clickMouseInTheMiddle();
       button = getButton();
     }
     prettyClick(button, MouseButton.LEFT_BUTTON);
@@ -323,6 +335,16 @@ function Project(underlyingProject) {
   const findAndClickContextMenuAction = function (name) {
     const actionMenuItem = getComponentByClassAndText('com.intellij.openapi.actionSystem.impl.ActionMenuItem', name);
     prettyClick(actionMenuItem, MouseButton.LEFT_BUTTON);
+  };
+
+  const findAndClickContextMenuActionNoWait = function (name) {
+    const actionMenuItem = getComponentByClassAndTextNoWait('com.intellij.openapi.actionSystem.impl.ActionMenuItem', name);
+    if (actionMenuItem) {
+      prettyClick(actionMenuItem, MouseButton.LEFT_BUTTON);
+      return true;
+    } else {
+      return false;
+    }
   };
 
   this.findAndResizeIdeFrame = function () {
@@ -347,6 +369,13 @@ function Project(underlyingProject) {
     return getComponent(className, text, textCmp);
   };
 
+  const getComponentByClassAndTextNoWait = function (className, text, textCmp) {
+    if (textCmp === undefined) { // default
+      textCmp = function (t, c) { return t.equals(c.getText()); };
+    }
+    return getComponentNoWait(className, text, textCmp);
+  };
+
   const getComponent = function (className, text, textCmp) {
     const searchForComponent = function () {
       const result = robot.finder().findAll(component =>
@@ -361,6 +390,20 @@ function Project(underlyingProject) {
       component = searchForComponent();
     }
     return component;
+  };
+
+  const getComponentNoWait = function (className, text, textCmp) {
+    const resultClassOnly = robot.finder().findAll(component =>
+      className.equals(component.getClass().getName())
+    ).toArray();
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): resultClassOnly " + resultClassOnly.length)
+
+    const result = robot.finder().findAll(component =>
+      className.equals(component.getClass().getName()) && textCmp(text, component)
+    ).toArray();
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): result " + result.length)
+
+    return result.length === 1 ? result[0] : null;
   };
 
   const prettyClick = function (component, mouseButton) {

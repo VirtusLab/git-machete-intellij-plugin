@@ -36,7 +36,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  @Ignore // FIXME (#830): ui test failing - socket timeout
+  // @Ignore // FIXME (#830): ui test failing - socket timeout
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     // TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
@@ -74,7 +74,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
       // Let's slide out a root branch now
       project.contextMenu.openContextMenu("develop")
-      project.contextMenu.slideOut()
+      project.contextMenu.slideOutDefensive("develop")
       project.acceptBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 5 branch rows (`develop` is no longer there) + 7 commit rows
@@ -82,8 +82,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       Assert.assertEquals(13, branchAndCommitRowsCount)
 
       project.checkoutBranch("master")
-      project.contextMenu.openContextMenu("call-ws")
-      project.contextMenu.slideOut()
+      // project.contextMenu.openContextMenu("call-ws")
+      project.contextMenu.slideOutDefensive("call-ws")
       project.rejectBranchDeletionOnSlideOut()
       branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
       // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
