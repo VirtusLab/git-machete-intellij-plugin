@@ -9,8 +9,8 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.ProbeDriver
 
 import java.io._
+import java.nio.file.{Files, Path, Paths}
 import java.nio.file.attribute.FileTime
-import java.nio.file.{Files, Path}
 import scala.language.postfixOps
 import scala.sys.process._
 
@@ -90,7 +90,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       Assert.assertEquals(12, branchAndCommitRowsCount)
     } catch {
       case e: Exception =>
-        saveThreadDumpToFile()
+        saveThreadDumpAndScreenshot()
         throw e
     }
   }
@@ -211,15 +211,16 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals("develop", currentBranchName)
   }
 
-  private def saveThreadDumpToFile(): Unit = {
-    val pid = probe.pid()
+  private def saveThreadDumpAndScreenshot(): Unit = {
+    val pid = intelliJ.probe.pid()
+    intelliJ.probe.screenshot("exception")
     val threadStackTrace: String = Process("jstack " + pid) !!
-    val file: File = new File("build/thread-dump/thread_dump_" + pid + ".txt")
-    if (file.getParentFile.mkdirs()) {
-      val pw = new PrintWriter(file)
-      pw.write(threadStackTrace)
-      pw.close()
-    }
+    val artifactDirectory = "/tmp/ide-probe/screenshots/uiTest" + intelliJVersion.build + "/artifacts"
+    Files.createDirectories(Paths.get(artifactDirectory))
+    val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
+    val pw = new PrintWriter(file)
+    pw.write(threadStackTrace)
+    pw.close()
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")

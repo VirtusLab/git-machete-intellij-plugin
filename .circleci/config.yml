@@ -9,7 +9,7 @@ commands:
 executors:
   docker_executor:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:6.1.0'
+      - image: 'gitmachete/intellij-plugin-ci:6.2.0'
     working_directory: ~/git-machete-intellij-plugin
     resource_class: large
 
@@ -94,15 +94,9 @@ jobs:
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
           command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
-      - store_artifacts:
-          path: build/thread-dump/
-          destination: .
       - run:
           name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
-      - store_artifacts:
-          path: build/thread-dump/
-          destination: .
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -115,11 +109,18 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
-      - store_artifacts:
-          path: build/thread-dump/
-          destination: .
+      - run:
+          name: Collect artifacts when an exception occurs
+          # language=sh
+          command: |
+            mkdir -p /exception-artifacts
+            for f in $(ls -d /tmp/ide-probe/screenshots/*/) ; do cd  $f/artifacts ; zip -r "/exception-artifacts/$(basename ${f}).zip" . ; done
+          when: on_fail
       - store_test_results:
           path: build/test-results/uiTest/
+      - store_artifacts:
+          path: /exception-artifacts
+          destination: .
       - when:
           condition:
             not:
