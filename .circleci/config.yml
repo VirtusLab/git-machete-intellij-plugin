@@ -33,63 +33,63 @@ jobs:
             - gradle-deps-v4-{{ checksum "build.gradle" }}-
             # As a last resort, take any available cache entry.
             - gradle-deps-v4-
-      - run:
-          name: Start Gradle daemon
-          command: ./gradlew
-
-      - run:
-          name: Validate Markdown files
-          # language=sh
-          command: |
-            set -x
-            ./scripts/validate-markdown-links
-            ./scripts/validate-markdown-values
-      - run:
-          name: Check formatting
-          command: ./gradlew spotlessCheck
-      - run:
-          name: Compile production code
-          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
-          command: ./gradlew --max-workers=4 compileJava compileKotlin
-      - run:
-          name: Run post-compile checks
-          command: ./scripts/verify-no-string-interpolation-leftovers
-      - run:
-          name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain
-      - run:
-          name: Check Javadoc correctness
-          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
-          command: ./gradlew --max-workers=4 javadoc
-
-      - run:
-          name: Compile tests
-          command: ./gradlew compileTestJava compileUiTestScala
-      - run:
-          name: Run unit & integration tests
-          command: ./gradlew test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          path: build/test-results/test/
-
-      - run:
-          name: Build plugin artifact
-          command: ./gradlew buildPlugin
-      - store_artifacts:
-          path: build/distributions/
-          destination: .
-      - run:
-          name: Verify plugin artifact contents
-          command: ./scripts/verify-artifact-contents
-      - run:
-          name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew runPluginVerifier
+#      - run:
+#          name: Start Gradle daemon
+#          command: ./gradlew
+#
+#      - run:
+#          name: Validate Markdown files
+#          # language=sh
+#          command: |
+#            set -x
+#            ./scripts/validate-markdown-links
+#            ./scripts/validate-markdown-values
+#      - run:
+#          name: Check formatting
+#          command: ./gradlew spotlessCheck
+#      - run:
+#          name: Compile production code
+#          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
+#          command: ./gradlew --max-workers=4 compileJava compileKotlin
+#      - run:
+#          name: Run post-compile checks
+#          command: ./scripts/verify-no-string-interpolation-leftovers
+#      - run:
+#          name: Run static code analyzer
+#          command: ./gradlew --warn checkstyleMain
+#      - run:
+#          name: Check Javadoc correctness
+#          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
+#          command: ./gradlew --max-workers=4 javadoc
+#
+#      - run:
+#          name: Compile tests
+#          command: ./gradlew compileTestJava compileUiTestScala
+#      - run:
+#          name: Run unit & integration tests
+#          command: ./gradlew test
+#      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+#      - store_test_results:
+#          path: branchLayout/impl/build/test-results/test/
+#      - store_test_results:
+#          path: backend/impl/build/test-results/test/
+#      - store_test_results:
+#          path: frontend/base/build/test-results/test/
+#      - store_test_results:
+#          path: build/test-results/test/
+#
+#      - run:
+#          name: Build plugin artifact
+#          command: ./gradlew buildPlugin
+#      - store_artifacts:
+#          path: build/distributions/
+#          destination: .
+#      - run:
+#          name: Verify plugin artifact contents
+#          command: ./scripts/verify-artifact-contents
+#      - run:
+#          name: Verify binary compatibility with supported IntelliJ versions
+#          command: ./gradlew runPluginVerifier
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)

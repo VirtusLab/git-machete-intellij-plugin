@@ -36,7 +36,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  // @Ignore // FIXME (#830): ui test failing - socket timeout
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     // TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
