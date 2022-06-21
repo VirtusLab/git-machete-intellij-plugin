@@ -251,6 +251,7 @@ function Project(underlyingProject) {
       findAndClickToolbarButton('Fetch All Remotes');
     },
     toggleListingCommits: function () {
+      System.out.println("toggleListingCommits()");
       findAndClickToolbarButton('Toggle Listing Commits');
     }
   };
@@ -302,7 +303,9 @@ function Project(underlyingProject) {
   };
 
   this.clickMouseInTheMiddle = function () {
+    System.out.println("clickMouseInTheMiddle(): about to find ideFrame");
     const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    System.out.println("clickMouseInTheMiddle(): found ideFrame");
     robot.click(ideFrame);
   };
 
@@ -320,6 +323,7 @@ function Project(underlyingProject) {
           && fullName.equals(component.getAction().getTemplatePresentation().getText())
           && component.isEnabled()
       ).toArray();
+      System.out.println("findAndClickToolbarButton(name=" + name + ")->getButton(): result.length = " + result.length);
       return result.length === 1 ? result[0] : null;
     };
 
