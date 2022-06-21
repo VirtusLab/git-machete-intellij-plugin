@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.uitest
 
 import java.nio.file.Paths
 import java.util
+import java.util.Arrays
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
 import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, RunningIntelliJFixture}
@@ -49,7 +50,14 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
     ): T = {
       println(s"callJs: evaluating `$expression`")
       val result = probe.withRobot.robot.callJs[T](codebase + expression, /* runInEdt */ false)
-      println(s"callJs: evaluated `$expression` to `$result`")
+
+      val representation = result match {
+        case array: Array[Int]    => java.util.Arrays.toString(array)
+        case array: Array[AnyRef] => java.util.Arrays.deepToString(array)
+        case _                    => result.toString
+      }
+      println(s"callJs: evaluated `$expression` to `$representation`")
+
       result
     }
 
