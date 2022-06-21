@@ -303,19 +303,11 @@ function Project(underlyingProject) {
     let fullName = 'Git Machete: ' + name;
     const getButton = function () {
       // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component => {
-         const componentFound = component instanceof ActionButton
-           && fullName.equals(component.getAction().getTemplatePresentation().getText());
-         if (componentFound) {
-           if (component.isEnabled()) {
-             return true;
-           } else {
-            component.update();
-            component.updateUI();
-           }
-         }
-         return false;
-      }).toArray();
+      const result = robot.finder().findAll(component =>
+        component instanceof ActionButton
+          && fullName.equals(component.getAction().getTemplatePresentation().getText())
+          && component.isEnabled()
+      ).toArray();
       return result.length === 1 ? result[0] : null;
     };
 
