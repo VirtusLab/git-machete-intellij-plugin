@@ -1,6 +1,6 @@
 buildscript {
   dependencies {
-    classpath group: 'org.jsoup', name: 'jsoup', version: '1.15.1'
+    classpath libs.jsoup
   }
 }
 
@@ -9,19 +9,17 @@ plugins {
   id 'org.gradle.java-library'
   id 'org.gradle.scala'
 
-  id 'com.github.ben-manes.versions' version '0.42.0'
+  alias libs.plugins.versions
+  alias libs.plugins.versionCatalogUpdate
 
-  id 'com.diffplug.spotless' version '6.6.1' apply false
-  id 'io.freefair.aspectj.post-compile-weaving' version '6.4.3' apply false
-  id 'io.freefair.lombok' version '6.4.3' apply false
-  id 'org.ajoberstar.grgit' version '5.0.0' apply false
-  id 'org.checkerframework' version '0.6.11' apply false
-  id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
-  id 'org.jetbrains.intellij' version '1.6.0' apply false
-  // As per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
-  //   If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version
-  // which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
-  id 'org.jetbrains.kotlin.jvm' version '1.4.0' apply false
+  alias libs.plugins.aspectj.postCompileWeaving apply false
+  alias libs.plugins.checkerFramework apply false
+  alias libs.plugins.grgit apply false
+  alias libs.plugins.jetbrains.grammarkit apply false
+  alias libs.plugins.jetbrains.intellij apply false
+  alias libs.plugins.jetbrains.kotlin apply false
+  alias libs.plugins.lombok apply false
+  alias libs.plugins.spotless apply false
 }
 
 if (JavaVersion.current() != JavaVersion.VERSION_11) {
@@ -30,24 +28,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_11) {
 
 ext {
   javaMajorVersion = JavaVersion.VERSION_11
-  scalaMajorVersion = '2.13'
-
-  archUnitVersion = '0.23.1'
-  betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.22.1'
-  checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.31.0'
-  jcabiAspectsVersion = '0.23.2'
-  jetbrainsAnnotationsVersion = '23.0.0'
-  jgitVersion = '6.1.0.202203080745-r'
-  junitVersion = '4.13.2'
-  lombokVersion = '1.18.24'
-  powerMockVersion = '2.0.9'
-  reflectionsVersion = '0.10.2'
-  slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.36'
-  vavrVersion = '0.10.4'
 
   intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/snapshots/"
   Properties intellijVersionsProp = intellijVersionsProperties()
@@ -214,9 +194,8 @@ allprojects {
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
   dependencies {
-    def betterStringsCoords = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVersion ]
-    annotationProcessor(betterStringsCoords)
-    testAnnotationProcessor(betterStringsCoords)
+    annotationProcessor libs.betterStrings
+    testAnnotationProcessor libs.betterStrings
   }
 
   tasks.withType(JavaCompile) {
@@ -323,16 +302,14 @@ allprojects {
       '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation',
     ]
     dependencies {
-      compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
-      checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
+      compileOnly      libs.checker.qual
+      checkerFramework libs.checker
     }
   }
 
 
   apply plugin: 'org.gradle.checkstyle'
   checkstyle {
-    toolVersion checkstyleToolVersion
-
     checkstyleTest.enabled = false
 
     configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
@@ -342,7 +319,7 @@ allprojects {
   if (shouldUseDelombok) {
     apply plugin: 'io.freefair.lombok'
     lombok {
-      version = lombokVersion
+      version = libs.org.projectlombok.lombok.get()
       generateLombokConfig.enabled = false
     }
   }
@@ -454,7 +431,7 @@ allprojects {
 
     commonsIO = { ->
       dependencies {
-        implementation group: 'commons-io', name: 'commons-io', version: commonsIOVersion
+        implementation libs.commonsIO
       }
     }
 
@@ -465,8 +442,7 @@ allprojects {
 
       dependencies {
         uiTestImplementation project(':testCommon').sourceSets.test.output
-        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
-        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
+        uiTestImplementation libs.bundles.ideProbe
       }
     }
 
@@ -479,26 +455,26 @@ allprojects {
       }
 
       dependencies {
-        aspect group: 'com.jcabi', name: 'jcabi-aspects', version: jcabiAspectsVersion
+        aspect libs.jcabi.aspects
       }
     }
 
     jetbrainsAnnotations = { ->
       dependencies {
-        compileOnly     group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
-        testCompileOnly group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
+        compileOnly     libs.jetbrains.annotations
+        testCompileOnly libs.jetbrains.annotations
       }
     }
 
     jgit = { ->
       dependencies {
-        implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
+        implementation libs.jgit
       }
     }
 
     junit = { ->
       dependencies {
-        testImplementation group: 'junit', name: 'junit', version: junitVersion
+        testImplementation libs.junit
       }
     }
 
@@ -507,25 +483,23 @@ allprojects {
       // Applying Lombok plugin conditionally from within this `ext` block turned out to be troublesome.
       if (!shouldUseDelombok) {
         dependencies {
-          def lombokCoords = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-          compileOnly lombokCoords
-          annotationProcessor lombokCoords
-          testCompileOnly lombokCoords
-          testAnnotationProcessor lombokCoords
+          compileOnly libs.lombok
+          annotationProcessor libs.lombok
+          testCompileOnly libs.lombok
+          testAnnotationProcessor libs.lombok
         }
       }
     }
 
     powerMock = { ->
       dependencies {
-        testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
-        testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+        testImplementation libs.bundles.powerMock
       }
     }
 
     reflections = { ->
       dependencies {
-        implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
+        implementation libs.reflections
       }
     }
 
@@ -535,7 +509,7 @@ allprojects {
         // also in debug messages, but this plugin allows us to use lambdas that generate log messages
         // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
         // (i.e. when the given log level is active)
-        implementation group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion
+        implementation libs.slf4j.lambda
       }
     }
 
@@ -549,7 +523,7 @@ allprojects {
       // The below dependency provides both slf4j-api and an implementation, both already in the same version.
       // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to `runtimeClasspath` configuration.
       dependencies {
-        testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+        testRuntimeOnly libs.slf4j.simple
       }
     }
 
@@ -557,7 +531,7 @@ allprojects {
       dependencies {
         // Unlike any other current dependency, Vavr classes are very likely to end up in binary interface of the depending subproject,
         // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
-        api group: 'io.vavr', name: 'vavr', version: vavrVersion
+        api libs.vavr
       }
     }
   }
@@ -615,9 +589,9 @@ if (ciBranch == 'master') {
 
 dependencies {
   // Checker is needed on root project runtime (not just compile-time) classpath for ArchUnit tests
-  testImplementation group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
+  testImplementation libs.checker.qual
 
-  testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
+  testImplementation libs.archunit
 }
 
 
