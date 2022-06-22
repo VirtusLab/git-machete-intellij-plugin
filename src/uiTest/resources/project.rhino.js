@@ -35,9 +35,7 @@ function Project(underlyingProject) {
   const prettyClick = function (component, mouseButton) {
     robot.moveMouse(component);
     // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
-    for (let i = 0; i < 5; i++) {
-      sleep();
-    }
+    sleep(500);
     robot.click(component, mouseButton);
   };
 
@@ -45,8 +43,11 @@ function Project(underlyingProject) {
     myClick = prettyClick;
   };
 
-  const sleep = function() {
-    Thread.sleep(100);
+  const sleep = function(ms) {
+    if (ms === undefined) {
+      ms = 100;
+    }
+    Thread.sleep(ms);
   };
 
   this.configure = function () {
@@ -288,9 +289,7 @@ function Project(underlyingProject) {
   this.moveMouseToTheMiddleAndWait = function (secondsToWait) {
     const ideFrame = getIdeFrame();
     robot.moveMouse(ideFrame);
-    for (let i = 0; i < 10 * secondsToWait; i++) {
-      sleep();
-    }
+    sleep(1000 * secondsToWait);
   };
 
   const clickMouseInTheMiddle = function () {
@@ -299,16 +298,16 @@ function Project(underlyingProject) {
   };
 
   const getIdeFrame = function() {
-    return getComponentByClassAndText(
+    return getComponentByClassAndPredicate(
         /* className */ 'com.intellij.openapi.wm.impl.IdeFrameImpl',
-        // Using "includes" as in UITestSuite the project title is "machete-sandbox-worktree"
+        // Using "contains" as in UITestSuite the project title is "machete-sandbox-worktree"
         // but in UIScenarioSuite it's "machete-sandbox"
-        /* predicate */ component => 'machete-sandbox-worktree'.includes(component.getTitle())
+        /* predicate */ component => component.getTitle().contains('machete-sandbox')
     );
   }
 
   const findAndClickButton = function (name) {
-    const button = getComponentByClassAndText('javax.swing.JButton',
+    const button = getComponentByClassAndPredicate('javax.swing.JButton',
         /* predicate */ component => name.equals(component.getText())
     );
     myClick(button, MouseButton.LEFT_BUTTON);
@@ -336,7 +335,7 @@ function Project(underlyingProject) {
   };
 
   const findAndClickContextMenuAction = function (name) {
-    const actionMenuItem = getComponentByClassAndText('com.intellij.openapi.actionSystem.impl.ActionMenuItem',
+    const actionMenuItem = getComponentByClassAndPredicate('com.intellij.openapi.actionSystem.impl.ActionMenuItem',
         /* predicate */ component => name.equals(component.getText())
     );
     myClick(actionMenuItem, MouseButton.LEFT_BUTTON);
@@ -350,17 +349,13 @@ function Project(underlyingProject) {
   };
 
   const getComponentByClass = function (className) {
-    return getComponent(
+    return getComponentByClassAndPredicate(
         className,
         /* predicate */ _ => true
     );
   };
 
-  const getComponentByClassAndText = function (className, predicate) {
-    return getComponent(className, predicate);
-  };
-
-  const getComponent = function (className, predicate) {
+  const getComponentByClassAndPredicate = function (className, predicate) {
     const searchForComponent = function () {
       const result = robot.finder().findAll(component =>
         className.equals(component.getClass().getName()) && predicate(component)

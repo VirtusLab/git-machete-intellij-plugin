@@ -51,7 +51,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("ide.closeOpenedProjects()")
       }
 
-      def getMajorVersion: String = {
+      def getMajorVersion(): String = {
         callJs("ide.getMajorVersion()")
       }
 
