@@ -705,6 +705,8 @@ uiTestTargets.each { version ->
     systemProperty 'ui-test.intellij.version', version
     systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
 
+    outputs.upToDateWhen { false }
+
     if (project.properties.tests) {
       filter {
         includeTestsMatching "*.*${project.properties.tests}*"
