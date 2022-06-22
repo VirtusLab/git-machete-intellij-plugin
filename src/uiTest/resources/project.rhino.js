@@ -304,9 +304,11 @@ function Project(underlyingProject) {
 
   this.clickMouseInTheMiddle = function () {
     System.out.println("clickMouseInTheMiddle(): about to find ideFrame");
-    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
-    System.out.println("clickMouseInTheMiddle(): found ideFrame");
-    robot.click(ideFrame);
+    const ideFrame = getComponentByClassNoWait('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    System.out.println("clickMouseInTheMiddle(): found ideFrame = " + ideFrame);
+    if (ideFrame) {
+      robot.click(ideFrame);
+    }
   };
 
   const findAndClickButton = function (name) {
@@ -330,6 +332,7 @@ function Project(underlyingProject) {
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
     let button = getButton();
     while (button === null) {
+      sleep();
       outer.clickMouseInTheMiddle();
       button = getButton();
     }
@@ -363,6 +366,14 @@ function Project(underlyingProject) {
         className,
         /* text */ null,
         /* textCmp */ function (_, _) { return true; }
+    );
+  };
+
+  const getComponentByClassNoWait = function (className) {
+    return getComponentNoWait(
+      className,
+      /* text */ null,
+      /* textCmp */ function (_, _) { return true; }
     );
   };
 
@@ -400,12 +411,12 @@ function Project(underlyingProject) {
     const resultClassOnly = robot.finder().findAll(component =>
       className.equals(component.getClass().getName())
     ).toArray();
-    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): resultClassOnly " + resultClassOnly.length)
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): resultClassOnly = " + resultClassOnly.length)
 
     const result = robot.finder().findAll(component =>
       className.equals(component.getClass().getName()) && textCmp(text, component)
     ).toArray();
-    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): result " + result.length)
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): result = " + result.length)
 
     return result.length === 1 ? result[0] : null;
   };
