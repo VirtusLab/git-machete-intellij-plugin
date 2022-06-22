@@ -1,5 +1,6 @@
 importClass(java.lang.System);
 importClass(java.lang.Thread);
+importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
 importClass(java.util.stream.IntStream);
 
@@ -411,12 +412,12 @@ function Project(underlyingProject) {
     const resultClassOnly = robot.finder().findAll(component =>
       className.equals(component.getClass().getName())
     ).toArray();
-    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): resultClassOnly = " + resultClassOnly.length)
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): resultClassOnly = " + Arrays.deepToString(resultClassOnly))
 
     const result = robot.finder().findAll(component =>
       className.equals(component.getClass().getName()) && textCmp(text, component)
     ).toArray();
-    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): result = " + result.length)
+    System.out.println("getComponentNoWait(className=" + className + ", text=" + text + "): result = " + Arrays.deepToString(result))
 
     return result.length === 1 ? result[0] : null;
   };
