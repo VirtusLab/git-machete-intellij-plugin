@@ -22,15 +22,32 @@ importClass(org.assertj.swing.fixture.JTableFixture);
 importClass(org.assertj.swing.data.TableCell);
 
 
+let myClick = function (component, mouseButton) {
+  robot.click(component, mouseButton);
+};
+
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
 
   const pluginId = PluginId.getId('com.virtuslab.git-machete');
   const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
 
+  const prettyClick = function (component, mouseButton) {
+    robot.moveMouse(component);
+    // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
+    for (let i = 0; i < 5; i++) {
+      sleep();
+    }
+    robot.click(component, mouseButton);
+  };
+
+  this.usePrettyClick = function () {
+    myClick = prettyClick;
+  };
+
   const sleep = function() {
     Thread.sleep(100);
-  }
+  };
 
   this.configure = function () {
     // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
@@ -42,7 +59,7 @@ function Project(underlyingProject) {
   // Tab & model management
   this.openGitMacheteTab = function () {
     openTab(ToolWindowId.VCS, 'Git Machete');
-  }
+  };
 
   const openTab = function (toolWindowId, tabName) {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
@@ -78,7 +95,7 @@ function Project(underlyingProject) {
     } else {
       return java.lang.reflect.Array.newInstance(java.lang.String, 0);
     }
-  }
+  };
 
   // Assumes that Git Machete tab is opened.
   // Returns the refreshed model.
@@ -98,10 +115,7 @@ function Project(underlyingProject) {
 
 
   // Actions
-
-  const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
-  const RESET_INFO_SHOWN = 'git-machete.reset.info.shown';
 
   const getActionByName = function (actionName) {
     return ActionManager.getInstance().getAction(actionName);
@@ -116,16 +130,6 @@ function Project(underlyingProject) {
       }
     });
     return AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
-  };
-
-  const invokeActionAsync = function (actionName, actionPlace, data) {
-    const action = getActionByName(actionName);
-    const actionEvent = createActionEvent(actionPlace, data);
-
-    GuiUtils.invokeLaterIfNeeded(
-      () => action.actionPerformed(actionEvent),
-      ModalityState.NON_MODAL
-    );
   };
 
   const invokeActionAndWait = function (actionName, actionPlace, data) {
@@ -297,16 +301,17 @@ function Project(underlyingProject) {
   const getIdeFrame = function() {
     return getComponentByClassAndText(
         /* className */ 'com.intellij.openapi.wm.impl.IdeFrameImpl',
-        /* text */ 'machete-sandbox-worktree',
-        /* textCmp */function (text, component) {
-          return text.equals(component.getTitle());
-        }
+        // Using "includes" as in UITestSuite the project title is "machete-sandbox-worktree"
+        // but in UIScenarioSuite it's "machete-sandbox"
+        /* predicate */ component => 'machete-sandbox-worktree'.includes(component.getTitle())
     );
   }
 
   const findAndClickButton = function (name) {
-    const button = getComponentByClassAndText('javax.swing.JButton', name);
-    prettyClick(button, MouseButton.LEFT_BUTTON);
+    const button = getComponentByClassAndText('javax.swing.JButton',
+        /* predicate */ component => name.equals(component.getText())
+    );
+    myClick(button, MouseButton.LEFT_BUTTON);
   };
 
   const findAndClickToolbarButton = function (name) {
@@ -327,16 +332,18 @@ function Project(underlyingProject) {
       clickMouseInTheMiddle();
       button = getButton();
     }
-    prettyClick(button, MouseButton.LEFT_BUTTON);
+    myClick(button, MouseButton.LEFT_BUTTON);
   };
 
   const findAndClickContextMenuAction = function (name) {
-    const actionMenuItem = getComponentByClassAndText('com.intellij.openapi.actionSystem.impl.ActionMenuItem', name);
-    prettyClick(actionMenuItem, MouseButton.LEFT_BUTTON);
+    const actionMenuItem = getComponentByClassAndText('com.intellij.openapi.actionSystem.impl.ActionMenuItem',
+        /* predicate */ component => name.equals(component.getText())
+    );
+    myClick(actionMenuItem, MouseButton.LEFT_BUTTON);
   };
 
   this.findAndResizeIdeFrame = function () {
-    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    const ideFrame = getIdeFrame();
     let ideFrameFixture = new FrameFixture(ideFrame);
     let dimension = new Dimension(1024, 768);
     ideFrameFixture.resizeTo(dimension);
@@ -345,22 +352,18 @@ function Project(underlyingProject) {
   const getComponentByClass = function (className) {
     return getComponent(
         className,
-        /* text */ null,
-        /* textCmp */ function (_, _) { return true; }
+        /* predicate */ _ => true
     );
   };
 
-  const getComponentByClassAndText = function (className, text, textCmp) {
-    if (textCmp === undefined) { // default
-      textCmp = function (t, c) { return t.equals(c.getText()); };
-    }
-    return getComponent(className, text, textCmp);
+  const getComponentByClassAndText = function (className, predicate) {
+    return getComponent(className, predicate);
   };
 
-  const getComponent = function (className, text, textCmp) {
+  const getComponent = function (className, predicate) {
     const searchForComponent = function () {
       const result = robot.finder().findAll(component =>
-        className.equals(component.getClass().getName()) && textCmp(text, component)
+        className.equals(component.getClass().getName()) && predicate(component)
       ).toArray();
       return result.length === 1 ? result[0] : null;
     }
@@ -372,15 +375,6 @@ function Project(underlyingProject) {
     }
     return component;
   };
-
-  const prettyClick = function (component, mouseButton) {
-    robot.moveMouse(component);
-    // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
-    for (let i = 0; i < 5; i++) {
-      sleep();
-    }
-    robot.click(component, mouseButton);
-  }
 
   this.checkoutBranch = function (branchName) {
     invokeActionAndWait('GitMachete.CheckoutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });

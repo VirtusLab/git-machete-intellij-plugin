@@ -22,6 +22,7 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
     probe.openProject(rootDirectoryPath)
     project.configure()
     probe.await()
+    project.usePrettyClick()
     project.openGitMacheteTab()
     project.toolbar.toggleListingCommits()
     intelliJ.ide.findAndResizeIdeFrame()
