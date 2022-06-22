@@ -36,7 +36,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  @Ignore // FIXME (#830): ui test failing - socket timeout
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     // TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
     try {
@@ -182,7 +181,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
     // pullNonCurrentBranch
     project.openGitMacheteTab()
-    project.checkoutBranch("develop")
     project.contextMenu.openContextMenu("update-icons")
     project.contextMenu.pull()
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
@@ -198,19 +196,16 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
-    var currentBranchName = project.getCurrentBranchName()
+    var currentBranchName = project.getCurrentBranchName
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
 
     // resetNonCurrentBranchToRemote
     project.openGitMacheteTab()
-    project.checkoutBranch("develop")
     project.contextMenu.openContextMenu("update-icons")
     project.contextMenu.resetToRemote()
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
-    currentBranchName = project.getCurrentBranchName()
-    Assert.assertEquals("develop", currentBranchName)
   }
 
   private def saveThreadDumpAndScreenshot(): Unit = {

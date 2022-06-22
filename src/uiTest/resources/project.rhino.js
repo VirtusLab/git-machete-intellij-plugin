@@ -249,7 +249,7 @@ function Project(underlyingProject) {
     if (instant) {
       textField.setText(text);
     } else {
-      for (var i = 0; i < text.length; i++) {
+      for (let i = 0; i < text.length; i++) {
         sleep();
         let t = textField.getText() + text[i];
         textField.setText(t);
@@ -282,17 +282,27 @@ function Project(underlyingProject) {
   };
 
   this.moveMouseToTheMiddleAndWait = function (secondsToWait) {
-    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    const ideFrame = getIdeFrame();
     robot.moveMouse(ideFrame);
-    for (var i = 0; i < 10 * secondsToWait; i++) {
+    for (let i = 0; i < 10 * secondsToWait; i++) {
       sleep();
     }
   };
 
   const clickMouseInTheMiddle = function () {
-    const ideFrame = getComponentByClass('com.intellij.openapi.wm.impl.IdeFrameImpl');
+    const ideFrame = getIdeFrame();
     robot.click(ideFrame);
   };
+
+  const getIdeFrame = function() {
+    return getComponentByClassAndText(
+        /* className */ 'com.intellij.openapi.wm.impl.IdeFrameImpl',
+        /* text */ 'machete-sandbox-worktree',
+        /* textCmp */function (text, component) {
+          return text.equals(component.getTitle());
+        }
+    );
+  }
 
   const findAndClickButton = function (name) {
     const button = getComponentByClassAndText('javax.swing.JButton', name);
@@ -366,68 +376,15 @@ function Project(underlyingProject) {
   const prettyClick = function (component, mouseButton) {
     robot.moveMouse(component);
     // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
       sleep();
     }
     robot.click(component, mouseButton);
   }
 
-  this.toggleListingCommits = function () {
-    invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, {});
-  };
-
   this.checkoutBranch = function (branchName) {
     invokeActionAndWait('GitMachete.CheckoutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
-
-  this.fastForwardMergeSelectedBranchToParent = function (branchName) {
-    invokeActionAndWait('GitMachete.FastForwardMergeSelectedBranchToParentAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.fastForwardMergeCurrentBranchToParent = function () {
-    invokeActionAndWait('GitMachete.FastForwardMergeCurrentBranchToParentAction', ACTION_PLACE_TOOLBAR, {});
-  };
-
-  this.syncSelectedToParentByRebaseAction = function (branchName) {
-    invokeActionAsync('GitMachete.SyncSelectedToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.syncCurrentToParentByRebaseAction = function (branchName) {
-    invokeActionAsync('GitMachete.SyncCurrentToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, {});
-  };
-
-  this.syncSelectedToParentByMergeAction = function (branchName) {
-    invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.syncCurrentToParentByMergeAction = function () {
-    invokeActionAndWait('GitMachete.SyncCurrentToParentByMergeAction', ACTION_PLACE_TOOLBAR, {});
-  };
-
-  this.pullSelectedBranch = function (branchName) {
-    invokeActionAndWait('GitMachete.PullSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.pullCurrentBranch = function () {
-    invokeActionAndWait('GitMachete.PullCurrentBranchAction', ACTION_PLACE_TOOLBAR, {});
-  };
-
-  this.resetBranchToRemote = function (branchName) {
-    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
-
-    invokeActionAndWait('GitMachete.ResetSelectedBranchToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.resetCurrentBranchToRemote = function () {
-    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
-
-    invokeActionAndWait('GitMachete.ResetCurrentBranchToRemoteAction', ACTION_PLACE_TOOLBAR, {});
-  };
-
-  this.slideOutBranch = function (branchName) {
-    invokeActionAndWait('GitMachete.SlideOutSelectedBranchAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
 
   // Git utilities
 
@@ -437,7 +394,7 @@ function Project(underlyingProject) {
     const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');
     const provider = underlyingProject.getService(providerClass);
     const gitRepository = provider.getSelectedGitRepository().get();
-    // Let's make sure the data stored in the GitRepository object is up to date with the underlying .git/ folder.
+    // Let's make sure the data stored in the GitRepository object is up-to-date with the underlying .git/ folder.
     gitRepository.update();
     return gitRepository;
   };
