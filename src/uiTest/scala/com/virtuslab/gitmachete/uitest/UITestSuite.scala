@@ -196,7 +196,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
-    var currentBranchName = project.getCurrentBranchName
+    var currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
 
     // resetNonCurrentBranchToRemote

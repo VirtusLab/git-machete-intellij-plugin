@@ -122,7 +122,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       }
 
       def assertNoUncommittedChanges(): Unit = {
-        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead)
+        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
       }
 
       def checkoutBranch(branch: String): Unit = {
@@ -258,11 +258,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
       }
 
-      def getCurrentBranchName: String = {
+      def getCurrentBranchName(): String = {
         callJs[String]("project.getCurrentBranchName()")
       }
 
-      def getDiffOfWorkingTreeToHead: Seq[String] = {
+      def getDiffOfWorkingTreeToHead(): Seq[String] = {
         callJs[util.ArrayList[String]]("project.getDiffOfWorkingTreeToHead()").asScala.toSeq
       }
 
@@ -276,6 +276,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def openGitMacheteTab(): Unit = {
         runJs("project.openGitMacheteTab()")
+      }
+
+      def usePrettyClick(): Unit = {
+        runJs("project.usePrettyClick()")
       }
 
       def refreshModelAndGetManagedBranches(): Array[String] = {
