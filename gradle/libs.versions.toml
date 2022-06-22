@@ -35,7 +35,7 @@ powerMock = [
 ]
 
 [plugins]
-# @pin because 6.5.x leads to a buid error: https://github.com/freefair/gradle-plugins/issues/554
+# @pin because 6.5.x leads to a build error: https://github.com/freefair/gradle-plugins/issues/554
 aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.4.3.1"
 checkerFramework = "org.checkerframework:0.6.13"
 grgit = "org.ajoberstar.grgit:5.0.0"
@@ -45,7 +45,6 @@ jetbrains-intellij = "org.jetbrains.intellij:1.6.0"
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
 jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.4.0"
-lombok = "io.freefair.lombok:6.5.0.2"
 spotless = "com.diffplug.spotless:6.7.2"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
 versions = "com.github.ben-manes.versions:0.42.0"

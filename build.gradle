@@ -18,7 +18,6 @@ plugins {
   alias libs.plugins.jetbrains.grammarkit apply false
   alias libs.plugins.jetbrains.intellij apply false
   alias libs.plugins.jetbrains.kotlin apply false
-  alias libs.plugins.lombok apply false
   alias libs.plugins.spotless apply false
 }
 
@@ -63,7 +62,6 @@ ext {
   // This values can't be named in the same way as their corresponding properties to avoid a name clash.
   jvmArgsForJavaCompilation = project.properties.get('compileJavaJvmArgs')?.tokenize(' ')
   shouldRunAllCheckers = isCI || project.hasProperty('runAllCheckers')
-  shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
 static String buildNumberToIntellijVersion(String buildNumber) {
@@ -316,15 +314,6 @@ allprojects {
   }
 
 
-  if (shouldUseDelombok) {
-    apply plugin: 'io.freefair.lombok'
-    lombok {
-      version = libs.org.projectlombok.lombok.get()
-      generateLombokConfig.enabled = false
-    }
-  }
-
-
   // A few libraries (like JGit and reflections) transitively pull in a version of slf4j-api
   // that might be different from the slf4j-api version that IntelliJ depends on.
   // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any other version of slf4j-api
@@ -384,12 +373,13 @@ allprojects {
     }
 
     applyI18nFormatterAndTaintingCheckers = { ->
-      // I18nFormatterChecker, like GuiEffectChecker and NullnessChecker, is enabled
+      // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
       // regardless of `CI` env var/`runAllCheckers` Gradle project property.
       checkerFramework {
         checkers += [
-                'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
-                'org.checkerframework.checker.tainting.TaintingChecker']
+          'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
+          'org.checkerframework.checker.tainting.TaintingChecker'
+        ]
         extraJavacArgs += '-Abundlenames=GitMacheteBundle'
       }
 
@@ -479,15 +469,11 @@ allprojects {
     }
 
     lombok = { ->
-      // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
-      // Applying Lombok plugin conditionally from within this `ext` block turned out to be troublesome.
-      if (!shouldUseDelombok) {
-        dependencies {
-          compileOnly libs.lombok
-          annotationProcessor libs.lombok
-          testCompileOnly libs.lombok
-          testAnnotationProcessor libs.lombok
-        }
+      dependencies {
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
+        testCompileOnly libs.lombok
+        testAnnotationProcessor libs.lombok
       }
     }
 

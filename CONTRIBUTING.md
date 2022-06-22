@@ -21,6 +21,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    * Plugin DevKit
    * Properties
    * Shell Script (also: agree to enable Shellcheck when asked)
+   * TOML
    * YAML
 
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
@@ -92,9 +93,6 @@ Currently, very generous maximum heap size options are applied for Gradle's Java
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
-
-By default, Lombok's annotation processor runs on the fly and Delomboked sources are **not** saved to <subproject>/build/delombok/...<br/>
-To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
 
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
