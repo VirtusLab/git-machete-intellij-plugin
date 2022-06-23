@@ -8,7 +8,6 @@
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-<!--        todo (#825): drop support for 2021.1 -->
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
