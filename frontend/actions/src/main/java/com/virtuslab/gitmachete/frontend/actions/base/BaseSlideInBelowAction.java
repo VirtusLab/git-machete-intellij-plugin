@@ -159,7 +159,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
-        /* showSetTrackingOption */ false); // TODO (#496): use setTrackingOption that comes with 2020.2
+        /* showSetTrackingOption */ false);
 
     GitNewBranchOptions options = gitNewBranchDialog.showAndGetOptions();
 
