@@ -292,9 +292,9 @@ function Project(underlyingProject) {
     sleep(1000 * secondsToWait);
   };
 
-  const clickMouseInTheMiddle = function () {
-    const ideFrame = getIdeFrame();
-    robot.click(ideFrame);
+  const clickMouseInGraphTable = function () {
+    const graphTable = getGraphTable();
+    robot.click(graphTable);
   };
 
   const getIdeFrame = function() {
@@ -328,7 +328,7 @@ function Project(underlyingProject) {
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
     let button = getButton();
     while (button === null) {
-      clickMouseInTheMiddle();
+      clickMouseInGraphTable();
       button = getButton();
     }
     myClick(button, MouseButton.LEFT_BUTTON);
@@ -365,7 +365,7 @@ function Project(underlyingProject) {
     // The action is invoked asynchronously, let's first make sure the component has already appeared.
     let component = searchForComponent();
     while (component === null) {
-      clickMouseInTheMiddle();
+      clickMouseInGraphTable();
       sleep();
       component = searchForComponent();
     }
