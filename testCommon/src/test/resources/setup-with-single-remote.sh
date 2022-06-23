@@ -10,6 +10,7 @@ create_repo machete-sandbox-remote --bare
 create_repo machete-sandbox
 cd machete-sandbox
   git remote add origin ../machete-sandbox-remote
+  git config --add machete.slideOut.deleteLocalBranch true
 
   create_branch root
     commit Root
