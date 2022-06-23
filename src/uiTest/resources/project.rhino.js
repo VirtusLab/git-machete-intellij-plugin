@@ -365,6 +365,7 @@ function Project(underlyingProject) {
     // The action is invoked asynchronously, let's first make sure the component has already appeared.
     let component = searchForComponent();
     while (component === null) {
+      clickMouseInTheMiddle();
       sleep();
       component = searchForComponent();
     }
