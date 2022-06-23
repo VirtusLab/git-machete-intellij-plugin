@@ -11,11 +11,11 @@ declared_icons=$(git grep -Pho '(?<=Icon) .* (?=\= loadIcon)' -- 'frontend/icons
 
 for referenced_file in $(git grep -Pho '(?<=loadIcon\("/).*(?="\))' -- 'frontend/icons/src/main/java/icons/MacheteIcons.java'); do
   referenced_file_path="$ICONS_PATH/$referenced_file"
-  referenced_file_path_dark=${referenced_file_path::-4}_dark.svg
-  if [[ ! $icon_files =~ $referenced_file_path ]]; then
+  referenced_file_path_dark=${referenced_file_path%.svg}_dark.svg
+  if [[ $icon_files != *"$referenced_file_path"* ]]; then
     die "Icon '$referenced_file' referenced from MacheteIcons.java is missing from resources!"
   fi
-  if [[ ! $icon_files =~ $referenced_file_path_dark ]]; then
+  if [[ $icon_files != *"$referenced_file_path_dark"* ]]; then
     die "Dark icon '$referenced_file' referenced from MacheteIcons.java is missing from resources!"
   fi
 
@@ -32,6 +32,6 @@ done
 
 for referenced_icon in $(git grep -Pho '(?<=icon="MacheteIcons\.).*(?=")' -- 'src/main/resources/META-INF/plugin.xml'); do
   if [[ ! $declared_icons =~ $referenced_icon ]]; then
-    die "Icon 'GitMachete.$referenced_icon' referenced from plugin.xml is not declared in MacheteIcons.java!"
+    die "Icon 'MacheteIcons.$referenced_icon' referenced from plugin.xml is not declared in MacheteIcons.java!"
   fi
 done
