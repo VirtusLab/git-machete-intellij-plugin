@@ -405,8 +405,7 @@ allprojects {
 
     applyKotlinConfig = { ->
       compileKotlin {
-        // TODO (#785): revert this setting
-        // kotlinOptions.allWarningsAsErrors = true
+         kotlinOptions.allWarningsAsErrors = true
 
         // Supress the warnings about different version of Kotlin used for compilation
         // than bundled into the `buildTarget` version of IntelliJ.

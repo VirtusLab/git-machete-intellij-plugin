@@ -1,8 +1,9 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.root;
 
+import java.util.function.Predicate;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.impl.VcsProjectLog;
-import java.util.function.Predicate;
 import lombok.CustomLog;
 
 @CustomLog

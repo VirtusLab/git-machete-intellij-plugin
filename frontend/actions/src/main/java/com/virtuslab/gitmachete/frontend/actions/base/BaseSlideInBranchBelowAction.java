@@ -87,11 +87,13 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
       return;
     }
 
-    val slideInOptions = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
-    if (slideInOptions == null) {
+    val slideInDialog = new SlideInDialog(project, branchLayout, parentName, gitRepository);
+    if (!slideInDialog.showAndGet()) {
       log().debug("Options of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
     }
+
+    val slideInOptions = slideInDialog.getSlideInOptions();
 
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
@@ -159,7 +161,7 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
-        /* showSetTrackingOption */ false); // TODO (#496): use setTrackingOption that comes with 2020.2
+        /* showSetTrackingOption */ false);
 
     GitNewBranchOptions options = gitNewBranchDialog.showAndGetOptions();
 

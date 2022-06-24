@@ -1,123 +1,309 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs
 
+import com.intellij.dvcs.DvcsUtil
+import com.intellij.ide.ui.laf.darcula.DarculaUIUtil
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.layout.CellBuilder
-import com.intellij.ui.layout.ValidationInfoBuilder
-import com.intellij.ui.layout.panel
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.ui.MutableCollectionComboBoxModel
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
+import com.intellij.util.ui.JBUI
 import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
-import java.awt.event.KeyEvent
+import git4idea.branch.GitBranchUtil
+import git4idea.commands.Git
+import git4idea.commands.GitCommand
+import git4idea.commands.GitLineHandler
+import git4idea.merge.GitMergeDialog
+import git4idea.repo.GitRepository
+import git4idea.repo.GitRepositoryManager
+import git4idea.ui.ComboBoxWithAutoCompletion
+import java.awt.Insets
+import java.util.regex.Pattern
 import javax.swing.JCheckBox
+import javax.swing.JLabel
+import javax.swing.JPanel
 import kotlin.apply
-import kotlin.text.isEmpty
-import kotlin.text.trim
+import net.miginfocom.layout.AC
+import net.miginfocom.layout.CC
+import net.miginfocom.layout.LC
+import net.miginfocom.swing.MigLayout
 
-class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val parentName: String) :
-    DialogWrapper(project, /* canBeParent */ true) {
+internal const val GIT_REF_PROTOTYPE_VALUE = "origin/long-enough-branch-name"
 
-  // this field is only ever meant to be written on UI thread
-  var branchName = ""
-  var reattach = false
-  var reattachCheckbox: JCheckBox? = null
+class SlideInDialog(
+    val project: Project,
+    val branchLayout: IBranchLayout,
+    val parentName: String,
+    val gitRepository: GitRepository
+) : DialogWrapper(project, /* canBeParent */ true) {
+
   val rootNames = branchLayout.rootEntries.map { it.name }
 
+  val repositories =
+      DvcsUtil.sortRepositories(GitRepositoryManager.getInstance(project).repositories)
+
+  val allBranches = collectAllBranches()
+
+  var unmergedBranches = emptyList<String>()
+
+  val reattachCheckbox =
+      JCheckBox(
+          getString(
+              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"))
+
+  val branchField = createBranchField()
+  val commandPanel = createCommandPanel()
+
+  val panel = createPanel()
+
   init {
+    loadUnmergedBranchesInBackground()
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
-    setOKButtonMnemonic('S'.toInt())
-    super.init()
+    updateBranchesField()
+    init()
+    rerender()
   }
 
-  fun showAndGetBranchName() =
-      if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
+  override fun createCenterPanel() = panel
 
-  override fun createCenterPanel() = panel {
-    row(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")) {
-      label(parentName, bold = true)
-    }
-    row {
-      label(
-          getString(
-              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name"))
-    }
-    row {
-      textField(::branchName, { branchName = it })
-          .focused()
-          .withValidationOnApply(validateBranchName())
-          .apply { startTrackingValidationIfNeeded() }
-    }
-    row {
-      reattachCheckbox =
-          checkBox(
-                  getString(
-                      "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"),
-                  ::reattach)
-              .component.apply {
-                mnemonic = KeyEvent.VK_R
-                isEnabled = false
-                isSelected = false
+  override fun getPreferredFocusedComponent() = branchField
+
+  override fun doValidateAll(): List<ValidationInfo> =
+      listOf(::validateBranchName).mapNotNull { it() }
+
+  fun getSlideInOptions(): SlideInOptions {
+    val branchName = branchField.getText().orEmpty().trim()
+    return SlideInOptions(branchName, reattachCheckbox.isSelected)
+  }
+
+  private fun collectAllBranches() =
+      repositories.associateWith { repo -> repo.branches.localBranches.map { it.name } }
+
+  private fun loadUnmergedBranchesInBackground() =
+      ProgressManager.getInstance()
+          .run(
+              object :
+                  Task.Backgroundable(
+                      project,
+                      getString(
+                          "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.progress"),
+                      true) {
+                override fun run(indicator: ProgressIndicator) {
+                  val root = (gitRepository.root)
+                  loadUnmergedBranchesForRoot(root)?.let { branches -> unmergedBranches = branches }
+                }
+              })
+
+  /**
+   * ```
+   * $ git branch --all
+   * |  master
+   * |  feature
+   * |* checked-out
+   * |+ checked-out-by-worktree
+   * |  remotes/origin/master
+   * |  remotes/origin/feature
+   * |  remotes/origin/HEAD -> origin/master
+   * ```
+   */
+  @RequiresBackgroundThread
+  private fun loadUnmergedBranchesForRoot(root: VirtualFile): List<String>? {
+    var result: List<String>? = null
+
+    val handler =
+        GitLineHandler(project, root, GitCommand.BRANCH).apply {
+          // t0d0: no merged or merged too?
+          addParameters("--no-color", "-a", "--no-merged")
+        }
+    try {
+      result =
+          Git.getInstance()
+              .runCommand(handler)
+              .getOutputOrThrow()
+              .lines()
+              .filter { line -> !LINK_REF_REGEX.matcher(line).matches() }
+              .mapNotNull { line ->
+                val matcher = BRANCH_NAME_REGEX.matcher(line)
+                when {
+                  matcher.matches() -> matcher.group(1)
+                  else -> null
+                }
               }
+    } catch (e: Exception) {
+      LOG.warn("Failed to load unmerged branches for root: $root", e)
     }
+
+    return result
   }
 
-  private fun validateBranchName():
-      ValidationInfoBuilder.(javax.swing.JTextField) -> ValidationInfo? = {
-    val insertedText = it.text
-    val errorInfo = git4idea.validators.checkRefName(insertedText)
-    if (errorInfo != null) error(errorInfo.message)
-    else if (insertedText == parentName) {
-      error(
+  // t0d0: now validation triggers after failed slide-out attempt - ensure it works since the
+  // beginning (slide in root case)
+  private fun validateBranchName(): ValidationInfo? {
+    val insertedText = branchField.getText()
+
+    if (insertedText.isNullOrEmpty()) {
+      return ValidationInfo(
           getString(
-              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.no-branch-selected"),
+          branchField)
+    }
+
+    val errorInfo = git4idea.validators.checkRefName(insertedText)
+    if (errorInfo != null) {
+      return ValidationInfo(errorInfo.message, branchField)
+    } else if (insertedText == parentName) {
+      return ValidationInfo(
+          getString(
+              "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"),
+          branchField)
     } else {
       val entryByName = branchLayout.findEntryByName(insertedText)
       if (entryByName.map(isDescendantOf(presumedDescendantName = parentName)).getOrElse(false)) {
-        error(
+        return ValidationInfo(
             getString(
-                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
+                "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"),
+            branchField)
       } else {
         if (insertedText in rootNames) { // the provided branch name refers to the root entry
-          reattachCheckbox?.isEnabled = false
-          reattachCheckbox?.isSelected = true
+          reattachCheckbox.isEnabled = false
+          reattachCheckbox.isSelected = true
         } else {
           val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
-          reattachCheckbox?.isEnabled = existsAndHasAChild
-          reattachCheckbox?.isSelected =
-              (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
+          reattachCheckbox.isEnabled = existsAndHasAChild
+          reattachCheckbox.isSelected = reattachCheckbox.isSelected && existsAndHasAChild
         }
-
-        null
       }
     }
+    return null
   }
 
-  private fun CellBuilder<javax.swing.JTextField>.startTrackingValidationIfNeeded() {
-    if (branchName.isEmpty()) {
-      component.document.addDocumentListener(
-          object : DocumentAdapter() {
-            override fun textChanged(e: javax.swing.event.DocumentEvent) {
-              startTrackingValidation()
-              component.document.removeDocumentListener(this)
-            }
-          })
-    } else {
-      startTrackingValidation()
+  private fun updateBranchesField() {
+    var branchToSelect = branchField.item
+
+    val branches = splitAndSortBranches(getBranches())
+
+    val model = branchField.model as MutableCollectionComboBoxModel
+    model.update(branches)
+
+    if (branchToSelect == null || branchToSelect !in branches) {
+      val currentRemoteBranch =
+          gitRepository.currentBranch?.findTrackedBranch(gitRepository)?.nameForRemoteOperations
+
+      branchToSelect =
+          branches.find { branch -> branch == currentRemoteBranch } ?: branches.getOrElse(0) { "" }
+    }
+
+    branchField.item = branchToSelect
+    branchField.selectAll()
+  }
+
+  private fun splitAndSortBranches(branches: List<String>): List<String> {
+    val local = mutableListOf<String>()
+    val remote = mutableListOf<String>()
+
+    for (branch in branches) {
+      if (branch.startsWith(REMOTE_REF)) {
+        remote += branch.substring(REMOTE_REF.length)
+      } else {
+        local += branch
+      }
+    }
+
+    return GitBranchUtil.sortBranchNames(local) + GitBranchUtil.sortBranchNames(remote)
+  }
+
+  private fun getBranches(): List<String> {
+    return allBranches[gitRepository] ?: emptyList()
+  }
+
+  private fun createPanel() =
+      JPanel().apply {
+        layout = MigLayout(LC().insets("0").hideMode(3), AC().grow())
+
+        add(commandPanel, CC().growX())
+      }
+
+  private fun createCommandPanel(): JPanel {
+
+    return JPanel().apply {
+      layout =
+          MigLayout(
+              LC().fillX().insets("0").gridGap("0", "0").noVisualPadding(), AC().grow(100f, 1))
+
+      add(
+          JLabel(
+              getString(
+                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")),
+          CC().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
+
+      add(
+          JLabel("<html><b>$parentName</b></html>"),
+          CC().minWidth("${JBUI.scale(300)}px").growX().wrap())
+
+      add(
+          JLabel(
+              getString(
+                  "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name")),
+          CC().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
+
+      add(branchField, CC().minWidth("${JBUI.scale(300)}px").growX().wrap())
+
+      add(reattachCheckbox)
     }
   }
+
+  private fun createBranchField() =
+      ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
+          .apply {
+            prototypeDisplayValue = GIT_REF_PROTOTYPE_VALUE
+            setPlaceholder(
+                getString(
+                    "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.placeholder"))
+            setUI(
+                FlatComboBoxUI(
+                    outerInsets =
+                        Insets(
+                            DarculaUIUtil.BW.get(),
+                            0,
+                            DarculaUIUtil.BW.get(),
+                            DarculaUIUtil.BW.get()),
+                    popupEmptyText =
+                        getString(
+                            "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.no-branch")))
+          }
 
   private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {
     return fun(presumedAncestorEntry: IBranchLayoutEntry): Boolean {
-      if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
-        return true
+      return if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
+        true
       } else {
-        return presumedAncestorEntry.children.exists(isDescendantOf(presumedDescendantName))
+        presumedAncestorEntry.children.exists(isDescendantOf(presumedDescendantName))
       }
     }
+  }
+
+  private fun rerender() {
+    window.pack()
+    window.revalidate()
+    pack()
+    repaint()
+  }
+
+  companion object {
+    val LOG = logger<GitMergeDialog>()
+    val LINK_REF_REGEX = Pattern.compile(".+\\s->\\s.+") // aka 'symrefs'
+    val BRANCH_NAME_REGEX = Pattern.compile(". (\\S+)\\s*")
+
+    const val REMOTE_REF = "remotes/"
   }
 }
