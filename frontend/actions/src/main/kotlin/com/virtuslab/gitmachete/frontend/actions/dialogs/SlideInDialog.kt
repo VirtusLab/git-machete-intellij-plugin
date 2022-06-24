@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs
 
 import com.intellij.dvcs.DvcsUtil
-import com.intellij.ide.ui.laf.darcula.DarculaUIUtil
+import com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -17,7 +17,6 @@ import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
-import git4idea.branch.GitBranchUtil
 import git4idea.commands.Git
 import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
@@ -50,8 +49,6 @@ class SlideInDialog(
   val repositories =
       DvcsUtil.sortRepositories(GitRepositoryManager.getInstance(project).repositories)
 
-  val allBranches = collectAllBranches()
-
   var unmergedBranches = emptyList<String>()
 
   val reattachCheckbox =
@@ -69,7 +66,7 @@ class SlideInDialog(
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
-    updateBranchesField()
+    setOKButtonMnemonic('S'.code)
     init()
     rerender()
   }
@@ -85,9 +82,6 @@ class SlideInDialog(
     val branchName = branchField.getText().orEmpty().trim()
     return SlideInOptions(branchName, reattachCheckbox.isSelected)
   }
-
-  private fun collectAllBranches() =
-      repositories.associateWith { repo -> repo.branches.localBranches.map { it.name } }
 
   private fun loadUnmergedBranchesInBackground() =
       ProgressManager.getInstance()
@@ -187,45 +181,6 @@ class SlideInDialog(
     return null
   }
 
-  private fun updateBranchesField() {
-    var branchToSelect = branchField.item
-
-    val branches = splitAndSortBranches(getBranches())
-
-    val model = branchField.model as MutableCollectionComboBoxModel
-    model.update(branches)
-
-    if (branchToSelect == null || branchToSelect !in branches) {
-      val currentRemoteBranch =
-          gitRepository.currentBranch?.findTrackedBranch(gitRepository)?.nameForRemoteOperations
-
-      branchToSelect =
-          branches.find { branch -> branch == currentRemoteBranch } ?: branches.getOrElse(0) { "" }
-    }
-
-    branchField.item = branchToSelect
-    branchField.selectAll()
-  }
-
-  private fun splitAndSortBranches(branches: List<String>): List<String> {
-    val local = mutableListOf<String>()
-    val remote = mutableListOf<String>()
-
-    for (branch in branches) {
-      if (branch.startsWith(REMOTE_REF)) {
-        remote += branch.substring(REMOTE_REF.length)
-      } else {
-        local += branch
-      }
-    }
-
-    return GitBranchUtil.sortBranchNames(local) + GitBranchUtil.sortBranchNames(remote)
-  }
-
-  private fun getBranches(): List<String> {
-    return allBranches[gitRepository] ?: emptyList()
-  }
-
   private fun createPanel() =
       JPanel().apply {
         layout = MigLayout(LC().insets("0").hideMode(3), AC().grow())
@@ -269,17 +224,7 @@ class SlideInDialog(
             setPlaceholder(
                 getString(
                     "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.placeholder"))
-            setUI(
-                FlatComboBoxUI(
-                    outerInsets =
-                        Insets(
-                            DarculaUIUtil.BW.get(),
-                            0,
-                            DarculaUIUtil.BW.get(),
-                            DarculaUIUtil.BW.get()),
-                    popupEmptyText =
-                        getString(
-                            "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.no-branch")))
+            setUI(DarculaComboBoxUI(0f, Insets(1, 0, 1, 0), false))
           }
 
   private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {
@@ -303,7 +248,5 @@ class SlideInDialog(
     val LOG = logger<GitMergeDialog>()
     val LINK_REF_REGEX = Pattern.compile(".+\\s->\\s.+") // aka 'symrefs'
     val BRANCH_NAME_REGEX = Pattern.compile(". (\\S+)\\s*")
-
-    const val REMOTE_REF = "remotes/"
   }
 }
