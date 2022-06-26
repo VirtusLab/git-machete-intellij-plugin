@@ -15,25 +15,34 @@ apply plugin: 'org.jetbrains.grammarkit'
 import org.jetbrains.grammarkit.tasks.*
 
 def grammarSourcesRoot = 'src/main/grammar'
-def generatedJavaSourcesRoot = 'build/generated'
+// Outputs of these two tasks canNOT go into the same directory,
+// as Gradle doesn't support caching of output directories when more than one task writes.
+// Let's pick non-overlapping directories for the outputs instead.
+def generatedParserJavaSourcesRoot = 'build/generated/parser'
+def generatedLexerJavaSourcesRoot = 'build/generated/lexer'
 def grammarJavaPackage = 'com.virtuslab.gitmachete.frontend.file.grammar'
 def grammarJavaPackagePath = grammarJavaPackage.replace('.', '/')
 
-sourceSets.main.java.srcDirs += generatedJavaSourcesRoot
+sourceSets.main.java.srcDirs += [generatedParserJavaSourcesRoot, generatedLexerJavaSourcesRoot]
 
 task generateMacheteParser(type: GenerateParserTask) {
+  // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
+  outputs.cacheIf { true }
+
   source = "$grammarSourcesRoot/Machete.bnf"
-  targetRoot = generatedJavaSourcesRoot
+  targetRoot = generatedParserJavaSourcesRoot
   pathToParser = "/$grammarJavaPackagePath/MacheteGeneratedParser.java"
   pathToPsiRoot = "/$grammarJavaPackagePath/"
   purgeOldFiles = false
 }
 
 task generateMacheteLexer(type: GenerateLexerTask) {
+  outputs.cacheIf { true }
+
   dependsOn generateMacheteParser
 
   source = "$grammarSourcesRoot/Machete.flex"
-  targetDir = "$generatedJavaSourcesRoot/$grammarJavaPackagePath/"
+  targetDir = "$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/"
   targetClass = 'MacheteGeneratedLexer'
   purgeOldFiles = false
 }

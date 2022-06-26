@@ -68,15 +68,6 @@ jobs:
       - run:
           name: Run unit & integration tests
           command: ./gradlew test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          path: build/test-results/test/
 
       - run:
           name: Build plugin artifact
@@ -116,11 +107,21 @@ jobs:
             mkdir -p /exception-artifacts
             for f in $(ls -d /tmp/ide-probe/screenshots/*/) ; do cd  $f/artifacts ; zip -r "/exception-artifacts/$(basename ${f}).zip" . ; done
           when: on_fail
-      - store_test_results:
-          path: build/test-results/uiTest/
       - store_artifacts:
           path: /exception-artifacts
           destination: .
+
+      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+      - store_test_results:
+          path: branchLayout/impl/build/test-results/test/
+      - store_test_results:
+          path: backend/impl/build/test-results/test/
+      - store_test_results:
+          path: frontend/base/build/test-results/test/
+      - store_test_results:
+          # This include the test results of both "regular" tests and UI tests for the top-level project.
+          path: build/test-results/
+
       - when:
           condition:
             not:

@@ -427,10 +427,13 @@ allprojects {
 
     ideProbe = { ->
       repositories {
+        // Needed for com.intellij.remoterobot:remote-robot
         maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
       }
 
       dependencies {
+        // Note that we can't easily use Gradle's `testFixtures` configuration here
+        // as it doesn't seem to expose testFixtures resources in test classpath correctly.
         uiTestImplementation project(':testCommon').sourceSets.test.output
         uiTestImplementation libs.bundles.ideProbe
       }
@@ -654,18 +657,17 @@ uiTestTargets.each { version ->
     group = 'verification'
 
     testClassesDirs = uiTest.output.classesDirs
-    classpath = sourceSets.main.output + configurations.uiTestRuntimeClasspath + uiTest.output
-    // Let's keep the XML test results in a per-version directory, this makes things easier in the CI
-    // where the UI tests are executed under a couple different IDE versions one after another.
-    // The results in the default directory (build/test-results/uiTest) would get overwritten which each subsequent test.
-    reports.junitXml.destination = file("$buildDir/test-results/uiTest/${version}")
+    classpath = configurations.uiTestRuntimeClasspath + uiTest.output
 
     dependsOn ':buildPlugin'
 
     systemProperty 'ui-test.intellij.version', version
     systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
 
-    outputs.upToDateWhen { false }
+    // TODO (#945): caching of UI test results doesn't work in the CI anyway
+    if (!isCI) {
+      outputs.upToDateWhen { false }
+    }
 
     if (project.properties.tests) {
       filter {
