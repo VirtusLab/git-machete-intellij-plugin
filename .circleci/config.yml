@@ -20,36 +20,31 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run pre-compile checks
+          name: Run pre-build checks
           command: ./scripts/run-pre-build-checks
       - restore_cache:
-          # Adding `-v4` suffix to enable easy cache invalidation when needed (just change to `-v<next-integer>`)
+          # Adding `-v<N>` suffix to enable easy cache invalidation when needed:
+          # just change to `-v<N+1>` (remember to also update `save_cache` key).
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v4-{{ checksum "build.gradle" }}-{{ .Branch }}
+            - gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v4-{{ checksum "build.gradle" }}-
+            - gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-
             # As a last resort, take any available cache entry.
-            - gradle-deps-v4-
+            - gradle-deps-v5-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
 
-      - run:
-          name: Validate Markdown files
-          # language=sh
-          command: |
-            set -x
-            ./scripts/validate-markdown-links
-            ./scripts/validate-markdown-values
       - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
           # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
+          # Having 5 or 6 workers doesn't seem to increase compilation time significantly, as compared to just 4.
           command: ./gradlew --max-workers=4 compileJava compileKotlin
       - run:
           name: Run post-compile checks
@@ -59,7 +54,6 @@ jobs:
           command: ./gradlew --warn checkstyleMain
       - run:
           name: Check Javadoc correctness
-          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
           command: ./gradlew --max-workers=4 javadoc
 
       - run:
@@ -136,7 +130,7 @@ jobs:
                   rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
             - save_cache:
                 paths: [ ~/.gradle/ ]
-                key: gradle-deps-v4-{{ checksum "build.gradle" }}-{{ .Branch }}
+                key: gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
       - when:
           condition:

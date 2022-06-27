@@ -32,3 +32,9 @@ prohibit-tab-character
 prohibit-trailing-whitespace
 
 validate-icons
+if [[ $0 != *.git/hooks/pre-commit ]]; then
+  # This one needs to connect to the linked websites and can potentially run long,
+  # let's skip it when this script is executed as git pre-commit hook.
+  validate-markdown-links
+fi
+validate-markdown-values

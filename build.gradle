@@ -436,6 +436,10 @@ allprojects {
         // as it doesn't seem to expose testFixtures resources in test classpath correctly.
         uiTestImplementation project(':testCommon').sourceSets.test.output
         uiTestImplementation libs.bundles.ideProbe
+        // This is technically redundant (both since ide-probe pulls in scala-library anyway,
+        // and since ide-probe is meant to use in src/uiTest code, not src/test code),
+        // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
+        testImplementation libs.scala.library
       }
     }
 
