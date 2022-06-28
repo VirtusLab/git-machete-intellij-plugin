@@ -141,6 +141,8 @@ class NotificationAction {
 
 class NotificationGroup {
   Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type, @Nullable NotificationListener listener);
+
+  Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type);
 }
 
 

@@ -150,8 +150,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           String content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
               content,
-              INFORMATION,
-              /* listener */ null);
+              INFORMATION);
           notification.addAction(NotificationAction.createSimple(getString(
               "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
@@ -162,7 +161,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
               getString(
                   "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.all-files-are-up-to-date"),
-              /* content */ "", INFORMATION, /* listener */ null);
+              /* content */ "", INFORMATION);
         }
         VcsNotifier.getInstance(project).notify(notification);
 
