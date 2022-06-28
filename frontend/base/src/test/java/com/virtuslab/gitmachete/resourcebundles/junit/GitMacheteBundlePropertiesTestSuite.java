@@ -13,7 +13,7 @@ public class GitMacheteBundlePropertiesTestSuite {
   private final String macheteBundleProperties = "GitMacheteBundle.properties";
 
   @Test
-  public void htmlProperties_should_have_correct_syntax() throws IOException {
+  public void html_properties_should_have_correct_syntax() throws IOException {
 
     Properties property = new Properties();
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -28,10 +28,21 @@ public class GitMacheteBundlePropertiesTestSuite {
           assertEquals("HTML property should end with </html>", "</html>", value.substring(value.length() - 7));
           assertEquals("HTML property key should have a .HTML suffix", ".HTML", key.substring(key.length() - 5));
         });
+  }
+
+  @Test
+  public void properties_should_use_ellipsis_instead_of_three_dots() throws IOException {
+
+    Properties property = new Properties();
+    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    property.load(loader.getResourceAsStream(macheteBundleProperties));
 
     property.entrySet().stream()
         .filter(prop -> ((String) prop.getValue()).contains("..."))
-        .forEach(t -> fail("Properties should use ellipsis (\\u2026) instead of three dots"));
+        .forEach(t -> {
+          String key = (String) t.getKey();
+          fail("Properties should use ellipsis (\\u2026) instead of three dots (key=${key})");
+        });
 
   }
 }
