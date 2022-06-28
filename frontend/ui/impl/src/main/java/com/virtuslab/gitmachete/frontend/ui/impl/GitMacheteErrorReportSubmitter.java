@@ -19,6 +19,7 @@ import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Consumer;
+import com.intellij.util.ModalityUiUtil;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -26,8 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 
 @CustomLog
 public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
@@ -46,7 +45,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     try {
       val uri = constructNewGitHubIssueUri(events, additionalInfo);
 
-      UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> BrowserUtil.browse(uri));
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> BrowserUtil.browse(uri));
     } catch (URISyntaxException e) {
       LOG.error("Cannot construct URI to open new bug issue!", e);
     }

@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -30,7 +31,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -71,12 +71,11 @@ public class DiscoverAction extends BaseProjectDependentAction {
     // and this action is not going to be invoked frequently (probably just once for a given project).
     Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
         .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot())
-        .onFailure(e -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
-            () -> VcsNotifier.getInstance(project).notifyError(
-                /* displayId */ null,
-                /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
-                /* message */ e.getMessage() != null ? e.getMessage() : "")))
-        .onSuccess(repoSnapshot -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
+        .onFailure(e -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project).notifyError(
+            /* displayId */ null,
+            /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
+            /* message */ e.getMessage() != null ? e.getMessage() : "")))
+        .onSuccess(repoSnapshot -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
             repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
