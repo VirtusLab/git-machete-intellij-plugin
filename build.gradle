@@ -239,6 +239,16 @@ allprojects {
   }
 
 
+  sourceSets {
+    uiTest
+  }
+
+  configurations {
+    uiTestImplementation.extendsFrom testImplementation
+    uiTestRuntimeOnly.extendsFrom testRuntimeOnly
+  }
+
+
   apply plugin: 'com.diffplug.spotless'
   spotless {
     java {
@@ -433,7 +443,7 @@ allprojects {
         uiTestImplementation project(':testCommon').sourceSets.test.output
         uiTestImplementation libs.bundles.ideProbe
         // This is technically redundant (both since ide-probe pulls in scala-library anyway,
-        // and since ide-probe is meant to use in src/uiTest code, not src/test code),
+        // and since ide-probe is meant to be used in src/uiTest code, not src/test code),
         // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
         testImplementation libs.scala.library
       }
@@ -456,6 +466,7 @@ allprojects {
       dependencies {
         compileOnly     libs.jetbrains.annotations
         testCompileOnly libs.jetbrains.annotations
+        uiTestCompileOnly libs.jetbrains.annotations
       }
     }
 
@@ -638,57 +649,3 @@ runPluginVerifier {
 publishPlugin {
   token = jetbrainsMarketplaceToken
 }
-
-
-def uiTest = sourceSets.create('uiTest')
-
-configurations {
-  uiTestImplementation.extendsFrom testImplementation
-  uiTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-List<String> uiTestTargets = project.properties.against \
-  ? resolveIntelliJVersions(project.properties.against)
-  : [intellijVersions.buildTarget]
-
-uiTestTargets.each { version ->
-  tasks.register("uiTest_${version}", Test) {
-    description = 'Runs UI tests.'
-    group = 'verification'
-
-    testClassesDirs = uiTest.output.classesDirs
-    classpath = configurations.uiTestRuntimeClasspath + uiTest.output
-
-    dependsOn ':buildPlugin'
-
-    systemProperty 'ui-test.intellij.version', version
-    systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
-
-    // TODO (#945): caching of UI test results doesn't work in the CI anyway
-    if (!isCI) {
-      outputs.upToDateWhen { false }
-    }
-
-    if (project.properties.tests) {
-      filter {
-        includeTestsMatching "*.*${project.properties.tests}*"
-      }
-    }
-
-    if (project.hasProperty('headless')) {
-      environment 'IDEPROBE_DISPLAY', 'xvfb'
-      environment 'IDEPROBE_SCREENSHOTS_DIR', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
-    }
-
-    testLogging {
-      events += [TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR]
-    }
-  }
-}
-
-// Cannot use `task uiTest(type: Test)` syntax due to the name conflict with `def uiTest` above.
-tasks.register('uiTest') {
-  dependsOn tasks.matching { Task task -> task.name.startsWith("uiTest_") }
-}
-
-ideProbe()

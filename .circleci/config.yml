@@ -28,12 +28,12 @@ jobs:
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+            - gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-
+            - gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-
             # As a last resort, take any available cache entry.
-            - gradle-deps-v5-
+            - gradle-deps-v22-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -61,7 +61,25 @@ jobs:
           command: ./gradlew compileTestJava compileUiTestScala
       - run:
           name: Run unit & integration tests
-          command: ./gradlew test
+          # language=sh
+          command: |
+            ./gradlew test
+            # TODO (JetBrains/gradle-intellij-plugin#1039): during tests, classpath.index file is created by com.intellij.util.lang.PathClassLoader
+            #  in build/classes/ of (sub)projects which have both:
+            #    1) gradle-intellij-plugin enabled AND
+            #    2) well, some tests to execute
+            #  This heavily messes up Gradle caching (details on the issue).
+            find . -name classpath.index | xargs sha256sum || true
+            find . -name classpath.index -delete || true
+      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+      - store_test_results:
+          path: branchLayout/impl/build/test-results/
+      - store_test_results:
+          path: backend/impl/build/test-results/
+      - store_test_results:
+          path: frontend/base/build/test-results/
+      - store_test_results:
+          path: build/test-results/
 
       - run:
           name: Build plugin artifact
@@ -94,6 +112,8 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+      - store_test_results:
+          path: uiTests/build/test-results/
       - run:
           name: Collect artifacts when an exception occurs
           # language=sh
@@ -105,17 +125,6 @@ jobs:
       - store_artifacts:
           path: ~/artifacts/zip
           destination: .
-
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          # This include the test results of both "regular" tests and UI tests for the top-level project.
-          path: build/test-results/
 
       - when:
           condition:
@@ -131,7 +140,7 @@ jobs:
                   rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
             - save_cache:
                 paths: [ ~/.gradle/ ]
-                key: gradle-deps-v5-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+                key: gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
       - when:
           condition:

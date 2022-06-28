@@ -1,0 +1,56 @@
+apply plugin: 'org.gradle.scala'
+
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+List<String> uiTestTargets = project.properties.against \
+  ? resolveIntelliJVersions(project.properties.against)
+  : [intellijVersions.buildTarget]
+
+uiTestTargets.each { version ->
+  tasks.register("uiTest_${version}", Test) {
+    description = 'Runs UI tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
+    classpath = configurations.uiTestRuntimeClasspath + sourceSets.uiTest.output
+
+    def buildPlugin = tasks.getByPath(':buildPlugin')
+    dependsOn buildPlugin
+
+    systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
+    systemProperty 'ui-test.intellij.version', version
+
+    if (!isCI) {
+      outputs.upToDateWhen { false }
+    }
+
+    if (project.properties.tests) {
+      filter {
+        includeTestsMatching "*.*${project.properties.tests}*"
+      }
+    }
+
+    if (project.hasProperty('headless')) {
+      environment 'IDEPROBE_DISPLAY', 'xvfb'
+      environment 'IDEPROBE_SCREENSHOTS_DIR', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
+    }
+
+    testLogging {
+      events += [TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR]
+    }
+  }
+}
+
+task uiTest {
+  dependsOn tasks.matching { Task task -> task.name.startsWith("uiTest_") }
+}
+
+dependencies {
+  // Needed so that the main classpath of the plugin is considered by Gradle as an input to `uiTest` task.
+  // Otherwise, changes in the plugin would NOT cause the UI tests to be re-executed when caching is enabled.
+  uiTestRuntimeOnly rootProject
+}
+
+ideProbe()
+jetbrainsAnnotations()
+junit()

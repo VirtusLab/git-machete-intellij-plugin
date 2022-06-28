@@ -1,6 +1,7 @@
 pluginManagement {
   dependencyResolutionManagement {
     repositories {
+      // For nl.littlerobots.version-catalog-update
       mavenCentral()
     }
   }
@@ -25,3 +26,4 @@ include 'frontend:graph:api'
 include 'frontend:graph:impl'
 include 'frontend:ui:api'
 include 'frontend:ui:impl'
+include 'uiTests'
