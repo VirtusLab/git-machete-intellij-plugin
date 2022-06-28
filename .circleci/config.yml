@@ -98,11 +98,12 @@ jobs:
           name: Collect artifacts when an exception occurs
           # language=sh
           command: |
-            mkdir -p /exception-artifacts
-            for f in $(ls -d /tmp/ide-probe/screenshots/*/) ; do cd  $f/artifacts ; zip -r "/exception-artifacts/$(basename ${f}).zip" . ; done
+            for f in $(ls -d ~/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
+            mkdir -p ~/artifacts/zip
+            find ~/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts/zip
           when: on_fail
       - store_artifacts:
-          path: /exception-artifacts
+          path: ~/artifacts/zip
           destination: .
 
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.

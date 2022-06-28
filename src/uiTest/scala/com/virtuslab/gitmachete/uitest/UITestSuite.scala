@@ -3,7 +3,8 @@ package com.virtuslab.gitmachete.uitest
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import org.junit._
-import org.junit.runner.RunWith
+import org.junit.rules.TestWatcher
+import org.junit.runner.{Description, RunWith}
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.ProbeDriver
@@ -36,60 +37,73 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    // TODO (#830): try ... catch block to discover why the SocketTimeoutException occurs
-    try {
-      project.openGitMacheteTab()
-      overwriteMacheteFile(
-        """develop
-          |  non-existent
-          |    allow-ownership-link
-          |      update-icons
-          |      build-chain
-          |    non-existent-leaf
-          |  call-ws
-          |non-existent-root
-          |master
-          |  hotfix/add-trigger""".stripMargin
-      )
-      val managedBranches = project.refreshModelAndGetManagedBranches()
-      // Non-existent branches should be skipped while causing no error (only a low-severity notification).
-      Assert.assertEquals(
-        Seq(
-          "allow-ownership-link",
-          "build-chain",
-          "call-ws",
-          "develop",
-          "hotfix/add-trigger",
-          "master",
-          "update-icons"
-        ),
-        managedBranches.toSeq.sorted
-      )
-      project.toolbar.toggleListingCommits()
-      var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 7 branch rows + 11 commit rows
-      Assert.assertEquals(18, branchAndCommitRowsCount)
-
-      // Let's slide out a root branch now
-      project.contextMenu.openContextMenu("develop")
-      project.contextMenu.slideOut()
-      branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 5 branch rows (`develop` is no longer there) + 7 commit rows
-      // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-      Assert.assertEquals(13, branchAndCommitRowsCount)
-
-      project.checkoutBranch("master")
-      project.contextMenu.openContextMenu("call-ws")
-      project.contextMenu.slideOut()
-      branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-      // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
-      Assert.assertEquals(12, branchAndCommitRowsCount)
-    } catch {
-      case e: Exception =>
-        saveThreadDumpAndScreenshot()
-        throw e
+  val _saveThreadDumpWhenTestFailed = new TestWatcher() {
+    override protected def failed(e: Throwable, description: Description): Unit = {
+      val pid = probe.pid()
+      probe.screenshot("exception")
+      val threadStackTrace: String = Process("jstack " + pid) !!
+      val artifactDirectory =
+        System.getProperty("user.home") + "/artifacts/uiTest" + intelliJVersion.build + "/thread-dumps"
+      Files.createDirectories(Paths.get(artifactDirectory))
+      val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
+      val pw = new PrintWriter(file)
+      pw.write(threadStackTrace)
+      pw.close()
     }
+  }
+
+  @Rule
+  def saveThreadDumpWhenTestFailed: TestWatcher = _saveThreadDumpWhenTestFailed
+
+  @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
+    project.openGitMacheteTab()
+    overwriteMacheteFile(
+      """develop
+        |  non-existent
+        |    allow-ownership-link
+        |      update-icons
+        |      build-chain
+        |    non-existent-leaf
+        |  call-ws
+        |non-existent-root
+        |master
+        |  hotfix/add-trigger""".stripMargin
+    )
+    val managedBranches = project.refreshModelAndGetManagedBranches()
+    // Non-existent branches should be skipped while causing no error (only a low-severity notification).
+    Assert.assertEquals(
+      Seq(
+        "allow-ownership-link",
+        "build-chain",
+        "call-ws",
+        "develop",
+        "hotfix/add-trigger",
+        "master",
+        "update-icons"
+      ),
+      managedBranches.toSeq.sorted
+    )
+    project.toolbar.toggleListingCommits()
+    var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+    // 7 branch rows + 11 commit rows
+    Assert.assertEquals(18, branchAndCommitRowsCount)
+
+    // Let's slide out a root branch now
+    project.contextMenu.openContextMenu("develop")
+    project.contextMenu.slideOut()
+    project.acceptBranchDeletionOnSlideOut()
+    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+    // 5 branch rows (`develop` is no longer there) + 7 commit rows
+    // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
+    Assert.assertEquals(13, branchAndCommitRowsCount)
+
+    project.checkoutBranch("master")
+    project.contextMenu.openContextMenu("call-ws")
+    project.contextMenu.slideOut()
+    project.rejectBranchDeletionOnSlideOut()
+    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+    // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
+    Assert.assertEquals(12, branchAndCommitRowsCount)
   }
 
   @Test def discoverBranchLayout(): Unit = {
@@ -117,9 +131,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(0, branchRowsCount)
   }
 
-  @Test def fastForwardParentOfBranch(): Unit = {
-
-    // fastForwardParentOfBranch_parentIsCurrentBranch
+  @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
     project.openGitMacheteTab()
     project.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
@@ -204,18 +216,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
-  }
-
-  private def saveThreadDumpAndScreenshot(): Unit = {
-    val pid = intelliJ.probe.pid()
-    intelliJ.probe.screenshot("exception")
-    val threadStackTrace: String = Process("jstack " + pid) !!
-    val artifactDirectory = "/tmp/ide-probe/screenshots/uiTest" + intelliJVersion.build + "/artifacts"
-    Files.createDirectories(Paths.get(artifactDirectory))
-    val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
-    val pw = new PrintWriter(file)
-    pw.write(threadStackTrace)
-    pw.close()
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")

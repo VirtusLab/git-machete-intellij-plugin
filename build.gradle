@@ -179,6 +179,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
   repositories {
+    mavenLocal()
     mavenCentral()
   }
 
@@ -681,9 +682,7 @@ uiTestTargets.each { version ->
 
     if (project.hasProperty('headless')) {
       environment 'IDEPROBE_DISPLAY', 'xvfb'
-      // TODO (VirtusLab/ide-probe#195): remove the need to set these env variables
-      environment 'IDEPROBE_TEST_SUITE', 'uiTest' + version
-      environment 'IDEPROBE_TEST_CASE', 'artifacts'
+      environment 'IDEPROBE_SCREENSHOTS_DIR', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
     }
 
     testLogging {
