@@ -7,6 +7,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 
+import java.util.Collections;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -15,6 +17,7 @@ import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRepository;
+import git4idea.ui.branch.GitBranchCheckoutOperation;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -196,27 +199,10 @@ public abstract class BaseSlideInBranchBelowAction extends BaseGitMacheteReposit
           getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success.HTML").format(branchName)).queue();
 
     } else if (remoteBranch == null) {
+
       preSlideInRunnable = () -> {
-        // TODO (#772): switch to a non-reflective call to `GitBranchCheckoutOperation.perform(...)`
-        try {
-          // 2021.3 and later
-          val clazz = Class.forName("git4idea.ui.branch.GitBranchCheckoutOperation");
-          val constructor = clazz.getConstructor(Project.class, java.util.List.class);
-          val operation = constructor.newInstance(project, repositories);
-          val method = clazz.getMethod("perform", String.class, GitNewBranchOptions.class);
-          method.invoke(operation, startPoint, options);
-        } catch (ReflectiveOperationException e) {
-          // 2021.2 and earlier
-          try {
-            val clazz = git4idea.ui.branch.GitBranchActionsUtilKt.class;
-            val methodName = options.shouldCheckout() ? "checkoutOrReset" : "createNewBranch";
-            val method = clazz.getMethod(methodName, Project.class, java.util.List.class, String.class,
-                GitNewBranchOptions.class);
-            method.invoke(/* static methods */ null, project, repositories, startPoint, options);
-          } catch (ReflectiveOperationException e1) {
-            throw new RuntimeException(e1);
-          }
-        }
+        val gitBranchCheckoutOperation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
+        gitBranchCheckoutOperation.perform(startPoint, options);
       };
     }
 

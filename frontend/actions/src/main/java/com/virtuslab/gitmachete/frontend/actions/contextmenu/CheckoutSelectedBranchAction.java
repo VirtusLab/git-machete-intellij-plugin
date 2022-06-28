@@ -96,8 +96,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
   @UIThreadUnsafe
   public static void doCheckout(Project project, ProgressIndicator indicator, String branchToCheckoutName,
       GitRepository gitRepository) {
-    // TODO (#772): switch to constructor that does not take git once we no longer support 2021.2
-    GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, Git.getInstance(), indicator);
+    GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, indicator);
     new GitBranchWorker(project, Git.getInstance(), uiHandler)
         .checkout(branchToCheckoutName, /* detach */ false, Collections.singletonList(gitRepository));
   }
