@@ -44,7 +44,7 @@ pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-gra
 pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.8.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
-#      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2021.2).
+#      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2021.3).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10"
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.10.0"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
