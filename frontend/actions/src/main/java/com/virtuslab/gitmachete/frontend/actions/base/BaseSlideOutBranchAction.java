@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ModalityUiUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
@@ -30,7 +31,6 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -123,8 +123,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       val root = gitRepository.getRoot();
       val configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (configValueOption.isEmpty()) {
-        UiThreadExecutionCompat.invokeLaterIfNeeded(
-            ModalityState.NON_MODAL,
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project));
       } else if (configValueOption.isDefined()) {
         val shouldDelete = configValueOption.get();
