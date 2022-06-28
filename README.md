@@ -28,7 +28,7 @@ even when **multiple branches** are present in the repository
 🎯 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
 ⚙ It is compatible with all JetBrains products (including Android Studio since plugin version 0.9.0).
-The minimum required version is 2021.3.
+The minimum required version is 2022.1.
 
 
 🖥 For the console version, check [git-machete](https://github.com/VirtusLab/git-machete#git-machete).

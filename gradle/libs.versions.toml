@@ -44,8 +44,8 @@ jetbrains-grammarkit = "org.jetbrains.grammarkit:2021.2.2"
 jetbrains-intellij = "org.jetbrains.intellij:1.6.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
-#      which is 1.5.10 in our case (as this is the Kotlin version bundled into IntelliJ 2021.3).
-jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.5.10"
+#      which is 1.5.10 in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
+jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.6.20"
 spotless = "com.diffplug.spotless:6.7.2"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
 versions = "com.github.ben-manes.versions:0.42.0"
