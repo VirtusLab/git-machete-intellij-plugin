@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import java.nio.file.Path;
 
 import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.CustomLog;
@@ -58,18 +57,12 @@ public class RediscoverSuggester {
         getString("string.GitMachete.RediscoverSuggester.dialog.title"),
         getString("string.GitMachete.RediscoverSuggester.dialog.question"));
 
-    switch (yesNo.show()) {
-      case Messages.YES :
-        LOG.info("Enqueueing rediscover");
-        queueDiscoverOperation.run();
-        break;
-      case Messages.NO : // closing dialog goes here too
-        LOG.info("Rediscover declined from dialog");
-        macheteFilePath.setFileModificationDate(System.currentTimeMillis());
-        break;
-      default :
-        LOG.info("Unknown response message");
-        break;
+    if (yesNo.ask(gitRepository.getProject())) {
+      LOG.info("Enqueueing rediscover");
+      queueDiscoverOperation.run();
+    } else { // closing dialog goes here too
+      LOG.info("Rediscover declined from dialog");
+      macheteFilePath.setFileModificationDate(System.currentTimeMillis());
     }
   }
 

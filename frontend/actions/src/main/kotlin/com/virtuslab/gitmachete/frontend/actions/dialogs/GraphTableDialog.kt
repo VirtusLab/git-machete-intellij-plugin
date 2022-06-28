@@ -32,7 +32,7 @@ private constructor(
     title = windowTitle
     setOKButtonText(okButtonText)
     setOKButtonMnemonic(KeyEvent.VK_S)
-    getCancelAction().putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C)
+    cancelAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C)
   }
 
   companion object {
@@ -88,11 +88,9 @@ private constructor(
   }
 
   override fun createActions() =
-    if (cancelButtonVisible) {
-      arrayOf(getSaveAndEditAction(), getOKAction(), cancelAction)
-        .filterNotNull()
-        .toTypedArray()
-    } else arrayOf(getOKAction())
+      if (cancelButtonVisible)
+          arrayOf(getSaveAndEditAction(), okAction, cancelAction).filterNotNull().toTypedArray()
+      else arrayOf(okAction)
 
   private fun getSaveAndEditAction() =
     if (saveAndEditAction == null) null

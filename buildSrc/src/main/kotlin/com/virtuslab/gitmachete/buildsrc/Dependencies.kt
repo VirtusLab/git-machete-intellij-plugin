@@ -22,8 +22,7 @@ fun Project.applyKotlinConfig() {
 
   tasks.withType<KotlinCompile> {
     kotlinOptions {
-      // TODO (#785): revert this setting
-      // allWarningsAsErrors = true
+      allWarningsAsErrors = true
 
       // Supress the warnings about different version of Kotlin used for compilation
       // than bundled into the `buildTarget` version of IntelliJ.
