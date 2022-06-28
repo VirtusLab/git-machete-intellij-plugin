@@ -88,7 +88,7 @@ jobs:
           command: |
             set -x
             find . -name MANIFEST.MF | xargs head -100 || true
-            ./gradlew buildPlugin
+            ./gradlew --info buildPlugin
             find . -name MANIFEST.MF | xargs head -100 || true
       - store_artifacts:
           path: build/distributions/
@@ -107,7 +107,7 @@ jobs:
           name: Run UI tests against the latest stable IntelliJ version
           command: |
             find . -name MANIFEST.MF | xargs head -100 || true
-            ./gradlew -Pheadless -Pagainst=latestStable uiTest
+            ./gradlew --info -Pheadless -Pagainst=latestStable uiTest
             find . -name MANIFEST.MF | xargs head -100 || true
       - when:
           condition:
