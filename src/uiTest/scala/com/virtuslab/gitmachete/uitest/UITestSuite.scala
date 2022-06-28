@@ -91,7 +91,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // Let's slide out a root branch now
     project.contextMenu.openContextMenu("develop")
     project.contextMenu.slideOut()
-    project.acceptBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 5 branch rows (`develop` is no longer there) + 7 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
@@ -100,7 +99,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.checkoutBranch("master")
     project.contextMenu.openContextMenu("call-ws")
     project.contextMenu.slideOut()
-    project.rejectBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
     Assert.assertEquals(12, branchAndCommitRowsCount)
