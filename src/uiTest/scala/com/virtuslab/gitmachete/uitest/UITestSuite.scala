@@ -131,7 +131,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(0, branchRowsCount)
   }
 
-  @Test def fastForwardParentOfBranch_parentIsCurrentBranch(): Unit = {
+  @Test def fastForwardParentOfBranch(): Unit = {
+
+    // fastForwardParentOfBranch_parentIsCurrentBranch
     project.openGitMacheteTab()
     project.checkoutBranch("master")
     // `master` is the parent of `hotfix/add-trigger`. Let's fast-forward `master` to match `hotfix/add-trigger`.
