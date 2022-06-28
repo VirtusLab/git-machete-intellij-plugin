@@ -28,12 +28,12 @@ jobs:
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--
+            - gradle-deps-v25-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-
+            - gradle-deps-v25-{{ checksum "gradle/libs.versions.toml" }}-
             # As a last resort, take any available cache entry.
-            - gradle-deps-v23-
+            - gradle-deps-v25-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -45,7 +45,9 @@ jobs:
           name: Compile production code
           # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
           # Having 5 or 6 workers doesn't seem to increase compilation time significantly, as compared to just 4.
-          command: ./gradlew --max-workers=4 compileJava compileKotlin
+          command: |
+            ./gradlew --max-workers=4 compileJava compileKotlin
+            find . -name MANIFEST.MF | xargs head -100 || true
       - run:
           name: Run post-compile checks
           command: ./scripts/verify-no-string-interpolation-leftovers
@@ -83,13 +85,17 @@ jobs:
 
       - run:
           name: Build plugin artifact
-          command: ./gradlew buildPlugin
+          command: |
+            set -x
+            find . -name MANIFEST.MF | xargs head -100 || true
+            ./gradlew buildPlugin
+            find . -name MANIFEST.MF | xargs head -100 || true
       - store_artifacts:
           path: build/distributions/
           destination: .
-      - run:
-          name: Verify plugin artifact contents
-          command: ./scripts/verify-artifact-contents
+#      - run:
+#          name: Verify plugin artifact contents
+#          command: ./scripts/verify-artifact-contents
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./gradlew runPluginVerifier
@@ -99,7 +105,10 @@ jobs:
           command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
+          command: |
+            find . -name MANIFEST.MF | xargs head -100 || true
+            ./gradlew -Pheadless -Pagainst=latestStable uiTest
+            find . -name MANIFEST.MF | xargs head -100 || true
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -151,7 +160,7 @@ jobs:
                 #   when there are multiple matches, the most recent match will be used
                 # This guarantees that `restore_cache`, out of the keys matching by checksum and branch,
                 # will pick up the most recently uploaded one.
-                key: gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--{{ .BuildNum }}
+                key: gradle-deps-v25-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--{{ .BuildNum }}
 
       - when:
           condition:
