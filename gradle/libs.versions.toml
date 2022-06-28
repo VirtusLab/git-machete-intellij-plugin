@@ -47,5 +47,6 @@ jetbrains-intellij = "org.jetbrains.intellij:1.6.0"
 #      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
 jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.4.0"
 spotless = "com.diffplug.spotless:6.7.2"
+taskTree = "com.dorongold.task-tree:2.1.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
 versions = "com.github.ben-manes.versions:0.42.0"

@@ -9,6 +9,7 @@ plugins {
   id 'org.gradle.java-library'
   id 'org.gradle.scala'
 
+  alias libs.plugins.taskTree
   alias libs.plugins.versions
   alias libs.plugins.versionCatalogUpdate
 
