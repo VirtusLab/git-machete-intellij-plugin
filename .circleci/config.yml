@@ -28,12 +28,12 @@ jobs:
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+            - gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-
+            - gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-
             # As a last resort, take any available cache entry.
-            - gradle-deps-v22-
+            - gradle-deps-v23-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -140,7 +140,18 @@ jobs:
                   rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
             - save_cache:
                 paths: [ ~/.gradle/ ]
-                key: gradle-deps-v22-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+                # As per https://circleci.com/docs/2.0/configuration-reference#savecache, cache keys are immutable.
+                # Given our current way of generating the key, unless gradle/libs.versions.toml changes,
+                # for each N-th (N > 1) build of branch X, the cache from the first build of the X is going to be taken.
+                # This is suboptimal as the cache from the *most recent* build is likely to be most useful.
+                # Let's append build number to the key to ensure cache is uploaded on every build
+                # (and not only for the first occurrence of the checksum+branch pair).
+                # This brings a small penalty as more time is spent uploading the cache... but still probably pays off.
+                # Now as per https://circleci.com/docs/2.0/configuration-reference#restorecache:
+                #   when there are multiple matches, the most recent match will be used
+                # This guarantees that `restore_cache`, out of the keys matching by checksum and branch,
+                # will pick up the most recently uploaded one.
+                key: gradle-deps-v23-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}--{{ .BuildNum }}
 
       - when:
           condition:
