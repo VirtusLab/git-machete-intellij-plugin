@@ -1,8 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs
 
-import com.intellij.dvcs.DvcsUtil
 import com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
@@ -17,12 +18,12 @@ import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import git4idea.branch.GitBranchUtil
 import git4idea.commands.Git
 import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
 import git4idea.merge.GitMergeDialog
 import git4idea.repo.GitRepository
-import git4idea.repo.GitRepositoryManager
 import git4idea.ui.ComboBoxWithAutoCompletion
 import java.awt.Insets
 import java.util.regex.Pattern
@@ -30,9 +31,9 @@ import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.apply
-import net.miginfocom.layout.AC
-import net.miginfocom.layout.CC
-import net.miginfocom.layout.LC
+import net.miginfocom.layout.AC as AxisConstraint
+import net.miginfocom.layout.CC as ComponentConstraint
+import net.miginfocom.layout.LC as LayoutConstraint
 import net.miginfocom.swing.MigLayout
 
 internal const val GIT_REF_PROTOTYPE_VALUE = "origin/long-enough-branch-name"
@@ -45,9 +46,6 @@ class SlideInDialog(
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   val rootNames = branchLayout.rootEntries.map { it.name }
-
-  val repositories =
-      DvcsUtil.sortRepositories(GitRepositoryManager.getInstance(project).repositories)
 
   var unmergedBranches = emptyList<String>()
 
@@ -66,6 +64,7 @@ class SlideInDialog(
     title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
     setOKButtonText(
         getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button"))
+    updateBranchesField()
     setOKButtonMnemonic('S'.code)
     init()
     rerender()
@@ -116,7 +115,6 @@ class SlideInDialog(
 
     val handler =
         GitLineHandler(project, root, GitCommand.BRANCH).apply {
-          // t0d0: no merged or merged too?
           addParameters("--no-color", "-a", "--no-merged")
         }
     try {
@@ -140,8 +138,6 @@ class SlideInDialog(
     return result
   }
 
-  // t0d0: now validation triggers after failed slide-out attempt - ensure it works since the
-  // beginning (slide in root case)
   private fun validateBranchName(): ValidationInfo? {
     val insertedText = branchField.getText()
 
@@ -181,11 +177,21 @@ class SlideInDialog(
     return null
   }
 
+  private fun updateBranchesField() {
+    val branches =
+        GitBranchUtil.sortBranchNames(gitRepository.branches.localBranches.map { it.name })
+
+    val model = branchField.model as MutableCollectionComboBoxModel
+    model.update(branches)
+
+    branchField.selectAll()
+  }
+
   private fun createPanel() =
       JPanel().apply {
-        layout = MigLayout(LC().insets("0").hideMode(3), AC().grow())
+        layout = MigLayout(LayoutConstraint().insets("0").hideMode(3), AxisConstraint().grow())
 
-        add(commandPanel, CC().growX())
+        add(commandPanel, ComponentConstraint().growX())
       }
 
   private fun createCommandPanel(): JPanel {
@@ -193,25 +199,26 @@ class SlideInDialog(
     return JPanel().apply {
       layout =
           MigLayout(
-              LC().fillX().insets("0").gridGap("0", "0").noVisualPadding(), AC().grow(100f, 1))
+              LayoutConstraint().fillX().insets("0").gridGap("0", "0").noVisualPadding(),
+              AxisConstraint().grow(100f, 1))
 
       add(
           JLabel(
               getString(
                   "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")),
-          CC().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
+          ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
 
       add(
           JLabel("<html><b>$parentName</b></html>"),
-          CC().minWidth("${JBUI.scale(300)}px").growX().wrap())
+          ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
 
       add(
           JLabel(
               getString(
                   "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name")),
-          CC().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
+          ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"))
 
-      add(branchField, CC().minWidth("${JBUI.scale(300)}px").growX().wrap())
+      add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
 
       add(reattachCheckbox)
     }
@@ -225,6 +232,12 @@ class SlideInDialog(
                 getString(
                     "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.placeholder"))
             setUI(DarculaComboBoxUI(0f, Insets(1, 0, 1, 0), false))
+            addDocumentListener(
+                object : DocumentListener {
+                  override fun documentChanged(event: DocumentEvent) {
+                    startTrackingValidation()
+                  }
+                })
           }
 
   private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {

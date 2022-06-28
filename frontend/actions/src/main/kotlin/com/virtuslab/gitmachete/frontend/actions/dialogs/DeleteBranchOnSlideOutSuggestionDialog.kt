@@ -28,7 +28,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
 
   init {
     title = getString("action.GitMachete.BaseSlideOutBranchAction.deletion-suggestion-dialog.title")
-    setResizable(false)
+    isResizable = false
     super.init()
   }
 

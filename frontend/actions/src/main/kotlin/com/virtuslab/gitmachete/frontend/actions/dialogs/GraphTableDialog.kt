@@ -32,7 +32,7 @@ private constructor(
     title = windowTitle
     setOKButtonText(okButtonText)
     setOKButtonMnemonic(KeyEvent.VK_S)
-    getCancelAction().putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C)
+    cancelAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C)
   }
 
   companion object {

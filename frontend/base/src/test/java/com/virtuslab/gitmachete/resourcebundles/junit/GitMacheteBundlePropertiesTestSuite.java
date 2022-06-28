@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.resourcebundles.junit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.*;
 import java.util.Properties;
@@ -27,5 +28,10 @@ public class GitMacheteBundlePropertiesTestSuite {
           assertEquals("HTML property should end with </html>", "</html>", value.substring(value.length() - 7));
           assertEquals("HTML property key should have a .HTML suffix", ".HTML", key.substring(key.length() - 5));
         });
+
+    property.entrySet().stream()
+        .filter(prop -> ((String) prop.getValue()).contains("..."))
+        .forEach(t -> fail("Properties should use ellipsis (\\u2026) instead of three dots"));
+
   }
 }
