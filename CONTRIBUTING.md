@@ -122,6 +122,15 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
+### macOS
+It is not possible to run `uiTest` gradle task on macOS systems directly via `./gradlew`.
+You can run tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.2.0` image) or using virtual machine.
+Sample configuration for launching docker container is shown below.
+```shell
+docker run -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/home/git-machete-intellij-plugin -v ~/.gradle/caches:/root/.gradle/caches -w /home/git-machete-intellij-plugin gitmachete/intellij-plugin-ci:6.2.0 ./gradlew -Pagainst=2021.2 -Pheadless uiTest
+```
+
+
 
 ## Update version catalog
 
