@@ -341,6 +341,11 @@ allprojects {
       // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
       // but don't want the associated tasks to be available; they should only be available in the root project.
       tasksAfter.each { it.enabled = false }
+      // The only task (as of gradle-intellij-plugin v1.7.0, at least) that needs to be enabled in all IntelliJ-aware modules
+      // is `classpathIndexCleanup`, to avoid caching issues caused by `classpath.index` file
+      // showing up in build/classes/ and build/resources/ directories.
+      // See https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 for details.
+      classpathIndexCleanup.enabled = true
 
       checkerFramework {
         // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,

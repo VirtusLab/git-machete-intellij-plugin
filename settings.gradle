@@ -1,4 +1,8 @@
 pluginManagement {
+  repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    gradlePluginPortal()
+  }
   dependencyResolutionManagement {
     repositories {
       // For nl.littlerobots.version-catalog-update
