@@ -124,10 +124,16 @@ and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intel
 
 ### macOS
 It is not possible to run `uiTest` gradle task on macOS systems directly via `./gradlew`.
-You can run tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.2.0` image) or using virtual machine.
+You can run ui tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.2.1` image) or using virtual machine.
 Sample configuration for launching docker container is shown below.
 ```shell
-docker run -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/root/git-machete-intellij-plugin -v ~/.gradle:/root/.gradle -w /root/git-machete-intellij-plugin gitmachete/intellij-plugin-ci:6.2.0 ./gradlew -Pagainst=2021.2 -Pheadless uiTest
+docker run --rm -u user \
+      -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/home/user/git-machete-intellij-plugin \
+      -v ~/.gradle:/home/user/.gradle \
+      -v /tmp/ide-probe/cache:/tmp/ide-probe/cache \
+      -w /home/user/git-machete-intellij-plugin \
+      gitmachete/intellij-plugin-ci:6.2.1 \
+      ./gradlew -Pagainst=2021.2 -Pheadless uiTest
 ```
 
 

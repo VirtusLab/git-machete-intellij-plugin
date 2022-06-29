@@ -36,6 +36,8 @@ RUN \
   apt-get install --no-install-recommends -y libxtst6 xvfb xauth x11-apps imagemagick zip; \
   `# libraries needed by JCEF` \
   apt-get install --no-install-recommends -y libatk1.0-0 libatk-bridge2.0-0 libgbm1 libglib2.0 libxcomposite1 libxkbcommon0 libxrandr2; \
+  useradd -m user; \
+  passwd -d user; \
   rm -rf /var/lib/apt/lists/*
 
 # Secondary packages needed in just one (or few) steps of the pipeline:
