@@ -47,9 +47,11 @@ function create_repo() {
   # `--local` (per-repository) is the default when writing git config... let's put it here for clarity anyway.
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"
-  # Just to cover the scenario when on a developer machine,
+  # There might be a rare case when, on a developer machine,
   # `git commit` by default (as per `git config --global`) requires signing,
-  # which in turn requires an action from user (like touching a YubiKey).
+  # and signing in turn requires an action from user (like touching a YubiKey).
+  # To make sure the tests can run automatically in such scenario,
+  # let's disable automatic commit signing on a per-repository level.
   git config --local commit.gpgSign false
   cd -
 }
