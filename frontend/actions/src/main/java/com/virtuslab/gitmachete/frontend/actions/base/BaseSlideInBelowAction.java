@@ -90,11 +90,13 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return;
     }
 
-    val slideInOptions = new SlideInDialog(project, branchLayout, parentName).showAndGetBranchName();
-    if (slideInOptions == null) {
+    val slideInDialog = new SlideInDialog(project, branchLayout, parentName, gitRepository);
+    if (!slideInDialog.showAndGet()) {
       log().debug("Options of branch to slide in is null: most likely the action has been canceled from slide-in dialog");
       return;
     }
+
+    val slideInOptions = slideInDialog.getSlideInOptions();
 
     if (parentName.equals(slideInOptions.getName())) {
       // @formatter:off
