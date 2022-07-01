@@ -1,6 +1,6 @@
 buildscript {
   dependencies {
-    classpath group: 'org.jsoup', name: 'jsoup', version: '1.15.1'
+    classpath libs.jsoup
   }
 }
 
@@ -9,19 +9,17 @@ plugins {
   id 'org.gradle.java-library'
   id 'org.gradle.scala'
 
-  id 'com.github.ben-manes.versions' version '0.42.0'
+  alias libs.plugins.taskTree
+  alias libs.plugins.versions
+  alias libs.plugins.versionCatalogUpdate
 
-  id 'com.diffplug.spotless' version '6.6.1' apply false
-  id 'io.freefair.aspectj.post-compile-weaving' version '6.4.3' apply false
-  id 'io.freefair.lombok' version '6.4.3' apply false
-  id 'org.ajoberstar.grgit' version '5.0.0' apply false
-  id 'org.checkerframework' version '0.6.11' apply false
-  id 'org.jetbrains.grammarkit' version '2021.2.2' apply false
-  id 'org.jetbrains.intellij' version '1.6.0' apply false
-  // As per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
-  //   If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version
-  // which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
-  id 'org.jetbrains.kotlin.jvm' version '1.4.0' apply false
+  alias libs.plugins.aspectj.postCompileWeaving apply false
+  alias libs.plugins.checkerFramework apply false
+  alias libs.plugins.grgit apply false
+  alias libs.plugins.jetbrains.grammarkit apply false
+  alias libs.plugins.jetbrains.intellij apply false
+  alias libs.plugins.jetbrains.kotlin apply false
+  alias libs.plugins.spotless apply false
 }
 
 if (JavaVersion.current() != JavaVersion.VERSION_11) {
@@ -30,24 +28,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_11) {
 
 ext {
   javaMajorVersion = JavaVersion.VERSION_11
-  scalaMajorVersion = '2.13'
-
-  archUnitVersion = '0.23.1'
-  betterStringsVersion = '0.5'
-  checkerFrameworkVersion = '3.22.1'
-  checkstyleToolVersion = '8.33'
-  commonsIOVersion = '2.11.0'
-  ideProbeVersion = '0.31.0'
-  jcabiAspectsVersion = '0.23.2'
-  jetbrainsAnnotationsVersion = '23.0.0'
-  jgitVersion = '6.1.0.202203080745-r'
-  junitVersion = '4.13.2'
-  lombokVersion = '1.18.24'
-  powerMockVersion = '2.0.9'
-  reflectionsVersion = '0.10.2'
-  slf4jLambdaApiVersion = '0.1'
-  slf4jVersion = '1.7.36'
-  vavrVersion = '0.10.4'
 
   intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/snapshots/"
   Properties intellijVersionsProp = intellijVersionsProperties()
@@ -83,7 +63,6 @@ ext {
   // This values can't be named in the same way as their corresponding properties to avoid a name clash.
   jvmArgsForJavaCompilation = project.properties.get('compileJavaJvmArgs')?.tokenize(' ')
   shouldRunAllCheckers = isCI || project.hasProperty('runAllCheckers')
-  shouldUseDelombok = project.hasProperty('useDelombok')
 }
 
 static String buildNumberToIntellijVersion(String buildNumber) {
@@ -201,6 +180,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
   repositories {
+    mavenLocal()
     mavenCentral()
   }
 
@@ -214,9 +194,8 @@ allprojects {
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
   dependencies {
-    def betterStringsCoords = [ group: 'com.antkorwin', name: 'better-strings', version: betterStringsVersion ]
-    annotationProcessor(betterStringsCoords)
-    testAnnotationProcessor(betterStringsCoords)
+    annotationProcessor libs.betterStrings
+    testAnnotationProcessor libs.betterStrings
   }
 
   tasks.withType(JavaCompile) {
@@ -323,28 +302,17 @@ allprojects {
       '-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation',
     ]
     dependencies {
-      compileOnly      group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
-      checkerFramework group: 'org.checkerframework', name: 'checker',      version: checkerFrameworkVersion
+      compileOnly      libs.checker.qual
+      checkerFramework libs.checker
     }
   }
 
 
   apply plugin: 'org.gradle.checkstyle'
   checkstyle {
-    toolVersion checkstyleToolVersion
-
     checkstyleTest.enabled = false
 
     configProperties = [rootCheckstyleConfigDir: "$rootDir/config/checkstyle"]
-  }
-
-
-  if (shouldUseDelombok) {
-    apply plugin: 'io.freefair.lombok'
-    lombok {
-      version = lombokVersion
-      generateLombokConfig.enabled = false
-    }
   }
 
 
@@ -362,22 +330,17 @@ allprojects {
 
   ext {
     addIntellijToCompileClasspath = { Map params ->
+      def tasksBefore = []
+      tasksBefore.addAll(project.tasks)
+
       apply plugin: 'org.jetbrains.intellij'
 
-      // For the frontend subprojects we only use the Intellij plugin to provide dependencies,
+      def tasksAfter = []
+      tasksAfter.addAll(project.tasks)
+      tasksAfter.removeAll(tasksBefore)
+      // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
       // but don't want the associated tasks to be available; they should only be available in the root project.
-      buildPlugin.enabled = false
-      buildSearchableOptions.enabled = false
-      downloadRobotServerPlugin.enabled = false
-      jarSearchableOptions.enabled = false
-      patchPluginXml.enabled = false
-      prepareSandbox.enabled = false
-      prepareTestingSandbox.enabled = false
-      prepareUiTestingSandbox.enabled = false
-      publishPlugin.enabled = false
-      runIde.enabled = false
-      runIdeForUiTests.enabled = false
-      verifyPlugin.enabled = false
+      tasksAfter.each { it.enabled = false }
 
       checkerFramework {
         // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
@@ -407,12 +370,13 @@ allprojects {
     }
 
     applyI18nFormatterAndTaintingCheckers = { ->
-      // I18nFormatterChecker, like GuiEffectChecker and NullnessChecker, is enabled
+      // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
       // regardless of `CI` env var/`runAllCheckers` Gradle project property.
       checkerFramework {
         checkers += [
-                'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
-                'org.checkerframework.checker.tainting.TaintingChecker']
+          'org.checkerframework.checker.i18nformatter.I18nFormatterChecker',
+          'org.checkerframework.checker.tainting.TaintingChecker'
+        ]
         extraJavacArgs += '-Abundlenames=GitMacheteBundle'
       }
 
@@ -454,19 +418,25 @@ allprojects {
 
     commonsIO = { ->
       dependencies {
-        implementation group: 'commons-io', name: 'commons-io', version: commonsIOVersion
+        implementation libs.commonsIO
       }
     }
 
     ideProbe = { ->
       repositories {
+        // Needed for com.intellij.remoterobot:remote-robot
         maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies' }
       }
 
       dependencies {
+        // Note that we can't easily use Gradle's `testFixtures` configuration here
+        // as it doesn't seem to expose testFixtures resources in test classpath correctly.
         uiTestImplementation project(':testCommon').sourceSets.test.output
-        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "junit-driver_$scalaMajorVersion", version: ideProbeVersion
-        uiTestImplementation group: 'org.virtuslab.ideprobe', name: "robot-driver_$scalaMajorVersion", version: ideProbeVersion
+        uiTestImplementation libs.bundles.ideProbe
+        // This is technically redundant (both since ide-probe pulls in scala-library anyway,
+        // and since ide-probe is meant to use in src/uiTest code, not src/test code),
+        // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
+        testImplementation libs.scala.library
       }
     }
 
@@ -479,53 +449,47 @@ allprojects {
       }
 
       dependencies {
-        aspect group: 'com.jcabi', name: 'jcabi-aspects', version: jcabiAspectsVersion
+        aspect libs.jcabi.aspects
       }
     }
 
     jetbrainsAnnotations = { ->
       dependencies {
-        compileOnly     group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
-        testCompileOnly group: 'org.jetbrains', name: 'annotations', version: jetbrainsAnnotationsVersion
+        compileOnly     libs.jetbrains.annotations
+        testCompileOnly libs.jetbrains.annotations
       }
     }
 
     jgit = { ->
       dependencies {
-        implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: jgitVersion
+        implementation libs.jgit
       }
     }
 
     junit = { ->
       dependencies {
-        testImplementation group: 'junit', name: 'junit', version: junitVersion
+        testImplementation libs.junit
       }
     }
 
     lombok = { ->
-      // If delombok is turned on, then Lombok is provided for each subproject via Gradle plugin instead.
-      // Applying Lombok plugin conditionally from within this `ext` block turned out to be troublesome.
-      if (!shouldUseDelombok) {
-        dependencies {
-          def lombokCoords = [group: 'org.projectlombok', name: 'lombok', version: lombokVersion]
-          compileOnly lombokCoords
-          annotationProcessor lombokCoords
-          testCompileOnly lombokCoords
-          testAnnotationProcessor lombokCoords
-        }
+      dependencies {
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
+        testCompileOnly libs.lombok
+        testAnnotationProcessor libs.lombok
       }
     }
 
     powerMock = { ->
       dependencies {
-        testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
-        testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: powerMockVersion
+        testImplementation libs.bundles.powerMock
       }
     }
 
     reflections = { ->
       dependencies {
-        implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
+        implementation libs.reflections
       }
     }
 
@@ -535,7 +499,7 @@ allprojects {
         // also in debug messages, but this plugin allows us to use lambdas that generate log messages
         // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
         // (i.e. when the given log level is active)
-        implementation group: 'kr.pe.kwonnam.slf4j-lambda', name: 'slf4j-lambda-core', version: slf4jLambdaApiVersion
+        implementation libs.slf4j.lambda
       }
     }
 
@@ -549,7 +513,7 @@ allprojects {
       // The below dependency provides both slf4j-api and an implementation, both already in the same version.
       // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to `runtimeClasspath` configuration.
       dependencies {
-        testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+        testRuntimeOnly libs.slf4j.simple
       }
     }
 
@@ -557,7 +521,7 @@ allprojects {
       dependencies {
         // Unlike any other current dependency, Vavr classes are very likely to end up in binary interface of the depending subproject,
         // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
-        api group: 'io.vavr', name: 'vavr', version: vavrVersion
+        api libs.vavr
       }
     }
   }
@@ -615,9 +579,9 @@ if (ciBranch == 'master') {
 
 dependencies {
   // Checker is needed on root project runtime (not just compile-time) classpath for ArchUnit tests
-  testImplementation group: 'org.checkerframework', name: 'checker-qual', version: checkerFrameworkVersion
+  testImplementation libs.checker.qual
 
-  testImplementation group: 'com.tngtech.archunit', name: 'archunit', version: archUnitVersion
+  testImplementation libs.archunit
 }
 
 
@@ -694,16 +658,17 @@ uiTestTargets.each { version ->
     group = 'verification'
 
     testClassesDirs = uiTest.output.classesDirs
-    classpath = sourceSets.main.output + configurations.uiTestRuntimeClasspath + uiTest.output
-    // Let's keep the XML test results in a per-version directory, this makes things easier in the CI
-    // where the UI tests are executed under a couple different IDE versions one after another.
-    // The results in the default directory (build/test-results/uiTest) would get overwritten which each subsequent test.
-    reports.junitXml.destination = file("$buildDir/test-results/uiTest/${version}")
+    classpath = configurations.uiTestRuntimeClasspath + uiTest.output
 
     dependsOn ':buildPlugin'
 
     systemProperty 'ui-test.intellij.version', version
     systemProperty 'ui-test.plugin.path', buildPlugin.outputs.files[0].path
+
+    // TODO (#945): caching of UI test results doesn't work in the CI anyway
+    if (!isCI) {
+      outputs.upToDateWhen { false }
+    }
 
     if (project.properties.tests) {
       filter {
@@ -713,9 +678,7 @@ uiTestTargets.each { version ->
 
     if (project.hasProperty('headless')) {
       environment 'IDEPROBE_DISPLAY', 'xvfb'
-      // TODO (VirtusLab/ide-probe#195): remove the need to set these env variables
-      environment 'IDEPROBE_TEST_SUITE', 'uiTest' + version
-      environment 'IDEPROBE_TEST_CASE', 'artifacts'
+      environment 'IDEPROBE_SCREENSHOTS_DIR', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
     }
 
     testLogging {

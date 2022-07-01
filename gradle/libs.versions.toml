@@ -1,0 +1,52 @@
+[versions]
+checker = "3.22.2"
+ideProbe = "0.34.0"
+powerMock = "2.0.9"
+
+[libraries]
+archunit = "com.tngtech.archunit:archunit:0.23.1"
+betterStrings = "com.antkorwin:better-strings:0.5"
+checker = { module = "org.checkerframework:checker", version.ref = "checker" }
+checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
+commonsIO = "commons-io:commons-io:2.11.0"
+ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
+ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
+jcabi-aspects = "com.jcabi:jcabi-aspects:0.23.2"
+jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
+jsoup = "org.jsoup:jsoup:1.15.1"
+junit = "junit:junit:4.13.2"
+lombok = "org.projectlombok:lombok:1.18.24"
+powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
+powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powerMock" }
+reflections = "org.reflections:reflections:0.10.2"
+scala-library = "org.scala-lang:scala-library:2.13.8"
+slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
+slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
+vavr = "io.vavr:vavr:0.10.4"
+
+[bundles]
+ideProbe = [
+    "ideProbe-junitDriver",
+    "ideProbe-robotDriver",
+]
+powerMock = [
+    "powerMock-apiMockito2",
+    "powerMock-moduleJunit4",
+]
+
+[plugins]
+# @pin because 6.5.x leads to a build error: https://github.com/freefair/gradle-plugins/issues/554
+aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.4.3.1"
+checkerFramework = "org.checkerframework:0.6.13"
+grgit = "org.ajoberstar.grgit:5.0.0"
+jetbrains-grammarkit = "org.jetbrains.grammarkit:2021.2.2"
+jetbrains-intellij = "org.jetbrains.intellij:1.6.0"
+# @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
+#      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
+#      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
+jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.4.0"
+spotless = "com.diffplug.spotless:6.7.2"
+taskTree = "com.dorongold.task-tree:2.1.0"
+versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
+versions = "com.github.ben-manes.versions:0.42.0"

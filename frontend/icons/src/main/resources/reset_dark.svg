@@ -1,36 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   id="svg4"
-   version="1.1"
-   viewBox="0 0 16 16"
-   height="16"
-   width="16">
-  <metadata
-     id="metadata10">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs8" />
-  <path
-     style="fill:#afb1b3"
-     d="m 8.0017097,7.649718 c -1.7670982,0 -3.367489,0.66 -4.6011235,1.733333 L 1,6.983051 v 6 H 7.0014654 L 4.5875426,10.569718 c 0.926893,-0.773334 2.1071812,-1.253334 3.4141671,-1.253334 2.3605763,0 4.3677333,1.54 5.0679043,3.666667 l 1.580386,-0.52 C 13.723107,9.669718 11.102467,7.649718 8.0017097,7.649718 Z"
-     id="path4779" />
-  <polygon
-     style="fill:#f0a732"
-     points="13.302,2.685 9.69,16.152 8.744,9.582 3.302,12.728 3.365,2.731 7.635,0.266 6.89,6.387 "
-     transform="matrix(0.63429096,0.36620806,-0.36620806,0.63429096,7.6697716,-2.3871474)"
-     id="polygon4790" />
+<svg xmlns="http://www.w3.org/2000/svg" id="svg4" version="1.1" viewBox="0 0 16 16" height="16" width="16">
+    <path style="fill:#afb1b3"
+          d="m 8.0017097,7.649718 c -1.7670982,0 -3.367489,0.66 -4.6011235,1.733333 L 1,6.983051 v 6 H 7.0014654 L 4.5875426,10.569718 c 0.926893,-0.773334 2.1071812,-1.253334 3.4141671,-1.253334 2.3605763,0 4.3677333,1.54 5.0679043,3.666667 l 1.580386,-0.52 C 13.723107,9.669718 11.102467,7.649718 8.0017097,7.649718 Z"
+          id="path4779"/>
+    <polygon style="fill:#f0a732"
+             points="13.302,2.685 9.69,16.152 8.744,9.582 3.302,12.728 3.365,2.731 7.635,0.266 6.89,6.387 "
+             transform="matrix(0.63429096,0.36620806,-0.36620806,0.63429096,7.6697716,-2.3871474)" id="polygon4790"/>
 </svg>

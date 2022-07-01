@@ -14,6 +14,8 @@ dependencies {
   api project(':backend:api')
   api project(':branchLayout:api')
 
+  // Note that we can't easily use Gradle's `testFixtures` configuration here
+  // as it doesn't seem to expose testFixtures resources in test classpath correctly.
   testImplementation project(':testCommon').sourceSets.test.output
   testRuntimeOnly project(':branchLayout:impl')
   testRuntimeOnly project(':gitCore:jGit')

@@ -21,6 +21,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    * Plugin DevKit
    * Properties
    * Shell Script (also: agree to enable Shellcheck when asked)
+   * TOML
    * YAML
 
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
@@ -52,7 +53,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 From the main project folder, run the following commands:
 
-```
+```shell
 git config --local include.path ../.gitconfig
 ln -s ../../scripts/git-hooks/machete-status-branch .git/hooks/machete-status-branch
 ln -s ../../scripts/git-hooks/post-commit .git/hooks/post-commit
@@ -93,9 +94,6 @@ To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
 
-By default, Lombok's annotation processor runs on the fly and Delomboked sources are **not** saved to <subproject>/build/delombok/...<br/>
-To enable Delombok, set `useDelombok` Gradle project property (e.g. `./gradlew -PuseDelombok build`).
-
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
 set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
@@ -117,7 +115,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 
 ## Run UI tests
 
-```
+```shell
 ./gradlew [-Pagainst=<e.g. 2021.2>] [-Pheadless] [-Ptests=<e.g. toggle>] uiTest
 ```
 
@@ -125,9 +123,15 @@ See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
 
-## Check dependency updates
+## Update version catalog
 
-`./gradlew dependencyUpdates`
+```shell
+./gradlew versionCatalogUpdate
+```
+
+See [version catalog in Gradle docs](https://docs.gradle.org/current/userguide/platforms.html)
+and [version catalog update plugin](https://github.com/littlerobots/version-catalog-update-plugin)
+for more details.
 
 
 ## Generate and/or install snapshot build of the plugin
@@ -192,7 +196,7 @@ So far created UI conventions:
 
 To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
 
-```
+```shell
 docker build -t gitmachete/intellij-plugin-ci:SEMANTIC-VERSION - < Dockerfile
 docker push gitmachete/intellij-plugin-ci:SEMANTIC-VERSION
 ```

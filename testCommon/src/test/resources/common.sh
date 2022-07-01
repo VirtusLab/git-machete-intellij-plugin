@@ -36,7 +36,7 @@ function create_repo() {
   mkdir -p $dir
   cd $dir
   shift
-  git init $@
+  git init "$@"
   # TODO (#760): Enable running machete-status-branch hook in tests on Windows
   if [ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" && "$(expr substr $(uname -s) 1 10)" != "MINGW32_NT" ]; then
     mkdir -p .git/hooks/
@@ -44,8 +44,15 @@ function create_repo() {
     echo "$status_branch_hook" > $hook_path
     chmod +x $hook_path
   fi
+  # `--local` (per-repository) is the default when writing git config... let's put it here for clarity anyway.
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"
+  # There might be a rare case when, on a developer machine,
+  # `git commit` by default (as per `git config --global`) requires signing,
+  # and signing in turn requires an action from user (like touching a YubiKey).
+  # To make sure the tests can run automatically in such scenario,
+  # let's disable automatic commit signing on a per-repository level.
+  git config --local commit.gpgSign false
   cd -
 }
 
