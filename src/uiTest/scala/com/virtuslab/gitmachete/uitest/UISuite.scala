@@ -27,4 +27,9 @@ trait UISuite extends RunningIntelliJPerSuite with IdeProbeFixture with RunningI
     intelliJ.ide.closeOpenedProjects()
   }
 
+  def doAndAwait(action: => Unit): Unit = {
+    action
+    intelliJ.probe.await()
+  }
+
 }

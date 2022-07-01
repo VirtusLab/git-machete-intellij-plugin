@@ -26,9 +26,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Before
   def beforeEach(): Unit = {
-    probe.openProject(rootDirectoryPath)
-    project.configure()
-    probe.await()
+    doAndAwait {
+      probe.openProject(rootDirectoryPath)
+      project.configure()
+    }
   }
 
   @After
@@ -97,9 +98,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
-    project.openGitMacheteTab()
-    project.acceptSuggestedBranchLayout()
-    probe.await()
+    doAndAwait {
+      project.openGitMacheteTab()
+      project.acceptSuggestedBranchLayout()
+    }
     var branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(8, branchRowsCount)
     deleteMacheteFile()

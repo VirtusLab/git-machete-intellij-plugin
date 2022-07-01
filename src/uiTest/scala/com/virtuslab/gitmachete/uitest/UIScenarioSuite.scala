@@ -19,9 +19,10 @@ class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_
 
   @Before
   def beforeEach(): Unit = {
-    probe.openProject(rootDirectoryPath)
-    project.configure()
-    probe.await()
+    doAndAwait {
+      probe.openProject(rootDirectoryPath)
+      project.configure()
+    }
     project.usePrettyClick()
     project.openGitMacheteTab()
     project.toolbar.toggleListingCommits()
