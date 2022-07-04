@@ -34,8 +34,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
     private val probe: ProbeDriver = intelliJ.probe
 
-
-    private def doAndAwait(action: => Unit): Unit = {
+    def doAndAwait(action: => Unit): Unit = {
       action
       probe.await()
     }
