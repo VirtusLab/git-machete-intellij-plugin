@@ -89,15 +89,18 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: S
     }
     row {
       checkBox(
-              format(
-                  getString(
-                      "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML"),
-                  DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY))
-          .bindSelected(::remember)
-          .component.apply {
-            mnemonic = KeyEvent.VK_R
-            isSelected = false
-          }
+        format(
+          getString(
+            "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML"
+          ),
+          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
+        )
+      )
+        .bindSelected(::remember)
+        .component.apply {
+          mnemonic = KeyEvent.VK_R
+          isSelected = false
+        }
     }
   }
 

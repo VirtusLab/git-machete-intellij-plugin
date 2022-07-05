@@ -88,9 +88,9 @@ private constructor(
   }
 
   override fun createActions() =
-      if (cancelButtonVisible)
-          arrayOf(getSaveAndEditAction(), okAction, cancelAction).filterNotNull().toTypedArray()
-      else arrayOf(okAction)
+    if (cancelButtonVisible) {
+      arrayOf(getSaveAndEditAction(), okAction, cancelAction).filterNotNull().toTypedArray()
+    } else arrayOf(okAction)
 
   private fun getSaveAndEditAction() =
     if (saveAndEditAction == null) null

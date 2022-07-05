@@ -23,7 +23,7 @@ import kotlin.text.isEmpty
 import kotlin.text.trim
 
 class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val parentName: String) :
-    DialogWrapper(project, /* canBeParent */ true) {
+  DialogWrapper(project, /* canBeParent */ true) {
 
   // this field is only ever meant to be written on UI thread
   var branchName = ""
@@ -34,13 +34,14 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
   init {
     title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
     setOKButtonText(
-        getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button"))
+      getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button")
+    )
     setOKButtonMnemonic('S'.code)
     super.init()
   }
 
   fun showAndGetBranchName() =
-      if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
+    if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
 
   override fun createCenterPanel() = panel {
     row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent")) {
@@ -48,8 +49,10 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     }
     row {
       label(
-          getString(
-              "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name"))
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name"
+        )
+      )
     }
     row {
       textField().bindText(::branchName).validationOnApply(validateBranchName()).focused().apply {
@@ -58,15 +61,17 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     }
     row {
       reattachCheckbox =
-          checkBox(
-                  getString(
-                      "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach"))
-              .bindSelected(::reattach)
-              .component.apply {
-                mnemonic = KeyEvent.VK_R
-                isEnabled = false
-                isSelected = false
-              }
+        checkBox(
+          getString(
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach"
+          )
+        )
+          .bindSelected(::reattach)
+          .component.apply {
+            mnemonic = KeyEvent.VK_R
+            isEnabled = false
+            isSelected = false
+          }
     }
   }
 
@@ -76,14 +81,18 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     if (errorInfo != null) error(errorInfo.message)
     else if (insertedText == parentName) {
       error(
-          getString(
-              "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-itself"))
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-itself"
+        )
+      )
     } else {
       val entryByName = branchLayout.findEntryByName(insertedText)
       if (entryByName.map(isDescendantOf(presumedDescendantName = parentName)).getOrElse(false)) {
         error(
-            getString(
-                "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"))
+          getString(
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
+          )
+        )
       } else {
         if (insertedText in rootNames) { // the provided branch name refers to the root entry
           reattachCheckbox?.isEnabled = false
@@ -92,7 +101,7 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
           val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
           reattachCheckbox?.isEnabled = existsAndHasAChild
           reattachCheckbox?.isSelected =
-              (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
+            (reattachCheckbox?.isSelected ?: false) && existsAndHasAChild
         }
 
         null
@@ -103,12 +112,13 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
   private fun Cell<JBTextField>.startTrackingValidationIfNeeded() {
     if (branchName.isEmpty()) {
       component.document.addDocumentListener(
-          object : DocumentAdapter() {
-            override fun textChanged(e: DocumentEvent) {
-              startTrackingValidation()
-              component.document.removeDocumentListener(this)
-            }
-          })
+        object : DocumentAdapter() {
+          override fun textChanged(e: DocumentEvent) {
+            startTrackingValidation()
+            component.document.removeDocumentListener(this)
+          }
+        }
+      )
     } else {
       startTrackingValidation()
     }
