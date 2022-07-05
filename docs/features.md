@@ -144,7 +144,7 @@ You can also select the `Reattach children` checkbox to move along all children 
 
 ## Override fork point
 
-Similarly as defined in [git merge-base documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
+Similarly, as defined in [git merge-base documentation](https://git-scm.com/docs/git-merge-base#Documentation/git-merge-base.txt---fork-point),
 we define **fork point** of a given branch `X` as the commit at which `X` forks from any other branch.
 The commits from the fork point (exclusive) to the tip of the branch (inclusive) are unique to this branch &mdash;
 this is what Git Machete displays when [toggle listing commits](#toggle-listing-commits) is enabled.
@@ -164,6 +164,17 @@ Now you can use the `Override Fork Point...` action to choose the fork point of 
 It can be the commit inferred by Git Machete (the one marked in commits list), or the one that the parent branch is pointing to.
 
 ![](override_forkpoint.gif)
+
+
+## Squash
+
+You can squash the commits contained by a branch using `(Checkout and) Squash...`.
+You are able to edit the final commit message in a dialog that will appear before the action.
+Note that in case of yellow branch - branch in sync but fork point not being parent branch,
+you will need to [override fork point](#override-fork-point) first.
+
+
+![](squash.gif)
 
 
 ## Show in Git log

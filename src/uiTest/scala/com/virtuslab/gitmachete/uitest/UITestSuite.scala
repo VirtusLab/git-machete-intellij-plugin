@@ -210,7 +210,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
-    var currentBranchName = project.getCurrentBranchName()
+    val currentBranchName = project.getCurrentBranchName()
     Assert.assertEquals("hotfix/add-trigger", currentBranchName)
 
     // resetNonCurrentBranchToRemote
@@ -220,6 +220,20 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.acceptResetToRemote()
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
+  }
+
+  @Test def squashBranch(): Unit = {
+    project.openGitMacheteTab()
+    project.toolbar.toggleListingCommits()
+    var branchRowsCount = project.refreshModelAndGetRowCount()
+    Assert.assertEquals(18, branchRowsCount)
+    project.checkoutBranch("call-ws")
+    project.contextMenu.openContextMenu("call-ws")
+    project.contextMenu.squash()
+    project.acceptSquash()
+    branchRowsCount = project.refreshModelAndGetRowCount()
+    // call-ws had 3 commits before the squash
+    Assert.assertEquals(16, branchRowsCount)
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")

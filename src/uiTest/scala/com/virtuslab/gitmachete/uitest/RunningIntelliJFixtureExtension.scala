@@ -108,6 +108,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.acceptResetToRemote()")
       }
 
+      def acceptSquash(): Unit = doAndAwait {
+        runJs("project.acceptSquash()")
+      }
+
       def acceptSlideIn(): Unit = doAndAwait {
         runJs("project.acceptSlideIn()")
       }
@@ -202,6 +206,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
         def fastForwardMerge(): Unit = doAndAwait {
           runJs("project.contextMenu.fastForwardMerge()")
+        }
+
+        def squash(): Unit = doAndAwait {
+          runJs("project.contextMenu.squash()")
         }
 
         def slideIn(): Unit = doAndAwait {

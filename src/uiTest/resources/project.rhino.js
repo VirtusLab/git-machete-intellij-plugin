@@ -156,6 +156,10 @@ function Project(underlyingProject) {
     findAndClickButton('Force Push');
   };
 
+  this.acceptSquash= function () {
+    findAndClickButton('OK');
+  };
+
   this.acceptSlideIn = function () {
     findAndClickButton('Slide In');
   };
@@ -210,6 +214,9 @@ function Project(underlyingProject) {
     },
     fastForwardMerge: function () {
       findAndClickContextMenuAction('Fast-forward Merge into Parent');
+    },
+    squash: function () {
+      findAndClickContextMenuAction('Squash\u2026');
     },
     slideIn: function () {
       findAndClickContextMenuAction('Slide In Branch Below\u2026');

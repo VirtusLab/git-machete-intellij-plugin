@@ -12,6 +12,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public interface IGitCoreCommit {
   String getShortMessage();
 
+  String getFullMessage();
+
   Instant getCommitTime();
 
   IGitCoreCommitHash getHash();

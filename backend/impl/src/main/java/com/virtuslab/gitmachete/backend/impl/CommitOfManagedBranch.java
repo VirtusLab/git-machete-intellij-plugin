@@ -26,6 +26,12 @@ public class CommitOfManagedBranch implements ICommitOfManagedBranch {
   }
 
   @Override
+  @ToString.Include(name = "message")
+  public String getFullMessage() {
+    return coreCommit.getFullMessage();
+  }
+
+  @Override
   public @ArrayLen(40) String getHash() {
     return coreCommit.getHash().getHashString();
   }

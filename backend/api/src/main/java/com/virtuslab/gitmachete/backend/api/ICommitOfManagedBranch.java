@@ -13,6 +13,8 @@ import org.checkerframework.common.value.qual.ArrayLen;
 public interface ICommitOfManagedBranch {
   String getShortMessage();
 
+  String getFullMessage();
+
   @ArrayLen(40)
   String getHash();
 

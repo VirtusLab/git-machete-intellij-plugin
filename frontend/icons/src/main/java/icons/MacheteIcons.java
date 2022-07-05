@@ -6,7 +6,7 @@ import com.intellij.openapi.util.IconLoader;
 
 /**
  * Icons must be in package named "icons" based on
- * https://www.jetbrains.org/intellij/sdk/docs/reference_guide/work_with_icons_and_images.html
+ * <a href="https://www.jetbrains.org/intellij/sdk/docs/reference_guide/work_with_icons_and_images.html">guide</a>.
  */
 public final class MacheteIcons {
   private MacheteIcons() {}
@@ -40,6 +40,8 @@ public final class MacheteIcons {
   public static final Icon SLIDE_IN = loadIcon("slideIn");
 
   public static final Icon SLIDE_OUT = loadIcon("slideOut");
+
+  public static final Icon SQUASH = loadIcon("squash");
 
   public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("toggleListingCommits");
 

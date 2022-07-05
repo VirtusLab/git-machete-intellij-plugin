@@ -96,6 +96,11 @@ class UnitTestUtils {
     }
 
     @Override
+    public String getFullMessage() {
+      return getShortMessage();
+    }
+
+    @Override
     public Instant getCommitTime() {
       throw new NotImplementedError();
     }

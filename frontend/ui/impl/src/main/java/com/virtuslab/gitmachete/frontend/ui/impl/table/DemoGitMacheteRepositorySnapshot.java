@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.apache.commons.lang.NotImplementedException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
@@ -89,7 +88,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     this.roots = List.of(root);
   }
 
-  static RelationToRemote getRelationofSTRS(SyncToRemoteStatus syncToRemoteStatus) {
+  static RelationToRemote getRelationOfSTRS(SyncToRemoteStatus syncToRemoteStatus) {
     return RelationToRemote.of(syncToRemoteStatus, "origin");
   }
 
@@ -154,13 +153,18 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
+    public String getFullMessage() {
+      throw new NotImplementedError();
+    }
+
+    @Override
     public @ArrayLen(40) String getHash() {
       throw new NotImplementedError();
     }
 
     @Override
     public @ArrayLen(7) String getShortHash() {
-      throw new NotImplementedException();
+      throw new NotImplementedError();
     }
 
     @Override
@@ -213,7 +217,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String fullName;
     private final String customAnnotation;
     private final Commit pointedCommit;
-    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationOfSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     @Override
@@ -240,7 +244,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final String customAnnotation;
     private final Commit pointedCommit;
     private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
-    private final RelationToRemote relationToRemote = getRelationofSTRS(SyncToRemoteStatus.InSyncToRemote);
+    private final RelationToRemote relationToRemote = getRelationOfSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
     private final List<ICommitOfManagedBranch> commits;

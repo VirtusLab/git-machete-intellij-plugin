@@ -16,12 +16,14 @@ import com.virtuslab.gitcore.api.IGitCoreTreeHash;
 @Getter
 public class GitCoreCommit implements IGitCoreCommit {
   private final String shortMessage;
+  private final String fullMessage;
   private final Instant commitTime;
   private final IGitCoreCommitHash hash;
   private final IGitCoreTreeHash treeHash;
 
   public GitCoreCommit(@NonLeaked RevCommit commit) {
     this.shortMessage = commit.getShortMessage();
+    this.fullMessage = commit.getFullMessage();
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
     this.hash = commit.getId().toGitCoreCommitHash();
     this.treeHash = commit.getTree().getId().toGitCoreTreeHash();
