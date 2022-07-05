@@ -38,7 +38,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
     this.project = project;
 
     updateRepositories();
-    setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", repo -> repo.getRoot().getName()));
+    setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", DvcsUtil::getShortRepositoryName));
 
     MessageBusConnection messageBusConnection = project.getMessageBus().connect();
     messageBusConnection
