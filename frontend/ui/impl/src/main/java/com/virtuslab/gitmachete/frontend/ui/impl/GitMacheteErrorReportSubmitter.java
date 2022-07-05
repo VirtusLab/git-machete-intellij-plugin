@@ -55,6 +55,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     return true;
   }
 
+  // TODO (#972): add a unit test for this method
   private URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String reportBody) throws URISyntaxException {
     String title = Arrays.stream(events)
         .map(IdeaLoggingEvent::getThrowableText)
@@ -88,7 +89,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
   }
 
   private String getBugTemplate() throws IOException, AssertionError {
-    return IOUtils.resourceToString("bug_report.md", StandardCharsets.UTF_8);
+    return IOUtils.resourceToString("/bug_report.md", StandardCharsets.UTF_8);
   }
 
   private java.util.Map<String, String> getTemplateVariables(
