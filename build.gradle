@@ -679,6 +679,7 @@ uiTestTargets.each { version ->
     if (project.hasProperty('headless')) {
       environment 'IDEPROBE_DISPLAY', 'xvfb'
       environment 'IDEPROBE_SCREENSHOTS_DIR', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
+      environment 'IDEPROBE_BASE_PATH', System.getProperty("user.home")
     }
 
     testLogging {

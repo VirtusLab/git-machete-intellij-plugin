@@ -123,15 +123,17 @@ See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
 ### macOS
-It is not possible to run `uiTest` gradle task on macOS systems directly via `./gradlew`.
+It is not possible to run `uiTest` gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
 You can run ui tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.2.1` image) or using virtual machine.
-Sample configuration for launching docker container is shown below.
+Sample configuration for launching docker container is shown below. Environment variables `UID` and `GID` placed into the container will be the user and group identifiers
+of the files created inside it.
 ```shell
-docker run --rm -u user \
-      -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/home/user/git-machete-intellij-plugin \
-      -v ~/.gradle:/home/user/.gradle \
+docker run --rm -e UID=$UID -e GID=$GID \
+      -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/home/docker/git-machete-intellij-plugin \
+      -v ~/.gradle:/home/docker/.gradle \
+      -v ~/.pluginVerifier:/home/docker/.pluginVerifier \
       -v /tmp/ide-probe/cache:/tmp/ide-probe/cache \
-      -w /home/user/git-machete-intellij-plugin \
+      -w /home/docker/git-machete-intellij-plugin \
       gitmachete/intellij-plugin-ci:6.2.1 \
       ./gradlew -Pagainst=2021.2 -Pheadless uiTest
 ```
