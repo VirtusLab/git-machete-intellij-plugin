@@ -34,6 +34,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
     private val probe: ProbeDriver = intelliJ.probe
 
+    def doAndAwait(action: => Unit): Unit = {
+      action
+      probe.await()
+    }
+
     private def runJs(
         @Language("JavaScript") statement: String,
         codebase: String = commonCodebase
@@ -79,49 +84,40 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
     }
 
     object project {
-      def acceptBranchDeletionOnSlideOut(): Unit = {
+      def acceptBranchDeletionOnSlideOut(): Unit = doAndAwait {
         runJs("project.acceptBranchDeletionOnSlideOut()")
-        probe.await()
       }
 
-      def acceptCreateNewBranch(): Unit = {
+      def acceptCreateNewBranch(): Unit = doAndAwait {
         runJs("project.acceptCreateNewBranch()")
-        probe.await()
       }
 
-      def acceptPush(): Unit = {
+      def acceptPush(): Unit = doAndAwait {
         runJs("project.acceptPush()")
-        probe.await()
       }
 
-      def acceptForcePush(): Unit = {
+      def acceptForcePush(): Unit = doAndAwait {
         runJs("project.acceptForcePush()")
-        probe.await()
       }
 
-      def acceptRebase(): Unit = {
+      def acceptRebase(): Unit = doAndAwait {
         runJs("project.acceptRebase()")
-        probe.await()
       }
 
-      def acceptResetToRemote(): Unit = {
+      def acceptResetToRemote(): Unit = doAndAwait {
         runJs("project.acceptResetToRemote()")
-        probe.await()
       }
 
-      def acceptSlideIn(): Unit = {
+      def acceptSlideIn(): Unit = doAndAwait {
         runJs("project.acceptSlideIn()")
-        probe.await()
       }
 
-      def acceptSuggestedBranchLayout(): Unit = {
+      def acceptSuggestedBranchLayout(): Unit = doAndAwait {
         runJs("project.acceptSuggestedBranchLayout()")
-        probe.await()
       }
 
-      def saveDiscoveredBranchLayout(): Unit = {
+      def saveDiscoveredBranchLayout(): Unit = doAndAwait {
         runJs("project.saveDiscoveredBranchLayout()")
-        probe.await()
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
@@ -143,9 +139,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
       }
 
-      def checkoutBranch(branch: String): Unit = {
+      def checkoutBranch(branch: String): Unit = doAndAwait {
         runJs(s"project.checkoutBranch('$branch')")
-        probe.await()
       }
 
       def configure(): Unit = {
@@ -162,14 +157,12 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       object contextMenu {
 
-        def openContextMenu(branch: String): Unit = {
+        def openContextMenu(branch: String): Unit = doAndAwait {
           runJs(s"project.findCellAndRightClick('$branch')")
-          probe.await()
         }
 
-        def checkout(): Unit = {
+        def checkout(): Unit = doAndAwait {
           runJs(s"project.contextMenu.checkout()")
-          probe.await()
         }
 
         def checkoutAndSyncByRebase(): Unit = {
@@ -183,54 +176,44 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs(s"project.contextMenu.syncByRebase()")
         }
 
-        def checkoutAndSyncByMerge(): Unit = {
+        def checkoutAndSyncByMerge(): Unit = doAndAwait {
           runJs(s"project.contextMenu.checkoutAndSyncByMerge()")
-          probe.await()
         }
 
-        def syncByMerge(): Unit = {
+        def syncByMerge(): Unit = doAndAwait {
           runJs(s"project.contextMenu.syncByMerge()")
-          probe.await()
         }
 
-        def overrideForkPoint(): Unit = {
+        def overrideForkPoint(): Unit = doAndAwait {
           runJs(s"project.contextMenu.overrideForkPoint()")
-          probe.await()
         }
 
-        def push(): Unit = {
+        def push(): Unit = doAndAwait {
           runJs(s"project.contextMenu.push()")
-          probe.await()
         }
 
-        def pull(): Unit = {
+        def pull(): Unit = doAndAwait {
           runJs(s"project.contextMenu.pull()")
-          probe.await()
         }
 
-        def resetToRemote(): Unit = {
+        def resetToRemote(): Unit = doAndAwait {
           runJs(s"project.contextMenu.resetToRemote()")
-          probe.await()
         }
 
-        def fastForwardMerge(): Unit = {
+        def fastForwardMerge(): Unit = doAndAwait {
           runJs(s"project.contextMenu.fastForwardMerge()")
-          probe.await()
         }
 
-        def slideIn(): Unit = {
+        def slideIn(): Unit = doAndAwait {
           runJs(s"project.contextMenu.slideIn()")
-          probe.await()
         }
 
-        def slideOut(): Unit = {
+        def slideOut(): Unit = doAndAwait {
           runJs(s"project.contextMenu.slideOut()")
-          probe.await()
         }
 
-        def showInGitLog(): Unit = {
+        def showInGitLog(): Unit = doAndAwait {
           runJs(s"project.contextMenu.showInGitLog()")
-          probe.await()
         }
       }
 
@@ -240,39 +223,32 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs(s"project.toolbar.syncByRebase()")
         }
 
-        def syncByMerge(): Unit = {
+        def syncByMerge(): Unit = doAndAwait {
           runJs(s"project.toolbar.syncByMerge()")
-          probe.await()
         }
 
-        def pull(): Unit = {
+        def pull(): Unit = doAndAwait {
           runJs(s"project.toolbar.pull()")
-          probe.await()
         }
 
-        def resetToRemote(): Unit = {
+        def resetToRemote(): Unit = doAndAwait {
           runJs(s"project.toolbar.resetToRemote()")
-          probe.await()
         }
 
-        def fastForwardMerge(): Unit = {
+        def fastForwardMerge(): Unit = doAndAwait {
           runJs(s"project.toolbar.fastForwardMerge()")
-          probe.await()
         }
 
-        def discoverBranchLayout(): Unit = {
+        def discoverBranchLayout(): Unit = doAndAwait {
           runJs(s"project.toolbar.discoverBranchLayout()")
-          probe.await()
         }
 
-        def toggleListingCommits(): Unit = {
+        def toggleListingCommits(): Unit = doAndAwait {
           runJs(s"project.toolbar.toggleListingCommits()")
-          probe.await()
         }
 
-        def fetchAll(): Unit = {
+        def fetchAll(): Unit = doAndAwait {
           runJs(s"project.toolbar.fetchAll()")
-          probe.await()
         }
       }
 
@@ -308,9 +284,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs("project.refreshGraphTableModel().getRowCount()")
       }
 
-      def rejectBranchDeletionOnSlideOut(): Unit = {
+      def rejectBranchDeletionOnSlideOut(): Unit = doAndAwait {
         runJs("project.rejectBranchDeletionOnSlideOut()")
-        probe.await()
       }
 
       def writeToTextField(text: String): Unit = {

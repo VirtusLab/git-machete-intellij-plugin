@@ -27,9 +27,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Before
   def beforeEach(): Unit = {
-    probe.openProject(rootDirectoryPath)
-    project.configure()
-    probe.await()
+    intelliJ.doAndAwait {
+      probe.openProject(rootDirectoryPath)
+      project.configure()
+    }
   }
 
   @After
