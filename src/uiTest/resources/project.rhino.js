@@ -295,6 +295,7 @@ function Project(underlyingProject) {
   const clickMouseInGraphTable = function () {
     const graphTable = getGraphTable();
     robot.click(graphTable);
+    sleep();
   };
 
   const getIdeFrame = function() {
@@ -366,7 +367,6 @@ function Project(underlyingProject) {
     let component = searchForComponent();
     while (component === null) {
       clickMouseInGraphTable();
-      sleep();
       component = searchForComponent();
     }
     return component;
