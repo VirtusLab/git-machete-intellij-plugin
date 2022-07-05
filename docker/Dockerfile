@@ -35,7 +35,7 @@ RUN \
   apt-get update; \
   apt-get install --no-install-recommends -y libxtst6 xvfb xauth x11-apps imagemagick zip; \
   `# libraries needed by JCEF` \
-  apt-get install --no-install-recommends -y libatk1.0-0 libatk-bridge2.0-0 libgbm1 libglib2.0 libxcomposite1 libxkbcommon0 libxrandr2 sudo; \
+  apt-get install --no-install-recommends -y libatk1.0-0 libatk-bridge2.0-0 libgbm1 libglib2.0 libxcomposite1 libxkbcommon0 libxrandr2; \
   rm -rf /var/lib/apt/lists/*
 
 # Secondary packages needed in just one (or few) steps of the pipeline:
@@ -47,7 +47,7 @@ RUN \
 # unzip          => zipinfo
 RUN \
   apt-get update; \
-  apt-get install --no-install-recommends -y binutils nodejs procps xxd unzip; \
+  apt-get install --no-install-recommends -y binutils nodejs procps xxd unzip sudo; \
   rm -rf /var/lib/apt/lists/*
 
 # Markdown validation utilities
@@ -55,6 +55,7 @@ RUN \
   curl -Lf https://npmjs.org/install.sh | sh; \
   npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links; \
   npm uninstall --global npm
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

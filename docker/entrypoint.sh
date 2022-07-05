@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
+set -e -o pipefail -u
 
-if [[ $GID && $UID ]]; then
+if [[ ${GID-} && ${UID-} ]]; then
   if ! getent group $GID &>/dev/null; then
     groupadd --gid=$GID docker
   fi

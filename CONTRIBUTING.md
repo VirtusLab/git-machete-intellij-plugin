@@ -124,18 +124,18 @@ and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intel
 
 ### macOS
 It is not possible to run `uiTest` gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
-You can run ui tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.2.1` image) or using virtual machine.
+You can run ui tests inside docker container (based on `gitmachete/intellij-plugin-ci:6.3.0` image) or using a Linux virtual machine.
 Sample configuration for launching docker container is shown below. Environment variables `UID` and `GID` placed into the container will be the user and group identifiers
-of the files created inside it.
+of the files created inside it. In example below, current working directory navigates to top-level directory of the project.
 ```shell
-docker run --rm -e UID=$UID -e GID=$GID \
-      -v [path to git-machete-intellij-plugin root directory e.g. "$PWD"]:/home/docker/git-machete-intellij-plugin \
+docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
+      -v "$PWD":/home/docker/git-machete-intellij-plugin \
       -v ~/.gradle:/home/docker/.gradle \
       -v ~/.pluginVerifier:/home/docker/.pluginVerifier \
       -v /tmp/ide-probe/cache:/tmp/ide-probe/cache \
       -w /home/docker/git-machete-intellij-plugin \
-      gitmachete/intellij-plugin-ci:6.2.1 \
-      ./gradlew -Pagainst=2021.2 -Pheadless uiTest
+      gitmachete/intellij-plugin-ci:6.3.0 \
+      ./gradlew -Pheadless uiTest
 ```
 
 
