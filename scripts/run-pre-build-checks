@@ -15,7 +15,6 @@ enforce-indent-two-spaces-outside-java
 enforce-issue-number-for-todos
 enforce-newline-at-eof
 enforce-properties-keys-with-valid-class-names
-enforce-properties-single-quotes-consistent-with-format-elements
 enforce-settings-gradle-match-directories
 enforce-version-bump
 
@@ -26,7 +25,6 @@ prohibit-java-unused-custom-log
 prohibit-kotlin-private-fields
 prohibit-kotlin-undefined-property-keys
 prohibit-non-ascii-characters
-prohibit-properties-double-quote-wrapping
 prohibit-properties-unused-keys
 prohibit-tab-character
 prohibit-trailing-whitespace
