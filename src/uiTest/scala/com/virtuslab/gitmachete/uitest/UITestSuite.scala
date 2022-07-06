@@ -27,6 +27,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Before
   def beforeEach(): Unit = {
+    println("IntelliJ build number is " + intelliJVersion.build)
     intelliJ.doAndAwait {
       probe.openProject(rootDirectoryPath)
       project.configure()
