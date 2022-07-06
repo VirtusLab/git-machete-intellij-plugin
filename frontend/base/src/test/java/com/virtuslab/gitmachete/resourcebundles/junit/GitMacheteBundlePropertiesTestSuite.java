@@ -61,7 +61,7 @@ public class GitMacheteBundlePropertiesTestSuite {
       assertFalse(
           "Key '${key}' has a format element ({number}), but contains a single apostrophe (')." +
               "Use a double apostrophe ('') instead",
-          value.matches(".*\\{\\d+}.*") && value.matches(".*(^'[^']|[^']'[^']|[^']'$).*"));
+          value.matches(".*\\{\\d+}.*") && value.matches("^'[^'].*|.*[^']'[^'].*|.*[^']'$"));
       assertFalse(
           "Key '${key}' has NO format element ({number}), but contains a double apostrophe ('')." +
               "Use a single apostrophe (') instead",
