@@ -213,7 +213,7 @@ So far created UI conventions:
 ## Rebuild the CI base image
 
 To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
-
+`Dockerfile` together with the necessary `entrypoint.sh` exists under `docker` folder in project root directory.
 ```shell
 docker build -t gitmachete/intellij-plugin-ci:SEMANTIC-VERSION - < Dockerfile
 docker push gitmachete/intellij-plugin-ci:SEMANTIC-VERSION

@@ -47,12 +47,12 @@ RUN \
 # unzip          => zipinfo
 RUN \
   apt-get update; \
+  curl -fsSL https://deb.nodesource.com/setup_16.x | bash -; \
   apt-get install --no-install-recommends -y binutils nodejs procps xxd unzip sudo; \
   rm -rf /var/lib/apt/lists/*
 
 # Markdown validation utilities
 RUN \
-  curl -Lf https://npmjs.org/install.sh | sh; \
   npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links; \
   npm uninstall --global npm
 

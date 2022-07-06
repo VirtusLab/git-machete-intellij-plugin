@@ -678,9 +678,9 @@ uiTestTargets.each { version ->
 
     if (project.hasProperty('headless')) {
       environment 'IDEPROBE_DISPLAY', 'xvfb'
-      environment 'IDEPROBE_PATHS_SCREENSHOTS', System.getProperty("user.home") + '/artifacts/uiTest' + version + '/screenshots'
-      if (isCi) {
-        environment 'IDEPROBE_PATHS_BASE', System.getProperty("user.home")
+      environment 'IDEPROBE_PATHS_SCREENSHOTS', System.getProperty("user.home") + '/.ideprobe-uitests/' + '/artifacts/uiTest' + version + '/screenshots'
+      if (isCI) {
+        environment 'IDEPROBE_PATHS_BASE', System.getProperty("user.home") + '/.ideprobe-uitests/'
       }
     }
 
