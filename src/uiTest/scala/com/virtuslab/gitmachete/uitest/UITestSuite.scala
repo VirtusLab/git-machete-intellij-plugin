@@ -45,7 +45,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       probe.screenshot("exception")
       val threadStackTrace: String = Process("jstack " + pid) !!
       val artifactDirectory =
-        System.getProperty("user.home") + "/artifacts/uiTest" + intelliJVersion.build + "/thread-dumps"
+        System.getProperty(
+          "user.home"
+        ) + "/.ideprobe-uitests" + "/artifacts/uiTest" + intelliJVersion.build + "/thread-dumps"
       Files.createDirectories(Paths.get(artifactDirectory))
       val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
       val pw = new PrintWriter(file)
@@ -86,6 +88,10 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       managedBranches.toSeq.sorted
     )
     project.toolbar.toggleListingCommits()
+    if (intelliJVersion.build == "2020.3.4") {
+      throw new Exception("EXC")
+    }
+
     var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 7 branch rows + 11 commit rows
     Assert.assertEquals(18, branchAndCommitRowsCount)
@@ -105,7 +111,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
     Assert.assertEquals(12, branchAndCommitRowsCount)
   }
-
+  /*
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
@@ -219,7 +225,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
   }
-
+   */
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
 
   private def deleteMacheteFile(): Unit = {

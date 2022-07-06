@@ -98,10 +98,10 @@ jobs:
           name: Collect artifacts when an exception occurs
           # language=sh
           command: |
-            if ! ( [ -d ~/artifacts ] && [ -n "$(ls -A ~/artifacts)" ] ); then exit 0; fi
-            for f in $(ls -d ~/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
+            if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
+            for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
             mkdir -p ~/artifacts/zip
-            find ~/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts/zip
+            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts/zip
           when: on_fail
       - store_artifacts:
           path: ~/artifacts/zip
