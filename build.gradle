@@ -625,7 +625,7 @@ runIde {
   maxHeapSize = '4G'
 }
 
-import static org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel
+import static org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 
 runPluginVerifier {
   def maybeEap = intellijVersions.eapOfLatestSupportedMajor
@@ -637,7 +637,7 @@ runPluginVerifier {
     *maybeEap
   ]
 
-  def skippedFailureLevels = EnumSet.of(FailureLevel.DEPRECATED_API_USAGES, FailureLevel.EXPERIMENTAL_API_USAGES, FailureLevel.NOT_DYNAMIC)
+  def skippedFailureLevels = EnumSet.of(DEPRECATED_API_USAGES, EXPERIMENTAL_API_USAGES, NOT_DYNAMIC, SCHEDULED_FOR_REMOVAL_API_USAGES)
   failureLevel = EnumSet.complementOf(skippedFailureLevels)
 }
 
