@@ -72,6 +72,15 @@ In order to make `grep` and eventually the hooks working one must:
 3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/3.7/libexec/gnubin` in that case).
 You may want to add the following `PATH="/opt/homebrew/Cellar/grep/3.7/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`)
 
+It is possible that git `pre-commit` hook will raise the following error: <br/>
+`fatal: cannot use Perl-compatible regexes when not compiled with USE_LIBPCRE` <br/>
+This can be solved by compiling `git` with USE_LIBPCRE via `brew` using commands: <br/>
+```shell
+brew install pcre
+export USE_LIBPCRE=yes
+brew reinstall --build-from-source git
+```
+
 Also, some issues with `bash` itself has been reported. Make sure that the version you are using is 5.1 or later.
 
 ### (optional) Windows
