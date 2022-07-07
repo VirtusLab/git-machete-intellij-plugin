@@ -1,6 +1,6 @@
 [versions]
 checker = "3.22.2"
-ideProbe = "0.36.0"
+ideProbe = "0.36.1"
 powerMock = "2.0.9"
 
 [libraries]
