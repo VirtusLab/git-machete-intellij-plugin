@@ -81,7 +81,7 @@ export USE_LIBPCRE=yes
 brew reinstall --build-from-source git
 ```
 
-Also, some issues with `bash` itself has been reported. Make sure that the version you are using is 5.1 or later.
+Also, some issues with `bash` itself have been reported. Make sure that the version you are using is 5.1 or later.
 
 ### (optional) Windows
 

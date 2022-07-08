@@ -42,7 +42,7 @@ aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.4.3.1"
 checkerFramework = "org.checkerframework:0.6.13"
 grgit = "org.ajoberstar.grgit:5.0.0"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2021.2.2"
-jetbrains-intellij = "org.jetbrains.intellij:1.7.0-SNAPSHOT"
+jetbrains-intellij = "org.jetbrains.intellij:1.7.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
