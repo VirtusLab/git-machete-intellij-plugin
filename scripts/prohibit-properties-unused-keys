@@ -25,5 +25,5 @@ output=$(comm -23 <(echo "$all_expected_keys") <(echo "$all_found_keys"))
 
 if [[ $output ]]; then
   echo "$output"
-  die "The above property keys defined in $bundle does not seem to be used anywhere"
+  die "The above property keys defined in $bundle do not seem to be used anywhere"
 fi
