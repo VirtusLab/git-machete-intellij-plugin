@@ -1,1 +1,1 @@
-version.gradle merge=version.gradle
+version.gradle.kts merge=version.gradle.kts

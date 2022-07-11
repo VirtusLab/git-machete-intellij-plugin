@@ -1,7 +1,0 @@
-lombok()
-vavr()
-
-dependencies {
-  api project(':qual')
-  api project(':branchLayout:api')
-}
