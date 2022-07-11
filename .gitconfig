@@ -3,8 +3,8 @@
 [diff]
 	renameLimit = 999
 	renames = copies
-[merge "version.gradle"]
-	name = version.gradle merge driver
+[merge "version.gradle.kts"]
+	name = version.gradle.kts merge driver
 	driver = cp %B %A
 [status]
 	relativePaths = false

@@ -36,22 +36,22 @@ function extract_version_from_gradle_file_stdin() {
 
   # Slurp stdin into a var. All lines will be squashed into just one.
   output=$(</dev/stdin)
-  # Get rid of everything after&including the final apostrophe.
-  output=${output%\'*}
-  # Get rid of everything before&including the first apostrophe.
-  output=${output#*\'}
+  # Get rid of everything after&including the final double quote.
+  output=${output%\"*}
+  # Get rid of everything before&including the first double quote.
+  output=${output#*\"}
   echo "$output"
 }
 
 function extract_version_from_current_wd() {
-  extract_version_from_gradle_file_stdin < version.gradle
+  extract_version_from_gradle_file_stdin < version.gradle.kts
 }
 
 function extract_version_from_git_revision() {
   [[ $# -eq 1 ]] || die "${FUNCNAME[0]}: expecting 1 argument (<revision>), aborting"
   local revision=$1
 
-  git show "$revision":version.gradle | extract_version_from_gradle_file_stdin
+  git show "$revision":version.gradle.kts | extract_version_from_gradle_file_stdin
 }
 
 function parse_version() {

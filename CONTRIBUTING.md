@@ -98,7 +98,7 @@ Additional setup:
 
 To build the project, run `./gradlew build`.
 
-Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle](build.gradle)). <br/>
+Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
@@ -194,7 +194,7 @@ Most non-standard/project-specific conventions are enforced by:
 * [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html) for forbidden method calls/class naming patterns etc.
   (see [tests in top-level project](src/test/java/com/virtuslab/archunit))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
-  (most config in [build.gradle](build.gradle), stubs in [config/checker/](config/checker))
+  (most config in [build.gradle.kts](build.gradle.kts), stubs in [config/checker/](config/checker))
 
 Other coding conventions include:
 
@@ -243,7 +243,7 @@ We follow [Semantic versioning](https://semver.org/) for the plugin releases:
 ### Sample sequence of versions between releases
 
 After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `PROSPECTIVE_RELEASE_VERSION`
-in [version.gradle](version.gradle) in the following way:
+in [version.gradle.kts](version.gradle.kts) in the following way:
 1. `1.0.4` (bugfix PR)  - the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
 1. `1.0.4` (bugfix PR)  - even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
 1. `1.1.0` (feature PR) - since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
@@ -269,10 +269,10 @@ For instance:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `idea`)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP`:
-   set `ext.intellijVersions.eapOfLatestSupportedMajor` in [build.gradle](build.gradle)
+   set `ext.intellijVersions.eapOfLatestSupportedMajor` in [build.gradle.kts](build.gradle.kts)
    and see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
-   via `ext.intellijVersions.latestSupportedMajor` in [build.gradle](build.gradle))
+   via `ext.intellijVersions.latestSupportedMajor` in [build.gradle.kts](build.gradle.kts))
 5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
    then, `latestStable` can be updated to `2020.3`, `eapOfLatestSupportedMajor` can be set to `null`,
    and `2020.2.x` can be added to `latestMinorsOfOldSupportedMajors`
