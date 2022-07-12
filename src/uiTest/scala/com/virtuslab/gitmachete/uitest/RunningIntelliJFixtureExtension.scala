@@ -162,26 +162,26 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
 
         def checkout(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.checkout()")
+          runJs("project.contextMenu.checkout()")
         }
 
         def checkoutAndSyncByRebase(): Unit = {
-          runJs(s"project.contextMenu.checkoutAndSyncByRebase()")
+          runJs("project.contextMenu.checkoutAndSyncByRebase()")
           // Deliberately not calling probe.await() after triggering rebase action. The method freezes UI
           // and makes impossible to proceed with actions (e.g. findAndClickButton('Start Rebasing')).
           // This comment applies here, below and to toolbar counterparts.
         }
 
         def syncByRebase(): Unit = {
-          runJs(s"project.contextMenu.syncByRebase()")
+          runJs("project.contextMenu.syncByRebase()")
         }
 
         def checkoutAndSyncByMerge(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.checkoutAndSyncByMerge()")
+          runJs("project.contextMenu.checkoutAndSyncByMerge()")
         }
 
         def syncByMerge(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.syncByMerge()")
+          runJs("project.contextMenu.syncByMerge()")
         }
 
         def overrideForkPoint(): Unit = doAndAwait {
@@ -189,66 +189,66 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
 
         def push(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.push()")
+          runJs("project.contextMenu.push()")
         }
 
         def pull(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.pull()")
+          runJs("project.contextMenu.pull()")
         }
 
         def resetToRemote(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.resetToRemote()")
+          runJs("project.contextMenu.resetToRemote()")
         }
 
         def fastForwardMerge(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.fastForwardMerge()")
+          runJs("project.contextMenu.fastForwardMerge()")
         }
 
         def slideIn(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.slideIn()")
+          runJs("project.contextMenu.slideIn()")
         }
 
         def slideOut(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.slideOut()")
+          runJs("project.contextMenu.slideOut()")
         }
 
         def showInGitLog(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.showInGitLog()")
+          runJs("project.contextMenu.showInGitLog()")
         }
       }
 
       object toolbar {
 
         def syncByRebase(): Unit = {
-          runJs(s"project.toolbar.syncByRebase()")
+          runJs("project.toolbar.syncByRebase()")
         }
 
         def syncByMerge(): Unit = doAndAwait {
-          runJs(s"project.toolbar.syncByMerge()")
+          runJs("project.toolbar.syncByMerge()")
         }
 
         def pull(): Unit = doAndAwait {
-          runJs(s"project.toolbar.pull()")
+          runJs("project.toolbar.pull()")
         }
 
         def resetToRemote(): Unit = doAndAwait {
-          runJs(s"project.toolbar.resetToRemote()")
+          runJs("project.toolbar.resetToRemote()")
         }
 
         def fastForwardMerge(): Unit = doAndAwait {
-          runJs(s"project.toolbar.fastForwardMerge()")
+          runJs("project.toolbar.fastForwardMerge()")
         }
 
         def discoverBranchLayout(): Unit = doAndAwait {
-          runJs(s"project.toolbar.discoverBranchLayout()")
+          runJs("project.toolbar.discoverBranchLayout()")
         }
 
         def toggleListingCommits(): Unit = doAndAwait {
-          runJs(s"project.toolbar.toggleListingCommits()")
+          runJs("project.toolbar.toggleListingCommits()")
         }
 
         def fetchAll(): Unit = doAndAwait {
-          runJs(s"project.toolbar.fetchAll()")
+          runJs("project.toolbar.fetchAll()")
         }
       }
 
