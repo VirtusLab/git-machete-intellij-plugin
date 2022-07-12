@@ -1,9 +1,3 @@
-buildscript {
-  dependencies {
-    classpath libs.jsoup
-  }
-}
-
 plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
@@ -26,11 +20,12 @@ if (JavaVersion.current() != JavaVersion.VERSION_11) {
   throw new GradleException("Project must be built with Java version 11")
 }
 
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper
+
 ext {
   javaMajorVersion = JavaVersion.VERSION_11
 
-  intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/snapshots/"
-  Properties intellijVersionsProp = intellijVersionsProperties()
+  Properties intellijVersionsProp = IntellijVersionHelper.getProperties()
 
   // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
   intellijVersions = [
@@ -51,8 +46,8 @@ ext {
   ]
 
   intellijVersions.latestSupportedMajor = intellijVersions.eapOfLatestSupportedMajor
-    ? buildNumberToIntellijVersion(intellijVersions.eapOfLatestSupportedMajor)
-    : majorPartOfIntellijVersion(intellijVersions.latestStable)
+    ? IntellijVersionHelper.getFromBuildNumber(intellijVersions.eapOfLatestSupportedMajor)
+    : IntellijVersionHelper.getMajorPart(intellijVersions.latestStable)
 
   intellijVersions.buildTarget = intellijVersions.eapOfLatestSupportedMajor ?: intellijVersions.latestStable
 
@@ -63,28 +58,6 @@ ext {
   // This values can't be named in the same way as their corresponding properties to avoid a name clash.
   jvmArgsForJavaCompilation = project.properties.get('compileJavaJvmArgs')?.tokenize(' ')
   shouldRunAllCheckers = isCI || project.hasProperty('runAllCheckers')
-}
-
-static String buildNumberToIntellijVersion(String buildNumber) {
-  return '20' + buildNumber.substring(0, 2) + '.' + buildNumber.substring(2, 3)
-}
-
-static String intellijVersionToBuildNumber(String version) {
-  return version.substring(2, 6).replace('.', '')
-}
-
-static String majorPartOfIntellijVersion(String version) {
-  return version.substring(0, 6)
-}
-
-static Properties intellijVersionsProperties() {
-  Properties properties = new Properties()
-  properties.load(intellijVersionsFile().newDataInputStream())
-  return properties
-}
-
-static File intellijVersionsFile() {
-  return new File("intellijVersions.properties")
 }
 
 /**
@@ -109,55 +82,7 @@ List<String> resolveIntelliJVersions(String versionKey) {
   return [versionValue]
 }
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
-import org.jsoup.nodes.Document
-
-String checkForEapWithBuildNumberHigherThan(String latestEapBuildNumber) {
-  Document htmlContent = Jsoup.connect(project.intellijSnapshotsUrl).get()
-  Elements links = htmlContent.select('a[href^=' + project.intellijSnapshotsUrl + 'com/jetbrains/intellij/idea/ideaIC/][href$="-EAP-SNAPSHOT.pom"]')
-  for (Element link : links) {
-    String attr = link.attr("href")
-    Pattern pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
-    Matcher matcher = pattern.matcher(attr)
-    if (matcher.find()) {
-      String foundBuildNumber = matcher.group()
-      if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
-        return foundBuildNumber
-      }
-    }
-  }
-  return null
-}
-
-class UpdateEapBuildNumber extends DefaultTask {
-
-  @Input
-  @Optional
-  @Option(option = 'exit-code', description = 'Return the exit code 0 when the new eap build number is found and 1 otherwise')
-  Boolean exitCode
-
-  @TaskAction
-  void execute() {
-    Properties properties = project.intellijVersionsProperties()
-    File propFile = project.intellijVersionsFile()
-    String latestEapBuildNumber = project.intellijVersions.eapOfLatestSupportedMajor
-    String buildNumberThreshold = latestEapBuildNumber ? latestEapBuildNumber.replace('-EAP-SNAPSHOT', '') :
-            project.intellijVersionToBuildNumber(project.intellijVersions.latestStable)+'.999999.999999'
-    String newerEapBuildNumber = project.checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
-    if (newerEapBuildNumber) {
-      project.logger.lifecycle("EapOfLatestSupportedMajor is updated to " + newerEapBuildNumber + " build number")
-      properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
-      properties.store(propFile.newWriter(), /*comments*/ null)
-    }
-    if (exitCode && !newerEapBuildNumber) {
-      throw new Exception("New eap build number not found")
-    }
-  }
-}
+import com.virtuslab.gitmachete.buildsrc.UpdateEapBuildNumber
 
 tasks.register('updateEapBuildNumber', UpdateEapBuildNumber)
 
@@ -609,10 +534,10 @@ if (!isCI) {
 
 patchPluginXml {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-  sinceBuild = intellijVersionToBuildNumber(intellijVersions.earliestSupportedMajor)
+  sinceBuild = IntellijVersionHelper.toBuildNumber(intellijVersions.earliestSupportedMajor)
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-  untilBuild = intellijVersionToBuildNumber(intellijVersions.latestSupportedMajor) + '.*'
+  untilBuild = IntellijVersionHelper.toBuildNumber(intellijVersions.latestSupportedMajor) + '.*'
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
