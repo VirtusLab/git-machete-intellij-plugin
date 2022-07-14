@@ -1,7 +1,7 @@
 build/
 *.class
 /.codetale.conf
-/.gradle/
+**/.gradle/
 /gradlew.bat
 /*.hprof
 /*.hprof.*/
