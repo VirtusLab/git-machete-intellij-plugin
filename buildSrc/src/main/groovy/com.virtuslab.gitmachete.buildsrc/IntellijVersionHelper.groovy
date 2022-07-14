@@ -19,7 +19,7 @@ class IntellijVersionHelper {
     return properties
   }
 
-  static void store(Properties properties, String comment = null) {
+  static void storeProperties(Properties properties, String comment = null) {
     properties.store(getFile().newWriter(), comment);
   }
 

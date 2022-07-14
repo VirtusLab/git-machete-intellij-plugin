@@ -49,7 +49,7 @@ class UpdateEapBuildNumber extends DefaultTask {
     if (newerEapBuildNumber) {
       project.logger.lifecycle("EapOfLatestSupportedMajor is updated to " + newerEapBuildNumber + " build number")
       properties.setProperty("eapOfLatestSupportedMajor", newerEapBuildNumber+"-EAP-SNAPSHOT")
-      IntellijVersionHelper.store(properties)
+      IntellijVersionHelper.storeProperties(properties)
     }
     if (exitCode && !newerEapBuildNumber) {
       throw new Exception("New eap build number not found")
