@@ -2,6 +2,7 @@ plugins {
   id 'org.gradle.checkstyle'
   id 'org.gradle.java-library'
   id 'org.gradle.scala'
+  id 'groovy'
 
   alias libs.plugins.taskTree
   alias libs.plugins.versions
@@ -180,6 +181,10 @@ allprojects {
     scala {
       scalafmt().configFile("$rootDir/scalafmt.conf")
     }
+    groovy {
+      target '/buildSrc/**/*.groovy', '/buildSrc/*.gradle'
+      greclipse().configFile "$rootDir/config/spotless/formatting-rules.xml"
+    }
   }
 
   if (!isCI) {
@@ -191,6 +196,9 @@ allprojects {
     }
     tasks.withType(ScalaCompile) {
       dependsOn 'spotlessScalaApply'
+    }
+    tasks.withType(GroovyCompile) {
+      dependsOn 'spotlessGroovyApply'
     }
   }
 
