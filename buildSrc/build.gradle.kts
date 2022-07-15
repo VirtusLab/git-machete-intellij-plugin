@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies {
-  implementation libs.jsoup
+  implementation(libs.jsoup)
 }
