@@ -1,6 +1,8 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper
+import com.virtuslab.gitmachete.buildsrc.UpdateEapBuildNumber
 import org.ajoberstar.grgit.gradle.GrgitPlugin
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkPlugin
@@ -11,9 +13,6 @@ import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.*
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jsoup.Jsoup
-import java.util.regex.Pattern
-
 
 buildscript {
     dependencies {
@@ -25,6 +24,7 @@ plugins {
     checkstyle
     `java-library`
     scala
+    groovy
 
     alias(libs.plugins.taskTree)
     alias(libs.plugins.versions)
@@ -46,7 +46,7 @@ if (JavaVersion.current() != JavaVersion.VERSION_11) {
 val javaMajorVersion by extra(JavaVersion.VERSION_11)
 
 val intellijSnapshotsUrl by extra("https://www.jetbrains.com/intellij-repository/snapshots/")
-val intellijVersionsProp by extra(intellijVersionsProperties())
+val intellijVersionsProp by extra(IntellijVersionHelper.getProperties())
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 val intellijVersions by extra(mutableMapOf<String, Any>(
@@ -65,8 +65,8 @@ val intellijVersions by extra(mutableMapOf<String, Any>(
         "eapOfLatestSupportedMajor" to intellijVersionsProp.getProperty("eapOfLatestSupportedMajor")))
 
 
-intellijVersions["latestSupportedMajor"] = if (intellijVersions["eapOfLatestSupportedMajor"] != null) buildNumberToIntellijVersion(intellijVersions["eapOfLatestSupportedMajor"]!! as String)
-else majorPartOfIntellijVersion(intellijVersions["latestStable"]!! as String)
+intellijVersions["latestSupportedMajor"] = if (intellijVersions["eapOfLatestSupportedMajor"] != null) IntellijVersionHelper.getFromBuildNumber(intellijVersions["eapOfLatestSupportedMajor"]!! as String)
+else IntellijVersionHelper.getMajorPart(intellijVersions["latestStable"]!! as String)
 
 intellijVersions["buildTarget"] = intellijVersions["eapOfLatestSupportedMajor"] ?: intellijVersions["latestStable"]!!
 
@@ -77,28 +77,6 @@ val jetbrainsMarketplaceToken by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKE
 // This values can't be named in the same way as their corresponding properties to avoid a name clash.
 val jvmArgsForJavaCompilation by extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
 val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
-
-fun buildNumberToIntellijVersion(buildNumber: String): String {
-    return "20" + buildNumber.substring(0, 2) + "." + buildNumber.substring(2, 3)
-}
-
-fun intellijVersionToBuildNumber(version: String): String {
-    return version.substring(2, 6).replace(".", "")
-}
-
-fun majorPartOfIntellijVersion(version: String): String {
-    return version.substring(0, 6)
-}
-
-fun intellijVersionsProperties(): java.util.Properties {
-    val properties = `java.util`.Properties()
-    properties.load(intellijVersionsFile().inputStream())
-    return properties
-}
-
-fun intellijVersionsFile(): File {
-    return File("intellijVersions.properties")
-}
 
 /**
  * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like eapOfLatestSupportedMajor)
@@ -120,52 +98,7 @@ fun resolveIntelliJVersions(versionKey: String?): List<String> {
     return listOf(versionValue) as List<String>
 }
 
-fun checkForEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
-    val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
-    val links = htmlContent.select("a[href^=" + intellijSnapshotsUrl + "com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]")
-    for (link in links) {
-        val attr = link.attr("href")
-        val pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
-        val matcher = pattern.matcher(attr)
-        if (matcher.find()) {
-            val foundBuildNumber = matcher.group()
-            if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
-                return foundBuildNumber
-            }
-        }
-    }
-    return null
-}
-
-abstract class UpdateEapBuildNumber @Inject constructor() : DefaultTask() {
-
-    @Input
-    @Optional
-    @Option(option = "exit-code", description = "Return the exit code 0 when the new eap build number is found and 1 otherwise")
-    var exitCode: Boolean? = null
-
-    @TaskAction
-    fun execute() {
-        val properties = intellijVersionsProperties()
-        //t0d0
-//        val propFile = intellijVersionsFile()
-//        val latestEapBuildNumber = intellijVersions["eapOfLatestSupportedMajor"] as String?
-//        val buildNumberThreshold = latestEapBuildNumber?.replace("-EAP-SNAPSHOT", "")
-//                ?: (intellijVersionToBuildNumber(intellijVersions["latestStable"] as String) + ".999999.999999")
-//        val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
-//        if (newerEapBuildNumber != null) {
-//            project.logger.lifecycle("EapOfLatestSupportedMajor is updated to $newerEapBuildNumber build number")
-//            properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
-//            properties.store(propFile.writer(), /*comments*/ null)
-//        }
-//        if (exitCode != null && newerEapBuildNumber == null) {
-//            throw Exception("New eap build number not found")
-//        }
-    }
-}
-
-//tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
-
+tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
 
 tasks.withType<DependencyUpdatesTask> {
 
@@ -263,6 +196,10 @@ allprojects {
         scala {
             scalafmt().configFile("$rootDir/scalafmt.conf")
         }
+        groovy {
+            target("/buildSrc/**/*.groovy")
+            greclipse().configFile("$rootDir/config/spotless/formatting-rules.xml")
+        }
     }
 
     if (!isCI) {
@@ -274,6 +211,9 @@ allprojects {
         }
         tasks.withType<ScalaCompile> {
             dependsOn("spotlessScalaApply")
+        }
+        tasks.withType<GroovyCompile> {
+            dependsOn("spotlessGroovyApply")
         }
     }
 
@@ -644,10 +584,10 @@ if (!isCI) {
 
 tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-    sinceBuild.set(intellijVersionToBuildNumber(intellijVersions["earliestSupportedMajor"] as String))
+    sinceBuild.set(IntellijVersionHelper.toBuildNumber(intellijVersions["earliestSupportedMajor"] as String))
 
     // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-    untilBuild.set(intellijVersionToBuildNumber(intellijVersions["latestSupportedMajor"] as String) + ".*")
+    untilBuild.set(IntellijVersionHelper.toBuildNumber(intellijVersions["latestSupportedMajor"] as String) + ".*")
 
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
