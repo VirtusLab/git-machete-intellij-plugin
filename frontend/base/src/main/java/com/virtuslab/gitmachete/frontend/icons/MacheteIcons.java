@@ -1,4 +1,4 @@
-package icons;
+package com.virtuslab.gitmachete.frontend.icons;
 
 import javax.swing.Icon;
 

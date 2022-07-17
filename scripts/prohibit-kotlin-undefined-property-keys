@@ -1,11 +1,11 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
 set -e -o pipefail -u
 
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-bundle=frontend/base/src/main/resources/GitMacheteBundle.properties
+bundle=frontend/resourcebundles/src/main/resources/GitMacheteBundle.properties
 [[ -f $bundle ]] || die "Bundle file ($bundle) has been (re)moved"
 
 kt_files_with_used_keys=$(git grep -Po '(?<=").*\.GitMachete\..*(?=")' -- '*.kt')
