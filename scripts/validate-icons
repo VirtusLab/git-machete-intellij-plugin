@@ -5,7 +5,7 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-ICONS_PATH='frontend/base/src/main/resources/icons'
+ICONS_PATH='frontend/base/src/main/resources'
 icon_files=$(git ls-files "$ICONS_PATH/*.svg")
 declared_icons=$(git grep -Pho '(?<=Icon) .* (?=\= loadIcon)' -- 'frontend/base/src/main/java/com/virtuslab/gitmachete/frontend/icons/MacheteIcons.java')
 
