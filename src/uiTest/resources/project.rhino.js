@@ -185,10 +185,10 @@ function Project(underlyingProject) {
       findAndClickContextMenuAction('Checkout');
     },
     checkoutAndSyncByRebase: function () {
-      findAndClickContextMenuAction('Checkout and Sync to Parent by Rebase...');
+      findAndClickContextMenuAction('Checkout and Sync to Parent by Rebase\u2026');
     },
     syncByRebase: function () {
-      findAndClickContextMenuAction('Sync to Parent by Rebase...');
+      findAndClickContextMenuAction('Sync to Parent by Rebase\u2026');
     },
     checkoutAndSyncByMerge: function () {
       findAndClickContextMenuAction('Checkout and Sync to Parent by Merge');
@@ -197,10 +197,10 @@ function Project(underlyingProject) {
       findAndClickContextMenuAction('Sync to Parent by Merge');
     },
     overrideForkPoint: function () {
-      findAndClickContextMenuAction('Override Fork Point...');
+      findAndClickContextMenuAction('Override Fork Point\u2026');
     },
     push: function () {
-      findAndClickContextMenuAction('Push...');
+      findAndClickContextMenuAction('Push\u2026');
     },
     pull: function () {
       findAndClickContextMenuAction('Pull');
@@ -212,7 +212,7 @@ function Project(underlyingProject) {
       findAndClickContextMenuAction('Fast-forward Merge into Parent');
     },
     slideIn: function () {
-      findAndClickContextMenuAction('Slide In Branch Below...');
+      findAndClickContextMenuAction('Slide In Branch Below\u2026');
     },
     slideOut: function () {
       findAndClickContextMenuAction('Slide Out');
@@ -224,7 +224,7 @@ function Project(underlyingProject) {
 
   this.toolbar = {
     syncByRebase: function () {
-      findAndClickToolbarButton('Sync Current Branch to Parent by Rebase...');
+      findAndClickToolbarButton('Sync Current Branch to Parent by Rebase\u2026');
     },
     syncByMerge: function () {
       findAndClickToolbarButton('Sync Current Branch to Parent by Merge');
@@ -239,7 +239,7 @@ function Project(underlyingProject) {
       findAndClickToolbarButton('Fast-forward Merge Current Branch into Parent');
     },
     discoverBranchLayout: function () {
-      findAndClickToolbarButton('Discover Branch Layout...');
+      findAndClickToolbarButton('Discover Branch Layout\u2026');
     },
     fetchAll: function () {
       findAndClickToolbarButton('Fetch All Remotes');

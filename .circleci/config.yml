@@ -115,7 +115,7 @@ jobs:
       - store_test_results:
           path: frontend/base/build/test-results/test/
       - store_test_results:
-          # This include the test results of both "regular" tests and UI tests for the top-level project.
+          # This includes the test results of both "regular" tests and UI tests for the top-level project.
           path: build/test-results/
 
       - when:
