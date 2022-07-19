@@ -156,7 +156,7 @@ function Project(underlyingProject) {
     findAndClickButton('Force Push');
   };
 
-  this.acceptSquash= function () {
+  this.acceptSquash = function () {
     findAndClickButton('OK');
   };
 

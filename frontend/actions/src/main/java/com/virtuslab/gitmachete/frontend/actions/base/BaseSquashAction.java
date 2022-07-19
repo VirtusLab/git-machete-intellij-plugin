@@ -25,7 +25,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
-import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapter;
+import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -38,7 +38,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     implements
       IBranchNameProvider {
 
-  private final String LS = System.lineSeparator();
+  private final String NL = System.lineSeparator();
 
   @Override
   public LambdaLogger log() {
@@ -52,40 +52,37 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     Presentation presentation = anActionEvent.getPresentation();
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val nonRootBranchOption = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
+    val branchNameOption = getNameOfBranchUnderAction(anActionEvent);
+    val nonRootBranchOption = branchNameOption.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .filter(b -> b.isNonRoot())
         .map(b -> {
           assert b.isNonRoot() : "branch is root";
           return b.asNonRoot();
         });
     val syncToParentStatus = nonRootBranchOption.map(b -> b.getSyncToParentStatus()).getOrNull();
-    val numberOfCommitsOption = nonRootBranchOption.map(b -> b.getCommits().length());
+    val numberOfCommits = nonRootBranchOption.map(b -> b.getCommits().length()).getOrNull();
 
-    if (branchName.isDefined() && nonRootBranchOption.isEmpty()) {
+    val branchName = branchNameOption.getOrNull();
+    if (branchName != null && nonRootBranchOption.isEmpty()) {
       presentation.setDescription(
-          getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root")
-              .format(branchName.get()));
+          getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root").format(branchName));
       presentation.setEnabled(false);
 
-    } else if (branchName.isDefined() && numberOfCommitsOption.isDefined()) {
-
-      val numberOfCommits = numberOfCommitsOption.getOrNull();
-      assert numberOfCommits != null : "unknown number of commits";
+    } else if (branchName != null && numberOfCommits != null) {
 
       if (numberOfCommits < 2) {
         presentation.setDescription(
             getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
-                .format(branchName.get(), numberOfCommits.toString()));
+                .format(branchName, numberOfCommits.toString()));
         presentation.setEnabled(false);
       } else if (syncToParentStatus == InSyncButForkPointOff) {
         presentation.setEnabled(false);
         presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSquashAction.fork-point-off")
-            .format(branchName.get()));
+            .format(branchName));
       } else {
-        val isSquashingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-            .map(bn -> bn.equals(branchName.get())).getOrElse(false);
-        if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrent) {
+        val isSquashingCurrentBranch = getCurrentBranchNameIfManaged(anActionEvent)
+            .map(bn -> bn.equals(branchName)).getOrElse(false);
+        if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrentBranch) {
           presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
         }
       }
@@ -115,9 +112,9 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     if (commits != null && gitRepository != null && parent != null && branchName != null
         && syncToParentStatus != InSyncButForkPointOff) {
-      val isSquashingCurrent = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName())
+      val isSquashingCurrentBranch = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName())
           .flatMap(cbn -> branchNameOption.map(bn -> bn.equals(cbn))).getOrElse(false);
-      doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrent);
+      doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
     }
   }
 
@@ -127,11 +124,12 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       ICommitOfManagedBranch parent,
       List<ICommitOfManagedBranch> commits,
       String branchName,
-      boolean isSquashingCurrent) {
+      boolean isSquashingCurrentBranch) {
     val vcsCommitMetadataAndMessage = commits.foldLeft(
         new Tuple2<List<VcsCommitMetadata>, String>(List.empty(), ""),
         (acc, commit) -> new Tuple2<>(
-            acc._1.append(new VcsCommitMetadataAdapter(parent, commit)), "${acc._2}${commit.getFullMessage()}${LS}${LS}"));
+            acc._1.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
+            "${acc._2}${commit.getFullMessage()}${NL}${NL}"));
 
     val dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,
@@ -139,7 +137,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         /* title */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.title"),
         /* dialogLabel */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.label"));
 
-    String taskName = isSquashingCurrent
+    String taskName = isSquashingCurrentBranch
         ? getString("action.GitMachete.BaseSquashAction.task-title.current")
         : getString("action.GitMachete.BaseSquashAction.task-title.non-current");
 
@@ -151,7 +149,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
             public void run(ProgressIndicator indicator) {
               LOG.info("Checking out '${branchName}' branch and squashing it");
 
-              if (!isSquashingCurrent) {
+              if (!isSquashingCurrentBranch) {
                 CheckoutSelectedBranchAction.doCheckout(project, indicator, branchName, gitRepository);
               }
 

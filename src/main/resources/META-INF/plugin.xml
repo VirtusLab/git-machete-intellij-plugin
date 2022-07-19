@@ -49,6 +49,12 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.SquashSelectedAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SquashSelectedAction"
+                    icon="MacheteIcons.SQUASH">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.OverrideForkPointOfSelectedBranchAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedBranchAction"
                     icon="MacheteIcons.OVERRIDE_FORK_POINT">
@@ -76,12 +82,6 @@
             <action id="GitMachete.FastForwardMergeSelectedBranchToParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardMergeSelectedBranchToParentAction"
                     icon="MacheteIcons.FAST_FORWARD">
-                <override-text place="GitMacheteContextMenu"/>
-            </action>
-
-            <action id="GitMachete.SquashSelectedAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SquashSelectedAction"
-                    icon="MacheteIcons.SQUASH">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 

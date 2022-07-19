@@ -20,13 +20,13 @@ public class CommitOfManagedBranch implements ICommitOfManagedBranch {
   private final IGitCoreCommit coreCommit;
 
   @Override
-  @ToString.Include(name = "message")
+  @ToString.Include(name = "shortMessage")
   public String getShortMessage() {
     return coreCommit.getShortMessage();
   }
 
   @Override
-  @ToString.Include(name = "message")
+  @ToString.Include(name = "fullMessage")
   public String getFullMessage() {
     return coreCommit.getFullMessage();
   }

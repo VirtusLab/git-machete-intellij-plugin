@@ -11,13 +11,13 @@ import io.vavr.NotImplementedError;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 
-public class VcsCommitMetadataAdapter implements VcsCommitMetadata {
+public class VcsCommitMetadataAdapterForSquash implements VcsCommitMetadata {
 
   private final java.util.List<Hash> parents;
   private final Hash hash;
   private final String fullMessage;
 
-  public VcsCommitMetadataAdapter(ICommitOfManagedBranch parent, ICommitOfManagedBranch commit) {
+  public VcsCommitMetadataAdapterForSquash(ICommitOfManagedBranch parent, ICommitOfManagedBranch commit) {
     this.parents = Collections.singletonList(HashImpl.build(parent.getHash()));
     this.hash = HashImpl.build(commit.getHash());
     this.fullMessage = commit.getFullMessage();

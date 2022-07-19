@@ -170,7 +170,7 @@ It can be the commit inferred by Git Machete (the one marked in commits list), o
 
 You can squash the commits contained by a branch using `(Checkout and) Squash...`.
 You are able to edit the final commit message in a dialog that will appear before the action.
-Note that in case of yellow branch - branch in sync but fork point not being parent branch,
+Note that in case of yellow branch &mdash; branch in sync but fork point not equal to parent branch,
 you will need to [override fork point](#override-fork-point) first.
 
 
