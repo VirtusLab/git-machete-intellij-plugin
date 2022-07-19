@@ -107,7 +107,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   }
 
   private void handleUpdateRepositoryException(Throwable t) {
-    LOG.error("Unable to create Git Machete repository", t);
+    LOG.warn("Unable to create Git Machete repository", t);
 
     // Getting the innermost exception since it's usually the primary cause that gives most valuable message
     Throwable cause = t;
