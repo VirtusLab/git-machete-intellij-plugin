@@ -2,7 +2,7 @@ import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
 
 dependencies {
-    //api(project(":qual"))
+    api(project(":qual"))
     implementation(project(":frontend:base"))
     implementation(project(":frontend:icons"))
 }
