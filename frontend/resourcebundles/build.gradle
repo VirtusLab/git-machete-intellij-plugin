@@ -1,3 +1,3 @@
 jetbrainsAnnotations()
 
-addIntellijToCompileClasspath(withGit4Idea: true)
+addIntellijToCompileClasspath(withGit4Idea: false)
