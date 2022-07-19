@@ -3,9 +3,9 @@ package com.virtuslab.gitmachete.frontend.file;
 import javax.swing.Icon;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
+import icons.MacheteIcons;
 
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLanguage;
-import com.virtuslab.gitmachete.frontend.icons.MacheteIcons;
 
 public final class MacheteFileType extends LanguageFileType {
   public static final MacheteFileType instance = new MacheteFileType();

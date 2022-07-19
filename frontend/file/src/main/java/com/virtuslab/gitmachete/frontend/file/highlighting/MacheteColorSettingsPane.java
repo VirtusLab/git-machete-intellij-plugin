@@ -7,10 +7,10 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
+import icons.MacheteIcons;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
-import com.virtuslab.gitmachete.frontend.icons.MacheteIcons;
 
 public class MacheteColorSettingsPane implements ColorSettingsPage {
   private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{

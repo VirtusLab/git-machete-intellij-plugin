@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.icons;
+package icons;
 
 import javax.swing.Icon;
 
@@ -44,7 +44,7 @@ public final class MacheteIcons {
   public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("toggleListingCommits");
 
   private static Icon loadIcon(String basename) {
-    return IconLoader.getIcon("/icons/${basename}.svg", MacheteIcons.class);
+    return IconLoader.getIcon("/${basename}.svg", MacheteIcons.class);
   }
 
 }

@@ -5,11 +5,11 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-icons_path='frontend/base/src/main/resources'
+icons_path='frontend/icons/src/main/resources'
 icon_files=$(git ls-files "$icons_path/*.svg")
-declared_icons=$(git grep -Pho '(?<=Icon) .* (?=\= loadIcon)' -- 'frontend/base/src/main/java/com/virtuslab/gitmachete/frontend/icons/MacheteIcons.java')
+declared_icons=$(git grep -Pho '(?<=Icon) .* (?=\= loadIcon)' -- 'frontend/icons/src/main/java/icons/MacheteIcons.java')
 
-for referenced_file in $(git grep -Pho '(?<=loadIcon\("/).*(?="\))' -- 'frontend/base/src/main/java/com/virtuslab/gitmachete/frontend/icons/MacheteIcons.java'); do
+for referenced_file in $(git grep -Pho '(?<=loadIcon\("/).*(?="\))' -- 'frontend/icons/src/main/java/icons/MacheteIcons.java'); do
   referenced_file_path="$icons_path/$referenced_file"
   referenced_file_path_dark=${referenced_file_path%.svg}_dark.svg
   if [[ $icon_files != *"$referenced_file_path"* ]]; then
