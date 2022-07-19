@@ -349,12 +349,12 @@ allprojects {
     val applySubtypingChecker by extra {
         if (shouldRunAllCheckers) {
             dependencies {
-                add("checkerFramework", project(":qual"))
+                //add("checkerFramework", project(":qual"))
             }
             configure<CheckerFrameworkExtension> {
                 checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
-                val qualClassDir = project(":qual").sourceSets["main"].output.classesDirs.asPath
-                extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
+//                val qualClassDir = project(":qual").sourceSets["main"].output.classesDirs.asPath
+//                extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
             }
         }
     }
