@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":frontend:ui:api"))
     implementation(project(":frontend:file"))
     implementation(project(":frontend:base"))
+    implementation(project(":frontend:resourcebundles"))
 }
 
 val addIntellijToCompileClasspath: (params: Map<String, Boolean>) -> Unit by extra

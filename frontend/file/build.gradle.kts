@@ -5,6 +5,7 @@ dependencies {
     api(project(":qual"))
     implementation(project(":frontend:base"))
     implementation(project(":frontend:icons"))
+    implementation(project(":frontend:resourcebundles"))
 }
 
 val lombok: Unit by extra
