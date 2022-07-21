@@ -319,190 +319,189 @@ allprojects {
             }
         }
     }
-
-    val applyAliasingChecker by extra {
-        if (shouldRunAllCheckers) {
-            configure<CheckerFrameworkExtension> {
-                checkers.add("org.checkerframework.common.aliasing.AliasingChecker")
-            }
-        }
-    }
-
-    val applyI18nFormatterAndTaintingCheckers by extra {
-        // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
-        // regardless of `CI` env var/`runAllCheckers` Gradle project property.
-        configure<CheckerFrameworkExtension> {
-            // t0d0
-//            checkers.addAll(listOf(
-//                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-//                    "org.checkerframework.checker.tainting.TaintingChecker"
-//            ))
-//            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
-        }
-
-        // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
-        dependencies {
-            add("checkerFramework", project(":frontend:resourcebundles"))
-        }
-    }
-
-    val applySubtypingChecker by extra {
-        if (shouldRunAllCheckers) {
-            dependencies {
-                add("checkerFramework", project(":qual"))
-            }
-            configure<CheckerFrameworkExtension> {
-                checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
-                val qualClassDir = project(":qual").sourceSets["main"].output.classesDirs.asPath
-                extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
-            }
-        }
-    }
-
-    val applyKotlinConfig by extra {
-        tasks.withType<KotlinCompile> {
-            // TODO (#785): revert this setting
-//         kotlinOptions.allWarningsAsErrors = true
-
-            // Supress the warnings about different version of Kotlin used for compilation
-            // than bundled into the `buildTarget` version of IntelliJ.
-            // For compilation we use the Kotlin version from the earliest support IntelliJ,
-            // and as per https://kotlinlang.org/docs/components-stability.html,
-            // code compiled against an older version of kotlin-stdlib should work
-            // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
-            kotlinOptions.freeCompilerArgs += listOf("-Xskip-metadata-version-check")
-
-            kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
-        }
-    }
-
-    val commonsIO by extra {
-        dependencies {
-            implementation(rootProject.libs.commonsIO)
-        }
-    }
-
-    val ideProbe by extra {
-        repositories {
-            // Needed for com.intellij.remoterobot:remote-robot
-            maven { url = `java.net`.URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies") }
-        }
-
-        dependencies {
-            // Note that we can't easily use Gradle's `testFixtures` configuration here
-            // as it doesn't seem to expose testFixtures resources in test classpath correctly.
-
-            // t0d0
-            // https://stackoverflow.com/questions/56297459/how-to-convert-sourcesets-from-a-project-to-kotlin-kts
-            // https://github.com/gradle/kotlin-dsl-samples/issues/577
-            // https://stackoverflow.com/questions/5644011/multi-project-test-dependencies-with-gradle
-            // https://github.com/hauner/gradle-plugins/tree/master/jartest
-
-//            val dependencyNotation = testFixtures(project(":testCommon"))
-//            uiTestImplementation(dependencyNotation)
-//            uiTestImplementation(rootProject.libs.bundles.ideProbe)
-
-            // This is technically redundant (both since ide-probe pulls in scala-library anyway,
-            // and since ide-probe is meant to use in src/uiTest code, not src/test code),
-            // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
-//            testImplementation(rootProject.libs.scala.library)
-        }
-    }
-
-    val jcabiAspects by extra {
-        apply(plugin = "io.freefair.aspectj.post-compile-weaving")
-//        apply<AspectJPlugin>()
-
-        tasks.withType<JavaCompile> {
-            // Turn off `adviceDidNotMatch` spam warnings
-            options.compilerArgs.add("-Xlint:ignore")
-        }
-
-        dependencies {
-            add("aspect", rootProject.libs.jcabi.aspects)
-        }
-    }
-
-    val jetbrainsAnnotations by extra {
-        dependencies {
-            compileOnly(rootProject.libs.jetbrains.annotations)
-            testCompileOnly(rootProject.libs.jetbrains.annotations)
-        }
-    }
-
-    val jgit by extra {
-        dependencies {
-            implementation(rootProject.libs.jgit)
-        }
-    }
-
-    val junit by extra {
-        dependencies {
-            testImplementation(rootProject.libs.junit)
-        }
-    }
-
-    val lombok by extra {
-        dependencies {
-            compileOnly(rootProject.libs.lombok)
-            annotationProcessor(rootProject.libs.lombok)
-            testCompileOnly(rootProject.libs.lombok)
-            testAnnotationProcessor(rootProject.libs.lombok)
-        }
-    }
-
-    val powerMock by extra {
-        dependencies {
-            testImplementation(rootProject.libs.bundles.powerMock)
-        }
-    }
-
-    val reflections by extra {
-        {
-            dependencies {
-                implementation(rootProject.libs.reflections)
-            }
-        }
-    }
-
-    val slf4jLambdaApi by extra {
-        {
-            dependencies {
-                // It's so useful for us because we are using invocations of methods that potentially consume some time
-                // also in debug messages, but this plugin allows us to use lambdas that generate log messages
-                // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
-                // (i.e. when the given log level is active)
-                implementation(rootProject.libs.slf4j.lambda)
-            }
-        }
-    }
-
-    val slf4jTestImpl by extra {
-        {
-            // We only need to provide an SLF4J implementation in the contexts which depend on the plugin but don't depend on IntelliJ.
-            // In our case, that's solely the tests of backend modules.
-            // In other contexts that require an SLF4J implementation (buildPlugin, runIde, UI tests),
-            // an SLF4J implementation is provided by IntelliJ.
-            // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version pulled in by our dependencies (like JGit)
-            // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more nuances).
-            // The below dependency provides both slf4j-api and an implementation, both already in the same version.
-            // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to `runtimeClasspath` configuration.
-            dependencies {
-                testRuntimeOnly(rootProject.libs.slf4j.simple)
-            }
-        }
-    }
-
-    val vavr by extra {
-        {
+//
+//    val applyAliasingChecker by extra {
+//        if (shouldRunAllCheckers) {
+//            configure<CheckerFrameworkExtension> {
+//                checkers.add("org.checkerframework.common.aliasing.AliasingChecker")
+//            }
+//        }
+//    }
+//
+//    val applyI18nFormatterAndTaintingCheckers by extra {
+//        // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
+//        // regardless of `CI` env var/`runAllCheckers` Gradle project property.
+//        configure<CheckerFrameworkExtension> {
+//            // t0d0
+////            checkers.addAll(listOf(
+////                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
+////                    "org.checkerframework.checker.tainting.TaintingChecker"
+////            ))
+////            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
+//        }
+//
+//        // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
+//        dependencies {
+//            add("checkerFramework", project(":frontend:resourcebundles"))
+//        }
+//    }
+//
+//    val applySubtypingChecker by extra {
+//        if (shouldRunAllCheckers) {
+//            dependencies {
+//                add("checkerFramework", project(":qual"))
+//            }
+//            configure<CheckerFrameworkExtension> {
+//                checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
+//                val qualClassDir = project(":qual").sourceSets["main"].output.classesDirs.asPath
+//                extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
+//            }
+//        }
+//    }
+//
+//    val applyKotlinConfig by extra {
+//        tasks.withType<KotlinCompile> {
+//            // TODO (#785): revert this setting
+////         kotlinOptions.allWarningsAsErrors = true
+//
+//            // Supress the warnings about different version of Kotlin used for compilation
+//            // than bundled into the `buildTarget` version of IntelliJ.
+//            // For compilation we use the Kotlin version from the earliest support IntelliJ,
+//            // and as per https://kotlinlang.org/docs/components-stability.html,
+//            // code compiled against an older version of kotlin-stdlib should work
+//            // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
+//            kotlinOptions.freeCompilerArgs += listOf("-Xskip-metadata-version-check")
+//
+//            kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
+//        }
+//    }
+//
+//    val commonsIO by extra {
+//        dependencies {
+//            implementation(rootProject.libs.commonsIO)
+//        }
+//    }
+//
+//    val ideProbe by extra {
+//        repositories {
+//            // Needed for com.intellij.remoterobot:remote-robot
+//            maven { url = `java.net`.URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies") }
+//        }
+//
+//        dependencies {
+//            // Note that we can't easily use Gradle's `testFixtures` configuration here
+//            // as it doesn't seem to expose testFixtures resources in test classpath correctly.
+//
+//            // t0d0
+//            // https://stackoverflow.com/questions/56297459/how-to-convert-sourcesets-from-a-project-to-kotlin-kts
+//            // https://github.com/gradle/kotlin-dsl-samples/issues/577
+//            // https://stackoverflow.com/questions/5644011/multi-project-test-dependencies-with-gradle
+//            // https://github.com/hauner/gradle-plugins/tree/master/jartest
+//
+////            val dependencyNotation = testFixtures(project(":testCommon"))
+////            uiTestImplementation(dependencyNotation)
+////            uiTestImplementation(rootProject.libs.bundles.ideProbe)
+//
+//            // This is technically redundant (both since ide-probe pulls in scala-library anyway,
+//            // and since ide-probe is meant to use in src/uiTest code, not src/test code),
+//            // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
+////            testImplementation(rootProject.libs.scala.library)
+//        }
+//    }
+//
+//    val jcabiAspects by extra {
+//        apply(plugin = "io.freefair.aspectj.post-compile-weaving")
+////        apply<AspectJPlugin>()
+//
+//        tasks.withType<JavaCompile> {
+//            // Turn off `adviceDidNotMatch` spam warnings
+//            options.compilerArgs.add("-Xlint:ignore")
+//        }
+//
+//        dependencies {
+//            add("aspect", rootProject.libs.jcabi.aspects)
+//        }
+//    }
+//
+//    val jetbrainsAnnotations by extra {
+//        dependencies {
+//            compileOnly(rootProject.libs.jetbrains.annotations)
+//            testCompileOnly(rootProject.libs.jetbrains.annotations)
+//        }
+//    }
+//
+//    val jgit by extra {
+//        dependencies {
+//            implementation(rootProject.libs.jgit)
+//        }
+//    }
+//
+//    val junit by extra {
+//        dependencies {
+//            testImplementation(rootProject.libs.junit)
+//        }
+//    }
+//
+//    val lombok by extra {
+//        dependencies {
+//            compileOnly(rootProject.libs.lombok)
+//            annotationProcessor(rootProject.libs.lombok)
+//            testCompileOnly(rootProject.libs.lombok)
+//            testAnnotationProcessor(rootProject.libs.lombok)
+//        }
+//    }
+//
+//    val powerMock by extra {
+//        dependencies {
+//            testImplementation(rootProject.libs.bundles.powerMock)
+//        }
+//    }
+//
+//    val reflections by extra {
+//        {
+//            dependencies {
+//                implementation(rootProject.libs.reflections)
+//            }
+//        }
+//    }
+//
+//    val slf4jLambdaApi by extra {
+//        {
+//            dependencies {
+//                // It's so useful for us because we are using invocations of methods that potentially consume some time
+//                // also in debug messages, but this plugin allows us to use lambdas that generate log messages
+//                // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
+//                // (i.e. when the given log level is active)
+//                implementation(rootProject.libs.slf4j.lambda)
+//            }
+//        }
+//    }
+//
+//    val slf4jTestImpl by extra {
+//        {
+//            // We only need to provide an SLF4J implementation in the contexts which depend on the plugin but don't depend on IntelliJ.
+//            // In our case, that's solely the tests of backend modules.
+//            // In other contexts that require an SLF4J implementation (buildPlugin, runIde, UI tests),
+//            // an SLF4J implementation is provided by IntelliJ.
+//            // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version pulled in by our dependencies (like JGit)
+//            // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more nuances).
+//            // The below dependency provides both slf4j-api and an implementation, both already in the same version.
+//            // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to `runtimeClasspath` configuration.
+//            dependencies {
+//                testRuntimeOnly(rootProject.libs.slf4j.simple)
+//            }
+//        }
+//    }
+//
+//    val vavr by extra {
+//        {
             dependencies {
                 // Unlike any other current dependency, Vavr classes are very likely to end up in binary interface of the depending subproject,
                 // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
                 api(rootProject.libs.vavr)
-
             }
-        }
-    }
+//        }
+//    }
 }
 
 
