@@ -342,7 +342,7 @@ allprojects {
 
         // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
         dependencies {
-            add("checkerFramework", project(":frontend:base"))
+            //add("checkerFramework", project(":frontend:base"))
         }
     }
 
