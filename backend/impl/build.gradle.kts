@@ -67,7 +67,7 @@ dependencies {
 
     // Note that we can't easily use Gradle's `testFixtures` configuration here
     // as it doesn't seem to expose testFixtures resources in test classpath correctly.
-    testImplementation(project(":testCommon").dependencyProject.sourceSets["test"].output)
+    testImplementation(testFixtures(project(":testCommon")))
     testRuntimeOnly(project(":branchLayout:impl"))
     testRuntimeOnly(project(":gitCore:jGit"))
 }

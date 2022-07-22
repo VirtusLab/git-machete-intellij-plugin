@@ -14,12 +14,6 @@ import org.jetbrains.intellij.tasks.*
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-buildscript {
-    dependencies {
-        classpath(libs.jsoup)
-    }
-}
-
 plugins {
     checkstyle
     `java-library`
@@ -669,4 +663,27 @@ tasks.register("uiTest") {
     dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
 }
 
-val ideProbe: Unit by extra
+//val ideProbe: Unit by extra
+repositories {
+            // Needed for com.intellij.remoterobot:remote-robot
+            maven { url = `java.net`.URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies") }
+        }
+
+        dependencies {
+            // Note that we can't easily use Gradle's `testFixtures` configuration here
+            // as it doesn't seem to expose testFixtures resources in test classpath correctly.
+
+            // t0d0
+            // https://stackoverflow.com/questions/56297459/how-to-convert-sourcesets-from-a-project-to-kotlin-kts
+            // https://github.com/gradle/kotlin-dsl-samples/issues/577
+            // https://stackoverflow.com/questions/5644011/multi-project-test-dependencies-with-gradle
+            // https://github.com/hauner/gradle-plugins/tree/master/jartest
+
+            uiTestImplementation(testFixtures(project(":testCommon")))
+            uiTestImplementation(rootProject.libs.bundles.ideProbe)
+
+            // This is technically redundant (both since ide-probe pulls in scala-library anyway,
+            // and since ide-probe is meant to use in src/uiTest code, not src/test code),
+            // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's probably https://youtrack.jetbrains.com/issue/SCL-14310).
+            testImplementation(rootProject.libs.scala.library)
+        }

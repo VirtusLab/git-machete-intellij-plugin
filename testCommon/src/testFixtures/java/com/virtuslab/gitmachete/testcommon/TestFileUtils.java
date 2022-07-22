@@ -7,11 +7,11 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 
 public final class TestFileUtils {
   private TestFileUtils() {}
@@ -20,7 +20,9 @@ public final class TestFileUtils {
   public static void copyScriptFromResources(String scriptName, Path targetDir) {
     URL resourceUrl = TestFileUtils.class.getResource("/" + scriptName);
     assert resourceUrl != null : "Can't get resource";
-    Files.copy(Paths.get(resourceUrl.toURI()), targetDir.resolve(scriptName), StandardCopyOption.REPLACE_EXISTING);
+    String scriptContents = IOUtils.resourceToString("/" + scriptName, StandardCharsets.UTF_8);
+    Files.copy(IOUtils.toInputStream(scriptContents, StandardCharsets.UTF_8), targetDir.resolve(scriptName),
+        StandardCopyOption.REPLACE_EXISTING);
   }
 
   public static void prepareRepoFromScript(String scriptName, Path workingDir) {

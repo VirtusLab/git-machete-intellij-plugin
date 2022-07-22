@@ -25,9 +25,9 @@ public final class TestProcessUtils {
 
     String commandRepr = Arrays.toString(command);
     if (!completed || process.exitValue() != 0) {
-      System.out.println("Stdout of ${commandRepr}: \n");
+      System.out.println("Stdout of ${commandRepr}: ${System.lineSeparator()}");
       System.out.println(stdout);
-      System.err.println("Stderr of ${commandRepr}: \n");
+      System.err.println("Stderr of ${commandRepr}: ${System.lineSeparator()");
       System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
     }
 

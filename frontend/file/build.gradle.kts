@@ -1,6 +1,10 @@
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
 
+plugins {
+    alias(libs.plugins.jetbrains.grammarkit)
+}
+
 dependencies {
     api(project(":qual"))
     implementation(project(":frontend:base"))
@@ -41,10 +45,6 @@ configure<CheckerFrameworkExtension> {
             add("checkerFramework", project(":frontend:resourcebundles"))
         }
 
-
-apply(plugin = "org.jetbrains.grammarkit")
-
-
 val grammarSourcesRoot = "src/main/grammar"
 // Outputs of these two tasks canNOT go into the same directory,
 // as Gradle doesn't support caching of output directories when more than one task writes.
@@ -54,8 +54,11 @@ val generatedLexerJavaSourcesRoot = "build/generated/lexer"
 val grammarJavaPackage = "com.virtuslab.gitmachete.frontend.file.grammar"
 val grammarJavaPackagePath = grammarJavaPackage.replace(".", "/")
 
-val additionalSourceDirs = listOf(File(generatedParserJavaSourcesRoot), File(generatedLexerJavaSourcesRoot))
-sourceSets["main"].java.srcDirs.addAll(additionalSourceDirs)
+val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexerJavaSourcesRoot)
+
+sourceSets["main"].java {
+    srcDir(additionalSourceDirs)
+}
 
 val generateMacheteParser = tasks.withType<GenerateParserTask>() {
     // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
