@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.testcommon;
 import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
