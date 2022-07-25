@@ -325,12 +325,11 @@ allprojects {
 //        // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
 //        // regardless of `CI` env var/`runAllCheckers` Gradle project property.
 //        configure<CheckerFrameworkExtension> {
-//            // t0d0
-////            checkers.addAll(listOf(
-////                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-////                    "org.checkerframework.checker.tainting.TaintingChecker"
-////            ))
-////            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
+//            checkers.addAll(listOf(
+//                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
+//                    "org.checkerframework.checker.tainting.TaintingChecker"
+//            ))
+//            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
 //        }
 //
 //        // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
@@ -382,15 +381,6 @@ allprojects {
 //        }
 //
 //        dependencies {
-//            // Note that we can't easily use Gradle's `testFixtures` configuration here
-//            // as it doesn't seem to expose testFixtures resources in test classpath correctly.
-//
-//            // t0d0
-//            // https://stackoverflow.com/questions/56297459/how-to-convert-sourcesets-from-a-project-to-kotlin-kts
-//            // https://github.com/gradle/kotlin-dsl-samples/issues/577
-//            // https://stackoverflow.com/questions/5644011/multi-project-test-dependencies-with-gradle
-//            // https://github.com/hauner/gradle-plugins/tree/master/jartest
-//
 ////            val dependencyNotation = testFixtures(project(":testCommon"))
 ////            uiTestImplementation(dependencyNotation)
 ////            uiTestImplementation(rootProject.libs.bundles.ideProbe)
@@ -403,13 +393,7 @@ allprojects {
 //    }
 //
 //    val jcabiAspects by extra {
-//        apply(plugin = "io.freefair.aspectj.post-compile-weaving")
-////        apply<AspectJPlugin>()
-//
-//        tasks.withType<JavaCompile> {
-//            // Turn off `adviceDidNotMatch` spam warnings
-//            options.compilerArgs.add("-Xlint:ignore")
-//        }
+//       apply<AspectJPlugin>()
 //
 //        dependencies {
 //            add("aspect", rootProject.libs.jcabi.aspects)

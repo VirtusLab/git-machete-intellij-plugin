@@ -1,5 +1,6 @@
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import io.freefair.gradle.plugins.aspectj.AspectJPlugin
+import io.freefair.gradle.plugins.aspectj.AjcAction
 plugins {
     alias(libs.plugins.aspectj.postCompileWeaving) apply false
 }
@@ -11,17 +12,10 @@ dependencies {
 
 //val jcabiAspects: Unit by extra
 apply<AspectJPlugin>()
-    apply<AspectJPlugin>()
 
-        tasks.withType<JavaCompile> {
-            // Turn off `adviceDidNotMatch` spam warnings
-            //t0d0 gradle build error: invalid flag: -Xlint:ignore
-            options.compilerArgs.add("-Xlint:ignore")
-        }
-
-        dependencies {
-            add("aspect", rootProject.libs.jcabi.aspects)
-        }
+dependencies {
+    add("aspect", rootProject.libs.jcabi.aspects)
+}
 
 //val junit: Unit by extra
 dependencies {
