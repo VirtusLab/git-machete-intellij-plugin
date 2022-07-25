@@ -18,8 +18,6 @@ public final class TestFileUtils {
 
   @SneakyThrows
   public static void copyScriptFromResources(String scriptName, Path targetDir) {
-    URL resourceUrl = TestFileUtils.class.getResource("/" + scriptName);
-    assert resourceUrl != null : "Can't get resource";
     String scriptContents = IOUtils.resourceToString("/" + scriptName, StandardCharsets.UTF_8);
     Files.copy(IOUtils.toInputStream(scriptContents, StandardCharsets.UTF_8), targetDir.resolve(scriptName),
         StandardCopyOption.REPLACE_EXISTING);
