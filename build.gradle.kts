@@ -215,7 +215,7 @@ allprojects {
     apply<CheckerFrameworkPlugin>()
     configure<CheckerFrameworkExtension> {
         excludeTests = true
-        checkers = listOf(
+        checkers = mutableListOf(
                 "org.checkerframework.checker.nullness.NullnessChecker",
         )
         if (shouldRunAllCheckers) {
@@ -227,7 +227,7 @@ allprojects {
                     "org.checkerframework.checker.optional.OptionalChecker",
             ))
         }
-        extraJavacArgs = listOf(
+        extraJavacArgs = mutableListOf(
                 "-AassumeAssertionsAreEnabled",
                 "-AinvariantArrays",
                 "-Alint=cast:redundant,cast:unsafe",
@@ -298,8 +298,7 @@ allprojects {
                 // but the risk is minuscule and not worth the extra computational burden in every single build.
                 // This might change, however, if/when Checker Framework adds @Heavyweight annotation
                 // (https://github.com/typetools/checker-framework/issues/3253).
-                // t0d0
-//                checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
+                checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
             }
 
             configure<IntelliJPluginExtension> { // or configure IntellijPluginExtension?
@@ -670,15 +669,6 @@ repositories {
         }
 
         dependencies {
-            // Note that we can't easily use Gradle's `testFixtures` configuration here
-            // as it doesn't seem to expose testFixtures resources in test classpath correctly.
-
-            // t0d0
-            // https://stackoverflow.com/questions/56297459/how-to-convert-sourcesets-from-a-project-to-kotlin-kts
-            // https://github.com/gradle/kotlin-dsl-samples/issues/577
-            // https://stackoverflow.com/questions/5644011/multi-project-test-dependencies-with-gradle
-            // https://github.com/hauner/gradle-plugins/tree/master/jartest
-
             uiTestImplementation(testFixtures(project(":testCommon")))
             uiTestImplementation(rootProject.libs.bundles.ideProbe)
 

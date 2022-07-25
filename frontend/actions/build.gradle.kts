@@ -39,12 +39,11 @@ val addIntellijToCompileClasspath: (params: Map<String, Boolean>) -> Unit by ext
 addIntellijToCompileClasspath(mapOf("withGit4Idea" to true))
 //val applyI18nFormatterAndTaintingCheckers: Unit by extra
 configure<CheckerFrameworkExtension> {
-            // t0d0
-//            checkers.addAll(listOf(
-//                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-//                    "org.checkerframework.checker.tainting.TaintingChecker"
-//            ))
-//            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
+            checkers.addAll(listOf(
+                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
+                    "org.checkerframework.checker.tainting.TaintingChecker"
+            ))
+            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
         }
 
         // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.

@@ -1,17 +1,22 @@
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
+import io.freefair.gradle.plugins.aspectj.AspectJPlugin
+plugins {
+    alias(libs.plugins.aspectj.postCompileWeaving) apply false
+}
+
 //val commonsIO: Unit by extra
 dependencies {
             implementation(rootProject.libs.commonsIO)
         }
 
 //val jcabiAspects: Unit by extra
-apply(plugin = "io.freefair.aspectj.post-compile-weaving")
-//        apply<AspectJPlugin>()
+apply<AspectJPlugin>()
+    apply<AspectJPlugin>()
 
         tasks.withType<JavaCompile> {
             // Turn off `adviceDidNotMatch` spam warnings
             //t0d0 gradle build error: invalid flag: -Xlint:ignore
-            //options.compilerArgs.add("-Xlint:ignore")
+            options.compilerArgs.add("-Xlint:ignore")
         }
 
         dependencies {
