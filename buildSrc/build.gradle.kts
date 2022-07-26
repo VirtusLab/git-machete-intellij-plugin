@@ -25,7 +25,7 @@ dependencies {
 val javaMajorVersion = JavaVersion.VERSION_11
 
 project.tasks.withType<KotlinCompile> {
-//  TODO (#785): revert this setting
+//  TODO (#1004): Fix warnings and uncomment the line below
 //  kotlinOptions.allWarningsAsErrors = true
 
   // Supress the warnings about different version of Kotlin used for compilation

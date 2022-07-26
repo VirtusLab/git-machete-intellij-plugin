@@ -32,7 +32,7 @@ object BuildUtils {
         }
     }
 
-    fun addIntellijToCompileClasspath(project: Project, params: Map<String, Boolean>) {
+    fun addIntellijToCompileClasspath(project: Project, withGit4Idea: Boolean) {
         val tasksBefore = mutableListOf<Task>()
         tasksBefore.addAll(project.tasks)
 
@@ -65,7 +65,7 @@ object BuildUtils {
             // No need to instrument Java classes with nullability assertions, we've got this covered much better by Checker
             // (and we don't plan to expose any part of the plugin as an API for other plugins).
             instrumentCode.set(false)
-            if (params["withGit4Idea"] == true) {
+            if (withGit4Idea) {
                 plugins.set(listOf("git4idea"))
             }
         }

@@ -7,6 +7,7 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.*
 
+//  TODO (#1004): Remove hardcoded dependencies and deprecated code
 object CheckerFrameworkConfigurator {
     fun configure(project: Project) {
         project.apply<CheckerFrameworkPlugin>()
@@ -45,9 +46,6 @@ object CheckerFrameworkConfigurator {
             )
 
             project.dependencies {
-//                project.dependencies.add("compileOnly", libs.checker.qual)
-//                add("checkerFramework", libs.checker)
-//                t0d0 Remove hardcoded values
                 add("compileOnly", "org.checkerframework:checker-qual:3.22.2")
                 add("checkerFramework", "org.checkerframework:checker:3.22.2")
             }

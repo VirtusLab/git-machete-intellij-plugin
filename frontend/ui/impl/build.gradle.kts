@@ -18,7 +18,7 @@ BuildUtils.slf4jLambdaApi(project)
 
 BuildUtils.vavr(project)
 
-BuildUtils.addIntellijToCompileClasspath(project, mapOf("withGit4Idea" to true))
+BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea=true)
 
 CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
 

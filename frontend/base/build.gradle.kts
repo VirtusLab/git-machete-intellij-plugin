@@ -9,4 +9,4 @@ BuildUtils.jetbrainsAnnotations(project)
 
 BuildUtils.vavr(project)
 
-BuildUtils.addIntellijToCompileClasspath(project, mapOf("withGit4Idea" to true))
+BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea=true)

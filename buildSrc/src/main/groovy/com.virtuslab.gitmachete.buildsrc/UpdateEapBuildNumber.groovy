@@ -14,6 +14,7 @@ import org.jsoup.select.Elements
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+//  TODO (#1004): Switch to Kotlin
 class UpdateEapBuildNumber extends DefaultTask {
 
   private final String intellijSnapshotsUrl = "https://www.jetbrains.com/intellij-repository/snapshots/"

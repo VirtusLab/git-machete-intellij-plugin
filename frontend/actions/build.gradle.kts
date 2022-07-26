@@ -17,7 +17,7 @@ BuildUtils.slf4jLambdaApi(project)
 
 BuildUtils.vavr(project)
 
-BuildUtils.addIntellijToCompileClasspath(project, mapOf("withGit4Idea" to true))
+BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea=true)
 
 apply(plugin = "org.jetbrains.kotlin.jvm")
 BuildUtils.applyKotlinConfig(project)

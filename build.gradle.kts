@@ -100,7 +100,7 @@ allprojects {
         // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
         // `options.release = X` makes sure that regardless of Java version used to run the compiler,
         // only Java X-compatible APIs are available to the compiled code.
-        // options.release = Integer.parseInt(javaMajorVersion.majorVersion)
+        options.release.set(Integer.parseInt(javaMajorVersion.majorVersion))
         options.compilerArgs.addAll(listOf("--release", javaMajorVersion.majorVersion))
     }
 
@@ -111,8 +111,7 @@ allprojects {
 
         // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
         // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
-        // options.addStringOption("Xwerror", "-quiet")
-        // options.addStringOption("Xdoclint:all", "-quiet")
+        options.jFlags("Xwerror", "Xdoclint:all")
         options.quiet()
     }
 

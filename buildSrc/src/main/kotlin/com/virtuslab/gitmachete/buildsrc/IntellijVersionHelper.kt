@@ -4,6 +4,7 @@ import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
 
+// TODO (#1004): Remove unsafe casts from class
 object IntellijVersionHelper {
     val mapInstance: MutableMap<String, Any> = HashMap()
 

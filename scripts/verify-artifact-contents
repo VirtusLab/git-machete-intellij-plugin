@@ -17,7 +17,7 @@ function fail() {
 
 jars_in_plugin_zip=$(zipinfo -1 "$plugin_zip" | grep -Po '(?<=git-machete-intellij-plugin/lib/).*\.jar' | sort)
 
-gradle_projects=$(cat settings.gradle.kts | grep -Po "(?<=^include ').*(?=')" | sort)
+gradle_projects=$(cat settings.gradle.kts | grep -Po '(?<=^include\(").*(?="\))' | sort)
 for project in $gradle_projects; do
   project_path=${project//:/\/}
   project_jar_name=${project//:/-}

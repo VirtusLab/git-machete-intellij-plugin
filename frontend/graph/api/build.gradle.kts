@@ -9,4 +9,4 @@ BuildUtils.lombok(project)
 
 BuildUtils.vavr(project)
 
-BuildUtils.addIntellijToCompileClasspath(project, mapOf("withGit4Idea" to false))
+BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea=false)
