@@ -1,3 +1,5 @@
+import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
 
@@ -12,37 +14,14 @@ dependencies {
     implementation(project(":frontend:resourcebundles"))
 }
 
-//val lombok: Unit by extra
-dependencies {
-            compileOnly(rootProject.libs.lombok)
-            annotationProcessor(rootProject.libs.lombok)
-            testCompileOnly(rootProject.libs.lombok)
-            testAnnotationProcessor(rootProject.libs.lombok)
-        }
+BuildUtils.lombok(project)
 
-//val vavr: Unit by extra
-dependencies {
-                // Unlike any other current dependency, Vavr classes are very likely to end up in binary interface of the depending subproject,
-                // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
-                api(rootProject.libs.vavr)
-            }
+BuildUtils.vavr(project)
 
 
-val addIntellijToCompileClasspath: (params: Map<String, Boolean>) -> Unit by extra
-addIntellijToCompileClasspath(mapOf("withGit4Idea" to true))
-//val applyI18nFormatterAndTaintingCheckers: Unit by extra
-configure<CheckerFrameworkExtension> {
-            checkers.addAll(listOf(
-                    "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-                    "org.checkerframework.checker.tainting.TaintingChecker"
-            ))
-            extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
-        }
+BuildUtils.addIntellijToCompileClasspath(project, mapOf("withGit4Idea" to true))
 
-        // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're defined in a separate module.
-        dependencies {
-            add("checkerFramework", project(":frontend:resourcebundles"))
-        }
+CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
 
 val grammarSourcesRoot = "src/main/grammar"
 // Outputs of these two tasks canNOT go into the same directory,

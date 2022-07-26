@@ -1,10 +1,7 @@
-//jetbrainsAnnotations()
-dependencies {
-            compileOnly(rootProject.libs.jetbrains.annotations)
-            testCompileOnly(rootProject.libs.jetbrains.annotations)
-        }
+import com.virtuslab.gitmachete.buildsrc.BuildUtils
 
-//junit()
 dependencies {
-            testImplementation(rootProject.libs.junit)
-        }
+    testImplementation(rootProject.libs.junit)
+}
+
+BuildUtils.jetbrainsAnnotations(project)
