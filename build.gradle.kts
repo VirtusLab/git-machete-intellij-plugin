@@ -101,7 +101,6 @@ allprojects {
         // `options.release = X` makes sure that regardless of Java version used to run the compiler,
         // only Java X-compatible APIs are available to the compiled code.
         options.release.set(Integer.parseInt(javaMajorVersion.majorVersion))
-        options.compilerArgs.addAll(listOf("--release", javaMajorVersion.majorVersion))
     }
 
     tasks.withType<Javadoc> {
