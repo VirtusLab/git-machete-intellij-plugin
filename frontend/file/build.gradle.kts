@@ -13,9 +13,7 @@ dependencies {
 }
 
 BuildUtils.lombok(project)
-
 BuildUtils.vavr(project)
-
 BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
 
 CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)

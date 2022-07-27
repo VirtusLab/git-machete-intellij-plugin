@@ -11,18 +11,12 @@ dependencies {
   implementation(project(":frontend:resourcebundles"))
 }
 
+apply(plugin = "org.jetbrains.kotlin.jvm")
+BuildUtils.applyKotlinConfig(project)
 BuildUtils.lombok(project)
-
 BuildUtils.slf4jLambdaApi(project)
-
 BuildUtils.vavr(project)
-
 BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
 
-apply(plugin = "org.jetbrains.kotlin.jvm")
-
-BuildUtils.applyKotlinConfig(project)
-
 CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
-
 CheckerFrameworkConfigurator.applySubtypingChecker(project)

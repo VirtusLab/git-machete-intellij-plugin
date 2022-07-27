@@ -8,9 +8,6 @@ dependencies {
 }
 
 BuildUtils.vavr(project)
-
 BuildUtils.slf4jLambdaApi(project)
-
 BuildUtils.lombok(project)
-
 BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)

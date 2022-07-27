@@ -6,5 +6,4 @@ dependencies {
 }
 
 BuildUtils.lombok(project)
-
 BuildUtils.vavr(project)

@@ -13,13 +13,9 @@ dependencies {
 }
 
 BuildUtils.lombok(project)
-
 BuildUtils.slf4jLambdaApi(project)
-
 BuildUtils.vavr(project)
-
 BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
 
 CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
-
 CheckerFrameworkConfigurator.applySubtypingChecker(project)

@@ -6,7 +6,5 @@ dependencies {
 }
 
 BuildUtils.jetbrainsAnnotations(project)
-
 BuildUtils.vavr(project)
-
 BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)

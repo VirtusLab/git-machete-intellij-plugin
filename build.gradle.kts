@@ -38,10 +38,7 @@ val ciBranch by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
 
-// This values can't be named in the same way as their corresponding properties to avoid a name
-// clash.
-val jvmArgsForJavaCompilation by
-    extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
+val compileJavaJvmArgs by extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
 val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
@@ -82,16 +79,18 @@ allprojects {
   tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(
         listOf(
-            "-AcallToStringExplicitlyInInterpolations", // Enforce explicit `.toString()` call in
-            // code generated for string interpolations
-            "-Werror", // Treat each compiler warning (esp. the ones coming from Checker Framework)
-            // as an error.
-            "-Xlint:unchecked", // Warn of type-unsafe operations on generics.
+            // Enforce explicit `.toString()` call in code generated for string interpolations
+            "-AcallToStringExplicitlyInInterpolations",
+            // Treat each compiler warning (esp. the ones coming from Checker Framework) as an
+            // error.
+            "-Werror",
+            // Warn of type-unsafe operations on generics.
+            "-Xlint:unchecked",
         ))
 
     options.isFork = true
     options.forkOptions.jvmArgs?.addAll(
-        jvmArgsForJavaCompilation
+        compileJavaJvmArgs
             ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError")))
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to
@@ -193,7 +192,7 @@ if (ciBranch == "master") {
   val lastTag = git.tag.list().sortedBy { it.dateTime }.last()
   val commitsSinceLastTag =
       git.log(mapOf("includes" to listOf("HEAD"), "excludes" to listOf(lastTag.fullName)))
-  val maybeCommitCount = if (commitsSinceLastTag.isEmpty()) "" else "-" + commitsSinceLastTag.size
+  val maybeCommitCount = if (commitsSinceLastTag.isEmpty()) "" else "-${commitsSinceLastTag.size}"
   val shortCommitHash = git.head().abbreviatedId
   val maybeDirty = if (git.status().isClean) "" else "-dirty"
   git.close()
@@ -232,8 +231,7 @@ tasks.withType<PatchPluginXmlTask> {
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without
   // `*`
   untilBuild.set(
-      IntellijVersionHelper.toBuildNumber(intellijVersions["latestSupportedMajor"] as String) +
-          ".*")
+      "${IntellijVersionHelper.toBuildNumber(intellijVersions["latestSupportedMajor"] as String)}.*")
 
   // Note that the first line of the description should be self-contained since it is placed into
   // embeddable card:
@@ -241,7 +239,7 @@ tasks.withType<PatchPluginXmlTask> {
   pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
   changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n" + file("$rootDir/CHANGE-NOTES.html").readText())
+      "<h3>v${rootProject.version}</h3>\n\n${file("$rootDir/CHANGE-NOTES.html").readText()}")
 }
 
 tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
@@ -310,13 +308,9 @@ uiTestTargets.onEach { version ->
       environment("IDEPROBE_DISPLAY", "xvfb")
       environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
-          System.getProperty("user.home") +
-              "/.ideprobe-uitests/" +
-              "/artifacts/uiTest" +
-              version +
-              "/screenshots")
+          "${System.getProperty("user.home")}/.ideprobe-uitests/artifacts/uiTest$version/screenshots")
       if (isCI) {
-        environment("IDEPROBE_PATHS_BASE", System.getProperty("user.home") + "/.ideprobe-uitests/")
+        environment("IDEPROBE_PATHS_BASE", "${System.getProperty("user.home")}/.ideprobe-uitests/")
       }
     }
 

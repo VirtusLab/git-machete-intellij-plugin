@@ -14,19 +14,12 @@ dependencies {
 }
 
 BuildUtils.commonsIO(project)
-
 BuildUtils.jcabiAspects(project)
-
 BuildUtils.junit(project)
-
 BuildUtils.lombok(project)
-
 BuildUtils.powerMock(project)
-
 BuildUtils.slf4jLambdaApi(project)
-
 BuildUtils.slf4jTestImpl(project)
-
 BuildUtils.vavr(project)
 
 CheckerFrameworkConfigurator.applySubtypingChecker(project)

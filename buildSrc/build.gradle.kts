@@ -25,7 +25,7 @@ dependencies {
 val javaMajorVersion = JavaVersion.VERSION_11
 
 project.tasks.withType<KotlinCompile> {
-  kotlinOptions.freeCompilerArgs += listOf("-Xskip-metadata-version-check")
-
+//  TODO (#1004): Fix warnings and uncomment the line below
+//  kotlinOptions.allWarningsAsErrors = true
   kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
 }
