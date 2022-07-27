@@ -269,10 +269,10 @@ For instance:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `idea`)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP`:
-   set `ext.intellijVersions.eapOfLatestSupportedMajor` in [build.gradle.kts](build.gradle.kts)
+   set `mapInstance["eapOfLatestSupportedMajor"]` in [IntellijVersionHelper](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersionHelper.kt)
    and see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
-   via `ext.intellijVersions.latestSupportedMajor` in [build.gradle.kts](build.gradle.kts))
+   via `mapInstance["latestSupportedMajor"]` in [IntellijVersionHelper](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersionHelper.kt))
 5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
    then, `latestStable` can be updated to `2020.3`, `eapOfLatestSupportedMajor` can be set to `null`,
    and `2020.2.x` can be added to `latestMinorsOfOldSupportedMajors`

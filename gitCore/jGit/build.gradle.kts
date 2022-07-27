@@ -1,9 +1,7 @@
 import com.virtuslab.gitmachete.buildsrc.BuildUtils
 import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
 
-dependencies {
-    api(project(":gitCore:api"))
-}
+dependencies { api(project(":gitCore:api")) }
 
 BuildUtils.jgit(project)
 

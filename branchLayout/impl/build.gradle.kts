@@ -1,8 +1,6 @@
 import com.virtuslab.gitmachete.buildsrc.BuildUtils
 
-dependencies {
-    api(project(":branchLayout:api"))
-}
+dependencies { api(project(":branchLayout:api")) }
 
 BuildUtils.junit(project)
 

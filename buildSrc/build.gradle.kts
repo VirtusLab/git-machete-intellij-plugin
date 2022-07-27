@@ -25,8 +25,8 @@ dependencies {
 val javaMajorVersion = JavaVersion.VERSION_11
 
 project.tasks.withType<KotlinCompile> {
-//  TODO (#1004): Fix warnings and uncomment the line below
-//  kotlinOptions.allWarningsAsErrors = true
+  //  TODO (#1004): Fix warnings and uncomment the line below
+  //  kotlinOptions.allWarningsAsErrors = true
 
   // Supress the warnings about different version of Kotlin used for compilation
   // than bundled into the `buildTarget` version of IntelliJ.

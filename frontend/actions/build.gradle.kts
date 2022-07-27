@@ -2,13 +2,13 @@ import com.virtuslab.gitmachete.buildsrc.BuildUtils
 import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
 
 dependencies {
-    implementation(project(":binding"))
-    implementation(project(":backend:api"))
-    implementation(project(":branchLayout:api"))
-    implementation(project(":frontend:ui:api"))
-    implementation(project(":frontend:file"))
-    implementation(project(":frontend:base"))
-    implementation(project(":frontend:resourcebundles"))
+  implementation(project(":binding"))
+  implementation(project(":backend:api"))
+  implementation(project(":branchLayout:api"))
+  implementation(project(":frontend:ui:api"))
+  implementation(project(":frontend:file"))
+  implementation(project(":frontend:base"))
+  implementation(project(":frontend:resourcebundles"))
 }
 
 BuildUtils.lombok(project)
@@ -17,9 +17,10 @@ BuildUtils.slf4jLambdaApi(project)
 
 BuildUtils.vavr(project)
 
-BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea=true)
+BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
 
 apply(plugin = "org.jetbrains.kotlin.jvm")
+
 BuildUtils.applyKotlinConfig(project)
 
 CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
