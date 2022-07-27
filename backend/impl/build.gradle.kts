@@ -31,7 +31,7 @@ BuildUtils.vavr(project)
 
 CheckerFrameworkConfigurator.applySubtypingChecker(project)
 
-tasks.withType<JavaExec>() {
+tasks.register<JavaExec>("RegenerateCliOutputs"){
   group = "Execution"
   description = "Regenerate CLI outputs used for comparison in tests"
   classpath = sourceSets["test"].runtimeClasspath
