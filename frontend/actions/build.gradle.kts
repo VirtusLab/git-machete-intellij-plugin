@@ -11,7 +11,6 @@ dependencies {
   implementation(project(":frontend:resourcebundles"))
 }
 
-apply(plugin = "org.jetbrains.kotlin.jvm")
 BuildUtils.applyKotlinConfig(project)
 BuildUtils.lombok(project)
 BuildUtils.slf4jLambdaApi(project)

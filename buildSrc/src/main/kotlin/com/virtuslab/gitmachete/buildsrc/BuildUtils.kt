@@ -13,6 +13,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 object BuildUtils {
   fun applyKotlinConfig(project: Project) {
+    project.apply(plugin = "org.jetbrains.kotlin.jvm")
+
     project.tasks.withType<KotlinCompile> {
       //            TODO (#785): revert this setting
       //            kotlinOptions.allWarningsAsErrors = true
@@ -75,8 +77,8 @@ object BuildUtils {
 
   fun commonsIO(project: Project) {
     project.dependencies {
-      val dependencyNotation = "commons-io:commons-io:2.11.0"
-      add("implementation", dependencyNotation)
+      val coordinates = "commons-io:commons-io:2.11.0"
+      add("implementation", coordinates)
     }
   }
 
@@ -109,9 +111,9 @@ object BuildUtils {
 
   fun jetbrainsAnnotations(project: Project) {
     project.dependencies {
-      val dependencyNotation = "org.jetbrains:annotations:23.0.0"
-      add("compileOnly", dependencyNotation)
-      add("testCompileOnly", dependencyNotation)
+      val coordinates = "org.jetbrains:annotations:23.0.0"
+      add("compileOnly", coordinates)
+      add("testCompileOnly", coordinates)
     }
   }
 
@@ -127,11 +129,11 @@ object BuildUtils {
 
   fun lombok(project: Project) {
     project.dependencies {
-      val dependencyNotation = "org.projectlombok:lombok:1.18.24"
-      add("compileOnly", dependencyNotation)
-      add("annotationProcessor", dependencyNotation)
-      add("testCompileOnly", dependencyNotation)
-      add("testAnnotationProcessor", dependencyNotation)
+      val coordinates = "org.projectlombok:lombok:1.18.24"
+      add("compileOnly", coordinates)
+      add("annotationProcessor", coordinates)
+      add("testCompileOnly", coordinates)
+      add("testAnnotationProcessor", coordinates)
     }
   }
 
