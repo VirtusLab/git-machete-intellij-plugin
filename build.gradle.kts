@@ -112,7 +112,10 @@ allprojects {
     // this is needed to make sure that javadoc always fails on warnings
     // (esp. important on CI since javadoc there for some reason seems to never raise any errors
     // otherwise).
-    options.jFlags("Xwerror", "Xdoclint:all")
+
+    // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
+    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
+    (options as StandardJavadocDocletOptions).addStringsOption("Xwerror", "Xdoclint:all")
     options.quiet()
   }
 
