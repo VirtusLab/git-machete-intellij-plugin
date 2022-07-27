@@ -242,7 +242,7 @@ tasks.withType<RunPluginVerifierTask> {
       if (intellijVersions["eapOfLatestSupportedMajor"] != null)
           listOf(
               (intellijVersions["eapOfLatestSupportedMajor"] as String).replace(
-                  "-EAP-(CANDIDATE-)?SNAPSHOT", ""))
+                  "-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
       else emptyList()
   ideVersions.set(
       listOf(
