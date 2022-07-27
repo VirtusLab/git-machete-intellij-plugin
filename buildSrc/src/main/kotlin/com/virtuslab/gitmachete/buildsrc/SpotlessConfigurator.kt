@@ -24,9 +24,11 @@ object SpotlessConfigurator {
 
       kotlin {
         target("/**/*.kt", "/**/*.kts")
+        targetExclude("**/build/*")
         ktfmt()
       }
       scala { scalafmt().configFile("${project.rootDir}/scalafmt.conf") }
+      // TODO (#1004): Remove groovy code as well as spotless for it
       groovy {
         target("/buildSrc/**/*.groovy")
         greclipse().configFile("${project.rootDir}/config/spotless/formatting-rules.xml")
@@ -35,10 +37,10 @@ object SpotlessConfigurator {
     val isCI: Boolean by project.rootProject.extra
 
     if (!isCI) {
-      project.tasks.withType<JavaCompile> {}
-
+      project.tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply") }
       project.tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
       project.tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
+      // TODO (#1004): Remove groovy code
       project.tasks.withType<GroovyCompile> { dependsOn("spotlessGroovyApply") }
     }
   }

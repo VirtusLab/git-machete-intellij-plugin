@@ -1,5 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.virtuslab.gitmachete.buildsrc.*
+import java.util.EnumSet
 import org.ajoberstar.grgit.gradle.GrgitPlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -31,7 +32,7 @@ val javaMajorVersion by extra(JavaVersion.VERSION_11)
 val intellijSnapshotsUrl by extra("https://www.jetbrains.com/intellij-repository/snapshots/")
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-val intellijVersions = IntellijVersionHelper.getInstance()
+val intellijVersions = IntellijVersionHelper.instance
 
 val ciBranch by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI by extra(System.getenv("CI") == "true")
@@ -111,11 +112,6 @@ allprojects {
     // this is needed to make sure that javadoc always fails on warnings
     // (esp. important on CI since javadoc there for some reason seems to never raise any errors
     // otherwise).
-
-    // The '-quiet' as second argument is actually a hack around
-    // https://github.com/gradle/gradle/issues/2354:
-    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
-    // `-quiet`, which is added anyway by Gradle.
     options.jFlags("Xwerror", "Xdoclint:all")
     options.quiet()
   }
@@ -258,12 +254,12 @@ tasks.withType<RunPluginVerifierTask> {
           *maybeEap.toTypedArray()))
 
   val skippedFailureLevels =
-      `java.util`.EnumSet.of(
+      EnumSet.of(
           DEPRECATED_API_USAGES,
           EXPERIMENTAL_API_USAGES,
           NOT_DYNAMIC,
           SCHEDULED_FOR_REMOVAL_API_USAGES)
-  failureLevel.set(`java.util`.EnumSet.complementOf(skippedFailureLevels))
+  failureLevel.set(EnumSet.complementOf(skippedFailureLevels))
 }
 
 tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }
@@ -276,10 +272,10 @@ val uiTestImplementation: Configuration by
 val uiTestRuntimeOnly: Configuration by
     configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
 
-val uiTestTargets =
+val uiTestTargets: List<String> =
     if (project.properties["against"] != null)
         IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
-    else listOf(intellijVersions["buildTarget"])
+    else listOf(intellijVersions["buildTarget"] as String)
 
 uiTestTargets.onEach { version ->
   tasks.register<Test>("uiTest_${version}") {
@@ -292,7 +288,7 @@ uiTestTargets.onEach { version ->
     dependsOn(":buildPlugin")
     val buildPlugin = tasks.findByPath(":buildPlugin")!!
 
-    systemProperty("ui-test.intellij.version", version as String)
+    systemProperty("ui-test.intellij.version", version)
     systemProperty("ui-test.plugin.path", buildPlugin.outputs.files.first().path)
 
     // TODO (#945): caching of UI test results doesn't work in the CI anyway

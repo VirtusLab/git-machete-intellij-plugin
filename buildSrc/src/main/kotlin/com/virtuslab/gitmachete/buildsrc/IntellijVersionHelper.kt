@@ -6,42 +6,36 @@ import kotlin.collections.HashMap
 
 // TODO (#1004): Remove unsafe casts from class
 object IntellijVersionHelper {
-  val mapInstance: MutableMap<String, Any> = HashMap()
+  val instance: MutableMap<String, Any> = HashMap()
 
-  fun getInstance(): MutableMap<String, Any> {
-    if (mapInstance.isEmpty()) {
-      val intellijVersionsProp = getProperties()
-      // When this value is updated, remember to update the minimum required IDEA version in
-      // README.md.
-      mapInstance["earliestSupportedMajor"] =
-          intellijVersionsProp.getProperty("earliestSupportedMajor")
-      // Most recent minor versions of all major releases
-      // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility
-      // checks and UI tests
-      mapInstance["latestMinorsOfOldSupportedMajors"] =
-          intellijVersionsProp.getProperty("latestMinorsOfOldSupportedMajors").split(",")
-      mapInstance["latestStable"] = intellijVersionsProp.getProperty("latestStable")
-      // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g.
-      // 211.4961.33-EAP-SNAPSHOT)
-      // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
-      // to ensure that the builds are reproducible.
-      // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
-      // but for some reason aren't resolved in UI tests.
-      // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
-      // Use `null` if the latest supported major has a stable release (and not just EAPs).
-      mapInstance["eapOfLatestSupportedMajor"] =
-          intellijVersionsProp.getProperty("eapOfLatestSupportedMajor")
+  init {
+    val intellijVersionsProp = getProperties()
+    // When this value is updated, remember to update the minimum required IDEA version in
+    // README.md.
+    instance["earliestSupportedMajor"] = intellijVersionsProp.getProperty("earliestSupportedMajor")
+    // Most recent minor versions of all major releases
+    // between earliest supported (incl.) and latest stable (excl.), used for binary compatibility
+    // checks and UI tests
+    instance["latestMinorsOfOldSupportedMajors"] =
+        intellijVersionsProp.getProperty("latestMinorsOfOldSupportedMajors").split(",")
+    instance["latestStable"] = intellijVersionsProp.getProperty("latestStable")
+    // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g.
+    // 211.4961.33-EAP-SNAPSHOT)
+    // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
+    // to ensure that the builds are reproducible.
+    // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,
+    // but for some reason aren't resolved in UI tests.
+    // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
+    // Use `null` if the latest supported major has a stable release (and not just EAPs).
+    instance["eapOfLatestSupportedMajor"] =
+        intellijVersionsProp.getProperty("eapOfLatestSupportedMajor")
 
-      mapInstance["latestSupportedMajor"] =
-          if (mapInstance["eapOfLatestSupportedMajor"] != null)
-              getFromBuildNumber(mapInstance["eapOfLatestSupportedMajor"]!! as String)
-          else getMajorPart(mapInstance["latestStable"]!! as String)
+    instance["latestSupportedMajor"] =
+        if (instance["eapOfLatestSupportedMajor"] != null)
+            getFromBuildNumber(instance["eapOfLatestSupportedMajor"]!! as String)
+        else getMajorPart(instance["latestStable"]!! as String)
 
-      mapInstance["buildTarget"] =
-          mapInstance["eapOfLatestSupportedMajor"] ?: mapInstance["latestStable"]!!
-    }
-
-    return mapInstance
+    instance["buildTarget"] = instance["eapOfLatestSupportedMajor"] ?: instance["latestStable"]!!
   }
 
   /**
@@ -58,7 +52,7 @@ object IntellijVersionHelper {
       return listOf(versionKey)
     }
 
-    val versionValue = mapInstance[versionKey] ?: return emptyList()
+    val versionValue = instance[versionKey] ?: return emptyList()
     if (versionValue is List<*>) {
       return versionValue as List<String>
     }

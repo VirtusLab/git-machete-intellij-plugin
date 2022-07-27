@@ -95,7 +95,6 @@ object CheckerFrameworkConfigurator {
       project.configure<CheckerFrameworkExtension> {
         checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
 
-        // t0d0 Remove deprecated functionality
         val javaPlugin: JavaPluginConvention =
             project.project(":qual").getConvention().getPlugin(JavaPluginConvention::class.java)
         val mainSourceSet: SourceSet = javaPlugin.sourceSets.getByName("main")

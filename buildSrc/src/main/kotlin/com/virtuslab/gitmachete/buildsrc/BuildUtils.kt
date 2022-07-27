@@ -61,8 +61,8 @@ object BuildUtils {
       checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
     }
 
-    project.configure<IntelliJPluginExtension> { // or configure IntellijPluginExtension?
-      version.set(IntellijVersionHelper.getInstance()["buildTarget"] as String)
+    project.configure<IntelliJPluginExtension> {
+      version.set(IntellijVersionHelper.instance["buildTarget"] as String)
       // No need to instrument Java classes with nullability assertions, we've got this covered much
       // better by Checker
       // (and we don't plan to expose any part of the plugin as an API for other plugins).

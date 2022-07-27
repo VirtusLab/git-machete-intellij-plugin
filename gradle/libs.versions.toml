@@ -4,19 +4,22 @@ ideProbe = "0.36.1"
 powerMock = "2.0.9"
 
 [libraries]
+# plugin dependency notation
 aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.4.3.1"
+checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.13"
+jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.7.0"
+jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
+spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.7.2"
+# libraries
 archunit = "com.tngtech.archunit:archunit:0.23.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.13"
 commonsIO = "commons-io:commons-io:2.11.0"
 ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
 ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.23.2"
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.7.0"
-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
 jsoup = "org.jsoup:jsoup:1.15.1"
 junit = "junit:junit:4.13.2"
@@ -27,7 +30,6 @@ reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.7.2"
 vavr = "io.vavr:vavr:0.10.4"
 
 [bundles]
