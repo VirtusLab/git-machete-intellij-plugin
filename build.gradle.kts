@@ -266,7 +266,7 @@ uiTestTargets.onEach { version ->
         testClassesDirs = uiTest.output.classesDirs
         classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
 
-        val bp = dependsOn(":buildPlugin")
+        val buildPlugin = tasks.findByPath(":buildPlugin")!!
 
         systemProperty("ui-test.intellij.version", version as String)
         systemProperty("ui-test.plugin.path", bp.outputs.files.first().path)
