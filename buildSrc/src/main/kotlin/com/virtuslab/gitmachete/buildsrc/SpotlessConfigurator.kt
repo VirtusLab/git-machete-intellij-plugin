@@ -23,9 +23,10 @@ object SpotlessConfigurator {
       }
 
       kotlin {
-        target("/**/*.kt", "/**/*.kts")
+        target("**/*.kt", "**/*.kts")
         targetExclude("**/build/*")
-        ktfmt()
+        // TODO (#1004): Try to customize ktfmt or use a different formatter
+        // ktfmt()
       }
       scala { scalafmt().configFile("${project.rootDir}/scalafmt.conf") }
       // TODO (#1004): Remove groovy code as well as spotless for it

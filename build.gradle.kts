@@ -81,8 +81,7 @@ allprojects {
         listOf(
             // Enforce explicit `.toString()` call in code generated for string interpolations
             "-AcallToStringExplicitlyInInterpolations",
-            // Treat each compiler warning (esp. the ones coming from Checker Framework) as an
-            // error.
+            // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
             "-Werror",
             // Warn of type-unsafe operations on generics.
             "-Xlint:unchecked",
@@ -93,11 +92,9 @@ allprojects {
         compileJavaJvmArgs
             ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError")))
 
-    // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to
-    // the compiled code.
+    // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
-    // This will work fine, until we actually try to run those compiled classes under Java
-    // X-compatible JVM,
+    // This will work fine, until we actually try to run those compiled classes under Java X-compatible JVM,
     // when we'll end up with NoSuchMethodError for APIs added between Java X and Java Y
     // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
     // `options.release = X` makes sure that regardless of Java version used to run the compiler,
@@ -106,11 +103,9 @@ allprojects {
   }
 
   tasks.withType<Javadoc> {
-    // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the
-    // `-Xwerror` option:
+    // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the `-Xwerror` option:
     // this is needed to make sure that javadoc always fails on warnings
-    // (esp. important on CI since javadoc there for some reason seems to never raise any errors
-    // otherwise).
+    // (esp. important on CI since javadoc there for some reason seems to never raise any errors otherwise).
 
     // The '-quiet' as second argument is actually a hack around
     // https://github.com/gradle/gradle/issues/2354:
@@ -228,13 +223,11 @@ tasks.withType<PatchPluginXmlTask> {
   sinceBuild.set(
       IntellijVersionHelper.toBuildNumber(intellijVersions["earliestSupportedMajor"] as String))
 
-  // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without
-  // `*`
+  // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   untilBuild.set(
       "${IntellijVersionHelper.toBuildNumber(intellijVersions["latestSupportedMajor"] as String)}.*")
 
-  // Note that the first line of the description should be self-contained since it is placed into
-  // embeddable card:
+  // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
   pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
