@@ -64,7 +64,7 @@ object IntellijVersionHelper {
   }
 
   fun toBuildNumber(version: String): String {
-    return version.substring(2, 6).filter { it == '.' }
+    return version.substring(2, 6).filter { it != '.' }
   }
 
   fun getMajorPart(version: String): String {
