@@ -42,7 +42,7 @@ object SpotlessConfigurator {
       project.tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
       project.tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
       // TODO (#1004): Remove groovy code
-        project.tasks.withType<GroovyCompile> { dependsOn("spotlessGroovyApply") }
+      project.tasks.withType<GroovyCompile> { dependsOn("spotlessGroovyApply") }
     }
   }
 }
