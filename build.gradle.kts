@@ -113,9 +113,12 @@ allprojects {
     // (esp. important on CI since javadoc there for some reason seems to never raise any errors
     // otherwise).
 
-    // The '-quiet' as second argument is actually a hack around https://github.com/gradle/gradle/issues/2354:
-    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra `-quiet`, which is added anyway by Gradle.
-    (options as StandardJavadocDocletOptions).addStringsOption("Xwerror", "Xdoclint:all")
+    // The '-quiet' as second argument is actually a hack around
+    // https://github.com/gradle/gradle/issues/2354:
+    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
+    // `-quiet`, which is added anyway by Gradle.
+    (options as StandardJavadocDocletOptions).addStringOption("Xwerror", "-quiet")
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all", "-quiet")
     options.quiet()
   }
 
