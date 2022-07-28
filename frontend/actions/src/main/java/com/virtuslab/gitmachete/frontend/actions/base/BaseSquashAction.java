@@ -12,14 +12,15 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.vcs.log.VcsCommitMetadata;
+import git4idea.rebase.log.GitCommitEditingOperationResult;
 import git4idea.rebase.log.squash.GitSquashOperation;
 import git4idea.repo.GitRepository;
-import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kotlin.Unit;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -54,11 +55,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     val branchNameOption = getNameOfBranchUnderAction(anActionEvent);
     val nonRootBranchOption = branchNameOption.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .filter(b -> b.isNonRoot())
-        .map(b -> {
-          assert b.isNonRoot() : "branch is root";
-          return b.asNonRoot();
-        });
+        .flatMap(b -> b.isNonRoot() ? Option.of(b.asNonRoot()) : Option.none());
     val syncToParentStatus = nonRootBranchOption.map(b -> b.getSyncToParentStatus()).getOrNull();
     val numberOfCommits = nonRootBranchOption.map(b -> b.getCommits().length()).getOrNull();
 
@@ -96,11 +93,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     val project = getProject(anActionEvent);
     val branchNameOption = getNameOfBranchUnderAction(anActionEvent);
     val nonRootBranchOption = branchNameOption.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .filter(b -> b.isNonRoot())
-        .map(b -> {
-          assert b.isNonRoot() : "branch is root";
-          return b.asNonRoot();
-        });
+        .flatMap(b -> b.isNonRoot() ? Option.of(b.asNonRoot()) : Option.none());
     val commitsOption = nonRootBranchOption
         .map(b -> b.getCommits());
     val parent = nonRootBranchOption
@@ -125,15 +118,25 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       List<ICommitOfManagedBranch> commits,
       String branchName,
       boolean isSquashingCurrentBranch) {
+
+    @Data
+    // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`
+    @SuppressWarnings("interning:not.interned")
+    class VcsCommitMetadataAndMessage {
+      private final List<VcsCommitMetadata> metadata;
+      private final String message;
+
+    }
+
     val vcsCommitMetadataAndMessage = commits.foldLeft(
-        new Tuple2<List<VcsCommitMetadata>, String>(List.empty(), ""),
-        (acc, commit) -> new Tuple2<>(
-            acc._1.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
-            "${acc._2}${commit.getFullMessage()}${NL}${NL}"));
+        new VcsCommitMetadataAndMessage(List.empty(), ""),
+        (acc, commit) -> new VcsCommitMetadataAndMessage(
+            acc.metadata.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
+            "${acc.message}${commit.getFullMessage()}${NL}${NL}"));
 
     val dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,
-        /* message */ vcsCommitMetadataAndMessage._2,
+        /* message */ vcsCommitMetadataAndMessage.message,
         /* title */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.title"),
         /* dialogLabel */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.label"));
 
@@ -153,11 +156,10 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
                 CheckoutSelectedBranchAction.doCheckout(project, indicator, branchName, gitRepository);
               }
 
-              val commitsToSquash = vcsCommitMetadataAndMessage._1.toJavaList();
+              val commitsToSquash = vcsCommitMetadataAndMessage.metadata.toJavaList();
               val operationResult = new GitSquashOperation(gitRepository).execute(commitsToSquash, newMessage);
 
-              // Hackish approach to check for internal sealed class git4idea.rebase.log.GitCommitEditingOperationResult.Complete.
-              if (operationResult.toString().contains("Complete")) {
+              if (isComplete(operationResult)) {
                 val title = getString("action.GitMachete.BaseSquashAction.notification.title");
                 val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title, NotificationType.INFORMATION);
                 VcsNotifier.getInstance(project).notify(notification);
@@ -167,5 +169,12 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
           return Unit.INSTANCE;
         });
+  }
+
+  /**
+   * Hackish approach to check for kotlin internal sealed class {@link git4idea.rebase.log.GitCommitEditingOperationResult.Complete}.
+    */
+  private boolean isComplete(GitCommitEditingOperationResult operationResult) {
+    return operationResult.toString().contains("Complete");
   }
 }

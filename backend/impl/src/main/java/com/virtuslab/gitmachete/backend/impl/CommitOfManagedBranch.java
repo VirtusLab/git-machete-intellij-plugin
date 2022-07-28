@@ -26,7 +26,6 @@ public class CommitOfManagedBranch implements ICommitOfManagedBranch {
   }
 
   @Override
-  @ToString.Include(name = "fullMessage")
   public String getFullMessage() {
     return coreCommit.getFullMessage();
   }

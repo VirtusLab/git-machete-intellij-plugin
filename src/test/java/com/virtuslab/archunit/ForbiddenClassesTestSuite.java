@@ -21,6 +21,15 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
+  public void no_classes_should_depend_on_org_apache_commons_lang_NotImplementedException() {
+    noClasses()
+        .should()
+        .dependOnClassesThat().areAssignableTo(org.apache.commons.lang.NotImplementedException.class)
+        .because("NotImplementedException is forbidden. Use io.vavr.NotImplementedError instead.")
+        .check(importedClasses);
+  }
+
+  @Test
   public void no_classes_should_depend_on_java_util_Date() {
     // GitCoreReflogEntry converts a Date coming from JGit to an Instant, hence the exception
     noClasses()

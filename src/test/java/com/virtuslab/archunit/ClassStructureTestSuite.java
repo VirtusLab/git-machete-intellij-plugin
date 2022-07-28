@@ -27,6 +27,8 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .and()
         .haveNameNotMatching("^" + com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog.class.getName()
             + "\\$WhenMappings$")
+        .and()
+        .haveNameNotMatching("^" + com.virtuslab.gitmachete.frontend.actions.base.BaseSquashAction.class.getName() + "\\$.*$")
         .should().beInnerClasses()
         .because("inner (non-static nested) classes are currently unsafe & discouraged " +
             "due to https://github.com/typetools/checker-framework/issues/3407; " +

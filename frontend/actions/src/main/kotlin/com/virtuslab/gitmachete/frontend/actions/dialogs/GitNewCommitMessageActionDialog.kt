@@ -10,10 +10,10 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 
 internal class GitNewCommitMessageActionDialog(
-    val project: Project,
-    val originMessage: String,
-    title: String,
-    val dialogLabel: String
+  val project: Project,
+  val originMessage: String,
+  title: String,
+  val dialogLabel: String
 ) : DialogWrapper(project, true) {
   val commitEditor = createCommitEditor()
   var onOk: (String) -> Unit = {}
@@ -32,16 +32,16 @@ internal class GitNewCommitMessageActionDialog(
   }
 
   override fun createCenterPanel() =
-      JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP)
-          .addToTop(JBLabel(dialogLabel))
-          .addToCenter(commitEditor)
+    JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP)
+      .addToTop(JBLabel(dialogLabel))
+      .addToCenter(commitEditor)
 
   override fun getPreferredFocusedComponent() = commitEditor.editorField
 
   override fun getDimensionServiceKey() = "Git.Rebase.Log.Action.NewCommitMessage.Dialog"
 
   private fun createCommitEditor(): CommitMessage {
-    val editor = CommitMessage(project, false, false, true)
+    val editor = CommitMessage(project, /* withSeparator */ false, /* showToolbar */ false, /* runInspections */ true)
     editor.text = originMessage
     editor.editorField.setCaretPosition(0)
     editor.editorField.addSettingsProvider { editorEx ->
