@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.buildsrc
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.compile.GroovyCompile
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.scala.ScalaCompile
 import org.gradle.kotlin.dsl.*
@@ -29,11 +28,6 @@ object SpotlessConfigurator {
         // ktfmt()
       }
       scala { scalafmt().configFile("${project.rootDir}/scalafmt.conf") }
-      // TODO (#1004): Remove groovy code as well as spotless for it
-      groovy {
-        target("/buildSrc/**/*.groovy")
-        greclipse().configFile("${project.rootDir}/config/spotless/formatting-rules.xml")
-      }
     }
     val isCI: Boolean by project.rootProject.extra
 
@@ -41,8 +35,6 @@ object SpotlessConfigurator {
       project.tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply") }
       project.tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
       project.tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
-      // TODO (#1004): Remove groovy code
-      project.tasks.withType<GroovyCompile> { dependsOn("spotlessGroovyApply") }
     }
   }
 }

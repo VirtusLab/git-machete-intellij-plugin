@@ -181,7 +181,7 @@ jobs:
           name: Check if new eap build number has appeared
           # language=sh
           command: |
-            if ! ./gradlew updateEapBuildNumber --exit-code ; then exit 0; fi
+            if ! ./gradlew updateEapBuildNumber --fail-if-not-found ; then exit 0; fi
             newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
             branch_name=update-eap/$newEapBuildNumber
             if git ls-remote --exit-code --heads origin $branch_name &> /dev/null ; then exit 0; fi
