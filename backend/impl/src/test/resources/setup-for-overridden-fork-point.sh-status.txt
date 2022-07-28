@@ -1,4 +1,4 @@
   develop
-  | 
+  |
   | Build arbitrarily long chains
   o-build-chain *

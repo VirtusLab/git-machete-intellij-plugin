@@ -1,22 +1,22 @@
   master
-  | 
+  |
   o-behind/hotfix/add-trigger (untracked)
-  | 
+  |
   | HOTFIX Add the trigger (amended)
   o-hotfix/add-trigger * (diverged from origin)
 
   develop (untracked)
-  | 
+  |
   | Allow ownership links
   o-allow-ownership-link
-    | 
+    |
     | Build arbitrarily long chains
     o-build-chain (untracked)
-      | 
+      |
       | Call web service
       | 1st round of fixes
       | 2nd round of fixes
       o-call-ws (ahead of origin)
-        | 
+        |
         | Drop unneeded SQL constraints
         x-drop-constraint (untracked)

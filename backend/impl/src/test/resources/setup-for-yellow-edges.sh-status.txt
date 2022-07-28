@@ -1,9 +1,9 @@
   develop (untracked)
-  | 
+  |
   | Allow ownership links -> fork point ??? commit 8ca0987 seems to be a part of the unique history of allow-ownership-link
   | Build arbitrarily long chains
   ?-build-chain (untracked)
-  | 
+  |
   | Allow ownership links
   | Build arbitrarily long chains -> fork point ??? commit a8d7750 seems to be a part of the unique history of build-chain
   | Call web service
@@ -12,8 +12,8 @@
   ?-call-ws  PR #124 (ahead of origin)
 
   master
-  | 
+  |
   | HOTFIX Add the trigger (amended)
   o-hotfix/add-trigger * (diverged from origin)
-    | 
+    |
     x-behind/hotfix/add-trigger (untracked)
