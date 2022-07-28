@@ -57,7 +57,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
         val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
 
         if (!newerEapBuildNumber.isNullOrEmpty()) {
-            project.logger.lifecycle("EapOfLatestSupportedMajor is updated to $newerEapBuildNumber build number")
+            project.logger.lifecycle("eapOfLatestSupportedMajor is updated to $newerEapBuildNumber build number")
             properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
             IntellijVersionHelper.storeProperties(properties)
         }
