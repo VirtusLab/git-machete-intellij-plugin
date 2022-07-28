@@ -13,7 +13,6 @@ plugins {
   checkstyle
   `java-library`
   scala
-  groovy
 
   alias(libs.plugins.taskTree)
   alias(libs.plugins.versions)
