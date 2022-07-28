@@ -21,7 +21,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
     val intellijSnapshotsUrl: String = "https://www.jetbrains.com/intellij-repository/snapshots/"
 
     @Internal
-    @Option(option = "exit-code", description = "Return the exit code 0 when the new eap build number is found and 1 otherwise")
+    @Option(option = "exit-code", description = "If set to true, the task will return the exit code 1 when the new EAP build number is NOT found")
     var exitCode: Boolean = false
 
     fun checkForEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
