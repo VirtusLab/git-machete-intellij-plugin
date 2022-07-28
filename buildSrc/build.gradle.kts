@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  `java-library`
   `kotlin-dsl`
   alias(libs.plugins.jetbrains.kotlin)
 }

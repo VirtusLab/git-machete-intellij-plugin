@@ -1,10 +1,16 @@
 package com.virtuslab.gitmachete.buildsrc
 
+import com.virtuslab.gitmachete.buildsrc.BuildUtils.bundle
 import io.freefair.gradle.plugins.aspectj.AspectJPlugin
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.ExternalModuleDependencyBundle
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
@@ -16,8 +22,8 @@ object BuildUtils {
     project.apply(plugin = "org.jetbrains.kotlin.jvm")
 
     project.tasks.withType<KotlinCompile> {
-      //            TODO (#785): revert this setting
-      //            kotlinOptions.allWarningsAsErrors = true
+      // TODO (#785): revert this setting
+      // kotlinOptions.allWarningsAsErrors = true
 
       // Supress the warnings about different version of Kotlin used for compilation
       // than bundled into the `buildTarget` version of IntelliJ.
@@ -28,7 +34,6 @@ object BuildUtils {
       kotlinOptions.freeCompilerArgs += listOf("-Xskip-metadata-version-check")
 
       val javaMajorVersion: JavaVersion by project.rootProject.extra
-
       kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
     }
   }
@@ -43,8 +48,7 @@ object BuildUtils {
     tasksAfter.addAll(project.tasks)
     tasksAfter.removeAll(tasksBefore)
     // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
-    // but don't want the associated tasks to be available; they should only be available in the
-    // root project.
+    // but don't want the associated tasks to be available; they should only be available in the root project.
     tasksAfter.forEach { it.enabled = false }
     // The only task (as of gradle-intellij-plugin v1.7.0, at least) that needs to be enabled in all
     // IntelliJ-aware modules
@@ -56,8 +60,7 @@ object BuildUtils {
     project.configure<CheckerFrameworkExtension> {
       // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules
       // that depend on IntelliJ,
-      // but the risk is minuscule and not worth the extra computational burden in every single
-      // build.
+      // but the risk is minuscule and not worth the extra computational burden in every single build.
       // This might change, however, if/when Checker Framework adds @Heavyweight annotation
       // (https://github.com/typetools/checker-framework/issues/3253).
       checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
@@ -66,8 +69,7 @@ object BuildUtils {
     project.configure<IntelliJPluginExtension> {
       version.set(IntellijVersionHelper.instance["buildTarget"] as String)
       // No need to instrument Java classes with nullability assertions, we've got this covered much
-      // better by Checker
-      // (and we don't plan to expose any part of the plugin as an API for other plugins).
+      // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
       instrumentCode.set(false)
       if (withGit4Idea) {
         plugins.set(listOf("git4idea"))
@@ -75,10 +77,22 @@ object BuildUtils {
     }
   }
 
+  // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
+  private fun Project.versionCatalog(): VersionCatalog {
+    return this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
+  }
+
+  fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> {
+    return this.versionCatalog().findBundle(id).get()
+  }
+
+  fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
+    return this.versionCatalog().findLibrary(id).get()
+  }
+
   fun commonsIO(project: Project) {
     project.dependencies {
-      val coordinates = "commons-io:commons-io:2.11.0"
-      add("implementation", coordinates)
+      add("implementation", project.lib("commonsIO"))
     }
   }
 
@@ -92,70 +106,71 @@ object BuildUtils {
 
     project.dependencies {
       add("uiTestImplementation", testFixtures(project(":testCommon")))
-      add("uiTestImplementation", "org.virtuslab.ideprobe:junit-driver_2.13:0.36.1")
-      add("uiTestImplementation", "org.virtuslab.ideprobe:robot-driver_2.13:0.36.1")
+      add("uiTestImplementation", project.bundle("ideProbe"))
 
       // This is technically redundant (both since ide-probe pulls in scala-library anyway,
       // and since ide-probe is meant to use in src/uiTest code, not src/test code),
       // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's
       // probably https://youtrack.jetbrains.com/issue/SCL-14310).
-      add("testImplementation", "org.scala-lang:scala-library:2.13.8")
+      add("testImplementation", project.lib("scala.library"))
     }
   }
 
   fun jcabiAspects(project: Project) {
     project.apply<AspectJPlugin>()
 
-    project.dependencies { add("aspect", "com.jcabi:jcabi-aspects:0.23.2") }
+    project.dependencies { add("aspect", project.lib("jcabi.aspects")) }
   }
 
   fun jetbrainsAnnotations(project: Project) {
     project.dependencies {
-      val coordinates = "org.jetbrains:annotations:23.0.0"
-      add("compileOnly", coordinates)
-      add("testCompileOnly", coordinates)
+      val lib = project.lib("jetbrains.annotations")
+      add("compileOnly", lib)
+      add("testCompileOnly", lib)
     }
   }
 
   fun jgit(project: Project) {
     project.dependencies {
-      add("implementation", "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r")
+      add("implementation", project.lib("jgit"))
     }
   }
 
   fun junit(project: Project) {
-    project.dependencies { add("testImplementation", "junit:junit:4.13.2") }
+    project.dependencies {
+      add("testImplementation", project.lib("junit"))
+    }
   }
 
   fun lombok(project: Project) {
     project.dependencies {
-      val coordinates = "org.projectlombok:lombok:1.18.24"
-      add("compileOnly", coordinates)
-      add("annotationProcessor", coordinates)
-      add("testCompileOnly", coordinates)
-      add("testAnnotationProcessor", coordinates)
+      val lib = project.lib("lombok")
+      add("compileOnly", lib)
+      add("annotationProcessor", lib)
+      add("testCompileOnly", lib)
+      add("testAnnotationProcessor", lib)
     }
   }
 
   fun powerMock(project: Project) {
     project.dependencies {
-      add("testImplementation", "org.powermock:powermock-api-mockito2:2.0.9")
-      add("testImplementation", "org.powermock:powermock-module-junit4:2.0.9")
+      add("testImplementation", project.bundle("powerMock"))
     }
   }
 
   fun reflections(project: Project) {
-    project.dependencies { add("implementation", "org.reflections:reflections:0.10.2") }
+    project.dependencies {
+      add("implementation", project.lib("reflections"))
+    }
   }
 
   fun slf4jLambdaApi(project: Project) {
     project.dependencies {
-      // It's so useful for us because we are using invocations of methods that potentially consume
-      // some time
+      // It's so useful for us because we are using invocations of methods that potentially consume some time
       // also in debug messages, but this plugin allows us to use lambdas that generate log messages
       // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
       // (i.e. when the given log level is active)
-      add("implementation", "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1")
+      add("implementation", project.lib("slf4j-lambda"))
     }
   }
 
@@ -167,22 +182,21 @@ object BuildUtils {
     // an SLF4J implementation is provided by IntelliJ.
     // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version
     // pulled in by our dependencies (like JGit)
-    // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more
-    // nuances).
-    // The below dependency provides both slf4j-api and an implementation, both already in the same
-    // version.
+    // since the latter is excluded (see the comment to `exclude group: 'org.slf4j'` for more nuances).
+    // The below dependency provides both slf4j-api and an implementation, both already in the same version.
     // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to
     // `runtimeClasspath` configuration.
-    project.dependencies { add("testRuntimeOnly", "org.slf4j:slf4j-simple:1.7.36") }
+    project.dependencies {
+      add("testRuntimeOnly", project.lib("slf4j-simple"))
+    }
   }
 
   fun vavr(project: Project) {
     project.dependencies {
       // Unlike any other current dependency, Vavr classes are very likely to end up in binary
       // interface of the depending subproject,
-      // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by
-      // default.
-      add("api", "io.vavr:vavr:0.10.4")
+      // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
+      add("api", project.lib("vavr"))
     }
   }
 }
