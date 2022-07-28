@@ -14,10 +14,9 @@ open class UpdateEapBuildNumber : DefaultTask() {
 
   @Internal
   @Option(
-      option = "exit-code",
-      description =
-          "If set to true, the task will return the exit code 1 when the new EAP build number is NOT found")
-  var exitCode: Boolean = false
+      option = "fail-if-not-found",
+      description = "If set to true, the task will return the exit code 1 when the new EAP build number is NOT found")
+  var failIfNotFound: Boolean = false
 
   fun checkForEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
     val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
@@ -63,18 +62,19 @@ open class UpdateEapBuildNumber : DefaultTask() {
       IntellijVersionHelper.storeProperties(properties)
     }
 
-    if (exitCode && newerEapBuildNumber.isNullOrEmpty()) {
-      throw Exception("New eap build number not found")
+    if (failIfNotFound && newerEapBuildNumber.isNullOrEmpty()) {
+      throw Exception("New EAP build number not found")
     }
   }
 
   companion object {
-    infix fun String.buildNumberIsNewerThan(otherBuildNumber: String): Boolean {
+    infix fun String.buildNumberIsNewerThan(rhsBuildNumber: String): Boolean {
       val lhsSplit = this.split('.')
-      val rhsSplit = otherBuildNumber.split('.')
+      val rhsSplit = rhsBuildNumber.split('.')
 
       val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
 
+      // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
       if (firstDiff == null) {
         return lhsSplit.size > rhsSplit.size
       }
