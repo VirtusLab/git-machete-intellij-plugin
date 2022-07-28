@@ -3,6 +3,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   `kotlin-dsl`
   alias(libs.plugins.jetbrains.kotlin)
+  alias(libs.plugins.versions)
+  alias(libs.plugins.versionCatalogUpdate)
+}
+
+versionCatalogUpdate {
+  sortByKey.set(false)
+
+  // TODO (ben-manes/gradle-versions-plugin#284): `versionCatalogUpdate` should work on both the project and project's buildSrc
+  //  The `keep` settings are needed so that a `versionCatalogUpdate` on buildSrc doesn't remove the dependencies of the project
+  keep {
+    keepUnusedVersions.set(true)
+    keepUnusedLibraries.set(true)
+    keepUnusedPlugins.set(true)
+  }
 }
 
 repositories {

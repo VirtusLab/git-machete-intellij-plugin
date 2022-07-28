@@ -49,10 +49,11 @@ tasks.withType<DependencyUpdatesTask> {
   rejectVersionIf { !isStableVersion(this.candidate.version) }
 }
 
-// TODO (#1010): make it possible to bump dependencies of buildSrc as well (and not only of the project itself)
 versionCatalogUpdate {
   sortByKey.set(false)
 
+  // TODO (ben-manes/gradle-versions-plugin#284): `versionCatalogUpdate` should work on both the project and project's buildSrc
+  //  The `keep` settings are needed so that a `versionCatalogUpdate` on the project doesn't remove the dependencies of buildSrc
   keep {
     keepUnusedVersions.set(true)
     keepUnusedLibraries.set(true)
