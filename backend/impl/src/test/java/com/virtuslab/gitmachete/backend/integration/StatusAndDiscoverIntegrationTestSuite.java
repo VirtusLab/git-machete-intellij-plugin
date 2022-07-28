@@ -141,7 +141,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
 
     sb.append("  ");
     sb.append(prefix);
-    sb.append("| ");
+    sb.append("|");
     sb.append(System.lineSeparator());
 
     val commits = branch.getCommits().reverse();

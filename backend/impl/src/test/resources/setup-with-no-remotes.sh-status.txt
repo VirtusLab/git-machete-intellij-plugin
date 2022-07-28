@@ -1,16 +1,16 @@
   develop *
-  | 
+  |
   | Allow ownership links
   | 1st round of fixes
   x-allow-ownership-link  PR #123
-  | | 
+  | |
   | | Build arbitrarily long chains
   | x-build-chain
-  | 
+  |
   | Call web service
   | 1st round of fixes
   | 2nd round of fixes
   o-call-ws  PR #124
-    | 
+    |
     | Drop unneeded SQL constraints
     x-drop-constraint
