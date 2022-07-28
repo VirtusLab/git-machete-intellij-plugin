@@ -40,13 +40,24 @@ val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
 
 tasks.withType<DependencyUpdatesTask> {
-  val isStableVersion: (String) -> Boolean = { version ->
+  fun isStableVersion(version: String): Boolean {
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-    val regex = "/^[0-9,.v-]+(-r)?$/".toRegex()
-    stableKeyword || regex.matches(version)
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    return stableKeyword || regex.matches(version)
   }
 
   rejectVersionIf { !isStableVersion(this.candidate.version) }
+}
+
+// TODO (#1010): make it possible to bump dependencies of buildSrc as well (and not only of the project itself)
+versionCatalogUpdate {
+  sortByKey.set(false)
+
+  keep {
+    keepUnusedVersions.set(true)
+    keepUnusedLibraries.set(true)
+    keepUnusedPlugins.set(true)
+  }
 }
 
 allprojects {
