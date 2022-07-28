@@ -36,7 +36,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
             if (matcher.find()) {
                 val foundBuildNumber = matcher.group()
 
-                if (VersionNumber.parse(foundBuildNumber) > VersionNumber.parse(latestEapBuildNumber)) {
+                if (foundBuildNumber buildNumberIsNewerThan latestEapBuildNumber) {
                     return foundBuildNumber
                 }
             }
@@ -52,7 +52,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
         val buildNumberThreshold = if (!latestEapBuildNumber.isNullOrEmpty())
                 latestEapBuildNumber.replace("-EAP-SNAPSHOT", "")
             else
-                IntellijVersionHelper.toBuildNumber(IntellijVersionHelper.instance["latestStable"] as String)+".999999.999999"
+                "${IntellijVersionHelper.toBuildNumber(IntellijVersionHelper.instance["latestStable"] as String)}.999999.999999"
 
         val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
 
@@ -64,6 +64,22 @@ open class UpdateEapBuildNumber : DefaultTask() {
 
         if (exitCode && newerEapBuildNumber.isNullOrEmpty()) {
             throw Exception("New eap build number not found")
+        }
+    }
+
+    companion object {
+        infix fun String.buildNumberIsNewerThan(otherBuildNumber: String): Boolean {
+            val lhsSplit = this.split('.')
+            val rhsSplit = otherBuildNumber.split('.')
+
+            val firstDiff = lhsSplit.zip(rhsSplit).find{ it.first != it.second }
+
+            if (firstDiff == null)
+            {
+                return lhsSplit.size > rhsSplit.size
+            }
+
+            return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
         }
     }
 }

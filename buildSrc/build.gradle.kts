@@ -15,11 +15,12 @@ repositories {
 dependencies {
   implementation(gradleApi())
   implementation(libs.aspectj.postCompileWeaving)
-  implementation(libs.jsoup)
+  implementation(libs.checkerFramework)
   implementation(libs.jetbrains.intellij)
   implementation(libs.jetbrains.kotlin)
+  implementation(libs.jsoup)
   implementation(libs.spotless)
-  implementation(libs.checkerFramework)
+  testImplementation(libs.junit)
 }
 
 val javaMajorVersion = JavaVersion.VERSION_11
