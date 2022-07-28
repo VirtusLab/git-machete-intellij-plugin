@@ -18,7 +18,7 @@ import java.util.regex.Pattern
 open class UpdateEapBuildNumber : DefaultTask() {
 
     @Internal
-    var intellijSnapshotsUrl: String = "https://www.jetbrains.com/intellij-repository/snapshots/"
+    val intellijSnapshotsUrl: String = "https://www.jetbrains.com/intellij-repository/snapshots/"
 
     @Internal
     @Option(option = "exit-code", description = "Return the exit code 0 when the new eap build number is found and 1 otherwise")
