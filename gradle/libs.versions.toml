@@ -1,31 +1,41 @@
 [versions]
-checker = "3.22.2"
-ideProbe = "0.36.1"
-powerMock = "2.0.9"
+libraries-checker = "3.22.2"
+libraries-ideProbe = "0.36.1"
+libraries-powerMock = "2.0.9"
+# @pin because 6.5.x is incompatible with kotlin plugin 1.4.x,
+#      see https://github.com/freefair/gradle-plugins/issues/554#issuecomment-1171434185 for more details
+plugins-aspectj-postCompileWeaving = "6.4.3.1"
+plugins-checkerFramework = "0.6.13"
+plugins-jetbrains-intellij = "1.7.0"
+# @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
+#      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
+#      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
+plugins-jetbrains-kotlin = "1.4.0"
+plugins-spotless = "6.7.2"
 
 [libraries]
-# plugin dependency notation
-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.4.3.1"
-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.13"
-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.7.0"
-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.7.2"
-# libraries
+# Plugins
+aspectj-postCompileWeaving = { module = "io.freefair.gradle:aspectj-plugin", version.ref = "plugins-aspectj-postCompileWeaving" }
+checkerFramework = { module = "org.checkerframework:checkerframework-gradle-plugin", version.ref = "plugins-checkerFramework" }
+jetbrains-intellij = { module = "org.jetbrains.intellij.plugins:gradle-intellij-plugin", version.ref = "plugins-jetbrains-intellij" }
+jetbrains-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "plugins-jetbrains-kotlin" }
+spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "plugins-spotless" }
+# Libraries
 archunit = "com.tngtech.archunit:archunit:0.23.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
-checker = { module = "org.checkerframework:checker", version.ref = "checker" }
-checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
+checker = { module = "org.checkerframework:checker", version.ref = "libraries-checker" }
+checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "libraries-checker" }
 commonsIO = "commons-io:commons-io:2.11.0"
-ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
-ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
+ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "libraries-ideProbe" }
+ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "libraries-ideProbe" }
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.23.2"
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
 jsoup = "org.jsoup:jsoup:1.15.1"
 junit = "junit:junit:4.13.2"
 lombok = "org.projectlombok:lombok:1.18.24"
-powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
-powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powerMock" }
+powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "libraries-powerMock" }
+powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "libraries-powerMock" }
 reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
@@ -43,18 +53,13 @@ powerMock = [
 ]
 
 [plugins]
-# @pin because 6.5.x is incompatible with kotlin plugin 1.4.x,
-#      see https://github.com/freefair/gradle-plugins/issues/554#issuecomment-1171434185 for more details
-aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.4.3.1"
-checkerFramework = "org.checkerframework:0.6.13"
+aspectj-postCompileWeaving = { id = "io.freefair.aspectj.post-compile-weaving", version.ref = "plugins-aspectj-postCompileWeaving" }
+checkerFramework = { id = "org.checkerframework", version.ref = "plugins-checkerFramework" }
 grgit = "org.ajoberstar.grgit:5.0.0"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2021.2.2"
-jetbrains-intellij = "org.jetbrains.intellij:1.7.0"
-# @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
-#      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
-#      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
-jetbrains-kotlin = "org.jetbrains.kotlin.jvm:1.4.0"
-spotless = "com.diffplug.spotless:6.7.2"
+jetbrains-intellij = { id = "org.jetbrains.intellij", version.ref = "plugins-jetbrains-intellij" }
+jetbrains-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "plugins-jetbrains-kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "plugins-spotless" }
 taskTree = "com.dorongold.task-tree:2.1.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
 versions = "com.github.ben-manes.versions:0.42.0"
