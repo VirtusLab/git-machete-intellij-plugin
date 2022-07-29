@@ -90,7 +90,7 @@ fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
 
 fun Project.commonsIO() {
   dependencies {
-    add("implementation", lib("commonsIO"))
+    "implementation"(lib("commonsIO"))
   }
 }
 
@@ -103,62 +103,62 @@ fun Project.ideProbe() {
   }
 
   dependencies {
-    add("uiTestImplementation", testFixtures(project(":testCommon")))
-    add("uiTestImplementation", bundle("ideProbe"))
+    "uiTestImplementation"(testFixtures(project(":testCommon")))
+    "uiTestImplementation"(bundle("ideProbe"))
 
     // This is technically redundant (both since ide-probe pulls in scala-library anyway,
     // and since ide-probe is meant to use in src/uiTest code, not src/test code),
     // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's
     // probably https://youtrack.jetbrains.com/issue/SCL-14310).
-    add("testImplementation", lib("scala.library"))
+    "testImplementation"(lib("scala.library"))
   }
 }
 
 fun Project.jcabiAspects() {
   apply<AspectJPlugin>()
 
-  dependencies { add("aspect", lib("jcabi.aspects")) }
+  dependencies { "aspect"(lib("jcabi.aspects")) }
 }
 
 fun Project.jetbrainsAnnotations() {
   dependencies {
     val annotations = lib("jetbrains.annotations")
-    add("compileOnly", annotations)
-    add("testCompileOnly", annotations)
+    "compileOnly"(annotations)
+    "testCompileOnly"(annotations)
   }
 }
 
 fun Project.jgit() {
   dependencies {
-    add("implementation", lib("jgit"))
+    "implementation"(lib("jgit"))
   }
 }
 
 fun Project.junit() {
   dependencies {
-    add("testImplementation", lib("junit"))
+    "testImplementation"(lib("junit"))
   }
 }
 
 fun Project.lombok() {
   dependencies {
     val lombok = lib("lombok")
-    add("compileOnly", lombok)
-    add("annotationProcessor", lombok)
-    add("testCompileOnly", lombok)
-    add("testAnnotationProcessor", lombok)
+    "compileOnly"(lombok)
+    "annotationProcessor"(lombok)
+    "testCompileOnly"(lombok)
+    "testAnnotationProcessor"(lombok)
   }
 }
 
 fun Project.powerMock() {
   dependencies {
-    add("testImplementation", bundle("powerMock"))
+    "testImplementation"(bundle("powerMock"))
   }
 }
 
 fun Project.reflections() {
   dependencies {
-    add("implementation", lib("reflections"))
+    "implementation"(lib("reflections"))
   }
 }
 
@@ -168,7 +168,7 @@ fun Project.slf4jLambdaApi() {
     // also in debug messages, but this plugin allows us to use lambdas that generate log messages
     // (mainly using string interpolation plugin) and these lambdas are evaluated only when needed
     // (i.e. when the given log level is active)
-    add("implementation", lib("slf4j-lambda"))
+    "implementation"(lib("slf4j-lambda"))
   }
 }
 
@@ -185,7 +185,7 @@ fun Project.slf4jTestImpl() {
   // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to
   // `runtimeClasspath` configuration.
   dependencies {
-    add("testRuntimeOnly", lib("slf4j-simple"))
+    "testRuntimeOnly"(lib("slf4j-simple"))
   }
 }
 
@@ -194,6 +194,6 @@ fun Project.vavr() {
     // Unlike any other current dependency, Vavr classes are very likely to end up in binary
     // interface of the depending subproject,
     // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
-    add("api", lib("vavr"))
+    "api"(lib("vavr"))
   }
 }

@@ -53,8 +53,8 @@ fun Project.configureCheckerFramework() {
         )
 
     dependencies {
-      add("compileOnly", lib("checker.qual"))
-      add("checkerFramework", lib("checker"))
+      "compileOnly"(lib("checker.qual"))
+      "checkerFramework"(lib("checker"))
     }
   }
 }
@@ -82,14 +82,18 @@ fun Project.applyI18nFormatterAndTaintingCheckers() {
 
   // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're
   // defined in a separate module.
-  dependencies { add("checkerFramework", project(":frontend:resourcebundles")) }
+  dependencies {
+    "checkerFramework"(project(":frontend:resourcebundles"))
+  }
 }
 
 fun Project.applySubtypingChecker() {
   val shouldRunAllCheckers: Boolean by rootProject.extra
 
   if (shouldRunAllCheckers) {
-    dependencies { add("checkerFramework", project(":qual")) }
+    dependencies {
+      "checkerFramework"(project(":qual"))
+    }
     configure<CheckerFrameworkExtension> {
       checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
 
