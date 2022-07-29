@@ -67,7 +67,7 @@ object BuildUtils {
     }
 
     project.configure<IntelliJPluginExtension> {
-      version.set(IntellijVersionHelper.instance["buildTarget"] as String)
+      version.set(IntellijVersions.buildTarget)
       // No need to instrument Java classes with nullability assertions, we've got this covered much
       // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
       instrumentCode.set(false)
