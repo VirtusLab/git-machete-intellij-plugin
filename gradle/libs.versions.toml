@@ -14,12 +14,6 @@ plugins-jetbrains-kotlin = "1.4.0"
 plugins-spotless = "6.7.2"
 
 [libraries]
-# Plugins
-aspectj-postCompileWeaving = { module = "io.freefair.gradle:aspectj-plugin", version.ref = "plugins-aspectj-postCompileWeaving" }
-checkerFramework = { module = "org.checkerframework:checkerframework-gradle-plugin", version.ref = "plugins-checkerFramework" }
-jetbrains-intellij = { module = "org.jetbrains.intellij.plugins:gradle-intellij-plugin", version.ref = "plugins-jetbrains-intellij" }
-jetbrains-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "plugins-jetbrains-kotlin" }
-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "plugins-spotless" }
 # Libraries
 archunit = "com.tngtech.archunit:archunit:0.23.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
@@ -41,6 +35,12 @@ scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
+# Plugins
+pluginPackages-aspectj-postCompileWeaving = { module = "io.freefair.gradle:aspectj-plugin", version.ref = "plugins-aspectj-postCompileWeaving" }
+pluginPackages-checkerFramework = { module = "org.checkerframework:checkerframework-gradle-plugin", version.ref = "plugins-checkerFramework" }
+pluginPackages-jetbrains-intellij = { module = "org.jetbrains.intellij.plugins:gradle-intellij-plugin", version.ref = "plugins-jetbrains-intellij" }
+pluginPackages-jetbrains-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "plugins-jetbrains-kotlin" }
+pluginPackages-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "plugins-spotless" }
 
 [bundles]
 ideProbe = [
@@ -62,4 +62,4 @@ jetbrains-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "plugins-jet
 spotless = { id = "com.diffplug.spotless", version.ref = "plugins-spotless" }
 taskTree = "com.dorongold.task-tree:2.1.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.3"
-versions = "com.github.ben-manes.versions:0.42.0"
+versionsFilter = "se.ascp.gradle.gradle-versions-filter:0.1.16"

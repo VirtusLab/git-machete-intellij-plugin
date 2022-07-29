@@ -2,8 +2,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   `kotlin-dsl`
+  // See https://youtrack.jetbrains.com/issue/KTIJ-19369
+  // for the details of a false-positive error reported here by IntelliJ
   alias(libs.plugins.jetbrains.kotlin)
-  alias(libs.plugins.versions)
+  alias(libs.plugins.versionsFilter)
   alias(libs.plugins.versionCatalogUpdate)
 }
 
@@ -27,12 +29,16 @@ repositories {
 
 dependencies {
   implementation(gradleApi())
-  implementation(libs.aspectj.postCompileWeaving)
-  implementation(libs.checkerFramework)
-  implementation(libs.jetbrains.intellij)
-  implementation(libs.jetbrains.kotlin)
   implementation(libs.jsoup)
-  implementation(libs.spotless)
+  // Needed so that versionCatalogUpdate, when executed against buildSrc,
+  // doesn't see jetbrains-annotations as an exceeded dependency and doesn't try to downgrade.
+  // See https://github.com/littlerobots/version-catalog-update-plugin#exceeded-dependencies
+  implementation(libs.jetbrains.annotations)
+  implementation(libs.pluginPackages.aspectj.postCompileWeaving)
+  implementation(libs.pluginPackages.checkerFramework)
+  implementation(libs.pluginPackages.jetbrains.intellij)
+  implementation(libs.pluginPackages.jetbrains.kotlin)
+  implementation(libs.pluginPackages.spotless)
   testImplementation(libs.junit)
 }
 

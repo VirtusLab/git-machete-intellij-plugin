@@ -6,6 +6,43 @@ commands:
           name: Reconfigure origin remote to https
           # language=sh
           command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+  create_pull_request_if_files_changed:
+    parameters:
+      branch_name_prefix:
+        type: string
+      branch_name_command:
+        type: string
+      commit_message_prefix:
+        type: string
+      commit_message_command:
+        type: string
+        default: 'echo ""'
+      labels:  # comma-separated
+        type: string
+    steps:
+      - run:
+          name: Create a pull request if project files changed
+          # language=sh
+          command: |
+            if git diff-index --quiet HEAD; then
+              echo "No changes to project files after running the task, aborting"
+              exit 0
+            fi
+
+            branch_name="<<parameters.branch_name_prefix>>/$(<<parameters.branch_name_command>>)"
+            if git ls-remote --exit-code --heads origin "$branch_name" &> /dev/null; then
+              echo "Branch $branch_name already exists in the remote, aborting"
+              exit 0
+            fi
+
+            git checkout -b "$branch_name"
+            git commit -a -m "<<parameters.commit_message_prefix>> $(<<parameters.commit_message_command>>)"
+            git push origin "$branch_name"
+            hub pull-request \
+              --no-edit \
+              --base="$CIRCLE_BRANCH" \
+              --labels="<<parameters.labels>>"
+            git checkout "$CIRCLE_BRANCH"
 executors:
   docker_executor:
     docker:
@@ -166,7 +203,7 @@ jobs:
                     $tag
 
 
-  updateEapBuildNumber:
+  checkForUpdates:
     executor: docker_executor
     steps:
       - checkout
@@ -178,35 +215,39 @@ jobs:
             git config user.name "Git Machete Bot"
       - reconfigure_origin_remote
       - run:
-          name: Check if new eap build number has appeared
+          name: Check for updates of IntelliJ EAP
+          command: ./gradlew updateEapBuildNumber
+      - create_pull_request_if_files_changed:
+          branch_name_prefix: update-eap
+          branch_name_command: &extract_eap grep -Po '(?<=eapOfLatestSupportedMajor=).*(?=-EAP-SNAPSHOT)' intellijVersions.properties
+          commit_message_prefix: Update EAP build number to
+          commit_message_command: *extract_eap
+          labels: intellij-support
+      - run:
+          name: Check for updates of libraries & Gradle plugins
           # language=sh
           command: |
-            if ! ./gradlew updateEapBuildNumber --fail-if-not-found ; then exit 0; fi
-            newEapBuildNumber=$(grep -Po '(?<=eapOfLatestSupportedMajor=).*' intellijVersions.properties)
-            branch_name=update-eap/$newEapBuildNumber
-            if git ls-remote --exit-code --heads origin $branch_name &> /dev/null ; then exit 0; fi
-            git checkout -b "$branch_name"
-            git add intellijVersions.properties
-            git commit -m "Update EAP build number to $newEapBuildNumber"
-            git push origin "$branch_name"
-            hub pull-request \
-              --no-edit \
-              --base=develop \
-              --labels=intellij-support
-
+            ./gradlew versionCatalogUpdate
+            cd buildSrc/
+            ../gradlew versionCatalogUpdate
+      - create_pull_request_if_files_changed:
+          branch_name_prefix: update-deps
+          branch_name_command: md5sum gradle/libs.versions.toml | cut -d' ' -f 1
+          commit_message_prefix: Update dependencies
+          labels: build
 
 workflows:
   version: 2
   build:
     jobs:
       - build
-  updateEapBuildNumber:
+  checkForUpdates:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: "0 0 * * *"  # everyday at midnight UTC
           filters:
             branches:
               only:
                 - develop
     jobs:
-      - updateEapBuildNumber
+      - checkForUpdates

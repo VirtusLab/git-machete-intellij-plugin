@@ -1,4 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.virtuslab.gitmachete.buildsrc.*
 import java.util.EnumSet
 import org.ajoberstar.grgit.gradle.GrgitPlugin
@@ -14,8 +13,10 @@ plugins {
   `java-library`
   scala
 
+  // See https://youtrack.jetbrains.com/issue/KTIJ-19369
+  // for the details of a false-positive error reported here by IntelliJ
   alias(libs.plugins.taskTree)
-  alias(libs.plugins.versions)
+  alias(libs.plugins.versionsFilter)
   alias(libs.plugins.versionCatalogUpdate)
 
   alias(libs.plugins.grgit) apply false
@@ -38,16 +39,6 @@ val compileJavaJvmArgs by extra((project.properties["compileJavaJvmArgs"] as Str
 val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
-
-tasks.withType<DependencyUpdatesTask> {
-  fun isStableVersion(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    return stableKeyword || regex.matches(version)
-  }
-
-  rejectVersionIf { !isStableVersion(this.candidate.version) }
-}
 
 versionCatalogUpdate {
   sortByKey.set(false)

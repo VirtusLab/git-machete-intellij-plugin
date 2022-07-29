@@ -5,7 +5,9 @@ object IntellijVersions {
 
     private val intellijVersionsProp = IntellijVersionHelper.getProperties()
 
-    // When this value is updated, remember to update the minimum required IDEA version in README.md.
+    // When this value is updated, remember to update:
+    // 1. the minimum required IDEA version in README.md,
+    // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
     val earliestSupportedMajor: String = intellijVersionsProp.getProperty("earliestSupportedMajor")
 
     // Most recent minor versions of all major releases between earliest supported (incl.)

@@ -12,12 +12,6 @@ open class UpdateEapBuildNumber : DefaultTask() {
   @Internal
   val intellijSnapshotsUrl: String = "https://www.jetbrains.com/intellij-repository/snapshots/"
 
-  @Internal
-  @Option(
-      option = "fail-if-not-found",
-      description = "If set to true, the task will return the exit code 1 when the new EAP build number is NOT found")
-  var failIfNotFound: Boolean = false
-
   fun checkForEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
     val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
     val links =
@@ -52,14 +46,9 @@ open class UpdateEapBuildNumber : DefaultTask() {
     val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
 
     if (!newerEapBuildNumber.isNullOrEmpty()) {
-      project.logger.lifecycle(
-          "eapOfLatestSupportedMajor is updated to $newerEapBuildNumber build number")
+      project.logger.lifecycle("eapOfLatestSupportedMajor is updated to $newerEapBuildNumber")
       properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
       IntellijVersionHelper.storeProperties(properties)
-    }
-
-    if (failIfNotFound && newerEapBuildNumber.isNullOrEmpty()) {
-      throw Exception("New EAP build number not found")
     }
   }
 
