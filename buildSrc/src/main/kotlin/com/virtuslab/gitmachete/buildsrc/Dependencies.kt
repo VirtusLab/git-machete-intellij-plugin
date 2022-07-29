@@ -20,19 +20,21 @@ fun Project.applyKotlinConfig() {
   apply(plugin = "org.jetbrains.kotlin.jvm")
 
   tasks.withType<KotlinCompile> {
-    // TODO (#785): revert this setting
-    // kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions {
+      // TODO (#785): revert this setting
+      // allWarningsAsErrors = true
 
-    // Supress the warnings about different version of Kotlin used for compilation
-    // than bundled into the `buildTarget` version of IntelliJ.
-    // For compilation we use the Kotlin version from the earliest support IntelliJ,
-    // and as per https://kotlinlang.org/docs/components-stability.html,
-    // code compiled against an older version of kotlin-stdlib should work
-    // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
-    kotlinOptions.freeCompilerArgs += listOf("-Xskip-metadata-version-check")
+      // Supress the warnings about different version of Kotlin used for compilation
+      // than bundled into the `buildTarget` version of IntelliJ.
+      // For compilation we use the Kotlin version from the earliest support IntelliJ,
+      // and as per https://kotlinlang.org/docs/components-stability.html,
+      // code compiled against an older version of kotlin-stdlib should work
+      // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
+      freeCompilerArgs += listOf("-Xskip-metadata-version-check")
 
-    val javaMajorVersion: JavaVersion by rootProject.extra
-    kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
+      val javaMajorVersion: JavaVersion by rootProject.extra
+      jvmTarget = javaMajorVersion.majorVersion
+    }
   }
 }
 
