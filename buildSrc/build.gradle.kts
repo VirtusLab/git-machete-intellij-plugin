@@ -43,3 +43,9 @@ project.tasks.withType<KotlinCompile> {
 //  kotlinOptions.allWarningsAsErrors = true
   kotlinOptions.jvmTarget = javaMajorVersion.majorVersion
 }
+
+kotlin {
+  kotlinDslPluginOptions {
+    jvmTarget.set(javaMajorVersion.majorVersion)
+  }
+}
