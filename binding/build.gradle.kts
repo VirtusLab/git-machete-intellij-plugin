@@ -1,5 +1,5 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
-BuildUtils.lombok(project)
-BuildUtils.reflections(project)
-BuildUtils.slf4jLambdaApi(project)
+lombok()
+reflections()
+slf4jLambdaApi()

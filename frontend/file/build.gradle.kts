@@ -1,5 +1,4 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
-import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
+import com.virtuslab.gitmachete.buildsrc.*
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
 
@@ -12,11 +11,11 @@ dependencies {
   implementation(project(":frontend:resourcebundles"))
 }
 
-BuildUtils.lombok(project)
-BuildUtils.vavr(project)
-BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
+addIntellijToCompileClasspath(withGit4Idea = true)
+lombok()
+vavr()
 
-CheckerFrameworkConfigurator.applyI18nFormatterAndTaintingCheckers(project)
+applyI18nFormatterAndTaintingCheckers()
 
 val grammarSourcesRoot = "src/main/grammar"
 // Outputs of these two tasks canNOT go into the same directory,

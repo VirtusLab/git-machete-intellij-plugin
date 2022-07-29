@@ -1,11 +1,9 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
 plugins {
   `java-library`
   `java-test-fixtures`
 }
-
-BuildUtils.lombok(project)
 
 dependencies {
   testFixturesAnnotationProcessor(rootProject.libs.lombok)

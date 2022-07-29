@@ -134,11 +134,9 @@ allprojects {
     }
   }
 
-  SpotlessConfigurator.configure(project)
-
-  CheckerFrameworkConfigurator.configure(project)
-
-  CheckStyleConfigurator.configure(project)
+  configureCheckstyle()
+  configureCheckerFramework()
+  configureSpotless()
 
   // A few libraries (like JGit and reflections) transitively pull in a version of slf4j-api
   // that might be different from the slf4j-api version that IntelliJ depends on.
@@ -317,4 +315,4 @@ uiTestTargets.onEach { version ->
 
 tasks.register("uiTest") { dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") }) }
 
-BuildUtils.ideProbe(project)
+ideProbe()

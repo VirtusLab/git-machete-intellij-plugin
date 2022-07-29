@@ -1,10 +1,10 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies { api(project(":branchLayout:api")) }
 
-BuildUtils.junit(project)
-BuildUtils.lombok(project)
-BuildUtils.powerMock(project)
-BuildUtils.slf4jLambdaApi(project)
-BuildUtils.slf4jTestImpl(project)
-BuildUtils.vavr(project)
+junit()
+lombok()
+powerMock()
+slf4jLambdaApi()
+slf4jTestImpl()
+vavr()

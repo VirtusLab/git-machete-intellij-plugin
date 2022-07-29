@@ -1,10 +1,10 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
   api(project(":qual"))
   api(project(":backend:api"))
 }
 
-BuildUtils.jetbrainsAnnotations(project)
-BuildUtils.vavr(project)
-BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = true)
+addIntellijToCompileClasspath(withGit4Idea = true)
+jetbrainsAnnotations()
+vavr()

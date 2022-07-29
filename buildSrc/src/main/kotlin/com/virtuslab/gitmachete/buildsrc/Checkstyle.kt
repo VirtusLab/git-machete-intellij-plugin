@@ -8,13 +8,11 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.named
 
-object CheckStyleConfigurator {
-  fun configure(project: Project) {
-    project.apply<CheckstylePlugin>()
-    project.configure<CheckstyleExtension> {
-      project.tasks.named<Checkstyle>("checkstyleTest") { enabled = false }
+fun Project.configureCheckstyle() {
+  apply<CheckstylePlugin>()
+  configure<CheckstyleExtension> {
+    tasks.named<Checkstyle>("checkstyleTest") { enabled = false }
 
-      configProperties = mapOf("rootCheckstyleConfigDir" to "${project.rootDir}/config/checkstyle")
-    }
+    configProperties = mapOf("rootCheckstyleConfigDir" to "${rootDir}/config/checkstyle")
   }
 }

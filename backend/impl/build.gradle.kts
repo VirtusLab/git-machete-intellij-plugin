@@ -1,5 +1,4 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
-import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
   implementation(project(":binding"))
@@ -13,16 +12,16 @@ dependencies {
   testRuntimeOnly(project(":gitCore:jGit"))
 }
 
-BuildUtils.commonsIO(project)
-BuildUtils.jcabiAspects(project)
-BuildUtils.junit(project)
-BuildUtils.lombok(project)
-BuildUtils.powerMock(project)
-BuildUtils.slf4jLambdaApi(project)
-BuildUtils.slf4jTestImpl(project)
-BuildUtils.vavr(project)
+commonsIO()
+jcabiAspects()
+junit()
+lombok()
+powerMock()
+slf4jLambdaApi()
+slf4jTestImpl()
+vavr()
 
-CheckerFrameworkConfigurator.applySubtypingChecker(project)
+applySubtypingChecker()
 
 tasks.register<JavaExec>("regenerateCliOutputs") {
   group = "Execution"

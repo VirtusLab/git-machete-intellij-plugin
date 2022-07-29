@@ -1,4 +1,4 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
-BuildUtils.lombok(project)
-BuildUtils.vavr(project)
+lombok()
+vavr()

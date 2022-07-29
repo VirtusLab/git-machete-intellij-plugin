@@ -1,3 +1,3 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
-BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = false)
+addIntellijToCompileClasspath(withGit4Idea = false)

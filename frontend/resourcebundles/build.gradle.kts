@@ -1,5 +1,5 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies { testImplementation(rootProject.libs.junit) }
 
-BuildUtils.jetbrainsAnnotations(project)
+jetbrainsAnnotations()

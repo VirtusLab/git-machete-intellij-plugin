@@ -1,9 +1,9 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
   api(project(":qual"))
   api(project(":branchLayout:api"))
 }
 
-BuildUtils.lombok(project)
-BuildUtils.vavr(project)
+lombok()
+vavr()

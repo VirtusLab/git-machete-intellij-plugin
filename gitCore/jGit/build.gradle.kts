@@ -1,11 +1,10 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
-import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies { api(project(":gitCore:api")) }
 
-BuildUtils.jgit(project)
-BuildUtils.lombok(project)
-BuildUtils.slf4jLambdaApi(project)
-BuildUtils.vavr(project)
+jgit()
+lombok()
+slf4jLambdaApi()
+vavr()
 
-CheckerFrameworkConfigurator.applyAliasingChecker(project)
+applyAliasingChecker()

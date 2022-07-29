@@ -1,5 +1,4 @@
-import com.virtuslab.gitmachete.buildsrc.BuildUtils
-import com.virtuslab.gitmachete.buildsrc.CheckerFrameworkConfigurator
+import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
   api(project(":frontend:graph:api"))
@@ -8,9 +7,9 @@ dependencies {
   implementation(project(":frontend:base"))
 }
 
-BuildUtils.lombok(project)
-BuildUtils.slf4jLambdaApi(project)
-BuildUtils.vavr(project)
-BuildUtils.addIntellijToCompileClasspath(project, withGit4Idea = false)
+addIntellijToCompileClasspath(withGit4Idea = false)
+lombok()
+slf4jLambdaApi()
+vavr()
 
-CheckerFrameworkConfigurator.applySubtypingChecker(project)
+applySubtypingChecker()
