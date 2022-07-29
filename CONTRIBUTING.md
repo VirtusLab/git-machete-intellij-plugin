@@ -123,8 +123,8 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 
 ## Debug
 
-To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new configuration for Gradle
-![image](https://user-images.githubusercontent.com/61919032/181751590-cc21dd74-f481-4b86-b0d9-b99836669bfd.png)
+To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new Run Configuration for Gradle: </br>
+![debug_configuration](docs/debug_configuration.png)
 
 Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Shift+F9 (`^D` on Mac).
 
