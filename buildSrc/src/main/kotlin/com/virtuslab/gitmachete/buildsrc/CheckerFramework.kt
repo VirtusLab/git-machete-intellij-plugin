@@ -3,11 +3,9 @@ package com.virtuslab.gitmachete.buildsrc
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkPlugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.*
 
-//  TODO (#1004): Remove deprecated code
 fun Project.configureCheckerFramework() {
   apply<CheckerFrameworkPlugin>()
   configure<CheckerFrameworkExtension> {
@@ -97,9 +95,8 @@ fun Project.applySubtypingChecker() {
     configure<CheckerFrameworkExtension> {
       checkers.add("org.checkerframework.common.subtyping.SubtypingChecker")
 
-      val javaPlugin: JavaPluginConvention =
-          project(":qual").getConvention().getPlugin(JavaPluginConvention::class.java)
-      val mainSourceSet: SourceSet = javaPlugin.sourceSets.getByName("main")
+      val javaPlugin = project(":qual").extensions.getByType<JavaPluginExtension>()
+      val mainSourceSet = javaPlugin.sourceSets.getByName("main")
       val qualClassDir = mainSourceSet.output.classesDirs.asPath
 
       extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
