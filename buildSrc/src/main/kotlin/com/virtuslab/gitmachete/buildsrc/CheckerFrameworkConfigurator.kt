@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.buildsrc
 
+import com.virtuslab.gitmachete.buildsrc.BuildUtils.lib
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkPlugin
 import org.gradle.api.Project
@@ -7,7 +8,7 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.*
 
-//  TODO (#1004): Remove hardcoded dependencies and deprecated code
+//  TODO (#1004): Remove deprecated code
 object CheckerFrameworkConfigurator {
   fun configure(project: Project) {
     project.apply<CheckerFrameworkPlugin>()
@@ -54,8 +55,8 @@ object CheckerFrameworkConfigurator {
           )
 
       project.dependencies {
-        add("compileOnly", "org.checkerframework:checker-qual:3.22.2")
-        add("checkerFramework", "org.checkerframework:checker:3.22.2")
+        add("compileOnly", project.lib("checker.qual"))
+        add("checkerFramework", project.lib("checker"))
       }
     }
   }
@@ -71,8 +72,7 @@ object CheckerFrameworkConfigurator {
   }
 
   fun applyI18nFormatterAndTaintingCheckers(project: Project) {
-    // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are
-    // enabled
+    // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
     // regardless of `CI` env var/`runAllCheckers` Gradle project property.
     project.configure<CheckerFrameworkExtension> {
       checkers.addAll(
