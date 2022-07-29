@@ -61,5 +61,5 @@ jetbrains-intellij = { id = "org.jetbrains.intellij", version.ref = "plugins-jet
 jetbrains-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "plugins-jetbrains-kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "plugins-spotless" }
 taskTree = "com.dorongold.task-tree:2.1.0"
-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.1"
+versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.5.3"
 versions = "com.github.ben-manes.versions:0.42.0"

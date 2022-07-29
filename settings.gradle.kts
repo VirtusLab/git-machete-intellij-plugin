@@ -1,9 +1,8 @@
 pluginManagement {
-  dependencyResolutionManagement {
-    repositories {
-      // For nl.littlerobots.version-catalog-update
-      mavenCentral()
-    }
+  repositories {
+    gradlePluginPortal()
+    // For nl.littlerobots.version-catalog-update
+    mavenCentral()
   }
 }
 
