@@ -1,0 +1,7 @@
+# Note that the rules in CODEOWNERS are NOT additive -
+# for any given file, only the LAST matching rule (and not all matching rules) applies.
+
+*          @PawelLipski
+
+/buildSrc/ @MaciejG604 @PawelLipski
+*gradle*   @MaciejG604 @PawelLipski

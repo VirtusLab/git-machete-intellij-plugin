@@ -9,21 +9,23 @@ pluginManagement {
 
 rootProject.name = "git-machete-intellij-plugin"
 // Note: please keep the projects in a topological order
-include("binding")
-include("qual")
-include("testCommon")
-include("gitCore:api")
-include("gitCore:jGit")
-include("branchLayout:api")
-include("branchLayout:impl")
-include("backend:api")
-include("backend:impl")
-include("frontend:icons")
-include("frontend:base")
-include("frontend:actions")
-include("frontend:file")
-include("frontend:resourcebundles")
-include("frontend:graph:api")
-include("frontend:graph:impl")
-include("frontend:ui:api")
-include("frontend:ui:impl")
+include(
+  "binding",
+  "qual",
+  "testCommon",
+  "gitCore:api",
+  "gitCore:jGit",
+  "branchLayout:api",
+  "branchLayout:impl",
+  "backend:api",
+  "backend:impl",
+  "frontend:icons",
+  "frontend:base",
+  "frontend:actions",
+  "frontend:file",
+  "frontend:resourcebundles",
+  "frontend:graph:api",
+  "frontend:graph:impl",
+  "frontend:ui:api",
+  "frontend:ui:impl",
+)
