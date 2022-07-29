@@ -159,8 +159,7 @@ docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
 ## Update version catalog
 
 ```shell
-# TODO (#1011): `|| true` should not be needed
-(./gradlew versionCatalogUpdate || true; cd buildSrc; ../gradlew versionCatalogUpdate || true)
+(./gradlew versionCatalogUpdate; cd buildSrc; ../gradlew versionCatalogUpdate)
 ```
 
 See [version catalog in Gradle docs](https://docs.gradle.org/current/userguide/platforms.html)
