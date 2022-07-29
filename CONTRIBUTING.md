@@ -114,13 +114,19 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 * remove ~/.gradle/caches/ (or even the entire ~/.gradle/) directory
 
 
-## Run & debug
+## Run
 
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./gradlew runIde`).
 
 To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
 
+## Debug
+
+To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new Run Configuration for Gradle: </br>
+![debug_configuration](docs/debug_configuration.png)
+
+Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Shift+F9 (`^D` on Mac).
 
 ## Run UI tests
 
