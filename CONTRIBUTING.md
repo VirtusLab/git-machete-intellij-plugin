@@ -126,7 +126,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 To debug the plugin using IntelliJ you need to add a `Run Configuration`, to do so go to `Run > Edit Configurations...`.
 Use the plus button in the right upper corner to add a new configuration and choose Gradle from the drop-down list.
 In the `Run` section input `runIde`. <br/>
-Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Ctrl+D (`^D` on Mac).
+Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Shift+F9 (`^D` on Mac).
 
 ## Run UI tests
 
