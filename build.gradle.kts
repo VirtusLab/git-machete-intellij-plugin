@@ -30,9 +30,6 @@ val javaMajorVersion by extra(JavaVersion.VERSION_11)
 
 val intellijSnapshotsUrl by extra("https://www.jetbrains.com/intellij-repository/snapshots/")
 
-// See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-val intellijVersions = IntellijVersionHelper.instance
-
 val ciBranch by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
@@ -206,7 +203,7 @@ apply<IntelliJPlugin>()
 configure<IntelliJPluginExtension> {
   instrumentCode.set(false)
   pluginName.set("git-machete-intellij-plugin")
-  version.set(intellijVersions["buildTarget"] as String)
+  version.set(IntellijVersions.buildTarget)
   plugins.set(listOf("git4idea")) // Needed solely for ArchUnit
 }
 
@@ -220,11 +217,11 @@ if (!isCI) {
 tasks.withType<PatchPluginXmlTask> {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
   sinceBuild.set(
-      IntellijVersionHelper.toBuildNumber(intellijVersions["earliestSupportedMajor"] as String))
+      IntellijVersionHelper.toBuildNumber(IntellijVersions.earliestSupportedMajor))
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   untilBuild.set(
-      "${IntellijVersionHelper.toBuildNumber(intellijVersions["latestSupportedMajor"] as String)}.*")
+      "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestSupportedMajor)}.*")
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
@@ -237,17 +234,13 @@ tasks.withType<PatchPluginXmlTask> {
 tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
 
 tasks.withType<RunPluginVerifierTask> {
-  val maybeEap =
-      if (intellijVersions["eapOfLatestSupportedMajor"] != null)
-          listOf(
-              (intellijVersions["eapOfLatestSupportedMajor"] as String).replace(
-                  "-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
-      else emptyList()
+  val maybeEap = listOfNotNull(
+      IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
+
   ideVersions.set(
-      listOf(
-          *(intellijVersions["latestMinorsOfOldSupportedMajors"] as List<String>).toTypedArray(),
-          intellijVersions["latestStable"] as String,
-          *maybeEap.toTypedArray()))
+      IntellijVersions.latestMinorsOfOldSupportedMajors +
+      IntellijVersions.latestStable +
+      maybeEap)
 
   val skippedFailureLevels =
       EnumSet.of(
@@ -271,7 +264,7 @@ val uiTestRuntimeOnly: Configuration by
 val uiTestTargets: List<String> =
     if (project.properties["against"] != null)
         IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
-    else listOf(intellijVersions["buildTarget"] as String)
+    else listOf(IntellijVersions.buildTarget)
 
 uiTestTargets.onEach { version ->
   tasks.register<Test>("uiTest_${version}") {
