@@ -56,9 +56,3 @@ kotlin {
     jvmTarget.set(javaMajorVersion.majorVersion)
   }
 }
-
-kotlin {
-  kotlinDslPluginOptions {
-    jvmTarget.set(javaMajorVersion.majorVersion)
-  }
-}
