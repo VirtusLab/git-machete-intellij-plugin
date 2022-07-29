@@ -47,7 +47,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
     val properties = IntellijVersionHelper.getProperties()
     val latestEapBuildNumber = IntellijVersions.eapOfLatestSupportedMajor
 
-    val buildNumberThreshold = latestEapBuildNumber?.replace("-EAP-SNAPSHOT", "") ?:
+    val buildNumberThreshold = IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-SNAPSHOT", "") ?:
             "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestStable)}.999999.999999"
 
     val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
