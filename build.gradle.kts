@@ -234,17 +234,13 @@ tasks.withType<PatchPluginXmlTask> {
 tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
 
 tasks.withType<RunPluginVerifierTask> {
-  val maybeEap =
-      if (IntellijVersions.eapOfLatestSupportedMajor != null)
-          listOf(
-              (IntellijVersions.eapOfLatestSupportedMajor!!).replace(
-                  "-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
-      else emptyList()
+  val maybeEap = listOfNotNull(
+      IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
+
   ideVersions.set(
-      listOf(
-          *(IntellijVersions.latestMinorsOfOldSupportedMajors).toTypedArray(),
-          IntellijVersions.latestStable,
-          *maybeEap.toTypedArray()))
+      IntellijVersions.latestMinorsOfOldSupportedMajors +
+      IntellijVersions.latestStable +
+      maybeEap)
 
   val skippedFailureLevels =
       EnumSet.of(

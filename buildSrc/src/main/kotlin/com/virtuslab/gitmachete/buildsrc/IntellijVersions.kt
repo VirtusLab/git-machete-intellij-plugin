@@ -24,7 +24,7 @@ object IntellijVersions {
     // Use `null` if the latest supported major has a stable release (and not just EAPs).
     val eapOfLatestSupportedMajor: String? = intellijVersionsProp.getProperty("eapOfLatestSupportedMajor")
 
-    val latestSupportedMajor = if (eapOfLatestSupportedMajor != null)
+    val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null)
             IntellijVersionHelper.getFromBuildNumber(eapOfLatestSupportedMajor)
         else
             IntellijVersionHelper.getMajorPart(latestStable)

@@ -26,12 +26,7 @@ object IntellijVersionHelper {
       "latestStable" -> listOf(IntellijVersions.latestStable)
       "latestSupportedMajor" -> listOf(IntellijVersions.latestSupportedMajor)
       "buildTarget" -> listOf(IntellijVersions.buildTarget)
-      "eapOfLatestSupportedMajor" -> {
-        if (IntellijVersions.eapOfLatestSupportedMajor != null)
-          listOf(IntellijVersions.eapOfLatestSupportedMajor)
-        else
-          emptyList()
-      }
+      "eapOfLatestSupportedMajor" -> listOfNotNull(IntellijVersions.eapOfLatestSupportedMajor)
       else -> emptyList()
     }
   }
