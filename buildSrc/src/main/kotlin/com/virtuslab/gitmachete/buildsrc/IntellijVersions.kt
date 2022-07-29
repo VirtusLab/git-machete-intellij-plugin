@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.buildsrc
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 object IntellijVersions {
 
-    val intellijVersionsProp = IntellijVersionHelper.getProperties()
+    private val intellijVersionsProp = IntellijVersionHelper.getProperties()
 
     // When this value is updated, remember to update the minimum required IDEA version in README.md.
     val earliestSupportedMajor: String = intellijVersionsProp.getProperty("earliestSupportedMajor")
