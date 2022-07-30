@@ -210,23 +210,26 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       // It's necessary to exclude entry with the same hash as the first entry in reflog (if it still exists)
       // for cases like branch rename just after branch creation.
       Predicate<IGitCoreReflogEntry> isEntryExcluded = e -> {
+        String comment = e.getComment();
         if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
           LOG.trace(() -> "Exclude ${e} because it has the same hash as first entry");
         } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
           LOG.trace(() -> "Exclude ${e} because its old and new IDs are the same");
-        } else if (e.getComment().startsWith("branch: Created from")) {
+        } else if (comment.startsWith("branch: Created from")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'branch: Created from'");
-        } else if (e.getComment().equals("branch: Reset to " + branch.getName())) {
-          LOG.trace(() -> "Exclude ${e} because its comment is '${e.getComment()}'");
-        } else if (e.getComment().equals("branch: Reset to HEAD")) {
-          LOG.trace(() -> "Exclude ${e} because its comment is 'branch: Reset to HEAD'");
-        } else if (e.getComment().startsWith("reset: moving to ")) {
+        } else if (comment.equals("branch: Reset to " + branch.getName())) {
+          LOG.trace(() -> "Exclude ${e} because its comment is '${comment}'");
+        } else if (comment.equals("branch: Reset to HEAD")) {
+          LOG.trace(() -> "Exclude ${e} because its comment is '${comment}'");
+        } else if (comment.startsWith("reset: moving to ")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'reset: moving to '");
-        } else if (e.getComment().startsWith("fetch . ")) {
+        } else if (comment.startsWith("fetch . ")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'fetch . '");
-        } else if (e.getComment().equals("rebase finished: " + noOpRebaseCommentSuffix)
-            || e.getComment().equals("rebase -i (finish): " + noOpRebaseCommentSuffix)) {
-          LOG.trace(() -> "Exclude ${e} because its comment is '${e.getComment()}' which indicates a no-op rebase");
+        } else if (comment.equals("rebase finished: " + noOpRebaseCommentSuffix)
+            || comment.equals("rebase -i (finish): " + noOpRebaseCommentSuffix)) {
+          LOG.trace(() -> "Exclude ${e} because its comment is '${comment}' which indicates a no-op rebase");
+        } else if (comment.equals("update by push")) {
+          LOG.trace(() -> "Exclude ${e} because its comment is '${comment}'");
         } else {
           return false;
         }
