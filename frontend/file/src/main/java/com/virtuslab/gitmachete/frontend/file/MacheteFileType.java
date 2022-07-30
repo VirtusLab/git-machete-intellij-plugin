@@ -5,6 +5,7 @@ import javax.swing.Icon;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import icons.MacheteIcons;
 
+import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLanguage;
 
 public final class MacheteFileType extends LanguageFileType {
@@ -21,7 +22,7 @@ public final class MacheteFileType extends LanguageFileType {
 
   @Override
   public String getName() {
-    return "Machete File";
+    return FileTypeIds.NAME;
   }
 
   @Override

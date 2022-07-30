@@ -5,10 +5,9 @@ dependencies {
   implementation(project(":binding"))
   implementation(project(":backend:api"))
   implementation(project(":branchLayout:api"))
-  implementation(project(":frontend:ui:api"))
-  implementation(project(":frontend:file"))
   implementation(project(":frontend:base"))
   implementation(project(":frontend:resourcebundles"))
+  implementation(project(":frontend:ui:api"))
 }
 
 BuildUtils.applyKotlinConfig(project)

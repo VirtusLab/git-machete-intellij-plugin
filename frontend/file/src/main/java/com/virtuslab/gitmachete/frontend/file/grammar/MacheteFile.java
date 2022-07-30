@@ -4,6 +4,7 @@ import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 
+import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileType;
 
 public class MacheteFile extends PsiFileBase {
@@ -18,6 +19,6 @@ public class MacheteFile extends PsiFileBase {
 
   @Override
   public String toString() {
-    return "Machete File";
+    return FileTypeIds.NAME;
   }
 }
