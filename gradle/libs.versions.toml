@@ -14,6 +14,9 @@ plugins-jetbrains-intellij = "1.7.0"
 plugins-jetbrains-kotlin = "1.4.0"
 plugins-spotless = "6.9.0"
 
+# Plugins need to appear here in two notations for the purpose of being used in precompiled scripts as dependencies
+# [https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note]
+
 [libraries]
 # Libraries
 archunit = "com.tngtech.archunit:archunit:0.23.1"

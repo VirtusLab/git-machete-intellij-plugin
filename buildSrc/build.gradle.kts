@@ -28,7 +28,6 @@ repositories {
 }
 
 dependencies {
-  implementation(gradleApi())
   implementation(libs.jsoup)
   // Needed so that versionCatalogUpdate, when executed against buildSrc,
   // doesn't see jetbrains-annotations as an exceeded dependency and doesn't try to downgrade.
