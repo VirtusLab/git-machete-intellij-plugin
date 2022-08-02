@@ -32,14 +32,9 @@ dependencies {
   implementation(libs.jetbrains.annotations)
   implementation(libs.pluginPackages.aspectj.postCompileWeaving)
   implementation(libs.pluginPackages.checkerFramework)
-  implementation(libs.pluginPackages.grgit)
-  implementation(libs.pluginPackages.jetbrains.grammarkit)
   implementation(libs.pluginPackages.jetbrains.intellij)
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
-  implementation(libs.pluginPackages.taskTree)
-  implementation(libs.pluginPackages.versionCatalogUpdate)
-  implementation(libs.pluginPackages.versionsFilter)
   testImplementation(libs.junit)
 }
 
@@ -47,15 +42,7 @@ val javaMajorVersion = JavaVersion.VERSION_11
 
 project.tasks.withType<KotlinCompile> {
   kotlinOptions {
-    //allWarningsAsErrors = true
-
-    // Supress the warnings about different version of Kotlin used for compilation
-    // than bundled into the `buildTarget` version of IntelliJ.
-    // For compilation we use the Kotlin version from the earliest support IntelliJ,
-    // and as per https://kotlinlang.org/docs/components-stability.html,
-    // code compiled against an older version of kotlin-stdlib should work
-    // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
-    freeCompilerArgs += listOf("-Xskip-metadata-version-check")
+    allWarningsAsErrors = true
     jvmTarget = javaMajorVersion.majorVersion
   }
 }

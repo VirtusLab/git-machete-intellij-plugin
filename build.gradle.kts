@@ -18,6 +18,20 @@ plugins {
   scala
 }
 
+buildscript {
+  repositories {
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath(libs.pluginPackages.grgit)
+    classpath(libs.pluginPackages.jetbrains.grammarkit)
+    classpath(libs.pluginPackages.jetbrains.kotlin)
+    classpath(libs.pluginPackages.taskTree)
+    classpath(libs.pluginPackages.versionCatalogUpdate)
+    classpath(libs.pluginPackages.versionsFilter)
+  }
+}
+
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
 apply<GradleVersionsFilterPlugin>()
