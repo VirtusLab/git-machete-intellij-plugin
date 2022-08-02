@@ -1,6 +1,7 @@
 [versions]
 libraries-checker = "3.23.0"
-libraries-ideProbe = "0.40.0"
+# @pin until ide-probe bumps its robot-server dependency back to 0.11.15
+libraries-ideProbe = "0.37.0"
 libraries-powerMock = "2.0.9"
 # @pin because 6.5.x is incompatible with kotlin plugin 1.4.x,
 #      see https://github.com/freefair/gradle-plugins/issues/554#issuecomment-1171434185 for more details
