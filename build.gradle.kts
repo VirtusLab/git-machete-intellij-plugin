@@ -1,4 +1,7 @@
+import com.dorongold.gradle.tasktree.TaskTreePlugin
 import com.virtuslab.gitmachete.buildsrc.*
+import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
+import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
 import java.util.EnumSet
 import org.ajoberstar.grgit.gradle.GrgitPlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -7,21 +10,17 @@ import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.*
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
+import se.ascp.gradle.GradleVersionsFilterPlugin
 
 plugins {
   checkstyle
   `java-library`
   scala
-
-  // See https://youtrack.jetbrains.com/issue/KTIJ-19369
-  // for the details of a false-positive error reported here by IntelliJ
-  alias(libs.plugins.taskTree)
-  alias(libs.plugins.versionsFilter)
-  alias(libs.plugins.versionCatalogUpdate)
-
-  alias(libs.plugins.grgit) apply false
-  alias(libs.plugins.jetbrains.grammarkit) apply false
 }
+
+apply<VersionCatalogUpdatePlugin>()
+apply<TaskTreePlugin>()
+apply<GradleVersionsFilterPlugin>()
 
 if (JavaVersion.current() != JavaVersion.VERSION_11) {
   throw GradleException("Project must be built with Java version 11")
@@ -40,7 +39,7 @@ val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
 
-versionCatalogUpdate {
+configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
 
   // TODO (ben-manes/gradle-versions-plugin#284): `versionCatalogUpdate` should work on both the project and project's buildSrc
