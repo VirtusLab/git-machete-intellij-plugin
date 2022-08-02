@@ -32,9 +32,9 @@ buildscript {
   }
 }
 
+apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
-apply<GradleVersionsFilterPlugin>()
 
 if (JavaVersion.current() != JavaVersion.VERSION_11) {
   throw GradleException("Project must be built with Java version 11")
