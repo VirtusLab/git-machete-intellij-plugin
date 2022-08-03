@@ -26,10 +26,6 @@ scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
-
-# Plugins need to appear here in two notations for the purpose of being used in precompiled scripts as dependencies
-# [https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note]
-
 # Plugins
 # @pin because 6.5.x is incompatible with kotlin plugin 1.4.x,
 #      see https://github.com/freefair/gradle-plugins/issues/554#issuecomment-1171434185 for more details
@@ -56,3 +52,7 @@ powerMock = [
     "powerMock-apiMockito2",
     "powerMock-moduleJunit4",
 ]
+
+# The section [plugins] has been removed even though plugins are still used, beacuse we decided to use legacy plugin application
+# throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/.
+# [https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note]

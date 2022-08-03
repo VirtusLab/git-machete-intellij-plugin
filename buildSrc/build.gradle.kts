@@ -1,5 +1,6 @@
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import se.ascp.gradle.GradleVersionsFilterPlugin
 
@@ -53,9 +54,9 @@ kotlin {
   }
 }
 
-apply<VersionCatalogUpdatePlugin>()
 apply<GradleVersionsFilterPlugin>()
-apply(plugin = "org.jetbrains.kotlin.jvm")
+apply<VersionCatalogUpdatePlugin>()
+apply<KotlinPluginWrapper>()
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
