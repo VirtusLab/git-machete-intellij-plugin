@@ -15,9 +15,7 @@ open class UpdateEapBuildNumber : DefaultTask() {
     val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
     val links =
       htmlContent.select(
-        "a[href^=" +
-          intellijSnapshotsUrl +
-          "com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]"
+        "a[href^=${intellijSnapshotsUrl}com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]"
       )
 
     for (link in links) {

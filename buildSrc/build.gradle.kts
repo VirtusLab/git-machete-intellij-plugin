@@ -39,6 +39,10 @@ dependencies {
   testImplementation(libs.junit)
 }
 
+apply<GradleVersionsFilterPlugin>()
+apply<VersionCatalogUpdatePlugin>()
+apply<KotlinPluginWrapper>()
+
 val javaMajorVersion = JavaVersion.VERSION_11
 
 project.tasks.withType<KotlinCompile> {
@@ -53,10 +57,6 @@ kotlin {
     jvmTarget.set(javaMajorVersion.majorVersion)
   }
 }
-
-apply<GradleVersionsFilterPlugin>()
-apply<VersionCatalogUpdatePlugin>()
-apply<KotlinPluginWrapper>()
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
