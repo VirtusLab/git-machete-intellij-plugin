@@ -1,8 +1,9 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
+import org.jetbrains.grammarkit.GrammarKitPlugin
 import org.jetbrains.grammarkit.tasks.*
 
-plugins { alias(libs.plugins.jetbrains.grammarkit) }
+apply<GrammarKitPlugin>()
 
 dependencies {
   api(project(":qual"))
