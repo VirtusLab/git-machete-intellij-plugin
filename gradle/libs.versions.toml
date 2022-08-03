@@ -1,3 +1,6 @@
+# The [plugins] section has been removed even though plugins are still used, because we decided to use legacy plugin application
+# throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/,
+# see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 libraries-checker = "3.23.0"
 # @pin until ide-probe bumps its robot-server dependency back to 0.11.15
@@ -52,7 +55,3 @@ powerMock = [
     "powerMock-apiMockito2",
     "powerMock-moduleJunit4",
 ]
-
-# The section [plugins] has been removed even though plugins are still used, beacuse we decided to use legacy plugin application
-# throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/.
-# [https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note]
