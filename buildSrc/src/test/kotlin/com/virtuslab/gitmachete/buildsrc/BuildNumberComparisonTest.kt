@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.UpdateEapBuildNumber.Companion.buildNumberIsNewerThan
-import org.junit.Test
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class BuildNumberComparisonTest {
   @Test

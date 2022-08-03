@@ -17,14 +17,14 @@ import javax.swing.Action
 
 class GraphTableDialog
 private constructor(
-    val table: JBTable,
-    val repositorySnapshot: IGitMacheteRepositorySnapshot?,
-    val dimension: JBDimension,
-    val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
-    val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
-    val cancelButtonVisible: Boolean,
-    val windowTitle: String,
-    val okButtonText: String
+  val table: JBTable,
+  val repositorySnapshot: IGitMacheteRepositorySnapshot?,
+  val dimension: JBDimension,
+  val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+  val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
+  val cancelButtonVisible: Boolean,
+  val windowTitle: String,
+  val okButtonText: String
 ) : DialogWrapper(/* canBeParent */ false) {
 
   init {
@@ -40,75 +40,81 @@ private constructor(
     // for this function that substitute default parameter values (dimension in our case).
     @JvmOverloads
     fun of(
-        gitMacheteRepositorySnapshot: IGitMacheteRepositorySnapshot,
-        windowTitle: String,
-        dimension: JBDimension = JBDimension(/* width */ 400, /* height */ 250),
-        emptyTableText: String?,
-        saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
-        okButtonText: String,
-        cancelButtonVisible: Boolean,
-        shouldDisplayActionToolTips: Boolean
+      gitMacheteRepositorySnapshot: IGitMacheteRepositorySnapshot,
+      windowTitle: String,
+      dimension: JBDimension = JBDimension(/* width */ 400, /* height */ 250),
+      emptyTableText: String?,
+      saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+      saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
+      okButtonText: String,
+      cancelButtonVisible: Boolean,
+      shouldDisplayActionToolTips: Boolean
     ) =
-        RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
-            .deriveInstance(
-                gitMacheteRepositorySnapshot,
-                /* isListingCommitsEnabled */ false,
-                shouldDisplayActionToolTips)
-            .apply { setTextForEmptyTable(emptyTableText ?: "") }
-            .let {
-              GraphTableDialog(
-                  /* table */ it,
-                  gitMacheteRepositorySnapshot,
-                  dimension,
-                  saveAction,
-                  saveAndEditAction,
-                  cancelButtonVisible,
-                  windowTitle,
-                  okButtonText)
-            }
+      RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
+        .deriveInstance(
+          gitMacheteRepositorySnapshot,
+          /* isListingCommitsEnabled */ false,
+          shouldDisplayActionToolTips
+        )
+        .apply { setTextForEmptyTable(emptyTableText ?: "") }
+        .let {
+          GraphTableDialog(
+            /* table */ it,
+            gitMacheteRepositorySnapshot,
+            dimension,
+            saveAction,
+            saveAndEditAction,
+            cancelButtonVisible,
+            windowTitle,
+            okButtonText
+          )
+        }
 
     fun ofDemoRepository() =
-        RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
-            .deriveDemoInstance()
-            .let {
-              GraphTableDialog(
-                  table = it,
-                  repositorySnapshot = null,
-                  dimension = JBDimension(/* width */ 850, /* height */ 250),
-                  saveAction = null,
-                  saveAndEditAction = null,
-                  cancelButtonVisible = false,
-                  windowTitle = "Git Machete Help",
-                  okButtonText = "Close")
-            }
+      RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
+        .deriveDemoInstance()
+        .let {
+          GraphTableDialog(
+            table = it,
+            repositorySnapshot = null,
+            dimension = JBDimension(/* width */ 850, /* height */ 250),
+            saveAction = null,
+            saveAndEditAction = null,
+            cancelButtonVisible = false,
+            windowTitle = "Git Machete Help",
+            okButtonText = "Close"
+          )
+        }
   }
 
   override fun createActions() =
-      if (cancelButtonVisible)
-          arrayOf(getSaveAndEditAction(), getOKAction(), cancelAction)
-              .filterNotNull()
-              .toTypedArray()
-      else arrayOf(getOKAction())
+    if (cancelButtonVisible) {
+      arrayOf(getSaveAndEditAction(), getOKAction(), cancelAction)
+        .filterNotNull()
+        .toTypedArray()
+    } else arrayOf(getOKAction())
 
   private fun getSaveAndEditAction() =
-      if (saveAndEditAction == null) null
-      else
-          object :
-              AbstractAction(
-                  getString(
-                      "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text")) {
-            override fun actionPerformed(e: ActionEvent?) {
-              repositorySnapshot?.let { saveAndEditAction.accept(it) }
-              close(OK_EXIT_CODE)
-            }
-          }
+    if (saveAndEditAction == null) null
+    else {
+      object :
+        AbstractAction(
+          getString(
+            "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text"
+          )
+        ) {
+        override fun actionPerformed(e: ActionEvent?) {
+          repositorySnapshot?.let { saveAndEditAction.accept(it) }
+          close(OK_EXIT_CODE)
+        }
+      }
+    }
 
   override fun createCenterPanel() =
-      JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2).apply {
-        addToCenter(ScrollPaneFactory.createScrollPane(this@GraphTableDialog.table))
-        preferredSize = dimension
-      }
+    JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2).apply {
+      addToCenter(ScrollPaneFactory.createScrollPane(this@GraphTableDialog.table))
+      preferredSize = dimension
+    }
 
   @Override
   override fun doOKAction() {

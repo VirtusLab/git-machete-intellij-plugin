@@ -15,19 +15,22 @@ fun Project.configureSpotless() {
       importOrder("java", "javax", "", "com.virtuslab")
       // See https://github.com/diffplug/spotless/blob/master/ECLIPSE_SCREENSHOTS.md on importing
       // and exporting settings from Eclipse
-      eclipse().configFile("${rootDir}/config/spotless/formatting-rules.xml")
+      eclipse().configFile("$rootDir/config/spotless/formatting-rules.xml")
       removeUnusedImports()
       targetExclude("**/build/generated/**/*.*")
     }
 
     kotlin {
-      target("**/*.kt", "**/*.kts")
-      targetExclude("**/build/*")
-      // TODO (#1004): Try to customize ktfmt or use a different formatter
-      // ktfmt()
+      ktlint().editorConfigOverride(mapOf("disabled_rules" to "no-wildcard-imports,filename", "indent_size" to 2))
+      target("**/*.kt")
     }
-    scala { scalafmt().configFile("${rootDir}/scalafmt.conf") }
+    kotlinGradle {
+      ktlint().editorConfigOverride(mapOf("disabled_rules" to "no-wildcard-imports", "indent_size" to 2))
+      target("**/*.gradle.kts")
+    }
+    scala { scalafmt().configFile("$rootDir/scalafmt.conf") }
   }
+
   val isCI: Boolean by rootProject.extra
 
   if (!isCI) {

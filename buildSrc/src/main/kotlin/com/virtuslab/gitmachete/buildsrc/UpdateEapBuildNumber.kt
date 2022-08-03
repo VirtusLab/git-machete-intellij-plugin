@@ -1,11 +1,10 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import java.util.regex.Pattern
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.options.Option
 import org.jsoup.Jsoup
+import java.util.regex.Pattern
 
 open class UpdateEapBuildNumber : DefaultTask() {
 
@@ -15,10 +14,11 @@ open class UpdateEapBuildNumber : DefaultTask() {
   fun checkForEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
     val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
     val links =
-        htmlContent.select(
-            "a[href^=" +
-                intellijSnapshotsUrl +
-                "com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]")
+      htmlContent.select(
+        "a[href^=" +
+          intellijSnapshotsUrl +
+          "com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]"
+      )
 
     for (link in links) {
       val attr = link.attr("href")
@@ -40,8 +40,8 @@ open class UpdateEapBuildNumber : DefaultTask() {
   fun execute() {
     val properties = IntellijVersionHelper.getProperties()
 
-    val buildNumberThreshold = IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-SNAPSHOT", "") ?:
-            "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestStable)}.999999.999999"
+    val buildNumberThreshold = IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-SNAPSHOT", "")
+      ?: "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestStable)}.999999.999999"
 
     val newerEapBuildNumber = checkForEapWithBuildNumberHigherThan(buildNumberThreshold)
 

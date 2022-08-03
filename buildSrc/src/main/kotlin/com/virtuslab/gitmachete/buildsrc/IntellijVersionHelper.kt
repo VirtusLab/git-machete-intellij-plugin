@@ -2,11 +2,10 @@ package com.virtuslab.gitmachete.buildsrc
 
 import java.io.File
 import java.util.*
-import kotlin.collections.HashMap
 
 // TODO (#1004): Remove unsafe casts from class
 object IntellijVersionHelper {
-    /**
+  /**
    * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like
    * eapOfLatestSupportedMajor)
    * @returns Corresponding release numbers.

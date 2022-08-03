@@ -32,34 +32,34 @@ val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexer
 sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
 val generateMacheteParser =
-    tasks.withType<GenerateParserTask>() {
-      // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
-      outputs.cacheIf { true }
+  tasks.withType<GenerateParserTask>() {
+    // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
+    outputs.cacheIf { true }
 
-      source.set("$grammarSourcesRoot/Machete.bnf")
-      targetRoot.set(generatedParserJavaSourcesRoot)
-      pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
-      pathToPsiRoot.set("/$grammarJavaPackagePath/")
-      purgeOldFiles.set(false)
-    }
+    source.set("$grammarSourcesRoot/Machete.bnf")
+    targetRoot.set(generatedParserJavaSourcesRoot)
+    pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
+    pathToPsiRoot.set("/$grammarJavaPackagePath/")
+    purgeOldFiles.set(false)
+  }
 
 val generateMacheteLexer =
-    tasks.withType<GenerateLexerTask>() {
-      outputs.cacheIf { true }
+  tasks.withType<GenerateLexerTask>() {
+    outputs.cacheIf { true }
 
-      dependsOn(generateMacheteParser)
+    dependsOn(generateMacheteParser)
 
-      source.set("$grammarSourcesRoot/Machete.flex")
-      targetDir.set("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/")
-      targetClass.set("MacheteGeneratedLexer")
-      purgeOldFiles.set(false)
-    }
+    source.set("$grammarSourcesRoot/Machete.flex")
+    targetDir.set("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/")
+    targetClass.set("MacheteGeneratedLexer")
+    purgeOldFiles.set(false)
+  }
 
 tasks.withType<JavaCompile>() { dependsOn(generateMacheteLexer) }
 
 configure<CheckerFrameworkExtension> {
   val grammarPackageRegex =
-      grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`
+    grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`
   val newExtraJavacArgs = extraJavacArgs.toMutableList()
   newExtraJavacArgs.add("-AskipDefs=^${grammarPackageRegex}\\.MacheteGenerated.*\$")
   extraJavacArgs = newExtraJavacArgs
