@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.jsoup.Jsoup
-import java.util.regex.Pattern
 
 open class UpdateEapBuildNumber : DefaultTask() {
 
@@ -20,11 +19,11 @@ open class UpdateEapBuildNumber : DefaultTask() {
 
     for (link in links) {
       val attr = link.attr("href")
-      val pattern = Pattern.compile("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
-      val matcher = pattern.matcher(attr)
+      val regex = Regex("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
+      val matchResult = regex.find(attr)
 
-      if (matcher.find()) {
-        val foundBuildNumber = matcher.group()
+      if (matchResult != null) {
+        val foundBuildNumber = matchResult.value
 
         if (foundBuildNumber buildNumberIsNewerThan latestEapBuildNumber) {
           return foundBuildNumber
