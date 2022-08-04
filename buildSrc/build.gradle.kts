@@ -10,11 +10,15 @@ plugins {
   `kotlin-dsl`
 }
 
+val kotlinLanguageVersion = "1.6"
+
+// This is needed to use kotlin language version different from the default (1.4).
+// See https://handstandsam.com/2022/04/13/using-the-kotlin-dsl-gradle-plugin-forces-kotlin-1-4-compatibility/.
 afterEvaluate {
   tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
-      apiVersion = "1.6"
-      languageVersion = "1.6"
+      apiVersion = kotlinLanguageVersion
+      languageVersion = kotlinLanguageVersion
     }
   }
 }
