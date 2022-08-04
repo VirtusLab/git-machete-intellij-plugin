@@ -1,3 +1,5 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+import com.diffplug.gradle.spotless.SpotlessPlugin
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
@@ -14,6 +16,7 @@ buildscript {
   }
   dependencies {
     classpath(libs.pluginPackages.jetbrains.kotlin)
+    classpath(libs.pluginPackages.spotless)
     classpath(libs.pluginPackages.versionCatalogUpdate)
     classpath(libs.pluginPackages.versionsFilter)
   }
@@ -69,3 +72,30 @@ configure<VersionCatalogUpdateExtension> {
     keepUnusedPlugins.set(true)
   }
 }
+
+apply<SpotlessPlugin>()
+configure<SpotlessExtension> {
+  kotlin {
+    ktlint().editorConfigOverride(
+      mapOf(
+        "disabled_rules" to "no-wildcard-imports,filename",
+        "indent_size" to 2
+      )
+    )
+    target("**/*.kt")
+  }
+
+  kotlinGradle {
+    ktlint().editorConfigOverride(
+      mapOf(
+        "disabled_rules" to "no-wildcard-imports",
+        "indent_size" to 2
+      )
+    )
+    target("**/*.gradle.kts")
+  }
+}
+
+val isCI by extra(System.getenv("CI") == "true")
+
+if (!isCI) { tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") } }

@@ -36,8 +36,8 @@ fun Project.configureSpotless() {
   val isCI: Boolean by rootProject.extra
 
   if (!isCI) {
-    tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply") }
-    tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
-    tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
+    tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply", "spotlessKotlinGradleApply") }
+    tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") }
+    tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply", "spotlessKotlinGradleApply") }
   }
 }
