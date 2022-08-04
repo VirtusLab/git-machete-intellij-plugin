@@ -2,7 +2,6 @@ import com.dorongold.gradle.tasktree.TaskTreePlugin
 import com.virtuslab.gitmachete.buildsrc.*
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
-import java.util.EnumSet
 import org.ajoberstar.grgit.gradle.GrgitPlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -11,6 +10,7 @@ import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.*
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 import se.ascp.gradle.GradleVersionsFilterPlugin
+import java.util.EnumSet
 
 plugins {
   checkstyle
@@ -90,19 +90,21 @@ allprojects {
 
   tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(
-        listOf(
-            // Enforce explicit `.toString()` call in code generated for string interpolations
-            "-AcallToStringExplicitlyInInterpolations",
-            // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
-            "-Werror",
-            // Warn of type-unsafe operations on generics.
-            "-Xlint:unchecked",
-        ))
+      listOf(
+        // Enforce explicit `.toString()` call in code generated for string interpolations
+        "-AcallToStringExplicitlyInInterpolations",
+        // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
+        "-Werror",
+        // Warn of type-unsafe operations on generics.
+        "-Xlint:unchecked"
+      )
+    )
 
     options.isFork = true
     options.forkOptions.jvmArgs?.addAll(
-        compileJavaJvmArgs
-            ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError")))
+      compileJavaJvmArgs
+        ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError"))
+    )
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
@@ -196,14 +198,14 @@ if (ciBranch == "master") {
   val git = org.ajoberstar.grgit.Grgit.open(mapOf("currentDir" to projectDir))
   val lastTag = git.tag.list().sortedBy { it.dateTime }.last()
   val commitsSinceLastTag =
-      git.log(mapOf("includes" to listOf("HEAD"), "excludes" to listOf(lastTag.fullName)))
+    git.log(mapOf("includes" to listOf("HEAD"), "excludes" to listOf(lastTag.fullName)))
   val maybeCommitCount = if (commitsSinceLastTag.isEmpty()) "" else "-${commitsSinceLastTag.size}"
   val shortCommitHash = git.head().abbreviatedId
   val maybeDirty = if (git.status().isClean) "" else "-dirty"
   git.close()
 
   version =
-      "$PROSPECTIVE_RELEASE_VERSION$maybeCommitCount$maybeSnapshot+git.$shortCommitHash$maybeDirty"
+    "$PROSPECTIVE_RELEASE_VERSION$maybeCommitCount$maybeSnapshot+git.$shortCommitHash$maybeDirty"
 }
 
 dependencies {
@@ -231,37 +233,43 @@ if (!isCI) {
 tasks.withType<PatchPluginXmlTask> {
   // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
   sinceBuild.set(
-      IntellijVersionHelper.toBuildNumber(IntellijVersions.earliestSupportedMajor))
+    IntellijVersionHelper.toBuildNumber(IntellijVersions.earliestSupportedMajor)
+  )
 
   // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
   untilBuild.set(
-      "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestSupportedMajor)}.*")
+    "${IntellijVersionHelper.toBuildNumber(IntellijVersions.latestSupportedMajor)}.*"
+  )
 
   // Note that the first line of the description should be self-contained since it is placed into embeddable card:
   // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
   pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
   changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${file("$rootDir/CHANGE-NOTES.html").readText()}")
+    "<h3>v${rootProject.version}</h3>\n\n${file("$rootDir/CHANGE-NOTES.html").readText()}"
+  )
 }
 
 tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
 
 tasks.withType<RunPluginVerifierTask> {
   val maybeEap = listOfNotNull(
-      IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""))
+    IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+  )
 
   ideVersions.set(
-      IntellijVersions.latestMinorsOfOldSupportedMajors +
+    IntellijVersions.latestMinorsOfOldSupportedMajors +
       IntellijVersions.latestStable +
-      maybeEap)
+      maybeEap
+  )
 
   val skippedFailureLevels =
-      EnumSet.of(
-          DEPRECATED_API_USAGES,
-          EXPERIMENTAL_API_USAGES,
-          NOT_DYNAMIC,
-          SCHEDULED_FOR_REMOVAL_API_USAGES)
+    EnumSet.of(
+      DEPRECATED_API_USAGES,
+      EXPERIMENTAL_API_USAGES,
+      NOT_DYNAMIC,
+      SCHEDULED_FOR_REMOVAL_API_USAGES
+    )
   failureLevel.set(EnumSet.complementOf(skippedFailureLevels))
 }
 
@@ -270,18 +278,18 @@ tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }
 val uiTest = sourceSets.create("uiTest")
 
 val uiTestImplementation: Configuration by
-    configurations.getting { extendsFrom(configurations.testImplementation.get()) }
+configurations.getting { extendsFrom(configurations.testImplementation.get()) }
 
 val uiTestRuntimeOnly: Configuration by
-    configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
+configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
 
 val uiTestTargets: List<String> =
-    if (project.properties["against"] != null)
-        IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
-    else listOf(IntellijVersions.buildTarget)
+  if (project.properties["against"] != null) {
+    IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
+  } else listOf(IntellijVersions.buildTarget)
 
 uiTestTargets.onEach { version ->
-  tasks.register<Test>("uiTest_${version}") {
+  tasks.register<Test>("uiTest_$version") {
     description = "Runs UI tests."
     group = "verification"
 
@@ -306,8 +314,9 @@ uiTestTargets.onEach { version ->
     if (project.hasProperty("headless")) {
       environment("IDEPROBE_DISPLAY", "xvfb")
       environment(
-          "IDEPROBE_PATHS_SCREENSHOTS",
-          "${System.getProperty("user.home")}/.ideprobe-uitests/artifacts/uiTest$version/screenshots")
+        "IDEPROBE_PATHS_SCREENSHOTS",
+        "${System.getProperty("user.home")}/.ideprobe-uitests/artifacts/uiTest$version/screenshots"
+      )
       if (isCI) {
         environment("IDEPROBE_PATHS_BASE", "${System.getProperty("user.home")}/.ideprobe-uitests/")
       }

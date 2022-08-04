@@ -16,6 +16,7 @@ class ResetBranchToRemoteInfoDialog : DialogWrapper.DoNotAskOption.Adapter() {
 
   override fun getDoNotShowMessage(): String {
     return GitMacheteBundle.getString(
-        "action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.do-not-show-again")
+      "action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.do-not-show-again"
+    )
   }
 }

@@ -11,9 +11,9 @@ fun Project.configureCheckerFramework() {
   configure<CheckerFrameworkExtension> {
     excludeTests = true
     checkers =
-        mutableListOf(
-            "org.checkerframework.checker.nullness.NullnessChecker",
-        )
+      mutableListOf(
+        "org.checkerframework.checker.nullness.NullnessChecker"
+      )
 
     val shouldRunAllCheckers: Boolean by rootProject.extra
 
@@ -23,32 +23,33 @@ fun Project.configureCheckerFramework() {
       // Hence, they're only applied in CI, or locally only if a dedicated Gradle project property
       // is set.
       checkers.addAll(
-          listOf(
-              "org.checkerframework.checker.index.IndexChecker",
-              "org.checkerframework.checker.interning.InterningChecker",
-              "org.checkerframework.checker.optional.OptionalChecker",
-          ))
+        listOf(
+          "org.checkerframework.checker.index.IndexChecker",
+          "org.checkerframework.checker.interning.InterningChecker",
+          "org.checkerframework.checker.optional.OptionalChecker"
+        )
+      )
     }
     extraJavacArgs =
-        mutableListOf(
-            "-AassumeAssertionsAreEnabled",
-            "-AinvariantArrays",
-            "-Alint=cast:redundant,cast:unsafe",
-            "-ArequirePrefixInWarningSuppressions",
-            "-AshowSuppressWarningsStrings",
-            "-Astubs=${rootDir}/config/checker/",
-            // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
-            // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom
-            // stub files.
-            // Without this flag, we would end up with a lot of errors in subprojects where any of
-            // the stubbed libraries is NOT on the classpath:
-            // e.g. compilation of a subproject where Vavr is NOT a dependency would fail
-            // since for simplicity, we're providing the same set of stubs to Checker in each
-            // subproject
-            // (`$rootDir/config/checker/`, which includes e.g. Vavr).
-            "-AstubWarnIfNotFoundIgnoresClasses",
-            "-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation",
-        )
+      mutableListOf(
+        "-AassumeAssertionsAreEnabled",
+        "-AinvariantArrays",
+        "-Alint=cast:redundant,cast:unsafe",
+        "-ArequirePrefixInWarningSuppressions",
+        "-AshowSuppressWarningsStrings",
+        "-Astubs=$rootDir/config/checker/",
+        // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
+        // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom
+        // stub files.
+        // Without this flag, we would end up with a lot of errors in subprojects where any of
+        // the stubbed libraries is NOT on the classpath:
+        // e.g. compilation of a subproject where Vavr is NOT a dependency would fail
+        // since for simplicity, we're providing the same set of stubs to Checker in each
+        // subproject
+        // (`$rootDir/config/checker/`, which includes e.g. Vavr).
+        "-AstubWarnIfNotFoundIgnoresClasses",
+        "-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation"
+      )
 
     dependencies {
       "compileOnly"(lib("checker.qual"))
@@ -72,9 +73,11 @@ fun Project.applyI18nFormatterAndTaintingCheckers() {
   // regardless of `CI` env var/`runAllCheckers` Gradle project property.
   configure<CheckerFrameworkExtension> {
     checkers.addAll(
-        listOf(
-            "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-            "org.checkerframework.checker.tainting.TaintingChecker"))
+      listOf(
+        "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
+        "org.checkerframework.checker.tainting.TaintingChecker"
+      )
+    )
     extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
   }
 
@@ -99,7 +102,7 @@ fun Project.applySubtypingChecker() {
       val mainSourceSet = javaPlugin.sourceSets.getByName("main")
       val qualClassDir = mainSourceSet.output.classesDirs.asPath
 
-      extraJavacArgs.add("-ASubtypingChecker_qualDirs=${qualClassDir}")
+      extraJavacArgs.add("-ASubtypingChecker_qualDirs=$qualClassDir")
     }
   }
 }

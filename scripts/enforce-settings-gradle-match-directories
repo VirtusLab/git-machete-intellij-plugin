@@ -7,6 +7,6 @@ source "$self_dir"/utils.sh
 
 diff -u \
   <(git ls-files '**/build.gradle.kts' ':!:buildSrc' | tr / : | sed 's/:build.gradle.kts//') \
-  <(grep -Po '(?<=^  ").*(?=",)' settings.gradle.kts | sort) || {
+  <(grep -Po '(?<=^  ").*(?=")' settings.gradle.kts | sort) || {
     die 'Gradle subprojects listed in settings.gradle.kts do not match the directories of the project (`+` => Gradle subproject non-existent or listed twice; `-` => superfluous directory)'
   }

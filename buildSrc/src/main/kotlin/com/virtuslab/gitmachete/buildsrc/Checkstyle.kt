@@ -13,6 +13,6 @@ fun Project.configureCheckstyle() {
   configure<CheckstyleExtension> {
     tasks.named<Checkstyle>("checkstyleTest") { enabled = false }
 
-    configProperties = mapOf("rootCheckstyleConfigDir" to "${rootDir}/config/checkstyle")
+    configProperties = mapOf("rootCheckstyleConfigDir" to "$rootDir/config/checkstyle")
   }
 }

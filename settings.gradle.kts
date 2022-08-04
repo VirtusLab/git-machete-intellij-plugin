@@ -26,5 +26,5 @@ include(
   "frontend:graph:api",
   "frontend:graph:impl",
   "frontend:ui:api",
-  "frontend:ui:impl",
+  "frontend:ui:impl"
 )
