@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.buildsrc
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.scala.ScalaCompile
 import org.gradle.kotlin.dsl.*
@@ -36,8 +37,9 @@ fun Project.configureSpotless() {
   val isCI: Boolean by rootProject.extra
 
   if (!isCI) {
-    tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply", "spotlessKotlinGradleApply") }
-    tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") }
-    tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply", "spotlessKotlinGradleApply") }
+    tasks.withType<AbstractCompile> { dependsOn("spotlessKotlinGradleApply") }
+    tasks.withType<JavaCompile> { dependsOn("spotlessJavaApply") }
+    tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
+    tasks.withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
   }
 }
