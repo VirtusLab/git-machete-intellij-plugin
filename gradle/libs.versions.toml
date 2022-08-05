@@ -3,8 +3,7 @@
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 libraries-checker = "3.24.0"
-# @pin until ide-probe bumps its robot-server dependency back to 0.11.15
-libraries-ideProbe = "0.37.0"
+libraries-ideProbe = "0.41.0"
 libraries-powerMock = "2.0.9"
 
 [libraries]
