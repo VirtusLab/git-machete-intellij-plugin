@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.buildsrc
 
 import java.io.File
 import java.util.*
+import kotlin.reflect.full.memberProperties
 
 // TODO (#1004): Remove unsafe casts from class
 object IntellijVersionHelper {
@@ -19,15 +20,13 @@ object IntellijVersionHelper {
       return listOf(versionKey)
     }
 
-    return when (versionKey) {
-      "earliestSupportedMajor" -> listOf(IntellijVersions.earliestSupportedMajor)
-      "latestMinorsOfOldSupportedMajors" -> IntellijVersions.latestMinorsOfOldSupportedMajors
-      "latestStable" -> listOf(IntellijVersions.latestStable)
-      "latestSupportedMajor" -> listOf(IntellijVersions.latestSupportedMajor)
-      "buildTarget" -> listOf(IntellijVersions.buildTarget)
-      "eapOfLatestSupportedMajor" -> listOfNotNull(IntellijVersions.eapOfLatestSupportedMajor)
-      else -> emptyList()
-    }
+    val propertiesList = listOfNotNull(
+      IntellijVersions::class.memberProperties
+        .single { it.name == versionKey }
+        .get(IntellijVersions::class.objectInstance!!)
+    )
+
+    return propertiesList.flatMap { if (it is List<*>) it else listOf(it) }.map { it as String }
   }
 
   fun getFromBuildNumber(buildNumber: String): String {
