@@ -282,9 +282,8 @@ For instance:
    and see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
    via `latestSupportedMajor` in [IntellijVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
-5. once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
-   then, `latestStable` can be updated to `2020.3`, `eapOfLatestSupportedMajor` can be set to `null`,
-   and `2020.2.x` can be added to `latestMinorsOfOldSupportedMajors`
+5. new stable version can be detected automatically using `./gradlew updateIntellijStableVersions`,
+   once the stable `2020.3` is released, we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well;
 6. since `latestStable` is used as the version to build against,
    a few _source_ incompatibilities might appear once `latestStable` is updated, even when the plugin was _binary_ compatible with the new IDE version.
 
