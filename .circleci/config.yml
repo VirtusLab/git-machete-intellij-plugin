@@ -1,4 +1,12 @@
 version: 2.1
+
+executors:
+  docker_executor:
+    docker:
+      - image: 'gitmachete/intellij-plugin-ci:6.4.0'
+    working_directory: ~/git-machete-intellij-plugin
+    resource_class: large
+
 commands:
   reconfigure_origin_remote:
     steps:
@@ -43,13 +51,6 @@ commands:
               --base="$CIRCLE_BRANCH" \
               --labels="<<parameters.labels>>"
             git checkout "$CIRCLE_BRANCH"
-executors:
-  docker_executor:
-    docker:
-      - image: 'gitmachete/intellij-plugin-ci:6.3.0'
-    working_directory: ~/git-machete-intellij-plugin
-    resource_class: large
-
 
 jobs:
   build:
@@ -214,6 +215,7 @@ jobs:
             git config user.email "gitmachete@virtuslab.com"
             git config user.name "Git Machete Bot"
       - reconfigure_origin_remote
+
       - run:
           name: Check for updates of IntelliJ EAP
           command: ./gradlew updateEapBuildNumber
@@ -223,6 +225,7 @@ jobs:
           commit_message_prefix: Update EAP build number to
           commit_message_command: *extract_eap
           labels: intellij-support
+
       - run:
           name: Check for updates of libraries & Gradle plugins
           # language=sh
@@ -234,6 +237,20 @@ jobs:
           branch_name_prefix: update-deps
           branch_name_command: md5sum gradle/libs.versions.toml | cut -d' ' -f 1
           commit_message_prefix: Update dependencies
+          labels: build
+
+      - run:
+          name: Check for updates of Gradle
+          # language=sh
+          command: |
+            latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
+            ./gradlew wrapper --gradle-version=$latest_gradle_version
+            echo "$latest_gradle_version" > /tmp/gradle-version
+      - create_pull_request_if_files_changed:
+          branch_name_prefix: update-gradle
+          branch_name_command: cat /tmp/gradle-version
+          commit_message_prefix: Update Gradle wrapper to
+          commit_message_command: cat /tmp/gradle-version
           labels: build
 
 workflows:
