@@ -55,9 +55,9 @@ object IntellijVersionHelper {
     return File("intellijVersions.properties")
   }
 
-  infix fun String.versionIsNewerThan(rhsBuildNumber: String): Boolean {
+  infix fun String.versionIsNewerThan(rhsVersion: String): Boolean {
     val lhsSplit = this.split('.')
-    val rhsSplit = rhsBuildNumber.split('.')
+    val rhsSplit = rhsVersion.split('.')
 
     val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
 

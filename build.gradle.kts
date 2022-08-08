@@ -54,6 +54,11 @@ val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
 tasks.register<UpdateIntellijStableVersions>("updateIntellijStableVersions")
 
+tasks.register("updateIntellijVersions") {
+  dependsOn("updateIntellijStableVersions", "updateEapBuildNumber")
+  tasks.getByName("updateEapBuildNumber").mustRunAfter("updateIntellijStableVersions")
+}
+
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
 

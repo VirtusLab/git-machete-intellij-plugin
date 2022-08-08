@@ -11,49 +11,32 @@ open class UpdateIntellijStableVersions : DefaultTask() {
   @Internal
   val intellijReleasesUrl: String = "https://www.jetbrains.com/intellij-repository/releases/"
 
-  fun checkForReleaseNewerThan(latestStable: String): String? {
+  private fun findMatchingVersionNewerThan(regex: Regex, thresholdVersion: String): String? {
     val htmlContent = Jsoup.connect(intellijReleasesUrl).get()
-    val links =
-      htmlContent.select(
-        "a[href^=${intellijReleasesUrl}com/jetbrains/intellij/idea/BUILD/][href$=.txt]"
-      )
+    val links = htmlContent.select(
+      "a[href^=${intellijReleasesUrl}com/jetbrains/intellij/idea/BUILD/][href$=.txt]"
+    )
 
     for (link in links) {
       val attr = link.attr("href")
-      val regex = Regex("(?<=BUILD-)(\\d+\\.)+\\d+(?=.txt)")
       val matchResult = regex.find(attr)
 
       if (matchResult != null) {
-        val foundVersionNumber = matchResult.value
+        val foundVersion = matchResult.value
 
-        if (foundVersionNumber versionIsNewerThan latestStable) {
-          return foundVersionNumber
+        if (foundVersion versionIsNewerThan thresholdVersion) {
+          return foundVersion
         }
       }
     }
     return null
   }
+  fun checkForReleaseNewerThan(latestStable: String): String? {
+    return findMatchingVersionNewerThan(Regex("(?<=BUILD-)(\\d+\\.)+\\d+(?=.txt)"), latestStable)
+  }
 
   fun getLatestMinorOfMajor(major: String): String {
-    val htmlContent = Jsoup.connect(intellijReleasesUrl).get()
-    val links =
-      htmlContent.select(
-        "a[href^=${intellijReleasesUrl}com/jetbrains/intellij/idea/BUILD/][href$=.txt]"
-      )
-
-    var latestMinor = major
-
-    for (link in links) {
-      val attr = link.attr("href")
-      val regex = Regex("(?<=BUILD-)$major(\\.\\d+)?(?=.txt)")
-      val matchResult = regex.find(attr)
-
-      if (matchResult != null && matchResult.value versionIsNewerThan latestMinor) {
-        latestMinor = matchResult.value
-        break
-      }
-    }
-    return latestMinor
+    return findMatchingVersionNewerThan(Regex("(?<=BUILD-)$major(\\.\\d+)?(?=.txt)"), major) ?: major
   }
 
   @TaskAction

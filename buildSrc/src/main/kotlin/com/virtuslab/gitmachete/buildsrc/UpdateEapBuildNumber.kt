@@ -18,9 +18,10 @@ open class UpdateEapBuildNumber : DefaultTask() {
         "a[href^=${intellijSnapshotsUrl}com/jetbrains/intellij/idea/ideaIC/][href$=-EAP-SNAPSHOT.pom]"
       )
 
+    val regex = Regex("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
+
     for (link in links) {
       val attr = link.attr("href")
-      val regex = Regex("(?<=ideaIC-)(\\d+\\.)+\\d+(?=-EAP-SNAPSHOT.pom)")
       val matchResult = regex.find(attr)
 
       if (matchResult != null) {
