@@ -27,7 +27,7 @@ RUN \
   mkdir -p "$dir"; \
   echo -n "rsch.send.usage.stat:1.1:0:$(date +%s)000" > "$dir/accepted"
 # Note that if we were to run `./gradlew runIdeForUiTests`,
-# we'd need to populate /root/.java/.userPrefs/jetbrains/.../prefs.xml to accept End User Agreement/privacy policy.
+# we'd need to populate ~/.java/.userPrefs/jetbrains/.../prefs.xml to accept End User Agreement/privacy policy.
 # But in our setup, it's sorted out by ide-probe instead (org.virtuslab.ideprobe.ide.intellij.IntellijPrivacyPolicy).
 
 # Tools necessary to run non-headless UI tests in the screen-less environment of CI
@@ -41,20 +41,22 @@ RUN \
 # Secondary packages needed in just one (or few) steps of the pipeline:
 # (package       => needed for command(s))
 # binutils       => strings
+# jq             => jq
 # nodejs         => npm (Docker build only), remark
 # procps         => kill (as a standalone command and not shell built-in, to be executed by ide-probe)
+# sudo           => sudo
 # xxd            => xxd
 # unzip          => zipinfo
 RUN \
   apt-get update; \
   curl -fsSL https://deb.nodesource.com/setup_16.x | bash -; \
-  apt-get install --no-install-recommends -y binutils nodejs procps xxd unzip sudo; \
+  apt-get install --no-install-recommends -y binutils jq nodejs procps sudo xxd unzip; \
   rm -rf /var/lib/apt/lists/*
 
 # Markdown validation utilities
 RUN \
-  npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links; \
-  npm uninstall --global npm
+  npm install --location=global remark-cli remark-lint-no-dead-urls remark-validate-links; \
+  npm uninstall --location=global npm
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
