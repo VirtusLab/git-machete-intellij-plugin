@@ -24,7 +24,7 @@ commands:
           name: Create a pull request if project files changed
           # language=sh
           command: |
-            if git diff-index --quiet HEAD; then
+            if git diff --quiet HEAD; then
               echo "No changes to project files after running the task, aborting"
               exit 0
             fi
