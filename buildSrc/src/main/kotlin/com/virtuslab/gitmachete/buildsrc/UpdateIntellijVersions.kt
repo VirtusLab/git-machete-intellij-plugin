@@ -1,13 +1,14 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getMajorPart
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.toBuildNumber
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.jsoup.Jsoup
 
-open class UpdateIntellijStableVersions : DefaultTask() {
+open class UpdateIntellijVersions : DefaultTask() {
   @Internal
   val intellijReleasesUrl: String = "https://www.jetbrains.com/intellij-repository/releases/"
 
@@ -31,36 +32,59 @@ open class UpdateIntellijStableVersions : DefaultTask() {
     }
     return null
   }
-  fun checkForReleaseNewerThan(latestStable: String): String? {
+  private fun findReleaseNewerThan(latestStable: String): String? {
     return findMatchingVersionNewerThan(Regex("(?<=BUILD-)(\\d+\\.)+\\d+(?=.txt)"), latestStable)
   }
 
-  fun getLatestMinorOfMajor(major: String): String {
+  private fun findLatestMinorOfMajor(major: String): String {
     return findMatchingVersionNewerThan(Regex("(?<=BUILD-)$major(\\.\\d+)?(?=.txt)"), major) ?: major
+  }
+
+  private fun findEapWithBuildNumberHigherThan(latestEapBuildNumber: String): String? {
+    return findMatchingVersionNewerThan(
+      Regex("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)"),
+      latestEapBuildNumber
+    )
+  }
+
+  private fun getUpdatedLatestMinorsList(majorOfReplacedStable: String): List<String> {
+    val latestMinorsList = IntellijVersions.latestMinorsOfOldSupportedMajors
+    val latestMinorOfReplacedMajor = findLatestMinorOfMajor(majorOfReplacedStable)
+
+    return latestMinorsList.filter { getMajorPart(it) != majorOfReplacedStable }
+      .map { findLatestMinorOfMajor(getMajorPart(it)) }
+      .plus(latestMinorOfReplacedMajor)
   }
 
   @TaskAction
   fun execute() {
     val properties = IntellijVersionHelper.getProperties()
-
     val latestStable = IntellijVersions.latestStable
 
-    val newerStable = checkForReleaseNewerThan(latestStable)
+    val newerStable = findReleaseNewerThan(latestStable)
 
     if (!newerStable.isNullOrEmpty()) {
       project.logger.lifecycle("latestStable is updated to $newerStable")
-      properties.setProperty("latestStable", "$newerStable")
+      properties.setProperty("latestStable", newerStable)
       properties.remove("eapOfLatestSupportedMajor")
+
       val majorOfLatestStable = getMajorPart(latestStable)
       if (majorOfLatestStable != getMajorPart(newerStable)) {
-        val latestMinorsList = IntellijVersions.latestMinorsOfOldSupportedMajors.toMutableList()
-        val latestMinorOfReplacedMajor = getLatestMinorOfMajor(majorOfLatestStable)
-
-        latestMinorsList.removeIf { getMajorPart(it) == majorOfLatestStable }
-        latestMinorsList.add(latestMinorOfReplacedMajor)
+        val latestMinorsList = getUpdatedLatestMinorsList(majorOfLatestStable)
         properties.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsList.joinToString(separator = ","))
       }
       IntellijVersionHelper.storeProperties(properties)
+    } else {
+      val buildNumberThreshold = IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-SNAPSHOT", "")
+        ?: "${toBuildNumber(latestStable)}.999999.999999"
+
+      val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
+
+      if (!newerEapBuildNumber.isNullOrEmpty()) {
+        project.logger.lifecycle("eapOfLatestSupportedMajor is updated to $newerEapBuildNumber")
+        properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
+        IntellijVersionHelper.storeProperties(properties)
+      }
     }
   }
 }

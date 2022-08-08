@@ -51,13 +51,7 @@ val jetbrainsMarketplaceToken by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKE
 val compileJavaJvmArgs by extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
 val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 
-tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
-tasks.register<UpdateIntellijStableVersions>("updateIntellijStableVersions")
-
-tasks.register("updateIntellijVersions") {
-  dependsOn("updateIntellijStableVersions", "updateEapBuildNumber")
-  tasks.getByName("updateEapBuildNumber").mustRunAfter("updateIntellijStableVersions")
-}
+tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
