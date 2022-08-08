@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.buildsrc
 
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -14,18 +15,18 @@ open class UpdateEapBuildNumber : DefaultTask() {
     val htmlContent = Jsoup.connect(intellijSnapshotsUrl).get()
     val links =
       htmlContent.select(
-        "a[href^=${intellijSnapshotsUrl}com/jetbrains/intellij/idea/ideaIC/][href$=\"-EAP-SNAPSHOT.pom\"]"
+        "a[href^=${intellijSnapshotsUrl}com/jetbrains/intellij/idea/ideaIC/][href$=-EAP-SNAPSHOT.pom]"
       )
 
     for (link in links) {
       val attr = link.attr("href")
-      val regex = Regex("(?<=ideaIC-)\\d+\\.\\d+\\.\\d+(?=-EAP-SNAPSHOT.pom)")
+      val regex = Regex("(?<=ideaIC-)(\\d+\\.)+\\d+(?=-EAP-SNAPSHOT.pom)")
       val matchResult = regex.find(attr)
 
       if (matchResult != null) {
         val foundBuildNumber = matchResult.value
 
-        if (foundBuildNumber buildNumberIsNewerThan latestEapBuildNumber) {
+        if (foundBuildNumber versionIsNewerThan latestEapBuildNumber) {
           return foundBuildNumber
         }
       }
@@ -46,22 +47,6 @@ open class UpdateEapBuildNumber : DefaultTask() {
       project.logger.lifecycle("eapOfLatestSupportedMajor is updated to $newerEapBuildNumber")
       properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
       IntellijVersionHelper.storeProperties(properties)
-    }
-  }
-
-  companion object {
-    infix fun String.buildNumberIsNewerThan(rhsBuildNumber: String): Boolean {
-      val lhsSplit = this.split('.')
-      val rhsSplit = rhsBuildNumber.split('.')
-
-      val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
-
-      // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
-      if (firstDiff == null) {
-        return lhsSplit.size > rhsSplit.size
-      }
-
-      return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
     }
   }
 }

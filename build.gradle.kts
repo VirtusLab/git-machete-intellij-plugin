@@ -52,6 +52,7 @@ val compileJavaJvmArgs by extra((project.properties["compileJavaJvmArgs"] as Str
 val shouldRunAllCheckers by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateEapBuildNumber>("updateEapBuildNumber")
+tasks.register<UpdateIntellijStableVersions>("updateIntellijStableVersions")
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)

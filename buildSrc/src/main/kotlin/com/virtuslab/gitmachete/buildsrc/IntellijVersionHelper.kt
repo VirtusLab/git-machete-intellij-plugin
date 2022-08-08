@@ -54,4 +54,18 @@ object IntellijVersionHelper {
   private fun getFile(): File {
     return File("intellijVersions.properties")
   }
+
+  infix fun String.versionIsNewerThan(rhsBuildNumber: String): Boolean {
+    val lhsSplit = this.split('.')
+    val rhsSplit = rhsBuildNumber.split('.')
+
+    val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
+
+    // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
+    if (firstDiff == null) {
+      return lhsSplit.size > rhsSplit.size
+    }
+
+    return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
+  }
 }
