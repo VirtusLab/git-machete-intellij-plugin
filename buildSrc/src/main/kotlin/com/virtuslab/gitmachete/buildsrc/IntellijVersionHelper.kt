@@ -41,6 +41,11 @@ object IntellijVersionHelper {
     return version.substring(0, 6)
   }
 
+  fun Properties.getEapOfLatestSupportedMajor(): String? {
+    val maybeEap = getProperty("eapOfLatestSupportedMajor")
+    return if (maybeEap == "") null else maybeEap
+  }
+
   fun getProperties(): Properties {
     val properties = Properties()
     properties.load(getFile().inputStream())

@@ -274,18 +274,18 @@ There is a rather little risk that the plugin which is compatible with `X - 1`
 and does **not** use any `X EAP/RC`-specific API
 turns out to be **not** compatible with stable `X` release of IDE.
 
-Version updates can be done automatically using `./gradlew updateIntellijVersions`, this runs two update tasks described in the example below.
+Version updates can be done automatically using `./gradlew updateIntellijVersions`
 
 The whole logic of the process can be illustrated with an example:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `.idea`),
-   and is detected with `./gradlew updateEapBuildNumber`, <br/>
+   and is detected with `./gradlew updateIntellijVersions`, <br/>
    new `eapOfLatestSupportedMajor` is set in [IntellijVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` - see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
    via `latestSupportedMajor` in [IntellijVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
 5. new stable version `2020.3` is released (see [release repository](https://www.jetbrains.com/intellij-repository/releases/) -> Ctrl+F `.idea`)
-   and is detected using `./gradlew updateIntellijStableVersions`, <br/>
+   and is detected using `./gradlew updateIntellijVersions`, <br/>
    `latestStable` and additionally `latestMinorsOfOldSupportedMajors` are changed in [IntellijVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt)
 6. we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well
 7. since `latestStable` is used as the version to build against,
