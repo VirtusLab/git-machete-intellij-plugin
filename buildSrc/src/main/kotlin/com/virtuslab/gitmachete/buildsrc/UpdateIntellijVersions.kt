@@ -7,27 +7,26 @@ import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerTha
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.jsoup.Jsoup
-import org.jsoup.select.Elements
 
 open class UpdateIntellijVersions : DefaultTask() {
 
-  private val intellijReleasesContents: Elements by lazy {
+  private val intellijReleasesContents: List<String> by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/releases/")
   }
 
-  private val intellijSnapshotsContents: Elements by lazy {
+  private val intellijSnapshotsContents: List<String> by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/snapshots/")
   }
 
-  private fun getLinksFromUrl(repositoryUrl: String): Elements {
+  private fun getLinksFromUrl(repositoryUrl: String): List<String> {
     return Jsoup.connect(repositoryUrl).get()
       .select("a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]")
+      .map { it.attr("href") }
   }
 
-  private fun findFirstMatchingVersionNewerThan(repoLinks: Elements, regex: Regex, thresholdVersion: String): String? {
+  private fun findFirstMatchingVersionNewerThan(repoLinks: List<String>, regex: Regex, thresholdVersion: String): String? {
     for (link in repoLinks) {
-      val attr = link.attr("href")
-      val matchResult = regex.find(attr)
+      val matchResult = regex.find(link)
 
       if (matchResult != null) {
         val foundVersion = matchResult.value
@@ -80,11 +79,11 @@ open class UpdateIntellijVersions : DefaultTask() {
     if (newerStable != null) {
       project.logger.lifecycle("latestStable is updated to $newerStable")
       properties.setProperty("latestStable", newerStable)
-      properties.setProperty("eapOfLatestSupportedMajor", "")
 
       if (getMajorPart(latestStable) != getMajorPart(newerStable)) {
         val updatedMinorsList = latestMinorsList.plus(findLatestMinorOfVersion(latestStable))
         properties.setProperty("latestMinorsOfOldSupportedMajors", updatedMinorsList.joinToString(separator = ","))
+        properties.setProperty("eapOfLatestSupportedMajor", "")
       }
     }
 
