@@ -133,7 +133,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     if (gitMacheteRepositorySnapshot != null && graphItem.isBranchItem()) {
       val ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
-      if ((ongoingRepositoryOperation == OngoingRepositoryOperation.REBASING)
+      if (ongoingRepositoryOperation == OngoingRepositoryOperation.REBASING
           && !gitMacheteRepositorySnapshot.getRebasedBranchName().isEmpty()) {
         String rebasingBranchName = gitMacheteRepositorySnapshot.getRebasedBranchName().get();
         if (Objects.equals(rebasingBranchName, graphItem.getValue())) {
