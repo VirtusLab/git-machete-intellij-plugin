@@ -26,7 +26,7 @@ open class UpdateIntellijVersions : DefaultTask() {
       .select("a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]")
   }
 
-  private fun findMatchingVersionNewerThan(repoLinks: Elements, regex: Regex, thresholdVersion: String): String? {
+  private fun findFirstMatchingVersionNewerThan(repoLinks: Elements, regex: Regex, thresholdVersion: String): String? {
     for (link in repoLinks) {
       val attr = link.attr("href")
       val matchResult = regex.find(attr)
