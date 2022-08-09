@@ -11,13 +11,11 @@ import org.jsoup.select.Elements
 
 open class UpdateIntellijVersions : DefaultTask() {
 
-  @get:Internal
-  val intellijReleasesContents: Elements by lazy {
+  private val intellijReleasesContents: Elements by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/releases/")
   }
 
-  @get:Internal
-  val intellijSnapshotsContents: Elements by lazy {
+  private val intellijSnapshotsContents: Elements by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/snapshots/")
   }
 
