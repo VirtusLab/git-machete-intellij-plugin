@@ -223,11 +223,14 @@ jobs:
           branch_name_prefix: update-intellij-versions
           branch_name_command: md5sum intellijVersions.properties | cut -d' ' -f 1
           commit_message_prefix: Update IntelliJ versions ->
-          commit_message_command: git diff | grep '^+' |
+          commit_message_command: git diff | grep '^+[^#+]' |
             sed 's/Majors=.*/Majors/' |
             sed 's/+//g' |
             sed 's/=/ to /g' |
-            sed 's/to $/to EMPTY/g'
+            sed 's/to $/to EMPTY/g' |
+            tr '\n' ',' |
+            sed 's/,$//' |
+            sed 's/,/, /g'
           labels: intellij-support
 
       - run:
