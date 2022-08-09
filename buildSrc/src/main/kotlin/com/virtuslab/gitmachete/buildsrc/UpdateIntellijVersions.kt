@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getEapOfLatestSupportedMajor
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getMajorPart
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.toBuildNumber
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
 import org.gradle.api.DefaultTask
@@ -88,7 +88,7 @@ open class UpdateIntellijVersions : DefaultTask() {
       }
     }
 
-    val maybeEapOfLatestSupportedMajor = properties.getEapOfLatestSupportedMajor()
+    val maybeEapOfLatestSupportedMajor = properties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
 
     val buildNumberThreshold = maybeEapOfLatestSupportedMajor?.replace("-EAP-SNAPSHOT", "")
       ?: "${toBuildNumber(properties.getProperty("latestStable"))}.999999.999999"
