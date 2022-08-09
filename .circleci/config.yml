@@ -217,13 +217,17 @@ jobs:
       - reconfigure_origin_remote
 
       - run:
-          name: Check for updates of IntelliJ EAP
-          command: ./gradlew updateEapBuildNumber
+          name: Check for updates of IntelliJ versions
+          command: ./gradlew updateIntellijVersions
       - create_pull_request_if_files_changed:
-          branch_name_prefix: update-eap
-          branch_name_command: &extract_eap grep -Po '(?<=eapOfLatestSupportedMajor=).*(?=-EAP-SNAPSHOT)' intellijVersions.properties
-          commit_message_prefix: Update EAP build number to
-          commit_message_command: *extract_eap
+          branch_name_prefix: update-intellij-versions
+          branch_name_command: md5sum intellijVersions.properties | cut -d' ' -f 1
+          commit_message_prefix: Update IntelliJ versions ->
+          commit_message_command: git diff | grep -P '\+' |
+            sed 's/Majors=.*/Majors/' |
+            sed 's/+//g' |
+            sed 's/=/ to /g' |
+            sed 's/to $/to EMPTY/g'
           labels: intellij-support
 
       - run:
