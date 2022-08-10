@@ -19,6 +19,13 @@ import org.powermock.reflect.Whitebox;
 @PrepareForTest({GitMacheteErrorReportSubmitter.class})
 public class GitMacheteErrorReportSubmitterTest {
   @Test
+  public void shouldNotThrowWhenGettingBugTemplate() throws Exception {
+    GitMacheteErrorReportSubmitter reportSubmitter = new GitMacheteErrorReportSubmitter();
+
+    Whitebox.invokeMethod(reportSubmitter, "getBugTemplate");
+  }
+
+  @Test
   public void testGitHubIssueUriConstruction() throws Exception {
     IdeaLoggingEvent[] events = new IdeaLoggingEvent[1];
 
@@ -37,6 +44,6 @@ public class GitMacheteErrorReportSubmitterTest {
 
     Whitebox.invokeMethod(reportSubmitter, "constructNewGitHubIssueUri", events, reportBody);
 
-    Whitebox.invokeMethod(reportSubmitter, "constructNewGitHubIssueUri", events, null);
+    Whitebox.invokeMethod(reportSubmitter, "constructNewGitHubIssueUri", events, /* report Body */ null);
   }
 }
