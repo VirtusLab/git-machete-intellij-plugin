@@ -11,7 +11,9 @@ dependencies {
 }
 
 addIntellijToCompileClasspath(withGit4Idea = true)
+junit()
 lombok()
+powerMock()
 slf4jLambdaApi()
 vavr()
 
