@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.buildsrc
 
+import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
+
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 object IntellijVersions {
 
@@ -24,7 +26,7 @@ object IntellijVersions {
   // but for some reason aren't resolved in UI tests.
   // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
   // Use `null` if the latest supported major has a stable release (and not just EAPs).
-  val eapOfLatestSupportedMajor: String? = intellijVersionsProp.getProperty("eapOfLatestSupportedMajor")
+  val eapOfLatestSupportedMajor: String? = intellijVersionsProp.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
 
   val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
     IntellijVersionHelper.getFromBuildNumber(eapOfLatestSupportedMajor)
