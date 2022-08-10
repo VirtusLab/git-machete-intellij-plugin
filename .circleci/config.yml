@@ -251,7 +251,8 @@ jobs:
           # language=sh
           command: |
             latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
-            ./gradlew wrapper --gradle-version=$latest_gradle_version
+            ./gradlew wrapper --gradle-version=$latest_gradle_version  # this only updates gradle-wrapper.properties
+            ./gradlew  # to actually pull the new wrapper script/jar
             echo "$latest_gradle_version" > /tmp/gradle-version
       - create_pull_request_if_files_changed:
           branch_name_prefix: update-gradle
