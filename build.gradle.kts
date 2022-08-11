@@ -36,8 +36,16 @@ apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
 
-if (JavaVersion.current() != JavaVersion.VERSION_11) {
-  throw GradleException("Project must be built with Java version 11")
+if (JavaVersion.current() != JavaVersion.VERSION_11 && JavaVersion.current() != JavaVersion.VERSION_17) {
+  throw GradleException(
+    """Project must be built with JDK 11 or 17 since:
+    1. as of v3.24, Checker Framework only supports JDK 8, 11 and 17: https://checkerframework.org/manual/#installation
+    2. codebase is Java 11-compatible, so can't be built on JDK 8"""
+  )
+}
+
+fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
+  return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }
 }
 
 val javaMajorVersion by extra(JavaVersion.VERSION_11)
@@ -105,6 +113,17 @@ allprojects {
       compileJavaJvmArgs
         ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError"))
     )
+    // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
+    options.forkOptions.jvmArgs?.addAll(
+      getFlagsForAddOpens(
+        "com.sun.tools.javac.api",
+        "com.sun.tools.javac.code",
+        "com.sun.tools.javac.processing",
+        "com.sun.tools.javac.tree",
+        "com.sun.tools.javac.util",
+        module = "jdk.compiler"
+      )
+    )
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
@@ -131,6 +150,17 @@ allprojects {
   }
 
   tasks.withType<Test> {
+    // Required for PowerMock to work under Java 17
+    jvmArgs(
+      getFlagsForAddOpens(
+        "java.io",
+        "java.lang",
+        "java.nio.file",
+        "java.util.stream",
+        module = "java.base"
+      )
+    )
+
     testLogging {
       events = setOf(TestLogEvent.FAILED)
       exceptionFormat = TestExceptionFormat.FULL
