@@ -53,18 +53,19 @@ public class GitMacheteErrorReportSubmitterTest {
   @Before
   public void setUp() {
     Whitebox.setInternalState(GitMacheteErrorReportSubmitter.class, errorReportSubmitterLogger);
+    Whitebox.setInternalState(SystemUtils.class, "OS_NAME", "Mock OS X");
+    Whitebox.setInternalState(SystemUtils.class, "OS_VERSION", "Hehe");
+
+    PowerMockito.stub(PowerMockito.method(System.class, "lineSeparator"))
+            .toReturn(systemLineSeparator);
 
     PowerMockito.mockStatic(ApplicationInfo.class);
+    PowerMockito.mockStatic(PluginId.class);
+
     val applicationInfo = PowerMockito.mock(ApplicationInfo.class);
     PowerMockito.when(applicationInfo.getFullApplicationName()).thenReturn("mocked IntelliJ idea");
     PowerMockito.stub(PowerMockito.method(ApplicationInfo.class, "getInstance"))
         .toReturn(applicationInfo);
-
-    PowerMockito.mockStatic(PluginId.class);
-    PowerMockito.stub(PowerMockito.method(System.class, "lineSeparator"))
-        .toReturn(systemLineSeparator);
-    Whitebox.setInternalState(SystemUtils.class, "OS_NAME", "Mock OS X");
-    Whitebox.setInternalState(SystemUtils.class, "OS_VERSION", "Hehe");
   }
 
   private IdeaLoggingEvent[] getMockEvents(String throwableText) {
