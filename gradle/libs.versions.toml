@@ -40,7 +40,7 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.9.0"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.9.1"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"
