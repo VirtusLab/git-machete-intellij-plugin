@@ -55,7 +55,6 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     return true;
   }
 
-  // TODO (#972): add a unit test for this method
   private URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String reportBody) throws URISyntaxException {
     String title = Arrays.stream(events)
         .map(IdeaLoggingEvent::getThrowableText)
