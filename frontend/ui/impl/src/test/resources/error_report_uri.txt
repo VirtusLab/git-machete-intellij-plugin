@@ -1,1 +1,0 @@
-https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new?title=&labels=bug&template=bug_report.md
