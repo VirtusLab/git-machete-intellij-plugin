@@ -68,6 +68,7 @@ open class UpdateIntellijVersions : DefaultTask() {
   @TaskAction
   fun execute() {
     val properties = IntellijVersionHelper.getProperties()
+    val originalProperties = IntellijVersionHelper.getProperties()
     val latestStable = IntellijVersions.latestStable
     val latestMinorsList = IntellijVersions.latestMinorsOfOldSupportedMajors
       .map { findLatestMinorOfVersion(it) }
@@ -99,6 +100,8 @@ open class UpdateIntellijVersions : DefaultTask() {
       properties.setProperty("eapOfLatestSupportedMajor", "$newerEapBuildNumber-EAP-SNAPSHOT")
     }
 
-    IntellijVersionHelper.storeProperties(properties)
+    if (originalProperties != properties) {
+      IntellijVersionHelper.storeProperties(properties)
+    }
   }
 }
