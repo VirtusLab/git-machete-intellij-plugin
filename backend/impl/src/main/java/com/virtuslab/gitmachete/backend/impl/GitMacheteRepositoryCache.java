@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -22,8 +23,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  private static io.vavr.collection.Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap
-      .empty();
+  private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
   public GitMacheteRepositoryCache() {
     gitCoreRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitCoreRepositoryFactory.class);
