@@ -1,10 +1,11 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import java.lang.ref.SoftReference;
 import java.nio.file.Path;
-import java.util.WeakHashMap;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -21,24 +22,35 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  private static final java.util.Map<Tuple2<Path, Path>, GitMacheteRepository> gitMacheteRepositoryCache = new WeakHashMap<>();
+  private static io.vavr.collection.Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap
+      .empty();
 
   public GitMacheteRepositoryCache() {
     gitCoreRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitCoreRepositoryFactory.class);
   }
 
   @Override
-  public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
+  public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath,
+      Path worktreeGitDirectoryPath)
       throws GitMacheteException {
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
-    if (!gitMacheteRepositoryCache.containsKey(key)) {
-      val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
-      val statusHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
-      val preRebaseHookExecutor = PreRebaseHookExecutor.of(gitCoreRepository);
-      val value = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-      gitMacheteRepositoryCache.put(key, value);
+    val valueReferenceOption = gitMacheteRepositoryCache.get(key);
+
+    if (!valueReferenceOption.isEmpty()) {
+      val value = valueReferenceOption.get().get();
+      if (value != null) {
+        val sep = System.lineSeparator();
+        return value;
+      }
     }
-    return gitMacheteRepositoryCache.get(key);
+
+    val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
+    val statusHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
+    val preRebaseHookExecutor = PreRebaseHookExecutor.of(gitCoreRepository);
+    val newValue = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+
+    gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(key, new SoftReference<>(newValue));
+    return newValue;
   }
 
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
