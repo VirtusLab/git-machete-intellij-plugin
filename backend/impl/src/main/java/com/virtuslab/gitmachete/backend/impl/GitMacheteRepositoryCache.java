@@ -39,7 +39,6 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     if (!valueReferenceOption.isEmpty()) {
       val value = valueReferenceOption.get().get();
       if (value != null) {
-        val sep = System.lineSeparator();
         return value;
       }
     }
@@ -48,8 +47,8 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     val statusHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
     val preRebaseHookExecutor = PreRebaseHookExecutor.of(gitCoreRepository);
     val newValue = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
-
     gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(key, new SoftReference<>(newValue));
+
     return newValue;
   }
 
