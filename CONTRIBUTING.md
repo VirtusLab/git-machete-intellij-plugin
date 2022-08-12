@@ -39,11 +39,11 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`.
    Select `Obtain annotation processors from classpath` radio box.
 
-6. Set Project SDK to JDK 11: `Project Structure > Project`
+6. Set Project SDK to JDK 11 or 17: `Project Structure > Project`
 
 7. Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
-8. For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11.
+8. For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 11 or 17.
 
 9. Consider [enabling internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
    It can be significantly useful while working with UI components (or tests).
