@@ -57,7 +57,7 @@ public class GitMacheteErrorReportSubmitterTest {
     Whitebox.setInternalState(SystemUtils.class, "OS_VERSION", "Hehe");
 
     PowerMockito.stub(PowerMockito.method(System.class, "lineSeparator"))
-            .toReturn(systemLineSeparator);
+        .toReturn(systemLineSeparator);
 
     PowerMockito.mockStatic(ApplicationInfo.class);
     PowerMockito.mockStatic(PluginId.class);
@@ -81,9 +81,9 @@ public class GitMacheteErrorReportSubmitterTest {
     };
   }
 
-  private String invokeGetReportBody(GitMacheteErrorReportSubmitter errorReportSubmitter, IdeaLoggingEvent[] events)
+  private String invokeGetReportBody(IdeaLoggingEvent[] events)
       throws Exception {
-    String reportBody = Whitebox.invokeMethod(errorReportSubmitter, "getReportBody", events, /* additionalInfo */ null);
+    String reportBody = Whitebox.invokeMethod(reportSubmitter, "getReportBody", events, /* additionalInfo */ null);
 
     Mockito
         .verify(errorReportSubmitterLogger,
@@ -96,7 +96,7 @@ public class GitMacheteErrorReportSubmitterTest {
   @Test
   public void shouldConstructUriWithTemplate() throws Exception {
     val events = getMockEvents(/* throwableText */ "");
-    val reportBody = invokeGetReportBody(reportSubmitter, events);
+    val reportBody = invokeGetReportBody(events);
 
     URI uriWithReport = Whitebox.invokeMethod(reportSubmitter, "constructNewGitHubIssueUri", events, reportBody);
     Assert.assertEquals("URI should match default with report body", defaultErrorReportWithTemplate, uriWithReport.toString());
@@ -114,7 +114,7 @@ public class GitMacheteErrorReportSubmitterTest {
   public void shouldConstructUriWithTitleAndStackTrace() throws Exception {
     String throwableText = "Title - top of the stacktrace${systemLineSeparator}stacktrace${systemLineSeparator}stacktrace";
     val events = getMockEvents(throwableText);
-    val reportBody = invokeGetReportBody(reportSubmitter, events);
+    val reportBody = invokeGetReportBody(events);
 
     URI uri = Whitebox.invokeMethod(reportSubmitter, "constructNewGitHubIssueUri", events, reportBody);
     Assert.assertEquals("URI should match report template with stacktrace and title", errorReportWithStackTraceAndTitle,
