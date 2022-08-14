@@ -36,6 +36,7 @@ dependencies {
   implementation(libs.jetbrains.annotations)
   implementation(libs.pluginPackages.aspectj.postCompileWeaving)
   implementation(libs.pluginPackages.checkerFramework)
+  implementation(libs.pluginPackages.grgit)
   implementation(libs.pluginPackages.jetbrains.intellij)
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)

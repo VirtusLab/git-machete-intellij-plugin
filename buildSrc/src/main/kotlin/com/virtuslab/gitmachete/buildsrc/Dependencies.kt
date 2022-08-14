@@ -13,8 +13,9 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
-import org.jetbrains.intellij.tasks.*
+import org.jetbrains.intellij.tasks.ClasspathIndexCleanupTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
 fun Project.applyKotlinConfig() {
   apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -100,7 +101,7 @@ fun Project.ideProbe() {
   repositories {
     // Needed for com.intellij.remoterobot:remote-robot
     maven {
-      url = `java.net`.URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+      url = URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
     }
   }
 
