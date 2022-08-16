@@ -3,7 +3,7 @@
 - IDE - %ide%
 - Operating system - %os%
 
-## IDEA - Stack trace
+## IDEA - stack trace
 %stacktraces%
 
 ## IDEA - additional info

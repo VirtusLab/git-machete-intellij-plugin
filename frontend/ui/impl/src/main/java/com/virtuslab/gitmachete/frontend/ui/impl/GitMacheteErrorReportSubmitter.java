@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.ui.impl;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.awt.Component;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +20,7 @@ import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Consumer;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -43,51 +43,43 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
       @Nullable String additionalInfo,
       Component parentComponent,
       Consumer<? super SubmittedReportInfo> consumer) {
-    String reportBody = getReportBody(events, additionalInfo);
-
     try {
-      val uri = constructNewGitHubIssueUri(events, reportBody);
+      val uri = constructNewGitHubIssueUri(events, additionalInfo);
 
       UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> BrowserUtil.browse(uri));
     } catch (URISyntaxException e) {
-      LOG.error("Cannot construct URI to open new bug issue! Erroneous report body: ${reportBody}", e);
+      LOG.error("Cannot construct URI to open new bug issue!", e);
     }
     return true;
   }
 
-  private URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String reportBody) throws URISyntaxException {
+  URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String additionalInfo) throws URISyntaxException {
     String title = Arrays.stream(events)
         .map(IdeaLoggingEvent::getThrowableText)
         .map(t -> t.indexOf(System.lineSeparator()) > 0 ? t.substring(0, t.indexOf(System.lineSeparator())) : t)
         .collect(Collectors.joining("; "));
+    String reportBody = getReportBody(events, additionalInfo);
 
     val uriBuilder = new URIBuilder("https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new");
     uriBuilder.addParameter("title", title);
     uriBuilder.addParameter("labels", "bug");
-    if (reportBody != null) {
-      uriBuilder.addParameter("body", reportBody);
-    } else {
-      uriBuilder.addParameter("template", "bug_report.md");
-    }
+    uriBuilder.addParameter("body", reportBody);
     return uriBuilder.build();
   }
 
-  private @Nullable String getReportBody(
+  private String getReportBody(
       IdeaLoggingEvent[] events,
       @Nullable String additionalInfo) {
-    String reportBody = null;
-    try {
-      reportBody = getBugTemplate();
-      for (java.util.Map.Entry<String, String> entry : getTemplateVariables(events, additionalInfo).entrySet()) {
-        reportBody = reportBody.replace("%${entry.getKey()}%", entry.getValue());
-      }
-    } catch (IOException | AssertionError e) {
-      LOG.error("Error while creating bug report template", e);
+    String reportBody = getBugTemplate();
+    for (java.util.Map.Entry<String, String> entry : getTemplateVariables(events, additionalInfo).entrySet()) {
+      reportBody = reportBody.replace("%${entry.getKey()}%", entry.getValue());
     }
     return reportBody;
   }
 
-  private String getBugTemplate() throws IOException, AssertionError {
+  // An error (from a typo in resource name) will be captured by the tests.
+  @SneakyThrows
+  private String getBugTemplate() {
     return IOUtils.resourceToString("/bug_report.md", StandardCharsets.UTF_8);
   }
 
@@ -95,25 +87,28 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
       IdeaLoggingEvent[] events,
       @Nullable String additionalInfo) {
     val templateVariables = new java.util.HashMap<String, String>();
+
     // Ide version, ie. Intellij Community 2021.3.1
     templateVariables.put("ide", ApplicationInfo.getInstance().getFullApplicationName());
+
     // Plugin version, ie. 1.1.1-10-SNAPSHOT git.c9a0e89-dirty
     IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(PluginId.getId("com.virtuslab.git-machete"));
-    if (pluginDescriptor != null) {
-      templateVariables.put("macheteVersion", pluginDescriptor.getVersion());
-    }
+    templateVariables.put("macheteVersion", pluginDescriptor != null ? pluginDescriptor.getVersion() : "<unknown>");
+
     // OS name and version
     val osName = SystemUtils.OS_NAME != null ? SystemUtils.OS_NAME : "";
     val osVersion = SystemUtils.OS_VERSION != null ? SystemUtils.OS_VERSION : "";
-    templateVariables.put("os", "${osName} ${osVersion}");
+    templateVariables.put("os", osName + " " + osVersion);
+
     // Additional info about error
     templateVariables.put("additionalInfo", additionalInfo != null ? additionalInfo : "N/A");
+
     // Error stacktraces for events
     val sep = System.lineSeparator();
     String stacktraces = Arrays.stream(events)
         .map(IdeaLoggingEvent::getThrowableText)
-        .map(t -> "```${sep}${t}${sep}```")
-        .collect(Collectors.joining("${sep}${sep}${sep}"));
+        .map(t -> "```${sep}${t.strip()}${sep}```")
+        .collect(Collectors.joining("${sep}${sep}"));
     templateVariables.put("stacktraces", stacktraces);
 
     return templateVariables;
