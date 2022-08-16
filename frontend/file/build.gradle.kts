@@ -3,6 +3,15 @@ import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.GrammarKitPlugin
 import org.jetbrains.grammarkit.tasks.*
 
+buildscript {
+  repositories {
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath(libs.pluginPackages.jetbrains.grammarkit)
+  }
+}
+
 apply<GrammarKitPlugin>()
 
 dependencies {
@@ -32,7 +41,7 @@ val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexer
 sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
 val generateMacheteParser =
-  tasks.withType<GenerateParserTask>() {
+  tasks.withType<GenerateParserTask> {
     // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
     outputs.cacheIf { true }
 
@@ -44,7 +53,7 @@ val generateMacheteParser =
   }
 
 val generateMacheteLexer =
-  tasks.withType<GenerateLexerTask>() {
+  tasks.withType<GenerateLexerTask> {
     outputs.cacheIf { true }
 
     dependsOn(generateMacheteParser)
@@ -55,12 +64,9 @@ val generateMacheteLexer =
     purgeOldFiles.set(false)
   }
 
-tasks.withType<JavaCompile>() { dependsOn(generateMacheteLexer) }
+tasks.withType<JavaCompile> { dependsOn(generateMacheteLexer) }
 
 configure<CheckerFrameworkExtension> {
-  val grammarPackageRegex =
-    grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`
-  val newExtraJavacArgs = extraJavacArgs.toMutableList()
-  newExtraJavacArgs.add("-AskipDefs=^${grammarPackageRegex}\\.MacheteGenerated.*\$")
-  extraJavacArgs = newExtraJavacArgs
+  val grammarPackageRegex = grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`
+  extraJavacArgs.add("-AskipDefs=^${grammarPackageRegex}\\.MacheteGenerated.*\$")
 }
