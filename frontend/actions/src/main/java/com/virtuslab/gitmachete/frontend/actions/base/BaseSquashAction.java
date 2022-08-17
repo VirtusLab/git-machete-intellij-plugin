@@ -132,7 +132,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         new VcsCommitMetadataAndMessage(List.empty(), ""),
         (acc, commit) -> new VcsCommitMetadataAndMessage(
             acc.metadata.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
-            "${acc.message}${commit.getFullMessage()}${NL}${NL}"));
+            "${commit.getFullMessage()}${acc.message}${NL}${NL}"));
 
     val dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,

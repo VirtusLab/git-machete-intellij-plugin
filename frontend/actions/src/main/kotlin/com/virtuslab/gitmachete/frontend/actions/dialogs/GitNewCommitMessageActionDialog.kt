@@ -9,6 +9,9 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 
+/**
+ * A custom implementation based on [git4idea.rebase.log.GitNewCommitMessageActionDialog].
+ * */
 internal class GitNewCommitMessageActionDialog(
   val project: Project,
   val originMessage: String,

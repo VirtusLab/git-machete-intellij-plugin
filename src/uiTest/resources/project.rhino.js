@@ -215,8 +215,8 @@ function Project(underlyingProject) {
     fastForwardMerge: function () {
       findAndClickContextMenuAction('Fast-forward Merge into Parent');
     },
-    squash: function () {
-      findAndClickContextMenuAction('Squash\u2026');
+    checkoutAndSquash: function () {
+      findAndClickContextMenuAction('Checkout and Squash\u2026');
     },
     slideIn: function () {
       findAndClickContextMenuAction('Slide In Branch Below\u2026');
@@ -233,8 +233,8 @@ function Project(underlyingProject) {
     syncByRebase: function () {
       findAndClickToolbarButton('Sync Current Branch to Parent by Rebase\u2026');
     },
-    syncByMerge: function () {
-      findAndClickToolbarButton('Sync Current Branch to Parent by Merge');
+    squash: function () {
+      findAndClickToolbarButton('Squash Current Branch\u2026');
     },
     pull: function () {
       findAndClickToolbarButton('Pull Current Branch');

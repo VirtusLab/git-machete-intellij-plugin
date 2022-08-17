@@ -165,9 +165,9 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.SyncCurrentToParentByMergeAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SyncCurrentToParentByMergeAction"
-                    icon="MacheteIcons.MERGE_PARENT">
+            <action id="GitMachete.SquashCurrentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.SquashCurrentAction"
+                    icon="MacheteIcons.SQUASH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 

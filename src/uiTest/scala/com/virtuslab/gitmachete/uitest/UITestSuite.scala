@@ -170,16 +170,11 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
   @Test def syncToParentByMergeAction(): Unit = {
 
-    // syncCurrentToParentByMerge
-    project.openGitMacheteTab()
-    project.checkoutBranch("allow-ownership-link")
-    project.toolbar.syncByMerge()
-    project.assertSyncToParentStatus("allow-ownership-link", "InSync")
-
     // syncSelectedToParentByMerge
-    project.contextMenu.openContextMenu("build-chain")
+    project.openGitMacheteTab()
+    project.contextMenu.openContextMenu("call-ws")
     project.contextMenu.checkoutAndSyncByMerge()
-    project.assertSyncToParentStatus("build-chain", "InSync")
+    project.assertSyncToParentStatus("call-ws", "InSync")
   }
 
   @Test def pullBranch(): Unit = {
@@ -223,17 +218,26 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   }
 
   @Test def squashBranch(): Unit = {
+
+    // squashCurrentBranch
     project.openGitMacheteTab()
     project.toolbar.toggleListingCommits()
     var branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(18, branchRowsCount)
     project.checkoutBranch("call-ws")
-    project.contextMenu.openContextMenu("call-ws")
-    project.contextMenu.squash()
+    project.toolbar.squash()
     project.acceptSquash()
     branchRowsCount = project.refreshModelAndGetRowCount()
     // call-ws had 3 commits before the squash
     Assert.assertEquals(16, branchRowsCount)
+
+    // squashNonCurrentBranch
+    project.contextMenu.openContextMenu("hotfix/add-trigger")
+    project.contextMenu.squash()
+    project.acceptSquash()
+    branchRowsCount = project.refreshModelAndGetRowCount()
+    // call-ws had 3 commits before the squash
+    Assert.assertEquals(15, branchRowsCount)
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")

@@ -209,7 +209,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
 
         def squash(): Unit = doAndAwait {
-          runJs("project.contextMenu.squash()")
+          runJs("project.contextMenu.checkoutAndSquash()")
         }
 
         def slideIn(): Unit = doAndAwait {
@@ -231,8 +231,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs("project.toolbar.syncByRebase()")
         }
 
-        def syncByMerge(): Unit = doAndAwait {
-          runJs("project.toolbar.syncByMerge()")
+        def squash(): Unit = doAndAwait {
+          runJs("project.toolbar.squash()")
         }
 
         def pull(): Unit = doAndAwait {
