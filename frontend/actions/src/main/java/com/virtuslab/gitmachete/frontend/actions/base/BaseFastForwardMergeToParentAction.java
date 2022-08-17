@@ -18,7 +18,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 
 @CustomLog
-public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {
@@ -30,12 +30,12 @@ public abstract class BaseFastForwardMergeBranchToParentAction extends BaseGitMa
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
-    return getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description-action-name");
+    return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description-action-name");
   }
 
   @Override
   public @Untainted @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getNonHtmlString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.description");
+    return getNonHtmlString("action.GitMachete.BaseFastForwardMergeToParentAction.description");
   }
 
   @Override

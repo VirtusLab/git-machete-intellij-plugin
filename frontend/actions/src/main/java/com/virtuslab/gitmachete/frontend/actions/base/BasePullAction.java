@@ -27,7 +27,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
@@ -40,12 +40,12 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BasePullBranchAction.action-name");
+    return getString("action.GitMachete.BasePullAction.action-name");
   }
 
   @Override
   public @I18nFormat({}) String getActionNameForDescription() {
-    return getString("action.GitMachete.BasePullBranchAction.description-action-name");
+    return getString("action.GitMachete.BasePullAction.description-action-name");
   }
 
   @Override
@@ -94,9 +94,9 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
 
       boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
       String fetchNotificationPrefix = isUpToDate
-          ? getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.no-fetch-perform")
+          ? getNonHtmlString("action.GitMachete.BasePullAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-          : getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.fetch-perform");
+          : getNonHtmlString("action.GitMachete.BasePullAction.notification.title.fetch-perform");
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
           fetchNotificationPrefix, /* insertNewlineAfterPrefix */ true);
 
@@ -118,7 +118,7 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
     val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
         "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
 
-    String taskTitle = getString("action.GitMachete.BasePullBranchAction.task-title");
+    String taskTitle = getString("action.GitMachete.BasePullAction.task-title");
 
     new FetchBackgroundable(
         project,
@@ -126,9 +126,9 @@ public abstract class BasePullBranchAction extends BaseGitMacheteRepositoryReady
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        getNonHtmlString("action.GitMachete.BasePullBranchAction.notification.title.pull-fail")
+        getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail")
             .format(remoteBranch.getName()),
-        getString("action.GitMachete.BasePullBranchAction.notification.title.pull-success.HTML")
+        getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML")
             .format(remoteBranch.getName())) {
 
       @Override

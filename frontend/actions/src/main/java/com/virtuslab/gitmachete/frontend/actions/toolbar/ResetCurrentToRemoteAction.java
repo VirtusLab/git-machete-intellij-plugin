@@ -7,9 +7,9 @@ import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BaseResetBranchToRemoteAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction;
 
-public class ResetCurrentBranchToRemoteAction extends BaseResetBranchToRemoteAction {
+public class ResetCurrentToRemoteAction extends BaseResetToRemoteAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);

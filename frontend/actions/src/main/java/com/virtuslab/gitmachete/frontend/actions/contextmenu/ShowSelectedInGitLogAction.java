@@ -27,7 +27,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryReadyAction
+public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeySelectedBranchName {
 
@@ -51,12 +51,12 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getNonHtmlString("action.GitMachete.ShowSelectedBranchInGitLogAction.undefined.branch-name"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.undefined.branch-name"));
       return;
     }
 
     presentation.setDescription(
-        getNonHtmlString("action.GitMachete.ShowSelectedBranchInGitLogAction.description.precise")
+        getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.description.precise")
             .format(selectedBranchName.get()));
   }
 
@@ -87,7 +87,7 @@ public class ShowSelectedBranchInGitLogAction extends BaseGitMacheteRepositoryRe
   }
 
   private void jumpToRevisionUnderProgress(Project project, Hash hash) {
-    new Task.Backgroundable(project, getString("action.GitMachete.ShowSelectedBranchInGitLogAction.task-title")) {
+    new Task.Backgroundable(project, getString("action.GitMachete.ShowSelectedInGitLogAction.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
         try {

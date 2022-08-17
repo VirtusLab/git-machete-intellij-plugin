@@ -35,7 +35,7 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
-import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -242,7 +242,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
              * explicitly and then perform the actual rebase.
              */
             if (shouldExplicitlyCheckout) {
-              CheckoutSelectedBranchAction.doCheckout(
+              CheckoutSelectedAction.doCheckout(
                   project, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
             }
             GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);

@@ -45,7 +45,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions,
       String parentName) {
-    super(project, getString("action.GitMachete.BaseSlideInBranchBelowAction.task-title"));
+    super(project, getString("action.GitMachete.BaseSlideInBelowAction.task-title"));
     this.project = project;
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
@@ -91,13 +91,13 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
     } catch (EntryDoesNotExistException e) {
       notifyError(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-does-not-exist.HTML")
+          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.entry-does-not-exist.HTML")
               .format(parentName),
           e);
       return;
     } catch (EntryIsDescendantOfException e) {
       notifyError(
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.entry-is-descendant-of.HTML")
+          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.entry-is-descendant-of.HTML")
               .format(entryToSlideIn.getName(), parentName),
           e);
       return;
@@ -107,7 +107,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
         .onFailure(t -> VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             /* title */ getString(
-                "action.GitMachete.BaseSlideInBranchBelowAction.notification.title.branch-layout-write-fail"),
+                "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
             getMessageOrEmpty(t)));
   }
 
@@ -129,21 +129,21 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     } catch (InterruptedException e) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.wait-interrupted")
+          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.wait-interrupted")
               .format(slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.message.timeout")
+          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.timeout")
               .format(slideInOptions.getName()));
     }
   }
 
   private void notifyError(@Nullable String message, Throwable throwable) {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-        /* title */ getString("action.GitMachete.BaseSlideInBranchBelowAction.notification.title.slide-in-fail.HTML")
+        /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML")
             .format(slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));
   }

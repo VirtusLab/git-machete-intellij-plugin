@@ -6,9 +6,9 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.base.BaseOverrideForkPointAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardMergeToParentAction;
 
-public class OverrideForkPointOfCurrentBranchAction extends BaseOverrideForkPointAction {
+public class FastForwardMergeCurrentToParentAction extends BaseFastForwardMergeToParentAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
@@ -18,17 +18,18 @@ public class OverrideForkPointOfCurrentBranchAction extends BaseOverrideForkPoin
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
+
     val presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    val isInSyncButForkPointOff = getCurrentBranchNameIfManaged(anActionEvent)
+    val isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
         .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
-        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff)
+        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
         .getOrElse(false);
 
-    presentation.setVisible(isInSyncButForkPointOff);
+    presentation.setVisible(isInSyncToParent);
   }
 }

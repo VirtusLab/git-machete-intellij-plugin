@@ -37,7 +37,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
-public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
@@ -70,7 +70,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           .format("Slide out", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation
-          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideOutBranchAction.description").format(branch.getName()));
+          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideOutAction.description").format(branch.getName()));
     }
   }
 
@@ -116,7 +116,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.of-current.HTML")
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
               .format(branchName));
 
     } else if (gitRepository != null) {
@@ -153,9 +153,9 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
             setDeleteLocalBranchOnSlideOutGitConfigValue(project, gitRepository.getRoot(), value);
           }
         } else {
-          val title = getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-info.canceled");
+          val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
           val message = getString(
-              "action.GitMachete.BaseSlideOutBranchAction.notification.message.slide-out-info.canceled.HTML")
+              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML")
                   .format(branchName);
           VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
         }
@@ -186,7 +186,7 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-fail.HTML").format(branchName),
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").format(branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
   }
@@ -199,13 +199,13 @@ public abstract class BaseSlideOutBranchAction extends BaseGitMacheteRepositoryR
       GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.with-delete.HTML")
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML")
               .format(branchName));
       return;
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutBranchAction.notification.title.slide-out-success.without-delete.HTML")
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML")
               .format(branchName));
     }
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();

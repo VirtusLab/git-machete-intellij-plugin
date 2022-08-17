@@ -6,9 +6,9 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutAction;
 
-public class SlideOutCurrentBranchAction extends BaseSlideOutBranchAction {
+public class SlideOutCurrentAction extends BaseSlideOutAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);

@@ -29,7 +29,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
@@ -41,12 +41,12 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
 
   @Override
   public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BasePushBranchAction.action-name");
+    return getString("action.GitMachete.BasePushAction.action-name");
   }
 
   @Override
   public @I18nFormat({}) String getActionNameForDescription() {
-    return getString("action.GitMachete.BasePushBranchAction.description-action-name");
+    return getString("action.GitMachete.BasePushAction.description-action-name");
   }
 
   @Override
@@ -74,7 +74,7 @@ public abstract class BasePushBranchAction extends BaseGitMacheteRepositoryReady
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
         Presentation presentation = anActionEvent.getPresentation();
         presentation.setDescription(
-            getNonHtmlString("action.GitMachete.BasePushBranchAction.force-push-disabled-for-protected-branch")
+            getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch")
                 .format(branchName.get()));
         presentation.setEnabled(false);
       }

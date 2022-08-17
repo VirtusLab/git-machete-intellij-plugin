@@ -27,9 +27,9 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
   val rootNames = branchLayout.rootEntries.map { it.name }
 
   init {
-    title = getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.title")
+    title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
     setOKButtonText(
-      getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.ok-button")
+      getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button")
     )
     setOKButtonMnemonic('S'.toInt())
     super.init()
@@ -39,13 +39,13 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     if (showAndGet()) SlideInOptions(branchName.trim(), reattach) else null
 
   override fun createCenterPanel() = panel {
-    row(getString("action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.parent")) {
+    row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent")) {
       label(parentName, bold = true)
     }
     row {
       label(
         getString(
-          "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.label.branch-name"
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name"
         )
       )
     }
@@ -59,7 +59,7 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
       reattachCheckbox =
         checkBox(
           getString(
-            "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.checkbox.reattach"
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach"
           ),
           ::reattach
         )
@@ -79,7 +79,7 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
     else if (insertedText == parentName) {
       error(
         getString(
-          "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-itself"
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-itself"
         )
       )
     } else {
@@ -87,7 +87,7 @@ class SlideInDialog(project: Project, val branchLayout: IBranchLayout, val paren
       if (entryByName.map(isDescendantOf(presumedDescendantName = parentName)).getOrElse(false)) {
         error(
           getString(
-            "action.GitMachete.BaseSlideInBranchBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
           )
         )
       } else {

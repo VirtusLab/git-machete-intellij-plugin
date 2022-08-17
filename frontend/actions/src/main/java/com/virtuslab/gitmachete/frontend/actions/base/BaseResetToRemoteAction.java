@@ -49,7 +49,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
-public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteRepositoryReadyAction
+public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
@@ -57,7 +57,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
   public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";
 
   private static final String VCS_NOTIFIER_TITLE = getString(
-      "action.GitMachete.BaseResetBranchToRemoteAction.notification.title");
+      "action.GitMachete.BaseResetToRemoteAction.notification.title");
 
   @Override
   public LambdaLogger log() {
@@ -66,17 +66,17 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
 
   @Override
   public @I18nFormat({}) String getActionName() {
-    return getString("action.GitMachete.BaseResetBranchToRemoteAction.action-name");
+    return getString("action.GitMachete.BaseResetToRemoteAction.action-name");
   }
 
   @Override
   public @I18nFormat({}) String getActionNameForDescription() {
-    return getString("action.GitMachete.BaseResetBranchToRemoteAction.description-action-name");
+    return getString("action.GitMachete.BaseResetToRemoteAction.description-action-name");
   }
 
   @Override
   public @Untainted @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
-    return getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.description.enabled");
+    return getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.description.enabled");
   }
 
   @Override
@@ -156,12 +156,12 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       }
 
       final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
-          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.title"),
-          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.message.HTML").format(
+          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
+          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
               branchName,
               remoteTrackingBranch.getName(),
               currentCommitSha),
-          getString("action.GitMachete.BaseResetBranchToRemoteAction.info-dialog.ok-text"),
+          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"),
           Messages.getCancelButton(),
           Messages.getInformationIcon(),
           new ResetBranchToRemoteInfoDialog(),
@@ -194,11 +194,11 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromRemoteToLocal,
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
-        getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.task-subtitle"),
-        getNonHtmlString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-fail")
+        getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
+        getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.task-subtitle"),
+        getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-fail")
             .format(localBranch.getName()),
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success.HTML")
+        getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
             .format(localBranch.getName()))
                 .queue();
   }
@@ -210,7 +210,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
       IRemoteTrackingBranchReference remoteTrackingBranch) {
 
     new Task.Backgroundable(project,
-        getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"),
+        getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
         /* canBeCancelled */ true) {
 
       @Override
@@ -221,7 +221,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
         log().debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
 
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
-            getString("action.GitMachete.BaseResetBranchToRemoteAction.task-title"))) {
+            getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
           GitLineHandler resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
           resetHandler.addParameters(remoteTrackingBranchName);
@@ -235,7 +235,7 @@ public abstract class BaseResetBranchToRemoteAction extends BaseGitMacheteReposi
           if (result.success()) {
             VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
                 /* title */ "",
-                getString("action.GitMachete.BaseResetBranchToRemoteAction.notification.title.reset-success.HTML")
+                getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
                     .format(localBranchName));
             log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 

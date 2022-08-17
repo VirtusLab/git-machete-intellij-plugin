@@ -26,7 +26,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyAction
+public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeySelectedBranchName {
 
@@ -50,7 +50,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.undefined.branch-name"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.CheckoutSelectedAction.undefined.branch-name"));
       return;
     }
 
@@ -59,12 +59,12 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
     if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.description.disabled.currently-checked-out")
+          getNonHtmlString("action.GitMachete.CheckoutSelectedAction.description.disabled.currently-checked-out")
               .format(selectedBranchName.get()));
 
     } else {
       presentation.setDescription(
-          getNonHtmlString("action.GitMachete.CheckoutSelectedBranchAction.description.precise")
+          getNonHtmlString("action.GitMachete.CheckoutSelectedAction.description.precise")
               .format(selectedBranchName.get()));
     }
   }
@@ -82,7 +82,7 @@ public class CheckoutSelectedBranchAction extends BaseGitMacheteRepositoryReadyA
 
     if (gitRepository.isDefined()) {
       log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
-      new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedBranchAction.task-title")) {
+      new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedAction.task-title")) {
         @Override
         @UIThreadUnsafe
         public void run(ProgressIndicator indicator) {

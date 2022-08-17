@@ -15,7 +15,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
+public class MergeCurrentFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBackgroundable {
 
   private final IBranchReference targetBranch;
 
@@ -24,17 +24,17 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
     return targetBranch.getName();
   }
 
-  public MergeCurrentBranchFastForwardOnlyBackgroundable(
+  public MergeCurrentFastForwardOnlyBackgroundable(
       Project project,
       GitRepository gitRepository,
       IBranchReference targetBranch) {
-    super(project, gitRepository, getString("action.GitMachete.BaseFastForwardMergeBranchToParentAction.task-title"));
+    super(project, gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"));
     this.targetBranch = targetBranch;
   }
 
   @Override
   protected @I18nFormat({}) @Untainted String getOperationName() {
-    return getNonHtmlString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.operation-name");
+    return getNonHtmlString("action.GitMachete.MergeCurrentFastForwardOnlyBackgroundable.operation-name");
   }
 
   @Override

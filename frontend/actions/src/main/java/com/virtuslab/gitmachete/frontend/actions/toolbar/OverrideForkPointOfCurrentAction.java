@@ -1,17 +1,14 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseOverrideForkPointAction;
 
-public class PullCurrentBranchAction extends BasePullBranchAction {
+public class OverrideForkPointOfCurrentAction extends BaseOverrideForkPointAction {
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
@@ -21,18 +18,17 @@ public class PullCurrentBranchAction extends BasePullBranchAction {
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-
     val presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    val isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
+    val isInSyncButForkPointOff = getCurrentBranchNameIfManaged(anActionEvent)
         .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus())
-        .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))
+        .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
+        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff)
         .getOrElse(false);
 
-    presentation.setVisible(isBehindOrInSyncToRemote);
+    presentation.setVisible(isInSyncButForkPointOff);
   }
 }

@@ -23,7 +23,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
-import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -134,7 +134,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
       public void run(ProgressIndicator indicator) {
         LOG.info("Checking out '${movingBranch}' branch and merging ${stayingBranch} into it");
 
-        CheckoutSelectedBranchAction.doCheckout(project, indicator, movingBranch, gitRepository);
+        CheckoutSelectedAction.doCheckout(project, indicator, movingBranch, gitRepository);
         GitBrancher.getInstance(project)
             .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
       }

@@ -3,10 +3,10 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardMergeBranchToParentAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseOverrideForkPointAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 
-public class FastForwardMergeSelectedBranchToParentAction extends BaseFastForwardMergeBranchToParentAction
+public class OverrideForkPointOfSelectedAction extends BaseOverrideForkPointAction
     implements
       IExpectsKeySelectedBranchName {
   @Override

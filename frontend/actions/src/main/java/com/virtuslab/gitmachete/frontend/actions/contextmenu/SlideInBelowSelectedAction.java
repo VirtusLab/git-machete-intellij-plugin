@@ -3,10 +3,10 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 
-import com.virtuslab.gitmachete.frontend.actions.base.BasePullBranchAction;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideInBelowAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 
-public class PullSelectedBranchAction extends BasePullBranchAction
+public class SlideInBelowSelectedAction extends BaseSlideInBelowAction
     implements
       IExpectsKeySelectedBranchName {
   @Override
