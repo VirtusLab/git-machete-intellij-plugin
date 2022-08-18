@@ -15,7 +15,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckRemoteBranchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentFastForwardOnlyBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.MergeCurrentBranchFastForwardOnlyBackgroundable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
@@ -26,7 +26,7 @@ public final class FastForwardMerge {
   private static void mergeCurrentBranch(Project project,
       GitRepository gitRepository,
       MergeProps mergeProps) {
-    new MergeCurrentFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
   }
 
   private static void mergeNonCurrentBranch(Project project,

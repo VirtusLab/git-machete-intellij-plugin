@@ -19,11 +19,11 @@ import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class PullCurrentFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBackgroundable {
+public class PullCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
 
   private final IRemoteTrackingBranchReference remoteBranch;
 
-  public PullCurrentFastForwardOnlyBackgroundable(
+  public PullCurrentBranchFastForwardOnlyBackgroundable(
       Project project,
       GitRepository gitRepository,
       String taskTitle,
@@ -34,7 +34,7 @@ public class PullCurrentFastForwardOnlyBackgroundable extends GitCommandUpdating
 
   @Override
   protected @I18nFormat({}) @Untainted String getOperationName() {
-    return getNonHtmlString("action.GitMachete.PullCurrentFastForwardOnlyBackgroundable.operation-name");
+    return getNonHtmlString("action.GitMachete.PullCurrentBranchFastForwardOnlyBackgroundable.operation-name");
   }
 
   @Override

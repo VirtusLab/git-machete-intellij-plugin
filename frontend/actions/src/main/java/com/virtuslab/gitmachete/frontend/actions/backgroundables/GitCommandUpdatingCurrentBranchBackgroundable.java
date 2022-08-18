@@ -54,12 +54,12 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
-public abstract class GitCommandUpdatingCurrentBackgroundable extends Task.Backgroundable {
+public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task.Backgroundable {
 
   protected final Project project;
   protected final GitRepository gitRepository;
 
-  public GitCommandUpdatingCurrentBackgroundable(
+  public GitCommandUpdatingCurrentBranchBackgroundable(
       Project project,
       GitRepository gitRepository,
       String taskTitle) {
@@ -153,7 +153,7 @@ public abstract class GitCommandUpdatingCurrentBackgroundable extends Task.Backg
               INFORMATION,
               /* listener */ null);
           notification.addAction(NotificationAction.createSimple(getString(
-              "action.GitMachete.GitCommandUpdatingCurrentBackgroundable.notification.message.view-commits"),
+              "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
 
         } else {
@@ -161,7 +161,7 @@ public abstract class GitCommandUpdatingCurrentBackgroundable extends Task.Backg
           // Based on that we know that all files are up-to-date.
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
               getString(
-                  "action.GitMachete.GitCommandUpdatingCurrentBackgroundable.notification.title.all-files-are-up-to-date"),
+                  "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.all-files-are-up-to-date"),
               /* content */ "", INFORMATION, /* listener */ null);
         }
         VcsNotifier.getInstance(project).notify(notification);
@@ -187,7 +187,7 @@ public abstract class GitCommandUpdatingCurrentBackgroundable extends Task.Backg
     } else {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
-          getString("action.GitMachete.GitCommandUpdatingCurrentBackgroundable.notification.title.update-fail")
+          getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail")
               .format(getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();

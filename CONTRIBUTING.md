@@ -221,9 +221,11 @@ Other coding conventions include:
 
 So far created UI conventions:
 
-* Add `...`  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase...` (after this operation the interactive rebase window opens)
+* Add `…` (ellipsis, `\u2026`)  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase…` (after this operation the interactive rebase window opens)
 * Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
   On the other hand, **context-menu** actions text names should be kept short (no `This`/`Selected`).
+* Avoid `Branch` word in action class names and action ids to keep them shorter.
+  Some exceptions are allowed (e.g. the backgroundable task classes).
 
 ## Rebuild the CI base image
 
