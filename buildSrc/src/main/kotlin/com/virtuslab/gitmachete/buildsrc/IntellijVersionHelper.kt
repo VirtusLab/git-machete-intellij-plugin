@@ -4,7 +4,6 @@ import java.io.File
 import java.util.*
 import kotlin.reflect.full.memberProperties
 
-// TODO (#1004): Remove unsafe casts from class
 object IntellijVersionHelper {
   /**
    * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like
@@ -15,7 +14,7 @@ object IntellijVersionHelper {
     if (versionKey == null) {
       return emptyList()
     }
-    val regex = "/^[0-9].*$/".toRegex()
+    val regex = "^[0-9].*$".toRegex()
     if (regex.matches(versionKey)) {
       return listOf(versionKey)
     }

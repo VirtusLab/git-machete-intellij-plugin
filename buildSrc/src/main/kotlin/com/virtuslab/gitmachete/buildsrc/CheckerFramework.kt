@@ -18,10 +18,8 @@ fun Project.configureCheckerFramework() {
     val shouldRunAllCheckers: Boolean by rootProject.extra
 
     if (shouldRunAllCheckers) {
-      // The experience shows that the below checkers are just rarely failing, as compared to
-      // GuiEffect/Nullness.
-      // Hence, they're only applied in CI, or locally only if a dedicated Gradle project property
-      // is set.
+      // The experience shows that the below checkers are just rarely failing, as compared to GuiEffect/Nullness.
+      // Hence, they're only applied in CI, or locally only if a dedicated Gradle project property is set.
       checkers.addAll(
         listOf(
           "org.checkerframework.checker.index.IndexChecker",
@@ -39,13 +37,11 @@ fun Project.configureCheckerFramework() {
         "-AshowSuppressWarningsStrings",
         "-Astubs=$rootDir/config/checker/",
         // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
-        // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom
-        // stub files.
+        // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom stub files.
         // Without this flag, we would end up with a lot of errors in subprojects where any of
         // the stubbed libraries is NOT on the classpath:
         // e.g. compilation of a subproject where Vavr is NOT a dependency would fail
-        // since for simplicity, we're providing the same set of stubs to Checker in each
-        // subproject
+        // since for simplicity, we're providing the same set of stubs to Checker in each subproject
         // (`$rootDir/config/checker/`, which includes e.g. Vavr).
         "-AstubWarnIfNotFoundIgnoresClasses",
         "-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation"

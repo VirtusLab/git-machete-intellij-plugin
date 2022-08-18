@@ -2,27 +2,27 @@
 # throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
-libraries-checker = "3.24.0"
-libraries-ideProbe = "0.41.0"
-libraries-powerMock = "2.0.9"
+checker = "3.24.0"
+ideProbe = "0.41.0"
+powerMock = "2.0.9"
 
 [libraries]
 # Libraries
 archunit = "com.tngtech.archunit:archunit:0.23.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
-checker = { module = "org.checkerframework:checker", version.ref = "libraries-checker" }
-checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "libraries-checker" }
+checker = { module = "org.checkerframework:checker", version.ref = "checker" }
+checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.11.0"
-ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "libraries-ideProbe" }
-ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "libraries-ideProbe" }
+ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
+ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
 jsoup = "org.jsoup:jsoup:1.15.2"
 junit = "junit:junit:4.13.2"
 lombok = "org.projectlombok:lombok:1.18.24"
-powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "libraries-powerMock" }
-powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "libraries-powerMock" }
+powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
+powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powerMock" }
 reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"

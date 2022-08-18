@@ -18,8 +18,7 @@ object IntellijVersions {
 
   val latestStable: String = intellijVersionsProp.getProperty("latestStable")
 
-  // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g.
-  // 211.4961.33-EAP-SNAPSHOT)
+  // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
   // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
   // to ensure that the builds are reproducible.
   // EAP-CANDIDATE-SNAPSHOTs can be used for binary compatibility checks,

@@ -4,16 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.Properties;
 
+import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class GitMacheteBundlePropertiesTestSuite {
 
   private static final String macheteBundleProperties = "GitMacheteBundle.properties";
 
-  private static Properties loadProperties() throws IOException {
+  @SneakyThrows
+  private static Properties loadProperties() {
     Properties properties = new Properties();
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     properties.load(loader.getResourceAsStream(macheteBundleProperties));
@@ -22,7 +23,7 @@ public class GitMacheteBundlePropertiesTestSuite {
   }
 
   @Test
-  public void html_properties_should_have_correct_syntax() throws IOException {
+  public void html_properties_should_have_correct_syntax() {
 
     Properties properties = loadProperties();
 
@@ -38,7 +39,7 @@ public class GitMacheteBundlePropertiesTestSuite {
   }
 
   @Test
-  public void properties_should_have_no_double_quote_wrapping() throws IOException {
+  public void properties_should_have_no_double_quote_wrapping() {
 
     Properties properties = loadProperties();
 
@@ -52,7 +53,7 @@ public class GitMacheteBundlePropertiesTestSuite {
   }
 
   @Test
-  public void properties_should_contain_only_valid_single_quotes() throws IOException {
+  public void properties_should_contain_only_valid_single_quotes() {
 
     Properties properties = loadProperties();
 
@@ -71,7 +72,7 @@ public class GitMacheteBundlePropertiesTestSuite {
   }
 
   @Test
-  public void properties_should_use_ellipsis_instead_of_three_dots() throws IOException {
+  public void properties_should_use_ellipsis_instead_of_three_dots() {
 
     Properties properties = loadProperties();
 

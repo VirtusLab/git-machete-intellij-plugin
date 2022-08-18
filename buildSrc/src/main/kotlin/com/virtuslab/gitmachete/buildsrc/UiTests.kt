@@ -54,9 +54,13 @@ fun Project.configureUiTests() {
         }
       }
 
-      testLogging { events.addAll(listOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR)) }
+      testLogging {
+        events.addAll(listOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
+      }
     }
   }
 
-  tasks.register("uiTest") { dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") }) }
+  tasks.register("uiTest") {
+    dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
+  }
 }

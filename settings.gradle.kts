@@ -1,11 +1,3 @@
-pluginManagement {
-  repositories {
-    gradlePluginPortal()
-    // For nl.littlerobots.version-catalog-update
-    mavenCentral()
-  }
-}
-
 rootProject.name = "git-machete-intellij-plugin"
 // Note: please keep the projects in a topological order
 include(

@@ -51,16 +51,14 @@ fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
   // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
   // but don't want the associated tasks to be available; they should only be available in the root project.
   tasksAfter.forEach { it.enabled = false }
-  // The only task (as of gradle-intellij-plugin v1.7.0, at least) that needs to be enabled in all
-  // IntelliJ-aware modules
-  // is `classpathIndexCleanup`, to avoid caching issues caused by `classpath.index` file
+  // The only task (as of gradle-intellij-plugin v1.7.0, at least) that needs to be enabled
+  // in all IntelliJ-aware modules is `classpathIndexCleanup`, to avoid caching issues caused by `classpath.index` file
   // showing up in build/classes/ and build/resources/ directories.
   // See https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 for details.
   tasks.withType<ClasspathIndexCleanupTask> { enabled = true }
 
   configure<CheckerFrameworkExtension> {
-    // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules
-    // that depend on IntelliJ,
+    // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
     // but the risk is minuscule and not worth the extra computational burden in every single build.
     // This might change, however, if/when Checker Framework adds @Heavyweight annotation
     // (https://github.com/typetools/checker-framework/issues/3253).
