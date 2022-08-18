@@ -70,7 +70,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       if (numberOfCommits < 2) {
         presentation.setDescription(
             getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
-                .format(branchName, numberOfCommits.toString()));
+                .format(branchName, numberOfCommits.toString(), numberOfCommits == 1 ? "" : "s"));
         presentation.setEnabled(false);
       } else if (syncToParentStatus == InSyncButForkPointOff) {
         presentation.setEnabled(false);
@@ -132,7 +132,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         new VcsCommitMetadataAndMessage(List.empty(), ""),
         (acc, commit) -> new VcsCommitMetadataAndMessage(
             acc.metadata.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
-            "${commit.getFullMessage()}${acc.message}${NL}${NL}"));
+            "${commit.getFullMessage()}${NL}${NL}${acc.message}"));
 
     val dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,

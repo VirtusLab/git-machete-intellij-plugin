@@ -53,6 +53,7 @@ internal class GitNewCommitMessageActionDialog(
       if ((editorEx as EditorImpl).visibleLineCount < MIN_ROWS) {
         verticalStretch = 1.5F
       }
+      horizontalStretch = 1.5F
     }
     return editor
   }

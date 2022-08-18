@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButForkPointOff;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -41,6 +42,7 @@ public class SquashCurrentAction extends BaseSquashAction {
         presentation.setVisible(false);
       } else {
         presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
+        presentation.setDescription(getNonHtmlString("action.GitMachete.SquashCurrentAction.description"));
       }
     }
   }
