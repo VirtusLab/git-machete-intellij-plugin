@@ -8,7 +8,7 @@ if [[ ${GID-} && ${UID-} ]]; then
   fi
     useradd --create-home --gid=$GID --uid=$UID docker
     chown $UID:$GID /home/docker/
-    sudo --user=docker bash -c "$*"
+    sudo --preserve-env --user=docker bash -c "$*"
 else
   bash -c "$@"
 fi

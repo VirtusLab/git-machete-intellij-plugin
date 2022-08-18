@@ -144,6 +144,7 @@ Sample configuration for launching docker container is shown below. Environment 
 of the files created inside it. In example below, current working directory navigates to top-level directory of the project. When starting the container we should care about setting
 environment variable `IDEPROBE_PATHS_BASE` to the directory to which the user whose `UID` and `GID` was passed to the container has access to (e.g. user's home directory).
 ```shell
+./gradlew --stop  # to avoid conflicts on Gradle's internal lock files
 docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
       -v "$PWD":/home/docker/git-machete-intellij-plugin \
       -v ~/.gradle:/home/docker/.gradle \
