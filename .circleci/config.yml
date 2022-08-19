@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker_executor:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:7.1.0'
+      - image: 'gitmachete/intellij-plugin-ci:7.2.0'
     working_directory: ~/git-machete-intellij-plugin
     resource_class: large
 
