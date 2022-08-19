@@ -44,7 +44,8 @@ RUN \
 # Required for UI tests of 2021.1.
 # Code With Me plugin runs on Java Chromium Embedded Framework (JCEF),
 # which itself requires certain packages to be present in the system.
-RUN apt-get install --no-install-recommends -y libatk1.0-0 libatk-bridge2.0-0 libgbm1 libglib2.0 libxcomposite1 libxkbcommon0 libxrandr2
+RUN apt-get install --no-install-recommends -y \
+    libasound2 libatk1.0-0 libatk-bridge2.0-0 libcups2 libgbm1 libglib2.0 libnss3 libxcomposite1 libxdamage1 libxkbcommon0 libxrandr2
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
