@@ -111,6 +111,14 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     }
   }
 
+  @Data
+  // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`
+  @SuppressWarnings("interning:not.interned")
+  private static class VcsCommitMetadataAndMessage {
+    private final List<VcsCommitMetadata> metadata;
+    private final String message;
+  }
+
   @UIEffect
   private void doSquash(Project project,
       GitRepository gitRepository,
@@ -118,15 +126,6 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       List<ICommitOfManagedBranch> commits,
       String branchName,
       boolean isSquashingCurrentBranch) {
-
-    @Data
-    // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`
-    @SuppressWarnings("interning:not.interned")
-    class VcsCommitMetadataAndMessage {
-      private final List<VcsCommitMetadata> metadata;
-      private final String message;
-
-    }
 
     val vcsCommitMetadataAndMessage = commits.foldLeft(
         new VcsCommitMetadataAndMessage(List.empty(), ""),
