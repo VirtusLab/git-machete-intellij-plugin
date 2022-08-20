@@ -83,7 +83,7 @@ jobs:
       - run:
           name: Compile production code
           # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
-          # Having 5 or 6 workers doesn't seem to increase compilation time significantly, as compared to just 4.
+          # Having 5 or 6 workers doesn't seem to decrease compilation time significantly, as compared to just 4.
           command: ./gradlew --max-workers=4 compileJava compileKotlin
       - run:
           name: Run post-compile checks
@@ -213,6 +213,13 @@ jobs:
                 command: ./gradlew publishPlugin
             - reconfigure_origin_remote
             - run:
+                name: Update CHANGE-NOTES.md
+                command: |
+                  ./gradlew patchChangeLog
+                  tag=v$(extract_version_from_current_wd)
+                  git commit -a -m "Update change notes for $tag"
+                  git push
+            - run:
                 name: Push git tag
                 # language=sh
                 command: |
@@ -227,9 +234,8 @@ jobs:
                 command: |
                   source scripts/utils.sh
                   tag=v$(extract_version_from_current_wd)
-                  # Newlines (<br/>) are necessary for better layout on Marketplace, but make the formatting worse on GitHub
-                  change_notes=$(sed '/^<br.>$/d' CHANGE-NOTES.html)
-                  hub release create \
+                  change_notes=$(./gradlew -q getReleaseChangeLogForGithub)
+                  hub release create -d \
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag

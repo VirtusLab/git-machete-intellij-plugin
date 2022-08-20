@@ -2,6 +2,8 @@ package com.virtuslab.gitmachete.buildsrc
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.changelog.ChangelogPlugin
+import org.jetbrains.changelog.ChangelogPluginExtension
 import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.*
@@ -9,6 +11,7 @@ import java.util.*
 
 fun Project.configureIntellijPlugin() {
   apply<IntelliJPlugin>()
+  apply<ChangelogPlugin>()
 
   val isCI: Boolean by rootProject.extra
   val jetbrainsMarketplaceToken: String? by rootProject.extra
@@ -27,6 +30,13 @@ fun Project.configureIntellijPlugin() {
     tasks.withType<BuildSearchableOptionsTask> { enabled = false }
   }
 
+  val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+  configure<ChangelogPluginExtension> {
+    path.set("${project.projectDir}/CHANGE-NOTES.md")
+    groups.set(emptyList())
+  }
+
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
     sinceBuild.set(
@@ -43,7 +53,7 @@ fun Project.configureIntellijPlugin() {
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
     changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${file("$rootDir/CHANGE-NOTES.html").readText()}"
+      "<h3>v${rootProject.version}</h3>\n\n${changelog.getUnreleased().toHTML()}"
     )
   }
 

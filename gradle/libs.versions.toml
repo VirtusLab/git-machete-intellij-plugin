@@ -40,6 +40,7 @@ vavr = "io.vavr:vavr:0.10.4"
 pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.4.3.1"
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.15"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
+pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:1.3.1"
 pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
 pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.8.1"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library:
