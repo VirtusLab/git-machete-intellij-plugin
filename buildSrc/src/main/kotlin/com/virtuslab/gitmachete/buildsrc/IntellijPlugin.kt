@@ -37,6 +37,14 @@ fun Project.configureIntellijPlugin() {
     groups.set(emptyList())
   }
 
+  tasks.register("getReleaseChangeLogForGithub") {
+    print(
+      changelog.getUnreleased().toText()
+        .replace("- ", "<p>")
+        .replace("\n", "</p>\n")
+    )
+  }
+
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
     sinceBuild.set(
