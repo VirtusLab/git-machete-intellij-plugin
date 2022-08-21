@@ -26,7 +26,7 @@ powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", ver
 reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
-slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
+slf4j-simple = "org.slf4j:slf4j-simple:2.0.0"
 vavr = "io.vavr:vavr:0.10.4"
 # Plugins
 # @pin because 6.5.x is incompatible with kotlin plugin 1.4.x,
