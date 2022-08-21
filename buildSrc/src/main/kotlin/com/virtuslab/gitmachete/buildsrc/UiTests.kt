@@ -59,8 +59,4 @@ fun Project.configureUiTests() {
       }
     }
   }
-
-  tasks.register("uiTest") {
-    dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
-  }
 }

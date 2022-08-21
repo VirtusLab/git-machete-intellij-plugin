@@ -8,6 +8,7 @@ import se.ascp.gradle.GradleVersionsFilterPlugin
 
 plugins {
   checkstyle
+  `jacoco-report-aggregation`
   `java-library`
   scala
 }
@@ -69,6 +70,7 @@ allprojects {
   }
 
   apply<JavaLibraryPlugin>()
+  apply<JacocoPlugin>()
 
   java {
     sourceCompatibility = javaMajorVersion
@@ -167,6 +169,10 @@ allprojects {
     }
   }
 
+  tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+  }
+
   configureCheckerFramework()
   configureCheckstyle()
   configureSpotless()
@@ -218,6 +224,14 @@ val uiTestRuntimeOnly: Configuration by
 configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
 
 configureUiTests()
+
+val uiTestTask = tasks.register("uiTest") {
+  dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
+}
+
+tasks.jacocoTestReport {
+  dependsOn(uiTestTask)
+}
 
 ideProbe()
 
