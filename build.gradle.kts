@@ -152,8 +152,16 @@ allprojects {
       )
     )
 
+    if (project.properties["forceRunTests"] != null) {
+      outputs.upToDateWhen { false }
+    }
+
     testLogging {
       events = setOf(TestLogEvent.FAILED)
+      if (project.properties["printTestOutput"] != null) {
+        events.addAll(setOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
+      }
+
       exceptionFormat = TestExceptionFormat.FULL
       showCauses = true
       showExceptions = true

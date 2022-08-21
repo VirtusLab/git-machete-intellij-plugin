@@ -26,6 +26,12 @@ powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", ver
 reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
+# @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
+#      See https://www.slf4j.org/faq.html#changesInVersion200.
+#      We could theoretically also override slf4j-api to v2.0.0 in tests that rely on slf4j-simple...
+#      but that's not worth it yet, esp. given that IntelliJ still runs on slf4j-api v1.x.y as of 2022.2.
+#      Also, see https://github.com/littlerobots/version-catalog-update-plugin/issues/79 for pinning just major version
+#      (1.*.*, rather than a specific version like 1.7.36).
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 # Plugins

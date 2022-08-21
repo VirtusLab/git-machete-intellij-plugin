@@ -67,7 +67,7 @@ This is because one may not be emulating bash environment in any way or doing it
 #### macOS
 Some hooks use `grep`. The macOS version of `grep` (FreeBSD) differs from GNU `grep`.
 In order to make `grep` and eventually the hooks working one must:
-1. Install `grep` via `brew` (it will not override system's `grep` - it can be executed as `ggrep`)
+1. Install `grep` via `brew` (it will not override system's `grep` &mdash; it can be executed as `ggrep`)
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/3.7/libexec/gnubin/grep`
 3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/3.7/libexec/gnubin` in that case).
 You may want to add the following `PATH="/opt/homebrew/Cellar/grep/3.7/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`)
@@ -121,14 +121,23 @@ execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./
 
 To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
 
-## Debug
+### Debug
 
 To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new Run Configuration for Gradle: </br>
 ![debug_configuration](docs/debug_configuration.png)
 
 Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Shift+F9 (`^D` on Mac).
 
-## Run UI tests
+
+## Test
+
+To force running tests (without using `./gradlew clean` and/or `./gradlew --no-build-cache ...`, which lead to unnecessary longer build times),
+set `forceRunTests` project property: `./gradlew -PforceRunTests test`.
+
+To include test stdout/stderr in the output of tests (without enabling `--info` log level in Gradle, which leads to a lot of spam),
+set `printTestOutput` project property: `./gradlew -PprintTestOutput test`.
+
+### Run UI tests
 
 ```shell
 ./gradlew [-Pagainst=<e.g. 2021.2>] [-Pheadless] [-Ptests=<e.g. toggle>] uiTest
@@ -137,9 +146,10 @@ Now this new configuration can be chosen in the upper left corner of the IDE, an
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
-### macOS
-It is not possible to run `uiTest` gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
-You can run UI tests inside docker container (based on `gitmachete/intellij-plugin-ci` image) or using a Linux virtual machine.
+#### macOS
+
+It is not possible to run `uiTest` Gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
+You can run UI tests inside Docker container (based on `gitmachete/intellij-plugin-ci` image) or using a Linux virtual machine.
 Sample configuration for launching docker container is shown below. Environment variables `UID` and `GID` placed into the container will be the user and group identifiers
 of the files created inside it. In example below, current working directory navigates to top-level directory of the project. When starting the container we should care about setting
 environment variable `IDEPROBE_PATHS_BASE` to the directory to which the user whose `UID` and `GID` was passed to the container has access to (e.g. user's home directory).
@@ -154,18 +164,6 @@ docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
       gitmachete/intellij-plugin-ci \
       ./gradlew -Pheadless uiTest
 ```
-
-
-
-## Update version catalog
-
-```shell
-(./gradlew versionCatalogUpdate; cd buildSrc; ../gradlew versionCatalogUpdate)
-```
-
-See [version catalog in Gradle docs](https://docs.gradle.org/current/userguide/platforms.html)
-and [version catalog update plugin](https://github.com/littlerobots/version-catalog-update-plugin)
-for more details.
 
 
 ## Generate and/or install snapshot build of the plugin
@@ -217,6 +215,8 @@ Other coding conventions include:
   Additionally, their keys should have a `.HTML` suffix.
 * `@Tainted` and `@Untainted` annotations are used in the context of method parameters that may or may not use HTML. Those annotated with `@Untainted` should not contain HTML tags, whereas values annotated with
   `@Tainted` can contain HTML (but they don't have to).
+* Avoid `Branch` word in action class names and action ids to keep them shorter.
+  Some exceptions are allowed (e.g. the backgroundable task classes).
 
 ## UI conventions
 
@@ -224,9 +224,7 @@ So far created UI conventions:
 
 * Add `…` (ellipsis, `\u2026`)  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase…` (after this operation the interactive rebase window opens)
 * Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
-  On the other hand, **context-menu** actions text names should be kept short (no `This`/`Selected`).
-* Avoid `Branch` word in action class names and action ids to keep them shorter.
-  Some exceptions are allowed (e.g. the backgroundable task classes).
+  On the other hand, **context-menu** actions text names should be kept short (**no** `This`/`Selected`).
 
 ## Rebuild the CI base image
 
@@ -256,14 +254,14 @@ We follow [Semantic versioning](https://semver.org/) for the plugin releases:
 
 After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `PROSPECTIVE_RELEASE_VERSION`
 in [version.gradle.kts](version.gradle.kts) in the following way:
-1. `1.0.4` (bugfix PR)  - the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
-1. `1.0.4` (bugfix PR)  - even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
-1. `1.1.0` (feature PR) - since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
-1. `1.1.0` (bugfix PR)  - even if a new feature has been added on the PR, the released version is still going to be `1.1.0` (not `1.2.0`)
+1. `1.0.4` (bugfix PR)  &mdash; the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
+1. `1.0.4` (bugfix PR)  &mdash; even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
+1. `1.1.0` (feature PR) &mdash; since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
+1. `1.1.0` (bugfix PR)  &mdash; even if a new feature has been added on the PR, the released version is still going to be `1.1.0` (not `1.2.0`)
 1. `2.0.0` (breaking change PR)
-1. `2.0.0` (feature PR) - again, still `2.0.0` and not e.g. `2.1.0`
+1. `2.0.0` (feature PR) &mdash; again, still `2.0.0` and not e.g. `2.1.0`
 1. `2.0.0` (bugfix PR)
-1. `2.0.0` (release PR) - finally releasing as a major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
+1. `2.0.0` (release PR) &mdash; finally releasing as a major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
 
 ### IDE supported versions
 
@@ -277,14 +275,14 @@ There is a rather little risk that the plugin which is compatible with `X - 1`
 and does **not** use any `X EAP/RC`-specific API
 turns out to be **not** compatible with stable `X` release of IDE.
 
-Version updates can be done automatically using `./gradlew updateIntellijVersions`
+Version updates are performed automatically by a cronned CI job using `./gradlew updateIntellijVersions`, see [.circleci/config.yml](.circleci/config.yml).
 
 The whole logic of the process can be illustrated with an example:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `.idea`),
    and is detected with `./gradlew updateIntellijVersions`, <br/>
    new `eapOfLatestSupportedMajor` is set in [intellijVersions.properties](intellijVersions.properties)
-3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` - see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
+3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` &mdash; see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
    via `latestSupportedMajor` in [intellijVersions.properties](intellijVersions.properties))
 5. new stable version `2020.3` is released (see [release repository](https://www.jetbrains.com/intellij-repository/releases/) -> Ctrl+F `.idea`)
@@ -306,7 +304,7 @@ To create a release:
 * make sure [CHANGE-NOTES.html](CHANGE-NOTES.html) are updated
 * open PR from `develop` to `master`
 
-Once the release PR is merged, `master` is built. <br/>
+Once the release PR is fast-forward merged (do **not** use GitHub Merge Button), `master` is built. <br/>
 After manual approval, the `master` build:
 * pushes a tag (`v<version>`) back to the repository
 * creates a [GitHub release](https://github.com/VirtusLab/git-machete-intellij-plugin/releases)
@@ -334,7 +332,7 @@ The following steps shall be performed manually at the beginning:
 - resize the tool window to ~4/5 of IDE window height (to show all toolbar actions and avoid the context-menu exceeding the window area)
 - increase the font size to 16
 - resize the rebase dialog (to fit inside the window area)
-- sometimes an IDE internal error occurs - clear it
+- sometimes an IDE internal error occurs &mdash; clear it
 
-The suite covers only scenarios - recordings for [features](docs/features.md) must be updated manually.
-Gifs can optimized with https://www.xconvert.com/ - over 50% size reduction.
+The suite covers only scenarios &mdash; recordings for [features](docs/features.md) must be updated manually.
+Gifs can optimized with https://www.xconvert.com/ &mdash; over 50% size reduction.
