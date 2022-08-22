@@ -221,7 +221,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
 
     // squashCurrentBranch
     project.openGitMacheteTab()
-    project.toolbar.toggleListingCommits()
     var branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(18, branchRowsCount)
     project.checkoutBranch("call-ws")
