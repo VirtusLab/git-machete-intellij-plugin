@@ -39,6 +39,7 @@ commands:
 
             branch_name="<<parameters.branch_name_prefix>>/$(<<parameters.branch_name_command>>)"
             if git ls-remote --exit-code --heads origin "$branch_name" &> /dev/null; then
+              git restore .  # so that the uncommitted changes don't propagate to the next step.
               echo "Branch $branch_name already exists in the remote, aborting"
               exit 0
             fi
