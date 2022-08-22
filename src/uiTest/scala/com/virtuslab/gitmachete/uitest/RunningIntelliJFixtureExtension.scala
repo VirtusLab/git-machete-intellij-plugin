@@ -120,8 +120,8 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.acceptSuggestedBranchLayout()")
       }
 
-      def saveDiscoveredBranchLayout(): Unit = doAndAwait {
-        runJs("project.saveDiscoveredBranchLayout()")
+      def discoverBranchLayout(): Unit = doAndAwait {
+        runJs("project.discoverBranchLayout()")
       }
 
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
@@ -276,12 +276,52 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getSyncToParentStatus('$child')")
       }
 
+      def fastForwardMergeCurrentToParent(): Unit = doAndAwait {
+        runJs("project.fastForwardMergeCurrentToParent()")
+      }
+
+      def fastForwardMergeSelectedToParent(branch: String): Unit = doAndAwait {
+        runJs(s"project.fastForwardMergeSelectedToParent('$branch')")
+      }
+
+      def syncSelectedToParentByRebase(branch: String): Unit = doAndAwait {
+        runJs(s"project.syncSelectedToParentByRebase('$branch')")
+      }
+
+      def syncCurrentToParentByRebase(): Unit = doAndAwait {
+        runJs(s"project.syncCurrentToParentByRebase()")
+      }
+
+      def syncSelectedToParentByMerge(branch: String): Unit = doAndAwait {
+        runJs(s"project.syncSelectedToParentByMerge('$branch')")
+      }
+
+      def syncCurrentToParentByMerge(): Unit = doAndAwait {
+        runJs(s"project.syncCurrentToParentByMerge()")
+      }
+
+      def squashSelected(branch: String): Unit = doAndAwait {
+        runJs(s"project.squashSelected('$branch')")
+      }
+
+      def squashCurrent(): Unit = doAndAwait {
+        runJs(s"project.squashCurrent()")
+      }
+
       def openGitMacheteTab(): Unit = {
         runJs("project.openGitMacheteTab()")
       }
 
       def usePrettyClick(): Unit = {
         runJs("project.usePrettyClick()")
+      }
+
+      def pullSelected(branch: String): Unit = doAndAwait {
+        runJs(s"project.pullSelected('$branch')")
+      }
+
+      def pullCurrent(): Unit = doAndAwait {
+        runJs("project.pullCurrent()")
       }
 
       def refreshModelAndGetManagedBranches(): Array[String] = {
@@ -294,6 +334,22 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def rejectBranchDeletionOnSlideOut(): Unit = doAndAwait {
         runJs("project.rejectBranchDeletionOnSlideOut()")
+      }
+
+      def resetCurrentToRemote(): Unit = doAndAwait {
+        runJs(s"project.resetCurrentToRemote()")
+      }
+
+      def resetToRemote(branch: String): Unit = doAndAwait {
+        runJs(s"project.resetToRemote('$branch')")
+      }
+
+      def slideOutSelected(branch: String): Unit = {
+        runJs(s"project.slideOutSelected('$branch')")
+      }
+
+      def toggleListingCommits(): Unit = {
+        runJs("project.toggleListingCommits()")
       }
 
       def writeToTextField(text: String): Unit = {
