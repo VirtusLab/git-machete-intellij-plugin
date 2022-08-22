@@ -41,8 +41,6 @@ fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
 
 val javaMajorVersion: JavaVersion by extra(JavaVersion.VERSION_11)
 
-val intellijSnapshotsUrl: String by extra("https://www.jetbrains.com/intellij-repository/snapshots/")
-
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
