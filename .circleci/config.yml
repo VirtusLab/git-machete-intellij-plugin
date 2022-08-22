@@ -90,6 +90,15 @@ jobs:
           command: ./gradlew
 
       - run:
+          name: Build ide-probe fork
+          # language=sh
+          command: |
+            cd ..
+            git clone https://github.com/LukaszKontowski/ide-probe.git -b fix/probe_resolvers_jbr_repositories
+            cd ide-probe/
+            sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
+
+      - run:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
@@ -126,15 +135,6 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./gradlew runPluginVerifier
-
-      - run:
-          name: Build ide-probe fork
-          # language=sh
-          command: |
-            cd ..
-            git clone https://github.com/LukaszKontowski/ide-probe.git -b fix/probe_resolvers_jbr_repositories
-            cd ide-probe/
-            sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
