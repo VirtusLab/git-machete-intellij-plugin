@@ -148,7 +148,7 @@ jobs:
             # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release and not on PRs.
             matches:
-              pattern: "^(develop|hotfix/.+|master|release/.+)$"
+              pattern: "^(develop|hotfix/.+|master|ide-probe|release/.+)$"
               value: << pipeline.git.branch >>
           steps:
             - run:
