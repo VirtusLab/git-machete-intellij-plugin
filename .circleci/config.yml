@@ -228,7 +228,7 @@ jobs:
                   source scripts/utils.sh
                   tag=v$(extract_version_from_current_wd)
                   change_notes=$(./gradlew -q getReleaseChangeLogForGithub)
-                  hub release create -d \
+                  hub release create \
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
