@@ -215,12 +215,14 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(18, branchRowsCount)
     project.checkoutBranch("call-ws")
     project.squashCurrent()
+    project.acceptSquash()
     branchRowsCount = project.refreshModelAndGetRowCount()
     // call-ws had 3 commits before the squash
     Assert.assertEquals(16, branchRowsCount)
 
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
+    project.acceptSquash()
     branchRowsCount = project.refreshModelAndGetRowCount()
     // call-ws had 3 commits before the squash
     Assert.assertEquals(15, branchRowsCount)
