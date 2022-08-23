@@ -4,30 +4,21 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.MutableCollectionComboBoxModel
 import com.intellij.util.ui.JBUI
 import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
-import com.virtuslab.qual.guieffect.UIThreadUnsafe
 import git4idea.branch.GitBranchUtil
-import git4idea.commands.Git
-import git4idea.commands.GitCommand
-import git4idea.commands.GitLineHandler
 import git4idea.merge.GitMergeDialog
 import git4idea.repo.GitRepository
 import git4idea.ui.ComboBoxWithAutoCompletion
 import net.miginfocom.swing.MigLayout
 import java.awt.Insets
-import java.util.regex.Pattern
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -52,8 +43,6 @@ class SlideInDialog(
 
   val rootNames = branchLayout.rootEntries.map { it.name }
 
-  var unmergedBranches = emptyList<String>()
-
   val reattachCheckbox =
     JCheckBox(
       getString(
@@ -66,7 +55,6 @@ class SlideInDialog(
   val panel = createPanel()
 
   init {
-    loadUnmergedBranchesInBackground()
     title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
     setOKButtonText(
       getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button")
@@ -87,67 +75,6 @@ class SlideInDialog(
   fun getSlideInOptions(): SlideInOptions {
     val branchName = branchField.getText().orEmpty().trim()
     return SlideInOptions(branchName, reattachCheckbox.isSelected)
-  }
-
-  private fun loadUnmergedBranchesInBackground() =
-    ProgressManager.getInstance()
-      .run(
-        object :
-          Task.Backgroundable(
-            project,
-            getString(
-              "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.progress"
-            ),
-            true
-          ) {
-
-          @UIThreadUnsafe
-          override fun run(indicator: ProgressIndicator) {
-            val root = (gitRepository.root)
-            loadUnmergedBranchesForRoot(root)?.let { branches -> unmergedBranches = branches }
-          }
-        }
-      )
-
-  /**
-   * ```
-   * $ git branch --all
-   * |  master
-   * |  feature
-   * |* checked-out
-   * |+ checked-out-by-worktree
-   * |  remotes/origin/master
-   * |  remotes/origin/feature
-   * |  remotes/origin/HEAD -> origin/master
-   * ```
-   */
-  @UIThreadUnsafe
-  private fun loadUnmergedBranchesForRoot(root: VirtualFile): List<String>? {
-    var result: List<String>? = null
-
-    val handler =
-      GitLineHandler(project, root, GitCommand.BRANCH).apply {
-        addParameters("--no-color", "-a", "--no-merged")
-      }
-    try {
-      result =
-        Git.getInstance()
-          .runCommand(handler)
-          .getOutputOrThrow()
-          .lines()
-          .filter { line -> !LINK_REF_REGEX.matcher(line).matches() }
-          .mapNotNull { line ->
-            val matcher = BRANCH_NAME_REGEX.matcher(line)
-            when {
-              matcher.matches() -> matcher.group(1)
-              else -> null
-            }
-          }
-    } catch (e: Exception) {
-      LOG.warn("Failed to load unmerged branches for root: $root", e)
-    }
-
-    return result
   }
 
   private fun validateBranchName(): ValidationInfo? {
@@ -259,7 +186,7 @@ class SlideInDialog(
             "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder"
           )
         )
-        setUI(DarculaComboBoxUI(0f, Insets(1, 0, 1, 0), false))
+        setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
         addDocumentListener(
           object : DocumentListener {
             override fun documentChanged(event: DocumentEvent) {
@@ -288,7 +215,5 @@ class SlideInDialog(
 
   companion object {
     val LOG = logger<GitMergeDialog>()
-    val LINK_REF_REGEX = Pattern.compile(".+\\s->\\s.+") // aka 'symrefs'
-    val BRANCH_NAME_REGEX = Pattern.compile(". (\\S+)\\s*")
   }
 }
