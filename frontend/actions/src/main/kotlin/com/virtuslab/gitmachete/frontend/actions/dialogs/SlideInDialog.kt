@@ -12,12 +12,12 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.MutableCollectionComboBoxModel
-import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.ui.JBUI
 import com.virtuslab.branchlayout.api.IBranchLayout
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import com.virtuslab.qual.guieffect.UIThreadUnsafe
 import git4idea.branch.GitBranchUtil
 import git4idea.commands.Git
 import git4idea.commands.GitCommand
@@ -100,6 +100,8 @@ class SlideInDialog(
             ),
             true
           ) {
+
+          @UIThreadUnsafe
           override fun run(indicator: ProgressIndicator) {
             val root = (gitRepository.root)
             loadUnmergedBranchesForRoot(root)?.let { branches -> unmergedBranches = branches }
@@ -119,7 +121,7 @@ class SlideInDialog(
    * |  remotes/origin/HEAD -> origin/master
    * ```
    */
-  @RequiresBackgroundThread
+  @UIThreadUnsafe
   private fun loadUnmergedBranchesForRoot(root: VirtualFile): List<String>? {
     var result: List<String>? = null
 
