@@ -429,12 +429,10 @@ function Project(underlyingProject) {
 
   this.squashSelected = function (branchName) {
     invokeActionAndWait('GitMachete.SquashSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-    this.acceptSquash()
   };
 
   this.squashCurrent = function () {
     invokeActionAndWait('GitMachete.SquashCurrentAction', ACTION_PLACE_TOOLBAR, {});
-    this.acceptSquash()
   };
 
   this.pullSelected = function (branchName) {
