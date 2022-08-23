@@ -121,9 +121,18 @@ jobs:
       - run:
           name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
-      - run:
-          name: Run UI tests against earlier supported major IntelliJ versions
-          command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+      - when:
+          condition:
+            # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
+            # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
+            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release and not on PRs.
+            matches:
+              pattern: "^(develop|hotfix/.+|master|release/.+|.*ui-test.*)$"
+              value: << pipeline.git.branch >>
+          steps:
+            - run:
+                name: Run UI tests against earlier supported major IntelliJ versions
+                command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
       - run:
           name: Collect artifacts when an exception occurs
           # language=sh
