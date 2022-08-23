@@ -54,6 +54,9 @@ dependencies {
   implementation(libs.pluginPackages.jetbrains.intellij)
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
+  implementation(libs.pluginPackages.taskTree)
+  implementation(libs.pluginPackages.versionCatalogUpdate)
+  implementation(libs.pluginPackages.versionsFilter)
   testImplementation(libs.junit)
 }
 

@@ -213,13 +213,6 @@ jobs:
                 command: ./gradlew publishPlugin
             - reconfigure_origin_remote
             - run:
-                name: Update CHANGE-NOTES.md
-                command: |
-                  ./gradlew patchChangeLog
-                  tag=v$(extract_version_from_current_wd)
-                  git commit -a -m "Update change notes for $tag"
-                  git push
-            - run:
                 name: Push git tag
                 # language=sh
                 command: |
