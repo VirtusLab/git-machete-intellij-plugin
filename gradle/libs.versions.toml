@@ -3,7 +3,7 @@
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 checker = "3.24.0"
-ideProbe = "0.41.0+30-f11e897b-SNAPSHOT"
+ideProbe = "0.0.0+532-f11e897b-SNAPSHOT"
 powerMock = "2.0.9"
 
 [libraries]
