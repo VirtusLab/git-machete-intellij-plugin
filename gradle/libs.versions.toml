@@ -18,7 +18,7 @@ ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", ve
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
-jsoup = "org.jsoup:jsoup:1.15.2"
+jsoup = "org.jsoup:jsoup:1.15.3"
 junit = "junit:junit:4.13.2"
 lombok = "org.projectlombok:lombok:1.18.24"
 powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
@@ -46,7 +46,7 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is 1.4.0 in our case (as this is the Kotlin version bundled into IntelliJ 2020.3).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.9.1"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.10.0"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"
