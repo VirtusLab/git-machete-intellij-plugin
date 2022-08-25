@@ -10,6 +10,11 @@ object IntellijVersions {
   // When this value is updated, remember to update:
   // 1. the minimum required IDEA version in README.md,
   // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
+  // Note that after bumping X.Y to A.B (A.B is later) the released plugin versions supporting X.Y remain available.
+  // Dropping a support for an intellij version is less painful then,
+  // since most likely some plugin version will still be downloadable (however not the latest).
+  // Marking a release version as hidden is a way to forbid its download
+  // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
   val earliestSupportedMajor: String = intellijVersionsProp.getProperty("earliestSupportedMajor")
 
   // Most recent minor versions of all major releases between earliest supported (incl.)
