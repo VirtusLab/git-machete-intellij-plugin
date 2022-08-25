@@ -10,9 +10,9 @@ object IntellijVersions {
   // When this value is updated, remember to update:
   // 1. the minimum required IDEA version in README.md,
   // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
-  // Note that after bumping A.B to C.D (C.D is later)
+  // Note that after bumping `earliestSupportedMajor`from A.B to C.D (C.D is later)
   // the released plugin versions supporting A.B remain available in JetBrains Marketplace.
-  // Dropping a support for an intellij version is less painful then,
+  // Dropping a support for an IntelliJ version is less painful then,
   // since most likely some plugin version will still be downloadable (however not the latest).
   // Marking a release version as hidden is a way to forbid its download
   // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
