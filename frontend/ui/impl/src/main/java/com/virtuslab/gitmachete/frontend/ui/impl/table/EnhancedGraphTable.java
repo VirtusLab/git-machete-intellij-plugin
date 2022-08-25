@@ -275,6 +275,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
+    System.out.println("[mixon] queueDiscover");
     new GitMacheteRepositoryDiscoverer(
         project,
         getGitRepositorySelectionProvider(),
@@ -350,6 +351,16 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
           val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
           this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
+
+          // t0d0: am I right?
+          for (int i = 0; i < 10; i++) {
+            try {
+              Thread.sleep(500);
+            } catch (InterruptedException e) {
+              System.out.println(e);
+            }
+          }
+
           if (nullableRepositorySnapshot != null) {
             System.out.println("[mixon] refreshModel: non null");
             refreshModel(gitRepository,
@@ -372,7 +383,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         val macheteFile = gitRepository.getMacheteFile();
 
         if (macheteFile != null) {
+          System.out.println("[mixon] markDirtyAndRefresh...");
           VfsUtil.markDirtyAndRefresh(/* async */ true, /* recursive */ false, /* reloadChildren */ false, macheteFile);
+          System.out.println("[mixon] markDirtyAndRefresh: done");
         }
       });
     } else {
