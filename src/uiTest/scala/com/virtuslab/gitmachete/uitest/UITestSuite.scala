@@ -86,27 +86,28 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       ),
       managedBranches.toSeq.sorted
     )
-    project.toggleListingCommits()
-    var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 7 branch rows + 11 commit rows
-    Assert.assertEquals(18, branchAndCommitRowsCount)
-
-    // Let's slide out a root branch now
-    project.slideOutSelected("develop")
-    project.acceptBranchDeletionOnSlideOut()
-    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 5 branch rows (`develop` is no longer there) + 7 commit rows
-    // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-    Assert.assertEquals(13, branchAndCommitRowsCount)
-
-    project.checkoutBranch("master")
-    project.slideOutSelected("call-ws")
-    project.rejectBranchDeletionOnSlideOut()
-    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
-    Assert.assertEquals(12, branchAndCommitRowsCount)
+//    project.toggleListingCommits()
+//    var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+//    // 7 branch rows + 11 commit rows
+//    Assert.assertEquals(18, branchAndCommitRowsCount)
+//
+//    // Let's slide out a root branch now
+//    project.slideOutSelected("develop")
+//    project.acceptBranchDeletionOnSlideOut()
+//    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+//    // 5 branch rows (`develop` is no longer there) + 7 commit rows
+//    // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
+//    Assert.assertEquals(13, branchAndCommitRowsCount)
+//
+//    project.checkoutBranch("master")
+//    project.slideOutSelected("call-ws")
+//    project.rejectBranchDeletionOnSlideOut()
+//    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+//    // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
+//    Assert.assertEquals(12, branchAndCommitRowsCount)
   }
 
+  @Ignore
   @Test def discoverBranchLayout(): Unit = {
     // When model is refreshed and machete file is has not been modified for a long time, then discover suggestion should occur
     setLastModifiedDateOfMacheteFileToEpochStart()
@@ -131,6 +132,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     Assert.assertEquals(0, branchRowsCount)
   }
 
+  @Ignore
   @Test def fastForwardParentOfBranch(): Unit = {
 
     // fastForwardParentOfBranch_parentIsCurrentBranch
@@ -148,6 +150,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertNoUncommittedChanges()
   }
 
+  @Ignore
   @Test def syncToParentByRebaseAction(): Unit = {
 
     // syncCurrentToParentByRebase
@@ -161,6 +164,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
+  @Ignore
   @Test def syncToParentByMergeAction(): Unit = {
 
     // syncSelectedToParentByMerge
@@ -169,6 +173,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertSyncToParentStatus("call-ws", "InSync")
   }
 
+  @Ignore
   @Test def pullBranch(): Unit = {
 
     // pullCurrentBranch
@@ -187,6 +192,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertNoUncommittedChanges()
   }
 
+  @Ignore
   @Test def resetBranchToRemote(): Unit = {
 
     // resetCurrentBranchToRemote
@@ -205,6 +211,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertNoUncommittedChanges()
   }
 
+  @Ignore
   @Test def squashBranch(): Unit = {
 
     // squashCurrentBranch
