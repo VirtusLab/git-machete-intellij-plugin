@@ -37,9 +37,11 @@ public class GitMacheteRepositoryDiscoverer {
 
   public void enqueue(Path macheteFilePath) {
     LOG.info("Enqueuing automatic discover");
+    System.out.println("[mixon] Enqueuing automatic discover");
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
+      System.out.println("[mixon] Can't do automatic discover because of undefined selected repository");
       return;
     }
     Path rootDirPath = selectedRepository.getRootDirectoryPath().toAbsolutePath();
@@ -50,11 +52,13 @@ public class GitMacheteRepositoryDiscoverer {
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running automatic discover task");
+        System.out.println("[mixon] Running automatic discover task");
         val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
             .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
 
         if (discoverRunResult.isFailure()) {
           LOG.debug("Discover and snapshot creation failed");
+          System.out.println("[mixon] Discover and snapshot creation failed");
           val exception = discoverRunResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
@@ -69,6 +73,7 @@ public class GitMacheteRepositoryDiscoverer {
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           LOG.debug("No root branches discovered - executing on-failure consumer");
+          System.out.println("[mixon] No root branches discovered - executing on-failure consumer");
           onFailurePathConsumer.accept(macheteFilePath);
           return;
         }
@@ -78,10 +83,12 @@ public class GitMacheteRepositoryDiscoverer {
 
         try {
           LOG.debug("Writing branch layout & executing on-success consumer");
+          System.out.println("[mixon] Writing branch layout & executing on-success consumer");
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
           onSuccessRepositoryConsumer.accept(repositorySnapshot);
         } catch (BranchLayoutException exception) {
           LOG.debug("Handling branch layout exception");
+          System.out.println("[mixon] Handling branch layout exception");
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,

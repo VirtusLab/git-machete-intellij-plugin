@@ -72,7 +72,9 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         |master
         |  hotfix/add-trigger""".stripMargin
     )
+    println("[mixon] machete file content before refresh:\n" + macheteFilePath.content())
     val managedBranches = project.refreshModelAndGetManagedBranches()
+    println("[mixon] machete file content after refresh:\n" + macheteFilePath.content())
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
       Seq(

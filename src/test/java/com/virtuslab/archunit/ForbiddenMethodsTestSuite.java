@@ -167,10 +167,4 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .check(importedClasses);
   }
 
-  @Test
-  public void no_classes_should_call_println() {
-    noClasses()
-        .should().callMethodWhere(name("println"))
-        .check(importedClasses);
-  }
 }

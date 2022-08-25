@@ -351,11 +351,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
           this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
           if (nullableRepositorySnapshot != null) {
+            System.out.println("[mixon] refreshModel: non null");
             refreshModel(gitRepository,
                 nullableRepositorySnapshot,
                 doOnUIThreadWhenReady);
 
           } else {
+            System.out.println("[mixon] refreshModel: null");
             refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
           }
         };
@@ -363,7 +365,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
+        System.out.println("[mixon] Queuing repository update onto a non-UI thread...");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
+        System.out.println("[mixon] Queuing repository update onto a non-UI thread: done");
 
         val macheteFile = gitRepository.getMacheteFile();
 
