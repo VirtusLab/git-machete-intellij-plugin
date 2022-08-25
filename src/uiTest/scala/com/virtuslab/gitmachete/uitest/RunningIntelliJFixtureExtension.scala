@@ -6,21 +6,9 @@ import org.intellij.lang.annotations.Language
 import org.junit.Assert
 import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, RunningIntelliJFixture}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
 trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdeProbeFixture =>
-
-  private val machetePlugin: Plugin = {
-    val pluginPath = sys.props
-      .get("ui-test.plugin.path")
-      .filterNot(_.isEmpty)
-      .getOrElse(throw new Exception("Plugin path is not provided"))
-    Plugin.Direct(Paths.get(pluginPath).toUri)
-  }
-
-  registerFixtureTransformer(_.withPlugin(machetePlugin))
-  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.ide.configure()))
 
   private def loadScript(baseName: String) = {
     Paths.get(getClass.getResource(s"/$baseName.rhino.js").toURI).content()
@@ -72,10 +60,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def closeOpenedProjects(): Unit = {
         runJs("ide.closeOpenedProjects()")
-      }
-
-      def getMajorVersion(): String = {
-        callJs("ide.getMajorVersion()")
       }
 
       def findAndResizeIdeFrame(): Unit = {

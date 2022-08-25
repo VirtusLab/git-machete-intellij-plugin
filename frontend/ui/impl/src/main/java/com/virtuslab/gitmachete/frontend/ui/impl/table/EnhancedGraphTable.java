@@ -167,7 +167,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
-  // TODO (#620): rework callbacks into futures
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,

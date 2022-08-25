@@ -22,12 +22,13 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   import UITestSuite._
 
   private val project = intelliJ.project
+  private val intelliJVersion = intelliJ.config.get[String]("probe.intellij.version.build")
 
   private val probe: ProbeDriver = intelliJ.probe
 
   @Before
   def beforeEach(): Unit = {
-    println("IntelliJ build number is " + intelliJVersion.build)
+    println("IntelliJ build number is " + intelliJVersion)
     intelliJ.doAndAwait {
       probe.openProject(rootDirectoryPath)
       project.configure()
@@ -44,10 +45,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       val pid = probe.pid()
       probe.screenshot("exception")
       val threadStackTrace: String = Process("jstack " + pid) !!
-      val artifactDirectory =
-        System.getProperty(
-          "user.home"
-        ) + "/.ideprobe-uitests" + "/artifacts/uiTest" + intelliJVersion.build + "/thread-dumps"
+      val homeDirectory = System.getProperty("user.home")
+      val artifactDirectory = s"${homeDirectory}/.ideprobe-uitests/artifacts/uiTest${intelliJVersion}/thread-dumps"
       Files.createDirectories(Paths.get(artifactDirectory))
       val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
       val pw = new PrintWriter(file)
