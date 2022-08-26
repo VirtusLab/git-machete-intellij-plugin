@@ -27,10 +27,6 @@ function Ide() {
     }
   };
 
-  this.getMajorVersion = function() {
-    return ApplicationInfo.getInstance().getMajorVersion();
-  };
-
   this.soleOpenedProject = function () {
     const openProjects = ProjectUtil.getOpenProjects();
     return openProjects.length === 1 ? new Project(openProjects[0]) : null;
