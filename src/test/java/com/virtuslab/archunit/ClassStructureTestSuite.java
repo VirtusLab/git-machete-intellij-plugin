@@ -15,6 +15,17 @@ import org.junit.Test;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
+  @Test
+  public void actions_implementing_DumbAware_should_extend_DumbAwareAction() {
+    classes()
+        .that().areAssignableTo(com.intellij.openapi.actionSystem.AnAction.class)
+        .and().implement(com.intellij.openapi.project.DumbAware.class)
+        .should().beAssignableTo(com.intellij.openapi.project.DumbAwareAction.class)
+        .because("`extends DumbAwareAction` should be used instead of " +
+            "extending `AnAction` and implementing `DumbAware` separately")
+        .check(importedClasses);
+  }
+
   static class BeReferencedFromOutsideItself extends ArchCondition<JavaClass> {
 
     BeReferencedFromOutsideItself() {
@@ -34,20 +45,8 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
-  public void actions_implementing_DumbAware_should_extend_DumbAwareAction() {
-    classes()
-        .that().areAssignableTo(com.intellij.openapi.actionSystem.AnAction.class)
-        .and().implement(com.intellij.openapi.project.DumbAware.class)
-        .should().beAssignableTo(com.intellij.openapi.project.DumbAwareAction.class)
-        .because("`extends DumbAwareAction` should be used instead of " +
-            "extending `AnAction` and implementing `DumbAware` separately")
-        .check(importedClasses);
-  }
-
-  @Test
   public void all_classes_should_be_referenced() {
     classes()
-
         .that().resideOutsideOfPackages(
             // Classes in *.impl.* packages may be instantiated via RuntimeBinding
             "..impl..",
@@ -57,8 +56,10 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             "com.virtuslab.gitmachete.frontend.file..")
         // Actions may be referenced from plugin.xml
         .and().haveSimpleNameNotEndingWith("Action")
+        // For some reason, references to SlideInDialogKt aren't detected (Kotlin class?)
+        .and().doNotHaveFullyQualifiedName("com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialogKt")
         // SubtypingBottom is processed by CheckerFramework based on its annotations
-        .and().doNotHaveSimpleName(com.virtuslab.qual.internal.SubtypingBottom.class.getSimpleName())
+        .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
         .check(importedClasses);
   }
