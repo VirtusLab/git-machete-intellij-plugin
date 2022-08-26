@@ -14,6 +14,7 @@ fun Project.configureUiTests() {
 
   val sourceSets = extensions["sourceSets"] as SourceSetContainer
   val uiTest = sourceSets["uiTest"]
+  val uiTestsDir = "${System.getProperty("user.home")}/.ideprobe-uitests"
 
   val uiTestTargets: List<String> =
     if (project.properties["against"] != null) {
@@ -47,12 +48,14 @@ fun Project.configureUiTests() {
         environment("IDEPROBE_DISPLAY", "xvfb")
         environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
-          "${System.getProperty("user.home")}/.ideprobe-uitests/artifacts/uiTest$version/screenshots"
+          "${uiTestsDir}/artifacts/uiTest$version/screenshots"
         )
         if (isCI) {
-          environment("IDEPROBE_PATHS_BASE", "${System.getProperty("user.home")}/.ideprobe-uitests/")
+          environment("IDEPROBE_PATHS_BASE", uiTestsDir)
         }
       }
+
+      environment("IDEPROBE_PATHS_LOG_EXPORT", "${uiTestsDir}/idea-logs")
 
       testLogging {
         events.addAll(listOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
