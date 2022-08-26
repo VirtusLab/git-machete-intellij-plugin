@@ -3,6 +3,14 @@ package com.virtuslab.archunit;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.tngtech.archunit.core.domain.JavaAccess;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.Test;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
@@ -15,6 +23,44 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .should().beAssignableTo(com.intellij.openapi.project.DumbAwareAction.class)
         .because("`extends DumbAwareAction` should be used instead of " +
             "extending `AnAction` and implementing `DumbAware` separately")
+        .check(importedClasses);
+  }
+
+  static class BeReferencedFromOutsideItself extends ArchCondition<JavaClass> {
+
+    BeReferencedFromOutsideItself() {
+      super("is not referenced from any other compilation units");
+    }
+
+    @Override
+    public void check(JavaClass javaClass, ConditionEvents events) {
+      Set<JavaAccess<?>> accessesFromOtherCompilationUnits = new HashSet<>(javaClass.getAccessesToSelf());
+      accessesFromOtherCompilationUnits.removeAll(javaClass.getAccessesFromSelf());
+
+      if (accessesFromOtherCompilationUnits.isEmpty() && javaClass.getDirectDependenciesToSelf().isEmpty()) {
+        String message = javaClass.getDescription() + " is NOT referenced from any other class";
+        events.add(new SimpleConditionEvent(javaClass, /* conditionSatisfied */ false, message));
+      }
+    }
+  }
+
+  @Test
+  public void all_classes_should_be_referenced() {
+    classes()
+        .that().resideOutsideOfPackages(
+            // Classes in *.impl.* packages may be instantiated via RuntimeBinding
+            "..impl..",
+            // For some reason, ArchUnit doesn't see accesses to static fields of classes from frontend defs package
+            "com.virtuslab.gitmachete.frontend.defs",
+            // Classes in frontend:file may be referenced from plugin.xml
+            "com.virtuslab.gitmachete.frontend.file..")
+        // Actions may be referenced from plugin.xml
+        .and().haveSimpleNameNotEndingWith("Action")
+        // For some reason, references to SlideInDialogKt aren't detected (Kotlin class?)
+        .and().doNotHaveFullyQualifiedName("com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialogKt")
+        // SubtypingBottom is processed by CheckerFramework based on its annotations
+        .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
+        .should(new BeReferencedFromOutsideItself())
         .check(importedClasses);
   }
 
