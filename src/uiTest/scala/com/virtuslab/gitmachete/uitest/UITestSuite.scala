@@ -22,7 +22,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   import UITestSuite._
 
   private val project = intelliJ.project
-  private val intelliJVersion = intelliJ.config.get[String]("probe.intellij.version.build")
+  private val intelliJVersion = intelliJ.config.apply[String]("probe.intellij.version.build")
 
   private val probe: ProbeDriver = intelliJ.probe
 
