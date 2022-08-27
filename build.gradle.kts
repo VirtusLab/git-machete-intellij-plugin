@@ -210,17 +210,13 @@ configureVersionFromGit()
 configureIntellijPlugin()
 
 val uiTest = sourceSets.create("uiTest")
-
-val uiTestImplementation: Configuration by
-configurations.getting { extendsFrom(configurations.testImplementation.get()) }
-
-val uiTestRuntimeOnly: Configuration by
-configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
+val uiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
+val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
 
 configureUiTests()
 
 ideProbe()
-
+lombok()
 dependencies {
   // Checker is needed for root project runtime (not just compile-time) classpath for ArchUnit tests
   testImplementation(rootProject.libs.checker.qual)

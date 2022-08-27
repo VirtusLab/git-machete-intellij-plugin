@@ -6,11 +6,15 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.Test;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
@@ -44,19 +48,42 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
     }
   }
 
+  @SneakyThrows
+  private Set<Class<?>> extractAllClassesReferencedFromPluginXmlAttributes() {
+    val classLoader = Thread.currentThread().getContextClassLoader();
+    val db = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
+    val doc = db.parse(classLoader.getResourceAsStream("META-INF/plugin.xml"));
+    val nodeList = doc.getElementsByTagName("*");
+    Set<Class<?>> result = new HashSet<>();
+    for (int i = 0; i < nodeList.getLength(); i++) {
+      val node = nodeList.item(i);
+      val attributes = node.getAttributes();
+      for (int j = 0; j < attributes.getLength(); j++) {
+        val attribute = attributes.item(j);
+        val maybeFqcn = attribute.getNodeValue();
+        try {
+          val clazz = Class.forName(maybeFqcn, /* initialize */ false, classLoader);
+          result.add(clazz);
+        } catch (ClassNotFoundException e) {
+          /* ignore */
+        }
+      }
+    }
+    return result;
+  }
+
   @Test
   public void all_classes_should_be_referenced() {
+    val classesReferencedFromPluginXmlAttributes = extractAllClassesReferencedFromPluginXmlAttributes().toArray(Class[]::new);
     classes()
         .that().resideOutsideOfPackages(
             // Classes in *.impl.* packages may be instantiated via RuntimeBinding
             "..impl..",
-            // For some reason, ArchUnit doesn't see accesses to static fields of classes from frontend defs package
-            "com.virtuslab.gitmachete.frontend.defs",
-            // Classes in frontend:file may be referenced from plugin.xml
-            "com.virtuslab.gitmachete.frontend.file..")
-        // Actions may be referenced from plugin.xml
-        .and().haveSimpleNameNotEndingWith("Action")
-        // For some reason, references to SlideInDialogKt aren't detected (Kotlin class?)
+            // For some reason, ArchUnit (com.tngtech.archunit.core.domain.JavaClass.getAccessesFromSelf)
+            // doesn't see accesses to static fields
+            "com.virtuslab.gitmachete.frontend.defs")
+        .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
+        // For some reason, ArchUnit doesn't see access to the static field GIT_REF_PROTOTYPE_VALUE
         .and().doNotHaveFullyQualifiedName("com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialogKt")
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())

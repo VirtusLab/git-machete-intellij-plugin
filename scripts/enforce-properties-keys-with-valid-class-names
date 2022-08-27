@@ -13,5 +13,5 @@ output=$(comm -23 \
 
 if [[ $output ]]; then
   echo -n "$output" | sed 's/^/action.GitMachete./'
-  die 'The above property keys do not correspond to valid Java class names'
+  die 'The above property key prefixes do not correspond to any valid Java class name'
 fi
