@@ -22,6 +22,7 @@ import com.intellij.util.Consumer;
 import com.intellij.util.ModalityUiUtil;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -29,6 +30,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @CustomLog
+@ExtensionMethod(Arrays.class)
 public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   @Override
@@ -53,9 +55,11 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
   }
 
   URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String additionalInfo) throws URISyntaxException {
-    String title = Arrays.stream(events)
-        .map(IdeaLoggingEvent::getThrowableText)
-        .map(t -> t.indexOf(System.lineSeparator()) > 0 ? t.substring(0, t.indexOf(System.lineSeparator())) : t)
+    String title = events.stream()
+        .map(event -> {
+          val throwable = event.getThrowable();
+          return (throwable != null ? throwable.toString() : event.getMessage()).stripTrailing();
+        })
         .collect(Collectors.joining("; "));
     String reportBody = getReportBody(events, additionalInfo);
 
@@ -87,10 +91,10 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
       @Nullable String additionalInfo) {
     val templateVariables = new java.util.HashMap<String, String>();
 
-    // Ide version, ie. Intellij Community 2021.3.1
+    // IDE version, ie. Intellij Community 2021.3.1
     templateVariables.put("ide", ApplicationInfo.getInstance().getFullApplicationName());
 
-    // Plugin version, ie. 1.1.1-10-SNAPSHOT git.c9a0e89-dirty
+    // Plugin version, ie. 1.1.1-10-SNAPSHOT+git.c9a0e89-dirty
     IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(PluginId.getId("com.virtuslab.git-machete"));
     templateVariables.put("macheteVersion", pluginDescriptor != null ? pluginDescriptor.getVersion() : "<unknown>");
 
@@ -102,12 +106,17 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     // Additional info about error
     templateVariables.put("additionalInfo", additionalInfo != null ? additionalInfo : "N/A");
 
-    // Error stacktraces for events
-    val sep = System.lineSeparator();
-    String stacktraces = Arrays.stream(events)
-        .map(IdeaLoggingEvent::getThrowableText)
-        .map(t -> "```${sep}${t.strip()}${sep}```")
-        .collect(Collectors.joining("${sep}${sep}"));
+    // Messages and stacktraces for events
+    val nl = System.lineSeparator();
+    String stacktraces = events.stream()
+        .map(event -> {
+          // This message is distinct from the throwable's message:
+          // in `LOG.error(message, throwable)`, it's the first parameter.
+          val messagePart = event.getMessage() != null ? (event.getMessage() + nl + nl) : "";
+          val throwablePart = event.getThrowableText().stripTrailing();
+          return "```${nl}${messagePart}${throwablePart}${nl}```";
+        })
+        .collect(Collectors.joining("${nl}${nl}"));
     templateVariables.put("stacktraces", stacktraces);
 
     return templateVariables;

@@ -189,7 +189,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       public void run(ProgressIndicator indicator) {
 
         AtomicReference<Try<Option<IExecutionResult>>> wrapper = new AtomicReference<>(Try.success(Option.none()));
-        new GitFreezingProcess(project, myTitle, () -> {
+        new GitFreezingProcess(project, getTitle(), () -> {
           LOG.info("Executing machete-pre-rebase hooks");
           val hookResult = Try
               .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
