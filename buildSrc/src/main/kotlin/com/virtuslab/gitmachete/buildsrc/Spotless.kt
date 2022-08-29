@@ -31,7 +31,7 @@ fun Project.configureSpotless() {
       target("**/*.gradle.kts")
     }
 
-    scala { scalafmt().configFile("$rootDir/scalafmt.conf") }
+    scala { scalafmt("3.5.9").configFile("$rootDir/scalafmt.conf") }
   }
 
   val isCI: Boolean by rootProject.extra

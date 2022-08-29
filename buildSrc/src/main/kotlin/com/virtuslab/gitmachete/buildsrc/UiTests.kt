@@ -28,11 +28,10 @@ fun Project.configureUiTests() {
       testClassesDirs = uiTest.output.classesDirs
       classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
 
-      dependsOn(":buildPlugin")
       val buildPlugin = tasks.findByPath(":buildPlugin")!!
-
-      systemProperty("ui-test.intellij.version", version)
-      systemProperty("ui-test.plugin.path", buildPlugin.outputs.files.first().path)
+      dependsOn(buildPlugin)
+      environment("IDEPROBE_INTELLIJ_PLUGIN_URI", buildPlugin.outputs.files.first().path)
+      environment("IDEPROBE_INTELLIJ_VERSION_BUILD", version)
 
       // TODO (#945): caching of UI test results doesn't work in the CI anyway
       if (!isCI) {

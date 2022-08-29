@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
+import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.SmartList;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
@@ -21,7 +22,6 @@ import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
 
@@ -44,7 +44,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
     messageBusConnection
         .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
-          UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
         });
     Disposer.register(project, messageBusConnection);
   }

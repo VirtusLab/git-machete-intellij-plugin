@@ -2,8 +2,8 @@ package com.virtuslab.gitmachete.frontend.actions.dialogs
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.ui.layout.buttonGroup
-import com.intellij.ui.layout.panel
+import com.intellij.ui.dsl.builder.MutableProperty
+import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
@@ -25,7 +25,7 @@ class OverrideForkPointDialog(
   init {
     title =
       getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
-    setOKButtonMnemonic('O'.toInt())
+    setOKButtonMnemonic('O'.code)
     super.init()
   }
 
@@ -39,26 +39,16 @@ class OverrideForkPointDialog(
 
   override fun createCenterPanel() = panel {
     row {
-      cell {
-        label(
-          format(
-            getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.1"
-            ),
-            branch.name
-          ),
-          bold = false
-        )
-        label(branch.name, bold = true)
-        label(
+      label(
+        format(
           getString(
-            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.2"
+            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
           ),
-          bold = false
+          branch.name
         )
-      }
+      )
     }
-    buttonGroup(::myOverrideOption) {
+    buttonsGroup {
       row {
         radioButton(
           format(
@@ -67,9 +57,9 @@ class OverrideForkPointDialog(
             ),
             parentBranch.name
           ),
-          OverrideOption.PARENT,
-          /* comment */ parentBranch.pointedCommit.shortMessage
+          OverrideOption.PARENT
         )
+          .comment(parentBranch.pointedCommit.shortMessage)
       }
       row {
         radioButton(
@@ -77,14 +67,22 @@ class OverrideForkPointDialog(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
             ),
-            branch.forkPoint.map { it.shortHash }.getOrElse { "cannot resolve commit hash" }
+            branch.forkPoint
+              .map { it.shortHash }
+              .getOrElse { "cannot resolve commit hash" }
           ),
-          OverrideOption.INFERRED,
-          /* comment */ branch.forkPoint
-            .map { it.shortMessage }
-            .getOrElse { "cannot resolve commit message" }
+          OverrideOption.INFERRED
         )
+          .comment(
+            branch.forkPoint
+              .map { it.shortMessage }
+              .getOrElse { "cannot resolve commit message" }
+          )
       }
     }
+      .bind(
+        MutableProperty(::myOverrideOption) { myOverrideOption = it },
+        OverrideOption::class.java
+      )
   }
 }

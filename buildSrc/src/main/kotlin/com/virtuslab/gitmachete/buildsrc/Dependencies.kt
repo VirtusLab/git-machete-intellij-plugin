@@ -14,16 +14,16 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.ClasspathIndexCleanupTask
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 fun Project.applyKotlinConfig() {
-  apply(plugin = "org.jetbrains.kotlin.jvm")
+  apply<KotlinPluginWrapper>()
 
   tasks.withType<KotlinCompile> {
     kotlinOptions {
-      // TODO (#785): revert this setting
-      // allWarningsAsErrors = true
+      allWarningsAsErrors = true
 
       // Supress the warnings about different version of Kotlin used for compilation
       // than bundled into the `buildTarget` version of IntelliJ.
@@ -106,12 +106,6 @@ fun Project.ideProbe() {
   dependencies {
     "uiTestImplementation"(testFixtures(project(":testCommon")))
     "uiTestImplementation"(bundle("ideProbe"))
-
-    // This is technically redundant (both since ide-probe pulls in scala-library anyway,
-    // and since ide-probe is meant to use in src/uiTest code, not src/test code),
-    // but apparently needed for IntelliJ to detect Scala SDK version in the project (it's
-    // probably https://youtrack.jetbrains.com/issue/SCL-14310).
-    "testImplementation"(lib("scala.library"))
   }
 }
 
