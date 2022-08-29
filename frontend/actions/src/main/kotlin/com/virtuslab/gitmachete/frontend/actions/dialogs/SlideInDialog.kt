@@ -27,8 +27,6 @@ import net.miginfocom.layout.AC as AxisConstraint
 import net.miginfocom.layout.CC as ComponentConstraint
 import net.miginfocom.layout.LC as LayoutConstraint
 
-internal const val GIT_REF_PROTOTYPE_VALUE = "origin/long-enough-branch-name"
-
 /**
 * This class has been inspired by [git4idea.merge.GitMergeDialog].
 * If you see any non-trivial pieces of code,
@@ -180,7 +178,7 @@ class SlideInDialog(
   private fun createBranchField() =
     ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
       .apply {
-        prototypeDisplayValue = GIT_REF_PROTOTYPE_VALUE
+        prototypeDisplayValue = "origin/long-enough-branch-name"
         setPlaceholder(
           getString(
             "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder"

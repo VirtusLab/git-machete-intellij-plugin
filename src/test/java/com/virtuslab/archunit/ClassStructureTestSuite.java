@@ -51,9 +51,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   @SneakyThrows
   private Set<Class<?>> extractAllClassesReferencedFromPluginXmlAttributes() {
     val classLoader = Thread.currentThread().getContextClassLoader();
-    val db = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
-    val doc = db.parse(classLoader.getResourceAsStream("META-INF/plugin.xml"));
-    val nodeList = doc.getElementsByTagName("*");
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
+    val document = documentBuilder.parse(classLoader.getResourceAsStream("META-INF/plugin.xml"));
+    val nodeList = document.getElementsByTagName("*");
     Set<Class<?>> result = new HashSet<>();
     for (int i = 0; i < nodeList.getLength(); i++) {
       val node = nodeList.item(i);
@@ -65,7 +65,8 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           val clazz = Class.forName(maybeFqcn, /* initialize */ false, classLoader);
           result.add(clazz);
         } catch (ClassNotFoundException e) {
-          /* ignore */
+          // Not all XML attributes found in plugin.xml correspond to class names,
+          // let's ignore those that don't.
         }
       }
     }
@@ -83,8 +84,6 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             // doesn't see accesses to static fields
             "com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
-        // For some reason, ArchUnit doesn't see access to the static field GIT_REF_PROTOTYPE_VALUE
-        .and().doNotHaveFullyQualifiedName("com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialogKt")
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
