@@ -30,19 +30,23 @@ fun Project.configureIntellijPlugin() {
     tasks.withType<BuildSearchableOptionsTask> { enabled = false }
   }
 
-  val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
-
   configure<ChangelogPluginExtension> {
+    version.set("v${project.version}")
     path.set("${project.projectDir}/CHANGE-NOTES.md")
+    header.set(version)
+    headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
+    unreleasedTerm.set("Unreleased")
     groups.set(emptyList())
   }
 
-  tasks.register("getReleaseChangeLogForGithub") {
-    print(
-      changelog.getUnreleased().toText()
-        .replace("- ", "<p>")
-        .replace("\n", "</p>\n")
-    )
+  val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+  val changelogUnreleasedSection = changelog.getUnreleased().toText()
+    .replace("- ", "<p>")
+    .replace("\n", "</p>\n\n")
+
+  tasks.register("getReleaseChangeLog") {
+    print(changelogUnreleasedSection)
   }
 
   tasks.withType<PatchPluginXmlTask> {
@@ -61,7 +65,7 @@ fun Project.configureIntellijPlugin() {
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
     changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${changelog.getUnreleased().toHTML()}"
+      "<h3>v${rootProject.version}</h3>\n\n$changelogUnreleasedSection"
     )
   }
 

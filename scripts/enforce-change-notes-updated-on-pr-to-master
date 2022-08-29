@@ -5,12 +5,7 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-change_notes_path=CHANGE-NOTES.html
-
-function change_notes_from_git_revision() {
-  local revision=$1
-  git show "$revision:$change_notes_path" 2>/dev/null || true
-}
+change_notes_path=CHANGE-NOTES.md
 
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
@@ -20,13 +15,11 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
-    head_notes=$(change_notes_from_git_revision HEAD)
-    # CircleCI fetches all the branches from the repo in the Checkout step (but only into refs/remotes, not into refs/heads);
-    # thus, origin/master should be available.
-    master_notes=$(change_notes_from_git_revision origin/master)
-
-    if [[ "$head_notes" == "$master_notes" ]]; then
-      die "Content of $change_notes_path has not been changed from the current master (commit $(git rev-parse --short origin/master))"
+    if ! ./gradlew getChangelog --no-header -q &> /dev/null; then
+      echo "Content of $change_notes_path has not been patched, fill the 'Unreleased' section and run ./gradlew patchChangelog"
+    fi
+    if [ -z "$(./gradlew getChangelog --no-header -q)" ]; then
+      echo "New version section of $change_notes_path is empty"
     fi
   fi
 fi
