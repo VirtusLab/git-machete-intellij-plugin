@@ -121,4 +121,12 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
     return templateVariables;
   }
+
+    private String shortenWrappedExceptionsStack(String stackTrace) {
+        val nl = System.lineSeparator();
+        val lines = stackTrace.split(nl);
+        val causes = Arrays.stream(lines).filter(line -> line.contains("Caused by:"));
+        val rootCauseStackTrace = stackTrace.substring(stackTrace.lastIndexOf("Caused by:"));
+        return lines[0] + nl + causes.collect(Collectors.joining("${sep}${sep}")) + nl + rootCauseStackTrace;
+    }
 }
