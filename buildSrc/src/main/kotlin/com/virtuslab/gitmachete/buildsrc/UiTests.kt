@@ -48,14 +48,14 @@ fun Project.configureUiTests() {
         environment("IDEPROBE_DISPLAY", "xvfb")
         environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
-          "${uiTestsDir}/artifacts/uiTest$version/screenshots"
+          "$uiTestsDir/artifacts/uiTest$version/screenshots"
         )
         if (isCI) {
           environment("IDEPROBE_PATHS_BASE", uiTestsDir)
         }
       }
 
-      environment("IDEPROBE_PATHS_LOG_EXPORT", "${uiTestsDir}/idea-logs")
+      environment("IDEPROBE_PATHS_LOG_EXPORT", "$uiTestsDir/idea-logs")
 
       testLogging {
         events.addAll(listOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
