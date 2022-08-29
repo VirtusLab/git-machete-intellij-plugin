@@ -183,7 +183,7 @@ Select the zip and restart the IDE.
 ## Logging
 
 By default, IntelliJ logs everything with level `INFO` and above into `idea.log` file. <br/>
-The exact location depends on a specific IntelliJ installation; check `Help > Show Log in Files` to find out. <br/>
+The exact location depends on a specific IntelliJ installation; check `Help > Show Log in Files` (`Help > Show Log in Finder` on macOS) to find out. <br/>
 Tip: use `tail -f` to watch the log file as it grows.
 
 To enable logging of this plugin in `DEBUG` level, add `com.virtuslab` category to list in `Help > Diagnostic Tools > Debug Log Settings`. <br/>
