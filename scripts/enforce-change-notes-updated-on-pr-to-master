@@ -15,11 +15,12 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
-    if ! ./gradlew getChangelog --no-header -q &> /dev/null; then
-      echo "Content of $change_notes_path has not been patched, fill the 'Unreleased' section and run ./gradlew patchChangelog"
+    if ! ./gradlew getChangelog -q --no-header &> /dev/null; then
+      die "Content of $change_notes_path has not been patched, fill the 'Unreleased' section and run ./gradlew patchChangelog"
     fi
-    if [ -z "$(./gradlew getChangelog --no-header -q)" ]; then
-      echo "New version section of $change_notes_path is empty"
+    change_notes=$(./gradlew getChangelog -q)
+    if ! grep '^- ..*' <<< "$change_notes" &> /dev/null; then
+      die "$(head --lines=1 <<< "$change_notes" | sed 's/## //') section of $change_notes_path is empty or ill-formatted"
     fi
   fi
 fi

@@ -31,7 +31,8 @@ fun Project.configureIntellijPlugin() {
   }
 
   configure<ChangelogPluginExtension> {
-    version.set("v${project.version}")
+    val PROSPECTIVE_RELEASE_VERSION: String by extra
+    version.set("v$PROSPECTIVE_RELEASE_VERSION")
     path.set("${project.projectDir}/CHANGE-NOTES.md")
     header.set(version)
     headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
@@ -40,15 +41,6 @@ fun Project.configureIntellijPlugin() {
   }
 
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
-
-  val changelogUnreleasedSection = changelog.getUnreleased().toText()
-    .replace("^- ".toRegex(), "<p>")
-    .replace("\n?$".toRegex(), "</p>")
-    .replace("\n- ", "</p>\n\n<p>")
-
-  tasks.register("getReleaseChangeLog") {
-    print(changelogUnreleasedSection)
-  }
 
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
@@ -66,7 +58,7 @@ fun Project.configureIntellijPlugin() {
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
     changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n$changelogUnreleasedSection"
+      "<h3>v${rootProject.version}</h3>\n\n${changelog.getUnreleased().toHTML()}"
     )
   }
 
