@@ -1,7 +1,10 @@
 # Changelog
 
 ## Unreleased
-
+- Dropped support for IntelliJ 2020.3, 2021.1, 2021.2 and 2021.3.
+  Note that the versions of this plugin published so far will remain available for download in IntelliJ 2020.3-2021.3 indefinitely.
+  The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
+- Added autocomplete functionality to <i>Slide In</i> dialog as suggested by @KotlinIsland.
 ## v2.2.0
 - Add an action to automatically squash the commits belonging to the given branch.
 

@@ -42,8 +42,9 @@ fun Project.configureIntellijPlugin() {
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
 
   val changelogUnreleasedSection = changelog.getUnreleased().toText()
-    .replace("- ", "<p>")
-    .replace("\n", "</p>\n\n")
+    .replace("^- ".toRegex(), "<p>")
+    .replace("\n?$".toRegex(), "</p>")
+    .replace("\n- ", "</p>\n\n<p>")
 
   tasks.register("getReleaseChangeLog") {
     print(changelogUnreleasedSection)
