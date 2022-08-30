@@ -79,6 +79,7 @@ public class GitMacheteErrorReportSubmitterTest {
 
     return getWrappedExceptions(furtherWrappedException, exceptionNumber - 1);
   }
+
   private IdeaLoggingEvent getWrappedExceptionsEvent(int exceptionNumber) {
     val rootCauseException = new RuntimeException("RootCauseMessage");
     rootCauseException.setStackTrace(getMockStackTrace(55));
