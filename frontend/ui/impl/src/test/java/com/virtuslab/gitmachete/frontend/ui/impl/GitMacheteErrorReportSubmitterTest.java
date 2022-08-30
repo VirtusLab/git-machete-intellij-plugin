@@ -122,4 +122,5 @@ public class GitMacheteErrorReportSubmitterTest {
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
     Assert.assertEquals(expectedUri("with_wrapped_exceptions"), uri.toString());
   }
+
 }

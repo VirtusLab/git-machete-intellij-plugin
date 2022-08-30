@@ -132,8 +132,12 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
       StringBuilder resultString = new StringBuilder();
       for (int i = 0; i < lines.length; i++) {
-        if (lines[i].contains("Caused by:"))
-          resultString.append(lines[i]).append(nl).append(lines[i + 1]).append(nl);
+        if (lines[i].contains("Caused by:")) {
+          resultString.append(lines[i]).append(nl);
+          if (i + 1 < lines.length) {
+            resultString.append("${lines[i+1]}...").append(nl);
+          }
+        }
       }
       return resultString.append(rootCauseStackTrace).toString();
     }
