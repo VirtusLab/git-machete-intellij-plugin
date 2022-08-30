@@ -312,6 +312,7 @@ To create a release:
 * make sure the `Unreleased` section in [CHANGE-NOTES.md](CHANGE-NOTES.md) is updated, especially that it is not empty
 * run `./gradlew patchChangeLog`, <br/>
 this will create a new section named `v<version>` by consuming everything listed under `Unreleased`
+* merge patched [CHANGE-NOTES.md](CHANGE-NOTES.md) into `develop`
 * open PR from `develop` to `master`
 
 Once the release PR is fast-forward merged (do **not** use GitHub Merge Button), `master` is built. <br/>
