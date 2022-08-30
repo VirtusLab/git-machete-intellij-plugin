@@ -33,9 +33,9 @@ fun Project.configureIntellijPlugin() {
   configure<ChangelogPluginExtension> {
     val PROSPECTIVE_RELEASE_VERSION: String by extra
     version.set("v$PROSPECTIVE_RELEASE_VERSION")
-    path.set("${project.projectDir}/CHANGE-NOTES.md")
     header.set(version)
     headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
+    path.set("${project.projectDir}/CHANGE-NOTES.md")
     unreleasedTerm.set("Unreleased")
     groups.set(emptyList())
   }
@@ -58,7 +58,9 @@ fun Project.configureIntellijPlugin() {
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
     changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${changelog.getUnreleased().toHTML()}"
+      "<h3>v${rootProject.version}</h3>\n\n${
+        (changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()).toHTML()
+      }"
     )
   }
 
