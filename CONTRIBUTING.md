@@ -301,7 +301,9 @@ Stacked PRs (Y -> X -> `develop`) must never be merged until their base is final
 After merging the parent PR, child's base changes automatically (see [GitHub blogpost](https://github.blog/changelog/2020-05-19-pull-request-retargeting/))
 
 To create a release:
-* make sure [CHANGE-NOTES.md](CHANGE-NOTES.md) are updated with `./gradlew patchChangeLog`
+* make sure the `Unreleased` section in [CHANGE-NOTES.md](CHANGE-NOTES.md) is updated
+* run `./gradlew patchChangeLog`, <br/>
+this will create a new section named `v<version>` by consuming everything listed under `Unreleased`
 * open PR from `develop` to `master`
 
 Once the release PR is fast-forward merged (do **not** use GitHub Merge Button), `master` is built. <br/>
