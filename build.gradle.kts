@@ -12,17 +12,6 @@ plugins {
   scala
 }
 
-buildscript {
-  repositories {
-    gradlePluginPortal()
-  }
-  dependencies {
-    classpath(libs.pluginPackages.taskTree)
-    classpath(libs.pluginPackages.versionCatalogUpdate)
-    classpath(libs.pluginPackages.versionsFilter)
-  }
-}
-
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
