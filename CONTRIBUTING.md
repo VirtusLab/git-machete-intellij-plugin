@@ -238,7 +238,6 @@ docker push gitmachete/intellij-plugin-ci:$version
 docker push gitmachete/intellij-plugin-ci:latest
 ```
 
-
 ## Versioning
 
 We follow [Semantic versioning](https://semver.org/) for the plugin releases:
@@ -262,6 +261,15 @@ in [version.gradle.kts](version.gradle.kts) in the following way:
 1. `2.0.0` (feature PR) &mdash; again, still `2.0.0` and not e.g. `2.1.0`
 1. `2.0.0` (bugfix PR)
 1. `2.0.0` (release PR) &mdash; finally releasing as a major release; as a consequence, `1.0.4` and `1.1.0` never actually gets released
+
+### Change notes
+
+Change notes are stored in [CHANGE-NOTES.md](CHANGE-NOTES.md) file.
+The file is incremental, all previous versions' information are stored there and never deleted. <br/>
+Change notes should only be added as new bullet points listed under `Unreleased` section of the file. <br/>
+Change notes should contain only the **user-facing** plugin alterations like new features, public-requested bug fixes, etc. <br/>
+In spite of the above, change notes can sometimes contain a general description of the work done in the new version
+if the alternative is leaving them empty, which should be avoided.
 
 ### IDE supported versions
 
@@ -301,7 +309,7 @@ Stacked PRs (Y -> X -> `develop`) must never be merged until their base is final
 After merging the parent PR, child's base changes automatically (see [GitHub blogpost](https://github.blog/changelog/2020-05-19-pull-request-retargeting/))
 
 To create a release:
-* make sure the `Unreleased` section in [CHANGE-NOTES.md](CHANGE-NOTES.md) is updated
+* make sure the `Unreleased` section in [CHANGE-NOTES.md](CHANGE-NOTES.md) is updated, especially that it is not empty
 * run `./gradlew patchChangeLog`, <br/>
 this will create a new section named `v<version>` by consuming everything listed under `Unreleased`
 * open PR from `develop` to `master`
