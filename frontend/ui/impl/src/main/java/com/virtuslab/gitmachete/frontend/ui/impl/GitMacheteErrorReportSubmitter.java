@@ -113,7 +113,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
           // This message is distinct from the throwable's message:
           // in `LOG.error(message, throwable)`, it's the first parameter.
           val messagePart = event.getMessage() != null ? (event.getMessage() + nl + nl) : "";
-          val throwablePart = event.getThrowableText().stripTrailing();
+          val throwablePart = shortenWrappedExceptionsStack(event.getThrowableText().stripTrailing());
           return "```${nl}${messagePart}${throwablePart}${nl}```";
         })
         .collect(Collectors.joining("${nl}${nl}"));
@@ -122,11 +122,21 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     return templateVariables;
   }
 
-    private String shortenWrappedExceptionsStack(String stackTrace) {
-        val nl = System.lineSeparator();
-        val lines = stackTrace.split(nl);
-        val causes = Arrays.stream(lines).filter(line -> line.contains("Caused by:"));
-        val rootCauseStackTrace = stackTrace.substring(stackTrace.lastIndexOf("Caused by:"));
-        return lines[0] + nl + causes.collect(Collectors.joining("${sep}${sep}")) + nl + rootCauseStackTrace;
+  private String shortenWrappedExceptionsStack(String stackTrace) {
+    val nl = System.lineSeparator();
+    val rootCauseIndex = stackTrace.lastIndexOf("Caused by:");
+
+    if (rootCauseIndex != -1) {
+      val rootCauseStackTrace = stackTrace.substring(rootCauseIndex);
+      val lines = stackTrace.substring(0, rootCauseIndex).split(nl);
+
+      StringBuilder resultString = new StringBuilder();
+      for (int i = 0; i < lines.length; i++) {
+        if (lines[i].contains("Caused by:"))
+          resultString.append(lines[i]).append(nl).append(lines[i + 1]).append(nl);
+      }
+      return resultString.append(rootCauseStackTrace).toString();
     }
+    return stackTrace;
+  }
 }
