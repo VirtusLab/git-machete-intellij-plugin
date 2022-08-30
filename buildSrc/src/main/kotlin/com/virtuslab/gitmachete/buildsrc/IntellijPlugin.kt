@@ -59,7 +59,7 @@ fun Project.configureIntellijPlugin() {
 
     changeNotes.set(
       "<h3>v${rootProject.version}</h3>\n\n${
-        (changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()).toHTML()
+      (changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()).toHTML()
       }"
     )
   }
