@@ -10,6 +10,8 @@ https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new
 %60%60%60%0A
 some+message%0A
 %0A
+java.lang.RuntimeException%3A+WrappedExceptionMessage%0A
+%09at+com.virtuslab.DeclaringClass.someMethod%28DeclaringClass.java%3A1234%29...%0A
 Caused+by%3A+java.lang.RuntimeException%3A+WrappedExceptionMessage%0A
 %09at+com.virtuslab.DeclaringClass.someMethod%28DeclaringClass.java%3A1234%29...%0A
 Caused+by%3A+java.lang.RuntimeException%3A+WrappedExceptionMessage%0A
