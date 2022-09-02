@@ -29,7 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.With;
 import lombok.val;
@@ -351,9 +350,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           ongoingOperation, operationsBaseBranchName);
     }
 
-    @SneakyThrows
     @UIThreadUnsafe
-    private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperation ongoingOperation) {
+    private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperation ongoingOperation)
+        throws GitCoreException {
       if (ongoingOperation == OngoingRepositoryOperation.REBASING) {
         return gitCoreRepository.deriveRebasedBranch();
       } else if (ongoingOperation == OngoingRepositoryOperation.BISECTING) {
