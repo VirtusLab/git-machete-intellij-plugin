@@ -4,10 +4,10 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
+import lombok.Getter;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
-import lombok.Getter;
 
 public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
   private static final NullGitMacheteRepositorySnapshot instance = new NullGitMacheteRepositorySnapshot();
@@ -59,7 +59,7 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Getter
-  public final OngoingRepositoryOperation ongoingRepositoryOperation =
-          new OngoingRepositoryOperation(OngoingRepositoryOperationType.NO_OPERATION, Option.none());
+  public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
+      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
 
 }
