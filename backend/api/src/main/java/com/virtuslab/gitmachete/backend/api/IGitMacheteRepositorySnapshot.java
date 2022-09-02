@@ -29,10 +29,10 @@ public interface IGitMacheteRepositorySnapshot {
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
 
-  interface IOngoingRepositoryOperationInfo {
-    OngoingRepositoryOperation getOperationType();
+  interface IOngoingRepositoryOperation {
+    OngoingRepositoryOperationType getOperationType();
 
     Option<String> getBaseBranchName();
   }
-  IOngoingRepositoryOperationInfo getOngoingRepositoryOperationInfo();
+  IOngoingRepositoryOperation getOngoingRepositoryOperationInfo();
 }

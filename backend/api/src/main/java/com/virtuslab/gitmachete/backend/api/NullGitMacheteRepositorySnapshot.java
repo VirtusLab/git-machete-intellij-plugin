@@ -58,11 +58,11 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public IOngoingRepositoryOperationInfo getOngoingRepositoryOperationInfo() {
-    return new IOngoingRepositoryOperationInfo() {
+  public IOngoingRepositoryOperation getOngoingRepositoryOperationInfo() {
+    return new IOngoingRepositoryOperation() {
       @Override
-      public OngoingRepositoryOperation getOperationType() {
-        return OngoingRepositoryOperation.NO_OPERATION;
+      public OngoingRepositoryOperationType getOperationType() {
+        return OngoingRepositoryOperationType.NO_OPERATION;
       }
 
       @Override

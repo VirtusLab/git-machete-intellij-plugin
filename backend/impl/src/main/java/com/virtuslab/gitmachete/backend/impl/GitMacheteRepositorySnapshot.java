@@ -15,7 +15,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
@@ -40,14 +40,14 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 
   @Data
-  static class OngoingRepositoryOperationInfo implements IGitMacheteRepositorySnapshot.IOngoingRepositoryOperationInfo {
-    private final OngoingRepositoryOperation operationType;
+  static class OngoingRepositoryOperation implements IOngoingRepositoryOperation {
+    private final OngoingRepositoryOperationType operationType;
 
     private final Option<String> baseBranchName;
   }
 
   @Getter
-  private final OngoingRepositoryOperationInfo ongoingRepositoryOperationInfo;
+  private final OngoingRepositoryOperation ongoingRepositoryOperationInfo;
 
   @Override
   public IBranchLayout getBranchLayout() {

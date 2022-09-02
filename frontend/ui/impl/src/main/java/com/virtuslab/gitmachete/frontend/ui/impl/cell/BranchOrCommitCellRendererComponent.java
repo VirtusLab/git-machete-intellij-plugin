@@ -57,7 +57,7 @@ import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
@@ -134,16 +134,16 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     if (gitMacheteRepositorySnapshot != null && graphItem.isBranchItem()) {
       val repoOperationInfo = gitMacheteRepositorySnapshot.getOngoingRepositoryOperationInfo();
 
-      if (repoOperationInfo.getOperationType() != OngoingRepositoryOperation.NO_OPERATION) {
+      if (repoOperationInfo.getOperationType() != OngoingRepositoryOperationType.NO_OPERATION) {
         SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
         val maybeOperationsBaseBranchName = repoOperationInfo.getBaseBranchName();
 
         if (maybeOperationsBaseBranchName.isDefined()
             && Objects.equals(maybeOperationsBaseBranchName.get(), graphItem.getValue())) {
           val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
-              Case($(OngoingRepositoryOperation.BISECTING),
+              Case($(OngoingRepositoryOperationType.BISECTING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
-              Case($(OngoingRepositoryOperation.REBASING),
+              Case($(OngoingRepositoryOperationType.REBASING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing")),
               Case($(), ""));
 
@@ -151,13 +151,13 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
         } else if (graphItem.asBranchItem().isCurrentBranch()) {
           val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
-              Case($(OngoingRepositoryOperation.CHERRY_PICKING),
+              Case($(OngoingRepositoryOperationType.CHERRY_PICKING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
-              Case($(OngoingRepositoryOperation.MERGING),
+              Case($(OngoingRepositoryOperationType.MERGING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging")),
-              Case($(OngoingRepositoryOperation.REVERTING),
+              Case($(OngoingRepositoryOperationType.REVERTING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting")),
-              Case($(OngoingRepositoryOperation.APPLYING),
+              Case($(OngoingRepositoryOperationType.APPLYING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying")),
               Case($(), ""));
 
