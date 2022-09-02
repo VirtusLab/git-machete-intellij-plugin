@@ -138,7 +138,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<String> getRebasedBranchName() {
+  public Option<String> getOngoingOperationsBaseBranchName() {
     return Option.none();
   }
 

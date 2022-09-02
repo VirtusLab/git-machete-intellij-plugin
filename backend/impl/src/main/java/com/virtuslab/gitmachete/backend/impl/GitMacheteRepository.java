@@ -29,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.With;
 import lombok.val;
@@ -343,10 +344,23 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           Case($(GitCoreRepositoryState.BISECTING), OngoingRepositoryOperation.BISECTING),
           Case($(), OngoingRepositoryOperation.NO_OPERATION));
 
+      val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperation);
+
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
-          managedBranchByName, duplicatedBranchNames, skippedBranchNames, gitCoreRepository.deriveRebasedBranch(),
-          preRebaseHookExecutor,
-          ongoingOperation);
+          managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
+          ongoingOperation, operationsBaseBranchName);
+    }
+
+    @SneakyThrows
+    @UIThreadUnsafe
+    private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperation ongoingOperation) {
+      if (ongoingOperation == OngoingRepositoryOperation.REBASING) {
+        return gitCoreRepository.deriveRebasedBranch();
+      } else if (ongoingOperation == OngoingRepositoryOperation.BISECTING) {
+        return gitCoreRepository.deriveBisectedBranch();
+      } else {
+        return Option.none();
+      }
     }
 
     @UIThreadUnsafe
