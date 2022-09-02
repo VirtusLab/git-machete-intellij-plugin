@@ -133,13 +133,18 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public OngoingRepositoryOperation getOngoingRepositoryOperation() {
-    return OngoingRepositoryOperation.NO_OPERATION;
-  }
+  public IOngoingRepositoryOperationInfo getOngoingRepositoryOperationInfo() {
+    return new IOngoingRepositoryOperationInfo() {
+      @Override
+      public OngoingRepositoryOperation getOperationType() {
+        return OngoingRepositoryOperation.NO_OPERATION;
+      }
 
-  @Override
-  public Option<String> getOngoingOperationsBaseBranchName() {
-    return Option.none();
+      @Override
+      public Option<String> getBaseBranchName() {
+        return Option.none();
+      }
+    };
   }
 
   @AllArgsConstructor

@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemo
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot.OngoingRepositoryOperationInfo;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -310,7 +311,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException, GitCoreException {
+    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException {
       val rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       val rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
       val rootBranches = rootBranchCreationResults.flatMap(creationResult -> creationResult.getCreatedBranches());
@@ -347,19 +348,23 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
           managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
-          ongoingOperation, operationsBaseBranchName);
+          new OngoingRepositoryOperationInfo(ongoingOperation, operationsBaseBranchName));
     }
 
     @UIThreadUnsafe
     private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperation ongoingOperation)
-        throws GitCoreException {
-      if (ongoingOperation == OngoingRepositoryOperation.REBASING) {
-        return gitCoreRepository.deriveRebasedBranch();
-      } else if (ongoingOperation == OngoingRepositoryOperation.BISECTING) {
-        return gitCoreRepository.deriveBisectedBranch();
-      } else {
-        return Option.none();
+        throws GitMacheteException {
+      try {
+        if (ongoingOperation == OngoingRepositoryOperation.REBASING) {
+          return gitCoreRepository.deriveRebasedBranch();
+        } else if (ongoingOperation == OngoingRepositoryOperation.BISECTING) {
+          return gitCoreRepository.deriveBisectedBranch();
+        }
+      } catch (GitCoreException e) {
+        throw new GitMacheteException("Error occurred while getting the base branch of ongoing repository operation", e);
       }
+
+      return Option.none();
     }
 
     @UIThreadUnsafe

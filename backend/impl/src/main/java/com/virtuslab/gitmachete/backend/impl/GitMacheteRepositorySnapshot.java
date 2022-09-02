@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -38,11 +39,15 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 
-  @Getter
-  private final OngoingRepositoryOperation ongoingRepositoryOperation;
+  @Data
+  static class OngoingRepositoryOperationInfo implements IGitMacheteRepositorySnapshot.IOngoingRepositoryOperationInfo {
+    private final OngoingRepositoryOperation operationType;
+
+    private final Option<String> baseBranchName;
+  }
 
   @Getter
-  private final Option<String> ongoingOperationsBaseBranchName;
+  private final OngoingRepositoryOperationInfo ongoingRepositoryOperationInfo;
 
   @Override
   public IBranchLayout getBranchLayout() {

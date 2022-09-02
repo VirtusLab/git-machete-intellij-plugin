@@ -132,15 +132,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     appendTextPadding(textPadding);
 
     if (gitMacheteRepositorySnapshot != null && graphItem.isBranchItem()) {
-      val ongoingRepositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
+      val repoOperationInfo = gitMacheteRepositorySnapshot.getOngoingRepositoryOperationInfo();
 
-      if (ongoingRepositoryOperation != OngoingRepositoryOperation.NO_OPERATION) {
+      if (repoOperationInfo.getOperationType() != OngoingRepositoryOperation.NO_OPERATION) {
         SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
-        val maybeOperationsBaseBranchName = gitMacheteRepositorySnapshot.getOngoingOperationsBaseBranchName();
+        val maybeOperationsBaseBranchName = repoOperationInfo.getBaseBranchName();
 
         if (maybeOperationsBaseBranchName.isDefined()
             && Objects.equals(maybeOperationsBaseBranchName.get(), graphItem.getValue())) {
-          val ongoingOperationName = Match(ongoingRepositoryOperation).of(
+          val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
               Case($(OngoingRepositoryOperation.BISECTING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
               Case($(OngoingRepositoryOperation.REBASING),
@@ -150,7 +150,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
 
         } else if (graphItem.asBranchItem().isCurrentBranch()) {
-          val ongoingOperationName = Match(ongoingRepositoryOperation).of(
+          val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
               Case($(OngoingRepositoryOperation.CHERRY_PICKING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
               Case($(OngoingRepositoryOperation.MERGING),
