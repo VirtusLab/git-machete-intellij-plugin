@@ -132,15 +132,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     appendTextPadding(textPadding);
 
     if (gitMacheteRepositorySnapshot != null && graphItem.isBranchItem()) {
-      val repoOperationInfo = gitMacheteRepositorySnapshot.getOngoingRepositoryOperationInfo();
+      val repositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
 
-      if (repoOperationInfo.getOperationType() != OngoingRepositoryOperationType.NO_OPERATION) {
+      if (repositoryOperation.getOperationType() != OngoingRepositoryOperationType.NO_OPERATION) {
         SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
-        val maybeOperationsBaseBranchName = repoOperationInfo.getBaseBranchName();
+        val maybeOperationsBaseBranchName = repositoryOperation.getBaseBranchName();
 
         if (maybeOperationsBaseBranchName.isDefined()
             && Objects.equals(maybeOperationsBaseBranchName.get(), graphItem.getValue())) {
-          val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
+          val ongoingOperationName = Match(repositoryOperation.getOperationType()).of(
               Case($(OngoingRepositoryOperationType.BISECTING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
               Case($(OngoingRepositoryOperationType.REBASING),
@@ -150,7 +150,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
 
         } else if (graphItem.asBranchItem().isCurrentBranch()) {
-          val ongoingOperationName = Match(repoOperationInfo.getOperationType()).of(
+          val ongoingOperationName = Match(repositoryOperation.getOperationType()).of(
               Case($(OngoingRepositoryOperationType.CHERRY_PICKING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
               Case($(OngoingRepositoryOperationType.MERGING),

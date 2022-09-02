@@ -335,7 +335,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
 
-      val ongoingOperation = Match(gitCoreRepository.deriveRepositoryState()).of(
+      val ongoingOperationType = Match(gitCoreRepository.deriveRepositoryState()).of(
           Case($(GitCoreRepositoryState.CHERRY_PICK), OngoingRepositoryOperationType.CHERRY_PICKING),
           Case($(GitCoreRepositoryState.MERGING), OngoingRepositoryOperationType.MERGING),
           Case($(GitCoreRepositoryState.REBASING), OngoingRepositoryOperationType.REBASING),
@@ -344,11 +344,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           Case($(GitCoreRepositoryState.BISECTING), OngoingRepositoryOperationType.BISECTING),
           Case($(), OngoingRepositoryOperationType.NO_OPERATION));
 
-      val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperation);
+      val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
           managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
-          new OngoingRepositoryOperation(ongoingOperation, operationsBaseBranchName));
+          new OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
     }
 
     @UIThreadUnsafe

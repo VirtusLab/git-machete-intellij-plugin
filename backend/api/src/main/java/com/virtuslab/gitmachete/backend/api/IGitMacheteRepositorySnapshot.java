@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.api;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
+import lombok.Data;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -29,10 +30,12 @@ public interface IGitMacheteRepositorySnapshot {
   Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
 
-  interface IOngoingRepositoryOperation {
-    OngoingRepositoryOperationType getOperationType();
+  @Data
+  class OngoingRepositoryOperation {
+    private final OngoingRepositoryOperationType operationType;
 
-    Option<String> getBaseBranchName();
+    private final Option<String> baseBranchName;
   }
-  IOngoingRepositoryOperation getOngoingRepositoryOperationInfo();
+
+  OngoingRepositoryOperation getOngoingRepositoryOperation();
 }

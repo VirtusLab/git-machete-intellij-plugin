@@ -132,20 +132,10 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     return Option.none();
   }
 
-  @Override
-  public IOngoingRepositoryOperation getOngoingRepositoryOperationInfo() {
-    return new IOngoingRepositoryOperation() {
-      @Override
-      public OngoingRepositoryOperationType getOperationType() {
-        return OngoingRepositoryOperationType.NO_OPERATION;
-      }
+  @Getter
+  public final OngoingRepositoryOperation ongoingRepositoryOperation =
+          new OngoingRepositoryOperation(OngoingRepositoryOperationType.NO_OPERATION, Option.none());
 
-      @Override
-      public Option<String> getBaseBranchName() {
-        return Option.none();
-      }
-    };
-  }
 
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {
