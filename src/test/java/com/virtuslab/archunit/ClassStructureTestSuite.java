@@ -50,26 +50,39 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
   @SneakyThrows
   private Set<Class<?>> extractAllClassesReferencedFromPluginXmlAttributes() {
-    val classLoader = Thread.currentThread().getContextClassLoader();
-    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
-    val document = documentBuilder.parse(classLoader.getResourceAsStream("META-INF/plugin.xml"));
-    val nodeList = document.getElementsByTagName("*");
     Set<Class<?>> result = new HashSet<>();
-    for (int i = 0; i < nodeList.getLength(); i++) {
-      val node = nodeList.item(i);
-      val attributes = node.getAttributes();
-      for (int j = 0; j < attributes.getLength(); j++) {
-        val attribute = attributes.item(j);
-        val maybeFqcn = attribute.getNodeValue();
-        try {
-          val clazz = Class.forName(maybeFqcn, /* initialize */ false, classLoader);
-          result.add(clazz);
-        } catch (ClassNotFoundException e) {
-          // Not all XML attributes found in plugin.xml correspond to class names,
-          // let's ignore those that don't.
+    val classLoader = Thread.currentThread().getContextClassLoader();
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    // Note that there might be multiple plugin.xml files on the classpath,
+    // not only from our plugin, but also from the dependencies (like git4idea).
+    // We could theoretically only include classes referenced from our own plugin.xml here,
+    // but it doesn't harm to include the ones referenced from the dependencies as well.
+    val resourceUrls = classLoader.getResources("META-INF/plugin.xml");
+    while (resourceUrls.hasMoreElements()) {
+      val resourceUrl = resourceUrls.nextElement();
+
+      try (val inputStream = resourceUrl.openStream()) {
+        val document = documentBuilder.parse(inputStream);
+        val nodeList = document.getElementsByTagName("*");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+          val node = nodeList.item(i);
+          val attributes = node.getAttributes();
+          for (int j = 0; j < attributes.getLength(); j++) {
+            val attribute = attributes.item(j);
+            val maybeFqcn = attribute.getNodeValue();
+            try {
+              val clazz = Class.forName(maybeFqcn, /* initialize */ false, classLoader);
+              result.add(clazz);
+            } catch (ClassNotFoundException e) {
+              // Not all XML attributes found in plugin.xml correspond to class names,
+              // let's ignore those that don't.
+            }
+          }
         }
       }
     }
+
     return result;
   }
 
