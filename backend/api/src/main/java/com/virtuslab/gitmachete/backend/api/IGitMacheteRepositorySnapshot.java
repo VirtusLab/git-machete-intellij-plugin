@@ -32,7 +32,7 @@ public interface IGitMacheteRepositorySnapshot {
 
   @Data
   // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`
-  @SuppressWarnings("interning:not.interned")
+  @SuppressWarnings("interning:unnecessary.equals")
   class OngoingRepositoryOperation {
     private final OngoingRepositoryOperationType operationType;
 
