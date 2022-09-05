@@ -10,7 +10,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on Mac),
    type `plugins`, press Alt+Enter (⌥↩ on Mac), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on Mac).
 
-2. Make sure the following bundled plugins are enabled:
+2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `Preferences -> Plugins`:
    * Git
    * Gradle
    * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
@@ -99,7 +99,7 @@ Additional setup:
 
 ## Build
 
-To build the project, run `./gradlew build`.
+To build the project, run `./gradlew build`. Please note that for the initial build attempt, you might need to add the `--info` option, in order to respond to the prompt of accepting Gradle Terms of Service.
 
 Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
