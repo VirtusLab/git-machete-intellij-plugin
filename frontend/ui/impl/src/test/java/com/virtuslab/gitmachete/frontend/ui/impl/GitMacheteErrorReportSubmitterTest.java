@@ -55,13 +55,49 @@ public class GitMacheteErrorReportSubmitterTest {
         .toReturn(ideaPluginDescriptor);
   }
 
-  private IdeaLoggingEvent getMockEvent(String exceptionMessage, int stackLength) {
+  private StackTraceElement[] getMockStackTrace(int stackLength) {
     val stackTraceElement = new StackTraceElement("com.virtuslab.DeclaringClass", "someMethod", "DeclaringClass.java",
         /* lineNumber */ 1234);
     val stackTrace = new StackTraceElement[stackLength];
     Arrays.fill(stackTrace, stackTraceElement);
+
+    return stackTrace;
+  }
+
+  private IdeaLoggingEvent getMockEvent(String exceptionMessage, int stackLength) {
     val exception = new RuntimeException(exceptionMessage);
-    exception.setStackTrace(stackTrace);
+    exception.setStackTrace(getMockStackTrace(stackLength));
+    return new IdeaLoggingEvent("some message", exception);
+  }
+
+  private Exception getWrappedExceptions(Exception wrappedException, int exceptionNumber) {
+    if (exceptionNumber == 0)
+      return wrappedException;
+
+    val furtherWrappedException = new RuntimeException("WrappedExceptionMessage", wrappedException);
+    furtherWrappedException.setStackTrace(getMockStackTrace(30 + 2 * exceptionNumber));
+
+    return getWrappedExceptions(furtherWrappedException, exceptionNumber - 1);
+  }
+
+  private IdeaLoggingEvent getWrappedExceptionsEvent(int exceptionNumber) {
+    val rootCauseException = new RuntimeException("RootCauseMessage");
+    rootCauseException.setStackTrace(getMockStackTrace(55));
+    return new IdeaLoggingEvent("some message", getWrappedExceptions(rootCauseException, exceptionNumber));
+  }
+
+  private IdeaLoggingEvent getSuppressedExceptionsEvent() {
+    val suppressedException1 = new RuntimeException("SuppressedExceptionMessage");
+    suppressedException1.setStackTrace(getMockStackTrace(63));
+
+    val suppressedException2 = new RuntimeException("SuppressedExceptionMessage");
+    suppressedException2.setStackTrace(getMockStackTrace(68));
+
+    val exception = new RuntimeException("ExceptionMessage");
+    exception.setStackTrace(getMockStackTrace(57));
+    exception.addSuppressed(suppressedException1);
+    exception.addSuppressed(suppressedException2);
+
     return new IdeaLoggingEvent("some message", exception);
   }
 
@@ -94,4 +130,21 @@ public class GitMacheteErrorReportSubmitterTest {
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event0, event10}, /* additionalInfo */ null);
     Assert.assertEquals(expectedUri("for_multiple_events"), uri.toString());
   }
+
+  @Test
+  public void shouldShortenWrappedExceptionStacktrace() throws Exception {
+    val event = getWrappedExceptionsEvent(5);
+
+    URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
+    Assert.assertEquals(expectedUri("with_wrapped_exceptions"), uri.toString());
+  }
+
+  @Test
+  public void shouldShortenSuppressedExceptionStacktrace() throws Exception {
+    val event = getSuppressedExceptionsEvent();
+
+    URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
+    Assert.assertEquals(expectedUri("with_suppressed_exceptions"), uri.toString());
+  }
+
 }

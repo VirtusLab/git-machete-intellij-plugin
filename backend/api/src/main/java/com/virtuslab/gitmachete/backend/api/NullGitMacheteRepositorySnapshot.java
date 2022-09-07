@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
+import lombok.Getter;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -57,13 +58,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
     return Option.none();
   }
 
-  @Override
-  public OngoingRepositoryOperation getOngoingRepositoryOperation() {
-    return OngoingRepositoryOperation.NO_OPERATION;
-  }
+  @Getter
+  public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
+      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
 
-  @Override
-  public Option<String> getRebasedBranchName() {
-    return Option.none();
-  }
 }

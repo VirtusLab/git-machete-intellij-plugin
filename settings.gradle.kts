@@ -10,7 +10,6 @@ include(
   "branchLayout:impl",
   "backend:api",
   "backend:impl",
-  "frontend:icons",
   "frontend:base",
   "frontend:actions",
   "frontend:file",

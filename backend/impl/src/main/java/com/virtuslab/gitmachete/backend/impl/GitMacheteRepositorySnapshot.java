@@ -14,7 +14,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
@@ -35,9 +34,6 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   @Getter
   private final Set<String> skippedBranchNames;
-
-  @Getter
-  private final Option<String> rebasedBranchName;
 
   private final PreRebaseHookExecutor preRebaseHookExecutor;
 

@@ -83,7 +83,7 @@ jobs:
       - run:
           name: Compile production code
           # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
-          # Having 5 or 6 workers doesn't seem to increase compilation time significantly, as compared to just 4.
+          # Having 5 or 6 workers doesn't seem to decrease compilation time significantly, as compared to just 4.
           command: ./gradlew --max-workers=4 compileJava compileKotlin
       - run:
           name: Run post-compile checks
@@ -94,6 +94,35 @@ jobs:
       - run:
           name: Check Javadoc correctness
           command: ./gradlew --max-workers=4 javadoc
+
+      - when:
+          condition:
+            matches:
+              pattern: "^(.*ide(-)?probe.*)$"
+              value: << pipeline.git.branch >>
+          steps:
+            - run:
+                name: Install sbt
+                # language=sh
+                command: |
+                  apt update
+                  apt-get install apt-transport-https gnupg -yqq
+                  echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
+                  echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
+                  curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
+                  chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+                  apt-get update
+                  apt-get install sbt
+            - run:
+                name: Publish ide-probe snapshots locally
+                # language=sh
+                command: |
+                  cd ..
+                  # Let's use the latest `master` commit by default. Note that ide-probe has no `develop` branch,
+                  # hence `master` serves as a "logical develop" where all PRs are merged and wait to be included in a release.
+                  git clone https://github.com/VirtusLab/ide-probe.git -b master
+                  cd ide-probe/
+                  sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
 
       - run:
           name: Compile tests
@@ -125,9 +154,10 @@ jobs:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
             # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
-            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release and not on PRs.
+            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
+            # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
             matches:
-              pattern: "^(develop|hotfix/.+|master|release/.+|.*ui-test.*)$"
+              pattern: "^(develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
               value: << pipeline.git.branch >>
           steps:
             - run:
@@ -197,8 +227,7 @@ jobs:
                 command: |
                   source scripts/utils.sh
                   tag=v$(extract_version_from_current_wd)
-                  # Newlines (<br/>) are necessary for better layout on Marketplace, but make the formatting worse on GitHub
-                  change_notes=$(sed '/^<br.>$/d' CHANGE-NOTES.html)
+                  change_notes=$(./gradlew getChangelog --no-header -q)
                   hub release create \
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \

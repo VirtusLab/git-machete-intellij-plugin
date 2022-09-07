@@ -320,7 +320,19 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .find(path -> path.toFile().isFile());
     return !headNamePath.isEmpty()
         ? Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
-            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current rebasing branch name", e))
+            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting currently rebased branch name", e))
+            .headOption()
+            .map(Repository::shortenRefName)
+        : Option.none();
+  }
+
+  @Override
+  public Option<String> deriveBisectedBranch() throws GitCoreException {
+    Path headNamePath = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("BISECT_START");
+
+    return headNamePath.toFile().isFile()
+        ? Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath)))
+            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting currently bisected branch name", e))
             .headOption()
             .map(Repository::shortenRefName)
         : Option.none();
