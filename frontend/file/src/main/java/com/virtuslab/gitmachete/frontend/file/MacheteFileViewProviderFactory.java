@@ -12,12 +12,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.FileContentUtilCore;
+import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 
 public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
   @Override
@@ -46,7 +45,7 @@ public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
 
     private void subscribeToGitRepositoryChanges(Project project, Language language) {
       Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-      GitRepositoryChangeListener listener = repository -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
+      GitRepositoryChangeListener listener = repository -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
         PsiFile psiFile = getPsi(language);
         if (psiFile != null) {
           FileContentUtilCore.reparseFiles(psiFile.getVirtualFile());

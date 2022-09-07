@@ -25,6 +25,7 @@ import com.intellij.openapi.vcs.update.UpdateInfoTree;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ModalityUiUtil;
 import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
 import git4idea.GitRevisionNumber;
@@ -48,7 +49,6 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -150,8 +150,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           String content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
               content,
-              INFORMATION,
-              /* listener */ null);
+              INFORMATION);
           notification.addAction(NotificationAction.createSimple(getString(
               "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
@@ -162,7 +161,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
               getString(
                   "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.all-files-are-up-to-date"),
-              /* content */ "", INFORMATION, /* listener */ null);
+              /* content */ "", INFORMATION);
         }
         VcsNotifier.getInstance(project).notify(notification);
 
@@ -202,7 +201,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       val collector = new MergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
-      UiThreadExecutionCompat.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
         val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
         UpdateInfoTree tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {

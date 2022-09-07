@@ -27,8 +27,10 @@ even when **multiple branches** are present in the repository
 
 🎯 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
-⚙ It is compatible with all JetBrains products (including Android Studio since plugin version 0.9.0).
-The minimum required version is 2020.3.
+⚙ It is compatible with all JetBrains products (IntelliJ IDEA, PyCharm, Android Studio etc.).
+The latest plugin version is available for IDE versions from 2022.1 onwards. <br/>
+Earlier plugin versions (which might not have all the latest features & fixes)
+are available for earlier IDE versions as well, starting from as early as 2020.1.
 
 
 🖥 For the console version, check [git-machete](https://github.com/VirtusLab/git-machete#git-machete).

@@ -16,13 +16,13 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.ModalityUiUtil;
 import io.vavr.control.Option;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
@@ -65,7 +65,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {
-        UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> showCantGetBranchesMessage(file));
+        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> showCantGetBranchesMessage(file));
       }
       return;
     }

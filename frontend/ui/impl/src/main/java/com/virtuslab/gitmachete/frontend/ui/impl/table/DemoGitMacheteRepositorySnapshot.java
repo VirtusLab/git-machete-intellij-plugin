@@ -26,7 +26,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperation;
+import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
@@ -132,15 +132,9 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     return Option.none();
   }
 
-  @Override
-  public OngoingRepositoryOperation getOngoingRepositoryOperation() {
-    return OngoingRepositoryOperation.NO_OPERATION;
-  }
-
-  @Override
-  public Option<String> getRebasedBranchName() {
-    return Option.none();
-  }
+  @Getter
+  public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
+      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
 
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {

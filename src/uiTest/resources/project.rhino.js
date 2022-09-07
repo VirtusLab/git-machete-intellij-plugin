@@ -116,7 +116,10 @@ function Project(underlyingProject) {
 
 
   // Actions
+
+  const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
+  const RESET_INFO_SHOWN = 'git-machete.reset.info.shown';
 
   const getActionByName = function (actionName) {
     return ActionManager.getInstance().getAction(actionName);
@@ -133,6 +136,16 @@ function Project(underlyingProject) {
     return AnActionEvent.createFromDataContext(actionPlace, new Presentation(), dataContext);
   };
 
+  const invokeActionAsync = function (actionName, actionPlace, data) {
+    const action = getActionByName(actionName);
+    const actionEvent = createActionEvent(actionPlace, data);
+
+    GuiUtils.invokeLaterIfNeeded(
+      () => action.actionPerformed(actionEvent),
+      ModalityState.NON_MODAL
+    );
+  };
+
   const invokeActionAndWait = function (actionName, actionPlace, data) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
@@ -140,7 +153,8 @@ function Project(underlyingProject) {
     GuiUtils.runOrInvokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
-  this.saveDiscoveredBranchLayout = function () {
+  this.discoverBranchLayout = function () {
+    invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
     findAndClickButton('Save');
   }
 
@@ -379,9 +393,72 @@ function Project(underlyingProject) {
     return component;
   };
 
+  this.toggleListingCommits = function () {
+    invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
   this.checkoutBranch = function (branchName) {
     invokeActionAndWait('GitMachete.CheckoutSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
+
+  this.fastForwardMergeSelectedToParent = function (branchName) {
+    invokeActionAndWait('GitMachete.FastForwardMergeSelectedToParentAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.fastForwardMergeCurrentToParent = function () {
+    invokeActionAndWait('GitMachete.FastForwardMergeCurrentToParentAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.syncSelectedToParentByRebase = function (branchName) {
+    invokeActionAsync('GitMachete.SyncSelectedToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+    this.acceptRebase()
+  };
+
+  this.syncCurrentToParentByRebase = function () {
+    invokeActionAsync('GitMachete.SyncCurrentToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, {});
+    this.acceptRebase()
+  };
+
+  this.syncSelectedToParentByMerge = function (branchName) {
+    invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.syncCurrentToParentByMerge = function () {
+    invokeActionAndWait('GitMachete.SyncCurrentToParentByMergeAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.squashSelected = function (branchName) {
+    invokeActionAndWait('GitMachete.SquashSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.squashCurrent = function () {
+    invokeActionAndWait('GitMachete.SquashCurrentAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.pullSelected = function (branchName) {
+    invokeActionAndWait('GitMachete.PullSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.pullCurrent = function () {
+    invokeActionAndWait('GitMachete.PullCurrentAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.resetToRemote = function (branchName) {
+    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
+
+    invokeActionAndWait('GitMachete.ResetSelectedToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.resetCurrentToRemote = function () {
+    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
+
+    invokeActionAndWait('GitMachete.ResetCurrentToRemoteAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
+  this.slideOutSelected = function (branchName) {
+    invokeActionAndWait('GitMachete.SlideOutSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
 
   // Git utilities
 

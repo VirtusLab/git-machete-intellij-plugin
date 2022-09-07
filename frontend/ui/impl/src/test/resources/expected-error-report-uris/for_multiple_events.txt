@@ -8,10 +8,14 @@ https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new
 %0A
 %23%23+IDEA+-+stack+trace%0A
 %60%60%60%0A
+some+message%0A
+%0A
 java.lang.RuntimeException%3A+exception+message%0A
 %60%60%60%0A
 %0A
 %60%60%60%0A
+some+message%0A
+%0A
 java.lang.RuntimeException%3A+another+exception+message%0A
 %09at+com.virtuslab.DeclaringClass.someMethod%28DeclaringClass.java%3A1234%29%0A
 %09at+com.virtuslab.DeclaringClass.someMethod%28DeclaringClass.java%3A1234%29%0A

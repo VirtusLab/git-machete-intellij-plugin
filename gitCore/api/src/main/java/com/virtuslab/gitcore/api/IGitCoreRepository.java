@@ -43,6 +43,9 @@ public interface IGitCoreRepository {
   Option<String> deriveRebasedBranch() throws GitCoreException;
 
   @UIThreadUnsafe
+  Option<String> deriveBisectedBranch() throws GitCoreException;
+
+  @UIThreadUnsafe
   boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
   @UIThreadUnsafe

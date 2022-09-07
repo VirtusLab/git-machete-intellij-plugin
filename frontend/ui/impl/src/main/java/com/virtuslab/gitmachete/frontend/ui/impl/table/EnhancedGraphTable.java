@@ -43,6 +43,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
+import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
@@ -65,7 +66,6 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.frontend.compat.UiThreadExecutionCompat;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
@@ -167,7 +167,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
-  // TODO (#620): rework callbacks into futures
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
@@ -286,7 +285,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositoryConsumer(@UI Runnable doOnUIThreadWhenReady) {
-    return (IGitMacheteRepositorySnapshot repositorySnapshot) -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
+    return (IGitMacheteRepositorySnapshot repositorySnapshot) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
       gitMacheteRepositorySnapshot = repositorySnapshot;
       queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
@@ -309,10 +308,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
-    return (Path macheteFilePath) -> UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL,
-        () -> setTextForEmptyTable(
-            getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
-                .format(macheteFilePath.toString())));
+    return (Path macheteFilePath) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> setTextForEmptyTable(
+        getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
+            .format(macheteFilePath.toString())));
   }
 
   @Override
@@ -342,7 +340,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     LOG.debug("Entering");
 
     if (!project.isDisposed()) {
-      UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> {
+      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
         val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
         val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
         if (gitRepository == null) {
@@ -463,7 +461,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
-          UiThreadExecutionCompat.invokeLaterIfNeeded(NON_MODAL, () -> graphTable.setRowSelectionAllowed(true));
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> graphTable.setRowSelectionAllowed(true));
         }
       }, /* delay in ms */ 35);
     }

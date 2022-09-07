@@ -3,6 +3,18 @@ package com.virtuslab.archunit;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.tngtech.archunit.core.domain.JavaAccess;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.Test;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
@@ -15,6 +27,79 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .should().beAssignableTo(com.intellij.openapi.project.DumbAwareAction.class)
         .because("`extends DumbAwareAction` should be used instead of " +
             "extending `AnAction` and implementing `DumbAware` separately")
+        .check(importedClasses);
+  }
+
+  static class BeReferencedFromOutsideItself extends ArchCondition<JavaClass> {
+
+    BeReferencedFromOutsideItself() {
+      super("is not referenced from any other compilation units");
+    }
+
+    @Override
+    public void check(JavaClass javaClass, ConditionEvents events) {
+      Set<JavaAccess<?>> accessesFromOtherCompilationUnits = new HashSet<>(javaClass.getAccessesToSelf());
+      accessesFromOtherCompilationUnits.removeAll(javaClass.getAccessesFromSelf());
+
+      if (accessesFromOtherCompilationUnits.isEmpty() && javaClass.getDirectDependenciesToSelf().isEmpty()) {
+        String message = javaClass.getDescription() + " is NOT referenced from any other class";
+        events.add(new SimpleConditionEvent(javaClass, /* conditionSatisfied */ false, message));
+      }
+    }
+  }
+
+  @SneakyThrows
+  private Set<Class<?>> extractAllClassesReferencedFromPluginXmlAttributes() {
+    Set<Class<?>> result = new HashSet<>();
+    val classLoader = Thread.currentThread().getContextClassLoader();
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    // Note that there might be multiple plugin.xml files on the classpath,
+    // not only from our plugin, but also from the dependencies (like git4idea).
+    // We could theoretically only include classes referenced from our own plugin.xml here,
+    // but it doesn't harm to include the ones referenced from the dependencies as well.
+    val resourceUrls = classLoader.getResources("META-INF/plugin.xml");
+    while (resourceUrls.hasMoreElements()) {
+      val resourceUrl = resourceUrls.nextElement();
+
+      try (val inputStream = resourceUrl.openStream()) {
+        val document = documentBuilder.parse(inputStream);
+        val nodeList = document.getElementsByTagName("*");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+          val node = nodeList.item(i);
+          val attributes = node.getAttributes();
+          for (int j = 0; j < attributes.getLength(); j++) {
+            val attribute = attributes.item(j);
+            val maybeFqcn = attribute.getNodeValue();
+            try {
+              val clazz = Class.forName(maybeFqcn, /* initialize */ false, classLoader);
+              result.add(clazz);
+            } catch (ClassNotFoundException e) {
+              // Not all XML attributes found in plugin.xml correspond to class names,
+              // let's ignore those that don't.
+            }
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  @Test
+  public void all_classes_should_be_referenced() {
+    val classesReferencedFromPluginXmlAttributes = extractAllClassesReferencedFromPluginXmlAttributes().toArray(Class[]::new);
+    classes()
+        .that().resideOutsideOfPackages(
+            // Classes in *.impl.* packages may be instantiated via RuntimeBinding
+            "..impl..",
+            // For some reason, ArchUnit (com.tngtech.archunit.core.domain.JavaClass.getAccessesFromSelf)
+            // doesn't see accesses to static fields
+            "com.virtuslab.gitmachete.frontend.defs")
+        .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
+        // SubtypingBottom is processed by CheckerFramework based on its annotations
+        .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
+        .should(new BeReferencedFromOutsideItself())
         .check(importedClasses);
   }
 

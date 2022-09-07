@@ -8,7 +8,6 @@
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-<!--        todo (#825): drop support for 2021.1 -->
         <changesViewContent tabName="Git Machete"
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
@@ -39,49 +38,49 @@
 
             <action id="GitMachete.SyncSelectedToParentByRebaseAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByRebaseAction"
-                    icon="MacheteIcons.REBASE">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.REBASE">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.SyncSelectedToParentByMergeAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByMergeAction"
-                    icon="MacheteIcons.MERGE_PARENT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.MERGE_PARENT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.SquashSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SquashSelectedAction"
-                    icon="MacheteIcons.SQUASH">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SQUASH">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.OverrideForkPointOfSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.OverrideForkPointOfSelectedAction"
-                    icon="MacheteIcons.OVERRIDE_FORK_POINT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.OVERRIDE_FORK_POINT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.PullSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedAction"
-                    icon="MacheteIcons.PULL">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.PULL">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.PushSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PushSelectedAction"
-                    icon="MacheteIcons.PUSH">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.PUSH">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.ResetSelectedToRemoteAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ResetSelectedToRemoteAction"
-                    icon="MacheteIcons.RESET">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.RESET">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.FastForwardMergeSelectedToParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.FastForwardMergeSelectedToParentAction"
-                    icon="MacheteIcons.FAST_FORWARD">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.FAST_FORWARD">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
@@ -89,13 +88,13 @@
 
             <action id="GitMachete.SlideInBelowSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideInBelowSelectedAction"
-                    icon="MacheteIcons.SLIDE_IN">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SLIDE_IN">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
             <action id="GitMachete.SlideOutSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideOutSelectedAction"
-                    icon="MacheteIcons.SLIDE_OUT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SLIDE_OUT">
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
@@ -108,26 +107,26 @@
         <group id="GitMachete.Toolbar">
             <action id="GitMachete.DiscoverAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
-                    icon="MacheteIcons.DISCOVER">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.DISCOVER">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.RefreshStatusAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction"
-                    icon="MacheteIcons.REFRESH_STATUS"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.REFRESH_STATUS"
                     use-shortcut-of="Refresh">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.ToggleListingCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ToggleListingCommitsAction"
-                    icon="MacheteIcons.TOGGLE_LISTING_COMMITS">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TOGGLE_LISTING_COMMITS">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.OpenMacheteFileAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
-                    icon="MacheteIcons.EDIT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.EDIT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
@@ -135,7 +134,7 @@
 
             <action id="GitMachete.FetchAllRemotesAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FetchAllRemotesAction"
-                    icon="MacheteIcons.FETCH">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.FETCH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
@@ -143,55 +142,55 @@
 
             <action id="GitMachete.PushCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentAction"
-                    icon="MacheteIcons.PUSH">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.PUSH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.PullCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentAction"
-                    icon="MacheteIcons.PULL">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.PULL">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.ResetCurrentToRemoteAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentToRemoteAction"
-                    icon="MacheteIcons.RESET">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.RESET">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.SyncCurrentToParentByRebaseAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SyncCurrentToParentByRebaseAction"
-                    icon="MacheteIcons.REBASE">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.REBASE">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.SquashCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SquashCurrentAction"
-                    icon="MacheteIcons.SQUASH">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SQUASH">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.FastForwardMergeCurrentToParentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.FastForwardMergeCurrentToParentAction"
-                    icon="MacheteIcons.FAST_FORWARD">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.FAST_FORWARD">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.OverrideForkPointOfCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.OverrideForkPointOfCurrentAction"
-                    icon="MacheteIcons.OVERRIDE_FORK_POINT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.OVERRIDE_FORK_POINT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.SlideInBelowCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideInBelowCurrentAction"
-                    icon="MacheteIcons.SLIDE_IN">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SLIDE_IN">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
             <action id="GitMachete.SlideOutCurrentAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentAction"
-                    icon="MacheteIcons.SLIDE_OUT">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SLIDE_OUT">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
@@ -199,14 +198,14 @@
 
             <action id="GitMachete.HelpAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.HelpAction"
-                    icon="MacheteIcons.HELP">
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.HELP">
                 <override-text place="GitMacheteToolbar"/>
             </action>
         </group>
 
         <action id="GitMachete.OpenMacheteTabAction"
                 class="com.virtuslab.gitmachete.frontend.actions.vcsmenu.OpenMacheteTabAction"
-                icon="MacheteIcons.MACHETE_FILE">
+                icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.MACHETE_FILE">
             <!-- In future IntelliJ releases this group-id will probably be `Git.MainMenu`
                  We can consider `VcsGroups` that seems to be more stable and place this action in VCS menu -->
             <add-to-group group-id="GitRepositoryActions" anchor="last"/>

@@ -10,6 +10,19 @@ plugins {
   `kotlin-dsl`
 }
 
+val kotlinLanguageVersion = "1.6"
+
+// This is needed to use kotlin language version different from the default (1.4).
+// See https://handstandsam.com/2022/04/13/using-the-kotlin-dsl-gradle-plugin-forces-kotlin-1-4-compatibility/.
+afterEvaluate {
+  tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+      apiVersion = kotlinLanguageVersion
+      languageVersion = kotlinLanguageVersion
+    }
+  }
+}
+
 buildscript {
   repositories {
     gradlePluginPortal()
@@ -37,9 +50,13 @@ dependencies {
   implementation(libs.pluginPackages.aspectj.postCompileWeaving)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
+  implementation(libs.pluginPackages.jetbrains.changelog)
   implementation(libs.pluginPackages.jetbrains.intellij)
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
+  implementation(libs.pluginPackages.taskTree)
+  implementation(libs.pluginPackages.versionCatalogUpdate)
+  implementation(libs.pluginPackages.versionsFilter)
   testImplementation(libs.junit)
 }
 

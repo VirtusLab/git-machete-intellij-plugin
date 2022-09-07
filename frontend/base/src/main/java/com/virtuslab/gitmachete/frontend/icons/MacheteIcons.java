@@ -1,13 +1,9 @@
-package icons;
+package com.virtuslab.gitmachete.frontend.icons;
 
 import javax.swing.Icon;
 
 import com.intellij.openapi.util.IconLoader;
 
-/**
- * Icons must be in package named "icons" based on
- * <a href="https://www.jetbrains.org/intellij/sdk/docs/reference_guide/work_with_icons_and_images.html">guide</a>.
- */
 public final class MacheteIcons {
   private MacheteIcons() {}
 
