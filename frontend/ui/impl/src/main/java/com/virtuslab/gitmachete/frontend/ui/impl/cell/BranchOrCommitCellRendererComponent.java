@@ -44,13 +44,13 @@ import com.intellij.ui.paint.PaintUtil;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.ui.render.LabelPainter;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
@@ -177,14 +177,14 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         setBranchToolTipText(branch);
       }
 
-      Option<String> customAnnotation = branch.getCustomAnnotation();
-      if (customAnnotation.isDefined()) {
-        append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation.get(), GRAY_ATTRIBUTES);
+      @Nullable String customAnnotation = branch.getCustomAnnotation();
+      if (customAnnotation != null) {
+        append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation, GRAY_ATTRIBUTES);
       }
 
-      Option<String> statusHookOutput = branch.getStatusHookOutput();
-      if (statusHookOutput.isDefined()) {
-        append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput.get(), GRAY_ATTRIBUTES);
+      @Nullable String statusHookOutput = branch.getStatusHookOutput();
+      if (statusHookOutput != null) {
+        append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput, GRAY_ATTRIBUTES);
       }
 
       RelationToRemote relationToRemote = branchItem.getRelationToRemote();
@@ -194,7 +194,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     } else {
       ICommitItem commitItem = graphItem.asCommitItem();
       INonRootManagedBranchSnapshot containingBranch = commitItem.getContainingBranch();
-      IForkPointCommitOfManagedBranch forkPoint = containingBranch.getForkPoint().getOrNull();
+      @Nullable IForkPointCommitOfManagedBranch forkPoint = containingBranch.getForkPoint();
 
       if (commitItem.getCommit().equals(forkPoint)) {
         append(

@@ -7,9 +7,9 @@ import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.runners.Parameterized.Parameters;
 
 import io.vavr.collection.Set;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,9 +65,10 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
   @SneakyThrows
   public void parentIsCorrectlyInferred() {
     Set<String> managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
-    Option<ILocalBranchReference> result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
-    Assert.assertTrue(result.isDefined());
-    Assert.assertEquals(expectedParent, result.get().getName());
+    @Nullable ILocalBranchReference result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
+    //it seems that nullable annotation might not be useful in here, as the value has to always be defined.
+    Assert.assertTrue(result != null);
+    Assert.assertEquals(expectedParent, result.getName());
   }
 
   @Rule(order = Integer.MIN_VALUE)

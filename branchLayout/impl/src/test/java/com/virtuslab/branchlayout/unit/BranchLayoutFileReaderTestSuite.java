@@ -58,9 +58,9 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
-    Assert.assertTrue(branchLayout.findEntryByName("B").isDefined());
-    Assert.assertTrue(branchLayout.findEntryByName("C").isDefined());
+    Assert.assertTrue(branchLayout.findEntryByName("A") != null);
+    Assert.assertTrue(branchLayout.findEntryByName("B") != null);
+    Assert.assertTrue(branchLayout.findEntryByName("C") != null);
     Assert.assertEquals(2, branchLayout.getRootEntries().size());
   }
 
@@ -75,8 +75,8 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertTrue(branchLayout.findEntryByName("A").isDefined());
-    Assert.assertTrue(branchLayout.findEntryByName("B").isDefined());
+    Assert.assertTrue(branchLayout.findEntryByName("A") != null);
+    Assert.assertTrue(branchLayout.findEntryByName("B") != null);
     Assert.assertEquals(2, branchLayout.getRootEntries().size());
   }
 

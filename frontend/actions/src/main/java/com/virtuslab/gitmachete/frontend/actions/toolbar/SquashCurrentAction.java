@@ -5,15 +5,15 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSquashAction;
 
 public class SquashCurrentAction extends BaseSquashAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
@@ -26,17 +26,16 @@ public class SquashCurrentAction extends BaseSquashAction {
       return;
     }
 
-    val branchNameOption = getNameOfBranchUnderAction(anActionEvent);
-    val nonRootBranchOption = branchNameOption.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .flatMap(b -> b.isNonRoot() ? Option.of(b.asNonRoot()) : Option.none());
-    val syncToParentStatus = nonRootBranchOption.map(b -> b.getSyncToParentStatus()).getOrNull();
-    val numberOfCommits = nonRootBranchOption.map(b -> b.getCommits().length()).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val managedBranch = getManagedBranchByName(anActionEvent, branchName);
+    val nonRootBranch = managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
+    val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
+    val numberOfCommits = nonRootBranch.getCommits().length();
 
-    val branchName = branchNameOption.getOrNull();
-    if (branchName != null && nonRootBranchOption.isEmpty()) {
+    if (branchName != null && nonRootBranch == null) {
       presentation.setVisible(false);
 
-    } else if (branchName != null && numberOfCommits != null) {
+    } else if (branchName != null && nonRootBranch != null) {
 
       if (numberOfCommits < 2 || syncToParentStatus == InSyncButForkPointOff) {
         presentation.setVisible(false);

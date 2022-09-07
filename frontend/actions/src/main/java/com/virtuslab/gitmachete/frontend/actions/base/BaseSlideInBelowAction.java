@@ -58,9 +58,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName)
         : null;
 
     if (branchName == null) {
@@ -82,7 +82,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val parentName = getNameOfBranchUnderAction(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent).getOrNull();
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
@@ -126,9 +126,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
     // TODO (#430): expose getParent from branch layout API
     val parentEntry = branchLayout.findEntryByName(parentName);
-    val entryAlreadyExistsBelowGivenParent = parentEntry
-        .map(entry -> entry.getChildren())
-        .map(children -> children.map(e -> e.getName()))
+    val entryAlreadyExistsBelowGivenParent = parentEntry.getChildren().map(e -> e.getName())
         .map(names -> names.contains(slideInOptions.getName()))
         .getOrElse(false);
 

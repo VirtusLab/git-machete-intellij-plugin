@@ -1,8 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface IBranchNameProvider {
-  Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent);
+  @Nullable
+  String getNameOfBranchUnderAction(AnActionEvent anActionEvent);
 }

@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.expectedkeys;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.control.Option;
 import lombok.val;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -28,23 +29,23 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return branchLayout;
   }
 
-  default Option<IManagedBranchSnapshot> getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
+  default @Nullable IManagedBranchSnapshot getCurrentMacheteBranchIfManaged(AnActionEvent anActionEvent) {
     return getGitMacheteRepositorySnapshot(anActionEvent)
-        .flatMap(repository -> repository.getCurrentBranchIfManaged());
+        .map(repository -> repository.getCurrentBranchIfManaged()).get();
   }
 
-  default Option<String> getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
-    val currentBranchName = getCurrentMacheteBranchIfManaged(anActionEvent).map(branch -> branch.getName());
-    if (isLoggingAcceptable() && currentBranchName.isEmpty()) {
+  default @Nullable String getCurrentBranchNameIfManaged(AnActionEvent anActionEvent) {
+    val currentBranchName = getCurrentMacheteBranchIfManaged(anActionEvent).getName();
+    if (isLoggingAcceptable() && currentBranchName == null) {
       log().warn("Current Git Machete branch name is undefined");
     }
     return currentBranchName;
   }
 
-  default Option<IManagedBranchSnapshot> getManagedBranchByName(AnActionEvent anActionEvent, String branchName) {
+  default @Nullable IManagedBranchSnapshot getManagedBranchByName(AnActionEvent anActionEvent, String branchName) {
     val branch = getGitMacheteRepositorySnapshot(anActionEvent)
-        .flatMap(r -> r.getManagedBranchByName(branchName));
-    if (isLoggingAcceptable() && branch.isEmpty()) {
+        .map(r -> r.getManagedBranchByName(branchName)).get();
+    if (isLoggingAcceptable() && branch == null) {
       log().warn(branchName + " Git Machete branch is undefined");
     }
     return branch;

@@ -68,7 +68,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
-    IBranchLayoutEntry childEntryByName = branchLayout.findEntryByName(slideInOptions.getName()).getOrNull();
+    @Nullable IBranchLayoutEntry childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
     IBranchLayoutEntry entryToSlideIn;
     IBranchLayout targetBranchLayout;
     if (childEntryByName != null) {

@@ -428,8 +428,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         val gitMacheteRepositorySnapshot = graphTable.gitMacheteRepositorySnapshot;
         if (gitMacheteRepositorySnapshot != null) {
-          val isSelectedEqualToCurrent = gitMacheteRepositorySnapshot
-              .getCurrentBranchIfManaged().map(b -> b.getName().equals(graphTable.selectedBranchName)).getOrElse(false);
+          val currentBranchIfManaged = gitMacheteRepositorySnapshot
+              .getCurrentBranchIfManaged();
+          val isSelectedEqualToCurrent = currentBranchIfManaged != null
+              && currentBranchIfManaged.getName().equals(graphTable.selectedBranchName);
           if (isSelectedEqualToCurrent) {
             return;
           }

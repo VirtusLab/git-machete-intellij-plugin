@@ -2,7 +2,7 @@ package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface INonRootManagedBranchSnapshot extends IManagedBranchSnapshot {
 
@@ -27,7 +27,8 @@ public interface INonRootManagedBranchSnapshot extends IManagedBranchSnapshot {
 
   SyncToParentStatus getSyncToParentStatus();
 
-  Option<IForkPointCommitOfManagedBranch> getForkPoint();
+  @Nullable
+  IForkPointCommitOfManagedBranch getForkPoint();
 
   IGitRebaseParameters getParametersForRebaseOntoParent() throws GitMacheteMissingForkPointException;
 }

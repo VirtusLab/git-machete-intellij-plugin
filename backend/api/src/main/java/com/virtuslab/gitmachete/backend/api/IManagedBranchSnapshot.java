@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
@@ -38,9 +38,12 @@ public interface IManagedBranchSnapshot extends ILocalBranchReference {
 
   RelationToRemote getRelationToRemote();
 
-  Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch();
+  @Nullable
+  IRemoteTrackingBranchReference getRemoteTrackingBranch();
 
-  Option<String> getCustomAnnotation();
+  @Nullable
+  String getCustomAnnotation();
 
-  Option<String> getStatusHookOutput();
+  @Nullable
+  String getStatusHookOutput();
 }
