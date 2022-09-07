@@ -5,15 +5,15 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRe
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePullAction;
 
 public class PullCurrentAction extends BasePullAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
@@ -27,11 +27,13 @@ public class PullCurrentAction extends BasePullAction {
       return;
     }
 
-    val isBehindOrInSyncToRemote = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus())
-        .map(strs -> List.of(BehindRemote, InSyncToRemote).contains(strs))
-        .getOrElse(false);
+    val managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+    val syncToRemoteStatus = managedBranchByName != null
+        ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus()
+        : null;
+
+    val isBehindOrInSyncToRemote = syncToRemoteStatus != null
+        && List.of(BehindRemote, InSyncToRemote).contains(syncToRemoteStatus);
 
     presentation.setVisible(isBehindOrInSyncToRemote);
   }

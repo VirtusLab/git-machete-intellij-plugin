@@ -30,6 +30,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
@@ -83,7 +84,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     val parentName = getNameOfBranchUnderAction(anActionEvent);
-    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val branchLayout = getBranchLayout(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
@@ -126,7 +127,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
     // TODO (#430): expose getParent from branch layout API
     val parentEntry = branchLayout.findEntryByName(parentName);
-    val entryAlreadyExistsBelowGivenParent = parentEntry.getChildren().map(e -> e.getName())
+    val entryAlreadyExistsBelowGivenParent = parentEntry != null && parentEntry.getChildren().map(IBranchLayoutEntry::getName)
         .map(names -> names.contains(slideInOptions.getName()))
         .getOrElse(false);
 

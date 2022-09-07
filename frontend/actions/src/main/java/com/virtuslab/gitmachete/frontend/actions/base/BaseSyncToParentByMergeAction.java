@@ -60,12 +60,13 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     syncToParentStatusDependentActionUpdate(anActionEvent);
     val presentation = anActionEvent.getPresentation();
     val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName)
         : null;
-    val isMergingIntoCurrent = branch != null && getCurrentBranchNameIfManaged(anActionEvent)
-        .map(bn -> bn.equals(branch.getName())).getOrElse(false);
+    val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+    val isMergingIntoCurrent = branch != null && currentBranchNameIfManaged != null
+        && currentBranchNameIfManaged.equals(branch.getName());
     if (isCalledFromContextMenu && isMergingIntoCurrent) {
       presentation.setText(getString("action.GitMachete.BaseSyncToParentByMergeAction.text"));
     }
@@ -77,12 +78,12 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
 
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
       return;
     }
 
-    val movingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
+    val movingBranch = getManagedBranchByName(anActionEvent, stayingBranchName);
     if (movingBranch == null) {
       return;
     }

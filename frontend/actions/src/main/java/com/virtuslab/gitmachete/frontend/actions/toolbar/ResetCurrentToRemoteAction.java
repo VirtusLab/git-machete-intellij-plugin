@@ -3,15 +3,15 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction;
 
 public class ResetCurrentToRemoteAction extends BaseResetToRemoteAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
@@ -24,10 +24,10 @@ public class ResetCurrentToRemoteAction extends BaseResetToRemoteAction {
       return;
     }
 
-    val isDivergedFromAndOlderThanRemote = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus() == DivergedFromAndOlderThanRemote)
-        .getOrElse(false);
+    val managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+
+    val isDivergedFromAndOlderThanRemote = managedBranchByName != null
+        && managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() == DivergedFromAndOlderThanRemote;
 
     presentation.setVisible(isDivergedFromAndOlderThanRemote);
   }

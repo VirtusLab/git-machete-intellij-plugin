@@ -5,6 +5,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
+import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
@@ -13,6 +15,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
@@ -54,14 +57,14 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    Project project = getProject(anActionEvent);
+    GitRepository gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
       return;
     }
 
-    val stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
+    IManagedBranchSnapshot stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName);
     if (stayingBranch == null) {
       return;
     }

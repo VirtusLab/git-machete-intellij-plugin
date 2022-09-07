@@ -62,16 +62,14 @@ class OverrideForkPointDialog(
           .comment(parentBranch.pointedCommit.shortMessage)
       }
 
-      var thisRowComment = "cannot resolve commit message";
+      var thisRowComment = "cannot resolve commit message"
 
+      var radioButtonComment = "cannot resolve commit hash"
 
-      var radioButtonComment = "cannot resolve commit hash";
-
-      if( branch.forkPoint != null) {
-        thisRowComment = branch.forkPoint!!.shortMessage;
-        radioButtonComment = branch.forkPoint!!.shortHash;
+      if (branch.forkPoint != null) {
+        thisRowComment = branch.forkPoint!!.shortMessage
+        radioButtonComment = branch.forkPoint!!.shortHash
       }
-
 
       row {
         radioButton(

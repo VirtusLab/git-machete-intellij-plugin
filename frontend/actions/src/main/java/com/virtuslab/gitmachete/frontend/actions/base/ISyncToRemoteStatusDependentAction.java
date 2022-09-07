@@ -54,10 +54,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val gitMacheteBranch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
-        : null;
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
 
     if (branchName == null || gitMacheteBranch == null) {
       presentation.setEnabled(false);

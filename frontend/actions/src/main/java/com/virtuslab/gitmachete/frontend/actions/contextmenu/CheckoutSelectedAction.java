@@ -15,6 +15,7 @@ import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -48,7 +49,7 @@ public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
     val selectedBranchName = getSelectedBranchName(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
-    if (selectedBranchName.isEmpty()) {
+    if (selectedBranchName == null || selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.CheckoutSelectedAction.undefined.branch-name"));
       return;
@@ -56,16 +57,16 @@ public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
 
     val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
 
-    if (currentBranchName.isDefined() && currentBranchName.get().equals(selectedBranchName.get())) {
+    if (currentBranchName != null && currentBranchName.equals(selectedBranchName)) {
       presentation.setEnabled(false);
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.CheckoutSelectedAction.description.disabled.currently-checked-out")
-              .format(selectedBranchName.get()));
+              .format(selectedBranchName));
 
     } else {
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.CheckoutSelectedAction.description.precise")
-              .format(selectedBranchName.get()));
+              .format(selectedBranchName));
     }
   }
 
@@ -73,7 +74,7 @@ public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val selectedBranchName = getSelectedBranchName(anActionEvent);
-    if (selectedBranchName.isEmpty()) {
+    if (selectedBranchName == null || selectedBranchName.isEmpty()) {
       return;
     }
 
@@ -81,12 +82,12 @@ public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository.isDefined()) {
-      log().debug(() -> "Queuing '${selectedBranchName.get()}' branch checkout background task");
+      log().debug(() -> "Queuing '${selectedBranchName}' branch checkout background task");
       new Task.Backgroundable(project, getString("action.GitMachete.CheckoutSelectedAction.task-title")) {
         @Override
         @UIThreadUnsafe
         public void run(ProgressIndicator indicator) {
-          doCheckout(project, indicator, selectedBranchName.get(), gitRepository.get());
+          doCheckout(project, indicator, selectedBranchName, gitRepository.get());
         }
         // TODO (#95): on success, refresh only indication of the current branch
       }.queue();
@@ -94,7 +95,7 @@ public class CheckoutSelectedAction extends BaseGitMacheteRepositoryReadyAction
   }
 
   @UIThreadUnsafe
-  public static void doCheckout(Project project, ProgressIndicator indicator, String branchToCheckoutName,
+  public static void doCheckout(Project project, @NonNull ProgressIndicator indicator, String branchToCheckoutName,
       GitRepository gitRepository) {
     GitBranchUiHandlerImpl uiHandler = new GitBranchUiHandlerImpl(project, indicator);
     new GitBranchWorker(project, Git.getInstance(), uiHandler)

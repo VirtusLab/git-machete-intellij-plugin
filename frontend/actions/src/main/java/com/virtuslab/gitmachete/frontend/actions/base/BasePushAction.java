@@ -66,16 +66,16 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
+    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    val relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
     val project = getProject(anActionEvent);
 
-    if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
-      if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
+    if (branchName != null && relation != null && isForcePushRequired(relation)) {
+      if (GitSharedSettings.getInstance(project).isBranchProtected(branchName)) {
         Presentation presentation = anActionEvent.getPresentation();
         presentation.setDescription(
             getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch")
-                .format(branchName.get()));
+                .format(branchName));
         presentation.setEnabled(false);
       }
     }
@@ -88,12 +88,12 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
+    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    val relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
 
-    if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
-      boolean isForcePushRequired = isForcePushRequired(relation.get());
-      doPush(project, gitRepository.get(), branchName.get(), isForcePushRequired);
+    if (branchName != null && gitRepository.isDefined() && relation != null) {
+      boolean isForcePushRequired = isForcePushRequired(relation);
+      doPush(project, gitRepository.get(), branchName, isForcePushRequired);
     }
   }
 

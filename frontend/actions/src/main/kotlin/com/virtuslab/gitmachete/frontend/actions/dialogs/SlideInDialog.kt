@@ -99,7 +99,7 @@ class SlideInDialog(
       )
     } else {
       val entryByName = branchLayout.findEntryByName(insertedText)
-      if (entryByName!= null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
+      if (entryByName != null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
         return ValidationInfo(
           getString(
             "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
@@ -111,7 +111,10 @@ class SlideInDialog(
           reattachCheckbox.isEnabled = false
           reattachCheckbox.isSelected = true
         } else {
-          val existsAndHasAChild = entryByName!= null ? entryByName.children?.nonEmpty() : false;
+          var existsAndHasAChild = false
+          if (entryByName != null) {
+            existsAndHasAChild = entryByName.children.nonEmpty() == true
+          }
           reattachCheckbox.isEnabled = existsAndHasAChild
           reattachCheckbox.isSelected = reattachCheckbox.isSelected && existsAndHasAChild
         }

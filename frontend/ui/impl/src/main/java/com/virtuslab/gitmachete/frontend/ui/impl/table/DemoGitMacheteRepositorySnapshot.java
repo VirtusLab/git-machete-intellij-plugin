@@ -113,7 +113,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(@Nullable String branchName) {
     throw new NotImplementedError();
   }
 

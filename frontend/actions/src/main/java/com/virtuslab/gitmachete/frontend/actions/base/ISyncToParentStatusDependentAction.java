@@ -55,10 +55,8 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val gitMacheteBranchByName = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
-        : null;
+    String branchName = getNameOfBranchUnderAction(anActionEvent);
+    val gitMacheteBranchByName = getManagedBranchByName(anActionEvent, branchName);
 
     if (branchName == null || gitMacheteBranchByName == null) {
       presentation.setEnabled(false);

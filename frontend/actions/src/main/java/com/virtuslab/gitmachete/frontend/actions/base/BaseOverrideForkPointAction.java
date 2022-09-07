@@ -66,7 +66,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     val branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
-    val branch = branchUnderAction.flatMap(pn -> getManagedBranchByName(anActionEvent, pn)).getOrNull();
+    val branch = getManagedBranchByName(anActionEvent, branchUnderAction);
 
     if (gitRepository == null || branch == null || branch.isRoot()) {
       return;

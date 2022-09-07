@@ -20,10 +20,10 @@ import kotlin.Unit;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
@@ -55,20 +55,22 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
-    val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
-    val numberOfCommits = nonRootBranch.getCommits().length();
+    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
+    val syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
+    val numberOfCommits = nonRootBranch != null ? nonRootBranch.getCommits().length() : null;
 
     if (branchName != null && nonRootBranch == null) {
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root").format(branchName));
       presentation.setEnabled(false);
 
-    } else if (branchName != null && nonRootBranch != null) {
+    } else if (branchName != null) { // nonRootBranch is not null here.
 
       if (numberOfCommits < 2) {
+        getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits");
         presentation.setDescription(
-            getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
+            String //format is a static method, so it should not be called on instance.
+                // Now what is the role of getNonHtmlString?
                 .format(branchName, numberOfCommits, numberOfCommits == 1 ? "" : "s"));
         presentation.setEnabled(false);
       } else if (syncToParentStatus == InSyncButForkPointOff) {
@@ -76,7 +78,8 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSquashAction.fork-point-off")
             .format(branchName));
       } else {
-        val isSquashingCurrentBranch = getCurrentBranchNameIfManaged(anActionEvent).equals(branchName);
+        val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+        val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrentBranch) {
           presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
         }
@@ -91,16 +94,19 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     val project = getProject(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
-    val commits = nonRootBranch.getCommits();
-    val parent = nonRootBranch.getForkPoint();
-    val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
+    if (nonRootBranch != null) {
+      val commits = nonRootBranch.getCommits();
+      val parent = nonRootBranch.getForkPoint();
+      val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
+      val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
 
-    if (commits != null && gitRepository != null && parent != null && branchName != null
-        && syncToParentStatus != InSyncButForkPointOff) {
-      val isSquashingCurrentBranch = branchName.equals(gitRepository.getCurrentBranch().getName());
-      doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
+      if (commits != null && gitRepository != null && parent != null && branchName != null
+          && syncToParentStatus != InSyncButForkPointOff) {
+        val currentBranch = gitRepository.getCurrentBranch();
+        val isSquashingCurrentBranch = currentBranch != null && branchName.equals(currentBranch.getName());
+        doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
+      }
     }
   }
 
@@ -118,7 +124,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       ICommitOfManagedBranch parent,
       List<ICommitOfManagedBranch> commits,
       String branchName,
-      @Nullable boolean isSquashingCurrentBranch) {
+      @NonNull boolean isSquashingCurrentBranch) {
 
     val vcsCommitMetadataAndMessage = commits.foldLeft(
         new VcsCommitMetadataAndMessage(List.empty(), ""),

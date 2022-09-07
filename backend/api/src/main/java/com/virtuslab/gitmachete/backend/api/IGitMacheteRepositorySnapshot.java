@@ -24,7 +24,7 @@ public interface IGitMacheteRepositorySnapshot {
   List<IManagedBranchSnapshot> getManagedBranches();
 
   @Nullable
-  IManagedBranchSnapshot getManagedBranchByName(String branchName);
+  IManagedBranchSnapshot getManagedBranchByName(@Nullable String branchName);
 
   Set<String> getDuplicatedBranchNames();
 

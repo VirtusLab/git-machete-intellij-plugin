@@ -95,9 +95,9 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
     val branch = getNameOfBranchUnderAction(anActionEvent);
-    if (branch.isDefined()) {
-      val isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-          .map(bn -> bn.equals(branch.get())).getOrElse(false);
+    if (branch != null) {
+      val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+      val isResettingCurrent = currentBranchIfManaged != null && currentBranchIfManaged.equals(branch);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(() -> getActionName());
       }
@@ -111,8 +111,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
     Project project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val macheteRepository = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val macheteRepository = getGitMacheteRepositorySnapshot(anActionEvent);
 
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null, VCS_NOTIFIER_TITLE,
@@ -132,14 +132,14 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    val localBranch = getManagedBranchByName(anActionEvent, branchName).getOrNull();
+    val localBranch = getManagedBranchByName(anActionEvent, branchName);
     if (localBranch == null) {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
           "Cannot get local branch '${branchName}'");
       return;
     }
 
-    val remoteTrackingBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+    val remoteTrackingBranch = localBranch.getRemoteTrackingBranch();
     if (remoteTrackingBranch == null) {
       String message = "Branch '${localBranch.getName()}' doesn't have remote tracking branch, so cannot be reset";
       log().warn(message);

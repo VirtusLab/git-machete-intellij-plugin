@@ -28,14 +28,14 @@ public class SquashCurrentAction extends BaseSquashAction {
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
-    val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
-    val numberOfCommits = nonRootBranch.getCommits().length();
+    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
+    val syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
+    val numberOfCommits = nonRootBranch != null ? nonRootBranch.getCommits().length() : null;
 
     if (branchName != null && nonRootBranch == null) {
       presentation.setVisible(false);
 
-    } else if (branchName != null && nonRootBranch != null) {
+    } else if (branchName != null) { //nonRootBranch is certainly not null.
 
       if (numberOfCommits < 2 || syncToParentStatus == InSyncButForkPointOff) {
         presentation.setVisible(false);

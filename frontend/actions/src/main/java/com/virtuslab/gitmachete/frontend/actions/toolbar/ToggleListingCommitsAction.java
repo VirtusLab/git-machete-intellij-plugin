@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.project.DumbAware;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -29,7 +30,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    val presentation = anActionEvent.getPresentation();
+    Presentation presentation = anActionEvent.getPresentation();
     boolean selected = Toggleable.isSelected(presentation);
     Toggleable.setSelected(presentation, selected);
     if (!presentation.isEnabledAndVisible()) {
@@ -37,17 +38,19 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     }
 
     val branchLayout = getBranchLayout(anActionEvent);
-    if (branchLayout.isEmpty()) {
+    if (branchLayout == null) {
       presentation.setEnabled(false);
       presentation
           .setDescription(getNonHtmlString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
-    boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
-        .map(repo -> repo.getManagedBranches()
-            .exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty()))
-        .getOrElse(false);
+    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+
+    val managedBranches = gitMacheteRepositorySnapshot != null ? gitMacheteRepositorySnapshot.getManagedBranches() : null;
+
+    boolean anyCommitExists = managedBranches != null &&
+        managedBranches.exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty());
 
     if (anyCommitExists) {
       presentation.setEnabled(true);

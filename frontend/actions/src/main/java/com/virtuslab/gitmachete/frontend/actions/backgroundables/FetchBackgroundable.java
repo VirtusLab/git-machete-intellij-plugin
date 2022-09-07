@@ -5,11 +5,11 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
+import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -66,7 +66,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       // This method set a text under a progress bar (despite docstring)
       indicator.setText(taskSubtitle);
     }
-    val fetchSupport = GitFetchSupport.fetchSupport(project);
+    GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
     GitRemote remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
         ? GitRemote.DOT
         : GitUtil.findRemoteByName(gitRepository, remoteName);
@@ -76,7 +76,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       LOG.warn("Remote '${remoteName}' does not exist");
       return;
     }
-    val fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
+    GitFetchResult fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
     fetchResult.showNotificationIfFailed(failureNotificationText);
     fetchResult.throwExceptionIfFailed();
   }

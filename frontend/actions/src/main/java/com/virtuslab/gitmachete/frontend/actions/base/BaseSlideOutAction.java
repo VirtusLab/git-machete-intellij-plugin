@@ -59,9 +59,9 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName)
         : null;
 
     if (branch == null) {
@@ -80,9 +80,9 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     LOG.debug("Performing");
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
-    if (branch.isDefined()) {
-      doSlideOut(anActionEvent, branch.get());
+    val branch = getManagedBranchByName(anActionEvent, branchName);
+    if (branch != null) {
+      doSlideOut(anActionEvent, branch);
     }
   }
 
@@ -106,9 +106,8 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     val project = getProject(anActionEvent);
-    val slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-        .map(b -> b.equals(branchName))
-        .getOrElse(false);
+    val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.equals(branchName) : false;
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
@@ -164,7 +163,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
     val project = getProject(anActionEvent);
-    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val branchLayout = getBranchLayout(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
     if (branchLayout == null || gitRepository == null) {

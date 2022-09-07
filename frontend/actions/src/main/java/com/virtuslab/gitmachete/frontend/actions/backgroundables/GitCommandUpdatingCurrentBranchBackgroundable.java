@@ -6,6 +6,8 @@ import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operat
 import static git4idea.update.GitUpdateSessionKt.getBodyForUpdateNotification;
 import static git4idea.update.GitUpdateSessionKt.getTitleForUpdateNotification;
 
+import java.util.Map;
+
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.history.Label;
 import com.intellij.history.LocalHistory;
@@ -40,6 +42,7 @@ import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
+import git4idea.update.HashRange;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
@@ -78,12 +81,14 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   @Override
   @UIThreadUnsafe
   public final void run(ProgressIndicator indicator) {
-    val handler = createGitLineHandler();
+    GitLineHandler handler = createGitLineHandler();
     if (handler == null) {
       return;
     }
-    val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
-    val untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
+    GitLocalChangesWouldBeOverwrittenDetector localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(
+        gitRepository.getRoot(), MERGE);
+    GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(
+        gitRepository.getRoot());
     handler.addLineListener(localChangesDetector);
     handler.addLineListener(untrackedFilesDetector);
 
@@ -110,7 +115,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   @UIThreadUnsafe
   private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String targetBranchName) {
     GitUpdatedRanges updatedRanges = null;
-    val currentBranch = gitRepository.getCurrentBranch();
+    git4idea.GitLocalBranch currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
       GitBranch targetBranch = gitRepository.getBranches().findBranchByName(targetBranchName);
       if (targetBranch != null) {
@@ -139,7 +144,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       if (updatedRanges != null &&
           AbstractCommonUpdateAction
               .showsCustomNotification(java.util.Collections.singletonList(GitVcs.getInstance(project)))) {
-        val ranges = updatedRanges.calcCurrentPositions();
+        Map<GitRepository, HashRange> ranges = updatedRanges.calcCurrentPositions();
         GitUpdateInfoAsLog.NotificationData notificationData = new GitUpdateInfoAsLog(project, ranges)
             .calculateDataAndCreateLogTab();
 
@@ -198,7 +203,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
-      val collector = new MergeChangeCollector(project, gitRepository, currentRev);
+      MergeChangeCollector collector = new MergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
       ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {

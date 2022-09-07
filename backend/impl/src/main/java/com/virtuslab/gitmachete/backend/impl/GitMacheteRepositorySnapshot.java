@@ -55,8 +55,8 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   }
 
   @Override
-  public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
-    return managedBranchByName.get(branchName).get();
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(@Nullable String branchName) {
+    return branchName != null ? managedBranchByName.get(branchName).getOrNull() : null;
   }
 
   @Override

@@ -40,7 +40,7 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(@Nullable String branchName) {
     return null;
   }
 
