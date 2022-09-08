@@ -263,9 +263,10 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
     String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
+    // TODO (#1114): remove the mechanism for checking the availability of "--empty=drop"
     val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
 
-    isGitRebaseOptionEntryAvailable("--empty=drop", gitVersion).map(options::add);
+    isGitRebaseOptionEntryAvailable("--empty=drop", gitVersion).forEach(options::add);
 
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
         /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
