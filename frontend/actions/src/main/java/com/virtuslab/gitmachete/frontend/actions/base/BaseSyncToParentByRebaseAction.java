@@ -7,6 +7,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -262,9 +263,21 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
     String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
-    val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE, GitRebaseOption.KEEP_EMPTY);
+    val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
+
+    isGitRebaseOptionEntryAvailable("--empty=drop", gitVersion).map(options::add);
+
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
         /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
         /* editorHandler */ null);
+  }
+
+  @UIThreadUnsafe
+  private Option<GitRebaseOption> isGitRebaseOptionEntryAvailable(String optionText, GitVersion gitVersion) {
+    val maybeEmptyDropEntry = Arrays.stream(GitRebaseOption.values())
+        .filter(entry -> entry.getOption(gitVersion).equals(optionText))
+        .findFirst();
+
+    return Option.ofOptional(maybeEmptyDropEntry);
   }
 }
