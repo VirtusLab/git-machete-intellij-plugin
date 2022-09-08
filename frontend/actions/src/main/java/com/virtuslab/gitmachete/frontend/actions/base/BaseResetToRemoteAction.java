@@ -15,7 +15,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageUtil;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -154,19 +154,21 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       if (currentCommitSha.length() == 40) {
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
-
-      final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
+      val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
               branchName,
               remoteTrackingBranch.getName(),
-              currentCommitSha),
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"),
-          Messages.getCancelButton(),
-          Messages.getInformationIcon(),
-          new ResetBranchToRemoteInfoDialog(),
-          project);
-      if (okCancelDialogResult != Messages.OK) {
+              currentCommitSha));
+
+      dialogBuilder.yesText(getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"))
+          .noText(Messages.getCancelButton())
+          .icon(Messages.getInformationIcon())
+          .doNotAsk(new ResetBranchToRemoteInfoDialog());
+
+      val okCancelDialogResult = dialogBuilder.ask(project);
+
+      if (!okCancelDialogResult) {
         return;
       }
     }
