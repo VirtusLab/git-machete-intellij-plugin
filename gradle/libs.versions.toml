@@ -3,7 +3,7 @@
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 checker = "3.25.0"
-ideProbe = "0.44.0"
+ideProbe = "0.45.0"
 powerMock = "2.0.9"
 
 [libraries]
@@ -17,7 +17,7 @@ ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", ve
 ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
-jgit = "org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r"
 jsoup = "org.jsoup:jsoup:1.15.3"
 junit = "junit:junit:4.13.2"
 lombok = "org.projectlombok:lombok:1.18.24"
