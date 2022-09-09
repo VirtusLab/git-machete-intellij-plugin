@@ -54,7 +54,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
 
-  public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";
+  public static final String DONT_SHOW_RESET_INFO = "git-machete.reset.info.dont-show-again";
 
   private static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
@@ -148,7 +148,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     }
 
     // if key is missing the default value (false) is returned
-    if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
+    if (!PropertiesComponent.getInstance().getBoolean(DONT_SHOW_RESET_INFO)) {
 
       String currentCommitSha = localBranch.getPointedCommit().getHash();
       if (currentCommitSha.length() == 40) {

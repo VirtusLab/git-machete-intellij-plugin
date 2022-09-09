@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added a warning dialog window that pops up when `Sync To Parent By Merge` is about to be used.
 
 ## v3.0.0
 - Dropped support for IntelliJ 2020.3, 2021.1, 2021.2 and 2021.3.

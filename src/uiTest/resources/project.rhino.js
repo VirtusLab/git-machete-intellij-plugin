@@ -119,7 +119,8 @@ function Project(underlyingProject) {
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
-  const RESET_INFO_SHOWN = 'git-machete.reset.info.shown';
+  const DONT_SHOW_RESET_INFO = 'git-machete.reset.info.dont-show-again';
+  const DONT_SHOW_MERGE_WARNING = 'git-machete.merge.warning.dont-show-again';
 
   const getActionByName = function (actionName) {
     return ActionManager.getInstance().getAction(actionName);
@@ -420,6 +421,8 @@ function Project(underlyingProject) {
   };
 
   this.syncSelectedToParentByMerge = function (branchName) {
+    PropertiesComponent.getInstance().setValue(DONT_SHOW_MERGE_WARNING, true);
+
     invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
@@ -444,13 +447,13 @@ function Project(underlyingProject) {
   };
 
   this.resetToRemote = function (branchName) {
-    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
+    PropertiesComponent.getInstance().setValue(DONT_SHOW_RESET_INFO, true);
 
     invokeActionAndWait('GitMachete.ResetSelectedToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   this.resetCurrentToRemote = function () {
-    PropertiesComponent.getInstance().setValue(RESET_INFO_SHOWN, true);
+    PropertiesComponent.getInstance().setValue(DONT_SHOW_RESET_INFO, true);
 
     invokeActionAndWait('GitMachete.ResetCurrentToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
