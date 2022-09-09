@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.Messages
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByMergeAction
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 
-class WarnAboutRebaseToParentByMergeDialog : DoNotAskOption.Adapter() {
+class WarnAboutSyncToParentByMergeDialog : DoNotAskOption.Adapter() {
 
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
     if (exitCode == Messages.OK && isSelected) {

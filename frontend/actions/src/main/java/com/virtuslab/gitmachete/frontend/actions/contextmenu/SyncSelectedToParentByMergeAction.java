@@ -11,14 +11,14 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutRebaseToParentByMergeDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentByMergeDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 
 public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAction
     implements
       IExpectsKeySelectedBranchName {
 
-  public static final String MERGE_INFO_SHOWN = "git-machete.reset.info.shown";
+  public static final String MERGE_INFO_SHOWN = "git-machete.merge.warning.shown";
 
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
@@ -36,7 +36,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
 
       dialogBuilder.yesText(getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.ok-text"))
           .icon(Messages.getWarningIcon())
-          .doNotAsk(new WarnAboutRebaseToParentByMergeDialog());
+          .doNotAsk(new WarnAboutSyncToParentByMergeDialog());
 
       val dialogResult = dialogBuilder.ask(getProject(anActionEvent));
 
