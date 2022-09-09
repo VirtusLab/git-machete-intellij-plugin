@@ -147,7 +147,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    if (!PropertiesComponent.getInstance().getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
+    if (PropertiesComponent.getInstance().getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
 
       String currentCommitSha = localBranch.getPointedCommit().getHash();
       if (currentCommitSha.length() == 40) {
