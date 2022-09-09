@@ -421,7 +421,7 @@ function Project(underlyingProject) {
   };
 
   this.syncSelectedToParentByMerge = function (branchName) {
-    PropertiesComponent.getInstance().setValue(SHOW_MERGE_WARNING, false);
+    PropertiesComponent.getInstance().setValue(SHOW_MERGE_WARNING, false, /* default value */ true);
 
     invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
@@ -447,13 +447,13 @@ function Project(underlyingProject) {
   };
 
   this.resetToRemote = function (branchName) {
-    PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false);
+    PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false, /* default value */ true);
 
     invokeActionAndWait('GitMachete.ResetSelectedToRemoteAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
   this.resetCurrentToRemote = function () {
-    PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false);
+    PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false, /* default value */ true);
 
     invokeActionAndWait('GitMachete.ResetCurrentToRemoteAction', ACTION_PLACE_TOOLBAR, {});
   };
