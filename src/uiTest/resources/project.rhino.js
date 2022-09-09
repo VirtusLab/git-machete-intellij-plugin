@@ -119,8 +119,8 @@ function Project(underlyingProject) {
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
-  const SHOW_RESET_INFO = 'git-machete.reset.info.show-again';
-  const SHOW_MERGE_WARNING = 'git-machete.merge.warning.show-again';
+  const SHOW_RESET_INFO = 'git-machete.reset.info.show';
+  const SHOW_MERGE_WARNING = 'git-machete.merge.warning.show';
 
   const getActionByName = function (actionName) {
     return ActionManager.getInstance().getAction(actionName);

@@ -18,7 +18,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
     implements
       IExpectsKeySelectedBranchName {
 
-  public static final String SHOW_MERGE_WARNING = "git-machete.merge.warning.show-again";
+  public static final String SHOW_MERGE_WARNING = "git-machete.merge.warning.show";
 
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {

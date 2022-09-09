@@ -54,7 +54,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
 
-  public static final String SHOW_RESET_INFO = "git-machete.reset.info.show-again";
+  public static final String SHOW_RESET_INFO = "git-machete.reset.info.show";
 
   private static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");

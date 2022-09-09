@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 class ResetBranchToRemoteInfoDialog : DoNotAskOption.Adapter() {
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
     if (exitCode == Messages.OK && isSelected) {
-      PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false)
+      PropertiesComponent.getInstance().setValue(SHOW_RESET_INFO, false, /* defaultValue */ true)
     }
   }
 
