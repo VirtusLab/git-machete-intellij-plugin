@@ -10,7 +10,7 @@ class WarnAboutSyncToParentByMergeDialog : DoNotAskOption.Adapter() {
 
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
     if (exitCode == Messages.OK && isSelected) {
-      PropertiesComponent.getInstance().setValue(SyncSelectedToParentByMergeAction.DONT_SHOW_MERGE_WARNING, true)
+      PropertiesComponent.getInstance().setValue(SyncSelectedToParentByMergeAction.SHOW_MERGE_WARNING, false)
     }
   }
 

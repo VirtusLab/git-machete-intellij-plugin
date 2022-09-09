@@ -18,7 +18,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
     implements
       IExpectsKeySelectedBranchName {
 
-  public static final String DONT_SHOW_MERGE_WARNING = "git-machete.merge.warning.dont-show-again";
+  public static final String SHOW_MERGE_WARNING = "git-machete.merge.warning.show-again";
 
   @Override
   public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
@@ -28,7 +28,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    if (!PropertiesComponent.getInstance().getBoolean(DONT_SHOW_MERGE_WARNING)) {
+    if (!PropertiesComponent.getInstance().getBoolean(SHOW_MERGE_WARNING, /* defaultValue */ true)) {
 
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.title"),
