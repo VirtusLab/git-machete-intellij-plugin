@@ -15,7 +15,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageUtil;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -54,7 +54,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
 
-  public static final String RESET_INFO_SHOWN = "git-machete.reset.info.shown";
+  public static final String SHOW_RESET_INFO = "git-machete.reset.info.show";
 
   private static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
@@ -147,26 +147,27 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    // if key is missing the default value (false) is returned
-    if (!PropertiesComponent.getInstance().getBoolean(RESET_INFO_SHOWN)) {
+    if (PropertiesComponent.getInstance().getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
 
       String currentCommitSha = localBranch.getPointedCommit().getHash();
       if (currentCommitSha.length() == 40) {
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
-
-      final int okCancelDialogResult = MessageUtil.showOkCancelDialog(
+      val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
               branchName,
               remoteTrackingBranch.getName(),
-              currentCommitSha),
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"),
-          Messages.getCancelButton(),
-          Messages.getInformationIcon(),
-          new ResetBranchToRemoteInfoDialog(),
-          project);
-      if (okCancelDialogResult != Messages.OK) {
+              currentCommitSha));
+
+      dialogBuilder.yesText(getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"))
+          .noText(Messages.getCancelButton())
+          .icon(Messages.getInformationIcon())
+          .doNotAsk(new ResetBranchToRemoteInfoDialog());
+
+      val okCancelDialogResult = dialogBuilder.ask(project);
+
+      if (!okCancelDialogResult) {
         return;
       }
     }
