@@ -309,7 +309,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     val parentBranchName = branch.getParent().getName();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync")
+            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")
                 .format(currentBranchName, parentBranchName)),
         Case($(InSyncButForkPointOff),
             getString(
@@ -325,7 +325,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getRootToolTipText(IRootManagedBranchSnapshot branch) {
-    return getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root")
+    return getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root.HTML")
         .format(branch.getName());
   }
 
