@@ -316,10 +316,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   @UIEffect
   public void refreshModel() {
-    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
-    if (gitRepository.isDefined()) {
-      refreshModel(gitRepository.get(),
+    final var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    final var gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
+    if (gitRepository != null) {
+      refreshModel(gitRepository,
           NullGitMacheteRepositorySnapshot.getInstance(),
           /* doOnUIThreadWhenReady */ () -> {});
     } else {
@@ -341,8 +341,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!project.isDisposed()) {
       ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
-        val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+        final var gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+        final var gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
         if (gitRepository == null) {
           LOG.warn("Selected repository is null");
           return;

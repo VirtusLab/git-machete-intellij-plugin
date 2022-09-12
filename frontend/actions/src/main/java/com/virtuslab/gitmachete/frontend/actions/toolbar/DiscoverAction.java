@@ -21,7 +21,6 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -48,9 +47,10 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val project = getProject(anActionEvent);
-    val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
-    val gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
+    final var project = getProject(anActionEvent);
+    final var selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class)
+        .getGitRepositorySelectionProvider();
+    final var gitRepository = selectedRepoProvider.getSelectedGitRepository();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
@@ -59,12 +59,12 @@ public class DiscoverAction extends BaseProjectDependentAction {
       return;
     }
 
-    val rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
-    val mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
-    val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
+    final var rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
+    final var mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
+    final var worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
-    val graphTable = getGraphTable(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    final var graphTable = getGraphTable(anActionEvent);
+    final var branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
     // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
     // This is still acceptable since it simplifies the flow (no background task needed)
@@ -103,7 +103,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @UIEffect
   private static void openMacheteFile(Project project, GitRepository gitRepository) {
-    val file = gitRepository.getMacheteFile();
+    final var file = gitRepository.getMacheteFile();
     if (file.isDefined()) {
       OpenFileAction.openFile(file.get(), project);
     } else {
@@ -117,7 +117,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
       BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, @UI Runnable postWriteRunnable) {
-    val branchLayout = repositorySnapshot.getBranchLayout();
+    final var branchLayout = repositorySnapshot.getBranchLayout();
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @Override
       @SneakyThrows

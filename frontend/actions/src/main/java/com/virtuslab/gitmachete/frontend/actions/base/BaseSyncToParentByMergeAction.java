@@ -16,7 +16,6 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -58,14 +57,14 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
-    val presentation = anActionEvent.getPresentation();
-    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val branch = branchName != null
+    final var presentation = anActionEvent.getPresentation();
+    final var isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var branch = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName)
         : null;
-    val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
-    val isMergingIntoCurrent = branch != null && currentBranchNameIfManaged != null
+    final var currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+    final var isMergingIntoCurrent = branch != null && currentBranchNameIfManaged != null
         && currentBranchNameIfManaged.equals(branch.getName());
     if (isCalledFromContextMenu && isMergingIntoCurrent) {
       presentation.setText(getString("action.GitMachete.BaseSyncToParentByMergeAction.text"));
@@ -76,23 +75,23 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
       return;
     }
 
-    val movingBranch = getManagedBranchByName(anActionEvent, stayingBranchName);
+    final var movingBranch = getManagedBranchByName(anActionEvent, stayingBranchName);
     if (movingBranch == null) {
       return;
     }
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
     assert movingBranch.isNonRoot() : "Branch that would be merged INTO is a root";
 
-    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
-    val nonRootMovingBranch = movingBranch.asNonRoot();
-    val mergeProps = new MergeProps(
+    final var currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    final var nonRootMovingBranch = movingBranch.asNonRoot();
+    final var mergeProps = new MergeProps(
         /* movingBranchName */ nonRootMovingBranch,
         /* stayingBranchName */ nonRootMovingBranch.getParent());
 
@@ -105,7 +104,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
 
   @UIEffect
   public static void doMergeIntoCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
-    String stayingBranch = mergeProps.getStayingBranch().getName();
+    final var stayingBranch = mergeProps.getStayingBranch().getName();
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}");
 
@@ -124,8 +123,8 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
 
   @UIEffect
   private void doMergeIntoNonCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
-    val stayingBranch = mergeProps.getStayingBranch().getName();
-    val movingBranch = mergeProps.getMovingBranch().getName();
+    final var stayingBranch = mergeProps.getStayingBranch().getName();
+    final var movingBranch = mergeProps.getMovingBranch().getName();
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 

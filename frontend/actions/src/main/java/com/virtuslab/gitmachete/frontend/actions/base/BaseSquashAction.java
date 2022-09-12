@@ -20,9 +20,7 @@ import kotlin.Unit;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.Data;
-import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
@@ -53,33 +51,35 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     Presentation presentation = anActionEvent.getPresentation();
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
-    val syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
-    val numberOfCommits = nonRootBranch != null ? nonRootBranch.getCommits().length() : null;
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var managedBranch = getManagedBranchByName(anActionEvent, branchName);
+    final var nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
+        ? managedBranch.asNonRoot()
+        : null;
+    final var syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
 
     if (branchName != null && nonRootBranch == null) {
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root").format(branchName));
       presentation.setEnabled(false);
 
-    } else if (branchName != null) { // nonRootBranch is not null here.
+    } else if (branchName != null && nonRootBranch != null) { // nonRootBranch is not null here.
+      final var numberOfCommits = nonRootBranch.getCommits().length();
+
+      final var description = getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits") //format is a static method, so it should not be called on instance.
+          // Now what is the role of getNonHtmlString?
+          .format(branchName, numberOfCommits + "", numberOfCommits == 1 ? "" : "s");
 
       if (numberOfCommits < 2) {
-        getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits");
-        presentation.setDescription(
-            String //format is a static method, so it should not be called on instance.
-                // Now what is the role of getNonHtmlString?
-                .format(branchName, numberOfCommits, numberOfCommits == 1 ? "" : "s"));
+        presentation.setDescription(description);
         presentation.setEnabled(false);
       } else if (syncToParentStatus == InSyncButForkPointOff) {
         presentation.setEnabled(false);
         presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSquashAction.fork-point-off")
             .format(branchName));
       } else {
-        val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
-        val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
+        final var currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+        final var isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
         if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrentBranch) {
           presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
         }
@@ -91,20 +91,22 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    val project = getProject(anActionEvent);
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
+    final var project = getProject(anActionEvent);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var managedBranch = getManagedBranchByName(anActionEvent, branchName);
+    final var nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
+        ? managedBranch.asNonRoot()
+        : null;
     if (nonRootBranch != null) {
-      val commits = nonRootBranch.getCommits();
-      val parent = nonRootBranch.getForkPoint();
-      val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
-      val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+      final var commits = nonRootBranch.getCommits();
+      final var parent = nonRootBranch.getForkPoint();
+      final var syncToParentStatus = nonRootBranch.getSyncToParentStatus();
+      final var gitRepository = getSelectedGitRepository(anActionEvent);
 
       if (commits != null && gitRepository != null && parent != null && branchName != null
           && syncToParentStatus != InSyncButForkPointOff) {
-        val currentBranch = gitRepository.getCurrentBranch();
-        val isSquashingCurrentBranch = currentBranch != null && branchName.equals(currentBranch.getName());
+        final var currentBranch = gitRepository.getCurrentBranch();
+        final var isSquashingCurrentBranch = currentBranch != null && branchName.equals(currentBranch.getName());
         doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
       }
     }
@@ -124,15 +126,15 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       ICommitOfManagedBranch parent,
       List<ICommitOfManagedBranch> commits,
       String branchName,
-      @NonNull boolean isSquashingCurrentBranch) {
+      boolean isSquashingCurrentBranch) {
 
-    val vcsCommitMetadataAndMessage = commits.foldLeft(
+    BaseSquashAction.VcsCommitMetadataAndMessage vcsCommitMetadataAndMessage = commits.foldLeft(
         new VcsCommitMetadataAndMessage(List.empty(), ""),
         (acc, commit) -> new VcsCommitMetadataAndMessage(
             acc.metadata.append(new VcsCommitMetadataAdapterForSquash(parent, commit)),
             "${commit.getFullMessage()}${NL}${NL}${acc.message}"));
 
-    val dialog = new GitNewCommitMessageActionDialog(
+    final var dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,
         /* message */ vcsCommitMetadataAndMessage.message,
         /* title */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.title"),
@@ -154,12 +156,13 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
                 CheckoutSelectedAction.doCheckout(project, indicator, branchName, gitRepository);
               }
 
-              val commitsToSquash = vcsCommitMetadataAndMessage.metadata.toJavaList();
-              val operationResult = new GitSquashOperation(gitRepository).execute(commitsToSquash, newMessage);
+              final var commitsToSquash = vcsCommitMetadataAndMessage.metadata.toJavaList();
+              final var operationResult = new GitSquashOperation(gitRepository).execute(commitsToSquash, newMessage);
 
               if (isComplete(operationResult)) {
-                val title = getString("action.GitMachete.BaseSquashAction.notification.title");
-                val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title, NotificationType.INFORMATION);
+                final var title = getString("action.GitMachete.BaseSquashAction.notification.title");
+                final var notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
+                    NotificationType.INFORMATION);
                 VcsNotifier.getInstance(project).notify(notification);
               }
             }

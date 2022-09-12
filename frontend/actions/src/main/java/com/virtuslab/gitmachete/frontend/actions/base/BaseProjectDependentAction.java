@@ -1,13 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -34,7 +33,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     isUpdateInProgressOnUIThread = true;
 
     com.intellij.openapi.project.Project maybeProject = anActionEvent.getProject();
-    Presentation presentation = anActionEvent.getPresentation();
+    final var presentation = anActionEvent.getPresentation();
     if (maybeProject == null) {
       presentation.setEnabledAndVisible(false);
     } else {
@@ -57,7 +56,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   public abstract LambdaLogger log();
 
   protected Project getProject(AnActionEvent anActionEvent) {
-    Project project = anActionEvent.getProject();
+    final var project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
     return project;
   }
@@ -70,10 +69,10 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
   }
 
-  protected Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
-    Option<GitRepository> gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
+  protected @Nullable GitRepository getSelectedGitRepository(AnActionEvent anActionEvent) {
+    final var gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
-    if (isLoggingAcceptable() && gitRepository.isEmpty()) {
+    if (isLoggingAcceptable() && gitRepository == null) {
       log().warn("No Git repository is selected");
     }
     return gitRepository;

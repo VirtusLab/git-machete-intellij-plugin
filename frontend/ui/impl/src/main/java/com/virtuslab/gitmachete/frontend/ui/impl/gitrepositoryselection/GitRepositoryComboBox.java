@@ -12,11 +12,9 @@ import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.SmartList;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -40,7 +38,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
     updateRepositories();
     setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", DvcsUtil::getShortRepositoryName));
 
-    MessageBusConnection messageBusConnection = project.getMessageBus().connect();
+    final var messageBusConnection = project.getMessageBus().connect();
     messageBusConnection
         .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
@@ -59,21 +57,21 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
   private void updateRepositories() {
     // A bit of a shortcut: we're accessing filesystem even though we are on the UI thread here;
     // this shouldn't ever be a heavyweight operation, however.
-    List<GitRepository> repositories = List.ofAll(GitUtil.getRepositories(project));
+    final var repositories = List.ofAll(GitUtil.getRepositories(project));
     LOG.debug("Git repositories:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
     // `com.intellij.ui.MutableCollectionComboBoxModel.getSelected` must be performed
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
-    GitRepository selected = getModel().getSelected();
+    final var selected = getModel().getSelected();
     if (!getModel().getItems().equals(repositories)) {
       getModel().update(DvcsUtil.sortRepositories(repositories.asJavaMutable()));
     }
 
     this.setVisible(getModel().getItems().size() > 1);
 
-    boolean selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
+    final var selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
       // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
       LOG.debug("No Git repositories found");
@@ -91,8 +89,8 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
   }
 
   @Override
-  public Option<GitRepository> getSelectedGitRepository() {
-    return Option.of(getModel().getSelected());
+  public @Nullable GitRepository getSelectedGitRepository() {
+    return getModel().getSelected();
   }
 
   @Override

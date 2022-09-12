@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -21,21 +20,23 @@ public class SquashCurrentAction extends BaseSquashAction {
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-    val presentation = anActionEvent.getPresentation();
+    final var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val managedBranch = getManagedBranchByName(anActionEvent, branchName);
-    val nonRootBranch = managedBranch != null && managedBranch.isNonRoot() ? managedBranch.asNonRoot() : null;
-    val syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
-    val numberOfCommits = nonRootBranch != null ? nonRootBranch.getCommits().length() : null;
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var managedBranch = getManagedBranchByName(anActionEvent, branchName);
+    final var nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
+        ? managedBranch.asNonRoot()
+        : null;
+    final var syncToParentStatus = nonRootBranch != null ? nonRootBranch.getSyncToParentStatus() : null;
 
     if (branchName != null && nonRootBranch == null) {
       presentation.setVisible(false);
 
-    } else if (branchName != null) { //nonRootBranch is certainly not null.
+    } else if (branchName != null && nonRootBranch != null) { //nonRootBranch is certainly not null.
+      final var numberOfCommits = nonRootBranch.getCommits().length();
 
       if (numberOfCommits < 2 || syncToParentStatus == InSyncButForkPointOff) {
         presentation.setVisible(false);

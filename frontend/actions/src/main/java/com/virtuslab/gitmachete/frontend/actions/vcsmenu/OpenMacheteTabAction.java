@@ -10,7 +10,6 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
@@ -46,8 +45,8 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
     }
 
     toolWindow.activate(() -> {
-      val contentManager = toolWindow.getContentManager();
-      val tab = contentManager.findContent("Git Machete");
+      final var contentManager = toolWindow.getContentManager();
+      final var tab = contentManager.findContent("Git Machete");
 
       if (tab == null) {
         LOG.debug("Machete tab does not exist");

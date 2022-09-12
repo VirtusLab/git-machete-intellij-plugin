@@ -18,7 +18,6 @@ import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -65,10 +64,12 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
 
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
-    val relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
-    val project = getProject(anActionEvent);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    final var relation = managedBranchByName != null
+        ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus()
+        : null;
+    final var project = getProject(anActionEvent);
 
     if (branchName != null && relation != null && isForcePushRequired(relation)) {
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName)) {
@@ -85,15 +86,15 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent);
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
-    val relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    final var relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
 
-    if (branchName != null && gitRepository.isDefined() && relation != null) {
-      boolean isForcePushRequired = isForcePushRequired(relation);
-      doPush(project, gitRepository.get(), branchName, isForcePushRequired);
+    if (branchName != null && gitRepository != null && relation != null) {
+      final var isForcePushRequired = isForcePushRequired(relation);
+      doPush(project, gitRepository, branchName, isForcePushRequired);
     }
   }
 

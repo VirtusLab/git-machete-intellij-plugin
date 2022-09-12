@@ -34,7 +34,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
@@ -66,18 +65,19 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       return;
     }
 
-    Option<Repository.State> state = getSelectedGitRepository(anActionEvent).map(Repository::getState);
-    boolean isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    final var selectedGitRepo = getSelectedGitRepository(anActionEvent);
+    final var state = selectedGitRepo != null ? selectedGitRepo.getState() : null;
+    final var isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
 
-    if (state.isEmpty()) {
+    if (state == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.unknown-state"));
 
-    } else if (state.get() != Repository.State.NORMAL
-        && !(isCalledFromContextMenu && state.get() == Repository.State.DETACHED)) {
+    } else if (state != Repository.State.NORMAL
+        && !(isCalledFromContextMenu && state == Repository.State.DETACHED)) {
 
-      val stateName = Match(state.get()).of(
+      final var stateName = Match(state).of(
           Case($(Repository.State.GRAFTING),
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.cherry-pick")),
           Case($(Repository.State.DETACHED),
@@ -88,7 +88,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.rebase")),
           Case($(Repository.State.REVERTING),
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.revert")),
-          Case($(), ": " + state.get().name().toLowerCase()));
+          Case($(), ": " + state.name().toLowerCase()));
 
       presentation.setEnabled(false);
       presentation.setDescription(
@@ -96,8 +96,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
               .format(stateName));
     } else {
 
-      String branchName = getNameOfBranchUnderAction(anActionEvent);
-      IManagedBranchSnapshot branch = getManagedBranchByName(anActionEvent, branchName);
+      final var branchName = getNameOfBranchUnderAction(anActionEvent);
+      final var branch = getManagedBranchByName(anActionEvent, branchName);
 
       if (branch == null) {
         presentation.setEnabled(false);
@@ -116,15 +116,15 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
         }
 
       } else if (branch.isNonRoot()) {
-        val nonRootBranch = branch.asNonRoot();
-        IManagedBranchSnapshot upstream = nonRootBranch.getParent();
+        final var nonRootBranch = branch.asNonRoot();
+        final var upstream = nonRootBranch.getParent();
         presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
             .format(branch.getName(), upstream.getName()));
       }
 
-      String currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+      final var currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
 
-      val isRebasingCurrent = branch != null && currentBranchNameIfManaged != null
+      final var isRebasingCurrent = branch != null && currentBranchNameIfManaged != null
           && currentBranchNameIfManaged.equals(branch.getName());
       if (isCalledFromContextMenu && isRebasingCurrent) {
         presentation.setText(getString("action.GitMachete.BaseSyncToParentByRebaseAction.text"));
@@ -137,8 +137,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
 
-    String branchName = getNameOfBranchUnderAction(anActionEvent);
-    IManagedBranchSnapshot branch = getManagedBranchByName(anActionEvent, branchName);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var branch = getManagedBranchByName(anActionEvent, branchName);
 
     if (branch != null) {
       if (branch.isNonRoot()) {
@@ -150,15 +150,16 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   }
 
   private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
-    Project project = getProject(anActionEvent);
-    Option<GitRepository> gitRepository = getSelectedGitRepository(anActionEvent);
-    IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
-    Option<Repository.State> state = gitRepository.map(Repository::getState);
-    boolean isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
-    val shouldExplicitlyCheckout = isCalledFromContextMenu && state.map(s -> Repository.State.DETACHED == s).getOrElse(false);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+    final var state = gitRepository != null ? gitRepository.getState() : null;
+    final var isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    final var shouldExplicitlyCheckout = isCalledFromContextMenu
+        && state != null && Repository.State.DETACHED == state;
 
-    if (gitRepository.isDefined() && gitMacheteRepositorySnapshot != null) {
-      doRebase(project, gitRepository.get(), gitMacheteRepositorySnapshot, branchToRebase, shouldExplicitlyCheckout);
+    if (gitRepository != null && gitMacheteRepositorySnapshot != null) {
+      doRebase(project, gitRepository, gitMacheteRepositorySnapshot, branchToRebase, shouldExplicitlyCheckout);
     }
   }
 
@@ -170,12 +171,12 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       boolean shouldExplicitlyCheckout) {
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    Try<IGitRebaseParameters> tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
+    final var tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
 
     if (tryGitRebaseParameters.isFailure()) {
-      Throwable e = tryGitRebaseParameters.getCause();
+      final var e = tryGitRebaseParameters.getCause();
       // TODO (#172): redirect the user to the manual fork-point
-      String message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
+      final var message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
@@ -190,21 +191,21 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
 
-        AtomicReference<Try<Option<IExecutionResult>>> wrapper = new AtomicReference<>(Try.success(Option.none()));
+        final AtomicReference<Try<Option<IExecutionResult>>> wrapper = new AtomicReference<>(Try.success(Option.none()));
         new GitFreezingProcess(project, getTitle(), () -> {
           LOG.info("Executing machete-pre-rebase hooks");
-          val hookResult = Try
+          final var hookResult = Try
               .of(() -> Option.of(gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters)));
           wrapper.set(hookResult);
         }).execute();
-        Try<Option<IExecutionResult>> hookResult = wrapper.get();
+        final var hookResult = wrapper.get();
         if (hookResult == null) {
           // Not really possible, it's here just to calm down Checker Framework.
           return;
         }
 
         if (hookResult.isFailure()) {
-          val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
+          final var message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
           LOG.error(message);
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"),
@@ -212,13 +213,13 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
           return;
         }
 
-        val maybeExecutionResult = hookResult.get();
+        final var maybeExecutionResult = hookResult.get();
         if (maybeExecutionResult.isDefined() && maybeExecutionResult.get().getExitCode() != 0) {
-          val message = "machete-pre-rebase hooks refused to rebase (exit code ${maybeExecutionResult.get().getExitCode()})";
+          final var message = "machete-pre-rebase hooks refused to rebase (exit code ${maybeExecutionResult.get().getExitCode()})";
           LOG.error(message);
-          val executionResult = maybeExecutionResult.get();
-          val stdoutOption = executionResult.getStdout();
-          val stderrOption = executionResult.getStderr();
+          final var executionResult = maybeExecutionResult.get();
+          final var stdoutOption = executionResult.getStdout();
+          final var stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
                   + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
@@ -232,7 +233,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
           @Override
           @UIThreadUnsafe
           public void run(ProgressIndicator indicator) {
-            GitRebaseParams params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
+            final var params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
             LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
                 "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
                 "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
@@ -259,10 +260,10 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
   @UIThreadUnsafe
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParameters) {
-    GitVersion gitVersion = repository.getVcs().getVersion();
-    String currentBranchName = gitRebaseParameters.getCurrentBranch().getName();
-    String newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
-    String forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
+    final var gitVersion = repository.getVcs().getVersion();
+    final var currentBranchName = gitRebaseParameters.getCurrentBranch().getName();
+    final var newBaseBranchFullName = gitRebaseParameters.getNewBaseBranch().getFullName();
+    final var forkPointCommitHash = gitRebaseParameters.getForkPointCommit().getHash();
 
     // TODO (#1114): remove the mechanism for checking the availability of "--empty=drop"
     val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);

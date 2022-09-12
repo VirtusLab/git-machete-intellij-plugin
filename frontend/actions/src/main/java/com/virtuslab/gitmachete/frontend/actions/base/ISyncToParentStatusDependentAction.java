@@ -12,7 +12,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.collection.List;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -55,8 +54,8 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    String branchName = getNameOfBranchUnderAction(anActionEvent);
-    val gitMacheteBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var gitMacheteBranchByName = getManagedBranchByName(anActionEvent, branchName);
 
     if (branchName == null || gitMacheteBranchByName == null) {
       presentation.setEnabled(false);
@@ -77,21 +76,21 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    val gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRoot();
-    val syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
+    final var gitMacheteNonRootBranch = gitMacheteBranchByName.asNonRoot();
+    final var syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
 
-    val isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
+    final var isStatusEligible = getEligibleStatuses().contains(syncToParentStatus);
 
     if (isStatusEligible) {
-      val parentName = gitMacheteNonRootBranch.getParent().getName();
-      val enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
+      final var parentName = gitMacheteNonRootBranch.getParent().getName();
+      final var enabledDesc = format(getEnabledDescriptionFormat(), parentName, branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
       presentation.setEnabled(false);
 
       // @formatter:off
-      val desc = Match(syncToParentStatus).of(
+      final var desc = Match(syncToParentStatus).of(
           Case($(SyncToParentStatus.InSync),
               getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
           Case($(SyncToParentStatus.InSyncButForkPointOff),

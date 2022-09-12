@@ -6,7 +6,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -22,19 +21,19 @@ public class PushCurrentAction extends BasePushAction {
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
-    val presentation = anActionEvent.getPresentation();
+    final var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    val managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+    final var managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
 
-    val syncToRemoteStatus = managedBranchByName != null
+    final var syncToRemoteStatus = managedBranchByName != null
         ? managedBranchByName
             .getRelationToRemote().getSyncToRemoteStatus()
         : null;
 
-    val isAheadOrDivergedAndNewerOrUntracked = syncToRemoteStatus != null
+    final var isAheadOrDivergedAndNewerOrUntracked = syncToRemoteStatus != null
         && List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(syncToRemoteStatus);
 
     presentation.setVisible(isAheadOrDivergedAndNewerOrUntracked);

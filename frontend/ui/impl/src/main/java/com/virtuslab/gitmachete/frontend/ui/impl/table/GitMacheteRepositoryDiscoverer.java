@@ -36,7 +36,7 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
 
   public void enqueue(Path macheteFilePath) {
-    val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+    final var selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;

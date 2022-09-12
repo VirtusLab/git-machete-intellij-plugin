@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRe
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -22,17 +21,17 @@ public class PullCurrentAction extends BasePullAction {
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    val presentation = anActionEvent.getPresentation();
+    final var presentation = anActionEvent.getPresentation();
     if (!presentation.isVisible()) {
       return;
     }
 
-    val managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
-    val syncToRemoteStatus = managedBranchByName != null
+    final var managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+    final var syncToRemoteStatus = managedBranchByName != null
         ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus()
         : null;
 
-    val isBehindOrInSyncToRemote = syncToRemoteStatus != null
+    final var isBehindOrInSyncToRemote = syncToRemoteStatus != null
         && List.of(BehindRemote, InSyncToRemote).contains(syncToRemoteStatus);
 
     presentation.setVisible(isBehindOrInSyncToRemote);

@@ -6,8 +6,6 @@ import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operat
 import static git4idea.update.GitUpdateSessionKt.getBodyForUpdateNotification;
 import static git4idea.update.GitUpdateSessionKt.getTitleForUpdateNotification;
 
-import java.util.Map;
-
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.history.Label;
 import com.intellij.history.LocalHistory;
@@ -23,10 +21,8 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
 import com.intellij.openapi.vcs.update.AbstractCommonUpdateAction;
 import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vcs.update.UpdateInfoTree;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
@@ -42,12 +38,10 @@ import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
-import git4idea.update.HashRange;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -137,22 +131,22 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       GitRevisionNumber currentRev,
       Label beforeLabel,
       @Nullable GitUpdatedRanges updatedRanges) {
-    VirtualFile root = gitRepository.getRoot();
+    final var root = gitRepository.getRoot();
     if (result.success()) {
       VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, root);
       gitRepository.update();
       if (updatedRanges != null &&
           AbstractCommonUpdateAction
               .showsCustomNotification(java.util.Collections.singletonList(GitVcs.getInstance(project)))) {
-        Map<GitRepository, HashRange> ranges = updatedRanges.calcCurrentPositions();
+        final var ranges = updatedRanges.calcCurrentPositions();
         GitUpdateInfoAsLog.NotificationData notificationData = new GitUpdateInfoAsLog(project, ranges)
             .calculateDataAndCreateLogTab();
 
         Notification notification;
         if (notificationData != null) {
-          String title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
+          final var title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
               notificationData.getReceivedCommitsCount());
-          String content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
+          final var content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
               content,
               INFORMATION);
@@ -203,12 +197,12 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
-      MergeChangeCollector collector = new MergeChangeCollector(project, gitRepository, currentRev);
+      final var collector = new MergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
       ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
-        val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
-        UpdateInfoTree tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
+        final var manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
+        final var tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
           tree.setBefore(beforeLabel);
           tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));

@@ -12,7 +12,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.collection.List;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -54,8 +53,8 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
+    final var branchName = getNameOfBranchUnderAction(anActionEvent);
+    final var gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
 
     if (branchName == null || gitMacheteBranch == null) {
       presentation.setEnabled(false);
@@ -64,21 +63,21 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
               getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
-    val relationToRemote = gitMacheteBranch.getRelationToRemote();
+    final var relationToRemote = gitMacheteBranch.getRelationToRemote();
 
     SyncToRemoteStatus status = relationToRemote.getSyncToRemoteStatus();
-    val isStatusEligible = getEligibleStatuses().contains(status);
+    final var isStatusEligible = getEligibleStatuses().contains(status);
 
     if (isStatusEligible) {
       // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
-      val enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
+      final var enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
       presentation.setEnabled(false);
 
       // @formatter:off
-      val desc = Match(status).of(
+      final var desc = Match(status).of(
           Case($(SyncToRemoteStatus.AheadOfRemote),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.ahead-of-remote")),
           Case($(SyncToRemoteStatus.BehindRemote),

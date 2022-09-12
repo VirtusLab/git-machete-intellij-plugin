@@ -13,11 +13,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
-import git4idea.branch.GitBranchesCollection;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
@@ -40,12 +38,12 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    val presentation = anActionEvent.getPresentation();
+    final var presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
 
-    val selectedBranchName = getSelectedBranchName(anActionEvent);
+    final var selectedBranchName = getSelectedBranchName(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
     if (selectedBranchName == null || selectedBranchName.isEmpty()) {
@@ -62,20 +60,20 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val selectedBranchName = getSelectedBranchName(anActionEvent);
-    if (selectedBranchName.isEmpty() || selectedBranchName == null) {
+    final var selectedBranchName = getSelectedBranchName(anActionEvent);
+    if (selectedBranchName == null || selectedBranchName.isEmpty()) {
       return;
     }
 
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (gitRepository.isDefined()) {
+    if (gitRepository != null) {
       log().debug(() -> "Queuing show '${selectedBranchName}' branch in Git log background task");
 
-      GitBranchesCollection branches = gitRepository.get().getBranches();
-      val branchByName = branches.findBranchByName(selectedBranchName);
-      @SuppressWarnings("nullness:return") val maybeHash = branchByName != null ? branches.getHash(branchByName) : null;
+      final var branches = gitRepository.getBranches();
+      final var branchByName = branches.findBranchByName(selectedBranchName);
+      @SuppressWarnings("nullness:return") final var maybeHash = branchByName != null ? branches.getHash(branchByName) : null;
       if (maybeHash == null) {
         log().error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
@@ -90,7 +88,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
       @Override
       public void run(ProgressIndicator indicator) {
         try {
-          val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
+          final var logUi = VcsProjectLog.getInstance(project).getMainLogUi();
           if (logUi == null) {
             log().error("Main log ui is null");
             return;

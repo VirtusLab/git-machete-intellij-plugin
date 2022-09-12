@@ -14,7 +14,6 @@ import git4idea.config.GitConfigUtil;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -63,17 +62,17 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
-    val branch = getManagedBranchByName(anActionEvent, branchUnderAction);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
+    final var branch = getManagedBranchByName(anActionEvent, branchUnderAction);
 
     if (gitRepository == null || branch == null || branch.isRoot()) {
       return;
     }
 
-    val nonRootBranch = branch.asNonRoot();
-    val selectedCommit = new OverrideForkPointDialog(project, nonRootBranch.getParent(), nonRootBranch)
+    final var nonRootBranch = branch.asNonRoot();
+    final var selectedCommit = new OverrideForkPointDialog(project, nonRootBranch.getParent(), nonRootBranch)
         .showAndGetSelectedCommit();
     if (selectedCommit == null) {
       log().debug(
@@ -93,11 +92,11 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
 
   @UIThreadUnsafe
   private void overrideForkPoint(AnActionEvent anActionEvent, IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
-    val gitRepository = getSelectedGitRepository(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (gitRepository.isDefined()) {
-      val root = gitRepository.get().getRoot();
-      val project = getProject(anActionEvent);
+    if (gitRepository != null) {
+      final var root = gitRepository.getRoot();
+      final var project = getProject(anActionEvent);
       setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }
 
@@ -111,16 +110,16 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
       String branchName,
       ICommitOfManagedBranch forkPoint,
       ICommitOfManagedBranch ancestorCommit) {
-    val section = "machete";
-    val subsectionPrefix = "overrideForkPoint";
-    val to = "to";
-    val whileDescendantOf = "whileDescendantOf";
+    final var section = "machete";
+    final var subsectionPrefix = "overrideForkPoint";
+    final var to = "to";
+    final var whileDescendantOf = "whileDescendantOf";
 
     // Section spans the characters before the first dot
     // Name spans the characters after the last dot
     // Subsection is everything else
-    val toKey = "${section}.${subsectionPrefix}.${branchName}.${to}";
-    val whileDescendantOfKey = "${section}.${subsectionPrefix}.${branchName}.${whileDescendantOf}";
+    final var toKey = "${section}.${subsectionPrefix}.${branchName}.${to}";
+    final var whileDescendantOfKey = "${section}.${subsectionPrefix}.${branchName}.${whileDescendantOf}";
 
     try {
       GitConfigUtil.setValue(project, root, toKey, forkPoint.getHash());

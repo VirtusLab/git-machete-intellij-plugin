@@ -12,7 +12,6 @@ import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 
@@ -67,20 +66,20 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 
-    val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val localBranchName = getNameOfBranchUnderAction(anActionEvent);
-    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var localBranchName = getNameOfBranchUnderAction(anActionEvent);
+    final var gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
 
     if (localBranchName != null && gitRepository != null && gitMacheteRepositorySnapshot != null) {
-      val localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName);
+      final var localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName);
       if (localBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an unmanaged branch in the first place.
         log().warn("Branch '${localBranchName}' not found or not managed by Git Machete");
         return;
       }
-      val remoteBranch = localBranch.getRemoteTrackingBranch();
+      final var remoteBranch = localBranch.getRemoteTrackingBranch();
       if (remoteBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an untracked branch in the first place (see `getEligibleRelations`)
@@ -88,12 +87,12 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
         return;
       }
 
-      val mergeProps = new MergeProps(
+      final var mergeProps = new MergeProps(
           /* movingBranchName */ localBranch,
           /* stayingBranchName */ remoteBranch);
 
-      boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
-      String fetchNotificationPrefix = isUpToDate
+      final var isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
+      final var fetchNotificationPrefix = isUpToDate
           ? getNonHtmlString("action.GitMachete.BasePullAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.title.fetch-perform");
@@ -112,10 +111,10 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch,
       Runnable onSuccessRunnable) {
-    val remoteName = remoteBranch.getRemoteName();
+    var remoteName = remoteBranch.getRemoteName();
 
     // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
+    var refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
         "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
 
     String taskTitle = getString("action.GitMachete.BasePullAction.task-title");

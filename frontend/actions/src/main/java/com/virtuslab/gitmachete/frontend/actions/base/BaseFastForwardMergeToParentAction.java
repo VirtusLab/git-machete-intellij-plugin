@@ -5,12 +5,9 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -57,9 +54,9 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    Project project = getProject(anActionEvent);
-    GitRepository gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
+    final var project = getProject(anActionEvent);
+    final var gitRepository = getSelectedGitRepository(anActionEvent);
+    final var stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
       return;
     }
@@ -71,8 +68,8 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     // This is guaranteed by `syncToParentStatusDependentActionUpdate` invoked from `onUpdate`.
     assert stayingBranch.isNonRoot() : "Branch that would be fast-forwarded TO is a root";
 
-    val nonRootStayingBranch = stayingBranch.asNonRoot();
-    val mergeProps = new MergeProps(
+    final var nonRootStayingBranch = stayingBranch.asNonRoot();
+    final var mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
     FastForwardMerge.perform(project, gitRepository, mergeProps,
