@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.Messages;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentByMergeDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
