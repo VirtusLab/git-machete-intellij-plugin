@@ -6,10 +6,8 @@ import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.runners.Parameterized.Parameters;
 
-import io.vavr.collection.Set;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,7 +20,6 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
@@ -64,9 +61,8 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
   @Test
   @SneakyThrows
   public void parentIsCorrectlyInferred() {
-    Set<String> managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
-    @Nullable ILocalBranchReference result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
-    //it seems that nullable annotation might not be useful in here, as the value has to always be defined.
+    final var managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(b -> b.getName()).toSet();
+    final var result = gitMacheteRepository.inferParentForLocalBranch(managedBranchNames, forBranch);
     Assert.assertTrue(result != null);
     Assert.assertEquals(expectedParent, result.getName());
   }

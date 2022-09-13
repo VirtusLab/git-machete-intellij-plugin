@@ -26,6 +26,7 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
@@ -209,7 +210,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     return Tuple.of(options.getName(), preSlideInRunnable);
   }
 
-  private static @Nullable GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
+  private static @Nullable GitRemoteBranch getGitRemoteBranch(Project project, @NonNull GitRepository gitRepository,
+      String branchName) {
 
     final var remotesWithBranch = List.ofAll(gitRepository.getRemotes())
         .flatMap(r -> {

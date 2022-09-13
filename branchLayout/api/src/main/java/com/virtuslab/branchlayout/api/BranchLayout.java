@@ -28,8 +28,7 @@ public class BranchLayout implements IBranchLayout {
 
   @Override
   public @Nullable IBranchLayoutEntry findEntryByName(String branchName) {
-    //.get() throws no such element exception
-    return entryByName.get(branchName).get();
+    return entryByName.get(branchName).getOrNull();
   }
 
   @Override

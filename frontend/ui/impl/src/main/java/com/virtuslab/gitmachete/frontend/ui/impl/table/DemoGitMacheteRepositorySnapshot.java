@@ -104,7 +104,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   @Override
   public @Nullable IManagedBranchSnapshot getCurrentBranchIfManaged() {
-    return roots.head();//throws NoSuchElementException if the list if empty anyway
+    return roots.headOption().getOrNull();
   }
 
   @Override

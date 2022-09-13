@@ -62,7 +62,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         sb.append(indentSpec.getIndentCharacter());
       }
       sb.append(entry.getName());
-      @Nullable String customAnnotation = entry.getCustomAnnotation();
+      String customAnnotation = entry.getCustomAnnotation();
       if (customAnnotation != null) {
         sb.append(" ").append(customAnnotation);
       }

@@ -279,12 +279,13 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         val containingBranches = commitAndContainingBranches._2.toList();
         assert containingBranches.nonEmpty() : "containingBranches is empty";
 
-        ILocalBranchReference firstContainingBranch = containingBranches.head();
-        Seq<String> containingBranchNames = containingBranches.map(b -> b.getName());
+        final var firstContainingBranch = containingBranches.headOption();
+        final var firstContainingBranchName = firstContainingBranch.map(IBranchReference::getName).getOrElse("");
+        final var containingBranchNames = containingBranches.map(IBranchReference::getName);
         LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
             "of managed branch(es) ${containingBranchNames.mkString(\", \")}; " +
-            "returning ${firstContainingBranch.getName()} as the inferred parent for branch '${localBranchName}'");
-        return firstContainingBranch;
+            "returning ${firstContainingBranchName} as the inferred parent for branch '${localBranchName}'");
+        return firstContainingBranch.getOrNull();
       } else {
         LOG.debug(() -> "Could not infer parent for branch '${localBranchName}'");
         return null;

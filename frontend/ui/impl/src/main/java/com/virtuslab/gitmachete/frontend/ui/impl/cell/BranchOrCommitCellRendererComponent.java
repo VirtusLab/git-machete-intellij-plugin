@@ -177,12 +177,12 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         setBranchToolTipText(branch);
       }
 
-      @Nullable String customAnnotation = branch.getCustomAnnotation();
+      String customAnnotation = branch.getCustomAnnotation();
       if (customAnnotation != null) {
         append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation, GRAY_ATTRIBUTES);
       }
 
-      @Nullable String statusHookOutput = branch.getStatusHookOutput();
+      String statusHookOutput = branch.getStatusHookOutput();
       if (statusHookOutput != null) {
         append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput, GRAY_ATTRIBUTES);
       }
