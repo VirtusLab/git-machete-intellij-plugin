@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -13,6 +14,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
+import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -72,14 +74,16 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
       log().debug(() -> "Queuing show '${selectedBranchName}' branch in Git log background task");
 
       final var branches = gitRepository.getBranches();
-      final var branchByName = branches.findBranchByName(selectedBranchName);
-      @SuppressWarnings("nullness:return") final var maybeHash = branchByName != null ? branches.getHash(branchByName) : null;
-      if (maybeHash == null) {
+
+      @SuppressWarnings("nullness:return") final var maybeHash = Option.of(selectedBranchName)
+          .map(branches::findBranchByName).filter(Objects::nonNull).map(branches::getHash);
+
+      if (maybeHash.isEmpty()) {
         log().error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
       }
 
-      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, maybeHash));
+      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, maybeHash.get()));
     }
   }
 

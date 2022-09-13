@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
