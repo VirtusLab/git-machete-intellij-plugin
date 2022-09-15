@@ -19,9 +19,9 @@ import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
+import git4idea.GitReference;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
-import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
@@ -95,9 +95,9 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
     val branch = getNameOfBranchUnderAction(anActionEvent);
-    if (branch.isDefined()) {
-      val isResettingCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-          .map(bn -> bn.equals(branch.get())).getOrElse(false);
+    if (branch != null) {
+      val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+      val isResettingCurrent = currentBranchIfManaged != null && currentBranchIfManaged.equals(branch);
       if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(() -> getActionName());
       }
@@ -109,10 +109,10 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 
-    Project project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val macheteRepository = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
+    val project = getProject(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent);
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val macheteRepository = getGitMacheteRepositorySnapshot(anActionEvent);
 
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null, VCS_NOTIFIER_TITLE,
@@ -132,16 +132,16 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    val localBranch = getManagedBranchByName(anActionEvent, branchName).getOrNull();
+    val localBranch = getManagedBranchByName(anActionEvent, branchName);
     if (localBranch == null) {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
           "Cannot get local branch '${branchName}'");
       return;
     }
 
-    val remoteTrackingBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+    val remoteTrackingBranch = localBranch.getRemoteTrackingBranch();
     if (remoteTrackingBranch == null) {
-      String message = "Branch '${localBranch.getName()}' doesn't have remote tracking branch, so cannot be reset";
+      val message = "Branch '${localBranch.getName()}' doesn't have remote tracking branch, so cannot be reset";
       log().warn(message);
       VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null, VCS_NOTIFIER_TITLE, message);
       return;
@@ -175,7 +175,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     // Required to avoid reset with uncommitted changes and file cache conflicts
     FileDocumentManager.getInstance().saveAllDocuments();
 
-    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     if (branchName.equals(currentBranchName)) {
       doResetCurrentBranchToRemoteWithKeep(project, gitRepository, localBranch, remoteTrackingBranch);
     } else {
@@ -187,7 +187,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       GitRepository gitRepository,
       ILocalBranchReference localBranch,
       IRemoteTrackingBranchReference remoteTrackingBranch) {
-    val refspecFromRemoteToLocal = createRefspec(
+    String refspecFromRemoteToLocal = createRefspec(
         remoteTrackingBranch.getFullName(), localBranch.getFullName(), /* allowNonFastForward */ true);
 
     new FetchBackgroundable(
@@ -223,15 +223,16 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
             getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
-          GitLineHandler resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
+          val resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
           resetHandler.addParameters("--keep");
           resetHandler.addParameters(remoteTrackingBranchName);
           resetHandler.endOptions();
 
-          val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), RESET);
+          val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(
+              gitRepository.getRoot(), RESET);
           resetHandler.addLineListener(localChangesDetector);
 
-          GitCommandResult result = Git.getInstance().runCommand(resetHandler);
+          val result = Git.getInstance().runCommand(resetHandler);
 
           if (result.success()) {
             VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,

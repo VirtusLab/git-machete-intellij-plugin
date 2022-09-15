@@ -4,10 +4,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -70,10 +70,10 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
   }
 
-  protected Option<GitRepository> getSelectedGitRepository(AnActionEvent anActionEvent) {
+  protected @Nullable GitRepository getSelectedGitRepository(AnActionEvent anActionEvent) {
     val gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
         .getSelectedGitRepository();
-    if (isLoggingAcceptable() && gitRepository.isEmpty()) {
+    if (isLoggingAcceptable() && gitRepository == null) {
       log().warn("No Git repository is selected");
     }
     return gitRepository;

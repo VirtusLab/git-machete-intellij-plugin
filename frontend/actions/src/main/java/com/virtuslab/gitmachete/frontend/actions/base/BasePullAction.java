@@ -68,19 +68,19 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
     log().debug("Performing");
 
     val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val localBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
+    val localBranchName = getNameOfBranchUnderAction(anActionEvent);
+    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
 
     if (localBranchName != null && gitRepository != null && gitMacheteRepositorySnapshot != null) {
-      val localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName).getOrNull();
+      val localBranch = gitMacheteRepositorySnapshot.getManagedBranchByName(localBranchName);
       if (localBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an unmanaged branch in the first place.
         log().warn("Branch '${localBranchName}' not found or not managed by Git Machete");
         return;
       }
-      val remoteBranch = localBranch.getRemoteTrackingBranch().getOrNull();
+      val remoteBranch = localBranch.getRemoteTrackingBranch();
       if (remoteBranch == null) {
         // This is generally NOT expected, the action should never be triggered
         // for an untracked branch in the first place (see `getEligibleRelations`)
@@ -92,8 +92,8 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
           /* movingBranchName */ localBranch,
           /* stayingBranchName */ remoteBranch);
 
-      boolean isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
-      String fetchNotificationPrefix = isUpToDate
+      val isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
+      val fetchNotificationPrefix = isUpToDate
           ? getNonHtmlString("action.GitMachete.BasePullAction.notification.title.no-fetch-perform")
               .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.title.fetch-perform");

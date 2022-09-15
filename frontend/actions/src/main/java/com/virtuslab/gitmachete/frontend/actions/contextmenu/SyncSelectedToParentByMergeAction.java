@@ -6,9 +6,9 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentByMergeDialog;
@@ -21,7 +21,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
   public static final String SHOW_MERGE_WARNING = "git-machete.merge.warning.show";
 
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
   }
 

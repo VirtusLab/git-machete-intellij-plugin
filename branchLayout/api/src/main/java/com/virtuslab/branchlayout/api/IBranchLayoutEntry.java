@@ -1,7 +1,7 @@
 package com.virtuslab.branchlayout.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The only criterion for equality of any instances of any class implementing this interface is reference equality
@@ -13,5 +13,6 @@ public interface IBranchLayoutEntry {
 
   IBranchLayoutEntry withChildren(List<IBranchLayoutEntry> newChildren);
 
-  Option<String> getCustomAnnotation();
+  @Nullable
+  String getCustomAnnotation();
 }

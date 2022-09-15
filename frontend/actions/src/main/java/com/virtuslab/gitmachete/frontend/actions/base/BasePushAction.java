@@ -8,7 +8,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
 import git4idea.config.GitSharedSettings;
@@ -66,16 +65,18 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
+    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    val relation = managedBranchByName != null
+        ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus()
+        : null;
     val project = getProject(anActionEvent);
 
-    if (branchName.isDefined() && relation.isDefined() && isForcePushRequired(relation.get())) {
-      if (GitSharedSettings.getInstance(project).isBranchProtected(branchName.get())) {
-        Presentation presentation = anActionEvent.getPresentation();
+    if (branchName != null && relation != null && isForcePushRequired(relation)) {
+      if (GitSharedSettings.getInstance(project).isBranchProtected(branchName)) {
+        val presentation = anActionEvent.getPresentation();
         presentation.setDescription(
             getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch")
-                .format(branchName.get()));
+                .format(branchName));
         presentation.setEnabled(false);
       }
     }
@@ -88,12 +89,12 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val relation = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus());
+    val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
+    val relation = managedBranchByName != null ? managedBranchByName.getRelationToRemote().getSyncToRemoteStatus() : null;
 
-    if (branchName.isDefined() && gitRepository.isDefined() && relation.isDefined()) {
-      boolean isForcePushRequired = isForcePushRequired(relation.get());
-      doPush(project, gitRepository.get(), branchName.get(), isForcePushRequired);
+    if (branchName != null && gitRepository != null && relation != null) {
+      val isForcePushRequired = isForcePushRequired(relation);
+      doPush(project, gitRepository, branchName, isForcePushRequired);
     }
   }
 

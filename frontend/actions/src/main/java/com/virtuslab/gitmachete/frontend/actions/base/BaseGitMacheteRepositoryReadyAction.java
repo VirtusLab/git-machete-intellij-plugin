@@ -17,7 +17,7 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDep
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    boolean isEnabled = getGitMacheteRepositorySnapshot(anActionEvent).isDefined();
+    boolean isEnabled = getGitMacheteRepositorySnapshot(anActionEvent) != null;
     anActionEvent.getPresentation().setEnabled(isEnabled);
 
     if (!isEnabled) {

@@ -317,9 +317,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   public void refreshModel() {
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-    Option<GitRepository> gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
-    if (gitRepository.isDefined()) {
-      refreshModel(gitRepository.get(),
+    val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
+    if (gitRepository != null) {
+      refreshModel(gitRepository,
           NullGitMacheteRepositorySnapshot.getInstance(),
           /* doOnUIThreadWhenReady */ () -> {});
     } else {
@@ -342,7 +342,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     if (!project.isDisposed()) {
       ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
         val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
         if (gitRepository == null) {
           LOG.warn("Selected repository is null");
           return;
@@ -428,8 +428,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         val gitMacheteRepositorySnapshot = graphTable.gitMacheteRepositorySnapshot;
         if (gitMacheteRepositorySnapshot != null) {
-          val isSelectedEqualToCurrent = gitMacheteRepositorySnapshot
-              .getCurrentBranchIfManaged().map(b -> b.getName().equals(graphTable.selectedBranchName)).getOrElse(false);
+          val currentBranchIfManaged = gitMacheteRepositorySnapshot
+              .getCurrentBranchIfManaged();
+          val isSelectedEqualToCurrent = currentBranchIfManaged != null
+              && currentBranchIfManaged.getName().equals(graphTable.selectedBranchName);
           if (isSelectedEqualToCurrent) {
             return;
           }

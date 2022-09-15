@@ -1,12 +1,13 @@
 package com.virtuslab.branchlayout.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface IBranchLayout {
   List<IBranchLayoutEntry> getRootEntries();
 
-  Option<IBranchLayoutEntry> findEntryByName(String branchName);
+  @Nullable
+  IBranchLayoutEntry findEntryByName(String branchName);
 
   IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
       throws EntryDoesNotExistException, EntryIsDescendantOfException;

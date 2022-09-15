@@ -6,15 +6,15 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePushAction;
 
 public class PushCurrentAction extends BasePushAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
@@ -27,11 +27,15 @@ public class PushCurrentAction extends BasePushAction {
       return;
     }
 
-    val isAheadOrDivergedAndNewerOrUntracked = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .map(b -> b.getRelationToRemote().getSyncToRemoteStatus())
-        .map(strs -> List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(strs))
-        .getOrElse(false);
+    val managedBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+
+    val syncToRemoteStatus = managedBranchByName != null
+        ? managedBranchByName
+            .getRelationToRemote().getSyncToRemoteStatus()
+        : null;
+
+    val isAheadOrDivergedAndNewerOrUntracked = syncToRemoteStatus != null
+        && List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(syncToRemoteStatus);
 
     presentation.setVisible(isAheadOrDivergedAndNewerOrUntracked);
   }

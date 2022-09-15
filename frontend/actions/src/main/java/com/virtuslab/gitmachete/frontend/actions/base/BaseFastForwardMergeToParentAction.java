@@ -55,13 +55,13 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
   public void actionPerformed(AnActionEvent anActionEvent) {
 
     val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
+    val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
       return;
     }
 
-    val stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName).getOrNull();
+    val stayingBranch = getManagedBranchByName(anActionEvent, stayingBranchName);
     if (stayingBranch == null) {
       return;
     }

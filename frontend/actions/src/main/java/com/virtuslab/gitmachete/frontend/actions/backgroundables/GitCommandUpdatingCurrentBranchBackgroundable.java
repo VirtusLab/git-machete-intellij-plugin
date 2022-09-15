@@ -21,10 +21,8 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
 import com.intellij.openapi.vcs.update.AbstractCommonUpdateAction;
 import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vcs.update.UpdateInfoTree;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
@@ -82,8 +80,10 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     if (handler == null) {
       return;
     }
-    val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), MERGE);
-    val untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(gitRepository.getRoot());
+    val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(
+        gitRepository.getRoot(), MERGE);
+    val untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(
+        gitRepository.getRoot());
     handler.addLineListener(localChangesDetector);
     handler.addLineListener(untrackedFilesDetector);
 
@@ -132,7 +132,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       GitRevisionNumber currentRev,
       Label beforeLabel,
       @Nullable GitUpdatedRanges updatedRanges) {
-    VirtualFile root = gitRepository.getRoot();
+    val root = gitRepository.getRoot();
     if (result.success()) {
       VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, root);
       gitRepository.update();
@@ -145,9 +145,9 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
         Notification notification;
         if (notificationData != null) {
-          String title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
+          val title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
               notificationData.getReceivedCommitsCount());
-          String content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
+          val content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
           notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
               content,
               INFORMATION);
@@ -203,7 +203,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
       ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
         val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
-        UpdateInfoTree tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
+        val tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
         if (tree != null) {
           tree.setBefore(beforeLabel);
           tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));

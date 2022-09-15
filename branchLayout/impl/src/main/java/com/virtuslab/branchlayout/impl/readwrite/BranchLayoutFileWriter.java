@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -62,9 +61,9 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
         sb.append(indentSpec.getIndentCharacter());
       }
       sb.append(entry.getName());
-      Option<String> customAnnotation = entry.getCustomAnnotation();
-      if (customAnnotation.isDefined()) {
-        sb.append(" ").append(customAnnotation.get());
+      String customAnnotation = entry.getCustomAnnotation();
+      if (customAnnotation != null) {
+        sb.append(" ").append(customAnnotation);
       }
 
       List<String> resultForChildren = printEntriesOntoStringList(entry.getChildren(), indentSpec, level + 1);
