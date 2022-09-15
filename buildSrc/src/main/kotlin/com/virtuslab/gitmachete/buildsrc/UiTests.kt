@@ -19,7 +19,9 @@ fun Project.configureUiTests() {
   val uiTestTargets: List<String> =
     if (project.properties["against"] != null) {
       IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
-    } else listOf(IntellijVersions.buildTarget)
+    } else {
+      listOf(IntellijVersions.buildTarget)
+    }
 
   uiTestTargets.onEach { version ->
     tasks.register<Test>("uiTest_$version") {

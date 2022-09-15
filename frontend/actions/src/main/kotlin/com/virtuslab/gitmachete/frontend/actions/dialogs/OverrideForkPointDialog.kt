@@ -35,7 +35,9 @@ class OverrideForkPointDialog(
         OverrideOption.PARENT -> parentBranch.pointedCommit
         OverrideOption.INFERRED -> branch.forkPoint.orNull
       }
-    } else null
+    } else {
+      null
+    }
 
   override fun createCenterPanel() = panel {
     row {
