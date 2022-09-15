@@ -1,15 +1,22 @@
 package com.virtuslab.gitmachete.backend.impl.hooks;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
-import io.vavr.Tuple2;
+import io.vavr.Tuple3;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -28,7 +35,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
   // machete-status-branch hook spec doesn't impose any requirements like that, but:
   // 1. it's pretty unlikely that any practically useful hook won't conform to this assumption,
   // 2. this kind of caching is pretty useful wrt. performance.
-  private final java.util.Map<Tuple2<String, String>, Option<String>> hookOutputByBranchNameAndCommitHash = new ConcurrentHashMap<>();
+  private final java.util.Map<Tuple3<String, String, String>, Option<String>> hookOutputByBranchNameCommitHashAndHookHash = new ConcurrentHashMap<>();
 
   private StatusBranchHookExecutor(File rootDirectory, File hookFile) {
     super(rootDirectory, hookFile);
@@ -108,9 +115,30 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     }
   }
 
+  public static String hashFile(String algorithm, File f) throws IOException, NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance(algorithm);
+
+    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
+        DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)) {
+      in.transferTo(out);
+    }
+
+    return new BigInteger(/* signum */ 1, md.digest()).toString(16);
+  }
+
   public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
-    val key = Tuple.of(branchName, pointedCommit.getHash());
-    return hookOutputByBranchNameAndCommitHash.computeIfAbsent(key,
+    var hookContentMD5Hash = "";
+    try {
+      hookContentMD5Hash = hashFile("MD5", hookFile);
+    } catch (IOException e) {
+      // we are using the constant empty String as a neutral value, so that the functionality would
+      // fall back to not using the contents of the hookFile.
+    } catch (NoSuchAlgorithmException e) {
+
+    }
+
+    val key = Tuple.of(branchName, pointedCommit.getHash(), hookContentMD5Hash);
+    return hookOutputByBranchNameCommitHashAndHookHash.computeIfAbsent(key,
         k -> Try.of(() -> executeHookFor(k._1)).getOrElse(Option.none()));
   }
 }
