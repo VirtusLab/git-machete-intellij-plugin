@@ -146,8 +146,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private Option<GitCoreCommit> convertRevisionToGitCoreCommit(String revision) throws GitCoreException {
-    return convertRevisionToObjectId(revision).flatMap(objectId -> Option.of(
-        Try.of(() -> withRevWalkUnchecked(walk -> new GitCoreCommit(walk.parseCommit(objectId)))).getOrNull()));
+    return convertRevisionToObjectId(revision).flatMap(
+        objectId -> Try.of(() -> withRevWalkUnchecked(walk -> new GitCoreCommit(walk.parseCommit(objectId)))).toOption());
   }
 
   private ObjectId convertExistingRevisionToObjectId(String revision) throws GitCoreException {
