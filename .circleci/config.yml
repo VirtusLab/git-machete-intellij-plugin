@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  github-cli: circleci/github-cli@2.1.0
 
 executors:
   docker_executor:
@@ -232,7 +234,9 @@ jobs:
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
-
+            - run:
+                name: Close the Release Milestone
+                command: scripts/close-milestone v$(extract_version_from_current_wd)
 
   checkForUpdates:
     executor: docker_executor

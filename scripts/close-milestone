@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -x -e -o pipefail -u
+
+milestone_title=$1
+
+indented_milestones_json_array=$(gh api -H "Accept: application/vnd.github+json" /repos/VirtusLab/git-machete-intellij-plugin/milestones)
+
+number=$( echo $indented_milestones_json_array | jq -c --arg TITLE $milestone_title '.[] | select(.title | contains($TITLE)) | .number')
+
+milestone_url="/repos/VirtusLab/git-machete-intellij-plugin/milestones/$number"
+
+gh api --method PATCH -H "Accept: application/vnd.github.v3+json" $milestone_url -f state='closed'
