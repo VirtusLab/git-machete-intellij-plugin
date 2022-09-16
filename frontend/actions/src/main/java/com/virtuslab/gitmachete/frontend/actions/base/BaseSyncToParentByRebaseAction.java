@@ -42,7 +42,7 @@ import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({Arrays.class, GitMacheteBundle.class})
 @CustomLog
 public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -268,7 +268,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     // TODO (#1114): remove the mechanism for checking the availability of "--empty=drop"
     val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
 
-    isGitRebaseOptionEntryAvailable("--empty=drop", gitVersion).forEach(options::add);
+    getAvailableGitRebaseOptions("--empty=drop", gitVersion).forEach(options::add);
 
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
         /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
@@ -276,8 +276,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   }
 
   @UIThreadUnsafe
-  private Option<GitRebaseOption> isGitRebaseOptionEntryAvailable(String optionText, GitVersion gitVersion) {
-    val maybeEmptyDropEntry = Arrays.stream(GitRebaseOption.values())
+  private Option<GitRebaseOption> getAvailableGitRebaseOptions(String optionText, GitVersion gitVersion) {
+    val maybeEmptyDropEntry = GitRebaseOption.values().stream()
         .filter(entry -> entry.getOption(gitVersion).equals(optionText))
         .findFirst();
 
