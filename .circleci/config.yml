@@ -227,16 +227,15 @@ jobs:
                 # Implicit usage of ${GITHUB_TOKEN} by hub
                 # language=sh
                 command: |
+                  corresponding_milestone_title=v$(extract_version_from_current_wd)
                   source scripts/utils.sh
-                  tag=v$(extract_version_from_current_wd)
+                  tag=$corresponding_milestone_title
                   change_notes=$(./gradlew getChangelog --no-header -q)
                   hub release create \
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
-            - run:
-                name: Close the Release Milestone
-                command: scripts/close-milestone v$(extract_version_from_current_wd)
+                  scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:
     executor: docker_executor
