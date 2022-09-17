@@ -16,15 +16,15 @@ data class SlideOutOptions(
   @get:JvmName("shouldDelete") val delete: Boolean = false
 )
 
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project, val branchName: String) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: String) :
   DialogWrapper(project, /* canBeParent */ true) {
 
   // Must NOT be private to prevent:
   // java.lang.IllegalAccessException: class
   // kotlin.reflect.jvm.internal.calls.CallerImpl$FieldGetter$BoundInstance
   // cannot access a member of class ... with modifiers "private"
-  var remember = false
-  var delete = false
+  private var remember = false
+  private var delete = false
 
   init {
     title = getString("action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.title")

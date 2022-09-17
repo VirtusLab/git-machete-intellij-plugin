@@ -204,6 +204,7 @@ val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(con
 
 configureUiTests()
 
+applyKotlinConfig()
 ideProbe()
 lombok()
 dependencies {
