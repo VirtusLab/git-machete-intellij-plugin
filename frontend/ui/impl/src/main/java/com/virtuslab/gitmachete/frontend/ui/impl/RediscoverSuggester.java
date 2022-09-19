@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.jetbrains.annotations.NotNull;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -87,7 +86,7 @@ public class RediscoverSuggester {
         gitRepository.getProject(),
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @Override
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(ProgressIndicator indicator) {
         if (!areAllLocalBranchesManaged()) {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> perform());
         }
