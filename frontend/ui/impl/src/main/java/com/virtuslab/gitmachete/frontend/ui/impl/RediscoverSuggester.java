@@ -81,7 +81,7 @@ public class RediscoverSuggester {
     return millisDiff / (24 * 60 * 60 * 1000);
   }
 
-  public void enqueueChecksThenMaybePerform() {
+  public void enqueueChecksAndPerformIfApplicable() {
     new Task.Backgroundable(
         gitRepository.getProject(),
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {

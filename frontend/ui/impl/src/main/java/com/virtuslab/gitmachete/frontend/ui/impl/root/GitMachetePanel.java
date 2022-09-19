@@ -79,7 +79,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
           val rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
-          graphTable.queueRepositoryUpdateAndModelRefresh(rediscoverSuggester::enqueueChecksThenMaybePerform);
+          graphTable.queueRepositoryUpdateAndModelRefresh(rediscoverSuggester::enqueueChecksAndPerformIfApplicable);
         }
         removeAncestorListener(this);
       }
