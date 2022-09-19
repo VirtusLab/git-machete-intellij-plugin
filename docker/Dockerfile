@@ -7,7 +7,7 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 RUN \
   apt-get update; \
-  apt-get install --no-install-recommends -y git hub openssh-client \
+  apt-get install --no-install-recommends -y git hub openssh-client
 
 #Install GitHub Cli
 Run \

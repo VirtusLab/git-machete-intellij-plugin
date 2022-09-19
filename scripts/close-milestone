@@ -4,10 +4,18 @@ set -x -e -o pipefail -u
 
 milestone_title=$1
 
-indented_milestones_json_array=$(gh api -H "Accept: application/vnd.github+json" /repos/VirtusLab/git-machete-intellij-plugin/milestones)
+milestones_json_array=$(gh api -H "Accept: application/vnd.github+json" /repos/VirtusLab/git-machete-intellij-plugin/milestones)
 
-number=$( echo "$indented_milestones_json_array" | jq -c --arg TITLE $milestone_title '.[] | select(.title | contains($TITLE)) | .number')
+desired_milestone=$(echo "$milestones_json_array" | jq -c --arg TITLE $milestone_title '.[] | select(.title | contains($TITLE))')
 
-milestone_url="/repos/VirtusLab/git-machete-intellij-plugin/milestones/$number"
+number=$(echo "$desired_milestone" | jq '.number')
 
-gh api --method PATCH -H "Accept: application/vnd.github.v3+json" $milestone_url -f state='closed'
+#open issues and PRs are bundled together in the same field
+open_issues=$(echo "$desired_milestone" | jq '.open_issues')
+
+if [[ $open_issues = "0" ]]
+then
+    milestone_url="/repos/VirtusLab/git-machete-intellij-plugin/milestones/$number"
+
+    gh api --method PATCH -H "Accept: application/vnd.github.v3+json" $milestone_url -f state='closed'
+fi
