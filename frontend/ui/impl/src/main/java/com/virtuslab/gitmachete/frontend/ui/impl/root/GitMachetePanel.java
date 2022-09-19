@@ -71,6 +71,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     setContent(ScrollPaneFactory.createScrollPane(graphTable));
 
     // The following listener executes on each opening of the Git Machete tab.
+    // Since we don't want to constantly ask the user about rediscovery the listener is removed after first execution.
+    // Final effect: execution only when user opens Git Machete tab for the first time during an IntelliJ session.
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {

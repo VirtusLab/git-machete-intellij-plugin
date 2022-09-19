@@ -4,7 +4,6 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -12,6 +11,7 @@ import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -99,11 +99,11 @@ public class RediscoverSuggester {
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     try {
       val branchLayout = branchLayoutReader.read(gitRepository.getMacheteFilePath());
-      val areLocalBranchesManagedSeq = localBranches.stream().map(GitReference::getName)
-          .map(branchLayout::findEntryByName)
-          .collect(Collectors.toList());
+      val managedLocalBranches = List.ofAll(localBranches)
+          .map(GitReference::getName)
+          .map(branchLayout::findEntryByName);
 
-      return Option.sequence(areLocalBranchesManagedSeq).isDefined();
+      return Option.sequence(managedLocalBranches).isDefined();
     } catch (BranchLayoutException e) {
       return false;
     }
