@@ -32,7 +32,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
 
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.title"),
-          getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.message"));
+          getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.message.HTML"));
 
       dialogBuilder.yesText(getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.ok-text"))
           .icon(Messages.getWarningIcon())
