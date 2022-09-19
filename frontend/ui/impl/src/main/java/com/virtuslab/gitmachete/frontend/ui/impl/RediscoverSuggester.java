@@ -103,7 +103,7 @@ public class RediscoverSuggester {
           .map(GitReference::getName)
           .map(branchLayout::findEntryByName);
 
-      return Option.sequence(managedLocalBranches).isDefined();
+      return !managedLocalBranches.contains(Option.none());
     } catch (BranchLayoutException e) {
       return false;
     }
