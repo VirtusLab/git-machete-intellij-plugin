@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  github-cli: circleci/github-cli@2.1.0
 
 executors:
   docker_executor:
