@@ -54,7 +54,7 @@ public class RediscoverSuggester {
     LOG.info("Branch layout has not been modified within ${daysDiff} days");
     if (daysDiff > DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER) {
       LOG.info("Time diff above ${DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER}; Suggesting rediscover");
-      queueSuggestion(macheteFilePath);
+      enqueueChecksAndSuggestIfApplicable(macheteFilePath);
     } else {
       LOG.info("Time diff below (or equal) ${DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER}; rediscover suggestion skipped");
     }
@@ -71,8 +71,13 @@ public class RediscoverSuggester {
       queueDiscoverOperation.run();
     } else { // closing dialog goes here too
       LOG.info("Rediscover declined from dialog");
-      macheteFilePath.setFileModificationDate(System.currentTimeMillis());
+      setMacheteFileModificationDate(macheteFilePath, System.currentTimeMillis());
     }
+  }
+
+  @UIEffect
+  private void setMacheteFileModificationDate(Path macheteFilePath, long timeMillis) {
+    macheteFilePath.setFileModificationDate(timeMillis);
   }
 
   private long daysDiffTillNow(long lastModifiedTimeMillis) {
@@ -81,24 +86,27 @@ public class RediscoverSuggester {
     return millisDiff / (24 * 60 * 60 * 1000);
   }
 
-  public void enqueueChecksAndPerformIfApplicable() {
+  public void enqueueChecksAndSuggestIfApplicable(Path macheteFilePath) {
     new Task.Backgroundable(
         gitRepository.getProject(),
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        if (!areAllLocalBranchesManaged()) {
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> perform());
+        if (!areAllLocalBranchesManaged(macheteFilePath)) {
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
+        } else {
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL,
+              () -> setMacheteFileModificationDate(macheteFilePath, System.currentTimeMillis()));
         }
       }
     }.queue();
   }
 
-  private boolean areAllLocalBranchesManaged() {
+  private boolean areAllLocalBranchesManaged(Path macheteFilePath) {
     val localBranches = gitRepository.getBranches().getLocalBranches();
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     try {
-      val branchLayout = branchLayoutReader.read(gitRepository.getMacheteFilePath());
+      val branchLayout = branchLayoutReader.read(macheteFilePath);
       val managedLocalBranches = List.ofAll(localBranches)
           .map(GitReference::getName)
           .map(branchLayout::findEntryByName);
