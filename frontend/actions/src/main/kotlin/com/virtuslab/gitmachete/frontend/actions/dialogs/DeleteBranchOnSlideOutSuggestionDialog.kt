@@ -19,10 +19,6 @@ data class SlideOutOptions(
 class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: String) :
   DialogWrapper(project, /* canBeParent */ true) {
 
-  // Must NOT be private to prevent:
-  // java.lang.IllegalAccessException: class
-  // kotlin.reflect.jvm.internal.calls.CallerImpl$FieldGetter$BoundInstance
-  // cannot access a member of class ... with modifiers "private"
   private var remember = false
   private var delete = false
 
