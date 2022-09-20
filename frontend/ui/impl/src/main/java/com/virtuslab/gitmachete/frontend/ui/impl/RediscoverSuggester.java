@@ -124,7 +124,7 @@ public class RediscoverSuggester {
     return false;
   }
 
-  private boolean isBranchLayoutTheSame(Path macheteFilePath) {
+  private boolean isDiscoveredBranchLayoutEquivalentToCurrent(Path macheteFilePath) {
     Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
     Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
     Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
