@@ -8,6 +8,10 @@ public interface IBranchLayout {
 
   Option<IBranchLayoutEntry> findEntryByName(String branchName);
 
+  default boolean hasEntry(String branchName) {
+    return findEntryByName(branchName).isDefined();
+  }
+
   IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
       throws EntryDoesNotExistException, EntryIsDescendantOfException;
 
