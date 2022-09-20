@@ -335,6 +335,31 @@ since the latest release over the hotfixed `master`.
 This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
 which is rather unacceptable.
 
+### Plugin signing
+
+The valid non-expired key pair together with the password required for the plugin signing should be present in the CI environment.
+If they are absent, please take a look at the [plugin signing in IntelliJ](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#signing-methods) for updated instructions on how to do it.
+Currently, you would need to first generate the private key with:
+```shell
+openssl genpkey\
+  -aes-256-cbc\
+  -algorithm RSA\
+  -out private.pem\
+  -pkeyopt rsa_keygen_bits:4096\
+  -pass env:PASSWORD_ENVIRONMENT_VARIABLE_NAME
+```
+Then, use that for generating the certificate chain by running:
+```shell
+openssl req\
+  -key private.pem\
+  -new\
+  -x509\
+  -days 365\
+  -out chain.crt\
+  -passin env:PASSWORD_ENVIRONMENT_VARIABLE_NAME\
+  -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=info@virtuslab.com"
+```
+Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `$PASSWORD_ENVIRONMENT_VARIABLE_NAME`, in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin); in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
 
 ## Scenario recordings
 
