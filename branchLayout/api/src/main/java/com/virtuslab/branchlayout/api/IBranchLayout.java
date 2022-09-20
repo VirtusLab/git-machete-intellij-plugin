@@ -3,6 +3,7 @@ package com.virtuslab.branchlayout.api;
 import java.util.Comparator;
 
 import io.vavr.collection.List;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface IBranchLayout {

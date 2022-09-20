@@ -21,7 +21,14 @@ public interface IBranchLayoutEntry {
 
   default boolean equals(IBranchLayoutEntry other) {
     val areNamesSame = this.getName().equals(other.getName());
-    val areCustomAnnotationsSame = this.getCustomAnnotation().equals(other.getCustomAnnotation());
+    val thisCustomAnnotation = this.getCustomAnnotation();
+    val otherCustomAnntation = other.getCustomAnnotation();
+
+    var areCustomAnnotationsSame = thisCustomAnnotation == null && otherCustomAnntation == null;
+
+    if (thisCustomAnnotation != null && otherCustomAnntation != null) {
+      areCustomAnnotationsSame = thisCustomAnnotation.equals(otherCustomAnntation);
+    }
 
     if (areNamesSame && areCustomAnnotationsSame && this.getChildren().size() == other.getChildren().size()) {
       val entryNameComparator = Comparator.comparing(IBranchLayoutEntry::getName);
