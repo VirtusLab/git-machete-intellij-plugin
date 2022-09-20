@@ -169,19 +169,15 @@ jobs:
           command: |
             if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
             for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
-            mkdir -p ~/artifacts/zip
-            mkdir -p ~/artifacts/logs
-            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts/zip
+            mkdir -p ~/artifacts
+            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
             for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
-              target="~/artifacts/logs/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
+              target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
               eval "cp $f $target"
             done
           when: on_fail
       - store_artifacts:
-          path: ~/artifacts/zip
-          destination: .
-      - store_artifacts:
-          path: ~/artifacts/logs
+          path: ~/artifacts
           destination: .
 
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
