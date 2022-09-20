@@ -6,6 +6,10 @@ import io.vavr.collection.List;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ *  Two IBranchLayout objects are equal when their root entries are equal.
+ *  @see IBranchLayoutEntry
+ */
 public interface IBranchLayout {
   List<IBranchLayoutEntry> getRootEntries();
 

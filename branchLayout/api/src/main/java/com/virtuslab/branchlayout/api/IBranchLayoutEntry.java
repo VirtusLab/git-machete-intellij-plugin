@@ -7,7 +7,9 @@ import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * The only criterion for equality of any instances of any class implementing this interface is reference equality
+ *  Class that encapsulates a single branch and a list of its children. <br>
+ *  Two IBranchLayoutEntry objects are equal when their names, their custom annotations
+ *  and their children are ALL equal (recursively checked for children).
  */
 public interface IBranchLayoutEntry {
   String getName();

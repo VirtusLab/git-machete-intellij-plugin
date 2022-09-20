@@ -102,7 +102,7 @@ public class RediscoverSuggester {
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        if (areAllLocalBranchesManaged(macheteFilePath) || isBranchLayoutTheSame(macheteFilePath)) {
+        if (areAllLocalBranchesManaged(macheteFilePath) || isDiscoveredBranchLayoutEquivalentToCurrent(macheteFilePath)) {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> refreshFileModificationDate(macheteFilePath));
         } else {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
@@ -134,11 +134,11 @@ public class RediscoverSuggester {
 
     if (discoverRunResult.isSuccess()) {
       try {
-        val managedBranchLayout = branchLayoutReader.read(macheteFilePath);
+        val currentBranchLayout = branchLayoutReader.read(macheteFilePath);
 
         val discoveredBranchLayout = discoverRunResult.get().getBranchLayout();
 
-        return discoveredBranchLayout.equals(managedBranchLayout);
+        return discoveredBranchLayout.equals(currentBranchLayout);
       } catch (BranchLayoutException ignored) {}
     }
 
