@@ -10,7 +10,6 @@ import static io.vavr.API.Match;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import io.vavr.collection.List;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -50,15 +49,13 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
   @UIEffect
   default void syncToParentStatusDependentActionUpdate(AnActionEvent anActionEvent) {
 
-    Presentation presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabled()) {
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val gitMacheteBranchByName = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
-        : null;
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val gitMacheteBranchByName = getManagedBranchByName(anActionEvent, branchName);
 
     if (branchName == null || gitMacheteBranchByName == null) {
       presentation.setEnabled(false);

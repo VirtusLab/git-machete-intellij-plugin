@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -47,17 +46,17 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   }
 
   @Override
-  public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
-    return Option.of(remoteTrackingBranch);
+  public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
+    return remoteTrackingBranch;
   }
 
   @Override
-  public Option<String> getCustomAnnotation() {
-    return Option.of(customAnnotation);
+  public @Nullable String getCustomAnnotation() {
+    return customAnnotation;
   }
 
   @Override
-  public Option<String> getStatusHookOutput() {
-    return Option.of(statusHookOutput);
+  public @Nullable String getStatusHookOutput() {
+    return statusHookOutput;
   }
 }

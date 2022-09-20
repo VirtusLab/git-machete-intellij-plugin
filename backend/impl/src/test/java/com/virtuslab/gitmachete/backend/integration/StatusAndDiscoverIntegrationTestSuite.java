@@ -145,7 +145,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append(System.lineSeparator());
 
     val commits = branch.getCommits().reverse();
-    val forkPoint = branch.getForkPoint().getOrNull();
+    val forkPoint = branch.getForkPoint();
 
     for (val c : commits) {
       sb.append("  ");
@@ -156,7 +156,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
       if (c.equals(forkPoint)) {
         sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} seems to be a part of the unique history of ");
         List<IBranchReference> uniqueBranchesContainingInReflog = forkPoint.getUniqueBranchesContainingInReflog();
-        sb.append(uniqueBranchesContainingInReflog.map(b -> b.getName()).sorted().mkString(" and "));
+        sb.append(uniqueBranchesContainingInReflog.map(IBranchReference::getName).sorted().mkString(" and "));
       }
       sb.append(System.lineSeparator());
     }
@@ -182,13 +182,13 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append(branch.getName());
 
     val currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
-    if (currBranch.isDefined() && currBranch.get() == branch)
+    if (currBranch != null && currBranch == branch)
       sb.append(" *");
 
     val customAnnotation = branch.getCustomAnnotation();
-    if (customAnnotation.isDefined()) {
+    if (customAnnotation != null) {
       sb.append("  ");
-      sb.append(customAnnotation.get());
+      sb.append(customAnnotation);
     }
     val relationToRemote = branch.getRelationToRemote();
 
@@ -205,9 +205,9 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
       sb.append(")");
     }
     val statusHookOutput = branch.getStatusHookOutput();
-    if (statusHookOutput.isDefined()) {
+    if (statusHookOutput != null) {
       sb.append("  ");
-      sb.append(statusHookOutput.get());
+      sb.append(statusHookOutput);
     }
     sb.append(System.lineSeparator());
 

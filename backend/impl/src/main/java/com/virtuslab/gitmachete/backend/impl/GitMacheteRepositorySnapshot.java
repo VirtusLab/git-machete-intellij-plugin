@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.backend.impl;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
-import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -46,8 +45,8 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
-    return Option.of(currentBranchIfManaged);
+  public @Nullable IManagedBranchSnapshot getCurrentBranchIfManaged() {
+    return currentBranchIfManaged;
   }
 
   @Override
@@ -56,12 +55,12 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
-    return managedBranchByName.get(branchName);
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
+    return managedBranchByName.get(branchName).getOrNull();
   }
 
   @Override
-  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
+  public @Nullable IExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException {
     return preRebaseHookExecutor.executeHookFor(gitRebaseParameters);
   }

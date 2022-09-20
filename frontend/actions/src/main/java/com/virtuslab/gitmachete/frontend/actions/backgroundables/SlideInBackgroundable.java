@@ -13,6 +13,7 @@ import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
@@ -68,7 +69,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
-    IBranchLayoutEntry childEntryByName = branchLayout.findEntryByName(slideInOptions.getName()).getOrNull();
+    val childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
     IBranchLayoutEntry entryToSlideIn;
     IBranchLayout targetBranchLayout;
     if (childEntryByName != null) {

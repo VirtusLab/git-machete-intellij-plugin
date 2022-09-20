@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
+import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
@@ -38,7 +39,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       presentation
           .setDescription(getNonHtmlString("action.GitMachete.FetchAllRemotesAction.description.disabled.already-running"));
     } else {
-      val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+      val gitRepository = getSelectedGitRepository(anActionEvent);
       if (gitRepository == null) {
         presentation.setEnabled(false);
         presentation
@@ -62,16 +63,16 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
-    String title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
+    val title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
     new Task.Backgroundable(project, title, /* canBeCancelled */ true) {
       private @MonotonicNonNull GitFetchResult result = null;
 
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
-        result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(gitRepository.toJavaList());
-        if (gitRepository.isDefined()) {
-          val repoName = gitRepository.get().getRoot().getName();
+        result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(Option.of(gitRepository).toJavaList());
+        if (gitRepository != null) {
+          val repoName = gitRepository.getRoot().getName();
           FetchUpToDateTimeoutStatus.update(repoName);
         }
       }

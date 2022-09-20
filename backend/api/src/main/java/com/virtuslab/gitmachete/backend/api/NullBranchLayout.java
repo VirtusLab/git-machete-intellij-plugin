@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
@@ -21,8 +21,8 @@ public final class NullBranchLayout implements IBranchLayout {
   }
 
   @Override
-  public Option<IBranchLayoutEntry> findEntryByName(String branchName) {
-    return Option.none();
+  public @Nullable IBranchLayoutEntry findEntryByName(String branchName) {
+    return null;
   }
 
   @Override
