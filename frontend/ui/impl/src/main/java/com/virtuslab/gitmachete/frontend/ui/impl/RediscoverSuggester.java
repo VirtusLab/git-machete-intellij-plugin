@@ -71,13 +71,18 @@ public class RediscoverSuggester {
       queueDiscoverOperation.run();
     } else { // closing dialog goes here too
       LOG.info("Rediscover declined from dialog");
-      setMacheteFileModificationDate(macheteFilePath, System.currentTimeMillis());
+      refreshFileModificationDate(macheteFilePath);
     }
   }
 
+  /**
+   *  This method sets the modification time of a file to current system time.
+   *  It is used to state that the user has declined the suggestion, thus we should not ask again
+   *  before {@link RediscoverSuggester#DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER} pass.
+   */
   @UIEffect
-  private void setMacheteFileModificationDate(Path macheteFilePath, long timeMillis) {
-    macheteFilePath.setFileModificationDate(timeMillis);
+  private void refreshFileModificationDate(Path macheteFilePath) {
+    macheteFilePath.setFileModificationDate(System.currentTimeMillis());
   }
 
   private long daysDiffTillNow(long lastModifiedTimeMillis) {
@@ -92,11 +97,10 @@ public class RediscoverSuggester {
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        if (!areAllLocalBranchesManaged(macheteFilePath)) {
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
+        if (areAllLocalBranchesManaged(macheteFilePath)) {
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> refreshFileModificationDate(macheteFilePath));
         } else {
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL,
-              () -> setMacheteFileModificationDate(macheteFilePath, System.currentTimeMillis()));
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
         }
       }
     }.queue();
@@ -107,11 +111,10 @@ public class RediscoverSuggester {
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     try {
       val branchLayout = branchLayoutReader.read(macheteFilePath);
-      val managedLocalBranches = List.ofAll(localBranches)
-          .map(GitReference::getName)
-          .map(branchLayout::findEntryByName);
+      val localBranchNames = List.ofAll(localBranches)
+          .map(GitReference::getName);
 
-      return !managedLocalBranches.contains(Option.none());
+      return localBranchNames.forAll(branchLayout::hasEntry);
     } catch (BranchLayoutException e) {
       return false;
     }
