@@ -17,14 +17,14 @@ import javax.swing.Action
 
 class GraphTableDialog
 private constructor(
-  val table: JBTable,
-  val repositorySnapshot: IGitMacheteRepositorySnapshot?,
-  val dimension: JBDimension,
-  val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
-  val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
-  val cancelButtonVisible: Boolean,
-  val windowTitle: String,
-  val okButtonText: String
+  private val table: JBTable,
+  private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
+  private val dimension: JBDimension,
+  private val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
+  private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
+  private val cancelButtonVisible: Boolean,
+  windowTitle: String,
+  okButtonText: String
 ) : DialogWrapper(/* canBeParent */ false) {
 
   init {
