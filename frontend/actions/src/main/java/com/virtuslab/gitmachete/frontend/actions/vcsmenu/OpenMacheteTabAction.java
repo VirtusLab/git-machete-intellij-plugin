@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.vcsmenu;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
@@ -29,7 +28,7 @@ public class OpenMacheteTabAction extends BaseProjectDependentAction {
 
     // Getting project from event and assigning it to variable is needed to avoid exception
     // because the data context is shared between Swing events (esp. with #2 VcsNotifier call - inside lambda)
-    Project project = getProject(anActionEvent);
+    val project = getProject(anActionEvent);
 
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
     ToolWindow toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);

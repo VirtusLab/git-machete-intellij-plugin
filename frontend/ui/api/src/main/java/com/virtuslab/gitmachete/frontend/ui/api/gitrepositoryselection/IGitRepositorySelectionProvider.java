@@ -1,10 +1,11 @@
 package com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection;
 
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface IGitRepositorySelectionProvider {
-  Option<GitRepository> getSelectedGitRepository();
+  @Nullable
+  GitRepository getSelectedGitRepository();
 
   void addSelectionChangeObserver(IGitRepositorySelectionChangeObserver observer);
 }

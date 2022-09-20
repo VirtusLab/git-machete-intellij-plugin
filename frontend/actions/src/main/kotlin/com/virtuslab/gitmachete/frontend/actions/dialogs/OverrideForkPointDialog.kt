@@ -33,7 +33,7 @@ class OverrideForkPointDialog(
     if (showAndGet()) {
       when (myOverrideOption) {
         OverrideOption.PARENT -> parentBranch.pointedCommit
-        OverrideOption.INFERRED -> branch.forkPoint.orNull
+        OverrideOption.INFERRED -> branch.forkPoint
       }
     } else {
       null
@@ -63,22 +63,28 @@ class OverrideForkPointDialog(
         )
           .comment(parentBranch.pointedCommit.shortMessage)
       }
+
+      var thisRowComment = "cannot resolve commit message"
+
+      var radioButtonComment = "cannot resolve commit hash"
+
+      if (branch.forkPoint != null) {
+        thisRowComment = branch.forkPoint!!.shortMessage
+        radioButtonComment = branch.forkPoint!!.shortHash
+      }
+
       row {
         radioButton(
           format(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
             ),
-            branch.forkPoint
-              .map { it.shortHash }
-              .getOrElse { "cannot resolve commit hash" }
+            radioButtonComment
           ),
           OverrideOption.INFERRED
         )
           .comment(
-            branch.forkPoint
-              .map { it.shortMessage }
-              .getOrElse { "cannot resolve commit message" }
+            thisRowComment
           )
       }
     }

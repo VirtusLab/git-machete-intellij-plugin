@@ -10,7 +10,6 @@ import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.Check
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
@@ -30,6 +29,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
@@ -53,14 +53,14 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    Presentation presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName)
         : null;
 
     if (branchName == null) {
@@ -81,9 +81,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
-    val parentName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
-    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
+    val parentName = getNameOfBranchUnderAction(anActionEvent);
+    val branchLayout = getBranchLayout(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
@@ -126,11 +126,10 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
     // TODO (#430): expose getParent from branch layout API
     val parentEntry = branchLayout.findEntryByName(parentName);
-    val entryAlreadyExistsBelowGivenParent = parentEntry
-        .map(entry -> entry.getChildren())
-        .map(children -> children.map(e -> e.getName()))
-        .map(names -> names.contains(slideInOptions.getName()))
-        .getOrElse(false);
+    val entryAlreadyExistsBelowGivenParent = parentEntry != null
+        && parentEntry.getChildren().map(IBranchLayoutEntry::getName)
+            .map(names -> names.contains(slideInOptions.getName()))
+            .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent && slideInOptions.shouldReattach()) {
       log().debug("Skipping action: Branch layout entry already exists below given parent");

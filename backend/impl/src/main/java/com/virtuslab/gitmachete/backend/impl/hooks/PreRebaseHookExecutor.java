@@ -11,6 +11,7 @@ import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
@@ -42,16 +43,16 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
   @Loggable(value = Loggable.DEBUG)
-  public Option<IExecutionResult> executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
+  public @Nullable IExecutionResult executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-pre-rebase hook execution for ${gitRebaseParameters}: " +
           "${hookFilePath} does not exist");
-      return Option.none();
+      return null;
     } else if (!hookFile.canExecute()) {
       LOG.warn("Skipping machete-status-branch hook execution for ${gitRebaseParameters}: " +
           "${hookFilePath} cannot be executed");
-      return Option.none();
+      return null;
     }
 
     LOG.debug(() -> "Executing machete-pre-rebase hook (${hookFilePath}) " +
@@ -102,6 +103,6 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
 
     LOG.info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
         "returned with ${process.exitValue()} exit code");
-    return Option.some(ExecutionResult.of(process.exitValue(), strippedStdout, strippedStderr));
+    return ExecutionResult.of(process.exitValue(), strippedStdout, strippedStderr);
   }
 }

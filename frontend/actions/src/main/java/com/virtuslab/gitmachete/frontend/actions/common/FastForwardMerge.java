@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.project.Project;
+import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
@@ -62,7 +63,7 @@ public final class FastForwardMerge {
       MergeProps mergeProps, @Untainted String fetchNotificationPrefix, boolean insertNewlineAfterPrefix) {
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
-    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(b -> b.getName()).getOrNull();
+    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     val newLineSymbolHtml = insertNewlineAfterPrefix ? "<br/>" : "";
     val failFFMergeNotification = fetchNotificationPrefix + newLineSymbolHtml
         + getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail").format(stayingName,

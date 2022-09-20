@@ -4,6 +4,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import lombok.Data;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -17,17 +18,20 @@ public interface IGitMacheteRepositorySnapshot {
 
   List<IRootManagedBranchSnapshot> getRootBranches();
 
-  Option<IManagedBranchSnapshot> getCurrentBranchIfManaged();
+  @Nullable
+  IManagedBranchSnapshot getCurrentBranchIfManaged();
 
   List<IManagedBranchSnapshot> getManagedBranches();
 
-  Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName);
+  @Nullable
+  IManagedBranchSnapshot getManagedBranchByName(String branchName);
 
   Set<String> getDuplicatedBranchNames();
 
   Set<String> getSkippedBranchNames();
 
-  Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
+  @Nullable
+  IExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
 
   @Data

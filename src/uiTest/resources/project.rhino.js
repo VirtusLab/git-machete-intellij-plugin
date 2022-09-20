@@ -470,7 +470,7 @@ function Project(underlyingProject) {
     // since it operates in the context of the Remote Robot plugin, not our plugin.
     const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');
     const provider = underlyingProject.getService(providerClass);
-    const gitRepository = provider.getSelectedGitRepository().get();
+    const gitRepository = provider.getSelectedGitRepository();
     // Let's make sure the data stored in the GitRepository object is up-to-date with the underlying .git/ folder.
     gitRepository.update();
     return gitRepository;
@@ -507,8 +507,7 @@ function Project(underlyingProject) {
 
   this.getSyncToParentStatus = function (child) {
     const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
-    return snapshot.getManagedBranchByName(child)
-      .map(p => p.asNonRoot().getSyncToParentStatus().name())
-      .getOrElse('');
+    const managedBranch = snapshot.getManagedBranchByName(child);
+    return managedBranch.asNonRoot().getSyncToParentStatus().name();
   };
 }

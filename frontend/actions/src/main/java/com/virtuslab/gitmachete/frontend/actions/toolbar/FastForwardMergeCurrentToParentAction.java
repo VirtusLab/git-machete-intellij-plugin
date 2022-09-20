@@ -1,16 +1,16 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.control.Option;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseFastForwardMergeToParentAction;
 
 public class FastForwardMergeCurrentToParentAction extends BaseFastForwardMergeToParentAction {
   @Override
-  public Option<String> getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
   }
 
@@ -24,11 +24,12 @@ public class FastForwardMergeCurrentToParentAction extends BaseFastForwardMergeT
       return;
     }
 
-    val isInSyncToParent = getCurrentBranchNameIfManaged(anActionEvent)
-        .flatMap(bn -> getManagedBranchByName(anActionEvent, bn))
-        .flatMap(b -> b.isNonRoot() ? Option.some(b.asNonRoot()) : Option.none())
-        .map(nrb -> nrb.getSyncToParentStatus() == SyncToParentStatus.InSync)
-        .getOrElse(false);
+    val currentBranchByName = getManagedBranchByName(anActionEvent, getCurrentBranchNameIfManaged(anActionEvent));
+    val nonRootBranch = currentBranchByName != null && currentBranchByName.isNonRoot()
+        ? currentBranchByName.asNonRoot()
+        : null;
+
+    val isInSyncToParent = nonRootBranch != null && nonRootBranch.getSyncToParentStatus() == SyncToParentStatus.InSync;
 
     presentation.setVisible(isInSyncToParent);
   }

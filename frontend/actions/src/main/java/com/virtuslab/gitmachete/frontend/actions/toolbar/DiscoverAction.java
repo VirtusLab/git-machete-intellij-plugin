@@ -49,8 +49,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
-    val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
-    val gitRepository = selectedRepoProvider.getSelectedGitRepository().getOrNull();
+    val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class)
+        .getGitRepositorySelectionProvider();
+    val gitRepository = selectedRepoProvider.getSelectedGitRepository();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
