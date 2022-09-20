@@ -190,4 +190,67 @@ public class BranchLayoutTestSuite {
     // then no exception thrown
     Assert.assertTrue(result.getRootEntries().isEmpty());
   }
+
+  @Test
+  public void equalsGivesCorrectResults() {
+    val branches = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("A", /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))));
+
+    val branchesWithExtraRootBranch = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("A", /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))),
+        new BranchLayoutEntry("EXTRA_BRANCH", /* customAnnotation */ null, List.empty()));
+
+    val branchesWithExtraLeafBranch = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("A", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("EXTRA_BRANCH", /* customAnnotation */ null, List.empty()))),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))));
+
+    val branchesDifferentRootName = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("DIFFERENT_NAME", /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))));
+
+    val branchesDifferentLeafName = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("A", /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("DIFFERENT_NAME", /* customAnnotation */ null, List.empty()))));
+
+    val branchesDifferentAnnotation = List.of(
+        (IBranchLayoutEntry) new BranchLayoutEntry("A", /* customAnnotation */ null, List.empty()),
+        new BranchLayoutEntry("B", "DIFFERENT_ANNOTATION",
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))));
+
+    val emptyBranchLayout = new BranchLayout(List.empty());
+    val branchLayout = new BranchLayout(branches);
+    val branchLayoutWithExtraRootBranch = new BranchLayout(branchesWithExtraRootBranch);
+    val branchLayoutWithExtraLeafBranch = new BranchLayout(branchesWithExtraLeafBranch);
+    val branchLayoutDifferentRootName = new BranchLayout(branchesDifferentRootName);
+    val branchLayoutDifferentLeafName = new BranchLayout(branchesDifferentLeafName);
+    val branchLayoutDifferentAnnotation = new BranchLayout(branchesDifferentAnnotation);
+
+    Assert.assertTrue(branchLayout.equals(new BranchLayout(branches)));
+
+    Assert.assertFalse(branchLayout.equals(emptyBranchLayout));
+    Assert.assertFalse(emptyBranchLayout.equals(branchLayout));
+
+    Assert.assertFalse(branchLayout.equals(branchLayoutWithExtraRootBranch));
+    Assert.assertFalse(branchLayoutWithExtraRootBranch.equals(branchLayout));
+
+    Assert.assertFalse(branchLayout.equals(branchLayoutWithExtraLeafBranch));
+    Assert.assertFalse(branchLayoutWithExtraLeafBranch.equals(branchLayout));
+
+    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentRootName));
+    Assert.assertFalse(branchLayoutDifferentRootName.equals(branchLayout));
+
+    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentLeafName));
+    Assert.assertFalse(branchLayoutDifferentLeafName.equals(branchLayout));
+
+    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentAnnotation));
+    Assert.assertFalse(branchLayoutDifferentAnnotation.equals(branchLayout));
+  }
 }

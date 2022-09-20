@@ -13,6 +13,7 @@ import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -22,6 +23,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -32,6 +34,9 @@ public class RediscoverSuggester {
   private final GitRepository gitRepository;
 
   private final Runnable queueDiscoverOperation;
+
+  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
 
   // TODO (#270): a candidate for custom settings tab
   private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
@@ -97,7 +102,7 @@ public class RediscoverSuggester {
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @Override
       public void run(ProgressIndicator indicator) {
-        if (areAllLocalBranchesManaged(macheteFilePath)) {
+        if (areAllLocalBranchesManaged(macheteFilePath) || isBranchLayoutTheSame(macheteFilePath)) {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> refreshFileModificationDate(macheteFilePath));
         } else {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
@@ -108,15 +113,35 @@ public class RediscoverSuggester {
 
   private boolean areAllLocalBranchesManaged(Path macheteFilePath) {
     val localBranches = gitRepository.getBranches().getLocalBranches();
-    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     try {
       val branchLayout = branchLayoutReader.read(macheteFilePath);
       val localBranchNames = List.ofAll(localBranches)
           .map(GitReference::getName);
 
       return localBranchNames.forAll(branchLayout::hasEntry);
-    } catch (BranchLayoutException e) {
-      return false;
+    } catch (BranchLayoutException ignored) {}
+
+    return false;
+  }
+
+  private boolean isBranchLayoutTheSame(Path macheteFilePath) {
+    Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
+    Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
+    Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
+
+    val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+        .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
+
+    if (discoverRunResult.isSuccess()) {
+      try {
+        val managedBranchLayout = branchLayoutReader.read(macheteFilePath);
+
+        val discoveredBranchLayout = discoverRunResult.get().getBranchLayout();
+
+        return discoveredBranchLayout.equals(managedBranchLayout);
+      } catch (BranchLayoutException ignored) {}
     }
+
+    return false;
   }
 }
