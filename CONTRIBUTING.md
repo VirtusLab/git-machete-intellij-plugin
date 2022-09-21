@@ -357,7 +357,7 @@ openssl req\
   -days 365\
   -out chain.crt\
   -passin env:PASSWORD_ENVIRONMENT_VARIABLE_NAME\
-  -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=info@virtuslab.com"
+  -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=gitmachete@virtuslab.com"
 ```
 Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `$PASSWORD_ENVIRONMENT_VARIABLE_NAME`, in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin); in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
 
