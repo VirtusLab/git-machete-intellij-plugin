@@ -25,7 +25,7 @@ RUN \
 # we'd need to populate ~/.java/.userPrefs/jetbrains/.../prefs.xml to accept End User Agreement/privacy policy.
 # But in our setup, it's sorted out by ide-probe instead (org.virtuslab.ideprobe.ide.intellij.IntellijPrivacyPolicy).
 
-# Tools necessary to run non-headless UI tests in the screen-less environment of CI
+# Tools necessary to run non-headless UI tests using a virtual screen environment of CI
 RUN apt-get install --no-install-recommends -y libxi6 libxtst6 x11-apps xauth xvfb
 
 # Tools necessary to run manipulate screenshots from ide-probe
