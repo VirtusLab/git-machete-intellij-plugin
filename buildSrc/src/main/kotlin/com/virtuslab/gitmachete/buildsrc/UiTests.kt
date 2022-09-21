@@ -20,7 +20,7 @@ fun Project.configureUiTests() {
     if (project.properties["against"] != null) {
       IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
     } else {
-      listOf(IntellijVersions.buildTarget)
+      listOf(IntellijVersions.getBuildTarget())
     }
 
   uiTestTargets.onEach { version ->

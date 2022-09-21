@@ -39,5 +39,11 @@ object IntellijVersions {
     IntellijVersionHelper.getMajorPart(latestStable)
   }
 
-  val buildTarget: String = eapOfLatestSupportedMajor ?: latestStable
+  private val buildTarget: String = eapOfLatestSupportedMajor ?: latestStable
+
+  public fun getBuildTarget(): String {
+    return overrideBuildTarget ?: buildTarget
+  }
+
+  var overrideBuildTarget: String? = null
 }

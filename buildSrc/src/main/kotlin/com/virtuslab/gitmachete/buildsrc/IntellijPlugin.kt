@@ -22,7 +22,7 @@ fun Project.configureIntellijPlugin() {
   configure<IntelliJPluginExtension> {
     instrumentCode.set(false)
     pluginName.set("git-machete-intellij-plugin")
-    version.set(IntellijVersions.buildTarget)
+    version.set(IntellijVersions.getBuildTarget())
     plugins.set(listOf("git4idea")) // Needed solely for ArchUnit
   }
 
