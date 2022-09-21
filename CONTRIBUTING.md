@@ -143,7 +143,7 @@ set `printTestOutput` project property: `./gradlew -PprintTestOutput test`.
 ### Run UI tests
 
 ```shell
-./gradlew [-Pagainst=<e.g. 2021.2>] [-Pheadless] [-Ptests=<e.g. toggle>] uiTest
+./gradlew [-Pagainst=<e.g. 2021.2>] [-PvirtualDisplay] [-Ptests=<e.g. toggle>] uiTest
 ```
 
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
@@ -165,7 +165,7 @@ docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
       -v /tmp/ide-probe/cache:/tmp/ide-probe/cache \
       -w /home/docker/git-machete-intellij-plugin \
       gitmachete/intellij-plugin-ci \
-      ./gradlew -Pheadless uiTest
+      ./gradlew -PvirtualDisplay uiTest
 ```
 
 

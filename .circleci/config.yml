@@ -146,10 +146,10 @@ jobs:
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
+          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
+          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -162,7 +162,7 @@ jobs:
           steps:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
-                command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+                command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
       - run:
           name: Collect artifacts when an exception occurs
           # language=sh
