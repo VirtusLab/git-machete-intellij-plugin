@@ -1,8 +1,15 @@
 package com.virtuslab.branchlayout.api;
 
+import java.util.Comparator;
+
 import io.vavr.collection.List;
+import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ *  Two IBranchLayout objects are equal when their root entries are equal.
+ *  @see IBranchLayoutEntry
+ */
 public interface IBranchLayout {
   List<IBranchLayoutEntry> getRootEntries();
 
@@ -17,4 +24,20 @@ public interface IBranchLayout {
       throws EntryDoesNotExistException, EntryIsDescendantOfException;
 
   IBranchLayout slideOut(String branchName);
+
+  default boolean equals(IBranchLayout other) {
+    if (this.getRootEntries().size() == other.getRootEntries().size()) {
+      val entryNameComparator = Comparator.comparing(IBranchLayoutEntry::getName);
+
+      val sortedThisRootEntries = this.getRootEntries()
+          .sorted(entryNameComparator);
+      val sortedOtherRootEntries = other.getRootEntries()
+          .sorted(entryNameComparator);
+
+      return sortedThisRootEntries.zip(sortedOtherRootEntries)
+          .forAll(rootEntryTuple -> rootEntryTuple._1.equals(rootEntryTuple._2));
+    }
+
+    return false;
+  }
 }

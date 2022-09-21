@@ -5,10 +5,8 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import lombok.Getter;
 import lombok.val;
-import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-@UsesObjectEquals
 public class BranchLayout implements IBranchLayout {
 
   @Getter
