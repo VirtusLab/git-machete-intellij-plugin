@@ -1,7 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -22,7 +21,7 @@ public class GitCoreHeadSnapshot implements IGitCoreHeadSnapshot {
   private final List<IGitCoreReflogEntry> reflogFromMostRecent;
 
   @Override
-  public Option<IGitCoreLocalBranchSnapshot> getTargetBranch() {
-    return Option.of(targetBranch);
+  public @Nullable IGitCoreLocalBranchSnapshot getTargetBranch() {
+    return targetBranch;
   }
 }

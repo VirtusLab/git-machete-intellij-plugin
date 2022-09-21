@@ -104,7 +104,7 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
     // then
-    int i = exception.getErrorLine().get();
+    int i = exception.getErrorLine();
     assertEquals(3, i);
   }
 
@@ -119,7 +119,7 @@ public class BranchLayoutFileReaderTestSuite {
 
     System.out.println(exception.getMessage());
     // then
-    int i = exception.getErrorLine().get();
+    int i = exception.getErrorLine();
     assertEquals(4, i);
   }
 
@@ -133,7 +133,7 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
     // then
-    int i = exception.getErrorLine().get();
+    int i = exception.getErrorLine();
     assertEquals(5, i);
   }
 
@@ -147,7 +147,7 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
 
     // then
-    int i = exception.getErrorLine().get();
+    int i = exception.getErrorLine();
     assertEquals(3, i);
   }
 }

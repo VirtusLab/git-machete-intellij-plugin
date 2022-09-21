@@ -29,6 +29,6 @@ public class GitCoreRepositoryTest {
 
   @Test
   public void shouldContainExceptionsInsideOptionReturningMethods() throws Exception {
-    Assert.assertEquals(gitCoreRepository.parseRevision(""), Option.none());
+    Assert.assertEquals(gitCoreRepository.parseRevision(""), null);
   }
 }

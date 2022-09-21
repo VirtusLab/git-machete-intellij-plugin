@@ -49,7 +49,6 @@ import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.Set;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -348,8 +347,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           return;
         }
 
-        @UI Consumer<Option<IGitMacheteRepositorySnapshot>> doRefreshModel = newGitMacheteRepositorySnapshot -> {
-          val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot.getOrNull();
+        @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
+          val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
           this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
           if (nullableRepositorySnapshot != null) {
             refreshModel(gitRepository,
@@ -366,8 +365,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         LOG.debug("Queuing repository update onto a non-UI thread");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
 
-        gitRepository.getMacheteFile().forEach(macheteFile -> VfsUtil.markDirtyAndRefresh(/* async */ true,
-            /* recursive */ false, /* reloadChildren */ false, macheteFile));
+        val macheteFile = gitRepository.getMacheteFile();
+
+        if (macheteFile != null) {
+          VfsUtil.markDirtyAndRefresh(/* async */ true,/* recursive */ false, /* reloadChildren */ false, macheteFile);
+        }
       });
     } else {
       LOG.debug("Project is disposed");

@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -15,11 +15,14 @@ public interface IGitCoreRepository {
   Path getWorktreeGitDirectoryPath();
 
   @UIThreadUnsafe
-  Option<String> deriveConfigValue(String section, String subsection, String name);
-  Option<String> deriveConfigValue(String section, String name);
+  @Nullable
+  String deriveConfigValue(String section, String subsection, String name);
+  @Nullable
+  String deriveConfigValue(String section, String name);
 
   @UIThreadUnsafe
-  Option<IGitCoreCommit> parseRevision(String revision) throws GitCoreException;
+  @Nullable
+  IGitCoreCommit parseRevision(String revision) throws GitCoreException;
 
   /**
    * @return snapshots of all local branches in the repository, sorted by name
@@ -32,7 +35,8 @@ public interface IGitCoreRepository {
   IGitCoreHeadSnapshot deriveHead() throws GitCoreException;
 
   @UIThreadUnsafe
-  Option<GitCoreRelativeCommitCount> deriveRelativeCommitCount(
+  @Nullable
+  GitCoreRelativeCommitCount deriveRelativeCommitCount(
       IGitCoreCommit fromPerspectiveOf,
       IGitCoreCommit asComparedTo) throws GitCoreException;
 
@@ -40,10 +44,12 @@ public interface IGitCoreRepository {
   List<String> deriveAllRemoteNames();
 
   @UIThreadUnsafe
-  Option<String> deriveRebasedBranch() throws GitCoreException;
+  @Nullable
+  String deriveRebasedBranch() throws GitCoreException;
 
   @UIThreadUnsafe
-  Option<String> deriveBisectedBranch() throws GitCoreException;
+  @Nullable
+  String deriveBisectedBranch() throws GitCoreException;
 
   @UIThreadUnsafe
   boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
