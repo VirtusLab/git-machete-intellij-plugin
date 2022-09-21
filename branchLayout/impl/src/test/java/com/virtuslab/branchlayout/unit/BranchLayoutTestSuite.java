@@ -273,4 +273,24 @@ public class BranchLayoutTestSuite {
     Assert.assertFalse(branchLayout.equals(branchLayoutDifferentAnnotation));
     Assert.assertFalse(branchLayoutDifferentAnnotation.equals(branchLayout));
   }
+
+  @Test
+  public void withBranchLayouts_givenTheyAreEquivalentButShuffled_shouldBeConsideredEqual() {
+    val branchLayout = new BranchLayout(List.of(
+        new BranchLayoutEntry("A", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("AB", "ANNOTATION", List.empty()),
+                new BranchLayoutEntry("AA", /* customAnnotation */ null, List.empty()))),
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty())))));
+
+    val branchLayoutShuffled = new BranchLayout(List.of(
+        new BranchLayoutEntry("B", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))),
+        new BranchLayoutEntry("A", /* customAnnotation */ null,
+            List.of(new BranchLayoutEntry("AA", /* customAnnotation */ null, List.empty()),
+                new BranchLayoutEntry("AB", "ANNOTATION", List.empty())))));
+
+    Assert.assertTrue(branchLayout.equals(branchLayoutShuffled));
+    Assert.assertTrue(branchLayoutShuffled.equals(branchLayout));
+  }
 }
