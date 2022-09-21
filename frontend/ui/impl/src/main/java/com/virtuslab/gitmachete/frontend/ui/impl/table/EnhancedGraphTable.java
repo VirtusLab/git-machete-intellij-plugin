@@ -368,7 +368,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         val macheteFile = gitRepository.getMacheteFile();
 
         if (macheteFile != null) {
-          VfsUtil.markDirtyAndRefresh(/* async */ true,/* recursive */ false, /* reloadChildren */ false, macheteFile);
+          VfsUtil.markDirtyAndRefresh(/* async */ true, /* recursive */ false, /* reloadChildren */ false, macheteFile);
         }
       });
     } else {
