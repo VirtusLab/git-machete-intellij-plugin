@@ -7,3 +7,5 @@ build/
 /*.hprof.*/
 /.idea/
 /.semanticgraphs/
+*.pem
+*.crt
