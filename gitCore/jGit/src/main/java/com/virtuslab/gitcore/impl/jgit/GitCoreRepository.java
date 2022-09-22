@@ -156,7 +156,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   private ObjectId convertExistingRevisionToObjectId(String revision) throws GitCoreException {
     val objectId = convertRevisionToObjectId(revision);
     if (objectId == null) {
-      new GitCoreNoSuchRevisionException("Commit '${revision}' does not exist in this repository");
+      throw new GitCoreNoSuchRevisionException("Commit '${revision}' does not exist in this repository");
     }
     return objectId;
   }
