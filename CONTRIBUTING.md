@@ -335,6 +335,76 @@ since the latest release over the hotfixed `master`.
 This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
 which is rather unacceptable.
 
+### Plugin signing
+
+The valid non-expired key pair together with the password required for the plugin signing should be present in the CI environment.
+If they are absent, please take a look at the [plugin signing in IntelliJ](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#signing-methods) for updated instructions on how to do it.
+Currently, you would need to first generate the private key with:
+```shell
+export PLUGIN_SIGN_PRIVATE_KEY_PASS="Change2UrStr0ngP4ssword4PrivateKi"
+```
+```shell
+openssl genpkey\
+  -aes-256-cbc\
+  -algorithm RSA\
+  -out private.pem\
+  -pkeyopt rsa_keygen_bits:4096\
+  -pass env:PLUGIN_SIGN_PRIVATE_KEY_PASS
+```
+Then, use that for generating the certificate chain by running:
+```shell
+openssl req\
+  -key private.pem\
+  -new\
+  -x509\
+  -days 365\
+  -out chain.crt\
+  -passin env:PLUGIN_SIGN_PRIVATE_KEY_PASS\
+  -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=gitmachete@virtuslab.com"
+```
+
+#### Plugin signing as part of the CI publish process through the Gradle Plugin
+Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `$PASSWORD_ENVIRONMENT_VARIABLE_NAME`, in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin); in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
+For doing so, on a MacOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
+
+1. Type the following command for copying the contents of the private key to the clipboard
+```shell
+pbcopy < private.pem
+```
+2. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY` on the CI, and paste the content from the clipboard as its value.
+3. for copying the contents of the certificate to clipboard:
+```shell
+pbcopy < chain.crt
+```
+4. Create an environment variable named `PLUGIN_SIGN_CERT_CHAIN` on the CI, and paste the content from the clipboard as its value.
+5. Type the following command for copying the value of the private key password to the clipboard
+```shell
+echo $PLUGIN_SIGN_PRIVATE_KEY_PASS | pbcopy
+```
+6. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_PASS` on the CI and paste the contents of the clipboard as its value.
+
+#### Local plugin signing for test, through the Gradle plugin
+
+```shell
+export PLUGIN_SIGN_PRIVATE_KEY=$(<private.pem)
+export PLUGIN_SIGN_CERT_CHAIN=$(<chain.crt)
+```
+
+Then run `./gradlew publishPlugin` to produce the unsigned and signed `.zip` files in the `build/distributions/` directory.
+If an unsigned zip is already present there, then you can run `./gradlew signPlugin` to produce the signed zip file.
+
+#### Local plugin signing for test, through the IntelliJ CLI
+
+You need to download the [IntelliJ signer CLI](https://github.com/JetBrains/marketplace-zip-signer/releases). Then, following the [instructions](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#cli-tool) you should run:
+
+```shell
+java -jar marketplace-zip-signer-cli.jar sign\
+  -in "git-machete-intellij-plugin-version-SNAPSHOT+git.number.zip"\
+  -out "build/distributions/signed-machete-plugin.zip"\
+  -cert-file "/path/to/chain.crt"\
+  -key-file "/path/to/private.pem"\
+  -key-pass "$PLUGIN_SIGN_PRIVATE_KEY_PASS"
+```
 
 ## Scenario recordings
 
