@@ -423,7 +423,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
       val createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
           childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
@@ -481,7 +481,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
       val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,

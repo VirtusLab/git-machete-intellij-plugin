@@ -115,7 +115,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   public @Nullable IGitCoreCommit parseRevision(String revision) throws GitCoreException {
-    return Option.narrow(convertRevisionToGitCoreCommit(revision)).getOrNull();
+    return convertRevisionToGitCoreCommit(revision);
   }
 
   @SuppressWarnings("IllegalCatch")
@@ -146,19 +146,24 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return withRevWalk(walk -> new GitCoreCommit(walk.parseCommit(objectId)));
   }
 
-  private Option<GitCoreCommit> convertRevisionToGitCoreCommit(String revision) throws GitCoreException {
-    return convertRevisionToObjectId(revision).flatMap(
-        objectId -> Try.of(() -> withRevWalkUnchecked(walk -> new GitCoreCommit(walk.parseCommit(objectId)))).toOption());
+  private @Nullable GitCoreCommit convertRevisionToGitCoreCommit(String revision) throws GitCoreException {
+    val objectId = convertRevisionToObjectId(revision);
+    return objectId != null
+        ? Try.of(() -> withRevWalkUnchecked(walk -> new GitCoreCommit(walk.parseCommit(objectId)))).getOrNull()
+        : null;
   }
 
   private ObjectId convertExistingRevisionToObjectId(String revision) throws GitCoreException {
-    return convertRevisionToObjectId(revision)
-        .getOrElseThrow(() -> new GitCoreNoSuchRevisionException("Commit '${revision}' does not exist in this repository"));
+    val objectId = convertRevisionToObjectId(revision);
+    if (objectId == null) {
+      new GitCoreNoSuchRevisionException("Commit '${revision}' does not exist in this repository");
+    }
+    return objectId;
   }
 
-  private Option<ObjectId> convertRevisionToObjectId(String revision) throws GitCoreException {
+  private @Nullable ObjectId convertRevisionToObjectId(String revision) throws GitCoreException {
     try {
-      return Option.of(jgitRepoForMainGitDir.resolve(revision));
+      return jgitRepoForMainGitDir.resolve(revision);
     } catch (IOException e) {
       throw new GitCoreException(e);
     }
@@ -229,7 +234,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       IGitCoreCommit fromPerspectiveOf,
       IGitCoreCommit asComparedTo) throws GitCoreException {
 
-    return (GitCoreRelativeCommitCount) withRevWalk(walk -> {
+    return (@Nullable GitCoreRelativeCommitCount) withRevWalk(walk -> {
       val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash == null) {
         return null;
@@ -245,8 +250,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       @SuppressWarnings("aliasing:unique.leaked") int aheadCount = RevWalkUtils.count(walk, fromPerspectiveOfCommit, mergeBase);
       @SuppressWarnings("aliasing:unique.leaked") int behindCount = RevWalkUtils.count(walk, asComparedToCommit, mergeBase);
 
-      return Option.some(GitCoreRelativeCommitCount.of(aheadCount, behindCount));
-    }).getOrNull();
+      return GitCoreRelativeCommitCount.of(aheadCount, behindCount);
+    });
   }
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
@@ -382,7 +387,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return null;
   }
 
-  private Option<GitCoreCommitHash> deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
+  private @Nullable GitCoreCommitHash deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
 
     return withRevWalk(walk -> {
@@ -404,9 +409,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
-        return Option.some(mergeBase.getId().toGitCoreCommitHash());
+        return mergeBase.getId().toGitCoreCommitHash();
       } else {
-        return Option.none();
+        return null;
       }
     });
   }
@@ -427,8 +432,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       return mergeBaseCache.get(baKey).getOrNull();
     } else {
       val result = deriveMergeBase(a, b);
-      mergeBaseCache.put(abKey, result);
-      return result.getOrNull();
+      mergeBaseCache.put(abKey, Option.of(result));
+      return result;
     }
   }
 

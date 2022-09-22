@@ -269,8 +269,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
 
     val gitRebaseOption = getAvailableGitRebaseOptions("--empty=drop", gitVersion);
-    if (gitReBaseOption != null) {
-      options.add(gitReBaseOption);
+    if (gitRebaseOption != null) {
+      options.add(gitRebaseOption);
     }
 
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,

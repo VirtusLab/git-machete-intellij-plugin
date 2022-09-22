@@ -127,7 +127,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     return new BigInteger(/* signum */ 1, md.digest()).toString(16);
   }
 
-  public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
+  public @Nullable String deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
     var hookContentMD5Hash = "";
     try {
       hookContentMD5Hash = hashFile("MD5", hookFile);
