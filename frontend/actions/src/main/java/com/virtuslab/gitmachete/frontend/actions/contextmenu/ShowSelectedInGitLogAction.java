@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
-import git4idea.branch.GitBranchesCollection;
+import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -49,7 +49,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
     val selectedBranchName = getSelectedBranchName(anActionEvent);
     // It's very unlikely that selectedBranchName is empty at this point since it's assigned directly before invoking this
     // action in GitMacheteGraphTable.GitMacheteGraphTableMouseAdapter.mouseClicked; still, it's better to be safe.
-    if (selectedBranchName.isEmpty()) {
+    if (selectedBranchName == null || selectedBranchName.isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.undefined.branch-name"));
       return;
@@ -57,28 +57,30 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
 
     presentation.setDescription(
         getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.description.precise")
-            .format(selectedBranchName.get()));
+            .format(selectedBranchName));
   }
 
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val selectedBranchName = getSelectedBranchName(anActionEvent);
-    if (selectedBranchName.isEmpty()) {
+    if (selectedBranchName == null || selectedBranchName.isEmpty()) {
       return;
     }
 
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (gitRepository.isDefined()) {
-      log().debug(() -> "Queuing show '${selectedBranchName.get()}' branch in Git log background task");
+    if (gitRepository != null) {
+      log().debug(() -> "Queuing show '${selectedBranchName}' branch in Git log background task");
 
-      GitBranchesCollection branches = gitRepository.get().getBranches();
-      @SuppressWarnings("nullness:return") val maybeHash = selectedBranchName
+      val branches = gitRepository.getBranches();
+
+      @SuppressWarnings("nullness:return") val maybeHash = Option.of(selectedBranchName)
           .map(branches::findBranchByName).filter(Objects::nonNull).map(branches::getHash);
+
       if (maybeHash.isEmpty()) {
-        log().error("Unable to find commit hash for branch '${selectedBranchName.get()}'");
+        log().error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
       }
 

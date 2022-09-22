@@ -3,12 +3,10 @@ package com.virtuslab.branchlayout.api;
 import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.val;
-import org.checkerframework.checker.interning.qual.UsesObjectEquals;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@UsesObjectEquals
 public class BranchLayout implements IBranchLayout {
 
   @Getter
@@ -27,8 +25,8 @@ public class BranchLayout implements IBranchLayout {
   }
 
   @Override
-  public Option<IBranchLayoutEntry> findEntryByName(String branchName) {
-    return entryByName.get(branchName);
+  public @Nullable IBranchLayoutEntry findEntryByName(String branchName) {
+    return entryByName.get(branchName).getOrNull();
   }
 
   @Override
@@ -48,14 +46,14 @@ public class BranchLayout implements IBranchLayout {
   @Override
   public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn)
       throws EntryDoesNotExistException, EntryIsDescendantOfException {
-    val parentEntry = findEntryByName(parentBranchName).getOrNull();
+    val parentEntry = findEntryByName(parentBranchName);
     if (parentEntry == null) {
       throw new EntryDoesNotExistException("Parent branch entry '${parentBranchName}' does not exist");
     }
     val entry = findEntryByName(entryToSlideIn.getName());
-    val entryAlreadyExists = entry.isDefined();
+    val entryAlreadyExists = entry != null;
 
-    if (entry.map(e -> isDescendant(/* presumedAncestor */ e, /* presumedDescendant */ parentEntry)).getOrElse(false)) {
+    if (entry != null && isDescendant(/* presumedAncestor */ entry, /* presumedDescendant */ parentEntry)) {
       throw new EntryIsDescendantOfException(
           "Entry '${parentEntry.getName()}' is a descendant of entry '${entryToSlideIn.getName()}'",
           /* descendant */ parentEntry,
@@ -71,9 +69,8 @@ public class BranchLayout implements IBranchLayout {
   private static boolean isDescendant(IBranchLayoutEntry presumedAncestor, IBranchLayoutEntry presumedDescendant) {
     if (presumedAncestor.getChildren().contains(presumedDescendant)) {
       return true;
-    } else {
-      return presumedAncestor.getChildren().exists(e -> isDescendant(e, presumedDescendant));
     }
+    return presumedAncestor.getChildren().exists(e -> isDescendant(e, presumedDescendant));
   }
 
   private static List<IBranchLayoutEntry> removeEntry(IBranchLayout branchLayout, String branchName) {

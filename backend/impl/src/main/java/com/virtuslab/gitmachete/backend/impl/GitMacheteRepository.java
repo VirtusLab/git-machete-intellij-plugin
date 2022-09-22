@@ -90,7 +90,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Override
   @UIThreadUnsafe
   @Loggable(value = Loggable.DEBUG, prepend = true)
-  public Option<ILocalBranchReference> inferParentForLocalBranch(
+  public @Nullable ILocalBranchReference inferParentForLocalBranch(
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
     try {
@@ -246,13 +246,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    Option<ILocalBranchReference> inferParentForLocalBranch(
+    @Nullable
+    ILocalBranchReference inferParentForLocalBranch(
         Set<String> eligibleLocalBranchNames,
         String localBranchName) throws GitCoreException {
 
       val localBranch = localBranchByName.get(localBranchName).getOrNull();
       if (localBranch == null) {
-        return Option.none();
+        return null;
       }
 
       LOG.debug(() -> "Branch(es) eligible for becoming the parent of ${localBranchName}: " +
@@ -278,15 +279,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         val containingBranches = commitAndContainingBranches._2.toList();
         assert containingBranches.nonEmpty() : "containingBranches is empty";
 
-        ILocalBranchReference firstContainingBranch = containingBranches.head();
-        Seq<String> containingBranchNames = containingBranches.map(b -> b.getName());
+        val firstContainingBranch = containingBranches.head();
+        val containingBranchNames = containingBranches.map(IBranchReference::getName);
         LOG.debug(() -> "Commit ${commit} found in filtered reflog(s) " +
             "of managed branch(es) ${containingBranchNames.mkString(\", \")}; " +
             "returning ${firstContainingBranch.getName()} as the inferred parent for branch '${localBranchName}'");
-        return Option.some(firstContainingBranch);
+        return firstContainingBranch;
       } else {
         LOG.debug(() -> "Could not infer parent for branch '${localBranchName}'");
-        return Option.none();
+        return null;
       }
     }
   }
@@ -419,7 +420,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
       val relationToRemote = deriveRelationToRemote(coreLocalBranch);
-      val customAnnotation = entry.getCustomAnnotation().getOrNull();
+      val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
@@ -477,7 +478,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
       val relationToRemote = deriveRelationToRemote(coreLocalBranch);
-      val customAnnotation = entry.getCustomAnnotation().getOrNull();
+      val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
@@ -874,8 +875,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       @Override
-      public Option<String> getCustomAnnotation() {
-        return Option.none();
+      public @Nullable String getCustomAnnotation() {
+        return null;
       }
     }
 
@@ -952,7 +953,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
             .map(e -> e.getName());
         LOG.debug(() -> "Parent candidate(s) for ${branchEntry.getName()}: " + parentCandidateNames.mkString(", "));
 
-        IBranchReference parent = inferParentForLocalBranch(parentCandidateNames.toSet(), branchEntry.getName()).getOrNull();
+        IBranchReference parent = inferParentForLocalBranch(parentCandidateNames.toSet(), branchEntry.getName());
 
         if (parent != null) {
           String parentName = parent.getName();

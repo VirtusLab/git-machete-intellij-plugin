@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v3.0.1
 - Added a warning dialog window that pops up when `Sync To Parent By Merge` is about to be used.
 
 ## v3.0.0

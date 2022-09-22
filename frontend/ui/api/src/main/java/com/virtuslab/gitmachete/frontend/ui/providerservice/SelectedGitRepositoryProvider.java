@@ -5,7 +5,7 @@ import javax.swing.JComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
@@ -25,7 +25,7 @@ public final class SelectedGitRepositoryProvider implements IGitRepositorySelect
   }
 
   @Override
-  public Option<GitRepository> getSelectedGitRepository() {
+  public @Nullable GitRepository getSelectedGitRepository() {
     return selectionComponent.getSelectedGitRepository();
   }
 

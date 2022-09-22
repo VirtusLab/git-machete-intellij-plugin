@@ -17,7 +17,7 @@ import org.powermock.reflect.Whitebox;
 @PrepareForTest({GitCoreRepository.class, RevWalk.class})
 public class GitCoreRepositoryTest {
 
-  private GitCoreRepository gitCoreRepository = Whitebox.newInstance(GitCoreRepository.class);
+  private final GitCoreRepository gitCoreRepository = Whitebox.newInstance(GitCoreRepository.class);
 
   @Before
   @SneakyThrows

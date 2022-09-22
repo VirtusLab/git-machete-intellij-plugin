@@ -74,12 +74,12 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
-        val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository().getOrNull();
+        val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository();
         if (gitRepository != null) {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
           val rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
-          graphTable.queueRepositoryUpdateAndModelRefresh(() -> rediscoverSuggester.perform());
+          graphTable.queueRepositoryUpdateAndModelRefresh(rediscoverSuggester::perform);
         }
       }
     });

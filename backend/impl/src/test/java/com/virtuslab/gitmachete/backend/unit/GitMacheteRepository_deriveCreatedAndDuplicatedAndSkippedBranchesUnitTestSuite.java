@@ -4,7 +4,6 @@ import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreC
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -119,7 +118,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
   private IBranchLayoutEntry createEntry(String name, List<IBranchLayoutEntry> childEntries) {
     val entry = PowerMockito.mock(IBranchLayoutEntry.class);
     PowerMockito.doReturn(name).when(entry).getName();
-    PowerMockito.doReturn(Option.none()).when(entry).getCustomAnnotation();
+    PowerMockito.doReturn(null).when(entry).getCustomAnnotation();
     PowerMockito.doReturn(childEntries).when(entry).getChildren();
     return entry;
   }

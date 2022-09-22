@@ -19,7 +19,6 @@ import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.control.Option;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.val;
@@ -188,8 +187,8 @@ public class RepositoryGraphBuilder {
       GraphItemColor graphItemColor,
       @NonNegative int indentLevel) {
     RelationToRemote relationToRemote = branch.getRelationToRemote();
-    Option<IManagedBranchSnapshot> currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
-    boolean isCurrentBranch = currentBranch.isDefined() && currentBranch.get().equals(branch);
+    val currentBranch = repositorySnapshot.getCurrentBranchIfManaged();
+    boolean isCurrentBranch = currentBranch != null && currentBranch.equals(branch);
     boolean hasChildItem = !branch.getChildren().isEmpty();
 
     return new BranchItem(branch, graphItemColor, relationToRemote, prevSiblingItemIndex, indentLevel,

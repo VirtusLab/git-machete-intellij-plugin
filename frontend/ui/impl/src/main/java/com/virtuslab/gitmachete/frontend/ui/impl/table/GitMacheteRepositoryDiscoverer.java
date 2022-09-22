@@ -36,7 +36,8 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
 
   public void enqueue(Path macheteFilePath) {
-    val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository().getOrNull();
+    LOG.info("Enqueuing automatic discover");
+    val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
       return;
@@ -48,10 +49,12 @@ public class GitMacheteRepositoryDiscoverer {
     new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
       @Override
       public void run(ProgressIndicator indicator) {
+        LOG.debug("Running automatic discover task");
         val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
             .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
 
         if (discoverRunResult.isFailure()) {
+          LOG.debug("Discover and snapshot creation failed");
           val exception = discoverRunResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
@@ -65,6 +68,7 @@ public class GitMacheteRepositoryDiscoverer {
         val repositorySnapshot = discoverRunResult.get();
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
+          LOG.debug("No root branches discovered - executing on-failure consumer");
           onFailurePathConsumer.accept(macheteFilePath);
           return;
         }
@@ -73,9 +77,11 @@ public class GitMacheteRepositoryDiscoverer {
         val branchLayout = repositorySnapshot.getBranchLayout();
 
         try {
+          LOG.debug("Writing branch layout & executing on-success consumer");
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
           onSuccessRepositoryConsumer.accept(repositorySnapshot);
         } catch (BranchLayoutException exception) {
+          LOG.debug("Handling branch layout exception");
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,

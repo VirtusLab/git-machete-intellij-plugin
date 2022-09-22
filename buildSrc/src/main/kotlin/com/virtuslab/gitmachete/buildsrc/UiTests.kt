@@ -45,7 +45,7 @@ fun Project.configureUiTests() {
         filter { includeTestsMatching("*.*${project.properties["tests"]}*") }
       }
 
-      if (project.hasProperty("headless")) {
+      if (project.hasProperty("virtualDisplay")) {
         environment("IDEPROBE_DISPLAY", "xvfb")
         environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
