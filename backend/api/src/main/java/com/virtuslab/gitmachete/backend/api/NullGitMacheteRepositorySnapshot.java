@@ -61,6 +61,6 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
 
   @Getter
   public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
-      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
+      OngoingRepositoryOperationType.NO_OPERATION, null);
 
 }
