@@ -6,7 +6,6 @@ import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
-import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
 import io.vavr.Tuple3;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.val;
@@ -36,7 +35,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
   // machete-status-branch hook spec doesn't impose any requirements like that, but:
   // 1. it's pretty unlikely that any practically useful hook won't conform to this assumption,
   // 2. this kind of caching is pretty useful wrt. performance.
-  private final java.util.Map<Tuple3<String, String, String>, Option<String>> hookOutputByBranchNameCommitHashAndHookHash = new ConcurrentHashMap<>();
+  private final java.util.Map<Tuple3<String, String, String>, @Nullable String> hookOutputByBranchNameCommitHashAndHookHash = new ConcurrentHashMap<>();
 
   private StatusBranchHookExecutor(File rootDirectory, File hookFile) {
     super(rootDirectory, hookFile);
@@ -140,6 +139,6 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
     val key = Tuple.of(branchName, pointedCommit.getHash(), hookContentMD5Hash);
     return hookOutputByBranchNameCommitHashAndHookHash.computeIfAbsent(key,
-        k -> Option.of(Try.of(() -> executeHookFor(k._1)).getOrNull()));
+        k -> Try.of(() -> executeHookFor(k._1)).getOrNull());
   }
 }

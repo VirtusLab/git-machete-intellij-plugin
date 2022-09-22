@@ -349,7 +349,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
           managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
-          new OngoingRepositoryOperation(ongoingOperationType, Option.of(operationsBaseBranchName)));
+          new OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
     }
 
     @UIThreadUnsafe

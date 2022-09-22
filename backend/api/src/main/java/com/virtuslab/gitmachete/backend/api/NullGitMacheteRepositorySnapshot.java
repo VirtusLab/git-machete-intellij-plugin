@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.backend.api;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
-import io.vavr.control.Option;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
