@@ -363,9 +363,9 @@ openssl req\
   -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=gitmachete@virtuslab.com"
 ```
 
-#### PLugin signing as part of the CI publish process through the Gradle Plugin
+#### Plugin signing as part of the CI publish process through the Gradle Plugin
 Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `$PASSWORD_ENVIRONMENT_VARIABLE_NAME`, in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin); in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
-For doing so, on a MacOS system you can follow the below instructions:
+For doing so, on a MacOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
 
 1. Type the following command for copying the contents of the private key to the clipboard
 ```shell
@@ -383,14 +383,24 @@ echo $PLUGIN_SIGN_PRIVATE_KEY_PASS | pbcopy
 ```
 6. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_PASS` on the CI and paste the contents of the clipboard as its value.
 
-#### local plugin signing for test
+#### Local plugin signing for test, through the Gradle plugin
+
+```shell
+export PLUGIN_SIGN_PRIVATE_KEY=$(<private.pem)
+export PLUGIN_SIGN_CERT_CHAIN=$(<chain.crt)
+```
+
+Then run `./gradlew publishPlugin` to produce the unsigned and signed `.zip` files in the `build/distributions/` directory.
+If an unsigned zip is already present there, then you can run `./gradlew signPlugin` to produce the signed zip file.
+
+#### Local plugin signing for test, through the IntelliJ Cli
 
 You need to download the [IntelliJ signer cli](https://github.com/JetBrains/marketplace-zip-signer/releases). Then, following the [instructions](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#cli-tool) you should run:
 
 ```shell
 java -jar marketplace-zip-signer-cli.jar sign\
   -in "git-machete-intellij-plugin-version-SNAPSHOT+git.number.zip"\
-  -out "signed-machete-plugin.zip"\
+  -out "build/distributions/signed-machete-plugin.zip"\
   -cert-file "/path/to/chain.crt"\
   -key-file "/path/to/private.pem"\
   -key-pass $PLUGIN_SIGN_PRIVATE_KEY_PASS
