@@ -232,7 +232,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return (GitCoreRelativeCommitCount) withRevWalk(walk -> {
       val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash == null) {
-        return Option.none();
+        return null;
       }
 
       @Unique RevCommit fromPerspectiveOfCommit = walk.parseCommit(convertGitCoreCommitToObjectId(fromPerspectiveOf));

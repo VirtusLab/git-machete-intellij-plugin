@@ -120,11 +120,11 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
     } else if (gitRepository != null) {
       val root = gitRepository.getRoot();
-      val configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
+      val configValue = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (configValueOption == null) {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project));
-      } else if (configValueOption != null) {
+      } else {
         val shouldDelete = configValueOption;
         handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, shouldDelete);
       }

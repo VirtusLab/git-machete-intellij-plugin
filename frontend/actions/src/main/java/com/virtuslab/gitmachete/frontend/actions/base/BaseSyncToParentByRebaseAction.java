@@ -268,7 +268,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     // TODO (#1114): remove the mechanism for checking the availability of "--empty=drop"
     val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
 
-    val gitReBaseOption = getAvailableGitRebaseOptions("--empty=drop", gitVersion);
+    val gitRebaseOption = getAvailableGitRebaseOptions("--empty=drop", gitVersion);
     if (gitReBaseOption != null) {
       options.add(gitReBaseOption);
     }
