@@ -134,7 +134,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   @Getter
   public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
-      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
+      OngoingRepositoryOperationType.NO_OPERATION, null);
 
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {
