@@ -393,9 +393,9 @@ export PLUGIN_SIGN_CERT_CHAIN=$(<chain.crt)
 Then run `./gradlew publishPlugin` to produce the unsigned and signed `.zip` files in the `build/distributions/` directory.
 If an unsigned zip is already present there, then you can run `./gradlew signPlugin` to produce the signed zip file.
 
-#### Local plugin signing for test, through the IntelliJ Cli
+#### Local plugin signing for test, through the IntelliJ CLI
 
-You need to download the [IntelliJ signer cli](https://github.com/JetBrains/marketplace-zip-signer/releases). Then, following the [instructions](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#cli-tool) you should run:
+You need to download the [IntelliJ signer CLI](https://github.com/JetBrains/marketplace-zip-signer/releases). Then, following the [instructions](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#cli-tool) you should run:
 
 ```shell
 java -jar marketplace-zip-signer-cli.jar sign\
@@ -403,7 +403,7 @@ java -jar marketplace-zip-signer-cli.jar sign\
   -out "build/distributions/signed-machete-plugin.zip"\
   -cert-file "/path/to/chain.crt"\
   -key-file "/path/to/private.pem"\
-  -key-pass $PLUGIN_SIGN_PRIVATE_KEY_PASS
+  -key-pass "$PLUGIN_SIGN_PRIVATE_KEY_PASS"
 ```
 
 ## Scenario recordings
