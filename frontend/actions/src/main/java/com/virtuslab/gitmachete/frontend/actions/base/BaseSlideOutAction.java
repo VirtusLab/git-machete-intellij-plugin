@@ -105,9 +105,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val project = getProject(anActionEvent);
     val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
-    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null
-        ? currentBranchNameIfManaged.equals(branchName)
-        : false;
+    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null && currentBranchNameIfManaged.equals(branchName);
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
@@ -120,12 +118,11 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
     } else if (gitRepository != null) {
       val root = gitRepository.getRoot();
-      val configValue = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
-      if (configValueOption == null) {
+      val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
+      if (shouldDelete == null) {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project));
       } else {
-        val shouldDelete = configValueOption;
         handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, shouldDelete);
       }
 
