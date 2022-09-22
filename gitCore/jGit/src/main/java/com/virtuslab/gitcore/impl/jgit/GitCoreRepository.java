@@ -409,7 +409,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
-        return mergeBase.getId().toGitCoreCommitHash();
+        return GitCoreCommitHash.toGitCoreCommitHash(mergeBase.getId());
       } else {
         return null;
       }
@@ -418,7 +418,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   // Note that this cache can be static since merge-base for the given two commits
   // will never change thanks to git commit graph immutability.
-  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, Option<GitCoreCommitHash>> mergeBaseCache = new java.util.HashMap<>();
+  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
 
   private @Nullable GitCoreCommitHash deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
@@ -426,13 +426,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
     val baKey = Tuple.of(b, a);
     if (mergeBaseCache.containsKey(abKey)) {
       LOG.debug(() -> "Merge base for ${a.getHash().getHashString()} and ${b.getHash().getHashString()} found in cache");
-      return mergeBaseCache.get(abKey).getOrNull();
+      return mergeBaseCache.get(abKey);
     } else if (mergeBaseCache.containsKey(baKey)) {
       LOG.debug(() -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
-      return mergeBaseCache.get(baKey).getOrNull();
+      return mergeBaseCache.get(baKey);
     } else {
       val result = deriveMergeBase(a, b);
-      mergeBaseCache.put(abKey, Option.of(result));
+      mergeBaseCache.put(abKey, result);
       return result;
     }
   }
