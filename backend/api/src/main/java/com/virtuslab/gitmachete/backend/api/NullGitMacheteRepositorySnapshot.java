@@ -5,6 +5,7 @@ import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 import lombok.Getter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
@@ -29,8 +30,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
-    return Option.none();
+  public @Nullable IManagedBranchSnapshot getCurrentBranchIfManaged() {
+    return null;
   }
 
   @Override
@@ -39,8 +40,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
-    return Option.none();
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
+    return null;
   }
 
   @Override
@@ -54,8 +55,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
-    return Option.none();
+  public @Nullable IExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+    return null;
   }
 
   @Getter

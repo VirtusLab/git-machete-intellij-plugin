@@ -103,8 +103,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getCurrentBranchIfManaged() {
-    return Option.narrow(roots.headOption());
+  public @Nullable IManagedBranchSnapshot getCurrentBranchIfManaged() {
+    return roots.headOption().getOrNull();
   }
 
   @Override
@@ -113,7 +113,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<IManagedBranchSnapshot> getManagedBranchByName(String branchName) {
+  public @Nullable IManagedBranchSnapshot getManagedBranchByName(@Nullable String branchName) {
     throw new NotImplementedError();
   }
 
@@ -128,8 +128,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Option<IExecutionResult> executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
-    return Option.none();
+  public @Nullable IExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
+    return null;
   }
 
   @Getter
@@ -215,18 +215,18 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final List<INonRootManagedBranchSnapshot> children;
 
     @Override
-    public Option<String> getCustomAnnotation() {
-      return Option.of(customAnnotation);
+    public @Nullable String getCustomAnnotation() {
+      return customAnnotation;
     }
 
     @Override
-    public Option<String> getStatusHookOutput() {
-      return Option.none();
+    public @Nullable String getStatusHookOutput() {
+      return null;
     }
 
     @Override
-    public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
-      return Option.none();
+    public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
+      return null;
     }
   }
 
@@ -258,18 +258,18 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<String> getCustomAnnotation() {
-      return Option.of(customAnnotation);
+    public @Nullable String getCustomAnnotation() {
+      return customAnnotation;
     }
 
     @Override
-    public Option<String> getStatusHookOutput() {
-      return Option.none();
+    public @Nullable String getStatusHookOutput() {
+      return null;
     }
 
     @Override
-    public Option<IForkPointCommitOfManagedBranch> getForkPoint() {
-      return Option.of(forkPoint);
+    public @Nullable IForkPointCommitOfManagedBranch getForkPoint() {
+      return forkPoint;
     }
 
     @Override
@@ -278,8 +278,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public Option<IRemoteTrackingBranchReference> getRemoteTrackingBranch() {
-      return Option.none();
+    public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
+      return null;
     }
   }
 }

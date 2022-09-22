@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.Set;
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -11,7 +11,8 @@ public interface IGitMacheteRepository {
   IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException;
 
   @UIThreadUnsafe
-  Option<ILocalBranchReference> inferParentForLocalBranch(
+  @Nullable
+  ILocalBranchReference inferParentForLocalBranch(
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException;
 

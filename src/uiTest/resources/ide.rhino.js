@@ -19,12 +19,17 @@ function Ide() {
     settings.setConfirmExit(false);
     settings.setShowTipsOnStartup(false);
 
+    const logCategories = new LinkedList();
+    // TODO (#979): enforcing logging on this module to investigate unexpected branch in refreshed table model
+    logCategories.add(new DebugLogManager.Category('com.virtuslab.gitmachete.frontend.ui.impl', DebugLogManager.DebugLogLevel.DEBUG))
+
     if (enableDebugLog) {
-      const logCategory = new DebugLogManager.Category('com.virtuslab', DebugLogManager.DebugLogLevel.DEBUG)
-      const debugLogManager = DebugLogManager.getInstance();
-      // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
-      debugLogManager.applyCategories(Collections.singletonList(logCategory));
+      logCategories.add(new DebugLogManager.Category('com.virtuslab', DebugLogManager.DebugLogLevel.DEBUG))
     }
+
+    // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
+    const debugLogManager = DebugLogManager.getInstance();
+    debugLogManager.applyCategories(logCategories);
   };
 
   this.soleOpenedProject = function () {

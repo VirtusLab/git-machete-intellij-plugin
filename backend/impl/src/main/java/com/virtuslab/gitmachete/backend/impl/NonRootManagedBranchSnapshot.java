@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
@@ -70,8 +69,8 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
   }
 
   @Override
-  public Option<IForkPointCommitOfManagedBranch> getForkPoint() {
-    return Option.of(forkPoint);
+  public @Nullable IForkPointCommitOfManagedBranch getForkPoint() {
+    return forkPoint;
   }
 
   @Override

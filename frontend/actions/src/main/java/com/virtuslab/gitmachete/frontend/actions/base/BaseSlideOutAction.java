@@ -4,11 +4,9 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.nio.file.Path;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -54,14 +52,14 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    Presentation presentation = anActionEvent.getPresentation();
+    val presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent).getOrNull();
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
-        ? getManagedBranchByName(anActionEvent, branchName).getOrNull()
+        ? getManagedBranchByName(anActionEvent, branchName)
         : null;
 
     if (branch == null) {
@@ -80,9 +78,9 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     LOG.debug("Performing");
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val branch = branchName.flatMap(bn -> getManagedBranchByName(anActionEvent, bn));
-    if (branch.isDefined()) {
-      doSlideOut(anActionEvent, branch.get());
+    val branch = getManagedBranchByName(anActionEvent, branchName);
+    if (branch != null) {
+      doSlideOut(anActionEvent, branch);
     }
   }
 
@@ -104,11 +102,12 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
   @UIThreadUnsafe
   private void deleteBranchIfRequired(AnActionEvent anActionEvent, String branchName) {
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
     val project = getProject(anActionEvent);
-    val slidOutBranchIsCurrent = getCurrentBranchNameIfManaged(anActionEvent)
-        .map(b -> b.equals(branchName))
-        .getOrElse(false);
+    val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null
+        ? currentBranchNameIfManaged.equals(branchName)
+        : false;
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
@@ -164,9 +163,9 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
     val project = getProject(anActionEvent);
-    val branchLayout = getBranchLayout(anActionEvent).getOrNull();
+    val branchLayout = getBranchLayout(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
     if (branchLayout == null || gitRepository == null) {
       return;
     }
@@ -175,13 +174,13 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     val newBranchLayout = branchLayout.slideOut(branchName);
 
     try {
-      Path macheteFilePath = gitRepository.getMacheteFilePath();
+      val macheteFilePath = gitRepository.getMacheteFilePath();
       LOG.info("Writing new branch layout into ${macheteFilePath}");
       branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
 
     } catch (BranchLayoutException e) {
-      String exceptionMessage = e.getMessage();
-      String errorMessage = "Error occurred while sliding out '${branchName}' branch" +
+      val exceptionMessage = e.getMessage();
+      val errorMessage = "Error occurred while sliding out '${branchName}' branch" +
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,

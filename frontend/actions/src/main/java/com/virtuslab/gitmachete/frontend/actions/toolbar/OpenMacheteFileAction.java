@@ -6,7 +6,6 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
@@ -22,7 +21,7 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
@@ -34,23 +33,25 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Project project = getProject(anActionEvent);
+    val project = getProject(anActionEvent);
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file
-    val gitDir = getSelectedGitRepository(anActionEvent)
-        .onEmpty(() -> DvcsUtil.guessCurrentRepositoryQuick(project,
+    val selectedGitRepo = getSelectedGitRepository(anActionEvent);
+    val repo = selectedGitRepo != null
+        ? selectedGitRepo
+        : DvcsUtil.guessCurrentRepositoryQuick(project,
             GitUtil.getRepositoryManager(project),
-            GitVcsSettings.getInstance(project).getRecentRootPath()))
-        .map(GitVfsUtils::getMainGitDirectory);
+            GitVcsSettings.getInstance(project).getRecentRootPath());
+    val gitDir = repo != null ? repo.getMainGitDirectory() : null;
 
-    if (gitDir.isEmpty()) {
+    if (gitDir == null) {
       log().warn("Skipping the action because Git repository directory is undefined");
       return;
     }
 
     val macheteFile = WriteAction.compute(() -> Try
-        .of(() -> gitDir.get().findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
+        .of(() -> gitDir.findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
@@ -62,7 +63,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
-              .format(gitDir.get().getPath()));
+              .format(gitDir.getPath()));
     } else {
       VirtualFile file = macheteFile.get();
       if (file.isDirectory()) {

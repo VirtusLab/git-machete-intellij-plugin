@@ -13,13 +13,13 @@ import com.intellij.util.ui.UIUtil
  * A custom implementation based on [git4idea.rebase.log.GitNewCommitMessageActionDialog].
  * */
 internal class GitNewCommitMessageActionDialog(
-  val project: Project,
-  val originMessage: String,
+  private val project: Project,
+  private val originMessage: String,
   title: String,
-  val dialogLabel: String
+  private val dialogLabel: String
 ) : DialogWrapper(project, true) {
-  val commitEditor = createCommitEditor()
-  var onOk: (String) -> Unit = {}
+  private val commitEditor = createCommitEditor()
+  private var onOk: (String) -> Unit = {}
 
   init {
     Disposer.register(disposable, commitEditor)

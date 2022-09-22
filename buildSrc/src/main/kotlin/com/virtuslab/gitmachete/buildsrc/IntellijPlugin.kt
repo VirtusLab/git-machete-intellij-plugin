@@ -15,6 +15,9 @@ fun Project.configureIntellijPlugin() {
 
   val isCI: Boolean by rootProject.extra
   val jetbrainsMarketplaceToken: String? by rootProject.extra
+  val pluginSignPrivateKey: String? by rootProject.extra
+  val pluginSignCertificateChain: String? by rootProject.extra
+  val pluginSignPrivateKeyPass: String? by rootProject.extra
 
   configure<IntelliJPluginExtension> {
     instrumentCode.set(false)
@@ -85,6 +88,14 @@ fun Project.configureIntellijPlugin() {
         RunPluginVerifierTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES
       )
     failureLevel.set(EnumSet.complementOf(skippedFailureLevels))
+  }
+
+  tasks.withType<SignPluginTask> {
+    certificateChain.set(pluginSignCertificateChain?.trimIndent())
+
+    privateKey.set(pluginSignPrivateKey?.trimIndent())
+
+    password.set(pluginSignPrivateKeyPass)
   }
 
   tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }

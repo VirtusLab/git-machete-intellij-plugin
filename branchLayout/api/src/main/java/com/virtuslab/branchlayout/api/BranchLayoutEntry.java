@@ -1,18 +1,15 @@
 package com.virtuslab.branchlayout.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.With;
-import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @AllArgsConstructor
 @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
 @ToString
-@UsesObjectEquals
 public class BranchLayoutEntry implements IBranchLayoutEntry {
   @Getter
   private final String name;
@@ -29,7 +26,7 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
   }
 
   @Override
-  public Option<String> getCustomAnnotation() {
-    return Option.of(customAnnotation);
+  public @Nullable String getCustomAnnotation() {
+    return customAnnotation;
   }
 }

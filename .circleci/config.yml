@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker_executor:
     docker:
-      - image: 'gitmachete/intellij-plugin-ci:8.0.0'
+      - image: 'gitmachete/intellij-plugin-ci:8.1.0'
     working_directory: ~/git-machete-intellij-plugin
     resource_class: large
 
@@ -146,10 +146,10 @@ jobs:
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -Pheadless -Pagainst=eapOfLatestSupportedMajor uiTest
+          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pheadless -Pagainst=latestStable uiTest
+          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
       - when:
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
@@ -162,18 +162,22 @@ jobs:
           steps:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
-                command: ./gradlew -Pheadless -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+                command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
       - run:
           name: Collect artifacts when an exception occurs
           # language=sh
           command: |
             if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
             for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
-            mkdir -p ~/artifacts/zip
-            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts/zip
+            mkdir -p ~/artifacts
+            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
+            for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
+              target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
+              eval "cp $f $target"
+            done
           when: on_fail
       - store_artifacts:
-          path: ~/artifacts/zip
+          path: ~/artifacts
           destination: .
 
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
@@ -226,13 +230,14 @@ jobs:
                 # language=sh
                 command: |
                   source scripts/utils.sh
-                  tag=v$(extract_version_from_current_wd)
+                  corresponding_milestone_title=v$(extract_version_from_current_wd)
+                  tag=$corresponding_milestone_title
                   change_notes=$(./gradlew getChangelog --no-header -q)
                   hub release create \
                     --attach build/distributions/git-machete-intellij-plugin-*.zip \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
-
+                  scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:
     executor: docker_executor

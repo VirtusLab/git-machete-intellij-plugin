@@ -64,9 +64,9 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
-    val gitRepository = getSelectedGitRepository(anActionEvent).getOrNull();
+    val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
-    val branch = branchUnderAction.flatMap(pn -> getManagedBranchByName(anActionEvent, pn)).getOrNull();
+    val branch = getManagedBranchByName(anActionEvent, branchUnderAction);
 
     if (gitRepository == null || branch == null || branch.isRoot()) {
       return;
@@ -95,8 +95,8 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   private void overrideForkPoint(AnActionEvent anActionEvent, IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
-    if (gitRepository.isDefined()) {
-      val root = gitRepository.get().getRoot();
+    if (gitRepository != null) {
+      val root = gitRepository.getRoot();
       val project = getProject(anActionEvent);
       setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }

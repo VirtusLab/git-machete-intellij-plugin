@@ -22,7 +22,6 @@ prohibit-java-class-name-hardcode-in-strings
 prohibit-java-code-commented-out
 prohibit-java-lines-split-needlessly
 prohibit-java-unused-custom-log
-prohibit-kotlin-private-fields
 prohibit-kotlin-undefined-property-keys
 prohibit-non-ascii-characters
 prohibit-properties-unused-keys

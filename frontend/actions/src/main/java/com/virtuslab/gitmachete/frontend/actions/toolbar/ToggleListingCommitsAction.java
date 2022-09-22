@@ -30,24 +30,28 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
-    boolean selected = Toggleable.isSelected(presentation);
+    val selected = Toggleable.isSelected(presentation);
     Toggleable.setSelected(presentation, selected);
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
 
     val branchLayout = getBranchLayout(anActionEvent);
-    if (branchLayout.isEmpty()) {
+    if (branchLayout == null) {
       presentation.setEnabled(false);
       presentation
           .setDescription(getNonHtmlString("action.GitMachete.ToggleListingCommitsAction.description.disabled.no-branches"));
       return;
     }
 
-    boolean anyCommitExists = getGitMacheteRepositorySnapshot(anActionEvent)
-        .map(repo -> repo.getManagedBranches()
-            .exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty()))
-        .getOrElse(false);
+    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+
+    val managedBranches = gitMacheteRepositorySnapshot != null
+        ? gitMacheteRepositorySnapshot.getManagedBranches()
+        : null;
+
+    val anyCommitExists = managedBranches != null &&
+        managedBranches.exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty());
 
     if (anyCommitExists) {
       presentation.setEnabled(true);

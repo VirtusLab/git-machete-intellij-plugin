@@ -33,24 +33,24 @@ import net.miginfocom.layout.LC as LayoutConstraint
 * please take a look to that class as a reference.
 */
 class SlideInDialog(
-  val project: Project,
-  val branchLayout: IBranchLayout,
-  val parentName: String,
-  val gitRepository: GitRepository
+  private val project: Project,
+  private val branchLayout: IBranchLayout,
+  private val parentName: String,
+  private val gitRepository: GitRepository
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-  val rootNames = branchLayout.rootEntries.map { it.name }
+  private val rootNames = branchLayout.rootEntries.map { it.name }
 
-  val reattachCheckbox =
+  private val reattachCheckbox =
     JCheckBox(
       getString(
         "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach"
       )
     )
 
-  val branchField = createBranchField()
-  val innerPanel = createInnerPanel()
-  val panel = createPanel()
+  private val branchField = createBranchField()
+  private val innerPanel = createInnerPanel()
+  private val panel = createPanel()
 
   init {
     title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
@@ -99,7 +99,7 @@ class SlideInDialog(
       )
     } else {
       val entryByName = branchLayout.findEntryByName(insertedText)
-      if (entryByName.map(isDescendantOf(presumedDescendantName = parentName)).getOrElse(false)) {
+      if (entryByName != null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
         return ValidationInfo(
           getString(
             "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
@@ -111,7 +111,7 @@ class SlideInDialog(
           reattachCheckbox.isEnabled = false
           reattachCheckbox.isSelected = true
         } else {
-          val existsAndHasAChild = entryByName.orNull?.children?.nonEmpty() ?: false
+          val existsAndHasAChild = entryByName?.children?.nonEmpty() ?: false
           reattachCheckbox.isEnabled = existsAndHasAChild
           reattachCheckbox.isSelected = reattachCheckbox.isSelected && existsAndHasAChild
         }
