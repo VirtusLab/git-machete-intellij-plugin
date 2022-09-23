@@ -105,8 +105,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @UIEffect
   private static void openMacheteFile(Project project, GitRepository gitRepository) {
     val file = gitRepository.getMacheteFile();
-    if (file.isDefined()) {
-      OpenFileAction.openFile(file.get(), project);
+    if (file != null) {
+      OpenFileAction.openFile(file, project);
     } else {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,

@@ -1,6 +1,5 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -24,11 +23,11 @@ public class GitCoreRepositoryTest {
   public void mockGitCoreRepository() {
     PowerMockito.stub(PowerMockito.method(RevWalk.class, "parseCommit")).toThrow(new Exception("Mock"));
     PowerMockito.stub(PowerMockito.method(GitCoreRepository.class, "convertRevisionToObjectId"))
-        .toReturn(Option.some(Whitebox.newInstance(ObjectId.class)));
+        .toReturn(Whitebox.newInstance(ObjectId.class));
   }
 
   @Test
   public void shouldContainExceptionsInsideOptionReturningMethods() throws Exception {
-    Assert.assertEquals(gitCoreRepository.parseRevision(""), Option.none());
+    Assert.assertEquals(gitCoreRepository.parseRevision(""), null);
   }
 }
