@@ -124,7 +124,8 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./gradlew runIde`).
 
-If you want to run an IDE instance of a different version than the automatically chosen one (see [IntelliJVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
+It's possible to use a different version of IDE than the automatically chosen one (see [IntelliJVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
+for building the plugin and running the IDE:
 use a project property `overrideBuildTarget` e.g. `./gradlew runIde -PoverrideBuildTarget=2022.1.4`.
 
 To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
