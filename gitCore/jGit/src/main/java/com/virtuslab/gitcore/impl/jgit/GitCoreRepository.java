@@ -26,7 +26,6 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.ToString;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
@@ -54,7 +53,6 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 
-@ExtensionMethod(GitCoreCommitHash.class)
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 public final class GitCoreRepository implements IGitCoreRepository {
@@ -234,10 +232,10 @@ public final class GitCoreRepository implements IGitCoreRepository {
       IGitCoreCommit fromPerspectiveOf,
       IGitCoreCommit asComparedTo) throws GitCoreException {
 
-    return (@Nullable GitCoreRelativeCommitCount) withRevWalk(walk -> {
+    return (GitCoreRelativeCommitCount) withRevWalk(walk -> {
       val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash == null) {
-        return null;
+        return Option.none(); // the nullness checker does not allow this method to return null.
       }
 
       @Unique RevCommit fromPerspectiveOfCommit = walk.parseCommit(convertGitCoreCommitToObjectId(fromPerspectiveOf));
@@ -250,8 +248,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
       @SuppressWarnings("aliasing:unique.leaked") int aheadCount = RevWalkUtils.count(walk, fromPerspectiveOfCommit, mergeBase);
       @SuppressWarnings("aliasing:unique.leaked") int behindCount = RevWalkUtils.count(walk, asComparedToCommit, mergeBase);
 
-      return GitCoreRelativeCommitCount.of(aheadCount, behindCount);
-    });
+      return Option.some(GitCoreRelativeCommitCount.of(aheadCount, behindCount));
+    }).getOrNull();
   }
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
@@ -390,7 +388,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   private @Nullable GitCoreCommitHash deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
 
-    return withRevWalk(walk -> {
+    return (GitCoreCommitHash) withRevWalk(walk -> {
       walk.setRevFilter(RevFilter.MERGE_BASE);
       walk.markStart(walk.parseCommit(convertGitCoreCommitToObjectId(c1)));
       walk.markStart(walk.parseCommit(convertGitCoreCommitToObjectId(c2)));
@@ -409,11 +407,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Detected merge base for ${c1.getHash().getHashString()} " +
           "and ${c2.getHash().getHashString()} is " + (mergeBase != null ? mergeBase.getId().getName() : "<none>"));
       if (mergeBase != null) {
-        return GitCoreCommitHash.toGitCoreCommitHash(mergeBase.getId());
+        return Option.some(GitCoreCommitHash.toGitCoreCommitHash(mergeBase.getId()));
       } else {
-        return null;
+        return Option.none();
       }
-    });
+    }).getOrNull();
   }
 
   // Note that this cache can be static since merge-base for the given two commits
