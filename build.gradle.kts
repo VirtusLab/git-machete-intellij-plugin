@@ -24,9 +24,7 @@ if (JavaVersion.current() != JavaVersion.VERSION_11 && JavaVersion.current() != 
   )
 }
 
-if (project.properties["overrideBuildTarget"] != null) {
-  IntellijVersions.overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
-}
+IntellijVersions.overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
 
 fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
   return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }

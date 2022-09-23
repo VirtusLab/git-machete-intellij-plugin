@@ -41,6 +41,8 @@ object IntellijVersions {
 
   private val buildTarget: String = eapOfLatestSupportedMajor ?: latestStable
 
+  // This getter allows to change the target IntelliJ version
+  // by using a project property 'overrideBuildTarget' while running tasks like runIde
   public fun getBuildTarget(): String {
     return overrideBuildTarget ?: buildTarget
   }
