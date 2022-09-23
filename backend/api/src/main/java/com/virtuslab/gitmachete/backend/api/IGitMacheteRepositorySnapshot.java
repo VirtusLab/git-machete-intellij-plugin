@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.api;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
-import io.vavr.control.Option;
 import lombok.Data;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -40,7 +39,7 @@ public interface IGitMacheteRepositorySnapshot {
   class OngoingRepositoryOperation {
     private final OngoingRepositoryOperationType operationType;
 
-    private final Option<String> baseBranchName;
+    private final @Nullable String baseBranchName;
   }
 
   OngoingRepositoryOperation getOngoingRepositoryOperation();

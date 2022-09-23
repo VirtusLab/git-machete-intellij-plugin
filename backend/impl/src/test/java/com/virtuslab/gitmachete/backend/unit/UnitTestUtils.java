@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.powermock.api.mockito.PowerMockito;
@@ -34,7 +33,7 @@ class UnitTestUtils {
     PowerMockito.doReturn(String.valueOf(counter.incrementAndGet())).when(mock).getFullName();
     PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
     PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflogFromMostRecent();
-    PowerMockito.doReturn(Option.none()).when(mock).getRemoteTrackingBranch();
+    PowerMockito.doReturn(null).when(mock).getRemoteTrackingBranch();
     return mock;
   }
 
@@ -74,8 +73,8 @@ class UnitTestUtils {
     }
 
     @Override
-    public Option<IGitCoreCommitHash> getOldCommitHash() {
-      return Option.some(new TestGitCoreCommitHash());
+    public @Nullable IGitCoreCommitHash getOldCommitHash() {
+      return new TestGitCoreCommitHash();
     }
 
     @Override
@@ -84,8 +83,8 @@ class UnitTestUtils {
     }
 
     @Override
-    public Option<IGitCoreCheckoutEntry> parseCheckout() {
-      return Option.none();
+    public @Nullable IGitCoreCheckoutEntry parseCheckout() {
+      return null;
     }
   }
 

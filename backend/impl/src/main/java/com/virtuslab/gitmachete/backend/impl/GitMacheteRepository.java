@@ -143,7 +143,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       LOG.debug("Getting reflogs of remote branches");
 
       List<Tuple2<IGitCoreLocalBranchSnapshot, IGitCoreRemoteBranchSnapshot>> remoteTrackingBranches = localBranches
-          .flatMap(localBranch -> localBranch.getRemoteTrackingBranch()
+          .flatMap(localBranch -> Option.of(localBranch.getRemoteTrackingBranch())
               .map(remoteTrackingBranch -> Tuple.of(localBranch, remoteTrackingBranch)));
 
       Map<IBranchReference, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranch = remoteTrackingBranches
@@ -214,7 +214,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         String comment = e.getComment();
         if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
           LOG.trace(() -> "Exclude ${e} because it has the same hash as first entry");
-        } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
+        } else if (e.getOldCommitHash() != null && e.getNewCommitHash().equals(e.getOldCommitHash())) {
           LOG.trace(() -> "Exclude ${e} because its old and new IDs are the same");
         } else if (comment.startsWith("branch: Created from")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'branch: Created from'");
@@ -323,15 +323,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
-      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = deriveCoreCurrentBranch();
+      IGitCoreLocalBranchSnapshot coreCurrentBranch = deriveCoreCurrentBranch();
 
-      LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
-          ? coreCurrentBranch.get().getName()
+      LOG.debug(() -> "Current branch: " + (coreCurrentBranch != null
+          ? coreCurrentBranch.getName()
           : "<none> (detached HEAD)"));
 
-      IManagedBranchSnapshot currentBranchIfManaged = coreCurrentBranch
-          .flatMap(cb -> managedBranchByName.get(cb.getName()))
-          .getOrNull();
+      IManagedBranchSnapshot currentBranchIfManaged = coreCurrentBranch != null
+          ? managedBranchByName.get(coreCurrentBranch.getName()).getOrNull()
+          : null;
       LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
@@ -353,7 +353,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperationType ongoingOperation)
+    private @Nullable String deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperationType ongoingOperation)
         throws GitMacheteException {
       try {
         if (ongoingOperation == OngoingRepositoryOperationType.REBASING) {
@@ -365,11 +365,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitMacheteException("Error occurred while getting the base branch of ongoing repository operation", e);
       }
 
-      return Option.none();
+      return null;
     }
 
     @UIThreadUnsafe
-    private Option<IGitCoreLocalBranchSnapshot> deriveCoreCurrentBranch() throws GitMacheteException {
+    private @Nullable IGitCoreLocalBranchSnapshot deriveCoreCurrentBranch() throws GitMacheteException {
       try {
         return gitCoreRepository.deriveHead().getTargetBranch();
       } catch (GitCoreException e) {
@@ -423,7 +423,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
       val createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
           childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
@@ -481,7 +481,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
       val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,
@@ -492,7 +492,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     private @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranchForCoreLocalBranch(
         IGitCoreLocalBranchSnapshot coreLocalBranch) {
-      IGitCoreRemoteBranchSnapshot coreRemoteTrackingBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteTrackingBranch = coreLocalBranch.getRemoteTrackingBranch();
       if (coreRemoteTrackingBranch == null) {
         return null;
       }
@@ -566,9 +566,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       // Name spans the characters after the last dot
       // Subsection is everything else
       String toRevision = gitCoreRepository
-          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to").getOrNull();
+          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to");
       String whileDescendantOfRevision = gitCoreRepository
-          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "whileDescendantOf").getOrNull();
+          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "whileDescendantOf");
       if (toRevision == null || whileDescendantOfRevision == null) {
         return null;
       }
@@ -576,8 +576,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           "to='${toRevision}', whileDescendantOf='${whileDescendantOfRevision}'");
 
       // Let's check the internal consistency of the config - we can't rule out that it's been tampered with.
-      IGitCoreCommit to = gitCoreRepository.parseRevision(toRevision).getOrNull();
-      IGitCoreCommit whileDescendantOf = gitCoreRepository.parseRevision(whileDescendantOfRevision).getOrNull();
+      IGitCoreCommit to = gitCoreRepository.parseRevision(toRevision);
+      IGitCoreCommit whileDescendantOf = gitCoreRepository.parseRevision(whileDescendantOfRevision);
       if (to == null || whileDescendantOf == null) {
         LOG.warn("Could not parse either <to> (${to}) or " +
             "<whileDescendantOf> (${whileDescendantOf}) into a valid commit, ignoring faulty fork point override");
@@ -665,15 +665,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return RelationToRemote.noRemotes();
       }
 
-      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch();
       if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${localBranchName}' is untracked");
         return RelationToRemote.untracked();
       }
 
       GitCoreRelativeCommitCount relativeCommitCount = gitCoreRepository
-          .deriveRelativeCommitCount(coreLocalBranch.getPointedCommit(), coreRemoteBranch.getPointedCommit())
-          .getOrNull();
+          .deriveRelativeCommitCount(coreLocalBranch.getPointedCommit(), coreRemoteBranch.getPointedCommit());
       if (relativeCommitCount == null) {
         LOG.debug(() -> "Relative commit count for '${localBranchName}' could not be determined");
         return RelationToRemote.untracked();
@@ -710,7 +709,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) {
       List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
-      return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
+      return reflog.isEmpty() || reflog.head().getOldCommitHash() == null;
     }
 
     @UIThreadUnsafe
@@ -885,7 +884,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       java.util.Map<String, Instant> result = new java.util.HashMap<>();
 
       for (val reflogEntry : gitCoreRepository.deriveHead().getReflogFromMostRecent()) {
-        val checkoutEntry = reflogEntry.parseCheckout().getOrNull();
+        val checkoutEntry = reflogEntry.parseCheckout();
         if (checkoutEntry != null) {
           val timestamp = reflogEntry.getTimestamp();
           // `putIfAbsent` since we only care about the most recent occurrence of the given branch being checked out,

@@ -136,8 +136,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
         val maybeOperationsBaseBranchName = repositoryOperation.getBaseBranchName();
 
-        if (maybeOperationsBaseBranchName.isDefined()
-            && Objects.equals(maybeOperationsBaseBranchName.get(), graphItem.getValue())) {
+        if (maybeOperationsBaseBranchName != null
+            && Objects.equals(maybeOperationsBaseBranchName, graphItem.getValue())) {
           val ongoingOperationName = Match(repositoryOperation.getOperationType()).of(
               Case($(OngoingRepositoryOperationType.BISECTING),
                   getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),

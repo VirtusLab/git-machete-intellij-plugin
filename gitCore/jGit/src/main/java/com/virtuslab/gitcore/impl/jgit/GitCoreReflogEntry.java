@@ -2,12 +2,13 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import java.time.Instant;
 
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.lib.ReflogEntry;
 
 import com.virtuslab.gitcore.api.IGitCoreCheckoutEntry;
@@ -36,7 +37,7 @@ public class GitCoreReflogEntry implements IGitCoreReflogEntry {
 
   @Override
   @ToString.Include(name = "oldCommitHash")
-  public Option<IGitCoreCommitHash> getOldCommitHash() {
+  public @Nullable IGitCoreCommitHash getOldCommitHash() {
     return reflogEntry.getOldId().toGitCoreCommitHashOption();
   }
 
@@ -47,7 +48,8 @@ public class GitCoreReflogEntry implements IGitCoreReflogEntry {
   }
 
   @Override
-  public Option<IGitCoreCheckoutEntry> parseCheckout() {
-    return Option.of(reflogEntry.parseCheckout()).map(GitCoreCheckoutEntry::of);
+  public @Nullable IGitCoreCheckoutEntry parseCheckout() {
+    val parseCheckout = reflogEntry.parseCheckout();
+    return parseCheckout != null ? GitCoreCheckoutEntry.of(parseCheckout) : null;
   }
 }
