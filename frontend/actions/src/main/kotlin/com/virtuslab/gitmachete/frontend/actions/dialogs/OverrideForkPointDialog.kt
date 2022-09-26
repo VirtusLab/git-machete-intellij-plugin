@@ -3,7 +3,9 @@ package com.virtuslab.gitmachete.frontend.actions.dialogs
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.MutableProperty
+import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
+import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
@@ -22,6 +24,7 @@ class OverrideForkPointDialog(
 
   private var myOverrideOption = OverrideOption.PARENT
 
+  private var customCommit = branch.forkPoint
   init {
     title =
       getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
@@ -36,7 +39,7 @@ class OverrideForkPointDialog(
         OverrideOption.INFERRED -> branch.forkPoint
       }
     } else {
-      null
+      customCommit
     }
 
   override fun createCenterPanel() = panel {
@@ -92,5 +95,13 @@ class OverrideForkPointDialog(
         MutableProperty(::myOverrideOption) { myOverrideOption = it },
         OverrideOption::class.java
       )
+
+    row("The fork point commit:") {
+      comboBox(branch.commits.toMutableList()).bindItem(
+        MutableProperty(::customCommit) {
+          customCommit = it as IForkPointCommitOfManagedBranch?
+        }
+      )
+    }
   }
 }
