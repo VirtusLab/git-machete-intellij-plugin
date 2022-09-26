@@ -97,7 +97,10 @@ class OverrideForkPointDialog(
       )
 
     row("The fork point commit:") {
-      comboBox(branch.commits.toMutableList()).bindItem(
+      comboBox(branch.commits.toMutableList()
+      /* should we also add a custom renderer in here for rendering the
+      commits using their short hash and message?*/
+      ).bindItem(
         MutableProperty(::customCommit) {
           customCommit = it as IForkPointCommitOfManagedBranch?
         }
