@@ -275,6 +275,9 @@ Change notes should only be added as new bullet points listed under `Unreleased`
 Change notes should contain only the **user-facing** plugin alterations like new features, public-requested bug fixes, etc. <br/>
 In spite of the above, change notes can sometimes contain a general description of the work done in the new version
 if the alternative is leaving them empty, which should be avoided.
+The change notes should be in present tense (e.g. use `Add...` instead of `Added...`);
+they should be described in full sentences and end with a period.
+Special phrases like action name references should be highlighted with `<i>...</i>`.
 
 ### IDE supported versions
 
