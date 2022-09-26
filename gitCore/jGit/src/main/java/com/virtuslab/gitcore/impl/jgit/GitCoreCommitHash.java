@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jgit.lib.ObjectId;
 
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
@@ -15,8 +15,8 @@ public final class GitCoreCommitHash extends GitCoreObjectHash implements IGitCo
     return new GitCoreCommitHash(objectId);
   }
 
-  public static Option<IGitCoreCommitHash> toGitCoreCommitHashOption(ObjectId objectId) {
-    return objectId.equals(ObjectId.zeroId()) ? Option.none() : Option.some(toGitCoreCommitHash(objectId));
+  public static @Nullable IGitCoreCommitHash toGitCoreCommitHashOption(ObjectId objectId) {
+    return objectId.equals(ObjectId.zeroId()) ? null : toGitCoreCommitHash(objectId);
   }
 
   @Override

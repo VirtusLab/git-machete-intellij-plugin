@@ -49,7 +49,7 @@ public class RediscoverSuggester {
       return;
     }
 
-    val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate().getOrNull();
+    val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate();
     if (lastModifiedTimeMillis == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - could not get file modification date");
       return;

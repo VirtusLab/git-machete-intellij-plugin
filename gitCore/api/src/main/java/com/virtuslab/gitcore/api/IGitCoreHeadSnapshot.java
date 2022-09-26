@@ -2,6 +2,7 @@ package com.virtuslab.gitcore.api;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An immutable snapshot of git repository's HEAD for some specific moment in time.
@@ -11,7 +12,8 @@ public interface IGitCoreHeadSnapshot {
   /**
    * @return {@link Option.Some} with branch pointed by HEAD, or {@link Option.None} in case of detached HEAD.
    */
-  Option<IGitCoreLocalBranchSnapshot> getTargetBranch();
+  @Nullable
+  IGitCoreLocalBranchSnapshot getTargetBranch();
 
   List<IGitCoreReflogEntry> getReflogFromMostRecent();
 }

@@ -1,6 +1,6 @@
 package com.virtuslab.gitcore.api;
 
-import io.vavr.control.Option;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface IGitCoreLocalBranchSnapshot extends IGitCoreBranchSnapshot {
 
@@ -9,5 +9,6 @@ public interface IGitCoreLocalBranchSnapshot extends IGitCoreBranchSnapshot {
     return true;
   }
 
-  Option<IGitCoreRemoteBranchSnapshot> getRemoteTrackingBranch();
+  @Nullable
+  IGitCoreRemoteBranchSnapshot getRemoteTrackingBranch();
 }

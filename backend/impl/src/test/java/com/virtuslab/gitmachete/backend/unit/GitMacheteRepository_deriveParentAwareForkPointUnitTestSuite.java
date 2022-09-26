@@ -5,8 +5,8 @@ import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreL
 import static org.mockito.ArgumentMatchers.any;
 
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -19,18 +19,18 @@ import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   @SneakyThrows
-  private Option<IGitCoreCommit> invokeDeriveParentAwareForkPoint(
+  private @Nullable IGitCoreCommit invokeDeriveParentAwareForkPoint(
       IGitCoreLocalBranchSnapshot childBranch,
       IGitCoreLocalBranchSnapshot parentBranch) {
 
-    PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue(any(), any(), any());
+    PowerMockito.doReturn(null).when(gitCoreRepository).deriveConfigValue(any(), any(), any());
 
     ForkPointCommitOfManagedBranch forkPoint = Whitebox.invokeMethod(
         aux(childBranch, parentBranch), "deriveParentAwareForkPoint", childBranch, parentBranch);
     if (forkPoint != null) {
-      return Option.some(Whitebox.invokeMethod(forkPoint, "getCoreCommit"));
+      return Whitebox.invokeMethod(forkPoint, "getCoreCommit");
     } else {
-      return Option.none();
+      return null;
     }
   }
 
@@ -47,10 +47,10 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
 
     // when
-    Option<IGitCoreCommit> result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
+    IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result.isEmpty());
+    Assert.assertTrue(result == null);
   }
 
   @Test
@@ -66,11 +66,11 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
 
     // when
-    Option<IGitCoreCommit> result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
+    IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result.isDefined());
-    Assert.assertEquals(parentCommit, result.get());
+    Assert.assertTrue(result != null);
+    Assert.assertEquals(parentCommit, result);
   }
 
   @Test
@@ -88,10 +88,10 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
 
     // when
-    Option<IGitCoreCommit> result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
+    IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result.isDefined());
-    Assert.assertEquals(parentCommit, result.get());
+    Assert.assertTrue(result != null);
+    Assert.assertEquals(parentCommit, result);
   }
 }

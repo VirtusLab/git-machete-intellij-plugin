@@ -256,9 +256,12 @@ jobs:
           command: ./gradlew updateIntellijVersions
       - create_pull_request_if_files_changed:
           branch_name_prefix: update-intellij-versions
-          branch_name_command: md5sum intellijVersions.properties | cut -d' ' -f 1
-          commit_message_prefix: Update IntelliJ versions ->
-          commit_message_command: git diff | grep '^+[^#+]' |
+          # Skip the first line with timestamp when calculating hash
+          branch_name_command: tail -n+2 intellijVersions.properties | md5sum | cut -d' ' -f 1
+          commit_message_prefix: 'Update IntelliJ versions:'
+          # language=sh
+          commit_message_command: >
+            git diff | grep '^+[^#+]' |
             sed 's/Majors=.*/Majors/' |
             sed 's/+//g' |
             sed 's/=/ to /g' |

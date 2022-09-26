@@ -6,7 +6,6 @@ import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
-import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -134,7 +133,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   @Getter
   public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
-      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
+      OngoingRepositoryOperationType.NO_OPERATION, null);
 
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {

@@ -28,7 +28,7 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
 
   public static PreRebaseHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
+    val hooksDirPath = hooksDir != null ? Paths.get(hooksDir) : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");
 
     val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
     val hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();

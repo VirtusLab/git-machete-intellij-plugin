@@ -17,11 +17,11 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
-import io.vavr.control.Option;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
@@ -91,7 +91,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
 
     val prevMacheteGeneratedEntryOption = getPrevSiblingMacheteGeneratedEntry(parent);
-    if (prevMacheteGeneratedEntryOption.isEmpty()) {
+    if (prevMacheteGeneratedEntryOption == null) {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
               getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-indent-first-entry"))
@@ -105,12 +105,12 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     IndentationParameters indentationParameters = findIndentationParameters(element);
 
-    val prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption.get());
-    if (prevIndentationNodeOption.isEmpty()) {
+    val prevIndentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(prevMacheteGeneratedEntryOption);
+    if (prevIndentationNodeOption == null) {
       prevLevel = 0;
       hasPrevLevelCorrectWidth = true;
     } else {
-      val prevIndentationText = prevIndentationNodeOption.get().getText();
+      val prevIndentationText = prevIndentationNodeOption.getText();
       hasPrevLevelCorrectWidth = prevIndentationText.length() % indentationParameters.indentationWidth == 0;
       prevLevel = prevIndentationText.length() / indentationParameters.indentationWidth;
     }
@@ -145,23 +145,23 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   }
 
   private IndentationParameters findIndentationParameters(PsiElement currentElement) {
-    Option<MacheteGeneratedEntry> element = getFirstMacheteGeneratedEntry(currentElement);
-    while (element.isDefined() && getIndentationNodeFromMacheteGeneratedEntry(element.get()).isEmpty()) {
-      element = getNextSiblingMacheteGeneratedEntry(element.get());
+    MacheteGeneratedEntry element = getFirstMacheteGeneratedEntry(currentElement);
+    while (element != null && getIndentationNodeFromMacheteGeneratedEntry(element) == null) {
+      element = getNextSiblingMacheteGeneratedEntry(element);
     }
 
-    if (element.isEmpty()) {
+    if (element == null) {
       // Default - theoretically this should never happen
       return new IndentationParameters(' ', 4);
     }
 
-    val indentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(element.get());
-    if (indentationNodeOption.isEmpty()) {
+    val indentationNodeOption = getIndentationNodeFromMacheteGeneratedEntry(element);
+    if (indentationNodeOption == null) {
       // Default - this also theoretically should never happen
       return new IndentationParameters(' ', 4);
     }
 
-    val indentationText = indentationNodeOption.get().getText();
+    val indentationText = indentationNodeOption.getText();
 
     @SuppressWarnings("index")
     // Indentation text is never empty (otherwise element does not exist)
@@ -171,11 +171,11 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return new IndentationParameters(indentationChar, indentationWidth);
   }
 
-  private Option<ASTNode> getIndentationNodeFromMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry) {
-    return Option.of(macheteEntry.getNode().findChildByType(MacheteGeneratedElementTypes.INDENTATION));
+  private @Nullable ASTNode getIndentationNodeFromMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry) {
+    return macheteEntry.getNode().findChildByType(MacheteGeneratedElementTypes.INDENTATION);
   }
 
-  private Option<MacheteGeneratedEntry> getFirstMacheteGeneratedEntry(PsiElement currentElement) {
+  private @Nullable MacheteGeneratedEntry getFirstMacheteGeneratedEntry(PsiElement currentElement) {
     PsiElement root = currentElement;
     while (root.getParent() != null) {
       root = root.getParent();
@@ -184,30 +184,30 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return getNextSiblingMacheteGeneratedEntry(root.getFirstChild());
   }
 
-  private Option<MacheteGeneratedEntry> getNextSiblingMacheteGeneratedEntry(PsiElement currentElement) {
+  private @Nullable MacheteGeneratedEntry getNextSiblingMacheteGeneratedEntry(PsiElement currentElement) {
     PsiElement nextSiblingMacheteGeneratedEntry = currentElement.getNextSibling();
     while (nextSiblingMacheteGeneratedEntry != null && !(nextSiblingMacheteGeneratedEntry instanceof MacheteGeneratedEntry)) {
       nextSiblingMacheteGeneratedEntry = nextSiblingMacheteGeneratedEntry.getNextSibling();
     }
 
     if (nextSiblingMacheteGeneratedEntry == null || !(nextSiblingMacheteGeneratedEntry instanceof MacheteGeneratedEntry)) {
-      return Option.none();
+      return null;
     }
 
-    return Option.of((MacheteGeneratedEntry) nextSiblingMacheteGeneratedEntry);
+    return (MacheteGeneratedEntry) nextSiblingMacheteGeneratedEntry;
   }
 
-  private Option<MacheteGeneratedEntry> getPrevSiblingMacheteGeneratedEntry(PsiElement currentElement) {
+  private @Nullable MacheteGeneratedEntry getPrevSiblingMacheteGeneratedEntry(PsiElement currentElement) {
     PsiElement prevSiblingMacheteGeneratedEntry = currentElement.getPrevSibling();
     while (prevSiblingMacheteGeneratedEntry != null && !(prevSiblingMacheteGeneratedEntry instanceof MacheteGeneratedEntry)) {
       prevSiblingMacheteGeneratedEntry = prevSiblingMacheteGeneratedEntry.getPrevSibling();
     }
 
     if (prevSiblingMacheteGeneratedEntry == null || !(prevSiblingMacheteGeneratedEntry instanceof MacheteGeneratedEntry)) {
-      return Option.none();
+      return null;
     }
 
-    return Option.of((MacheteGeneratedEntry) prevSiblingMacheteGeneratedEntry);
+    return (MacheteGeneratedEntry) prevSiblingMacheteGeneratedEntry;
   }
 
   private String indentCharToName(char indentChar) {
