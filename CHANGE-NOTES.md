@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## v3.1.0
+## v3.0.2
 - Enable context-menu `Override Fork Point...` action for branches that are out of sync (red-edge).
 
 ## v3.0.1
