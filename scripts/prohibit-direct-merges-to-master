@@ -16,7 +16,7 @@ if [[ $num_of_prs_from_current_to_master -gt 0 ]]; then # this PR is to merge $c
   then
     exit 0
   else
-    die "Merging from $current_branch to master is NOT allowed. Direct merges to master branch are allowed \
-    only from develop and hotfix/* branches. Please, change your pull request's target (base) branch to develop."
+    die "Merging from $current_branch to master is NOT allowed. Direct merges to master branch are allowed only from \
+    develop and hotfix/* branches. Please, change your pull request's target (base) branch to develop."
   fi
 fi
