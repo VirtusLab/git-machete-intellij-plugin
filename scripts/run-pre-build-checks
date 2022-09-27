@@ -18,7 +18,10 @@ enforce-properties-keys-with-valid-class-names
 enforce-settings-gradle-match-directories
 enforce-version-bump
 
-prohibit-direct-merges-to-master
+if [[ $0 != *.git/hooks/pre-commit ]]; then
+  # This one is needed as a pull request check. So, it should not run as a git pre-commit hook.
+  prohibit-direct-merges-to-master
+fi
 prohibit-java-class-name-hardcode-in-strings
 prohibit-java-code-commented-out
 prohibit-java-lines-split-needlessly
