@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+current_branch=$(git branch --show-current)
+num_of_prs_from_current_to_master=$(gh pr list --state open --base master --head "$current_branch" | wc -l) # one line per one PR
+
+if [[ $num_of_prs_from_current_to_master -gt 0 ]]; then # this PR is to merge $current_branch into master
+  if [[ $current_branch == develop ]]; then
+    exit 0
+  elif [[ $current_branch =~ hotfix/.+ ]]; then
+    exit 0
+  else
+    die "Merging from $current_branch to master is NOT allowed. Direct merges to master branch are allowed only from \
+    develop and hotfix/* branches. Please, change your pull request's target (base) branch to develop."
+  fi
+fi
