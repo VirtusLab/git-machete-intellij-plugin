@@ -12,6 +12,8 @@ plugins {
   scala
 }
 
+project.extensions.add("intellijVersions", IntellijVersions(project.properties["overrideBuildTarget"] as String?))
+
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
@@ -23,8 +25,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_11 && JavaVersion.current() != 
     2. codebase is Java 11-compatible, so can't be built on JDK 8"""
   )
 }
-
-IntellijVersions.overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
 
 fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
   return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }

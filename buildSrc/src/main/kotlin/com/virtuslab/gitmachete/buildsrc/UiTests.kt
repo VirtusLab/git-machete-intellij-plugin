@@ -6,6 +6,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 
@@ -20,7 +21,7 @@ fun Project.configureUiTests() {
     if (project.properties["against"] != null) {
       IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
     } else {
-      listOf(IntellijVersions.getBuildTarget())
+      listOf(rootProject.extensions.getByType<IntellijVersions>().buildTarget)
     }
 
   uiTestTargets.onEach { version ->

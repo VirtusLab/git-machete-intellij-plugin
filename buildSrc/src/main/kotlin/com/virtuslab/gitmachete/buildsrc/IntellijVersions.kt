@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
+import org.gradle.api.reflect.HasPublicType
+import org.gradle.api.reflect.TypeOf
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-object IntellijVersions {
+public class IntellijVersions(overrideBuildTarget: String?) : HasPublicType {
 
   private val intellijVersionsProp = IntellijVersionHelper.getProperties()
 
@@ -39,13 +41,11 @@ object IntellijVersions {
     IntellijVersionHelper.getMajorPart(latestStable)
   }
 
-  private val buildTarget: String = eapOfLatestSupportedMajor ?: latestStable
-
-  // This getter allows to change the target IntelliJ version
+  // This allows to change the target IntelliJ version
   // by using a project property 'overrideBuildTarget' while running tasks like runIde
-  public fun getBuildTarget(): String {
-    return overrideBuildTarget ?: buildTarget
-  }
+  val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor ?: latestStable
 
-  var overrideBuildTarget: String? = null
+  override fun getPublicType(): TypeOf<*> {
+    return TypeOf.typeOf((this::class.java))
+  }
 }
