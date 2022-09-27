@@ -41,9 +41,11 @@ fun Project.configureUiTests() {
       // save an export command to source it later in the verify-artifact-contents script
       val fileName = "${System.getProperty("user.home")}/.plugin_uri"
       val path = Paths.get(fileName)
-      Files.createFile(path)
-      val content = "export IDEPROBE_INTELLIJ_PLUGIN_URI=${buildPlugin.outputs.files.first().path}"
-      Files.writeString(path, content)
+      if (!Files.exists(path)) {
+        Files.createFile(path)
+        val content = "export IDEPROBE_INTELLIJ_PLUGIN_URI=${buildPlugin.outputs.files.first().path}"
+        Files.writeString(path, content)
+      }
 
       // TODO (#945): caching of UI test results doesn't work in the CI anyway
       if (!isCI) {
