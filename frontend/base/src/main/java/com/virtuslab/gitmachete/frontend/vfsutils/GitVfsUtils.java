@@ -62,7 +62,7 @@ public final class GitVfsUtils {
 
   /**
    * @param gitRepository {@link GitRepository} to get the virtual file from
-   * @return an option of {@link VirtualFile} representing the machete file
+   * @return {@link VirtualFile} representing the machete file if found; otherwise, null
    */
   public static @Nullable VirtualFile getMacheteFile(GitRepository gitRepository) {
     return getMainGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME);
@@ -81,7 +81,7 @@ public final class GitVfsUtils {
 
   /**
    * @param filePath {@link Path} to file
-   * @return an option of {@link Long} stating for time of last modification in milliseconds since the Unix epoch start
+   * @return {@link Long} stating for time of last modification in milliseconds since the Unix epoch start if attributes were read successfully; otherwise, null
    */
   public static @Nullable Long getFileModificationDate(Path filePath) {
     return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
@@ -91,7 +91,7 @@ public final class GitVfsUtils {
   /**
    * @param filePath {@link Path} to file
    * @param millis {@code long} representing the new modification time in milliseconds since the Unix epoch start
-   * @return an option of {@link Path} stating for the given file
+   * @return {@link Path} stating for the given file if the modification date was set successfully; otherwise, null
    */
   public static @Nullable Path setFileModificationDate(Path filePath, long millis) {
     return Try.of(() -> Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis))).getOrNull();
