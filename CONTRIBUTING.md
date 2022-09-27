@@ -73,7 +73,8 @@ In order to make `grep` and eventually the hooks working one must:
 1. Install `grep` via `brew` (it will not override system's `grep` &mdash; it can be executed as `ggrep`)
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/3.7/libexec/gnubin/grep`
 3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/3.7/libexec/gnubin` in that case).
-You may want to add the following `PATH="/opt/homebrew/Cellar/grep/3.7/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`)
+You may want to add the following `export PATH="/opt/homebrew/Cellar/grep/3.7/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`).
+4. Restart the terminal OR run `source` against the `.zprofile`/`.zshrc` file: for example `source ~/.zshrc`.
 
 It is possible that git `pre-commit` hook will raise the following error: <br/>
 `fatal: cannot use Perl-compatible regexes when not compiled with USE_LIBPCRE` <br/>
@@ -83,6 +84,7 @@ brew install pcre
 export USE_LIBPCRE=yes
 brew reinstall --build-from-source git
 ```
+It might be necessary to additionally restart the terminal after running mentioned commands.
 
 Also, some issues with `bash` itself have been reported. Make sure that the version you are using is 5.1 or later.
 
