@@ -18,105 +18,105 @@ import javax.swing.JList
 import javax.swing.UIManager
 
 enum class OverrideOption {
-    PARENT,
-    INFERRED
+  PARENT,
+  INFERRED
 }
 
 class OverrideForkPointDialog(
-    project: Project,
-    private val parentBranch: IManagedBranchSnapshot,
-    private val branch: INonRootManagedBranchSnapshot
+  project: Project,
+  private val parentBranch: IManagedBranchSnapshot,
+  private val branch: INonRootManagedBranchSnapshot
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-    private var myOverrideOption = OverrideOption.PARENT
+  private var myOverrideOption = OverrideOption.PARENT
 
-    private var customCommit = branch.forkPoint
+  private var customCommit = branch.forkPoint
 
-    init {
-        title =
-            getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
-        setOKButtonMnemonic('O'.code)
-        super.init()
+  init {
+    title =
+      getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
+    setOKButtonMnemonic('O'.code)
+    super.init()
+  }
+
+  fun showAndGetSelectedCommit() =
+    if (showAndGet()) {
+      when (myOverrideOption) {
+        OverrideOption.PARENT -> parentBranch.pointedCommit
+        OverrideOption.INFERRED -> branch.forkPoint
+      }
+    } else {
+      customCommit
     }
 
-    fun showAndGetSelectedCommit() =
-        if (showAndGet()) {
-            when (myOverrideOption) {
-                OverrideOption.PARENT -> parentBranch.pointedCommit
-                OverrideOption.INFERRED -> branch.forkPoint
+  override fun createCenterPanel() = panel {
+    row {
+      label(
+        format(
+          getString(
+            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
+          ),
+          branch.name
+        )
+      )
+    }
+    row {
+      label(
+        format(
+          getString(
+            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
+          ),
+          parentBranch.name
+        )
+      )
+    }
+
+    row {
+      label(
+        format(
+          getString(
+            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+          )
+        )
+      )
+    }
+
+    row("The fork point commit:") {
+      comboBox(
+        branch.commits.toMutableList(),
+        object : DefaultListCellRenderer() {
+          private val defaultBackground = UIManager.get("List.background") as Color
+          override fun getListCellRendererComponent(
+            list: JList<*>?,
+            value: Any,
+            index: Int,
+            isSelected: Boolean,
+            cellHasFocus: Boolean
+          ): Component {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+            val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
+
+            var prefix = ""
+
+            if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
+              prefix = "parent pointed "
+            } else if (branch.forkPoint != null && branch.forkPoint?.shortHash.equals(commit.shortHash)) {
+              prefix = "branch fork point "
             }
-        } else {
-            customCommit
+            text = "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+
+            if (!isSelected) {
+              setBackground(if (index % 2 == 0) background else defaultBackground)
+            }
+            return this
+          }
         }
 
-    override fun createCenterPanel() = panel {
-        row {
-            label(
-                format(
-                    getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
-                    ),
-                    branch.name
-                )
-            )
+      ).bindItem(
+        MutableProperty(::customCommit) {
+          customCommit = it as IForkPointCommitOfManagedBranch?
         }
-        row {
-            label(
-                format(
-                    getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
-                    ),
-                    parentBranch.name
-                )
-            )
-        }
-
-        row {
-            label(
-                format(
-                    getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
-                    )
-                )
-            )
-        }
-
-        row("The fork point commit:") {
-            comboBox(
-                branch.commits.toMutableList(),
-                object : DefaultListCellRenderer() {
-                    private val defaultBackground = UIManager.get("List.background") as Color
-                    override fun getListCellRendererComponent(
-                        list: JList<*>?,
-                        value: Any,
-                        index: Int,
-                        isSelected: Boolean,
-                        cellHasFocus: Boolean
-                    ): Component {
-                        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-                        val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
-
-                        var prefix = ""
-
-                        if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-                            prefix = "parent pointed "
-                        } else if (branch.forkPoint != null && branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                            prefix = "branch fork point "
-                        }
-                        text = "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
-
-                        if (!isSelected) {
-                            setBackground(if (index % 2 == 0) background else defaultBackground)
-                        }
-                        return this
-                    }
-                }
-
-            ).bindItem(
-                MutableProperty(::customCommit) {
-                    customCommit = it as IForkPointCommitOfManagedBranch?
-                }
-            )
-        }
+      )
     }
+  }
 }
