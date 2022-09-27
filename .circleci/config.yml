@@ -47,10 +47,9 @@ commands:
             git checkout -b "$branch_name"
             git commit -a -m "<<parameters.commit_message_prefix>> $(<<parameters.commit_message_command>>)"
             git push origin "$branch_name"
-            hub pull-request \
-              --no-edit \
-              --base="$CIRCLE_BRANCH" \
-              --labels="<<parameters.labels>>"
+            gh pr create\
+              --base "$CIRCLE_BRANCH" \
+              --label "<<parameters.labels>>"
             git checkout "$CIRCLE_BRANCH"
 
 jobs:
@@ -236,10 +235,12 @@ jobs:
                   corresponding_milestone_title=v$(extract_version_from_current_wd)
                   tag=$corresponding_milestone_title
                   change_notes=$(./gradlew getChangelog --no-header -q)
-                  hub release create \
-                    --attach "$(./gradlew -q printSignedPluginZipPath)" \
-                    --message "$tag"$'\n\n'"$change_notes" \
-                    $tag
+                  
+                  gh release create \
+                    $tag \
+                    "$(./gradlew -q printPluginZipPath)" \
+                    --notes "$tag"$'\n\n'"$change_notes" \
+                  
                   scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:
