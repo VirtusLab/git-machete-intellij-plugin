@@ -5,11 +5,17 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.MutableProperty
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
+import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import java.awt.Color
+import java.awt.Component
+import javax.swing.DefaultListCellRenderer
+import javax.swing.JList
+import javax.swing.UIManager
 
 enum class OverrideOption {
   PARENT,
@@ -98,9 +104,35 @@ class OverrideForkPointDialog(
 
     row("The fork point commit:") {
       comboBox(
-        branch.commits.toMutableList()
-      /* should we also add a custom renderer in here for rendering the
-      commits using their short hash and message?*/
+        branch.commits.toMutableList(),
+        object : DefaultListCellRenderer() {
+          private val defaultBackground = UIManager.get("List.background") as Color
+          override fun getListCellRendererComponent(
+            list: JList<*>?,
+            value: Any,
+            index: Int,
+            isSelected: Boolean,
+            cellHasFocus: Boolean
+          ): Component {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+            val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
+
+            var prefix = ""
+
+            if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
+              prefix = "parent pointed "
+            } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
+              prefix = "branch fork point "
+            }
+            text = "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+
+            if (!isSelected) {
+              setBackground(if (index % 2 == 0) background else defaultBackground)
+            }
+            return this
+          }
+        }
+
       ).bindItem(
         MutableProperty(::customCommit) {
           customCommit = it as IForkPointCommitOfManagedBranch?
