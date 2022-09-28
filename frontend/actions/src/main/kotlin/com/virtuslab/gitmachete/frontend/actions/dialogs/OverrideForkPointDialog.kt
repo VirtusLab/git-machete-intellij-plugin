@@ -6,7 +6,6 @@ import com.intellij.ui.dsl.builder.MutableProperty
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch
-import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
@@ -17,20 +16,13 @@ import javax.swing.DefaultListCellRenderer
 import javax.swing.JList
 import javax.swing.UIManager
 
-enum class OverrideOption {
-  PARENT,
-  INFERRED
-}
-
 class OverrideForkPointDialog(
   project: Project,
   private val parentBranch: IManagedBranchSnapshot,
   private val branch: INonRootManagedBranchSnapshot
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-  private var myOverrideOption = OverrideOption.PARENT
-
-  private var customCommit = branch.forkPoint
+  private var customCommit: ICommitOfManagedBranch? = parentBranch.pointedCommit
 
   init {
     title =
@@ -41,12 +33,9 @@ class OverrideForkPointDialog(
 
   fun showAndGetSelectedCommit() =
     if (showAndGet()) {
-      when (myOverrideOption) {
-        OverrideOption.PARENT -> parentBranch.pointedCommit
-        OverrideOption.INFERRED -> branch.forkPoint
-      }
+      customCommit!!
     } else {
-      customCommit
+      null
     }
 
   override fun createCenterPanel() = panel {
@@ -88,21 +77,23 @@ class OverrideForkPointDialog(
           private val defaultBackground = UIManager.get("List.background") as Color
           override fun getListCellRendererComponent(
             list: JList<*>?,
-            value: Any,
+            value: Any?,
             index: Int,
             isSelected: Boolean,
             cellHasFocus: Boolean
           ): Component {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-            val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
+            val commit: ICommitOfManagedBranch? = value as ICommitOfManagedBranch?
+            super.getListCellRendererComponent(list, commit!!, index, isSelected, cellHasFocus)
 
-            var prefix = ""
+            var prefix =
+              if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
+                "parent pointed "
+              } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
+                "branch fork point "
+              } else {
+                ""
+              }
 
-            if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-              prefix = "parent pointed "
-            } else if (branch.forkPoint != null && branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-              prefix = "branch fork point "
-            }
             text = "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
 
             if (!isSelected) {
@@ -114,7 +105,7 @@ class OverrideForkPointDialog(
 
       ).bindItem(
         MutableProperty(::customCommit) {
-          customCommit = it as IForkPointCommitOfManagedBranch?
+          customCommit = it
         }
       )
     }
