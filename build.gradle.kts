@@ -43,7 +43,8 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 tasks.register("printPluginZipPath") {
   doLast {
-    printPluginZipPath()
+    val buildPlugin = tasks.findByPath(":buildPlugin")!!
+    println(buildPlugin.outputs.files.first().path)
   }
 }
 
