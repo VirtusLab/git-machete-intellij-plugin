@@ -399,7 +399,7 @@ You need to download the [IntelliJ signer CLI](https://github.com/JetBrains/mark
 
 ```shell
 java -jar marketplace-zip-signer-cli.jar sign\
-  -in "git-machete-intellij-plugin-version-SNAPSHOT+git.number.zip"\
+  -in "$(./gradlew -q printPluginZipPath)"\
   -out "build/distributions/signed-machete-plugin.zip"\
   -cert-file "/path/to/chain.crt"\
   -key-file "/path/to/private.pem"\
