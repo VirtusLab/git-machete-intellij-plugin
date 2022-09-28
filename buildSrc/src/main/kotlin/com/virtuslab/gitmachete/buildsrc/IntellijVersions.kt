@@ -1,12 +1,10 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
-import org.gradle.api.reflect.HasPublicType
-import org.gradle.api.reflect.TypeOf
 import java.util.Properties
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProperties: Properties) : HasPublicType {
+public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProperties: Properties) {
   // When this value is updated, remember to update:
   // 1. the minimum required IDEA version in README.md,
   // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
@@ -42,8 +40,4 @@ public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProp
   // This allows to change the target IntelliJ version
   // by using a project property 'overrideBuildTarget' while running tasks like runIde
   val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor ?: latestStable
-
-  override fun getPublicType(): TypeOf<*> {
-    return TypeOf.typeOf((this::class.java))
-  }
 }
