@@ -12,6 +12,11 @@ plugins {
   scala
 }
 
+project.extensions.add(
+  "intellijVersions",
+  IntellijVersions(IntellijVersionHelper.getProperties(), project.properties["overrideBuildTarget"] as String?)
+)
+
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()

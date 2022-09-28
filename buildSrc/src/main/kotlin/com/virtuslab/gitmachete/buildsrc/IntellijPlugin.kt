@@ -18,11 +18,12 @@ fun Project.configureIntellijPlugin() {
   val pluginSignPrivateKey: String? by rootProject.extra
   val pluginSignCertificateChain: String? by rootProject.extra
   val pluginSignPrivateKeyPass: String? by rootProject.extra
+  val intellijVersions = rootProject.extensions.getByType<IntellijVersions>()
 
   configure<IntelliJPluginExtension> {
     instrumentCode.set(false)
     pluginName.set("git-machete-intellij-plugin")
-    version.set(IntellijVersions.buildTarget)
+    version.set(intellijVersions.buildTarget)
     plugins.set(listOf("git4idea")) // Needed solely for ArchUnit
   }
 
@@ -48,12 +49,12 @@ fun Project.configureIntellijPlugin() {
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
     sinceBuild.set(
-      IntellijVersionHelper.toBuildNumber(IntellijVersions.earliestSupportedMajor)
+      IntellijVersionHelper.toBuildNumber(intellijVersions.earliestSupportedMajor)
     )
 
     // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
     untilBuild.set(
-      IntellijVersionHelper.toBuildNumber(IntellijVersions.latestSupportedMajor) + ".*"
+      IntellijVersionHelper.toBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
     )
 
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
@@ -71,12 +72,12 @@ fun Project.configureIntellijPlugin() {
 
   tasks.withType<RunPluginVerifierTask> {
     val maybeEap = listOfNotNull(
-      IntellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+      intellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
     )
 
     ideVersions.set(
-      IntellijVersions.latestMinorsOfOldSupportedMajors +
-        IntellijVersions.latestStable +
+      intellijVersions.latestMinorsOfOldSupportedMajors +
+        intellijVersions.latestStable +
         maybeEap
     )
 
