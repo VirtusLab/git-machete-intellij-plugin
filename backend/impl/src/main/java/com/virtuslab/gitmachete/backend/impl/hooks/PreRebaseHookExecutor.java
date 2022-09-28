@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import com.jcabi.aspects.Loggable;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -38,8 +37,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
 
   /**
    * @param gitRebaseParameters git rebase parameters
-   * @return {@link Option.Some} with exit code (possibly non-zero) when the hook has been successfully executed,
-   *         or {@link Option.None} when the hook has not been executed (because it's absent or non-executable)
+   * @return an exit code (possibly non-zero) when the hook has been successfully executed,
+   *         or null when the hook has not been executed (because it's absent or non-executable)
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
   @Loggable(value = Loggable.DEBUG)

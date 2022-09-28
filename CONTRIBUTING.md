@@ -124,6 +124,10 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 To run an instance of IDE with Git Machete IntelliJ Plugin installed from the current source,
 execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./gradlew runIde`).
 
+It's possible to use a different version of IDE than the automatically chosen one (see [IntelliJVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
+for building the plugin and running the IDE:
+use a project property `overrideBuildTarget` e.g. `./gradlew runIde -PoverrideBuildTarget=2022.1.4`.
+
 To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
 
 ### Debug
@@ -370,30 +374,32 @@ openssl req\
 ```
 
 #### Plugin signing as part of the CI publish process through the Gradle Plugin
-Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `$PASSWORD_ENVIRONMENT_VARIABLE_NAME`, in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin); in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
+Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `PLUGIN_SIGN_PRIVATE_KEY_PASS`,
+in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin),
+in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
 For doing so, on a MacOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
 
 1. Type the following command for copying the contents of the private key to the clipboard
 ```shell
-pbcopy < private.pem
+cat private.pem | base64 -w 0 | pbcopy
 ```
-2. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY` on the CI, and paste the content from the clipboard as its value.
+2. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_BASE64` on the CI, and paste the content from the clipboard as its value.
 3. for copying the contents of the certificate to clipboard:
 ```shell
-pbcopy < chain.crt
+cat chain.crt | base64 -w 0 | pbcopy
 ```
-4. Create an environment variable named `PLUGIN_SIGN_CERT_CHAIN` on the CI, and paste the content from the clipboard as its value.
+4. Create an environment variable named `PLUGIN_SIGN_CERT_CHAIN_BASE64` on the CI, and paste the content from the clipboard as its value.
 5. Type the following command for copying the value of the private key password to the clipboard
 ```shell
-echo $PLUGIN_SIGN_PRIVATE_KEY_PASS | pbcopy
+echo "$PLUGIN_SIGN_PRIVATE_KEY_PASS" | pbcopy
 ```
 6. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_PASS` on the CI and paste the contents of the clipboard as its value.
 
 #### Local plugin signing for test, through the Gradle plugin
 
 ```shell
-export PLUGIN_SIGN_PRIVATE_KEY=$(<private.pem)
-export PLUGIN_SIGN_CERT_CHAIN=$(<chain.crt)
+export PLUGIN_SIGN_PRIVATE_KEY_BASE64=$(base64 -w 0 < private.pem)
+export PLUGIN_SIGN_CERT_CHAIN_BASE64=$(base64 -w 0 < chain.crt)
 ```
 
 Then run `./gradlew publishPlugin` to produce the unsigned and signed `.zip` files in the `build/distributions/` directory.
