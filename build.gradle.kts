@@ -41,6 +41,11 @@ val compileJavaJvmArgs: List<String>? by extra((project.properties["compileJavaJ
 val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
+tasks.register("printPluginZipPath") {
+  doLast {
+    printPluginZipPath()
+  }
+}
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
