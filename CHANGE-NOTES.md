@@ -3,7 +3,7 @@
 ## Unreleased
 
 ## v3.0.2
-- Enable context-menu `Override Fork Point...` action for branches that are out of sync (red-edge).
+- Enabled context-menu <i>Override Fork Point...</i> action for branches that are out of sync (red-edge).
 
 ## v3.0.1
 - Added a warning dialog window that pops up when `Sync To Parent By Merge` is about to be used.
