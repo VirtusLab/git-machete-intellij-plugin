@@ -8,8 +8,6 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
-import java.nio.file.Files
-import java.nio.file.Paths
 
 fun Project.configureUiTests() {
   val isCI: Boolean by rootProject.extra
