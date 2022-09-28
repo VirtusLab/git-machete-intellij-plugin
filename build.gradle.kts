@@ -14,7 +14,7 @@ plugins {
 
 project.extensions.add(
   "intellijVersions",
-  IntellijVersions(project.properties["overrideBuildTarget"] as String?, IntellijVersionHelper.getProperties())
+  IntellijVersions(IntellijVersionHelper.getProperties(), project.properties["overrideBuildTarget"] as String?)
 )
 
 apply<GradleVersionsFilterPlugin>()

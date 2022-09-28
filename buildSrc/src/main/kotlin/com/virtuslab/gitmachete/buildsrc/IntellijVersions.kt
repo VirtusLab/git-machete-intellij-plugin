@@ -2,9 +2,10 @@ package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
 import java.util.Properties
+import kotlin.reflect.full.memberProperties
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProperties: Properties) {
+public class IntellijVersions(intellijVersionsProperties: Properties, overrideBuildTarget: String?) {
   // When this value is updated, remember to update:
   // 1. the minimum required IDEA version in README.md,
   // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
@@ -40,4 +41,27 @@ public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProp
   // This allows to change the target IntelliJ version
   // by using a project property 'overrideBuildTarget' while running tasks like runIde
   val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor ?: latestStable
+
+  /**
+   * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like
+   * eapOfLatestSupportedMajor)
+   * @returns Corresponding release numbers.
+   */
+  fun resolveIntelliJVersions(versionKey: String?): List<String> {
+    if (versionKey == null) {
+      return emptyList()
+    }
+    val regex = "^[0-9].*$".toRegex()
+    if (regex.matches(versionKey)) {
+      return listOf(versionKey)
+    }
+
+    val propertiesList = listOfNotNull(
+      IntellijVersions::class.memberProperties
+        .single { it.name == versionKey }
+        .get(this)
+    )
+
+    return propertiesList.flatMap { if (it is List<*>) it else listOf(it) }.map { it as String }
+  }
 }
