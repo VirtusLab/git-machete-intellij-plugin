@@ -134,6 +134,9 @@ jobs:
       - run:
           name: Build plugin artifact
           command: ./gradlew buildPlugin
+      - run:
+          name: Sign plugin artifact
+          command: ./gradlew signPlugin
       - store_artifacts:
           path: build/distributions/
           destination: .
