@@ -10,7 +10,7 @@ object IntellijVersionHelper {
    * eapOfLatestSupportedMajor)
    * @returns Corresponding release numbers.
    */
-  fun resolveIntelliJVersions(versionKey: String?): List<String> {
+  fun resolveIntelliJVersions(versionKey: String?, intellijVersions: IntellijVersions): List<String> {
     if (versionKey == null) {
       return emptyList()
     }
@@ -22,7 +22,7 @@ object IntellijVersionHelper {
     val propertiesList = listOfNotNull(
       IntellijVersions::class.memberProperties
         .single { it.name == versionKey }
-        .get(IntellijVersions::class.objectInstance!!)
+        .get(intellijVersions)
     )
 
     return propertiesList.flatMap { if (it is List<*>) it else listOf(it) }.map { it as String }

@@ -3,12 +3,10 @@ package com.virtuslab.gitmachete.buildsrc
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.getPropertyOrNullIfEmpty
 import org.gradle.api.reflect.HasPublicType
 import org.gradle.api.reflect.TypeOf
+import java.util.Properties
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
-public class IntellijVersions(overrideBuildTarget: String?) : HasPublicType {
-
-  private val intellijVersionsProp = IntellijVersionHelper.getProperties()
-
+public class IntellijVersions(overrideBuildTarget: String?, intellijVersionsProperties: Properties) : HasPublicType {
   // When this value is updated, remember to update:
   // 1. the minimum required IDEA version in README.md,
   // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
@@ -18,13 +16,13 @@ public class IntellijVersions(overrideBuildTarget: String?) : HasPublicType {
   // since most likely some plugin version will still be downloadable (however not the latest).
   // Marking a release version as hidden is a way to forbid its download
   // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
-  val earliestSupportedMajor: String = intellijVersionsProp.getProperty("earliestSupportedMajor")
+  val earliestSupportedMajor: String = intellijVersionsProperties.getProperty("earliestSupportedMajor")
 
   // Most recent minor versions of all major releases between earliest supported (incl.)
   // and latest stable (excl.), used for binary compatibility checks and UI tests
-  val latestMinorsOfOldSupportedMajors: List<String> = intellijVersionsProp.getProperty("latestMinorsOfOldSupportedMajors").split(",")
+  val latestMinorsOfOldSupportedMajors: List<String> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",")
 
-  val latestStable: String = intellijVersionsProp.getProperty("latestStable")
+  val latestStable: String = intellijVersionsProperties.getProperty("latestStable")
 
   // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
   // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
@@ -33,7 +31,7 @@ public class IntellijVersions(overrideBuildTarget: String?) : HasPublicType {
   // but for some reason aren't resolved in UI tests.
   // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
   // Use `null` if the latest supported major has a stable release (and not just EAPs).
-  val eapOfLatestSupportedMajor: String? = intellijVersionsProp.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+  val eapOfLatestSupportedMajor: String? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
 
   val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
     IntellijVersionHelper.getFromBuildNumber(eapOfLatestSupportedMajor)
