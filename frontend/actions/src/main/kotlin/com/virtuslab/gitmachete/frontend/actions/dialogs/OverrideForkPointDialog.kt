@@ -49,30 +49,10 @@ class OverrideForkPointDialog(
         )
       )
     }
-    row {
-      label(
-        format(
-          getString(
-            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
-          ),
-          parentBranch.name
-        )
-      )
-    }
-
-    row {
-      label(
-        format(
-          getString(
-            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
-          )
-        )
-      )
-    }
 
     row("The fork point commit:") {
       comboBox<ICommitOfManagedBranch?>(
-        (branch.commits.toMutableList() + parentBranch.pointedCommit + branch.forkPoint).filterNotNull(),
+        (listOf(parentBranch.pointedCommit, branch.forkPoint) + branch.commits.toMutableList()).filterNotNull(),
         object : DefaultListCellRenderer() {
           private val defaultBackground = UIManager.get("List.background") as Color
           override fun getListCellRendererComponent(
@@ -113,9 +93,16 @@ class OverrideForkPointDialog(
               var prefix =
 
                 if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-                  "parent pointed "
+                  format(
+                    getString(
+                      "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
+                    ),
+                    parentBranch.name
+                  )
                 } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                  "branch fork point "
+                  getString(
+                    "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+                  )
                 } else {
                   ""
                 }
