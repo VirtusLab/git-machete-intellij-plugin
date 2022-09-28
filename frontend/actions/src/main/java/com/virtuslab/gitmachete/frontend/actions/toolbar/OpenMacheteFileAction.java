@@ -45,13 +45,13 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
             GitVcsSettings.getInstance(project).getRecentRootPath());
     val gitDir = repo != null ? repo.getMainGitDirectory() : null;
 
-    if (gitDir == null) {
+    if (repo == null || gitDir == null) {
       log().warn("Skipping the action because Git repository directory is undefined");
       return;
     }
 
     val macheteFile = WriteAction.compute(() -> Try
-        .of(() -> gitDir.findOrCreateChildData(/* requestor */ this, /* name */ "machete"))
+        .of(() -> GitVfsUtils.getMacheteFile(repo))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
