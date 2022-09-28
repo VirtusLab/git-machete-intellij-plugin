@@ -5,6 +5,7 @@ import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import se.ascp.gradle.GradleVersionsFilterPlugin
+import java.util.Base64
 
 plugins {
   checkstyle
@@ -38,8 +39,12 @@ val javaMajorVersion: JavaVersion by extra(JavaVersion.VERSION_11)
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
-val pluginSignPrivateKey: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY"))
-val pluginSignCertificateChain: String? by extra(System.getenv("PLUGIN_SIGN_CERT_CHAIN"))
+
+fun String.fromBase64(): String {
+  return String(Base64.getDecoder().decode(this))
+}
+val pluginSignCertificateChain: String? by extra(System.getenv("PLUGIN_SIGN_CERT_CHAIN_BASE64")?.fromBase64())
+val pluginSignPrivateKey: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_BASE64")?.fromBase64())
 val pluginSignPrivateKeyPass: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_PASS"))
 
 val compileJavaJvmArgs: List<String>? by extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
