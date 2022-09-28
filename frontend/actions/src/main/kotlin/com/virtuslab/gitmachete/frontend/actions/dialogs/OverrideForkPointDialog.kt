@@ -71,8 +71,8 @@ class OverrideForkPointDialog(
     }
 
     row("The fork point commit:") {
-      comboBox(
-        branch.commits.toMutableList(),
+      comboBox<ICommitOfManagedBranch?>(
+        branch.commits.toMutableList().filterNotNull(),
         object : DefaultListCellRenderer() {
           private val defaultBackground = UIManager.get("List.background") as Color
           override fun getListCellRendererComponent(
@@ -83,22 +83,52 @@ class OverrideForkPointDialog(
             cellHasFocus: Boolean
           ): Component {
             val commit: ICommitOfManagedBranch? = value as ICommitOfManagedBranch?
-            super.getListCellRendererComponent(list, commit!!, index, isSelected, cellHasFocus)
+            componentOrientation = list!!.componentOrientation
 
-            var prefix =
-              if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-                "parent pointed "
-              } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                "branch fork point "
-              } else {
-                ""
-              }
+            var bg: Color? = null
+            var fg: Color? = null
 
-            text = "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+            val dropLocation = list.dropLocation
+            var customIsSelected = isSelected
+            if (dropLocation != null && !dropLocation.isInsert && dropLocation.index == index) {
+              bg = list.selectionBackground
+              fg = list.selectionForeground
+              customIsSelected = true
+            }
 
-            if (!isSelected) {
+            if (customIsSelected) {
+              background = bg ?: list.selectionBackground
+              foreground = fg ?: list.selectionForeground
+            } else {
+              background = list.background
+              foreground = list.foreground
+            }
+
+            icon = null
+
+            isEnabled = list.isEnabled
+            font = list.font
+
+            text = if (commit != null) {
+              var prefix =
+
+                if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
+                  "parent pointed "
+                } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
+                  "branch fork point "
+                } else {
+                  ""
+                }
+
+              "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+            } else {
+              ""
+            }
+
+            if (!customIsSelected) {
               setBackground(if (index % 2 == 0) background else defaultBackground)
             }
+
             return this
           }
         }
