@@ -57,6 +57,12 @@ tasks.register("printPluginZipPath") {
     println(buildPlugin.outputs.files.first().path)
   }
 }
+tasks.register("printSignedPluginZipPath") {
+  doLast {
+    val signPlugin = tasks.findByPath(":signPlugin")!!
+    println(signPlugin.outputs.files.first().path)
+  }
+}
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
