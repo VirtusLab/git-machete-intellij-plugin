@@ -136,7 +136,9 @@ jobs:
           command: ./gradlew buildPlugin
       - run:
           name: Sign plugin artifact
-          command: ./gradlew signPlugin
+          command: |
+            test=$(./gradlew signPlugin)
+            echo "test variable is: $test"
       - store_artifacts:
           path: build/distributions/
           destination: .
