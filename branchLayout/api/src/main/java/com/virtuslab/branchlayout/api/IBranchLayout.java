@@ -16,6 +16,12 @@ public interface IBranchLayout {
   @Nullable
   IBranchLayoutEntry findEntryByName(String branchName);
 
+  @Nullable
+  IBranchLayoutEntry findNextEntry(String branchName);
+
+  @Nullable
+  IBranchLayoutEntry findPreviousEntry(String branchName);
+
   default boolean hasEntry(String branchName) {
     return findEntryByName(branchName) != null;
   }
