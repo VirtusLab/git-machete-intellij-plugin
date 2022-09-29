@@ -5,6 +5,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import lombok.Getter;
 import lombok.val;
+import org.checkerframework.checker.index.qual.LTLengthOf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BranchLayout implements IBranchLayout {
@@ -27,6 +28,28 @@ public class BranchLayout implements IBranchLayout {
   @Override
   public @Nullable IBranchLayoutEntry findEntryByName(String branchName) {
     return entryByName.get(branchName).getOrNull();
+  }
+
+  @Override
+  public @Nullable IBranchLayoutEntry findNextEntry(String branchName) {
+    val entriesOrderedList = rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(IBranchLayoutEntry::getName);
+    val currentIndex = entriesOrderedList.indexOf(branchName);
+    if (currentIndex > -1 && currentIndex + 1 < entriesOrderedList.length()) {
+      @LTLengthOf("entriesOrderedList") int nextIndex = currentIndex + 1;
+      return findEntryByName(entriesOrderedList.get(nextIndex));
+    }
+    return null;
+  }
+
+  @Override
+  public @Nullable IBranchLayoutEntry findPreviousEntry(String branchName) {
+    val entriesOrderedList = rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(IBranchLayoutEntry::getName);
+    val currentIndex = entriesOrderedList.indexOf(branchName);
+    if (currentIndex > 0 && currentIndex < entriesOrderedList.length()) {
+      @LTLengthOf("entriesOrderedList") int previousIndex = currentIndex - 1;
+      return findEntryByName(entriesOrderedList.get(previousIndex));
+    }
+    return null;
   }
 
   @Override
