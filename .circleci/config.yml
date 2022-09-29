@@ -241,6 +241,7 @@ jobs:
                     "$(./gradlew -q printPluginZipPath)" \
                     --notes "$tag"$'\n\n'"$change_notes" \
                   
+
                   scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:
