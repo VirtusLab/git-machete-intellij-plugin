@@ -228,7 +228,7 @@ jobs:
                   git push origin "$tag"
             - run:
                 name: Create GitHub release
-                # Implicit usage of ${GITHUB_TOKEN} by hub
+                # Implicit usage of ${GITHUB_TOKEN} by gh
                 # language=sh
                 command: |
                   source scripts/utils.sh

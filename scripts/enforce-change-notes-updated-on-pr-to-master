@@ -10,7 +10,7 @@ change_notes_path=CHANGE-NOTES.md
 if [[ ${CI_PULL_REQUEST-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
-  # Implicit usage of ${GITHUB_TOKEN} by hub
+  # Implicit usage of ${GITHUB_TOKEN} by gh
   base_branch=$(gh pr view -w "$pr_num") #the gh command does not have an equivalent option for --format
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
