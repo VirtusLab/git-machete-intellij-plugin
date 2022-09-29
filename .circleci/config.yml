@@ -137,6 +137,11 @@ jobs:
       - run:
           name: Sign plugin artifact
           command: ./gradlew signPlugin
+      - run:
+          name: test_sign_zip_path
+          command: |
+            test_var=$(./gradlew printSignedPluginZipPath)
+            echo "TESTING: $test_var"
       - store_artifacts:
           path: build/distributions/
           destination: .
