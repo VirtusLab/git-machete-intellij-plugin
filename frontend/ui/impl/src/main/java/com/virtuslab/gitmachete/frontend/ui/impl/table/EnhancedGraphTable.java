@@ -448,8 +448,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     @UIEffect
     private boolean isMacCtrlClick(MouseEvent e) {
-      return (System.getProperty("os.name").contains("Mac OS X") &&
-          e.isControlDown() && SwingUtilities.isLeftMouseButton(e));
+      return System.getProperty("os.name").contains("Mac OS X") &&
+          e.isControlDown() && SwingUtilities.isLeftMouseButton(e);
     }
   }
 
