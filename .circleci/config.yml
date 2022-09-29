@@ -237,7 +237,7 @@ jobs:
                   tag=$corresponding_milestone_title
                   change_notes=$(./gradlew getChangelog --no-header -q)
                   hub release create \
-                    --attach "$(./gradlew printSignedPluginZipPath)" \
+                    --attach "$(./gradlew -q printSignedPluginZipPath)" \
                     --message "$tag"$'\n\n'"$change_notes" \
                     $tag
                   scripts/close-milestone $corresponding_milestone_title
