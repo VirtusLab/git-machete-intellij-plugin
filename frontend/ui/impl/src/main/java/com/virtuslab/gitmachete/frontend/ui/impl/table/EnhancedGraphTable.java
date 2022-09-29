@@ -420,7 +420,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     private void performActionAfterChecks(MouseEvent e, Point point) {
       ActionManager actionManager = ActionManager.getInstance();
-      if (SwingUtilities.isRightMouseButton(e)) {
+      if (SwingUtilities.isRightMouseButton(e) || isMacCtrlClick(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
         val actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
@@ -444,6 +444,12 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
+    }
+
+    @UIEffect
+    private boolean isMacCtrlClick(MouseEvent e) {
+      return (System.getProperty("os.name").contains("Mac OS X") &&
+          e.isControlDown() && SwingUtilities.isLeftMouseButton(e));
     }
   }
 
