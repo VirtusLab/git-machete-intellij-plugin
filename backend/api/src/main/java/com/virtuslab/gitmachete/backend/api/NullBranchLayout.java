@@ -26,6 +26,16 @@ public final class NullBranchLayout implements IBranchLayout {
   }
 
   @Override
+  public @Nullable IBranchLayoutEntry findNextEntry(String branchName) {
+    return null;
+  }
+
+  @Override
+  public @Nullable IBranchLayoutEntry findPreviousEntry(String branchName) {
+    return null;
+  }
+
+  @Override
   public IBranchLayout slideIn(String parentBranchName, IBranchLayoutEntry entryToSlideIn) {
     return this;
   }
