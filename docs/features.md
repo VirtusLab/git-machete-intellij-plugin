@@ -39,8 +39,7 @@ The current branch is underlined in a branch layout.
 
 Git Machete can display commits belonging to the branches.
 It displays only the commits that are unique to the selected branch (i.e. have never been a tip of a different branch).
-Commits are displayed above their branch name, starting from the oldest ones
-(the newest commit is displayed just above the branch name).
+Commits are displayed above their branch name, starting from the oldest ones, with the newest commit displayed just above the branch name.
 When you click on the eye button on the left side of the plugin, you can toggle between showing and hiding commits.
 
 ![](toggle_listing_commits.gif)

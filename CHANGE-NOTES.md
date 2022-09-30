@@ -3,7 +3,7 @@
 ## Unreleased
 
 ## v3.0.3
-- Enabled Ctrl + mouse click to work as a right-click for Mac users
+- Enabled Ctrl + left-click to work as a right-click for macOS users, for displaying the machete actions on a branch.
 
 ## v3.0.2
 - Enabled context-menu <i>Override Fork Point...</i> action for branches that are out of sync (red-edge).

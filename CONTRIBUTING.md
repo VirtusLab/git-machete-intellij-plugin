@@ -377,7 +377,7 @@ openssl req\
 Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `PLUGIN_SIGN_PRIVATE_KEY_PASS`,
 in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin),
 in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
-For doing so, on a MacOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
+For doing so, on a macOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
 
 1. Type the following command for copying the contents of the private key to the clipboard
 ```shell
