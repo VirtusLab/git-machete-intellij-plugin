@@ -23,7 +23,7 @@ class OverrideForkPointDialog(
   private val branch: INonRootManagedBranchSnapshot
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-  private var customCommit: ICommitOfManagedBranch? = parentBranch.pointedCommit
+  private var customCommit: ICommitOfManagedBranch? = branch.forkPoint
 
   init {
     title =
