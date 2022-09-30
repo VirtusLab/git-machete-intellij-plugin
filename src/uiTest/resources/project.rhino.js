@@ -119,6 +119,7 @@ function Project(underlyingProject) {
 
   const ACTION_PLACE_TOOLBAR = 'GitMacheteToolbar';
   const ACTION_PLACE_CONTEXT_MENU = 'GitMacheteContextMenu';
+  const ACTION_PLACE_EMPTY = '';
   const SHOW_RESET_INFO = 'git-machete.reset.info.show';
   const SHOW_MERGE_WARNING = 'git-machete.merge.warning.show';
 
@@ -400,6 +401,18 @@ function Project(underlyingProject) {
 
   this.checkoutBranch = function (branchName) {
     invokeActionAndWait('GitMachete.CheckoutSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.checkoutNextBranch = function () {
+    invokeActionAndWait('GitMachete.CheckoutNextAction', ACTION_PLACE_EMPTY, {});
+  };
+
+  this.checkoutPreviousBranch = function () {
+    invokeActionAndWait('GitMachete.CheckoutPreviousAction', ACTION_PLACE_EMPTY, {});
+  };
+
+  this.checkoutParentBranch = function () {
+    invokeActionAndWait('GitMachete.ParentBranchCheckoutAction', ACTION_PLACE_EMPTY, {});
   };
 
   this.fastForwardMergeSelectedToParent = function (branchName) {

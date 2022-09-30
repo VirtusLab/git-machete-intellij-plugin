@@ -131,6 +131,18 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs(s"project.checkoutBranch('$branch')")
       }
 
+      def checkoutNextBranch(): Unit = doAndAwait {
+        runJs("project.checkoutNextBranch()")
+      }
+
+      def checkoutPreviousBranch(): Unit = doAndAwait {
+        runJs("project.checkoutPreviousBranch()")
+      }
+
+      def checkoutParentBranch(): Unit = doAndAwait {
+        runJs("project.checkoutParentBranch()")
+      }
+
       def configure(): Unit = {
         runJs("project.configure()")
       }

@@ -226,7 +226,7 @@ Other coding conventions include:
 * Properties in `GitMacheteBundle.properties` that use HTML should be wrapped in tags `<html>` ... `</html>`.
   Additionally, their keys should have a `.HTML` suffix.
 * `@Tainted` and `@Untainted` annotations are used in the context of method parameters that may or may not use HTML. Those annotated with `@Untainted` should not contain HTML tags, whereas values annotated with
-  `@Tainted` can contain HTML (but they don't have to).
+  `@Tainted` can contain HTML (but they don't have to). Please note that you need to use `org.checkerframework.checker.tainting.qual.Tainted` or `org.checkerframework.checker.tainting.qual.Untainted` annotations, rather than the `javax.annotation` ones.
 * Avoid `Branch` word in action class names and action ids to keep them shorter.
   Some exceptions are allowed (e.g. the backgroundable task classes).
 

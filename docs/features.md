@@ -34,6 +34,8 @@ The current branch is underlined in a branch layout.
 
 ![](checkout.gif)
 
+On the Git Machete tab, you can checkout the next branch with `alt + down-arrow` or `alt + right-arrow`, previous branch with `alt + up-arrow`, and parent branch with `alt + left-arrow` in the machete layout.
+
 
 ## Toggle listing commits
 

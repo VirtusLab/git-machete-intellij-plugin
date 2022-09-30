@@ -91,6 +91,14 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // 7 branch rows + 11 commit rows
     Assert.assertEquals(18, branchAndCommitRowsCount)
 
+    project.checkoutBranch("build-chain")
+    project.checkoutPreviousBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "update-icons")
+    project.checkoutNextBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
+    project.checkoutParentBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "allow-ownership-link")
+
     // Let's slide out a root branch now
     project.slideOutSelected("develop")
     project.acceptBranchDeletionOnSlideOut()
