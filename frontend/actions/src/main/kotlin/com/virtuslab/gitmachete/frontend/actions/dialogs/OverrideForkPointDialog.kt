@@ -100,8 +100,11 @@ class OverrideForkPointDialog(
                     parentBranch.name
                   )
                 } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                  getString(
-                    "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+                  format(
+                    getString(
+                      "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+                    ),
+                    branch.name
                   )
                 } else {
                   ""
