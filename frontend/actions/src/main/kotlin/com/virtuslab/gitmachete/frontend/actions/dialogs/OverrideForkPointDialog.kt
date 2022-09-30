@@ -53,7 +53,7 @@ class OverrideForkPointDialog(
 
     row("The fork point commit:") {
       comboBox<ICommitOfManagedBranch?>(
-        (listOf(parentBranch.pointedCommit, branch.forkPoint) + branch.commits.toMutableList()).filterNotNull(),
+        (listOf(branch.forkPoint, parentBranch.pointedCommit) + branch.commits.toMutableList()).filterNotNull(),
         object : DefaultListCellRenderer() {
           private val defaultBackground = UIManager.get("List.background") as Color
           override fun getListCellRendererComponent(
