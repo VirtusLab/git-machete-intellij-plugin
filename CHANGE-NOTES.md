@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v3.0.3
+- Enabled Ctrl + mouse click to work as a right-click for Mac users
+
 ## v3.0.2
 - Enabled context-menu <i>Override Fork Point...</i> action for branches that are out of sync (red-edge).
 - Fixed missing <i>Open Git Machete Tab</i> in Git menu.
