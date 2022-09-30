@@ -446,7 +446,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       }
     }
 
-    // this method is needed as some Mac users use Ctrl + left-click as a replacement for the right-click
+    // this method is needed as some macOS users use Ctrl + left-click as a replacement for the right-click
     @UIEffect
     private boolean isCtrlClick(MouseEvent e) {
       return e.isControlDown() && SwingUtilities.isLeftMouseButton(e);
