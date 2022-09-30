@@ -221,7 +221,6 @@ In the example above, branches `allow-ownership-link` and `call-ws` are children
 `develop` and `master` are root branches.
 
 Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
-When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
 
 ![](machete_file_editor.gif)
 
