@@ -420,7 +420,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @UIEffect
     private void performActionAfterChecks(MouseEvent e, Point point) {
       ActionManager actionManager = ActionManager.getInstance();
-      if (SwingUtilities.isRightMouseButton(e)) {
+      if (SwingUtilities.isRightMouseButton(e) || isCtrlClick(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
         val actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
@@ -444,6 +444,12 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
       }
+    }
+
+    // this method is needed as some Mac users use Ctrl + mouse click as a replacement for the mouse right click
+    @UIEffect
+    private boolean isCtrlClick(MouseEvent e) {
+      return e.isControlDown() && SwingUtilities.isLeftMouseButton(e);
     }
   }
 
