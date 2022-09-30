@@ -12,6 +12,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import java.awt.Color
 import java.awt.Component
+import java.awt.Font
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JList
 import javax.swing.UIManager
@@ -79,7 +80,9 @@ class OverrideForkPointDialog(
             if (customIsSelected) {
               background = bg ?: list.selectionBackground
               foreground = fg ?: list.selectionForeground
+              font = Font(list.font.name, Font.BOLD, list.font.size)
             } else {
+              font = list.font
               background = list.background
               foreground = list.foreground
             }
@@ -87,11 +90,9 @@ class OverrideForkPointDialog(
             icon = null
 
             isEnabled = list.isEnabled
-            font = list.font
 
             text = if (commit != null) {
               var prefix =
-
                 if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
                   format(
                     getString(
