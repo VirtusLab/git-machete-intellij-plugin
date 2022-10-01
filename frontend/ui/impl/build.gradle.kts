@@ -10,7 +10,7 @@ dependencies {
   implementation(project(":frontend:ui:api"))
 }
 
-addIntellijToCompileClasspath(withGit4Idea = true)
+addIntellijToCompileClasspath(withGitPlugin = true)
 junit()
 lombok()
 powerMock()

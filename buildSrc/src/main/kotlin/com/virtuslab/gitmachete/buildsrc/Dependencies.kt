@@ -39,7 +39,7 @@ fun Project.applyKotlinConfig() {
   }
 }
 
-fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
+fun Project.addIntellijToCompileClasspath(withGitPlugin: Boolean) {
   val tasksBefore = mutableListOf<Task>()
   tasksBefore.addAll(tasks)
 
@@ -70,8 +70,8 @@ fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
     // No need to instrument Java classes with nullability assertions, we've got this covered much
     // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
     instrumentCode.set(false)
-    if (withGit4Idea) {
-      plugins.set(listOf("git4idea"))
+    if (withGitPlugin) {
+      plugins.set(listOf("vcs-git"))
     }
   }
 }

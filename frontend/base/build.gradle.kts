@@ -5,6 +5,6 @@ dependencies {
   api(project(":backend:api"))
 }
 
-addIntellijToCompileClasspath(withGit4Idea = true)
+addIntellijToCompileClasspath(withGitPlugin = true)
 jetbrainsAnnotations()
 vavr()

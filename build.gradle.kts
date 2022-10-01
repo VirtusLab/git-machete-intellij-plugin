@@ -22,12 +22,9 @@ apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
 
-if (JavaVersion.current() != JavaVersion.VERSION_11 && JavaVersion.current() != JavaVersion.VERSION_17) {
-  throw GradleException(
-    """Project must be built with JDK 11 or 17 since:
-    1. as of v3.24, Checker Framework only supports JDK 8, 11 and 17: https://checkerframework.org/manual/#installation
-    2. codebase is Java 11-compatible, so can't be built on JDK 8"""
-  )
+// TODO (#983): use Gradle toolchain instead
+if (JavaVersion.current() != JavaVersion.VERSION_17) {
+  throw GradleException("Project must be built with JDK 17 (and not ${JavaVersion.current()}) since IntelliJ 2022.3 itself is compiled for Java 17")
 }
 
 fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
@@ -148,7 +145,7 @@ allprojects {
     // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
     // `-quiet`, which is added anyway by Gradle.
     (options as StandardJavadocDocletOptions).addStringOption("Xwerror", "-quiet")
-    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all", "-quiet")
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
     options.quiet()
   }
 
