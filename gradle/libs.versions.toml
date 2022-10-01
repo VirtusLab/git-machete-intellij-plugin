@@ -34,10 +34,7 @@ slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 #      (1.*.*, rather than a specific version like 1.7.36).
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
-# Plugins
-# @pin because of an issue with a null provider,
-#      see https://github.com/freefair/gradle-plugins/issues/578 for more details
-pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.4.3.1"
+pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.5.1"
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.16"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:1.3.1"
