@@ -86,12 +86,66 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .check(importedClasses);
   }
 
+  private static final String[] whitelistedMethodFullNames_git4idea = {
+      "git4idea.GitLocalBranch.getName()",
+      "git4idea.GitRemoteBranch.getName()",
+      "git4idea.GitUtil.findGitDir(com.intellij.openapi.vfs.VirtualFile)",
+      "git4idea.GitUtil.getRepositories(com.intellij.openapi.project.Project)",
+      "git4idea.GitUtil.getRepositoryManager(com.intellij.openapi.project.Project)",
+      "git4idea.branch.GitBranchUtil.sortBranchNames(java.util.Collection)",
+      "git4idea.branch.GitBranchesCollection.findLocalBranch(java.lang.String)",
+      "git4idea.branch.GitBranchesCollection.findRemoteBranch(java.lang.String)",
+      "git4idea.branch.GitBranchesCollection.getLocalBranches()",
+      "git4idea.branch.GitNewBranchDialog.<init>(com.intellij.openapi.project.Project, java.util.Collection, java.lang.String, java.lang.String, boolean, boolean, boolean)",
+      "git4idea.branch.GitNewBranchDialog.showAndGetOptions()",
+      "git4idea.branch.GitNewBranchOptions.getName()",
+      "git4idea.branch.GitNewBranchOptions.shouldCheckout()",
+      "git4idea.config.GitSharedSettings.getInstance(com.intellij.openapi.project.Project)",
+      "git4idea.config.GitSharedSettings.isBranchProtected(java.lang.String)",
+      "git4idea.config.GitVcsSettings.getInstance(com.intellij.openapi.project.Project)",
+      "git4idea.config.GitVcsSettings.getRecentRootPath()",
+      "git4idea.fetch.GitFetchResult.showNotification()",
+      "git4idea.fetch.GitFetchSupport.fetchSupport(com.intellij.openapi.project.Project)",
+      "git4idea.fetch.GitFetchSupport.isFetchRunning()",
+      "git4idea.push.GitPushSource.create(git4idea.GitLocalBranch)",
+      "git4idea.repo.GitRemote.getName()",
+      "git4idea.repo.GitRepository.getBranches()",
+      "git4idea.repo.GitRepository.getCurrentBranch()",
+      "git4idea.repo.GitRepository.getProject()",
+      "git4idea.repo.GitRepository.getRemotes()",
+      "git4idea.repo.GitRepository.getRoot()",
+      "git4idea.repo.GitRepository.getState()",
+      "git4idea.repo.GitRepository.getVcs()",
+      "git4idea.ui.ComboBoxWithAutoCompletion.<init>(javax.swing.ComboBoxModel, com.intellij.openapi.project.Project)",
+      "git4idea.ui.ComboBoxWithAutoCompletion.addDocumentListener(com.intellij.openapi.editor.event.DocumentListener)",
+      "git4idea.ui.ComboBoxWithAutoCompletion.getModel()",
+      "git4idea.ui.ComboBoxWithAutoCompletion.getText()",
+      "git4idea.ui.ComboBoxWithAutoCompletion.selectAll()",
+      "git4idea.ui.ComboBoxWithAutoCompletion.setPlaceholder(java.lang.String)",
+      "git4idea.ui.ComboBoxWithAutoCompletion.setPrototypeDisplayValue(java.lang.Object)",
+      "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
+      "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)"
+  };
+
+  // Some of these methods might actually access the filesystem;
+  // still, they're lightweight enough so that we can give them a free pass.
+  private static final String[] whitelistedMethodFullNames_java_nio = {
+      "java.nio.file.Files.isRegularFile(java.nio.file.Path, [Ljava.nio.file.LinkOption;)",
+      "java.nio.file.Path.getFileName()",
+      "java.nio.file.Path.getParent()",
+      "java.nio.file.Path.resolve(java.lang.String)",
+      "java.nio.file.Path.toAbsolutePath()",
+      "java.nio.file.Path.toFile()",
+      "java.nio.file.Path.toString()",
+      "java.nio.file.Paths.get(java.lang.String, [Ljava.lang.String;)",
+  };
+
   @Test
   public void only_ui_thread_unsafe_method_should_call_git4idea_methods() {
     methods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea methods") {
+        .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea or java.nio methods") {
           @Override
           public void check(JavaMethod method, ConditionEvents events) {
             if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
@@ -101,52 +155,17 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             method.getCallsFromSelf().forEach(call -> {
               AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
               String callTargetPackageName = callTarget.getOwner().getPackageName();
+              String calledMethodFullName = callTarget.getFullName();
               if (callTargetPackageName.startsWith("git4idea")) {
-                String[] whitelistedMethodFullNames = {
-                    "git4idea.GitLocalBranch.getName()",
-                    "git4idea.GitRemoteBranch.getName()",
-                    "git4idea.GitUtil.findGitDir(com.intellij.openapi.vfs.VirtualFile)",
-                    "git4idea.GitUtil.getRepositories(com.intellij.openapi.project.Project)",
-                    "git4idea.GitUtil.getRepositoryManager(com.intellij.openapi.project.Project)",
-                    "git4idea.branch.GitBranchesCollection.findLocalBranch(java.lang.String)",
-                    "git4idea.branch.GitBranchesCollection.getLocalBranches()",
-                    "git4idea.branch.GitBranchesCollection.findRemoteBranch(java.lang.String)",
-                    "git4idea.branch.GitBranchUtil.sortBranchNames(java.util.Collection)",
-                    "git4idea.branch.GitNewBranchDialog.<init>(com.intellij.openapi.project.Project, java.util.Collection, java.lang.String, java.lang.String, boolean, boolean, boolean)",
-                    "git4idea.branch.GitNewBranchDialog.showAndGetOptions()",
-                    "git4idea.branch.GitNewBranchOptions.getName()",
-                    "git4idea.branch.GitNewBranchOptions.shouldCheckout()",
-                    "git4idea.config.GitSharedSettings.getInstance(com.intellij.openapi.project.Project)",
-                    "git4idea.config.GitSharedSettings.isBranchProtected(java.lang.String)",
-                    "git4idea.config.GitVcsSettings.getInstance(com.intellij.openapi.project.Project)",
-                    "git4idea.config.GitVcsSettings.getRecentRootPath()",
-                    "git4idea.fetch.GitFetchSupport.isFetchRunning()",
-                    "git4idea.fetch.GitFetchResult.showNotification()",
-                    "git4idea.fetch.GitFetchSupport.fetchSupport(com.intellij.openapi.project.Project)",
-                    "git4idea.push.GitPushSource.create(git4idea.GitLocalBranch)",
-                    "git4idea.repo.GitRemote.getName()",
-                    "git4idea.repo.GitRepository.getBranches()",
-                    "git4idea.repo.GitRepository.getCurrentBranch()",
-                    "git4idea.repo.GitRepository.getProject()",
-                    "git4idea.repo.GitRepository.getRemotes()",
-                    "git4idea.repo.GitRepository.getRoot()",
-                    "git4idea.repo.GitRepository.getState()",
-                    "git4idea.repo.GitRepository.getVcs()",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.<init>(javax.swing.ComboBoxModel, com.intellij.openapi.project.Project)",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.addDocumentListener(com.intellij.openapi.editor.event.DocumentListener)",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.getModel()",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.getText()",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.setPlaceholder(java.lang.String)",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.setPrototypeDisplayValue(java.lang.Object)",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
-                    "git4idea.ui.ComboBoxWithAutoCompletion.selectAll()",
-                    "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)"
-                };
-                String calledMethodFullName = callTarget.getFullName();
-
-                if (!Arrays.asList(whitelistedMethodFullNames).contains(calledMethodFullName)) {
+                if (!Arrays.asList(whitelistedMethodFullNames_git4idea).contains(calledMethodFullName)) {
                   String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                       "calls method ${calledMethodFullName} from git4idea";
+                  events.add(SimpleConditionEvent.violated(method, message));
+                }
+              } else if (callTargetPackageName.startsWith("java.nio")) {
+                if (!Arrays.asList(whitelistedMethodFullNames_java_nio).contains(calledMethodFullName)) {
+                  String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                      "calls method ${calledMethodFullName} from java.nio";
                   events.add(SimpleConditionEvent.violated(method, message));
                 }
               }
