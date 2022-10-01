@@ -10,7 +10,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on Mac),
    type `plugins`, press Alt+Enter (⌥↩ on Mac), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on Mac).
 
-2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `Preferences -> Plugins`:
+2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins`:
    * Git
    * Gradle
    * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
@@ -26,31 +26,29 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
-4. (optional) Install the following non-bundled plugins from Marketplace:
+4. Install the following non-bundled plugins from Marketplace:
+    * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
+    * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
+
+5. (optional) Install further non-bundled plugins from Marketplace:
    * [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
      to manually generate grammar and lexer code from `.bnf` and `.flex` files.
    * [HOCON plugin](https://plugins.jetbrains.com/plugin/10481-hocon) for `.conf` file support in UI tests
-   * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
    * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
      when running IntelliJ instance with the Git Machete plugin loaded.
-   * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
-5. Enable annotation processing (for Lombok):
+6. Enable annotation processing (for Lombok):
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`.
    Select `Obtain annotation processors from classpath` radio box.
 
-6. Set Project SDK to JDK 17: `Project Structure > Project`
+7. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
-7. Consider increasing maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
-
-8. For running `./gradlew` from the command line, make sure that `java` and `javac` are in `PATH` and point to Java 17.
-
-9. Consider [enabling internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
+8. (optional) [Enable internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
    It can be significantly useful while working with UI components (or tests).
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
-10. Consider setting `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-to avoid problems with CheckStyle when editing code. To do that go to `Preferences > Code Style > Java/Kotlin/Scala`.
+9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
+   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Code Style > Java/Kotlin/Scala`.
 
 ### Git config/hooks
 
@@ -88,7 +86,7 @@ It might be necessary to additionally restart the terminal after running mention
 
 Also, some issues with `bash` itself have been reported. Make sure that the version you are using is 5.1 or later.
 
-### (optional) Windows
+### Windows
 
 Building this project on Windows has been tested under [Git Bash](https://gitforwindows.org/).
 
@@ -227,6 +225,7 @@ Other coding conventions include:
 * Avoid `Branch` word in action class names and action ids to keep them shorter.
   Some exceptions are allowed (e.g. the backgroundable task classes).
 
+
 ## UI conventions
 
 So far created UI conventions:
@@ -234,6 +233,7 @@ So far created UI conventions:
 * Add `…` (ellipsis, `\u2026`)  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase…` (after this operation the interactive rebase window opens)
 * Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
   On the other hand, **context-menu** actions text names should be kept short (**no** `This`/`Selected`).
+
 
 ## Rebuild the CI base image
 
@@ -248,6 +248,7 @@ docker push gitmachete/intellij-plugin-ci:latest
 ```
 
 Then, update `executors.docker_executor.docker[0].image` in [.circleci/config.yml](.circleci/config.yml).
+
 
 ## Versioning
 
@@ -286,7 +287,7 @@ The change notes should be in past tense (e.g. use `Added...` instead of `Add...
 they should be described in full sentences and end with a period;
 Special phrases like action name references should be highlighted with `<i>...</i>`.
 
-### IDE supported versions
+### Supported IDE versions
 
 Since we cannot skip `untilBuild` field in a plugin build configuration
 (see related [issue](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/460)
@@ -314,6 +315,7 @@ The whole logic of the process can be illustrated with an example:
 6. we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well
 7. since `latestStable` is used as the version to build against,
    a few _source_ incompatibilities might appear once `latestStable` is updated, even when the plugin was _binary_ compatible with the new IDE version.
+
 
 ## PRs & releases
 
@@ -347,7 +349,7 @@ since the latest release over the hotfixed `master`.
 This would mean, however, that the commits referenced from PRs previously merged to `develop` will no longer be part of `develop`'s history,
 which is rather unacceptable.
 
-### Plugin signing
+## Plugin signing
 
 The valid non-expired key pair together with the password required for the plugin signing should be present in the CI environment.
 If they are absent, please take a look at the [plugin signing in IntelliJ](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html#signing-methods) for updated instructions on how to do it.
@@ -375,29 +377,30 @@ openssl req\
   -subj "/C=PL/ST=Krakow/L=Krakow/O=VirtusLab/OU=Git Machete team/CN=www.virtuslab.com/emailAddress=gitmachete@virtuslab.com"
 ```
 
-#### Plugin signing as part of the CI publish process through the Gradle Plugin
+### Plugin signing as part of the CI publish process through the Gradle Plugin
+
 Please note that you would have to copy the contents of `private.pem`, `chain.crt`, and `PLUGIN_SIGN_PRIVATE_KEY_PASS`,
 in the [corresponding environment variables](https://app.circleci.com/settings/project/github/VirtusLab/git-machete-intellij-plugin),
 in order for the Gradle IntelliJ Plugin to pick them up and use them for the plugin signing task, before publishing to the Marketplace.
 For doing so, on a macOS system you can follow the below instructions (on Linux, use `xclip -selection clipboard` instead of `pbcopy`):
 
 1. Type the following command for copying the contents of the private key to the clipboard
-```shell
-cat private.pem | base64 -w 0 | pbcopy
-```
+    ```shell
+    cat private.pem | base64 -w 0 | pbcopy
+    ```
 2. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_BASE64` on the CI, and paste the content from the clipboard as its value.
 3. for copying the contents of the certificate to clipboard:
-```shell
-cat chain.crt | base64 -w 0 | pbcopy
-```
+    ```shell
+    cat chain.crt | base64 -w 0 | pbcopy
+    ```
 4. Create an environment variable named `PLUGIN_SIGN_CERT_CHAIN_BASE64` on the CI, and paste the content from the clipboard as its value.
 5. Type the following command for copying the value of the private key password to the clipboard
-```shell
-echo "$PLUGIN_SIGN_PRIVATE_KEY_PASS" | pbcopy
-```
+    ```shell
+    echo "$PLUGIN_SIGN_PRIVATE_KEY_PASS" | pbcopy
+    ```
 6. Create an environment variable named `PLUGIN_SIGN_PRIVATE_KEY_PASS` on the CI and paste the contents of the clipboard as its value.
 
-#### Local plugin signing for test, through the Gradle plugin
+### Local plugin signing for test, through the Gradle plugin
 
 ```shell
 export PLUGIN_SIGN_PRIVATE_KEY_BASE64=$(base64 -w 0 < private.pem)
@@ -419,6 +422,7 @@ java -jar marketplace-zip-signer-cli.jar sign\
   -key-file "/path/to/private.pem"\
   -key-pass "$PLUGIN_SIGN_PRIVATE_KEY_PASS"
 ```
+
 
 ## Scenario recordings
 

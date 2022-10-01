@@ -33,8 +33,8 @@ fun Project.applyKotlinConfig() {
       // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
       freeCompilerArgs += listOf("-Xskip-metadata-version-check")
 
-      val javaMajorVersion: JavaVersion by rootProject.extra
-      jvmTarget = javaMajorVersion.majorVersion
+      val targetJavaVersion: JavaVersion by rootProject.extra
+      jvmTarget = targetJavaVersion.toString()
     }
   }
 }
