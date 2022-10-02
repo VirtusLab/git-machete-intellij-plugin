@@ -240,6 +240,17 @@ jobs:
                     "$(./gradlew -q printSignedPluginZipPath)" \
                     --notes "$tag"$'\n\n'"$change_notes"
                   scripts/close-milestone $corresponding_milestone_title
+      - when:
+          condition: on_success
+          steps:
+            - reconfigure_origin_remote
+            - run:
+                name: Push empty commit to refresh CI
+                command: |
+                  git config user.email "gitmachete@virtuslab.com"
+                  git config user.name "Git Machete Bot"
+                  git commit --allow-empty -m "Refresh CI"
+                  git push
 
   checkForUpdates:
     executor: docker_executor
