@@ -50,12 +50,12 @@ fun Project.configureIntellijPlugin() {
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
     sinceBuild.set(
-      IntellijVersionHelper.toBuildNumber(intellijVersions.earliestSupportedMajor)
+      IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
     )
 
     // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
     untilBuild.set(
-      IntellijVersionHelper.toBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+      IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
     )
 
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
