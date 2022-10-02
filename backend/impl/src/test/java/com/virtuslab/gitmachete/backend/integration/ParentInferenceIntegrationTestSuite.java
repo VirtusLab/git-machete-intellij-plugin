@@ -40,8 +40,8 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
         // script name, for branch, expected parent
         {SETUP_FOR_OVERRIDDEN_FORK_POINT, "allow-ownership-link", "develop"},
         {SETUP_FOR_YELLOW_EDGES, "allow-ownership-link", "develop"},
-        {SETUP_FOR_YELLOW_EDGES, "drop-constraint", "call-ws"},
-        {SETUP_WITH_SINGLE_REMOTE, "drop-constraint", "call-ws"},
+        {SETUP_FOR_YELLOW_EDGES, "drop-constraint-02", "call-ws"},
+        {SETUP_WITH_SINGLE_REMOTE, "drop-constraint-05", "call-ws"},
     };
   }
 

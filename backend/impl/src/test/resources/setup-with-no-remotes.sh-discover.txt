@@ -16,7 +16,7 @@
   o-call-ws
     |
     | Drop unneeded SQL constraints
-    x-drop-constraint
+    x-drop-constraint-04
     |
     | Evict conflicting dependencies
     o-evict-deps
