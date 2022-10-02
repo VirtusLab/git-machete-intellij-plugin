@@ -6,8 +6,8 @@ import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.toBuildNumber
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.provideDelegate
 import org.jsoup.Jsoup
 
 open class UpdateIntellijVersions : DefaultTask() {
@@ -69,7 +69,7 @@ open class UpdateIntellijVersions : DefaultTask() {
 
   @TaskAction
   fun execute() {
-    val intellijVersions = project.rootProject.extensions.getByType<IntellijVersions>()
+    val intellijVersions: IntellijVersions by project.rootProject.extra
     val properties = IntellijVersionHelper.getProperties()
     val originalProperties = IntellijVersionHelper.getProperties()
     val latestStable = intellijVersions.latestStable

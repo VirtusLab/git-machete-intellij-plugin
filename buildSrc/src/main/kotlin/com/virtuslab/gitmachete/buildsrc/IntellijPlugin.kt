@@ -18,7 +18,8 @@ fun Project.configureIntellijPlugin() {
   val pluginSignPrivateKey: String? by rootProject.extra
   val pluginSignCertificateChain: String? by rootProject.extra
   val pluginSignPrivateKeyPass: String? by rootProject.extra
-  val intellijVersions = rootProject.extensions.getByType<IntellijVersions>()
+
+  val intellijVersions: IntellijVersions by rootProject.extra
 
   configure<IntelliJPluginExtension> {
     instrumentCode.set(false)
