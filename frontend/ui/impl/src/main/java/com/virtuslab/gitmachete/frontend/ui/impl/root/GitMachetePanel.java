@@ -56,6 +56,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
             if (((VFileContentChangeEvent) event).getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
+              System.out.println("[MACIEK] machete file modified");
               graphTable.queueRepositoryUpdateAndModelRefresh();
             }
           }
