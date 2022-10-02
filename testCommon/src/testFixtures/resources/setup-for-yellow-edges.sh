@@ -24,7 +24,7 @@ cd machete-sandbox
     commit Call web service
     commit 1st round of fixes
     push
-  create_branch drop-constraint # not added to the machete file
+  create_branch drop-constraint-02 # not added to the machete file
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes

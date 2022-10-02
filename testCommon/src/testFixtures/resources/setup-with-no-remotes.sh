@@ -24,7 +24,7 @@ cd machete-sandbox
   create_branch call-ws
     commit Call web service
     commit 1st round of fixes
-  create_branch drop-constraint
+  create_branch drop-constraint-04
     commit Drop unneeded SQL constraints
   git checkout call-ws
     commit 2nd round of fixes
@@ -48,7 +48,7 @@ cd machete-sandbox
       allow-ownership-link PR #123
           build-chain
       call-ws PR #124
-          drop-constraint
+          drop-constraint-04
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
 cd -
