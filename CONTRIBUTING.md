@@ -7,10 +7,10 @@
 Use IntelliJ IDEA Community Edition/Ultimate.
 
 1. (optional) Set up a shortcut for `Plugins` setting, you'll need to access it pretty often.
-   Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on Mac),
-   type `plugins`, press Alt+Enter (⌥↩ on Mac), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on Mac).
+   Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on macOS),
+   type `plugins`, press Alt+Enter (⌥↩ on macOS), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on macOS).
 
-2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins`:
+2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins` (`Preferences > Plugins` on macOS):
    * Git
    * Gradle
    * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
@@ -27,6 +27,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
 4. Install the following non-bundled plugins from Marketplace:
+    * [.ignore](https://plugins.jetbrains.com/plugin/7495--ignore)
     * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
     * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
@@ -48,7 +49,8 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
 9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Code Style > Java/Kotlin/Scala`.
+   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Code Style > Java/Kotlin/Scala`
+   (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
 
 ### Git config/hooks
 
@@ -133,7 +135,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new Run Configuration for Gradle: </br>
 ![debug_configuration](docs/debug_configuration.png)
 
-Now this new configuration can be chosen in the upper left corner of the IDE, and the Debugging can be started with the Debug button or Shift+F9 (`^D` on Mac).
+Now this new configuration can be chosen in the upper left corner of the IDE, and the debugging can be started with the Debug button or Shift+F9 (`^D` on macOS).
 
 
 ## Test
@@ -180,7 +182,8 @@ The resulting file will be available under `build/distributions/`. <br/>
 Alternatively, download the plugin zip from the artifacts of the given build
 in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
 
-In either case (locally-built or CI-built), the zip can be installed via `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`.
+In either case (locally-built or CI-built), the zip can be installed via `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`
+(`Preferences > Plugins > (gear icon) > Install Plugin from Disk...` on macOS).
 Select the zip and restart the IDE.
 
 

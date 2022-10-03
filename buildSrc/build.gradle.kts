@@ -69,18 +69,18 @@ apply<KotlinPluginWrapper>()
 // In the top-level Gradle config, there is a Gradle toolchain,
 // which makes sure that the project itself builds under the correct (high) Java version,
 // even if it was previously missing from the machine.
-val buildSrcJavaVersion = JavaVersion.VERSION_1_8
+val buildSrcJavaVersion = JavaVersion.VERSION_1_8.toString()
 
 project.tasks.withType<KotlinCompile> {
   kotlinOptions {
     allWarningsAsErrors = true
-    jvmTarget = buildSrcJavaVersion.toString()
+    jvmTarget = buildSrcJavaVersion
   }
 }
 
 kotlin {
   kotlinDslPluginOptions {
-    jvmTarget.set(buildSrcJavaVersion.toString())
+    jvmTarget.set(buildSrcJavaVersion)
   }
 }
 
