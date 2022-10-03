@@ -103,6 +103,18 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.slideOutSelected("call-ws")
     project.rejectBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+    val managedBranchesAfterSlideOut = project.refreshModelAndGetManagedBranches()
+    // Non-existent branches should be skipped while causing no error (only a low-severity notification).
+    Assert.assertEquals(
+      Seq(
+        "allow-ownership-link",
+        "build-chain",
+        "hotfix/add-trigger",
+        "master",
+        "update-icons"
+      ),
+      managedBranchesAfterSlideOut.toSeq.sorted
+    )
     // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
     Assert.assertEquals(12, branchAndCommitRowsCount)
   }
