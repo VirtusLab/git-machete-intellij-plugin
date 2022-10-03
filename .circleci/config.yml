@@ -256,7 +256,7 @@ jobs:
                 # language=sh
                 command: |
                   git commit --allow-empty -m "Refresh CI"
-                  git push
+                  git push origin chore/autodiscover-logging-maciek
 
   checkForUpdates:
     executor: docker_executor
