@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.SLIDE_IN_UNMANAGED_BELOW;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -89,6 +88,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       Disposable,
       IGitMacheteRepositorySnapshotProvider {
 
+  @Getter
   private final Project project;
 
   private final IBranchLayoutReader branchLayoutReader;
@@ -206,32 +206,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         getGitRepositorySelectionProvider(),
         getUnsuccessfulDiscoverMacheteFilePathConsumer(),
         inferredParent -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
-          val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").format(branchName),
-              NotificationType.INFORMATION);
-
-          val action = NotificationAction
-              .createSimple(
-                  getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action").format(inferredParent),
-                  () -> {
-                    val dataContext = new DataContext() {
-                      @Override
-                      public @Nullable Object getData(String dataId) {
-                        return Match(dataId).of(
-                            typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-                            typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, inferredParent),
-                            typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
-                            typeSafeCase(CommonDataKeys.PROJECT, project),
-                            Case($(), (Object) null));
-                      }
-                    };
-                    val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(),
-                        dataContext);
-                    ActionManager.getInstance().getAction(SLIDE_IN_UNMANAGED_BELOW).actionPerformed(actionEvent);
-                    notification.expire();
-                  });
-
-          notification.addAction(action);
+          val notification = new UnmanagedBranchNotificationBuilder(project, gitMacheteRepositorySnapshot, branchName,
+              inferredParent).build();
           VcsNotifier.getInstance(project).notify(notification);
           slideInNotification = notification;
         })).enqueue(macheteFilePath);
