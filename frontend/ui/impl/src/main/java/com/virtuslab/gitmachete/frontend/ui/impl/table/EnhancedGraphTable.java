@@ -176,8 +176,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    // A bit of a shortcut: we're accessing filesystem even though we're on the UI thread here;
-    // this shouldn't ever be a heavyweight operation, however.
     Path macheteFilePath = gitRepository.getMacheteFilePath();
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
