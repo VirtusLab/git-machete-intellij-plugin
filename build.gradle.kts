@@ -135,7 +135,7 @@ allprojects {
     // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
     // `options.release = X` makes sure that regardless of Java version used to run the compiler,
     // only Java X-compatible APIs are available to the compiled code.
-    options.release.set(Integer.parseInt(targetJavaVersion.toString()))
+    options.release.set(Integer.parseInt(targetJavaVersion.majorVersion))
   }
 
   tasks.withType<Javadoc> {

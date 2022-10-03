@@ -39,7 +39,8 @@ Use IntelliJ IDEA Community Edition/Ultimate.
      when running IntelliJ instance with the Git Machete plugin loaded.
 
 6. Enable annotation processing (for Lombok):
-   `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`.
+   `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
+   (`Preferences > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing` on macOS).
    Select `Obtain annotation processors from classpath` radio box.
 
 7. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
@@ -49,7 +50,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
 9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Code Style > Java/Kotlin/Scala`
+   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
    (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
 
 ### Git config/hooks
@@ -135,7 +136,7 @@ To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/sys
 To debug the plugin using IntelliJ go to `Run > Edit Configurations...` and create a new Run Configuration for Gradle: </br>
 ![debug_configuration](docs/debug_configuration.png)
 
-Now this new configuration can be chosen in the upper left corner of the IDE, and the debugging can be started with the Debug button or Shift+F9 (`^D` on macOS).
+Now this new configuration can be chosen in the upper left corner of the IDE, and the debugging can be started with the Debug button or Shift+F9 (^D on macOS).
 
 
 ## Test
