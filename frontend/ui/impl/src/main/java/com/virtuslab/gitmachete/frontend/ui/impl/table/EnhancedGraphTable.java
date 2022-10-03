@@ -4,8 +4,6 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.CHECK_OUT;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
-import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
-import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -67,6 +65,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -301,7 +300,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private AnActionEvent createAnActionEvent() {
     val dataContext = DataManager.getInstance().getDataContext(this);
-    return AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(), dataContext);
+    return AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
   }
 
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
@@ -420,7 +419,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e) || isCtrlClick(e)) {
         ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
-        val actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
+        val actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         popupMenu.addPopupMenuListener(popupMenuListener);
         popupMenu.show(graphTable, (int) point.getX(), (int) point.getY());
@@ -439,7 +438,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
-        val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
+        val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU, new Presentation(), dataContext);
         actionManager.getAction(CHECK_OUT).actionPerformed(actionEvent);
       }
     }

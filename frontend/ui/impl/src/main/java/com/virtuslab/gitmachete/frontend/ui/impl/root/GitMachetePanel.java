@@ -93,8 +93,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   private static ActionToolbar createGitMacheteVerticalToolbar(BaseEnhancedGraphTable graphTable) {
     val actionManager = ActionManager.getInstance();
     val toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_TOOLBAR);
-    val toolbar = actionManager.createActionToolbar(ActionPlaces.ACTION_PLACE_TOOLBAR, toolbarActionGroup,
-        /* horizontal */ false);
+    val toolbar = actionManager.createActionToolbar(ActionPlaces.TOOLBAR, toolbarActionGroup, /* horizontal */ false);
     toolbar.setTargetComponent(graphTable);
     return toolbar;
   }
