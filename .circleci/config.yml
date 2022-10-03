@@ -243,15 +243,20 @@ jobs:
       - when:
           condition: on_success
           steps:
-            - reconfigure_origin_remote
+            - checkout
             - run:
-                name: Push empty commit to refresh CI
+                name: Configure git user information
+                # language=sh
                 command: |
                   git config user.email "gitmachete@virtuslab.com"
                   git config user.name "Git Machete Bot"
+            - reconfigure_origin_remote
+            - run:
+                name: Push empty commit to refresh CI
+                # language=sh
+                command: |
                   git commit --allow-empty -m "Refresh CI"
-                  git fetch origin chore/autodiscover-logging-maciek
-                  git push origin/chore/autodiscover-logging-maciek chore/autodiscover-logging-maciek
+                  git push
 
   checkForUpdates:
     executor: docker_executor
