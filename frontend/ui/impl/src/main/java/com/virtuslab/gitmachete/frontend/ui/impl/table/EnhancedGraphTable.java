@@ -418,7 +418,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     private void performActionAfterChecks(MouseEvent e, Point point) {
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e) || isCtrlClick(e)) {
-        ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
+        ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.CONTEXT_MENU);
         val actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         popupMenu.addPopupMenuListener(popupMenuListener);
