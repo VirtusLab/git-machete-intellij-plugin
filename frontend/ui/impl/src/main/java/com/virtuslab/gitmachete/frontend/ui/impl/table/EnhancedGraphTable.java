@@ -2,8 +2,8 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
 import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -245,7 +245,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           val actionEvent = createAnActionEvent();
-          ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+          ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
         }));
     return notification;
   }
@@ -293,7 +293,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       notification.addAction(NotificationAction.createSimple(
           () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
             val actionEvent = createAnActionEvent();
-            ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+            ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
           }));
       notifier.notify(notification);
     });
@@ -440,7 +440,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
         val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
-        actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
+        actionManager.getAction(CHECK_OUT).actionPerformed(actionEvent);
       }
     }
 
