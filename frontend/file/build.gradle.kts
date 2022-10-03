@@ -20,7 +20,7 @@ dependencies {
   implementation(project(":frontend:resourcebundles"))
 }
 
-addIntellijToCompileClasspath(withGitPlugin = true)
+addIntellijToCompileClasspath(withGit4Idea = true)
 lombok()
 vavr()
 

@@ -9,7 +9,7 @@ dependencies {
   implementation(project(":frontend:ui:api"))
 }
 
-addIntellijToCompileClasspath(withGitPlugin = true)
+addIntellijToCompileClasspath(withGit4Idea = true)
 applyKotlinConfig()
 lombok()
 slf4jLambdaApi()

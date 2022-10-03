@@ -5,6 +5,6 @@ dependencies {
   api(project(":backend:api"))
 }
 
-addIntellijToCompileClasspath(withGitPlugin = false)
+addIntellijToCompileClasspath(withGit4Idea = false)
 lombok()
 vavr()

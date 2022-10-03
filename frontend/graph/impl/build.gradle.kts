@@ -7,7 +7,7 @@ dependencies {
   implementation(project(":frontend:base"))
 }
 
-addIntellijToCompileClasspath(withGitPlugin = false)
+addIntellijToCompileClasspath(withGit4Idea = false)
 lombok()
 slf4jLambdaApi()
 vavr()
