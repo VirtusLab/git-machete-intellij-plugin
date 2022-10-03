@@ -377,8 +377,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-        typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
+        typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
+        typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
