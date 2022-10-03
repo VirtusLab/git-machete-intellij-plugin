@@ -71,7 +71,9 @@ fun Project.addIntellijToCompileClasspath(withGitPlugin: Boolean) {
     // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
     instrumentCode.set(false)
     if (withGitPlugin) {
-      plugins.set(listOf("vcs-git"))
+      // Let's use the plugin *id* which remained unchanged in the 2022.2->2022.3 update
+      // (which changed the plugin *folder name* from `git4idea` to `vcs-git`; `plugins` property apparently accepts both folder names and ids).
+      plugins.set(listOf("Git4Idea"))
     }
   }
 }

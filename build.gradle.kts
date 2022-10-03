@@ -145,6 +145,7 @@ allprojects {
     // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
     // `-quiet`, which is added anyway by Gradle.
     (options as StandardJavadocDocletOptions).addStringOption("Xwerror", "-quiet")
+    // Suppress `doclint` for `missing`; otherwise javadoc for every member would be required.
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
     options.quiet()
   }
