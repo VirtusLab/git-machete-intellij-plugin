@@ -4,6 +4,7 @@
 
 ## v3.1.0
 - Added support for IntelliJ 2022.3.
+- Fixed spurious `NullPointerException` thrown when opening Machete file, as reported by @oksana-cherniavskaia.
 
 ## v3.0.3
 - Enabled Ctrl + left-click to work as a right-click for macOS users, for displaying the machete actions on a branch.
