@@ -5,6 +5,11 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
+    <!--
+      Note that since 2022.3:
+      * the plugin *folder* under $PRODUCT_ROOT$/plugins/ is called `vcs-git` and not `git4idea`, but
+      * the <id> of the plugin, as recorded in plugin's META-INF/plugin.xml is still `Git4Idea` - and that's what's expected here in `<depends>`
+    -->
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">

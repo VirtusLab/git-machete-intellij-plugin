@@ -117,7 +117,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             new DescribedPredicate<JavaConstructorCall>(
                 "an inner class is instantiated in a constructor of the enclosing class") {
               @Override
-              public boolean apply(JavaConstructorCall input) {
+              public boolean test(JavaConstructorCall input) {
                 if (input.getOrigin().isConstructor()) {
                   JavaClass constructingClass = input.getOriginOwner();
                   JavaClass constructedClass = input.getTargetOwner();

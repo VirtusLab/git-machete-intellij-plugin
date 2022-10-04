@@ -98,7 +98,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     if (branch != null) {
       val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
       val isResettingCurrent = currentBranchIfManaged != null && currentBranchIfManaged.equals(branch);
-      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isResettingCurrent) {
+      if (anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(() -> getActionName());
       }
     }

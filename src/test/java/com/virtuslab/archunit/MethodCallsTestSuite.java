@@ -30,7 +30,7 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
         .areNotAssignableFrom(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
         .and(new DescribedPredicate<JavaClass>("override onUpdate method") {
           @Override
-          public boolean apply(JavaClass input) {
+          public boolean test(JavaClass input) {
             return input.getMethods().stream().anyMatch(method -> method.getName().equals("onUpdate"));
           }
         })
@@ -38,7 +38,7 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
         .callMethodWhere(
             new DescribedPredicate<JavaMethodCall>("name is onUpdate and owner is the direct superclass") {
               @Override
-              public boolean apply(JavaMethodCall input) {
+              public boolean test(JavaMethodCall input) {
                 JavaCodeUnit origin = input.getOrigin(); // where is the method called from?
                 AccessTarget.MethodCallTarget target = input.getTarget(); // where is the method declared?
 
