@@ -4,16 +4,21 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.OptionalInt;
 
 import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.diagnostic.PluginException;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
@@ -39,7 +44,11 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   @UIThreadUnsafe
   public void annotate(PsiElement element, AnnotationHolder holder) {
     if (element instanceof MacheteGeneratedEntry) {
-      processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
+      try {
+        processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     } else if (element.getNode().getElementType().equals(MacheteGeneratedElementTypes.INDENTATION)) {
       processIndentationElement(element, holder);
     }
@@ -57,7 +66,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   }
 
   @UIThreadUnsafe
-  private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
+  private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) throws IOException {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
@@ -79,6 +88,30 @@ public class MacheteAnnotator implements Annotator, DumbAware {
               getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
                   .format(processedBranchName))
           .range(branch).create();
+    }
+
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> checkForDuplicateEntries(holder, branch, file, processedBranchName));
+  }
+
+  @UIEffect
+  private void checkForDuplicateEntries(AnnotationHolder holder, MacheteGeneratedBranch branch, PsiFile file,
+      String processedBranchName) {
+    try {
+      // fileDocManager.saveDocument() needed in order to update the state of the .git/machete VirtualFile before check
+      val fileDocManager = FileDocumentManager.getInstance();
+      fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+
+      val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
+      if (branchNamesFromFile.indexOf(processedBranchName) != branchNamesFromFile.lastIndexOf(processedBranchName)) {
+        holder.newAnnotation(HighlightSeverity.ERROR,
+            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-name-entry-is-duplicate")
+                .format(processedBranchName))
+            .range(branch)
+            .create();
+      }
+    } catch (PluginException | IllegalStateException ignored) { // related to intellij checks against annotation range
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
