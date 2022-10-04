@@ -52,6 +52,7 @@ import com.virtuslab.gitcore.api.IGitCoreHeadSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
@@ -171,6 +172,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return convertExistingRevisionToObjectId(commit.getHash().getHashString());
   }
 
+  @UIThreadUnsafe
   @Override
   public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
     Ref ref = Try.of(() -> jgitRepoForWorktreeGitDir.getRefDatabase().findRef(Constants.HEAD))
@@ -317,6 +319,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return List.ofAll(jgitRepoForMainGitDir.getRemoteNames());
   }
 
+  @UIThreadUnsafe
   @Override
   public @Nullable String deriveRebasedBranch() throws GitCoreException {
     Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
@@ -330,6 +333,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         : null;
   }
 
+  @UIThreadUnsafe
   @Override
   public @Nullable String deriveBisectedBranch() throws GitCoreException {
     Path headNamePath = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("BISECT_START");
