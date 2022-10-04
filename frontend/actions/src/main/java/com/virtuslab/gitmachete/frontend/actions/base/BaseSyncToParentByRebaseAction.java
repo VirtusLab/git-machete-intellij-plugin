@@ -222,8 +222,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
           val stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
-                  + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
-                  + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));
+                  + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
+                  + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
         }
 
