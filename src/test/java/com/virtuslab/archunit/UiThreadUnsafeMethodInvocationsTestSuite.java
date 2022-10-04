@@ -73,9 +73,11 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
               }
             }
 
-            method.getCallsFromSelf().forEach(access -> {
-              AccessTarget accessTarget = access.getTarget();
-              if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
+            method.getCallsFromSelf().forEach(call -> {
+              AccessTarget accessTarget = call.getTarget();
+              if (call.isDeclaredInLambda()) {
+                // ignore
+              } else if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
                 String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                     "calls a ${UIThreadUnsafeName} method ${accessTarget.getFullName()}";
                 events.add(SimpleConditionEvent.violated(method, message));
@@ -156,7 +158,9 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
               AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
               String callTargetPackageName = callTarget.getOwner().getPackageName();
               String calledMethodFullName = callTarget.getFullName();
-              if (callTargetPackageName.startsWith("git4idea")) {
+              if (call.isDeclaredInLambda()) {
+                // ignore
+              } else if (callTargetPackageName.startsWith("git4idea")) {
                 if (!Arrays.asList(whitelistedMethodFullNames_git4idea).contains(calledMethodFullName)) {
                   String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                       "calls method ${calledMethodFullName} from git4idea";
