@@ -2,13 +2,13 @@
 # throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
-checker = "3.25.0"
+checker = "3.26.0"
 ideProbe = "0.45.0"
 powerMock = "2.0.9"
 
 [libraries]
 # Libraries
-archunit = "com.tngtech.archunit:archunit:0.23.1"
+archunit = "com.tngtech.archunit:archunit:1.0.0"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
