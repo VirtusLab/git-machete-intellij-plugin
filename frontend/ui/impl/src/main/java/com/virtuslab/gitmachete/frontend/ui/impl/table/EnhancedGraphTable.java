@@ -234,6 +234,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
+    System.out.println("[MACIEK] refreshModel done");
   }
 
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
