@@ -192,9 +192,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
+          System.out.println("[MACIEK] Machete file (${macheteFilePath}) is empty, so auto discover is running");
           queueDiscover(macheteFilePath, doOnUIThreadWhenReady);
           return;
         } else {
+          System.out.println("[MACIEK] setTextForEmptyTable");
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
                   .format(macheteFilePath.toString()));
@@ -204,6 +206,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
+      System.out.println("[MACIEK] Machete file (${macheteFilePath}) is absent, so auto discover is running");
       // The `doOnUIThreadWhenReady` callback  must be executed once discover task is *complete*,
       // and not just when the discover task is *enqueued*.
       // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
