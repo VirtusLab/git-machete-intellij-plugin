@@ -220,7 +220,6 @@
         <action id="GitMachete.CheckoutNextAction"
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt DOWN" />
-            <keyboard-shortcut keymap="$default" first-keystroke="alt RIGHT" />
         </action>
 
         <action id="GitMachete.CheckoutPreviousAction"
@@ -228,9 +227,13 @@
             <keyboard-shortcut keymap="$default" first-keystroke="alt UP" />
         </action>
 
-        <action id="GitMachete.ParentBranchCheckoutAction"
+        <action id="GitMachete.CheckoutParentAction"
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutParentAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt LEFT" />
+        </action>
+        <action id="GitMachete.CheckoutFirstChildAction"
+                class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutFirstChildAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt RIGHT" />
         </action>
     </actions>
 

@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelecte
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
-public class CheckoutParentAction extends BaseCheckoutAction
+public class CheckoutFirstChildAction extends BaseCheckoutAction
     implements
       IExpectsKeySelectedBranchName {
 
@@ -21,7 +21,7 @@ public class CheckoutParentAction extends BaseCheckoutAction
   protected @Untainted String getNonExistentBranchMessage(AnActionEvent anActionEvent) {
     val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
     return currentBranchName != null
-        ? getNonHtmlString("action.GitMachete.CheckoutParentAction.undefined.branch-name").format(currentBranchName)
+        ? getNonHtmlString("action.GitMachete.CheckoutFirstChildAction.undefined.branch-name").format(currentBranchName)
         : getNonHtmlString("action.GitMachete.BaseCheckoutAction.undefined.current-branch");
   }
 
@@ -29,9 +29,12 @@ public class CheckoutParentAction extends BaseCheckoutAction
   protected @Nullable String getTargetBranchName(AnActionEvent anActionEvent) {
     val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
     val currentBranch = getManagedBranchByName(anActionEvent, currentBranchName);
-    if (currentBranch != null && currentBranch.isNonRoot()) {
-      val nonRootBranch = currentBranch.asNonRoot();
-      return nonRootBranch.getParent().getName();
+    if (currentBranch != null) {
+      val childBranches = currentBranch.getChildren();
+      if (childBranches.nonEmpty()) {
+        val targetBranch = childBranches.get(0);
+        return targetBranch.getName();
+      }
     }
     return null;
   }
