@@ -179,11 +179,12 @@ jobs:
               target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
               eval "cp $f $target"
             done
-            cp macheteChangeLog.txt ~/artifacts
           when: on_fail
       - store_artifacts:
           path: ~/artifacts
           destination: .
+      - store_artifacts:
+          path: ~/macheteChangeLog.txt
 
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:

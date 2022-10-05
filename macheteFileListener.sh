@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat .git/machete > macheteChangeLog.txt
+cat .git/machete > ~/macheteChangeLog.txt
 ### Set initial time of file
 LTIME=`stat -f %m .git/machete`
 
@@ -10,8 +10,8 @@ do
 
    if [[ "$ATIME" != "$LTIME" ]]
    then
-       date +"%T.%3N" >> macheteChangeLog.txt
-       cat .git/machete >> macheteChangeLog.txt
+       date +"%T.%3N" >> ~/macheteChangeLog.txt
+       cat .git/machete >> ~/macheteChangeLog.txt
        LTIME=$ATIME
    fi
 done
