@@ -64,7 +64,7 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
               getActionNameForDisabledDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     } else if (gitMacheteBranchByName.isRoot()) {
-      if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
+      if (anActionEvent.getPlace().equals(ActionPlaces.TOOLBAR)) {
         presentation.setEnabled(false);
         presentation.setDescription(
             format(getNonHtmlString("action.GitMachete.description.disabled.branch-is-root"),

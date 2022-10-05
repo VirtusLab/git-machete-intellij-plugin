@@ -33,8 +33,8 @@ fun Project.applyKotlinConfig() {
       // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
       freeCompilerArgs += listOf("-Xskip-metadata-version-check")
 
-      val javaMajorVersion: JavaVersion by rootProject.extra
-      jvmTarget = javaMajorVersion.majorVersion
+      val targetJavaVersion: JavaVersion by rootProject.extra
+      jvmTarget = targetJavaVersion.toString()
     }
   }
 }
@@ -65,13 +65,16 @@ fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
     checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
   }
 
+  val intellijVersions: IntellijVersions by rootProject.extra
   configure<IntelliJPluginExtension> {
-    version.set(rootProject.extensions.getByType<IntellijVersions>().buildTarget)
+    version.set(intellijVersions.buildTarget)
     // No need to instrument Java classes with nullability assertions, we've got this covered much
     // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
     instrumentCode.set(false)
     if (withGit4Idea) {
-      plugins.set(listOf("git4idea"))
+      // Let's use the plugin *id* which remained unchanged in the 2022.2->2022.3 update
+      // (which changed the plugin *folder name* from `git4idea` to `vcs-git`; `plugins` property apparently accepts both folder names and ids).
+      plugins.set(listOf("Git4Idea"))
     }
   }
 }

@@ -64,18 +64,23 @@ apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<KotlinPluginWrapper>()
 
-val javaMajorVersion = JavaVersion.VERSION_11
+// Let's use a low version so that buildSrc/ itself builds & executes properly
+// on every machine even when running for the first time.
+// In the top-level Gradle config, there is a Gradle toolchain,
+// which makes sure that the project itself builds under the correct (high) Java version,
+// even if it was previously missing from the machine.
+val buildSrcJavaVersion = JavaVersion.VERSION_1_8.toString()
 
 project.tasks.withType<KotlinCompile> {
   kotlinOptions {
     allWarningsAsErrors = true
-    jvmTarget = javaMajorVersion.majorVersion
+    jvmTarget = buildSrcJavaVersion
   }
 }
 
 kotlin {
   kotlinDslPluginOptions {
-    jvmTarget.set(javaMajorVersion.majorVersion)
+    jvmTarget.set(buildSrcJavaVersion)
   }
 }
 

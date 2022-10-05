@@ -2,10 +2,8 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_CHECK_OUT;
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.ACTION_OPEN_MACHETE_FILE;
-import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_CONTEXT_MENU;
-import static com.virtuslab.gitmachete.frontend.defs.ActionPlaces.ACTION_PLACE_VCS_NOTIFICATION;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -67,6 +65,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
+import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -176,8 +175,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    // A bit of a shortcut: we're accessing filesystem even though we're on the UI thread here;
-    // this shouldn't ever be a heavyweight operation, however.
     Path macheteFilePath = gitRepository.getMacheteFilePath();
     boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
 
@@ -247,7 +244,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           val actionEvent = createAnActionEvent();
-          ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+          ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
         }));
     return notification;
   }
@@ -295,7 +292,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       notification.addAction(NotificationAction.createSimple(
           () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
             val actionEvent = createAnActionEvent();
-            ActionManager.getInstance().getAction(ACTION_OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+            ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
           }));
       notifier.notify(notification);
     });
@@ -303,7 +300,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private AnActionEvent createAnActionEvent() {
     val dataContext = DataManager.getInstance().getDataContext(this);
-    return AnActionEvent.createFromDataContext(ACTION_PLACE_VCS_NOTIFICATION, new Presentation(), dataContext);
+    return AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
   }
 
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
@@ -379,8 +376,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   public @Nullable Object getData(String dataId) {
     return Match(dataId).of(
-        typeSafeCase(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-        typeSafeCase(DataKeys.KEY_SELECTED_BRANCH_NAME, selectedBranchName),
+        typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
+        typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, selectedBranchName),
         typeSafeCase(CommonDataKeys.PROJECT, project),
         Case($(), (Object) null));
   }
@@ -421,8 +418,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     private void performActionAfterChecks(MouseEvent e, Point point) {
       ActionManager actionManager = ActionManager.getInstance();
       if (SwingUtilities.isRightMouseButton(e) || isCtrlClick(e)) {
-        ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.ACTION_GROUP_CONTEXT_MENU);
-        val actionPopupMenu = actionManager.createActionPopupMenu(ACTION_PLACE_CONTEXT_MENU, contextMenuActionGroup);
+        ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.CONTEXT_MENU);
+        val actionPopupMenu = actionManager.createActionPopupMenu(ActionPlaces.CONTEXT_MENU, contextMenuActionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         popupMenu.addPopupMenuListener(popupMenuListener);
         popupMenu.show(graphTable, (int) point.getX(), (int) point.getY());
@@ -441,8 +438,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
         e.consume();
         DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
-        val actionEvent = AnActionEvent.createFromDataContext(ACTION_PLACE_CONTEXT_MENU, new Presentation(), dataContext);
-        actionManager.getAction(ACTION_CHECK_OUT).actionPerformed(actionEvent);
+        val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU, new Presentation(), dataContext);
+        actionManager.getAction(CHECK_OUT).actionPerformed(actionEvent);
       }
     }
 
