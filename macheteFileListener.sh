@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "START" >  ~/macheteChangeLog.txt
 cat .git/machete > ~/macheteChangeLog.txt
 ### Set initial time of file
 LTIME=`stat -f %m .git/machete`
