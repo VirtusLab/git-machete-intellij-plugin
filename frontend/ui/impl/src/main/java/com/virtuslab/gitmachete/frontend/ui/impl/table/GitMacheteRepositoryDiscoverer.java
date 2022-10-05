@@ -41,7 +41,8 @@ public class GitMacheteRepositoryDiscoverer {
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
       LOG.error("Can't do automatic discover because of undefined selected repository");
-      System.out.println(Thread.currentThread().getId() + " [mixon] Can't do automatic discover because of undefined selected repository");
+      System.out.println(
+          Thread.currentThread().getId() + " [mixon] Can't do automatic discover because of undefined selected repository");
       return;
     }
     Path rootDirPath = selectedRepository.getRootDirectoryPath().toAbsolutePath();
@@ -73,7 +74,8 @@ public class GitMacheteRepositoryDiscoverer {
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           LOG.debug("No root branches discovered - executing on-failure consumer");
-          System.out.println(Thread.currentThread().getId() + " [mixon] No root branches discovered - executing on-failure consumer");
+          System.out
+              .println(Thread.currentThread().getId() + " [mixon] No root branches discovered - executing on-failure consumer");
           onFailurePathConsumer.accept(macheteFilePath);
           return;
         }
