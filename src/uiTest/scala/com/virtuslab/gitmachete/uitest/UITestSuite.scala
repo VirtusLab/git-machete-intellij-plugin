@@ -105,14 +105,13 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.slideOutSelected("develop")
     project.acceptBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 5 branch rows (`develop` is no longer there) + 7 commit rows
+    // 6 branch rows (`develop` is no longer there) + 7 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
     Assert.assertEquals(13, branchAndCommitRowsCount)
 
     project.checkoutBranch("master")
     project.slideOutSelected("call-ws")
     project.rejectBranchDeletionOnSlideOut()
-    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     val managedBranchesAfterSlideOut = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
@@ -125,7 +124,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       ),
       managedBranchesAfterSlideOut.toSeq.sorted
     )
-    // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
+    branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
+    // 5 branch rows (`call-ws` is also no longer there) + 7 commit rows
     Assert.assertEquals(12, branchAndCommitRowsCount)
   }
 
