@@ -190,9 +190,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
       if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
-          LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
-          queueDiscover(macheteFilePath, doOnUIThreadWhenReady);
-          return;
+          LOG.info("Machete file (${macheteFilePath}) is empty");
+          setTextForEmptyTable(
+              getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
+                  .format(macheteFilePath.toString()));
         } else {
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
