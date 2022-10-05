@@ -16,13 +16,14 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(BranchLayoutFileUtils.class)
 @CustomLog
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
-  // TODO (#692): wrap write operation in WriteAction
+  @UIThreadUnsafe
   @Override
   @SuppressWarnings("regexp") // to allow for `synchronized`
   public synchronized void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {

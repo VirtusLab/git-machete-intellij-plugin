@@ -27,6 +27,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public final class StatusBranchHookExecutor extends BaseHookExecutor {
@@ -116,6 +117,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     }
   }
 
+  @UIThreadUnsafe
   public static String hashFile(String algorithm, File f) throws IOException, NoSuchAlgorithmException {
     MessageDigest md = MessageDigest.getInstance(algorithm);
 
@@ -127,6 +129,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     return new BigInteger(/* signum */ 1, md.digest()).toString(16);
   }
 
+  @UIThreadUnsafe
   public @Nullable String deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
     var hookContentMD5Hash = "";
     try {

@@ -28,6 +28,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
 @CustomLog
@@ -53,6 +54,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     this.gitMacheteRepositoryCache = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class);
   }
 
+  @UIThreadUnsafe
   @Override
   public void run(ProgressIndicator indicator) {
     // We can't queue repository update (onto a non-UI thread) and `doOnUIThreadWhenDone` (onto the UI thread) separately
@@ -73,6 +75,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    *
    * This method is heavyweight and must never be invoked on the UI thread.
    */
+  @UIThreadUnsafe
   private @Nullable IGitMacheteRepositorySnapshot updateRepositorySnapshot() {
     Path rootDirectoryPath = gitRepository.getRootDirectoryPath();
     Path mainGitDirectoryPath = gitRepository.getMainGitDirectoryPath();
@@ -96,6 +99,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
   }
 
+  @UIThreadUnsafe
   private IBranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     try {
       return branchLayoutReader.read(path);

@@ -15,6 +15,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public final class BranchLayoutFileUtils {
@@ -33,6 +34,7 @@ public final class BranchLayoutFileUtils {
     return Stream.ofAll(line.chars().boxed()).takeWhile(c -> c == indentCharacter).size();
   }
 
+  @UIThreadUnsafe
   public static IndentSpec deriveIndentSpec(Path path) {
     LOG.debug("Entering: branch layout file path: ${path}");
     List<String> lines = Try.of(() -> readFileLines(path))
@@ -68,6 +70,7 @@ public final class BranchLayoutFileUtils {
     return indentSpec;
   }
 
+  @UIThreadUnsafe
   public static List<String> readFileLines(Path path) throws BranchLayoutException {
     return Try.of(() -> List.ofAll(Files.readAllLines(path))).getOrElseThrow(
         e -> new BranchLayoutException("Error while loading branch layout file (${path.toAbsolutePath()})", e));

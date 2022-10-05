@@ -158,6 +158,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     }.queue();
   }
 
+  @UIThreadUnsafe
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
     val project = getProject(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);

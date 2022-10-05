@@ -17,11 +17,13 @@ import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(BranchLayoutFileUtils.class)
 @CustomLog
 public class BranchLayoutFileReader implements IBranchLayoutReader {
 
+  @UIThreadUnsafe
   @Override
   public BranchLayout read(Path path) throws BranchLayoutException {
     boolean isBranchLayoutPresent = Files.isRegularFile(path);
