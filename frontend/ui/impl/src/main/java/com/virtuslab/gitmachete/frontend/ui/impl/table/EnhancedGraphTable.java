@@ -189,22 +189,22 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       repositoryGraph = NullRepositoryGraph.getInstance();
     } else {
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
-      System.out.println("[MACIEK] Managed branches in gitMacheteRepositorySnapshot:");
+      System.out.println(Thread.currentThread().getId() + " [MACIEK] Managed branches in gitMacheteRepositorySnapshot:");
       if (gitMacheteRepositorySnapshot != null) {
         System.out.println(gitMacheteRepositorySnapshot.getManagedBranches());
       }
-      System.out.println("[MACIEK] DuplicatedBranchNames in gitMacheteRepositorySnapshot:");
+      System.out.println(Thread.currentThread().getId() + " [MACIEK] DuplicatedBranchNames in gitMacheteRepositorySnapshot:");
       if (gitMacheteRepositorySnapshot != null) {
         System.out.println(gitMacheteRepositorySnapshot.getDuplicatedBranchNames());
       }
       if (gitMacheteRepositorySnapshot != null && gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
-          System.out.println("[MACIEK] Machete file (${macheteFilePath}) is empty, so auto discover is running");
+          System.out.println(Thread.currentThread().getId() + " [MACIEK] Machete file (${macheteFilePath}) is empty, so auto discover is running");
           queueDiscover(macheteFilePath, doOnUIThreadWhenReady);
           return;
         } else {
-          System.out.println("[MACIEK] setTextForEmptyTable");
+          System.out.println(Thread.currentThread().getId() + " [MACIEK] setTextForEmptyTable");
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
                   .format(macheteFilePath.toString()));
@@ -214,7 +214,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
-      System.out.println("[MACIEK] Machete file (${macheteFilePath}) is absent, so auto discover is running");
+      System.out.println(Thread.currentThread().getId() + " [MACIEK] Machete file (${macheteFilePath}) is absent, so auto discover is running");
       // The `doOnUIThreadWhenReady` callback  must be executed once discover task is *complete*,
       // and not just when the discover task is *enqueued*.
       // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
@@ -242,7 +242,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
-    System.out.println("[MACIEK] refreshModel done");
+    System.out.println(Thread.currentThread().getId() + " [MACIEK] refreshModel done");
   }
 
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
@@ -363,13 +363,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
           this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
           if (nullableRepositorySnapshot != null) {
-            System.out.println("[mixon] refreshModel: non null");
+            System.out.println(Thread.currentThread().getId() + " [mixon] refreshModel: non null");
             refreshModel(gitRepository,
                 nullableRepositorySnapshot,
                 doOnUIThreadWhenReady);
 
           } else {
-            System.out.println("[mixon] refreshModel: null");
+            System.out.println(Thread.currentThread().getId() + " [mixon] refreshModel: null");
             refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
           }
         };
@@ -377,9 +377,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
-        System.out.println("[mixon] Queuing repository update onto a non-UI thread...");
+        System.out.println(Thread.currentThread().getId() + " [mixon] Queuing repository update onto a non-UI thread...");
         new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
-        System.out.println("[mixon] Queuing repository update onto a non-UI thread: done");
+        System.out.println(Thread.currentThread().getId() + " [mixon] Queuing repository update onto a non-UI thread: done");
 
         val macheteFile = gitRepository.getMacheteFile();
 

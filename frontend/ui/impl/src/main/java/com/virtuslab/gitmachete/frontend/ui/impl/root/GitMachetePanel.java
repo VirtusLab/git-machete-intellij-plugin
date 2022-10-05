@@ -56,7 +56,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
             if (((VFileContentChangeEvent) event).getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
-              System.out.println("[MACIEK] machete file modified");
+              System.out.println(Thread.currentThread().getId() + " [MACIEK] machete file modified");
               graphTable.queueRepositoryUpdateAndModelRefresh();
             }
           }
@@ -79,7 +79,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
         if (gitRepository != null) {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> {
-            System.out.println("[mixon] [queueDiscoverOperation] event: " + event);
+            System.out.println(Thread.currentThread().getId() + " [mixon] [queueDiscoverOperation] event: " + event);
             graphTable.queueDiscover(macheteFilePath, () -> {});
           };
           val rediscoverSuggester = new RediscoverSuggester(gitRepository, queueDiscoverOperation);
