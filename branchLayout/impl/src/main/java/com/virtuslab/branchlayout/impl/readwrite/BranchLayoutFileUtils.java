@@ -46,7 +46,7 @@ public final class BranchLayoutFileUtils {
   public static IndentSpec deriveIndentSpec(List<String> lines) {
     LOG.debug(() -> "${lines.length()} line(s) found");
 
-    val firstLineWithBlankPrefixOption = lines.reject(line -> line.trim().isEmpty())
+    val firstLineWithBlankPrefixOption = lines.reject(line -> line.isBlank())
         .find(line -> line.startsWith(String.valueOf(SPACE))
             || line.startsWith(String.valueOf(TAB)));
     char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;

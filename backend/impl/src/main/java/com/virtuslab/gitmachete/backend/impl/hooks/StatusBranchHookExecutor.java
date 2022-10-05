@@ -111,8 +111,8 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
           "for ${branchName}; ignoring the hook";
       LOG.error(message, e);
       throw new GitMacheteException(message
-          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
   }
 
