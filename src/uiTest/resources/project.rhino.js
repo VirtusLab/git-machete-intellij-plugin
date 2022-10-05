@@ -403,6 +403,10 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.CheckoutSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
+  this.checkoutFirstChildBranch = function () {
+    invokeActionAndWait('GitMachete.CheckoutFirstChildAction', ACTION_PLACE_EMPTY, {});
+  };
+
   this.checkoutNextBranch = function () {
     invokeActionAndWait('GitMachete.CheckoutNextAction', ACTION_PLACE_EMPTY, {});
   };

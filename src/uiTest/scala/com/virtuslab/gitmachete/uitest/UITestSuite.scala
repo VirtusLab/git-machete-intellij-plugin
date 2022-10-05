@@ -64,8 +64,8 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       """develop
         |  non-existent
         |    allow-ownership-link
-        |      update-icons
         |      build-chain
+        |      update-icons
         |    non-existent-leaf
         |  call-ws
         |non-existent-root
@@ -91,10 +91,12 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // 7 branch rows + 11 commit rows
     Assert.assertEquals(18, branchAndCommitRowsCount)
 
-    project.checkoutBranch("build-chain")
-    project.checkoutPreviousBranch()
-    Assert.assertEquals(project.getCurrentBranchName(), "update-icons")
+    project.checkoutBranch("allow-ownership-link")
+    project.checkoutFirstChildBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
     project.checkoutNextBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "update-icons")
+    project.checkoutPreviousBranch()
     Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
     project.checkoutParentBranch()
     Assert.assertEquals(project.getCurrentBranchName(), "allow-ownership-link")
