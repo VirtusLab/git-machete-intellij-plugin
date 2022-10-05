@@ -118,7 +118,7 @@ In case of spurious cache-related issues with Gradle build, try one of the follo
 * `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
 * remove .gradle/ directory in the project directory
 * remove ~/.gradle/caches/ (or even the entire ~/.gradle/) directory
-* reinstall gradle AND remove entire ~/.gradle/ directory
+* reinstall gradle AND remove the entire ~/.gradle/ directory
 
 
 ## Run
