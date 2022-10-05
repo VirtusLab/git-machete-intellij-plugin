@@ -10,7 +10,7 @@ bundle=frontend/resourcebundles/src/main/resources/GitMacheteBundle.properties
 
 # Let's exclude the keys that are used by IntelliJ implicitly as action descriptions (see `<override-text>` tags in plugin.xml).
 all_expected_keys=$(
-  grep --only-matching --perl-regexp '^[^=]*(?==)' -- $bundle \
+  grep --only-matching --perl-regexp '^[^= ]*(?==)' -- $bundle \
     | grep --extended-regexp --invert-match --line-regexp 'action\.GitMachete\.[A-Za-z]+\.(description|GitMachete(ContextMenu|Toolbar).text|text)' \
     | sort
 )
