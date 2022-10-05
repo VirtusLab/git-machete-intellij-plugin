@@ -18,6 +18,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -86,29 +87,28 @@ public class MacheteAnnotator implements Annotator, DumbAware {
           .range(branch).create();
     }
 
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> checkForDuplicateEntries(holder, branch, file, processedBranchName));
-  }
-
-  @UIEffect
-  private void checkForDuplicateEntries(AnnotationHolder holder, MacheteGeneratedBranch branch, PsiFile file,
-      String processedBranchName) {
+    // saveDocumentBeforeCheck needed in order to update the state of the .git/machete VirtualFile before actual check
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> saveDocumentBeforeCheck(file));
     try {
-      // fileDocManager.saveDocument() needed in order to update the state of the .git/machete VirtualFile before check
-      val fileDocManager = FileDocumentManager.getInstance();
-      fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
-
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
       if (branchNamesFromFile.indexOf(processedBranchName) != branchNamesFromFile.lastIndexOf(processedBranchName)) {
+        System.out.println("\nGO for: " + processedBranchName + "\n");
         holder.newAnnotation(HighlightSeverity.ERROR,
             getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-name-entry-is-duplicate")
                 .format(processedBranchName))
-            .range(branch)
+            .range(TextRange.from(branchNamesFromFile.lastIndexOf(processedBranchName), processedBranchName.length()))
             .create();
       }
-    } catch (PluginException | IllegalStateException ignored) { // related to intellij checks against annotation range
+    } catch (PluginException | IllegalStateException ignored) { // ignore dubious IDE checks against annotation range
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @UIEffect
+  private void saveDocumentBeforeCheck(PsiFile file) {
+    val fileDocManager = FileDocumentManager.getInstance();
+    fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
