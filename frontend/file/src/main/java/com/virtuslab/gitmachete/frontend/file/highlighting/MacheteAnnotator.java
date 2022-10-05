@@ -44,11 +44,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   @UIThreadUnsafe
   public void annotate(PsiElement element, AnnotationHolder holder) {
     if (element instanceof MacheteGeneratedEntry) {
-      try {
-        processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
     } else if (element.getNode().getElementType().equals(MacheteGeneratedElementTypes.INDENTATION)) {
       processIndentationElement(element, holder);
     }
@@ -66,7 +62,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   }
 
   @UIThreadUnsafe
-  private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) throws IOException {
+  private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();
