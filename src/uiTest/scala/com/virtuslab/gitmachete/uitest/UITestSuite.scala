@@ -59,7 +59,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   def saveThreadDumpWhenTestFailed: TestWatcher = _saveThreadDumpWhenTestFailed
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    project.openGitMacheteTab()
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -72,6 +71,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
         |master
         |  hotfix/add-trigger""".stripMargin
     )
+    project.openGitMacheteTab()
     val managedBranches = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
