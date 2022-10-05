@@ -40,7 +40,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  val _saveThreadDumpWhenTestFailed = new TestWatcher() {
+  val _saveThreadDumpWhenTestFailed: TestWatcher = new TestWatcher() {
     override protected def failed(e: Throwable, description: Description): Unit = {
       val pid = probe.pid()
       probe.screenshot("exception")
