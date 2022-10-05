@@ -13,11 +13,6 @@ plugins {
   scala
 }
 
-project.extensions.add(
-  "intellijVersions",
-  IntellijVersions(IntellijVersionHelper.getProperties(), project.properties["overrideBuildTarget"] as String?)
-)
-
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
@@ -36,6 +31,13 @@ val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
 
+val intellijVersions by extra(
+  IntellijVersions.from(
+    intellijVersionsProperties = PropertiesHelper.getProperties(File("intellijVersions.properties")),
+    overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
+  )
+)
+
 fun String.fromBase64(): String {
   return String(Base64.getDecoder().decode(this))
 }
@@ -47,6 +49,7 @@ val compileJavaJvmArgs: List<String>? by extra((project.properties["compileJavaJ
 val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
+
 tasks.register("printPluginZipPath") {
   doLast {
     val buildPlugin = tasks.findByPath(":buildPlugin")!!

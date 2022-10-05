@@ -65,8 +65,9 @@ fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
     checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
   }
 
+  val intellijVersions: IntellijVersions by rootProject.extra
   configure<IntelliJPluginExtension> {
-    version.set(rootProject.extensions.getByType<IntellijVersions>().buildTarget)
+    version.set(intellijVersions.buildTarget)
     // No need to instrument Java classes with nullability assertions, we've got this covered much
     // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
     instrumentCode.set(false)

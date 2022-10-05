@@ -5,6 +5,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import java.util.Arrays;
 
 import com.tngtech.archunit.core.domain.AccessTarget;
+import com.tngtech.archunit.core.domain.JavaCall;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -13,6 +14,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.junit.Test;
 
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
@@ -34,13 +36,15 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
     methods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
+        .and()
+        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
         .should(new ArchCondition<JavaMethod>("never call any ${UIThreadUnsafeName} methods") {
           @Override
           public void check(JavaMethod method, ConditionEvents events) {
             // This makes the check somewhat unsound (some non-UI-safe calls can slip under the radar in lambdas),
             // but annotating lambda methods isn't possible without expanding lambda into anonymous class...
             // which would in turn heavily reduce readability, hence potentially leading to bugs in the long run.
-            if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
+            if (method.getName().equals("$deserializeLambda$")) {
               return;
             }
 
@@ -75,9 +79,7 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
             method.getCallsFromSelf().forEach(call -> {
               AccessTarget accessTarget = call.getTarget();
-              if (call.isDeclaredInLambda()) {
-                // ignore
-              } else if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
+              if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
                 String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
                     "calls a ${UIThreadUnsafeName} method ${accessTarget.getFullName()}";
                 events.add(SimpleConditionEvent.violated(method, message));
@@ -131,8 +133,17 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   // Some of these methods might actually access the filesystem;
   // still, they're lightweight enough so that we can give them a free pass.
+  private static final String[] whitelistedMethodFullNames_java_io = {
+      "java.io.File.canExecute()",
+      "java.io.File.getAbsolutePath()",
+      "java.io.File.isFile()",
+      "java.io.File.toString()",
+  };
+
   private static final String[] whitelistedMethodFullNames_java_nio = {
       "java.nio.file.Files.isRegularFile(java.nio.file.Path, [Ljava.nio.file.LinkOption;)",
+      "java.nio.file.Files.readAttributes(java.nio.file.Path, java.lang.Class, [Ljava.nio.file.LinkOption;)",
+      "java.nio.file.Files.setLastModifiedTime(java.nio.file.Path, java.nio.file.attribute.FileTime)",
       "java.nio.file.Path.getFileName()",
       "java.nio.file.Path.getParent()",
       "java.nio.file.Path.resolve(java.lang.String)",
@@ -140,39 +151,44 @@ public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "java.nio.file.Path.toFile()",
       "java.nio.file.Path.toString()",
       "java.nio.file.Paths.get(java.lang.String, [Ljava.lang.String;)",
+      "java.nio.file.attribute.BasicFileAttributes.lastModifiedTime()",
+      "java.nio.file.attribute.FileTime.fromMillis(long)",
+      "java.nio.file.attribute.FileTime.toMillis()",
   };
 
   @Test
-  public void only_ui_thread_unsafe_method_should_call_git4idea_methods() {
+  public void only_ui_thread_unsafe_method_should_call_git4idea_or_io_methods() {
     methods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea or java.nio methods") {
+        .and()
+        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
+        .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea or IO methods") {
+          private void checkCallAgainstPackagePrefix(JavaMethod method, JavaCall<?> call, String packagePrefix,
+              String[] whitelistedMethodFullNames, ConditionEvents events) {
+            AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
+            String callTargetPackageName = callTarget.getOwner().getPackageName();
+            String calledMethodFullName = callTarget.getFullName();
+
+            if (callTargetPackageName.startsWith(packagePrefix)) {
+              if (!Arrays.asList(whitelistedMethodFullNames).contains(calledMethodFullName)) {
+                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                    "calls method ${calledMethodFullName} from ${packagePrefix}";
+                events.add(SimpleConditionEvent.violated(method, message));
+              }
+            }
+          }
+
           @Override
           public void check(JavaMethod method, ConditionEvents events) {
-            if (method.getName().startsWith("access$") || method.getName().startsWith("lambda$")) {
+            if (method.getName().equals("$deserializeLambda$")) {
               return;
             }
 
             method.getCallsFromSelf().forEach(call -> {
-              AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
-              String callTargetPackageName = callTarget.getOwner().getPackageName();
-              String calledMethodFullName = callTarget.getFullName();
-              if (call.isDeclaredInLambda()) {
-                // ignore
-              } else if (callTargetPackageName.startsWith("git4idea")) {
-                if (!Arrays.asList(whitelistedMethodFullNames_git4idea).contains(calledMethodFullName)) {
-                  String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                      "calls method ${calledMethodFullName} from git4idea";
-                  events.add(SimpleConditionEvent.violated(method, message));
-                }
-              } else if (callTargetPackageName.startsWith("java.nio")) {
-                if (!Arrays.asList(whitelistedMethodFullNames_java_nio).contains(calledMethodFullName)) {
-                  String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                      "calls method ${calledMethodFullName} from java.nio";
-                  events.add(SimpleConditionEvent.violated(method, message));
-                }
-              }
+              checkCallAgainstPackagePrefix(method, call, "git4idea", whitelistedMethodFullNames_git4idea, events);
+              checkCallAgainstPackagePrefix(method, call, "java.io", whitelistedMethodFullNames_java_io, events);
+              checkCallAgainstPackagePrefix(method, call, "java.nio", whitelistedMethodFullNames_java_nio, events);
             });
           }
         })

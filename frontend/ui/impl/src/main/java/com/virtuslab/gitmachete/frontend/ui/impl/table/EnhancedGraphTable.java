@@ -77,6 +77,8 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 /**
  *  This class compared to {@link SimpleGraphTable} has graph table refreshing and provides
@@ -230,15 +232,20 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     doOnUIThreadWhenReady.run();
   }
 
+  @IgnoreUIThreadUnsafeCalls
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
       GitRepository gitRepository) {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
         getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text")
             .format(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
         NotificationType.WARNING);
+
     notification.addAction(NotificationAction.createSimple(
         () -> getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
           notification.expire();
+          // Note that we're essentially writing to machete file on UI thread here.
+          // This is still acceptable since it simplifies the flow (no background task needed)
+          // and this action is not going to be invoked frequently.
           slideOutSkippedBranches(repositorySnapshot, gitRepository);
         }));
     notification.addAction(NotificationAction.createSimple(
@@ -249,6 +256,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     return notification;
   }
 
+  @UIThreadUnsafe
   private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
     IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
