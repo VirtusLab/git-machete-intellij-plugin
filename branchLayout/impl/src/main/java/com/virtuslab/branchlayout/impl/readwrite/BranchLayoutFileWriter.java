@@ -23,7 +23,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @RequiredArgsConstructor
 public class BranchLayoutFileWriter implements IBranchLayoutWriter {
 
-  // TODO (#692): wrap write operation in WriteAction
   @UIThreadUnsafe
   @Override
   @SuppressWarnings("regexp") // to allow for `synchronized`
