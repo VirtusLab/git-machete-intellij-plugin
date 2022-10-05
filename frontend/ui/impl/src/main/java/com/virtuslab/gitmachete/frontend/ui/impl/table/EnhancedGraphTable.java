@@ -189,7 +189,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       repositoryGraph = NullRepositoryGraph.getInstance();
     } else {
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
-      if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
+      System.out.println("[MACIEK] Managed branches in gitMacheteRepositorySnapshot:");
+      if (gitMacheteRepositorySnapshot != null) {
+        System.out.println(gitMacheteRepositorySnapshot.getManagedBranches());
+      }
+      System.out.println("[MACIEK] DuplicatedBranchNames in gitMacheteRepositorySnapshot:");
+      if (gitMacheteRepositorySnapshot != null) {
+        System.out.println(gitMacheteRepositorySnapshot.getDuplicatedBranchNames());
+      }
+      if (gitMacheteRepositorySnapshot != null && gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty, so auto discover is running");
           System.out.println("[MACIEK] Machete file (${macheteFilePath}) is empty, so auto discover is running");

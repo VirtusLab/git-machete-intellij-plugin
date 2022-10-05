@@ -13,7 +13,7 @@ public class BranchLayout implements IBranchLayout {
   @Getter
   private final List<IBranchLayoutEntry> rootEntries;
 
-  private final Map<String, IBranchLayoutEntry> entryByName;
+  final Map<String, IBranchLayoutEntry> entryByName;
 
   public BranchLayout(List<IBranchLayoutEntry> rootEntries) {
     this.rootEntries = rootEntries;

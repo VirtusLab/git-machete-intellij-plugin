@@ -27,6 +27,9 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     boolean isBranchLayoutPresent = Files.isRegularFile(path);
     List<String> lines = path.readFileLines();
 
+    System.out.println("Read machete content:");
+    lines.forEach(System.out::println);
+
     IndentSpec indentSpec = isBranchLayoutPresent
         ? lines.deriveIndentSpec()
         : BranchLayoutFileUtils.getDefaultSpec();
