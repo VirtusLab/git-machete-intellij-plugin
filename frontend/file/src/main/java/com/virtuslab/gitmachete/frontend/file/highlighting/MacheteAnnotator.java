@@ -93,7 +93,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
       if (branchNamesFromFile.indexOf(processedBranchName) != branchNamesFromFile.lastIndexOf(processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
-            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-name-entry-is-duplicate")
+            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
                 .format(processedBranchName))
             .range(TextRange.from(branchNamesFromFile.lastIndexOf(processedBranchName), processedBranchName.length()))
             .create();
