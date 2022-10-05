@@ -34,8 +34,14 @@ The current branch is underlined in a branch layout.
 
 ![](checkout.gif)
 
-On the Git Machete tab, you can checkout the next branch with `alt + down-arrow` or `alt + right-arrow`, previous branch with `alt + up-arrow`, and parent branch with `alt + left-arrow` in the machete layout.
+If Git Machete tab is opened & focused, branch navigation with keyboard shortcuts is available.
+Check out:
+* previous branch with `alt + up-arrow`,
+* next branch with `alt + down-arrow`,
+* parent branch with `alt + left-arrow`,
+* first child branch with `alt + right-arrow`.
 
+Note that `option` key is the equivalent of `alt` in macOS.
 
 ## Toggle listing commits
 
