@@ -53,8 +53,8 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
         .of(() -> GitVfsUtils.getMacheteFile(repo))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
-            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
-        .toOption()).getOrNull();
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open"))))
+        .getOrNull();
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
