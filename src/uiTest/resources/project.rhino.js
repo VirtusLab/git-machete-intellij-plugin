@@ -412,7 +412,7 @@ function Project(underlyingProject) {
   };
 
   this.checkoutParentBranch = function () {
-    invokeActionAndWait('GitMachete.ParentBranchCheckoutAction', ACTION_PLACE_EMPTY, {});
+    invokeActionAndWait('GitMachete.CheckoutParentAction', ACTION_PLACE_EMPTY, {});
   };
 
   this.fastForwardMergeSelectedToParent = function (branchName) {
