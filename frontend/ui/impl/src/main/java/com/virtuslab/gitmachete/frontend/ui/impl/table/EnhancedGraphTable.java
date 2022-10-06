@@ -95,8 +95,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
       DataProvider,
-      Disposable,
-      IGitMacheteRepositorySnapshotProvider {
+      Disposable {
 
   @Getter(AccessLevel.PACKAGE)
   private final Project project;
