@@ -11,7 +11,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
  *  This class compared to SimpleGraphTable has graph table refreshing
  */
 
-public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
+public abstract class BaseEnhancedGraphTable extends BaseGraphTable
+    implements
+      IGitMacheteRepositorySnapshotProvider {
   @UIEffect
   protected BaseEnhancedGraphTable(AbstractTableModel model) {
     super(model);

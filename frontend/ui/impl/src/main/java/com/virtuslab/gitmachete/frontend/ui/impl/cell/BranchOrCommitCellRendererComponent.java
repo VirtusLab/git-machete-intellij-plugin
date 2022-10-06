@@ -66,7 +66,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactor
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnapshotProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.table.IGitMacheteRepositorySnapshotProvider;
 
 @ExtensionMethod({GitMacheteBundle.class, StringEscapeUtils.class})
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
