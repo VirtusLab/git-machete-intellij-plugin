@@ -213,8 +213,8 @@ public abstract class BaseRebaseAction extends BaseGitMacheteRepositoryReadyActi
           val stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseRebaseAction.notification.title.rebase-abort"), message
-                  + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
-                  + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));
+                          + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
+                          + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
         }
 
