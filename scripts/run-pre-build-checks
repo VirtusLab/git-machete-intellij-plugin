@@ -34,7 +34,7 @@ _ enforce-version-bump
 
 # This one is needed as a pull request check. So, it should not run as a git pre-commit hook.
 _ prohibit-direct-merges-to-master --skip-in-pre-commit-hook
-_ prohibit-java-class-name-hardcode-in-strings
+# _ prohibit-java-class-name-hardcode-in-strings
 _ prohibit-java-code-commented-out
 _ prohibit-java-lines-split-needlessly
 _ prohibit-java-unused-custom-log

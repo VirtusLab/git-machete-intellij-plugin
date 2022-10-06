@@ -7,6 +7,7 @@ import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.Wi
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
@@ -178,6 +179,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .check(productionClasses);
   }
 
+  @Disabled
   @Test
   public void no_classes_should_call_println() {
     noClasses()

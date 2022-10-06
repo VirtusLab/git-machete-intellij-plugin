@@ -68,12 +68,12 @@
                     OBJBLOCK, STATIC_INIT"/>
         </module>
         <module name="MissingSwitchDefault"/>
-        <module name="MultipleStringLiterals">
-            <property name="allowedDuplicates" value="3"/>
-            <!-- Allow for more than 3 occurrences of an empty string, a single-space string,
-                 ", " string, "... is null" string or a property key in the given file -->
-            <property name="ignoreStringsRegexp" value="^&quot;(| |, |.* is null|action\.GitMachete\..*)&quot;$"/>
-        </module>
+<!--        <module name="MultipleStringLiterals">-->
+<!--            <property name="allowedDuplicates" value="3"/>-->
+<!--            &lt;!&ndash; Allow for more than 3 occurrences of an empty string, a single-space string,
+<!-                 ", " string, "... is null" string or a property key in the given file &ndash;&gt;&ndash;&gt;-->
+<!--            <property name="ignoreStringsRegexp" value="^&quot;(| |, |.* is null|action\.GitMachete\..*)&quot;$"/>-->
+<!--        </module>-->
         <module name="MultipleVariableDeclarations"/>
         <module name="ModifiedControlVariable"/>
         <module name="ModifierOrder"/>
