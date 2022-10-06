@@ -206,6 +206,11 @@
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.HELP">
                 <override-text place="GitMacheteToolbar"/>
             </action>
+
+            <action id="GitMachete.TraverseRepositoryAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.traverse.TraverseRepositoryAction">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
         </group>
 
         <action id="GitMachete.CheckoutNextAction"
@@ -239,7 +244,6 @@
 
         <action id="GitMachete.SlideInUnmanagedBelowAction"
                 class="com.virtuslab.gitmachete.frontend.actions.common.SlideInUnmanagedBelowAction"/>
-
     </actions>
 
 </idea-plugin>

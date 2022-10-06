@@ -38,7 +38,7 @@ public class BranchLayout {
   public @Nullable BranchLayoutEntry getEntryByName(String branchName) {
     return entryByName.get(branchName).getOrNull();
   }
-
+  
   public boolean hasEntry(String branchName) {
     return getEntryByName(branchName) != null;
   }
@@ -50,7 +50,7 @@ public class BranchLayout {
   }
 
   public @Nullable BranchLayoutEntry findNextEntry(String branchName) {
-    val entriesOrderedList = allEntries.map(BranchLayoutEntry::getName);
+    val entriesOrderedList = getOrderedEntriesNames();
     val currentIndex = entriesOrderedList.indexOf(branchName);
     if (currentIndex > -1 && currentIndex + 1 < entriesOrderedList.length()) {
       @LTLengthOf("entriesOrderedList") int nextIndex = currentIndex + 1;
@@ -60,7 +60,7 @@ public class BranchLayout {
   }
 
   public @Nullable BranchLayoutEntry findPreviousEntry(String branchName) {
-    val entriesOrderedList = allEntries.map(BranchLayoutEntry::getName);
+    val entriesOrderedList = getOrderedEntriesNames();
     val currentIndex = entriesOrderedList.indexOf(branchName);
     if (currentIndex > 0 && currentIndex < entriesOrderedList.length()) {
       @LTLengthOf("entriesOrderedList") int previousIndex = currentIndex - 1;
@@ -72,6 +72,11 @@ public class BranchLayout {
   public BranchLayout slideOut(String branchName) {
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, branchName)));
   }
+  
+  public List<String> getOrderedEntryNames() {
+    return rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(BranchLayoutEntry::getName);
+  }
+
 
   private List<BranchLayoutEntry> slideOut(BranchLayoutEntry entry, String entryNameToSlideOut) {
     val newChildren = entry.getChildren().flatMap(child -> slideOut(child, entryNameToSlideOut));

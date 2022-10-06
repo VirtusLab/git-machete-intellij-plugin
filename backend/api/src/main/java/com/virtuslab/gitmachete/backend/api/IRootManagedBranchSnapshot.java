@@ -17,4 +17,9 @@ public interface IRootManagedBranchSnapshot extends IManagedBranchSnapshot {
   default INonRootManagedBranchSnapshot asNonRoot() {
     throw new NotImplementedError();
   }
+
+  @Override
+  default boolean isTracked() {
+    throw new NotImplementedError();
+  }
 }
