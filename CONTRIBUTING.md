@@ -113,12 +113,13 @@ Local (non-CI) builds by default skip most of [Checker Framework's](https://chec
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
 set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
 
-In case of spurious cache-related issues with Gradle build, try one of the following:
-* `./gradlew --stop` to shut down gradle daemon
+In case of spurious cache-related issues with Gradle build, try the following remedies (in the order from the least intrusive to the most):
+* `./gradlew --stop` to shut down Gradle daemon
+* `pkill -e -9 -f '.*Gradle.*'` to kill all Gradle processes
 * `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
 * remove .gradle/ directory in the project directory
 * remove ~/.gradle/caches/ (or even the entire ~/.gradle/) directory
-* reinstall gradle AND remove the entire ~/.gradle/ directory
+* reinstall Gradle AND remove the entire ~/.gradle/ directory
 
 
 ## Run
@@ -226,7 +227,7 @@ Other coding conventions include:
 * Properties in `GitMacheteBundle.properties` that use HTML should be wrapped in tags `<html>` ... `</html>`.
   Additionally, their keys should have a `.HTML` suffix.
 * `@Tainted` and `@Untainted` annotations are used in the context of method parameters that may or may not use HTML. Those annotated with `@Untainted` should not contain HTML tags, whereas values annotated with
-  `@Tainted` can contain HTML (but they don't have to).
+  `@Tainted` can contain HTML (but they don't have to). Please note that you need to use `org.checkerframework.checker.tainting.qual.Tainted` or `org.checkerframework.checker.tainting.qual.Untainted` annotations, rather than the `javax.annotation` ones.
 * Avoid `Branch` word in action class names and action ids to keep them shorter.
   Some exceptions are allowed (e.g. the backgroundable task classes).
 

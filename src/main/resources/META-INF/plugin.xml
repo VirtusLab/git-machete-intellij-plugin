@@ -216,6 +216,25 @@
             <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on macOS -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
+
+        <action id="GitMachete.CheckoutNextAction"
+                class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt DOWN" />
+        </action>
+
+        <action id="GitMachete.CheckoutPreviousAction"
+                class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutPreviousAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt UP" />
+        </action>
+
+        <action id="GitMachete.CheckoutParentAction"
+                class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutParentAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt LEFT" />
+        </action>
+        <action id="GitMachete.CheckoutFirstChildAction"
+                class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutFirstChildAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt RIGHT" />
+        </action>
     </actions>
 
 </idea-plugin>
