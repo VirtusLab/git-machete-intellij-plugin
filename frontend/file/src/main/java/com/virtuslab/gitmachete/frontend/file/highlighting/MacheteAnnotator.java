@@ -6,7 +6,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -114,7 +113,8 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
   private boolean isBranchNameRepeated(String fileContent, String branchName) {
     boolean result = false;
-    List<String> lines = Arrays.stream(fileContent.split("\n")).map(String::trim).collect(Collectors.toList());
+    java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator())).map(String::trim)
+        .collect(Collectors.toList());
     if (lines.stream().filter(line -> line.equals(branchName)).count() > 1) {
       result = true;
     }
