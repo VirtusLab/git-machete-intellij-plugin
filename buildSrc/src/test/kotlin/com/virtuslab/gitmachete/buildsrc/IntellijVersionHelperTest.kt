@@ -5,7 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class BuildNumberComparisonTest {
+class IntellijVersionHelperTest {
   @Test
   fun shouldRecognizeEqualVersions() {
     val version1 = "123.1234.56789"

@@ -13,32 +13,30 @@ plugins {
   scala
 }
 
-project.extensions.add(
-  "intellijVersions",
-  IntellijVersions(IntellijVersionHelper.getProperties(), project.properties["overrideBuildTarget"] as String?)
-)
-
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<TaskTreePlugin>()
-
-if (JavaVersion.current() != JavaVersion.VERSION_11 && JavaVersion.current() != JavaVersion.VERSION_17) {
-  throw GradleException(
-    """Project must be built with JDK 11 or 17 since:
-    1. as of v3.24, Checker Framework only supports JDK 8, 11 and 17: https://checkerframework.org/manual/#installation
-    2. codebase is Java 11-compatible, so can't be built on JDK 8"""
-  )
-}
 
 fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
   return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }
 }
 
-val javaMajorVersion: JavaVersion by extra(JavaVersion.VERSION_11)
+// TODO (#859): bump to Java 17 once we no longer support InteliJ 2022.1 (the last version to run on Java 11)
+val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_11)
+// Since 2022.3, IntelliJ itself is compiled for Java 17 (classfiles version 44+17=61).
+// 2022.2 is apparently compiled for Java 11 (classfiles version 44+11=55), but running on JBR 17 by default.
+val requiredJdkVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
 val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
+
+val intellijVersions by extra(
+  IntellijVersions.from(
+    intellijVersionsProperties = PropertiesHelper.getProperties(File("intellijVersions.properties")),
+    overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
+  )
+)
 
 fun String.fromBase64(): String {
   return String(Base64.getDecoder().decode(this))
@@ -51,6 +49,7 @@ val compileJavaJvmArgs: List<String>? by extra((project.properties["compileJavaJ
 val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
+
 tasks.register("printPluginZipPath") {
   doLast {
     val buildPlugin = tasks.findByPath(":buildPlugin")!!
@@ -85,8 +84,12 @@ allprojects {
   apply<JavaLibraryPlugin>()
 
   java {
-    sourceCompatibility = javaMajorVersion
-    targetCompatibility = javaMajorVersion // redundant, added for clarity
+    toolchain {
+      languageVersion.set(JavaLanguageVersion.of(requiredJdkVersion.toString()))
+    }
+
+    sourceCompatibility = targetJavaVersion
+    targetCompatibility = targetJavaVersion // redundant, added for clarity
   }
 
   // String interpolation support, see https://github.com/antkorwin/better-strings
@@ -135,7 +138,7 @@ allprojects {
     // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
     // `options.release = X` makes sure that regardless of Java version used to run the compiler,
     // only Java X-compatible APIs are available to the compiled code.
-    options.release.set(Integer.parseInt(javaMajorVersion.majorVersion))
+    options.release.set(Integer.parseInt(targetJavaVersion.majorVersion))
   }
 
   tasks.withType<Javadoc> {
@@ -148,7 +151,8 @@ allprojects {
     // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
     // `-quiet`, which is added anyway by Gradle.
     (options as StandardJavadocDocletOptions).addStringOption("Xwerror", "-quiet")
-    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all", "-quiet")
+    // Suppress `doclint` for `missing`; otherwise javadoc for every member would be required.
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
     options.quiet()
   }
 

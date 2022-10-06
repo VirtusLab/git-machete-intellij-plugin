@@ -60,7 +60,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
     val presentation = anActionEvent.getPresentation();
-    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null
         ? getManagedBranchByName(anActionEvent, branchName)

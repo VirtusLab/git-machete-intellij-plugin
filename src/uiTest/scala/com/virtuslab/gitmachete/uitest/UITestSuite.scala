@@ -40,7 +40,7 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     waitAndCloseProject()
   }
 
-  val _saveThreadDumpWhenTestFailed = new TestWatcher() {
+  val _saveThreadDumpWhenTestFailed: TestWatcher = new TestWatcher() {
     override protected def failed(e: Throwable, description: Description): Unit = {
       val pid = probe.pid()
       probe.screenshot("exception")
@@ -59,19 +59,19 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
   def saveThreadDumpWhenTestFailed: TestWatcher = _saveThreadDumpWhenTestFailed
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
-    project.openGitMacheteTab()
     overwriteMacheteFile(
       """develop
         |  non-existent
         |    allow-ownership-link
-        |      update-icons
         |      build-chain
+        |      update-icons
         |    non-existent-leaf
         |  call-ws
         |non-existent-root
         |master
         |  hotfix/add-trigger""".stripMargin
     )
+    project.openGitMacheteTab()
     val managedBranches = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
@@ -91,19 +91,41 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // 7 branch rows + 11 commit rows
     Assert.assertEquals(18, branchAndCommitRowsCount)
 
+    project.checkoutBranch("allow-ownership-link")
+    project.checkoutFirstChildBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
+    project.checkoutNextBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "update-icons")
+    project.checkoutPreviousBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
+    project.checkoutParentBranch()
+    Assert.assertEquals(project.getCurrentBranchName(), "allow-ownership-link")
+
     // Let's slide out a root branch now
     project.slideOutSelected("develop")
     project.acceptBranchDeletionOnSlideOut()
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 5 branch rows (`develop` is no longer there) + 7 commit rows
+    // 6 branch rows (`develop` is no longer there) + 7 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
     Assert.assertEquals(13, branchAndCommitRowsCount)
 
     project.checkoutBranch("master")
     project.slideOutSelected("call-ws")
     project.rejectBranchDeletionOnSlideOut()
+    val managedBranchesAfterSlideOut = project.refreshModelAndGetManagedBranches()
+    // Non-existent branches should be skipped while causing no error (only a low-severity notification).
+    Assert.assertEquals(
+      Seq(
+        "allow-ownership-link",
+        "build-chain",
+        "hotfix/add-trigger",
+        "master",
+        "update-icons"
+      ),
+      managedBranchesAfterSlideOut.toSeq.sorted
+    )
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
-    // 4 branch rows (`call-ws` is also no longer there) + 8 commit rows
+    // 5 branch rows (`call-ws` is also no longer there) + 7 commit rows
     Assert.assertEquals(12, branchAndCommitRowsCount)
   }
 

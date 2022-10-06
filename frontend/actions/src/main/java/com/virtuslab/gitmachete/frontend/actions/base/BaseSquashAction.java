@@ -80,7 +80,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         } else {
           val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
           val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
-          if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrentBranch) {
+          if (anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU) && isSquashingCurrentBranch) {
             presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
           }
         }

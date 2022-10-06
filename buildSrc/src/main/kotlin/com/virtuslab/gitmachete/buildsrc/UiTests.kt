@@ -6,13 +6,12 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 
 fun Project.configureUiTests() {
   val isCI: Boolean by rootProject.extra
-  val intellijVersions = rootProject.extensions.getByType<IntellijVersions>()
+  val intellijVersions: IntellijVersions by rootProject.extra
 
   val sourceSets = extensions["sourceSets"] as SourceSetContainer
   val uiTest = sourceSets["uiTest"]

@@ -644,6 +644,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
+    @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> deriveChildBranches(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
         List<IBranchLayoutEntry> entries) throws GitCoreException {
