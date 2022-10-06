@@ -5,8 +5,11 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.diagnostic.PluginException;
@@ -91,7 +94,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     // check for duplicate entries in the machete file
     try {
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
-      if (branchNamesFromFile.indexOf(processedBranchName) != branchNamesFromFile.lastIndexOf(processedBranchName)) {
+      if (isBranchNameRepeated(branchNamesFromFile, processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
             getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
                 .format(processedBranchName))
@@ -107,6 +110,15 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private void saveDocumentBeforeCheck(PsiFile file) {
     val fileDocManager = FileDocumentManager.getInstance();
     fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+  }
+
+  private boolean isBranchNameRepeated(String fileContent, String branchName) {
+    boolean result = false;
+    List<String> lines = Arrays.stream(fileContent.split("\n")).map(String::trim).collect(Collectors.toList());
+    if (lines.stream().filter(line -> line.equals(branchName)).count() > 1) {
+      result = true;
+    }
+    return result;
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
