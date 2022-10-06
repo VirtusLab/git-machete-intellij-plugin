@@ -43,9 +43,11 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
       @Nullable IForkPointCommitOfManagedBranch forkPoint,
+      @Nullable IForkPointCommitOfManagedBranch remoteForkPoint,
       List<ICommitOfManagedBranch> commits,
       SyncToParentStatus syncToParentStatus) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, remoteForkPoint, customAnnotation,
+        statusHookOutput);
 
     this.forkPoint = forkPoint;
     this.commits = commits;
@@ -87,4 +89,5 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
 
     return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch, forkPoint);
   }
+
 }

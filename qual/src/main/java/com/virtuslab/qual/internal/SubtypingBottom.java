@@ -11,8 +11,10 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedLocal;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonTracked;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRemote;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
+import com.virtuslab.qual.gitmachete.backend.api.ConfirmedTracked;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
@@ -28,6 +30,9 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitIte
 
     ConfirmedRoot.class,
     ConfirmedNonRoot.class,
+
+    ConfirmedTracked.class,
+    ConfirmedNonTracked.class,
 
     ConfirmedGraphNode.class,
     ConfirmedGraphEdge.class,
