@@ -7,7 +7,6 @@ import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
 import io.vavr.control.Try;
@@ -54,25 +53,24 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
         .of(() -> GitVfsUtils.getMacheteFile(repo))
         .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
-            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open")))
-        .toOption());
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open"))))
+        .getOrNull();
 
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
 
-    if (macheteFile.isEmpty()) {
+    if (macheteFile == null) {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
               .format(gitDir.getPath()));
     } else {
-      VirtualFile file = macheteFile.get();
-      if (file.isDirectory()) {
+      if (macheteFile.isDirectory()) {
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.same-name-dir-exists"),
             /* message */ "");
       }
 
-      OpenFileAction.openFile(file, project);
+      OpenFileAction.openFile(macheteFile, project);
     }
   }
 }

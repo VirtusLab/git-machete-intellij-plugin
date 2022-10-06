@@ -41,9 +41,6 @@ sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
 val generateMacheteParser =
   tasks.withType<GenerateParserTask> {
-    // See https://github.com/JetBrains/gradle-grammar-kit-plugin/issues/89
-    outputs.cacheIf { true }
-
     source.set("$grammarSourcesRoot/Machete.bnf")
     targetRoot.set(generatedParserJavaSourcesRoot)
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
@@ -53,8 +50,6 @@ val generateMacheteParser =
 
 val generateMacheteLexer =
   tasks.withType<GenerateLexerTask> {
-    outputs.cacheIf { true }
-
     dependsOn(generateMacheteParser)
 
     source.set("$grammarSourcesRoot/Machete.flex")

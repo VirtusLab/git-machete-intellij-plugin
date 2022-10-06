@@ -25,6 +25,7 @@ import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
 @CustomLog
@@ -100,6 +101,7 @@ public class RediscoverSuggester {
     new Task.Backgroundable(
         gitRepository.getProject(),
         getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
+      @UIThreadUnsafe
       @Override
       public void run(ProgressIndicator indicator) {
         if (areAllLocalBranchesManaged(macheteFilePath) || isDiscoveredBranchLayoutEquivalentToCurrent(macheteFilePath)) {
@@ -111,6 +113,7 @@ public class RediscoverSuggester {
     }.queue();
   }
 
+  @UIThreadUnsafe
   private boolean areAllLocalBranchesManaged(Path macheteFilePath) {
     val localBranches = gitRepository.getBranches().getLocalBranches();
     try {
@@ -124,6 +127,7 @@ public class RediscoverSuggester {
     return false;
   }
 
+  @UIThreadUnsafe
   private boolean isDiscoveredBranchLayoutEquivalentToCurrent(Path macheteFilePath) {
     Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
     Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();

@@ -17,11 +17,13 @@ import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(BranchLayoutFileUtils.class)
 @CustomLog
 public class BranchLayoutFileReader implements IBranchLayoutReader {
 
+  @UIThreadUnsafe
   @Override
   public BranchLayout read(Path path) throws BranchLayoutException {
     boolean isBranchLayoutPresent = Files.isRegularFile(path);
@@ -34,7 +36,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     LOG.debug(() -> "Entering: Reading branch layout from ${path} with indent character ASCII " +
         "code = ${(int)indentSpec.getIndentCharacter()} and indent width = ${indentSpec.getIndentWidth()}");
 
-    List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
+    List<String> linesWithoutBlank = lines.reject(line -> line.isBlank());
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
@@ -107,7 +109,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
       throws BranchLayoutException {
 
-    List<String> linesWithoutBlank = lines.reject(line -> line.trim().isEmpty());
+    List<String> linesWithoutBlank = lines.reject(line -> line.isBlank());
 
     if (linesWithoutBlank.nonEmpty() && linesWithoutBlank.head().getIndentWidth(indentSpec.getIndentCharacter()) > 0) {
       int firstNonEmptyLineIndex = lines.indexOf(linesWithoutBlank.head());
@@ -124,7 +126,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     int lineIndex = 0;
     for (int realLineNumber = 0; realLineNumber < lines.length(); ++realLineNumber) {
       String line = lines.get(realLineNumber);
-      if (line.trim().isEmpty()) {
+      if (line.isBlank()) {
         // Can't use lambda because `realLineNumber` is not effectively final
         LOG.debug("Line no ${realLineNumber + 1} is blank. Skipping");
         continue;

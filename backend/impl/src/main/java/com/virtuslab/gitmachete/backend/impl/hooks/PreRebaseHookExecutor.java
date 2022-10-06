@@ -84,8 +84,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
         LOG.error(message);
         throw new GitMacheteException(message
-            + (!strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-            + (!strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""));
+            + (!strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+            + (!strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""));
       }
 
       // Can't use lambda because `strippedStdout` and `strippedStderr` are not effectively final
@@ -96,8 +96,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
           "for ${gitRebaseParameters}; aborting the rebase";
       LOG.error(message, e);
       throw new GitMacheteException(message
-          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
 
     LOG.info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +

@@ -67,7 +67,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
     val selectedGitRepo = getSelectedGitRepository(anActionEvent);
     val state = selectedGitRepo != null ? selectedGitRepo.getState() : null;
-    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU);
 
     if (state == null) {
       presentation.setEnabled(false);
@@ -105,7 +105,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
             .format("Rebase", getQuotedStringOrCurrent(branchName)));
       } else if (branch.isRoot()) {
 
-        if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_TOOLBAR)) {
+        if (anActionEvent.getPlace().equals(ActionPlaces.TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
               getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.root-branch")
@@ -154,7 +154,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
     val state = gitRepository != null ? gitRepository.getState() : null;
-    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU);
+    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU);
     val shouldExplicitlyCheckout = isCalledFromContextMenu
         && state != null && Repository.State.DETACHED == state;
 
@@ -222,8 +222,8 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
           val stderrOption = executionResult.getStderr();
           VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
               getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
-                  + (!stdoutOption.trim().isEmpty() ? NL + "stdout:" + NL + stdoutOption : "")
-                  + (!stderrOption.trim().isEmpty() ? NL + "stderr:" + NL + stderrOption : ""));
+                  + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
+                  + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
           return;
         }
 

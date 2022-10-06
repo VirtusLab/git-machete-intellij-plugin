@@ -35,6 +35,8 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
@@ -47,6 +49,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
+  @IgnoreUIThreadUnsafeCalls
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
     val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class)
@@ -120,6 +123,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, @UI Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
+      @UIThreadUnsafe
       @Override
       @SneakyThrows
       public void run(ProgressIndicator indicator) {
