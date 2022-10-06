@@ -18,7 +18,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -87,16 +86,16 @@ public class MacheteAnnotator implements Annotator, DumbAware {
           .range(branch).create();
     }
 
-    // saveDocumentBeforeCheck needed in order to update the state of the .git/machete VirtualFile before actual check
+    // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> saveDocumentBeforeCheck(file));
+    // check for duplicate entries in the machete file
     try {
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
       if (branchNamesFromFile.indexOf(processedBranchName) != branchNamesFromFile.lastIndexOf(processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
             getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
                 .format(processedBranchName))
-            .range(TextRange.from(branchNamesFromFile.lastIndexOf(processedBranchName), processedBranchName.length()))
-            .create();
+            .range(branch).create();
       }
     } catch (PluginException | IllegalStateException ignored) { // ignore dubious IDE checks against annotation range
     } catch (IOException e) {
