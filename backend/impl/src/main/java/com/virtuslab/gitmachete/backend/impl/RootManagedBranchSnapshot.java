@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
@@ -22,8 +23,10 @@ public final class RootManagedBranchSnapshot extends BaseManagedBranchSnapshot i
       @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
       RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
-      @Nullable String statusHookOutput) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
+      @Nullable String statusHookOutput,
+      @Nullable IForkPointCommitOfManagedBranch remoteForkPoint) {
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, remoteForkPoint, customAnnotation,
+        statusHookOutput);
 
     LOG.debug("Creating ${this}");
 
