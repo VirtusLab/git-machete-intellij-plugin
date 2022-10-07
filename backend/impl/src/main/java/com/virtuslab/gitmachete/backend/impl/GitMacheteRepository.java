@@ -504,33 +504,48 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
           "remoteTrackingBranch = '${remoteTrackingBranch.getName()}'");
 
-      ForkPointCommitOfManagedBranch parentAgnosticForkPoint = deriveParentAgnosticInferredForkPoint(coreLocalBranch);
+      Tuple2<IGitCoreCommit, IBranchReference> forkPointCommitAndRemoteBranchReference = gitCoreRepository
+          .ancestorsOf(coreLocalBranch.getPointedCommit())
+          .flatMap(commit -> deriveBranchesContainingGivenCommitInReflog()
+              .getOrElse(commit.getHash(), List.empty())
+              .filter(IBranchReference::isRemote)
+              .map(IBranchReference::asRemote)
+              .find(candidateRemoteBranch -> candidateRemoteBranch.getTrackedLocalBranch().getName()
+                  .equals(coreLocalBranch.getName()))
+              .map(remoteBranchReference -> new Tuple2<IGitCoreCommit, IBranchReference>(commit, remoteBranchReference))
 
-      val parentAgnosticForkPointString = parentAgnosticForkPoint != null ? parentAgnosticForkPoint.toString() : "empty";
+          ).find(tuple -> true).getOrNull();
+
       val remotePointedCommit = remoteTrackingBranch.getPointedCommit();
       val pointedCommit = coreLocalBranch.getPointedCommit();
+      val remoteForkPoint = forkPointCommitAndRemoteBranchReference != null
+          ? ForkPointCommitOfManagedBranch.inferred(forkPointCommitAndRemoteBranchReference._1,
+              List.of(forkPointCommitAndRemoteBranchReference._2))
+          : null;
+      val remoteForkPointString = remoteForkPoint != null ? remoteForkPoint.toString() : "empty";
 
-      LOG.debug(() -> "parentAgnosticForkPoint = ${parentAgnosticForkPointString}, " +
+      LOG.debug(() -> "remoteForkPoint = ${remoteForkPointString}, " +
           "remotePointedCommit = ${remotePointedCommit.getHash().getHashString()}, " +
           "pointedCommit = ${pointedCommit.getHash().getHashString()}");
 
-      val isParentAncestorOfChild = gitCoreRepository.isAncestorOrEqual(remotePointedCommit, pointedCommit);
+      val isRemoteAncestorOfLocal = gitCoreRepository.isAncestorOrEqual(remotePointedCommit, pointedCommit);
 
       LOG.debug(() -> "Remote branch commit (${remotePointedCommit.getHash().getHashString()}) " +
-          "is${isParentAncestorOfChild ? \"\" : \" NOT\"} ancestor of commit " +
+          "is${isRemoteAncestorOfLocal ? \"\" : \" NOT\"} ancestor of commit " +
           "${pointedCommit.getHash().getHashString()}");
 
-      if (isParentAncestorOfChild) {
-        if (parentAgnosticForkPoint != null) {
-          val isParentAncestorOfForkPoint = gitCoreRepository.isAncestorOrEqual(remotePointedCommit,
-              parentAgnosticForkPoint.getCoreCommit());
+      if (isRemoteAncestorOfLocal) {
+        if (forkPointCommitAndRemoteBranchReference != null) {
+          val isRemoteAncestorOfForkPoint = gitCoreRepository.isAncestorOrEqual(remotePointedCommit,
+              forkPointCommitAndRemoteBranchReference._1);
 
-          if (!isParentAncestorOfForkPoint) {
+          if (!isRemoteAncestorOfForkPoint) {
             // If parent(A) is ancestor of A, and parent(A) is NOT ancestor of fork-point(A),
             // then assume fork-point(A)=parent(A)
             LOG.debug(() -> "Remote branch commit (${remotePointedCommit.getHash().getHashString()}) is ancestor of " +
                 "commit (${pointedCommit.getHash().getHashString()}) but remote branch commit " +
-                "is NOT ancestor of parent-agnostic fork point (${parentAgnosticForkPointString}), " +
+                "is NOT ancestor of remote fork point (${forkPointCommitAndRemoteBranchReference._1.getHash().getHashString()}), "
+                +
                 "so we assume that remote-aware fork point = remote branch commit");
             return ForkPointCommitOfManagedBranch.fallbackToParent(remotePointedCommit);
           }
@@ -545,9 +560,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         }
       }
 
-      LOG.debug(() -> "Remote-aware fork point for branch ${coreLocalBranch.getName()} is ${parentAgnosticForkPointString}");
+      LOG.debug(() -> "Remote-aware fork point for branch ${coreLocalBranch.getName()} is ${remoteForkPointString}");
 
-      return parentAgnosticForkPoint;
+      return remoteForkPoint;
     }
 
     private @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranchForCoreLocalBranch(
