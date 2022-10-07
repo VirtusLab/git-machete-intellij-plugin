@@ -112,13 +112,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   }
 
   private boolean isBranchNameRepeated(String fileContent, String branchName) {
-    boolean result = false;
     java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator())).map(String::trim)
         .collect(Collectors.toList());
-    if (lines.stream().filter(line -> line.equals(branchName)).count() > 1) {
-      result = true;
-    }
-    return result;
+    return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
