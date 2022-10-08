@@ -17,11 +17,19 @@ import javax.swing.DefaultListCellRenderer
 import javax.swing.JList
 import javax.swing.UIManager
 
+enum class OverrideOption {
+  PARENT,
+  INFERRED,
+  CUSTOM
+}
+
 class OverrideForkPointDialog(
   project: Project,
   private val parentBranch: IManagedBranchSnapshot,
   private val branch: INonRootManagedBranchSnapshot
 ) : DialogWrapper(project, /* canBeParent */ true) {
+
+  private var myOverrideOption = OverrideOption.PARENT
 
   private var customCommit: ICommitOfManagedBranch? = branch.forkPoint
 
@@ -34,7 +42,11 @@ class OverrideForkPointDialog(
 
   fun showAndGetSelectedCommit() =
     if (showAndGet()) {
-      customCommit!!
+      when (myOverrideOption) {
+        OverrideOption.PARENT -> parentBranch.pointedCommit
+        OverrideOption.INFERRED -> branch.forkPoint
+        OverrideOption.CUSTOM -> customCommit!!
+      }
     } else {
       null
     }
@@ -51,84 +63,140 @@ class OverrideForkPointDialog(
       )
     }
 
-    row("The fork point commit:") {
-      comboBox<ICommitOfManagedBranch?>(
-        (listOf(branch.forkPoint, parentBranch.pointedCommit) + branch.commits.toMutableList()).filterNotNull(),
-        object : DefaultListCellRenderer() {
-          private val defaultBackground = UIManager.get("List.background") as Color
-          override fun getListCellRendererComponent(
-            list: JList<*>?,
-            value: Any?,
-            index: Int,
-            isSelected: Boolean,
-            cellHasFocus: Boolean
-          ): Component {
-            val commit: ICommitOfManagedBranch? = value as ICommitOfManagedBranch?
-            componentOrientation = list!!.componentOrientation
+    buttonsGroup {
+      row {
+        radioButton(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
+            ),
+            parentBranch.name
+          ),
+          OverrideOption.PARENT
+        )
+          .comment(parentBranch.pointedCommit.shortMessage)
+      }
 
-            var bg: Color? = null
-            var fg: Color? = null
+      var thisRowComment = "cannot resolve commit message"
 
-            val dropLocation = list.dropLocation
-            var customIsSelected = isSelected
-            if (dropLocation != null && !dropLocation.isInsert && dropLocation.index == index) {
-              bg = list.selectionBackground
-              fg = list.selectionForeground
-              customIsSelected = true
+      var radioButtonComment = "cannot resolve commit hash"
+
+      if (branch.forkPoint != null) {
+        thisRowComment = branch.forkPoint!!.shortMessage
+        radioButtonComment = branch.forkPoint!!.shortHash
+      }
+
+      row {
+        radioButton(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+            ),
+            radioButtonComment
+          ),
+          OverrideOption.INFERRED
+        )
+          .comment(
+            thisRowComment
+          )
+      }
+
+      row {
+        radioButton(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
+            ),
+            radioButtonComment
+          ),
+          OverrideOption.CUSTOM
+        )
+          .comment(
+            thisRowComment
+          )
+
+        comboBox<ICommitOfManagedBranch?>(
+          (listOf(branch.forkPoint, parentBranch.pointedCommit) + branch.commits.toMutableList()).filterNotNull(),
+          object : DefaultListCellRenderer() {
+            private val defaultBackground = UIManager.get("List.background") as Color
+            override fun getListCellRendererComponent(
+              list: JList<*>?,
+              value: Any?,
+              index: Int,
+              isSelected: Boolean,
+              cellHasFocus: Boolean
+            ): Component {
+              val commit: ICommitOfManagedBranch? = value as ICommitOfManagedBranch?
+              componentOrientation = list!!.componentOrientation
+
+              var bg: Color? = null
+              var fg: Color? = null
+
+              val dropLocation = list.dropLocation
+              var customIsSelected = isSelected
+              if (dropLocation != null && !dropLocation.isInsert && dropLocation.index == index) {
+                bg = list.selectionBackground
+                fg = list.selectionForeground
+                customIsSelected = true
+              }
+
+              if (customIsSelected) {
+                background = bg ?: list.selectionBackground
+                foreground = fg ?: list.selectionForeground
+                font = Font(list.font.name, Font.BOLD, list.font.size)
+              } else {
+                font = list.font
+                background = list.background
+                foreground = list.foreground
+              }
+
+              icon = null
+
+              isEnabled = list.isEnabled
+
+              text = if (commit != null) {
+                var prefix =
+                  if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
+                    format(
+                      getString(
+                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
+                      ),
+                      parentBranch.name
+                    )
+                  } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
+                    format(
+                      getString(
+                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+                      ),
+                      branch.name
+                    )
+                  } else {
+                    ""
+                  }
+
+                "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+              } else {
+                ""
+              }
+
+              if (!customIsSelected) {
+                setBackground(if (index % 2 == 0) background else defaultBackground)
+              }
+
+              return this
             }
-
-            if (customIsSelected) {
-              background = bg ?: list.selectionBackground
-              foreground = fg ?: list.selectionForeground
-              font = Font(list.font.name, Font.BOLD, list.font.size)
-            } else {
-              font = list.font
-              background = list.background
-              foreground = list.foreground
-            }
-
-            icon = null
-
-            isEnabled = list.isEnabled
-
-            text = if (commit != null) {
-              var prefix =
-                if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-                  format(
-                    getString(
-                      "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
-                    ),
-                    parentBranch.name
-                  )
-                } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                  format(
-                    getString(
-                      "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
-                    ),
-                    branch.name
-                  )
-                } else {
-                  ""
-                }
-
-              "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
-            } else {
-              ""
-            }
-
-            if (!customIsSelected) {
-              setBackground(if (index % 2 == 0) background else defaultBackground)
-            }
-
-            return this
           }
-        }
 
-      ).bindItem(
-        MutableProperty(::customCommit) {
-          customCommit = it
-        }
-      )
+        ).bindItem(
+          MutableProperty(::customCommit) {
+            customCommit = it
+          }
+        )
+      }
     }
+      .bind(
+        MutableProperty(::myOverrideOption) { myOverrideOption = it },
+        OverrideOption::class.java
+      )
   }
 }
