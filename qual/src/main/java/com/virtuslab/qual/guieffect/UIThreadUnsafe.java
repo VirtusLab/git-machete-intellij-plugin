@@ -15,7 +15,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
  * <p>
  * Whether the annotation is used correctly is currently NOT enforced during compilation or runtime.
  * TODO (typetools/checker-framework#3252): replace with proper {@code @Heavyweight} annotation.
- * As for now, we use a ArchUnit test {@code com.virtuslab.archunit.UIThreadUnsafeMethodInvocationsTestSuite}
+ * As for now, we use an ArchUnit test {@code com.virtuslab.archunit.UIThreadUnsafeMethodInvocationsTestSuite}
  * to enforce that:
  * <ol>
  * <li>methods that access certain known heavyweight methods (like the ones from {@code java.nio}) are marked as {@link UIThreadUnsafe}</li>
