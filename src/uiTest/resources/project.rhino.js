@@ -437,6 +437,11 @@ function Project(underlyingProject) {
     this.acceptRebase()
   };
 
+  this.syncCurrentToParentByRebase = function () {
+      invokeActionAsync('GitMachete.SyncCurrentToRemoteByRebaseAction', ACTION_PLACE_EMPTY, {});
+      this.acceptRebase()
+    };
+
   this.syncSelectedToParentByMerge = function (branchName) {
     PropertiesComponent.getInstance(underlyingProject).setValue(SHOW_MERGE_WARNING, false, /* default value */ true);
 

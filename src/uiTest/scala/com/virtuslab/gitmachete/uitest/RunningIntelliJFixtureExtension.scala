@@ -119,6 +119,11 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         Assert.assertEquals(actual, status)
       }
 
+      def assertSyncToRemoteStatus(branch: String, status: String): Unit = {
+        val actual = getSyncToRemoteStatus(branch)
+        Assert.assertEquals(actual, status)
+      }
+
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
         assertBranchesAreEqual(branch, s"origin/$branch")
       }
@@ -276,6 +281,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs(s"project.getSyncToParentStatus('$child')")
       }
 
+      def getSyncToRemoteStatus(child: String): String = {
+        callJs(s"project.getSyncToRemoteStatus('$child')")
+      }
+
       def fastForwardMergeCurrentToParent(): Unit = doAndAwait {
         runJs("project.fastForwardMergeCurrentToParent()")
       }
@@ -290,6 +299,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def syncCurrentToParentByRebase(): Unit = doAndAwait {
         runJs(s"project.syncCurrentToParentByRebase()")
+      }
+
+      def syncCurrentToRemoteByRebase(): Unit = doAndAwait {
+        runJs(s"project.syncCurrentToRemoteByRebase()")
       }
 
       def syncSelectedToParentByMerge(branch: String): Unit = doAndAwait {
