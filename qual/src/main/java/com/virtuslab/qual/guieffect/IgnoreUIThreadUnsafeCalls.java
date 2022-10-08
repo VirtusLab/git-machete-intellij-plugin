@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
  * This is only taken into account by ArchUnit test {@code com.virtuslab.archunit.UIThreadUnsafeMethodInvocationsTestSuite}
  * that enforces the correct usage of {@link UIThreadUnsafe} annotation.
  * <p>
- * Needs to be used sparingly, as this basically allows for a method to call potentially heavyweight operations on UI thread,
- * which might lead to UI freeze.
+ * Needs to be used sparingly, as this basically allows for a method to call potentially heavyweight operations on UI thread.
+ * And that might lead to UI freeze.
  * <p>
  * This annotation must have runtime retention to be visible to ArchUnit tests.
  */
