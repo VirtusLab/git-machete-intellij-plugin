@@ -9,6 +9,14 @@ import org.checkerframework.framework.qual.SubtypeOf;
 
 import com.virtuslab.qual.internal.SubtypingTop;
 
+/**
+ * Used to annotate a type of a {@code com.virtuslab.gitmachete.backend.api.IBranchReference} object
+ * that has been statically proven to be a {@code com.virtuslab.gitmachete.backend.api.ILocalBranchReference}.
+ * <p>
+ * See <a href="https://checkerframework.org/manual/#subtyping-checker">Subtyping Checker manual</a>.
+ * <p>
+ * TODO (#859): consider switching from Subtyping Checker to {@code instanceof} once we migrate to Java 17.
+ */
 @Retention(RetentionPolicy.CLASS)
 @SubtypeOf(SubtypingTop.class)
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})

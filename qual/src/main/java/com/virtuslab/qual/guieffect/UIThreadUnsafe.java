@@ -12,7 +12,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
  * In case of IntelliJ Platform, the UI thread is Swing's Event Dispatch Thread aka EDT.
  * These include methods that are heavyweight or blocking. Typically, this means accessing disk and/or network.
  * <p>
- * Whether the annotation is used correctly is currently NOT enforced during compilation or runtime.
+ * It is <b>not</b> enforced during compilation whether the annotation is used correctly.
  * TODO (typetools/checker-framework#3252): replace with proper {@code @Heavyweight} annotation.
  * As for now, we use an ArchUnit test {@code com.virtuslab.archunit.UIThreadUnsafeMethodInvocationsTestSuite}
  * to enforce that:
