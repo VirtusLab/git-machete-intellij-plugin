@@ -11,7 +11,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
  * Used to mark methods that should NOT be executed on UI thread
  * (in case of IntelliJ Platform, on Swing's Event Dispatch Thread aka EDT)
  * to avoid a UI freeze.
- * These include methods that are heavyweight or blocking: typically, this means accessing disk and/or network.
+ * These include methods that are heavyweight or blocking. Typically, this means accessing disk and/or network.
  * <p>
  * Whether the annotation is used correctly is currently NOT enforced during compilation or runtime.
  * TODO (typetools/checker-framework#3252): replace with proper {@code @Heavyweight} annotation.
