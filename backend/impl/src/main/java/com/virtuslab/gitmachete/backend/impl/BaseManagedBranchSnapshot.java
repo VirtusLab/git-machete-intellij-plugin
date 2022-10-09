@@ -71,13 +71,12 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   public IGitRebaseParameters getParametersForRebaseOntoRemote() throws GitMacheteMissingForkPointException {
 
     LOG.debug(() -> "Entering: branch = '${getName()}'");
-    val newBaseBranch = (IManagedBranchSnapshot) getRemoteTrackingBranch();
+    val newBaseBranch = getRemoteTrackingBranch();
     if (newBaseBranch == null || remoteForkPoint == null) {
       throw new GitMacheteMissingForkPointException("Cannot get remote fork point for branch '${getName()}'");
     } else {
 
       LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
-          "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
           "forkPointCommit = ${remoteForkPoint != null ? remoteForkPoint.getHash() : null}");
 
       return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch, remoteForkPoint);

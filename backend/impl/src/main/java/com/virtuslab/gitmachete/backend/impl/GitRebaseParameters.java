@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.impl;
 import lombok.Data;
 import lombok.ToString;
 
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -10,7 +11,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 @Data
 public class GitRebaseParameters implements IGitRebaseParameters {
   private final IManagedBranchSnapshot currentBranch;
-  private final IManagedBranchSnapshot newBaseBranch;
+  private final IBranchReference newBaseBranch;
   private final ICommitOfManagedBranch forkPointCommit;
 
   @ToString.Include(name = "currentBranch")
