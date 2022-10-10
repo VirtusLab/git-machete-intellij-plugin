@@ -90,7 +90,11 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> saveDocumentBeforeCheck(file));
-    // check for duplicate entries in the machete file
+    /*
+     * Check for duplicate entries in the machete file. Note: there's no guarantee that at the point when
+     * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocumentBeforeCheck(file) is already completed. UI thread might
+     * be busy with other operations, and it might take while for the execution of saveDocumentBeforeCheck(file) to start.
+     */
     try {
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
       if (isBranchNameRepeated(branchNamesFromFile, processedBranchName)) {
@@ -114,7 +118,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean isBranchNameRepeated(String fileContent, String branchName) {
     java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator()))
         .map(String::trim)
-        .map(line -> line.split("\\s")[0]) // ignore possible comments after branch name
+        .map(line -> line.split("\\s")[0]) // ignore possible custom annotation after branch name
         .collect(Collectors.toList());
     return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
