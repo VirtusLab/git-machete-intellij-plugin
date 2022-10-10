@@ -1,8 +1,10 @@
 package com.virtuslab.gitmachete.frontend.file;
 
 import com.intellij.psi.PsiFile;
+import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
@@ -30,13 +32,7 @@ public final class MacheteFileUtils {
 
   @UIThreadUnsafe
   public static List<String> getBranchNamesForPsiMacheteFile(PsiFile psiFile) {
-    val project = psiFile.getProject();
-
-    val gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
-        .find(repository -> {
-          val macheteFile = repository.getMacheteFile();
-          return macheteFile != null && macheteFile.equals(psiFile.getVirtualFile());
-        });
+    val gitRepository = findGitRepositoryForPsiMacheteFile(psiFile);
 
     if (gitRepository.isEmpty()) {
       return List.empty();
@@ -44,5 +40,15 @@ public final class MacheteFileUtils {
 
     return List.ofAll(gitRepository.get().getInfo().getLocalBranchesWithHashes().keySet())
         .map(localBranch -> localBranch.getName());
+  }
+
+  @UIThreadUnsafe
+  public static Option<GitRepository> findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
+    val project = psiFile.getProject();
+    return List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
+        .find(repository -> {
+          val macheteFile = repository.getMacheteFile();
+          return macheteFile != null && macheteFile.equals(psiFile.getVirtualFile());
+        });
   }
 }

@@ -1,0 +1,62 @@
+package com.virtuslab.gitmachete.frontend.file.quickfix;
+
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
+
+import java.util.Collections;
+
+import com.intellij.codeInsight.intention.IntentionAction;
+import com.intellij.codeInspection.util.IntentionFamilyName;
+import com.intellij.codeInspection.util.IntentionName;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.intellij.util.IncorrectOperationException;
+import git4idea.branch.GitBrancher;
+import git4idea.repo.GitRepository;
+import org.jetbrains.annotations.NotNull;
+
+import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
+
+public class CreateBranchQuickFix implements IntentionAction {
+
+  private final String branch;
+  private final String parentBranch;
+  private final PsiFile file;
+
+  public CreateBranchQuickFix(String processedBranchName, String parentBranchName, PsiFile processedFile) {
+    branch = processedBranchName;
+    parentBranch = parentBranchName;
+    file = processedFile;
+  }
+
+  @Override
+  public @IntentionName @NotNull String getText() {
+    return getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title")
+        .format(parentBranch) + ": " + branch;
+  }
+
+  @Override
+  public @NotNull @IntentionFamilyName String getFamilyName() {
+    return "Git Machete";
+  }
+
+  @Override
+  public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+    return true; // to be reconsidered before actual PR
+  }
+
+  @Override
+  public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+    createNewBranch(project);
+  }
+
+  @Override
+  public boolean startInWriteAction() {
+    return false;
+  }
+
+  private void createNewBranch(Project project) {
+    GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file).get();
+    GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
+  }
+}
