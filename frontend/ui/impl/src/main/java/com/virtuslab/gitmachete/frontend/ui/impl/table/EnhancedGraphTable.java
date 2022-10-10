@@ -194,6 +194,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.try-running-discover")
                   .format(macheteFilePath.toString()));
+          return;
         } else {
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
