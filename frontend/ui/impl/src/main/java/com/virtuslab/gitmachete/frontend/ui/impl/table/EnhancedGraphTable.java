@@ -192,7 +192,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty");
           setTextForEmptyTable(
-              getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
+              getString("string.GitMachete.EnhancedGraphTable.empty-table-text.try-running-discover")
                   .format(macheteFilePath.toString()));
         } else {
           setTextForEmptyTable(
