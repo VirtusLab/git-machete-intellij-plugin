@@ -113,9 +113,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
   private boolean isBranchNameRepeated(String fileContent, String branchName) {
     java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator()))
-            .map(String::trim)
-            .map(line -> line.split("\\s")[0]) // ignore possible comments after branch name
-            .collect(Collectors.toList());
+        .map(String::trim)
+        .map(line -> line.split("\\s")[0]) // ignore possible comments after branch name
+        .collect(Collectors.toList());
     return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
 
