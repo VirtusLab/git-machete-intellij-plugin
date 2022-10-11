@@ -13,10 +13,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
+import lombok.experimental.ExtensionMethod;
 import org.jetbrains.annotations.NotNull;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod({GitMacheteBundle.class})
 public class CreateBranchQuickFix implements IntentionAction {
 
   private final String branch;
@@ -42,12 +45,12 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   @Override
   public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-    return true; // to be reconsidered before actual PR
+    return true;
   }
 
   @Override
   public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-    createNewBranch(project);
+    createNewBranchFromParent(project);
   }
 
   @Override
@@ -55,7 +58,7 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
-  private void createNewBranch(Project project) {
+  private void createNewBranchFromParent(Project project) {
     GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file).get();
     GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
   }
