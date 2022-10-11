@@ -25,6 +25,6 @@ interface GitFetchResult {
 package git4idea.util;
 
 class GitUntrackedFilesHelper {
-  public static void notifyUntrackedFilesOverwrittenBy(Project project, VirtualFile root, Collection<String> relativePaths,
-                                                       @Untainted String operation, @Tainted @Nullable String description);
+  static void notifyUntrackedFilesOverwrittenBy(Project project, VirtualFile root, Collection<String> relativePaths,
+                                                @Untainted String operation, @Tainted @Nullable String description);
 }
