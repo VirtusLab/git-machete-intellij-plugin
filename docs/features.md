@@ -202,7 +202,7 @@ It'll be located under `.git/machete` path in your repository.
 
 This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.
 It constructs a layout from around 10 most recently used branches.
-**This action is automatically invoked in case of an empty or nonexistent `machete` file,**
+**This action is automatically invoked in case of a nonexistent `machete` file,**
 but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
 ![](discover.gif)
