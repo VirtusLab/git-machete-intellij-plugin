@@ -7,6 +7,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
@@ -18,28 +19,34 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
+@ExtensionMethod(GitMacheteBundle.class)
 @RequiredArgsConstructor
-public class UnmanagedBranchNotificationBuilder {
+public class UnmanagedBranchNotificationFactory {
+
+  public static final String SHOW_UNMANAGED_BRANCH_NOTIFICATION = "git-machete.unmanaged.notification.show";
 
   private final Project project;
   private final @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
   private final String branchName;
   private final String inferredParent;
 
-  public Notification build() {
+  public Notification create() {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
         getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").format(branchName),
         NotificationType.INFORMATION);
 
-    val slideInAction = getSlideInAction(branchName, inferredParent, notification);
-    val dontShowForThisBranchAction = getDontShowForThisBranchAction(branchName, notification);
+    val slideInAction = getSlideInAction(notification);
+    val dontShowForThisBranchAction = getDontShowForThisBranchAction(notification);
     val dontShowForThisProjectAction = getDontShowForThisProjectAction(notification);
 
     notification.addAction(slideInAction);
@@ -49,7 +56,18 @@ public class UnmanagedBranchNotificationBuilder {
     return notification;
   }
 
-  private NotificationAction getSlideInAction(String branchName, String inferredParent, Notification notification) {
+  @UIEffect
+  public static boolean showForThisProject() {
+    return PropertiesComponent.getInstance().getBoolean(SHOW_UNMANAGED_BRANCH_NOTIFICATION, /* defaultValue */ true);
+  }
+
+  @UIEffect
+  public static boolean showForThisBranch(String aBranchName) {
+    return PropertiesComponent.getInstance().getBoolean("${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}",
+        /* defaultValue */ true);
+  }
+
+  private NotificationAction getSlideInAction(Notification notification) {
     return NotificationAction
         .createSimple(
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
@@ -73,12 +91,14 @@ public class UnmanagedBranchNotificationBuilder {
             });
   }
 
-  private NotificationAction getDontShowForThisBranchAction(String branchName, Notification notification) {
+  private NotificationAction getDontShowForThisBranchAction(Notification notification) {
     return NotificationAction
         .createSimple(
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.dont-show-for-branch")
                 .format(branchName),
             () -> {
+              String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${branchName}";
+              PropertiesComponent.getInstance().setValue(propertyKey, false, /* defaultValue */ true);
               notification.expire();
             });
 
@@ -89,6 +109,7 @@ public class UnmanagedBranchNotificationBuilder {
         .createSimple(
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.dont-show-for-project"),
             () -> {
+              PropertiesComponent.getInstance().setValue(SHOW_UNMANAGED_BRANCH_NOTIFICATION, false, /* defaultValue */ true);
               notification.expire();
             });
 

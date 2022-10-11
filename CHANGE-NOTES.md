@@ -10,6 +10,9 @@
 - Removed automatic rediscovery in case of empty machete file
 - Fixed indication of a repeated entry in machete file.
 
+## v3.2.0
+- Added a notification after checking out an unmanaged branch with an option to add the branch to the branch layout.
+
 ## v3.1.0
 - Added support for IntelliJ 2022.3.
 - Fixed spurious `NullPointerException` thrown when opening machete file via toolbar, as reported by @oksana-cherniavskaia.
