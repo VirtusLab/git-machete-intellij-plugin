@@ -4,16 +4,23 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.diagnostic.PluginException;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
@@ -80,6 +87,40 @@ public class MacheteAnnotator implements Annotator, DumbAware {
                   .format(processedBranchName))
           .range(branch).create();
     }
+
+    // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> saveDocumentBeforeCheck(file));
+    /*
+     * Check for duplicate entries in the machete file. Note: there's no guarantee that at the point when
+     * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocumentBeforeCheck(file) is already completed. UI thread might
+     * be busy with other operations, and it might take while for the execution of saveDocumentBeforeCheck(file) to start.
+     */
+    try {
+      val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
+      if (isBranchNameRepeated(branchNamesFromFile, processedBranchName)) {
+        holder.newAnnotation(HighlightSeverity.ERROR,
+            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
+                .format(processedBranchName))
+            .range(branch).create();
+      }
+    } catch (PluginException | IllegalStateException ignored) { // ignore dubious IDE checks against annotation range
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @UIEffect
+  private void saveDocumentBeforeCheck(PsiFile file) {
+    val fileDocManager = FileDocumentManager.getInstance();
+    fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+  }
+
+  private boolean isBranchNameRepeated(String fileContent, String branchName) {
+    java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator()))
+        .map(String::trim)
+        .map(line -> line.split("\\s")[0]) // ignore possible custom annotation after branch name
+        .collect(Collectors.toList());
+    return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
