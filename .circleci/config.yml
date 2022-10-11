@@ -63,8 +63,9 @@ jobs:
             cd ..
             git clone "https://github.com/MaciejG604/gradle-grammar-kit-plugin.git"
             cd gradle-grammar-kit-plugin/
-            git checkout refactor-tasks-to-javaexec
+            git checkout local-upload-for-git-machete-plugin
             ./gradlew publishToMavenLocal
+            ./gradlew --stop
 
       - checkout
       - run:
