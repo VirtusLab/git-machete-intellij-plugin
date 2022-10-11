@@ -12,7 +12,7 @@ class GitVcs {
 package git4idea.branch;
 
 class GitNewBranchDialog {
-  GitNewBranchDialog(Project project, Collection repositories, @Untainted String dialogTitle, @Untainted String initialName,
+  GitNewBranchDialog(Project project, Collection repositories, @Untainted String dialogTitle, String initialName,
                      boolean showCheckOutOption, boolean showResetOption, boolean showSetTrackingOption);
 }
 

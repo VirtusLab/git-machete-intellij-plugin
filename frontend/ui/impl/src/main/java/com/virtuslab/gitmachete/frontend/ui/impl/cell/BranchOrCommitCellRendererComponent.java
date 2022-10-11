@@ -23,6 +23,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.Predicates.isIn;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -303,8 +304,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
-    val currentBranchName = branch.getName();
-    val parentBranchName = branch.getParent().getName();
+    val currentBranchName = escapeHtml4(branch.getName());
+    val parentBranchName = escapeHtml4(branch.getParent().getName());
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")
