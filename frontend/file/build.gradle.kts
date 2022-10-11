@@ -5,6 +5,7 @@ import org.jetbrains.grammarkit.tasks.*
 
 buildscript {
   repositories {
+    mavenLocal()
     gradlePluginPortal()
   }
   dependencies {
@@ -41,11 +42,8 @@ sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
 val generateMacheteParser =
   tasks.withType<GenerateParserTask> {
-    javaLauncher.set(
-      javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
-      }
-    )
+    // Just to make sure correct version of the task is used
+    javaLauncher.set(javaLauncher.get())
     source.set("$grammarSourcesRoot/Machete.bnf")
     targetRoot.set(generatedParserJavaSourcesRoot)
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
@@ -55,12 +53,6 @@ val generateMacheteParser =
 
 val generateMacheteLexer =
   tasks.withType<GenerateLexerTask> {
-    javaLauncher.set(
-      javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
-      }
-    )
-
     dependsOn(generateMacheteParser)
 
     source.set("$grammarSourcesRoot/Machete.flex")

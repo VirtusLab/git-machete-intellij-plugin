@@ -56,6 +56,16 @@ jobs:
   build:
     executor: docker_executor
     steps:
+      - run:
+          name: Publish JetBrains/gradle-grammar-kit-plugin locally
+          # language=sh
+          command: |
+            cd ..
+            git clone "https://github.com/MaciejG604/gradle-grammar-kit-plugin.git"
+            cd gradle-grammar-kit-plugin/
+            git checkout refactor-tasks-to-javaexec
+            ./gradlew publishToMavenLocal
+
       - checkout
       - run:
           name: Run pre-build checks

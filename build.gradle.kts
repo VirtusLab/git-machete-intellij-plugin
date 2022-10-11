@@ -200,6 +200,15 @@ allprojects {
   // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former
   // from ALL dependencies.
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
+
+  tasks.withType<JavaExec> {
+    val requiredJdkVersion: JavaVersion by rootProject.extra
+    javaLauncher.set(
+      javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(requiredJdkVersion.toString()))
+      }
+    )
+  }
 }
 
 subprojects {
