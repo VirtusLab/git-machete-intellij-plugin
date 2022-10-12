@@ -121,4 +121,14 @@ public class BranchLayout implements IBranchLayout {
       return entry.withChildren(children.map(child -> slideIn(child, entryToSlideIn, parent)));
     }
   }
+
+  @Override
+  public final boolean equals(@Nullable Object other) {
+    return IBranchLayout.defaultEquals(this, other);
+  }
+
+  @Override
+  public final int hashCode() {
+    return IBranchLayout.defaultHashCode(this);
+  }
 }

@@ -29,4 +29,14 @@ public class BranchLayoutEntry implements IBranchLayoutEntry {
   public @Nullable String getCustomAnnotation() {
     return customAnnotation;
   }
+
+  @Override
+  public final boolean equals(@Nullable Object other) {
+    return IBranchLayoutEntry.defaultEquals(this, other);
+  }
+
+  @Override
+  public final int hashCode() {
+    return IBranchLayoutEntry.defaultHashCode(this);
+  }
 }

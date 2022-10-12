@@ -1,13 +1,17 @@
 package com.virtuslab.branchlayout.api;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 import io.vavr.collection.List;
 import lombok.val;
+import org.checkerframework.checker.interning.qual.FindDistinct;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- *  Two IBranchLayout objects are equal when their root entries are equal.
+ *  Two {@code IBranchLayout} objects are equal when their root entries (after sorting by name) are equal.
+ *
  *  @see IBranchLayoutEntry
  */
 public interface IBranchLayout {
@@ -31,19 +35,29 @@ public interface IBranchLayout {
 
   IBranchLayout slideOut(String branchName);
 
-  default boolean equals(IBranchLayout other) {
-    if (this.getRootEntries().size() == other.getRootEntries().size()) {
-      val entryNameComparator = Comparator.comparing(IBranchLayoutEntry::getName);
+  @EnsuresNonNullIf(expression = "#2", result = true)
+  static boolean defaultEquals(@FindDistinct IBranchLayout self, @Nullable Object other) {
+    if (self == other) {
+      return true;
+    } else if (!(other instanceof IBranchLayout)) {
+      return false;
+    } else {
+      val otherLayout = (IBranchLayout) other;
+      if (self.getRootEntries().size() == otherLayout.getRootEntries().size()) {
+        val entryNameComparator = Comparator.comparing(IBranchLayoutEntry::getName);
 
-      val sortedThisRootEntries = this.getRootEntries()
-          .sorted(entryNameComparator);
-      val sortedOtherRootEntries = other.getRootEntries()
-          .sorted(entryNameComparator);
+        val sortedSelfRootEntries = self.getRootEntries().sorted(entryNameComparator);
+        val sortedOtherRootEntries = otherLayout.getRootEntries().sorted(entryNameComparator);
 
-      return sortedThisRootEntries.zip(sortedOtherRootEntries)
-          .forAll(rootEntryTuple -> rootEntryTuple._1.equals(rootEntryTuple._2));
+        return sortedSelfRootEntries.zip(sortedOtherRootEntries)
+            .forAll(rootEntryTuple -> rootEntryTuple._1.equals(rootEntryTuple._2));
+      }
+
+      return false;
     }
+  }
 
-    return false;
+  static int defaultHashCode(IBranchLayout self) {
+    return Objects.hash(self.getRootEntries());
   }
 }

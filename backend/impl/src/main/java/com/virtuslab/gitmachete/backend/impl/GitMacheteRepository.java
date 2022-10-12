@@ -34,7 +34,6 @@ import lombok.ToString;
 import lombok.With;
 import lombok.val;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
-import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -816,7 +815,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     @AllArgsConstructor // needed for @With
     @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
     @ToString
-    @UsesObjectEquals
     private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
       @Getter
       private final String name;
@@ -878,6 +876,16 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       public @Nullable String getCustomAnnotation() {
         return null;
       }
+
+      @Override
+      public final boolean equals(@Nullable Object other) {
+        return IBranchLayoutEntry.defaultEquals(this, other);
+      }
+
+      @Override
+      public final int hashCode() {
+        return IBranchLayoutEntry.defaultHashCode(this);
+      }
     }
 
     @UIThreadUnsafe
@@ -898,6 +906,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
+    @SuppressWarnings("interning:not.interned")
     IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot(int mostRecentlyCheckedOutBranchesCount)
         throws GitMacheteException, GitCoreException {
 
