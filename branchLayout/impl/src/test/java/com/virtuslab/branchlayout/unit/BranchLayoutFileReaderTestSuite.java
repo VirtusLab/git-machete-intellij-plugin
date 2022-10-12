@@ -58,9 +58,9 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertNotNull(branchLayout.findEntryByName("A"));
-    Assert.assertNotNull(branchLayout.findEntryByName("B"));
-    Assert.assertNotNull(branchLayout.findEntryByName("C"));
+    Assert.assertNotNull(branchLayout.getEntryByName("A"));
+    Assert.assertNotNull(branchLayout.getEntryByName("B"));
+    Assert.assertNotNull(branchLayout.getEntryByName("C"));
     Assert.assertEquals(2, branchLayout.getRootEntries().size());
   }
 
@@ -75,8 +75,8 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertNotNull(branchLayout.findEntryByName("A"));
-    Assert.assertNotNull(branchLayout.findEntryByName("B"));
+    Assert.assertNotNull(branchLayout.getEntryByName("A"));
+    Assert.assertNotNull(branchLayout.getEntryByName("B"));
     Assert.assertEquals(2, branchLayout.getRootEntries().size());
   }
 

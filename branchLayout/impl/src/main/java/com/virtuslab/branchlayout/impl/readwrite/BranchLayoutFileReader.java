@@ -15,7 +15,6 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -40,7 +39,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
-    List<IBranchLayoutEntry> roots = List.empty();
+    List<BranchLayoutEntry> roots = List.empty();
     if (!linesWithoutBlank.isEmpty()) {
       Array<Tuple2<Integer, Integer>> lineIndexToIndentLevelAndParentLineIndex = parseToArrayRepresentation(path, indentSpec,
           lines);
@@ -65,7 +64,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * @return list of entries with recursively built lists of children
    */
   @SuppressWarnings("index:argument")
-  private List<IBranchLayoutEntry> buildEntriesStructure(
+  private List<BranchLayoutEntry> buildEntriesStructure(
       List<String> lines,
       Array<Tuple2<Integer, Integer>> lineIndexToParentLineIndex,
       @GTENegativeOne int parentLineIndex) {
@@ -82,7 +81,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
    * Parses line to {@link BranchLayoutEntry#BranchLayoutEntry} arguments and creates an
    * entry with the specified {@code children}.
    */
-  private IBranchLayoutEntry createEntry(String line, List<IBranchLayoutEntry> children) {
+  private BranchLayoutEntry createEntry(String line, List<BranchLayoutEntry> children) {
     LOG.debug(() -> "Entering: line = '${line}', children = ${children}");
 
     String trimmedLine = line.trim();

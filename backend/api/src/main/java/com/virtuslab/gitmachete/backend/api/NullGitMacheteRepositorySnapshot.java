@@ -6,7 +6,7 @@ import io.vavr.collection.TreeSet;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 
 public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
@@ -19,8 +19,8 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public IBranchLayout getBranchLayout() {
-    return NullBranchLayout.getInstance();
+  public BranchLayout getBranchLayout() {
+    return new BranchLayout(List.empty());
   }
 
   @Override

@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
@@ -61,7 +61,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   public void yieldsSameStatusAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatusOutput();
 
-    IBranchLayout branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
+    BranchLayout branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
     String ourStatus = ourGitMacheteRepositorySnapshotAsString();
 
