@@ -33,8 +33,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
   public void singleBranch() {
     // given
     val branchAndEntry = createBranchAndEntry("main", List.empty());
-    val branchLayout = PowerMockito.mock(BranchLayout.class);
-    PowerMockito.doReturn(List.of(branchAndEntry.entry)).when(branchLayout).getRootEntries();
+    val branchLayout = new BranchLayout(List.of(branchAndEntry.entry));
 
     // when
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
@@ -52,8 +51,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val mainBranchName = "main";
     val duplicatedEntry = createEntry(mainBranchName, List.empty());
     val branchAndEntry = createBranchAndEntry(mainBranchName, List.of(duplicatedEntry));
-    val branchLayout = PowerMockito.mock(BranchLayout.class);
-    PowerMockito.doReturn(List.of(branchAndEntry.entry)).when(branchLayout).getRootEntries();
+    val branchLayout = new BranchLayout(List.of(branchAndEntry.entry));
 
     // when
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
@@ -72,8 +70,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val skippedBranchName = "skipped";
     val skippedEntry = createEntry(skippedBranchName, List.empty());
     val branchAndEntry = createBranchAndEntry("main", List.of(skippedEntry));
-    val branchLayout = PowerMockito.mock(BranchLayout.class);
-    PowerMockito.doReturn(List.of(branchAndEntry.entry)).when(branchLayout).getRootEntries();
+    val branchLayout = new BranchLayout(List.of(branchAndEntry.entry));
 
     // when
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
@@ -93,8 +90,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val duplicatedAndSkippedBranchName2 = createEntry(duplicatedAndSkippedBranchName, List.empty());
     val duplicatedAndSkippedBranchName1 = createEntry(duplicatedAndSkippedBranchName, List.of(duplicatedAndSkippedBranchName2));
     val branchAndEntry = createBranchAndEntry("main", List.of(duplicatedAndSkippedBranchName1));
-    val branchLayout = PowerMockito.mock(BranchLayout.class);
-    PowerMockito.doReturn(List.of(branchAndEntry.entry)).when(branchLayout).getRootEntries();
+    val branchLayout = new BranchLayout(List.of(branchAndEntry.entry));
 
     // when
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
@@ -116,11 +112,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
   }
 
   private BranchLayoutEntry createEntry(String name, List<BranchLayoutEntry> childEntries) {
-    val entry = PowerMockito.mock(BranchLayoutEntry.class);
-    PowerMockito.doReturn(name).when(entry).getName();
-    PowerMockito.doReturn(null).when(entry).getCustomAnnotation();
-    PowerMockito.doReturn(childEntries).when(entry).getChildren();
-    return entry;
+    return new BranchLayoutEntry(name, /* customAnnotation */ null, childEntries);
   }
 }
 

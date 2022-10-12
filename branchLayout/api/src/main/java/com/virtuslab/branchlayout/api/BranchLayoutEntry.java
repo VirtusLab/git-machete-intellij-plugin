@@ -16,10 +16,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *  Two {@code BranchLayoutEntry} objects are equal when their names, their custom annotations
  *  and their children are ALL equal (recursively checked for children).
  */
-@AllArgsConstructor
+@AllArgsConstructor // for Lombok-generated `withChildren`
 @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
 @ToString
-public class BranchLayoutEntry {
+public final class BranchLayoutEntry {
   @Getter
   private final String name;
 
@@ -27,8 +27,24 @@ public class BranchLayoutEntry {
   private final @Nullable String customAnnotation;
 
   @Getter
+  private @Nullable BranchLayoutEntry parent = null;
+
+  @Getter
   @With
   private final List<BranchLayoutEntry> children;
+
+  public BranchLayoutEntry(String name, @Nullable String customAnnotation, List<BranchLayoutEntry> children) {
+    this.name = name;
+    this.customAnnotation = customAnnotation;
+    this.children = children;
+
+    // Note: since the class is final, `this` is already @Initialized at this point.
+    // We're thus safe to store `this` in other objects' fields.
+
+    for (val child : children) {
+      child.parent = this;
+    }
+  }
 
   @ToString.Include(name = "children") // avoid recursive `toString` calls on children
   private List<String> getChildNames() {
@@ -36,7 +52,7 @@ public class BranchLayoutEntry {
   }
 
   @Override
-  public final boolean equals(@Nullable Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     } else if (!(other instanceof BranchLayoutEntry)) {
@@ -61,7 +77,7 @@ public class BranchLayoutEntry {
   }
 
   @Override
-  public final int hashCode() {
+  public int hashCode() {
     return Objects.hash(name, customAnnotation, children);
   }
 }
