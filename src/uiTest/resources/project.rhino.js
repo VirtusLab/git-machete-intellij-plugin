@@ -437,7 +437,7 @@ function Project(underlyingProject) {
     this.acceptRebase()
   };
 
-  this.syncCurrentToParentByRebase = function () {
+  this.syncCurrentToRemoteByRebase = function () {
       invokeActionAsync('GitMachete.SyncCurrentToRemoteByRebaseAction', ACTION_PLACE_EMPTY, {});
       this.acceptRebase()
     };
