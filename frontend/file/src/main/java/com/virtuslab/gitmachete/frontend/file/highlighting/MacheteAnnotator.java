@@ -112,9 +112,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
               getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
                   .format(processedBranchName))
           .range(branch);
-      if (parentBranchName.isEmpty()) {
+      if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
         basicAnnotationBuilder.create();
-      } else {
+      } else { // suggest creating a new branch from the parent branch
         basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file)).create();
       }
     }
