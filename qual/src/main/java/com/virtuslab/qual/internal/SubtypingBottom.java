@@ -18,9 +18,14 @@ import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphN
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
 import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
 
+/**
+ * There needs to be single subtyping hierarchy with single bottom and top annotation.
+ * We could theoretically create a separate hierarchy with a dedicated top and bottom type
+ * for each pair of annotations from {@link com.virtuslab.qual.gitmachete}.* packages,
+ * but then <a href="https://checkerframework.org/manual/#subtyping-checker">Subtyping Checker</a>
+ * would raise an error about multiple top/bottom types.
+ */
 @Retention(RetentionPolicy.CLASS)
-// There needs to be single subtyping hierarchy with single bottom and top annotation,
-// otherwise Subtyping Checker would raise an error about multiple top/bottom types.
 @SubtypeOf({
     // Despite having a unified type hierarchy, we're actually doing 4 completely independent checks here.
     ConfirmedLocal.class,

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Removed automatic rediscovery in case of empty machete file
 
 ## v3.1.0
 - Added support for IntelliJ 2022.3.

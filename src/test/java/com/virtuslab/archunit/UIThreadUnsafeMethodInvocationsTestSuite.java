@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-public class UiThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
+public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
 
   private static final String UIThreadUnsafeName = "@" + UIThreadUnsafe.class.getSimpleName();
 
