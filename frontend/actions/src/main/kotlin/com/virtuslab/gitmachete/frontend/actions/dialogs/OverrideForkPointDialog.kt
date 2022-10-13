@@ -111,9 +111,6 @@ class OverrideForkPointDialog(
           ),
           OverrideOption.CUSTOM
         )
-          .comment(
-            thisRowComment
-          )
 
         comboBox<ICommitOfManagedBranch?>(
           (listOf(branch.forkPoint, parentBranch.pointedCommit) + branch.commits.toMutableList()).filterNotNull(),
@@ -155,26 +152,7 @@ class OverrideForkPointDialog(
               isEnabled = list.isEnabled
 
               text = if (commit != null) {
-                var prefix =
-                  if (parentBranch.pointedCommit.shortHash.equals(commit.shortHash)) {
-                    format(
-                      getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
-                      ),
-                      parentBranch.name
-                    )
-                  } else if (branch.forkPoint?.shortHash.equals(commit.shortHash)) {
-                    format(
-                      getString(
-                        "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
-                      ),
-                      branch.name
-                    )
-                  } else {
-                    ""
-                  }
-
-                "$prefix[${commit.shortHash}] [${commit.shortMessage}]"
+                "[${commit.shortHash}] ${commit.shortMessage}"
               } else {
                 ""
               }
