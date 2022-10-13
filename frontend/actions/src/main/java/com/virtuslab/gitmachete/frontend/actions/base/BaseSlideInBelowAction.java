@@ -125,7 +125,6 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       }
     }
 
-    // TODO (#430): expose getParent from branch layout API
     val parentEntry = branchLayout.getEntryByName(parentName);
     val entryAlreadyExistsBelowGivenParent = parentEntry != null
         && parentEntry.getChildren().map(BranchLayoutEntry::getName)
