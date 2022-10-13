@@ -14,6 +14,14 @@ public final class RuntimeBinding {
   private static final Reflections reflectionsInstance = new Reflections("com.virtuslab");
 
   /**
+   * The reasons for using such poor man's dependency injection
+   * instead of simply adding more compile-time dependencies between modules:
+   * <ol>
+   * <li>keep code dependent on API only and not on implementations</li>
+   * <li>keep the graph of dependencies sparse to ease thinking about project structure</li>
+   * <li>keep the critical path in Gradle module DAG as short as possible, to decrease compilation times</li>
+   * </ol>
+   *
    * @param <T> base interface type
    * @param interfaze {@link Class} object for the base interface
    * @return an instance of the sole non-anonymous/non-local/non-member class implementing {@code interfaze}
