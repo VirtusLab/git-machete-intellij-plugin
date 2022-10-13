@@ -109,6 +109,11 @@ public class BranchLayoutTestSuite {
     val rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, List.of(entry));
     val branchLayout = new BranchLayout(List.of(rootEntry));
 
+    assertNull(rootEntry.getParent());
+    assertEquals(rootName, rootEntry.getChildren().get(0).getParent().getName());
+    assertEquals(branchToSlideOutName, rootEntry.getChildren().get(0).getChildren().get(0).getParent().getName());
+    assertEquals(branchToSlideOutName, rootEntry.getChildren().get(0).getChildren().get(1).getParent().getName());
+
     // when
     BranchLayout result = branchLayout.slideOut(branchToSlideOutName);
 

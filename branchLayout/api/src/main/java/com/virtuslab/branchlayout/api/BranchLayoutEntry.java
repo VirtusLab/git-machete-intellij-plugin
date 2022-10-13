@@ -13,7 +13,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /**
  *  Class that encapsulates a single branch and a list of its children. <br>
  *  Two {@code BranchLayoutEntry} objects are equal when their names, their custom annotations
- *  and their children are ALL equal (recursively checked for children).
+ *  and their children are <b>all</b> equal (recursively checked for children).
+ *  Parents are <b>not</b> taken into account in equality checks to avoid infinite recursion.
  */
 @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
 @ToString
@@ -25,26 +26,22 @@ public final class BranchLayoutEntry {
   private final @Nullable String customAnnotation;
 
   @Getter
-  private @Nullable BranchLayoutEntry parent;
+  @With
+  private final @Nullable BranchLayoutEntry parent;
 
   @Getter
   @With
   private final List<BranchLayoutEntry> children;
 
   // Extracted a separate, all-args constructor solely for the sake of Lombok to implement `withChildren`
-  private BranchLayoutEntry(String name, @Nullable String customAnnotation, @Nullable BranchLayoutEntry parent,
+  @SuppressWarnings("nullness:argument") // to allow for passing not fully initialized `this` to `withParent`
+  private BranchLayoutEntry(String name, @Nullable String customAnnotation,
+      @Nullable BranchLayoutEntry parent,
       List<BranchLayoutEntry> children) {
     this.name = name;
     this.customAnnotation = customAnnotation;
     this.parent = parent;
-    this.children = children;
-
-    // Note: since the class is final, `this` is already @Initialized at this point.
-    // We're thus safe to store `this` in other objects' fields.
-
-    for (val child : children) {
-      child.parent = this;
-    }
+    this.children = children.map(child -> child.withParent(this));
   }
 
   public BranchLayoutEntry(String name, @Nullable String customAnnotation, List<BranchLayoutEntry> children) {
@@ -56,7 +53,7 @@ public final class BranchLayoutEntry {
     return children.map(e -> e.name);
   }
 
-  @ToString.Include(name = "parent") // avoid recursive `toString` calls on children
+  @ToString.Include(name = "parent") // avoid recursive `toString` calls on parent
   private @Nullable String getParentName() {
     return parent != null ? parent.name : null;
   }
