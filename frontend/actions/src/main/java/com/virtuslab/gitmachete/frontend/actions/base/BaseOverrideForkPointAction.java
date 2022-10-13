@@ -122,7 +122,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     }
 
     try {
-      GitConfigUtil.setValue(project, root, whileDescendantOfKey, ancestorCommit.getHash());
+      GitConfigUtil.setValue(project, root, whileDescendantOfKey, forkPoint.getHash());
     } catch (VcsException e) {
       LOG.info("Attempt to get '${whileDescendantOf}' git config value failed: " + e.getMessage());
     }
