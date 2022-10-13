@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import io.vavr.collection.List;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.With;
@@ -16,7 +15,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *  Two {@code BranchLayoutEntry} objects are equal when their names, their custom annotations
  *  and their children are ALL equal (recursively checked for children).
  */
-@AllArgsConstructor // for Lombok-generated `withChildren`
 @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
 @ToString
 public final class BranchLayoutEntry {
@@ -27,15 +25,18 @@ public final class BranchLayoutEntry {
   private final @Nullable String customAnnotation;
 
   @Getter
-  private @Nullable BranchLayoutEntry parent = null;
+  private @Nullable BranchLayoutEntry parent;
 
   @Getter
   @With
   private final List<BranchLayoutEntry> children;
 
-  public BranchLayoutEntry(String name, @Nullable String customAnnotation, List<BranchLayoutEntry> children) {
+  // Extracted a separate, all-args constructor solely for the sake of Lombok to implement `withChildren`
+  private BranchLayoutEntry(String name, @Nullable String customAnnotation, @Nullable BranchLayoutEntry parent,
+      List<BranchLayoutEntry> children) {
     this.name = name;
     this.customAnnotation = customAnnotation;
+    this.parent = parent;
     this.children = children;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
@@ -46,9 +47,18 @@ public final class BranchLayoutEntry {
     }
   }
 
+  public BranchLayoutEntry(String name, @Nullable String customAnnotation, List<BranchLayoutEntry> children) {
+    this(name, customAnnotation, /* parent */ null, children);
+  }
+
   @ToString.Include(name = "children") // avoid recursive `toString` calls on children
   private List<String> getChildNames() {
-    return children.map(e -> e.getName());
+    return children.map(e -> e.name);
+  }
+
+  @ToString.Include(name = "parent") // avoid recursive `toString` calls on children
+  private @Nullable String getParentName() {
+    return parent != null ? parent.name : null;
   }
 
   @Override
