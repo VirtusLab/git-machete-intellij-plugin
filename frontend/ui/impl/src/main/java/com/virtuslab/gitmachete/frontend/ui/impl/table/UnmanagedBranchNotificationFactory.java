@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.SLIDE_IN_UNMANAGED_BELOW;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
@@ -46,10 +47,12 @@ public class UnmanagedBranchNotificationFactory {
         NotificationType.INFORMATION);
 
     val slideInAction = getSlideInAction(notification);
+    val openMacheteFileAction = getOpenMacheteFileAction(notification);
     val dontShowForThisBranchAction = getDontShowForThisBranchAction(notification);
     val dontShowForThisProjectAction = getDontShowForThisProjectAction(notification);
 
     notification.addAction(slideInAction);
+    notification.addAction(openMacheteFileAction);
     notification.addAction(dontShowForThisBranchAction);
     notification.addAction(dontShowForThisProjectAction);
 
@@ -101,7 +104,6 @@ public class UnmanagedBranchNotificationFactory {
               PropertiesComponent.getInstance().setValue(propertyKey, false, /* defaultValue */ true);
               notification.expire();
             });
-
   }
 
   private NotificationAction getDontShowForThisProjectAction(Notification notification) {
@@ -112,6 +114,23 @@ public class UnmanagedBranchNotificationFactory {
               PropertiesComponent.getInstance().setValue(SHOW_UNMANAGED_BRANCH_NOTIFICATION, false, /* defaultValue */ true);
               notification.expire();
             });
-
   }
+
+  private NotificationAction getOpenMacheteFileAction(Notification notification) {
+    return NotificationAction.createSimple(
+        getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+          val dataContext = new DataContext() {
+            @Override
+            public @Nullable Object getData(String dataId) {
+              return Match(dataId).of(
+                  typeSafeCase(CommonDataKeys.PROJECT, project),
+                  Case($(), (Object) null));
+            }
+          };
+          val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
+          ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+          notification.expire();
+        });
+  }
+
 }

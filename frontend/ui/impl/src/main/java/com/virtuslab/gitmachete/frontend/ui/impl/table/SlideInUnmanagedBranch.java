@@ -36,17 +36,18 @@ public class SlideInUnmanagedBranch {
   private final Consumer<String> onSuccessInferredParentBranchNameConsumer;
 
   public void enqueue(Path macheteFilePath) {
-    LOG.info("Enqueuing automatic discover");
+    LOG.info("Enqueuing unmanaged branch notification");
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
-      LOG.error("Can't do automatic discover because of undefined selected repository");
+      LOG.error("Can't notify about unmanaged branch because of undefined selected repository");
       return;
     }
     Path rootDirPath = selectedRepository.getRootDirectoryPath().toAbsolutePath();
     Path mainGitDirPath = selectedRepository.getMainGitDirectoryPath().toAbsolutePath();
     Path worktreeGitDirPath = selectedRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
-    new Task.Backgroundable(project, getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title")) {
+    new Task.Backgroundable(project,
+        getString("string.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.task-title")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {

@@ -109,6 +109,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private @Nullable String selectedBranchName;
 
+  // To accurately track the change of the current branch from the begging, let's put something impossible
+  // as a branch name. This is required to detect the moment when the unmanaged branch notification should be shown.
   private @Nullable String currentBranch = "?!@#$%^&";
   private @Nullable Notification slideInNotification;
 
@@ -163,6 +165,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
             if (((VFileContentChangeEvent) event).getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
+              if (slideInNotification != null && !slideInNotification.isExpired()) {
+                slideInNotification.expire();
+              }
               queueRepositoryUpdateAndModelRefresh();
             }
           }
