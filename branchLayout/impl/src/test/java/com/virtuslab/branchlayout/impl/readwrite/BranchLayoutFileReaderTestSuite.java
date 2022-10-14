@@ -1,6 +1,9 @@
-package com.virtuslab.branchlayout.unit;
+package com.virtuslab.branchlayout.impl.readwrite;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 
@@ -20,9 +23,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileReader;
-import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutFileUtils;
-import com.virtuslab.branchlayout.impl.readwrite.IndentSpec;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BranchLayoutFileUtils.class, Files.class})
@@ -58,10 +58,17 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertNotNull(branchLayout.getEntryByName("A"));
-    Assert.assertNotNull(branchLayout.getEntryByName("B"));
-    Assert.assertNotNull(branchLayout.getEntryByName("C"));
+    assertNotNull(branchLayout.getEntryByName("A"));
+    assertNotNull(branchLayout.getEntryByName("B"));
+    assertNotNull(branchLayout.getEntryByName("C"));
     Assert.assertEquals(2, branchLayout.getRootEntries().size());
+
+    val a = branchLayout.getRootEntries().get(0);
+    val b = a.getChildren().get(0);
+    val c = branchLayout.getRootEntries().get(0);
+    assertSame(a, b.getParent());
+    assertNull(a.getParent());
+    assertNull(c.getParent());
   }
 
   @Test
@@ -75,9 +82,9 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then
-    Assert.assertNotNull(branchLayout.getEntryByName("A"));
-    Assert.assertNotNull(branchLayout.getEntryByName("B"));
-    Assert.assertEquals(2, branchLayout.getRootEntries().size());
+    assertNotNull(branchLayout.getEntryByName("A"));
+    assertNotNull(branchLayout.getEntryByName("B"));
+    assertEquals(2, branchLayout.getRootEntries().size());
   }
 
   @Test
@@ -91,7 +98,7 @@ public class BranchLayoutFileReaderTestSuite {
     BranchLayout branchLayout = reader.read(path);
 
     // then no exception thrown
-    Assert.assertEquals(0, branchLayout.getRootEntries().size());
+    assertEquals(0, branchLayout.getRootEntries().size());
   }
 
   @Test

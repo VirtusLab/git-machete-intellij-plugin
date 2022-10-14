@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import io.vavr.collection.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.With;
@@ -16,7 +17,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *  and their children are <b>all</b> equal (recursively checked for children).
  *  Parents are <b>not</b> taken into account in equality checks to avoid infinite recursion.
  */
-@SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
+@SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `with...` methods
 @ToString
 public final class BranchLayoutEntry {
   @Getter
@@ -26,7 +27,7 @@ public final class BranchLayoutEntry {
   private final @Nullable String customAnnotation;
 
   @Getter
-  @With
+  @With(AccessLevel.PRIVATE)
   private final @Nullable BranchLayoutEntry parent;
 
   @Getter

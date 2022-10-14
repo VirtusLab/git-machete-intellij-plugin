@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.unit;
+package com.virtuslab.branchlayout.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -7,9 +7,6 @@ import io.vavr.collection.List;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 
 public class BranchLayoutTestSuite {
 
