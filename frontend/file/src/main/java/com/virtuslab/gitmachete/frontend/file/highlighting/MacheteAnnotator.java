@@ -148,10 +148,11 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     } catch (NullPointerException e) { // might appear if saveDocumentBeforeCheck(file) has not completed yet
       return "";
     }
-    if (parentEntry == null)
+    if (parentEntry == null) {
       return "";
-    else
+    } else {
       return parentEntry.getName();
+    }
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {

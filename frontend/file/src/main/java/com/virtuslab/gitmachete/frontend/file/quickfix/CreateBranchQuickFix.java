@@ -25,12 +25,12 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   private final String branch;
   private final String parentBranch;
-  private final PsiFile file;
+  private final PsiFile macheteFile;
 
   public CreateBranchQuickFix(String processedBranchName, String parentBranchName, PsiFile processedFile) {
     branch = processedBranchName;
     parentBranch = parentBranchName;
-    file = processedFile;
+    macheteFile = processedFile;
   }
 
   @Override
@@ -60,7 +60,7 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   private void createNewBranchFromParent(Project project) {
-    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file);//.get();
+    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);//.get();
     if (gitRepositoryOption.isDefined()) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepositoryOption.get(), parentBranch));
     } else {
