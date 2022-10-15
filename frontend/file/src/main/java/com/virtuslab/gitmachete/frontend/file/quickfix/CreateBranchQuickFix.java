@@ -11,7 +11,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
@@ -19,6 +18,7 @@ import lombok.experimental.ExtensionMethod;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitMacheteBundle.class})
 public class CreateBranchQuickFix implements IntentionAction {
