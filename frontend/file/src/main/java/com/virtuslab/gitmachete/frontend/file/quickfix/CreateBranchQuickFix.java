@@ -15,7 +15,6 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
-import org.jetbrains.annotations.NotNull;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -34,23 +33,23 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   @Override
-  public @IntentionName @NotNull String getText() {
+  public @IntentionName String getText() {
     return getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title")
         .format(parentBranch) + ": " + branch;
   }
 
   @Override
-  public @NotNull @IntentionFamilyName String getFamilyName() {
+  public @IntentionFamilyName String getFamilyName() {
     return "Git Machete";
   }
 
   @Override
-  public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+  public boolean isAvailable(Project project, Editor editor, PsiFile file) {
     return true;
   }
 
   @Override
-  public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+  public void invoke(Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
     createNewBranchFromParent(project);
   }
 
@@ -60,7 +59,7 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   private void createNewBranchFromParent(Project project) {
-    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);//.get();
+    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
     if (gitRepositoryOption.isDefined()) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepositoryOption.get(), parentBranch));
     } else {
