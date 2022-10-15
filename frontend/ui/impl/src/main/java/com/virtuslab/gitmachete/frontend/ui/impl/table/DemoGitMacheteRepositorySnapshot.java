@@ -240,7 +240,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final RelationToRemote relationToRemote = getRelationOfSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
-    private final List<ICommitOfManagedBranch> commits;
+    private final List<ICommitOfManagedBranch> uniqueCommits;
+    private final List<ICommitOfManagedBranch> commitsUntilParent = List.empty();
     @MonotonicNonNull
     private IManagedBranchSnapshot parent = null;
     private final SyncToParentStatus syncToParentStatus;
