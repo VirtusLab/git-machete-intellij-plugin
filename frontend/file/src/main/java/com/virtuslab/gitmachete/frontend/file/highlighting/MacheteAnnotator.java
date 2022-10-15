@@ -139,6 +139,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
 
+  @UIThreadUnsafe
   private String getParentBranchName(PsiFile file, String branchName) throws BranchLayoutException {
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     val branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));

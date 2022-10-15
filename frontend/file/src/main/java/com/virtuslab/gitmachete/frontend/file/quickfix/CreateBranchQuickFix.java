@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
@@ -58,6 +59,7 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
+  @UIThreadUnsafe
   private void createNewBranchFromParent(Project project) {
     Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
     if (gitRepositoryOption.isDefined()) {
