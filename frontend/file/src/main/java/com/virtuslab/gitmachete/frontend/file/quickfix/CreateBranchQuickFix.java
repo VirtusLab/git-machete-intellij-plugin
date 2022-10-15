@@ -13,6 +13,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
+import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,7 +60,11 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   private void createNewBranchFromParent(Project project) {
-    GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file).get();
-    GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
+    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file);//.get();
+    if (gitRepositoryOption.isDefined()) {
+      GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepositoryOption.get(), parentBranch));
+    } else {
+      throw new RuntimeException("Unable to create new branch due to: git repository not found for .git/machete file.");
+    }
   }
 }
