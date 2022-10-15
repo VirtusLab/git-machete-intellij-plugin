@@ -50,6 +50,7 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   @Override
+  @UIThreadUnsafe
   public void invoke(Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
     createNewBranchFromParent(project);
   }
