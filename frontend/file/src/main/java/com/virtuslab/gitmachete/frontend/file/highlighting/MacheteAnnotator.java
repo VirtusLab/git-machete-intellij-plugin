@@ -5,11 +5,10 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.intellij.codeInsight.hint.HintManager;
@@ -26,13 +25,16 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
-import io.vavr.collection.List;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
@@ -91,9 +93,8 @@ public class MacheteAnnotator implements Annotator, DumbAware {
      * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocumentBeforeCheck(file) is already completed. UI thread might
      * be busy with other operations, and it might take while for the execution of saveDocumentBeforeCheck(file) to start.
      */
-    String branchNamesFromFile = ""; // filled in the try-catch block, used inside two following checks
     try {
-      branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
+      val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
       if (isBranchNameRepeated(branchNamesFromFile, processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
             getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
@@ -106,16 +107,20 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
 
     if (!branchNames.contains(processedBranchName)) {
-      val parentBranchName = getParentBranchName(branchNamesFromFile, processedBranchName);
-      val basicAnnotationBuilder = holder
-          .newAnnotation(HighlightSeverity.ERROR,
-              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
-                  .format(processedBranchName))
-          .range(branch);
-      if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
-        basicAnnotationBuilder.create();
-      } else { // suggest creating a new branch from the parent branch
-        basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file)).create();
+      try {
+        val parentBranchName = getParentBranchName(file, processedBranchName);
+        val basicAnnotationBuilder = holder
+            .newAnnotation(HighlightSeverity.ERROR,
+                getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
+                    .format(processedBranchName))
+            .range(branch);
+        if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
+          basicAnnotationBuilder.create();
+        } else { // suggest creating a new branch from the parent branch
+          basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file)).create();
+        }
+      } catch (BranchLayoutException e) {
+        throw new RuntimeException(e);
       }
     }
   }
@@ -134,24 +139,19 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
   }
 
-  private String getParentBranchName(String fileContent, String branchName) {
-    List<String> reversedContentAsLines = List.of(fileContent.split(System.lineSeparator())).reverse();
-    // to be taken care of before merging: val indexOfBranchNameLine = ...
-    // might end in a NonSuchElementException (None.get()) if saveDocumentBeforeCheck has not completed yet
-    val indexOfBranchNameLine = reversedContentAsLines.indexOf(reversedContentAsLines.find(
-        line -> line.trim().split("\\s")[0].equals(branchName)).get());
-    val branchIndentWidth = reversedContentAsLines.get(indexOfBranchNameLine).indexOf(branchName);
-    val parentBranch = reversedContentAsLines.find(candidateLine -> {
-      Pattern p = Pattern.compile("\\S"); // to find the first non-whitespace character in the line
-      Matcher m = p.matcher(candidateLine);
-      int candidateBranchIndentWidth = 999; // big number, greater than branchIndentWidth - to find a true "parent"
-      if (m.find()) {
-        candidateBranchIndentWidth = m.start();
-      }
-      return reversedContentAsLines.indexOf(candidateLine) > indexOfBranchNameLine && // parentBranch is above the branch
-          candidateBranchIndentWidth < branchIndentWidth; // parentBranch's indent width is smaller than branchIndentWidth
-    });
-    return parentBranch.getOrElse("").trim();
+  private String getParentBranchName(PsiFile file, String branchName) throws BranchLayoutException {
+    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    val branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
+    BranchLayoutEntry parentEntry;
+    try {
+      parentEntry = Objects.requireNonNull(branchLayout.getEntryByName(branchName)).getParent();
+    } catch (NullPointerException e) { // might appear if saveDocumentBeforeCheck(file) has not completed yet
+      return "";
+    }
+    if (parentEntry == null)
+      return "";
+    else
+      return parentEntry.getName();
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
