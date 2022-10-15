@@ -238,7 +238,8 @@ jobs:
                   gh release create \
                     $tag \
                     "$(./gradlew -q printSignedPluginZipPath)" \
-                    --notes "$tag"$'\n\n'"$change_notes"
+                    --title "$tag" \
+                    --notes "$change_notes"
                   scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:

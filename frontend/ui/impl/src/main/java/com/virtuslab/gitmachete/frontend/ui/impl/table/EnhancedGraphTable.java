@@ -57,8 +57,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -260,7 +260,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @UIThreadUnsafe
   private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
-    IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
+    BranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
       newBranchLayout = newBranchLayout.slideOut(branchName);
     }
