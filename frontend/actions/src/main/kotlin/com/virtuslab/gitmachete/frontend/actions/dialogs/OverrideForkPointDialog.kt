@@ -6,16 +6,12 @@ import com.intellij.ui.dsl.builder.MutableProperty
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch
-import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
-import java.awt.Color
 import java.awt.Component
-import java.awt.Font
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JList
-import javax.swing.UIManager
 
 enum class OverrideOption {
   PARENT,
@@ -25,13 +21,14 @@ enum class OverrideOption {
 
 class OverrideForkPointDialog(
   project: Project,
-  private val parentBranch: IManagedBranchSnapshot,
   private val branch: INonRootManagedBranchSnapshot
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   private var myOverrideOption = OverrideOption.PARENT
 
   private var customCommit: ICommitOfManagedBranch? = branch.forkPoint
+
+  private val parent = branch.parent
 
   init {
     title =
@@ -43,9 +40,9 @@ class OverrideForkPointDialog(
   fun showAndGetSelectedCommit() =
     if (showAndGet()) {
       when (myOverrideOption) {
-        OverrideOption.PARENT -> parentBranch.pointedCommit
+        OverrideOption.PARENT -> parent.pointedCommit
         OverrideOption.INFERRED -> branch.forkPoint
-        OverrideOption.CUSTOM -> customCommit!!
+        OverrideOption.CUSTOM -> customCommit
       }
     } else {
       null
@@ -70,21 +67,15 @@ class OverrideForkPointDialog(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
             ),
-            parentBranch.name
+            parent.name
           ),
           OverrideOption.PARENT
         )
-          .comment(parentBranch.pointedCommit.shortMessage)
+          .comment(parent.pointedCommit.shortMessage)
       }
 
-      var thisRowComment = "cannot resolve commit message"
-
-      var radioButtonComment = "cannot resolve commit hash"
-
-      if (branch.forkPoint != null) {
-        thisRowComment = branch.forkPoint!!.shortMessage
-        radioButtonComment = branch.forkPoint!!.shortHash
-      }
+      val thisRowComment = branch.forkPoint?.shortMessage ?: "cannot resolve commit message"
+      val radioButtonComment = branch.forkPoint?.shortHash ?: "cannot resolve commit hash"
 
       row {
         radioButton(
@@ -112,10 +103,14 @@ class OverrideForkPointDialog(
           OverrideOption.CUSTOM
         )
 
-        comboBox<ICommitOfManagedBranch?>(
-          (listOf(branch.forkPoint, parentBranch.pointedCommit) + branch.commitsUntilParent.toMutableList()).filterNotNull(),
+        val mutableList = branch.commitsUntilParent.toMutableList()
+        mutableList.remove(branch.forkPoint)
+        mutableList.remove(parent.pointedCommit)
+        val items = (listOf(branch.forkPoint, parent.pointedCommit) + mutableList.reversed()).filterNotNull()
+
+        comboBox(
+          items,
           object : DefaultListCellRenderer() {
-            private val defaultBackground = UIManager.get("List.background") as Color
             override fun getListCellRendererComponent(
               list: JList<*>?,
               value: Any?,
@@ -123,52 +118,13 @@ class OverrideForkPointDialog(
               isSelected: Boolean,
               cellHasFocus: Boolean
             ): Component {
-              val commit: ICommitOfManagedBranch? = value as ICommitOfManagedBranch?
-              componentOrientation = list!!.componentOrientation
-
-              var bg: Color? = null
-              var fg: Color? = null
-
-              val dropLocation = list.dropLocation
-              var customIsSelected = isSelected
-              if (dropLocation != null && !dropLocation.isInsert && dropLocation.index == index) {
-                bg = list.selectionBackground
-                fg = list.selectionForeground
-                customIsSelected = true
-              }
-
-              if (customIsSelected) {
-                background = bg ?: list.selectionBackground
-                foreground = fg ?: list.selectionForeground
-                font = Font(list.font.name, Font.BOLD, list.font.size)
-              } else {
-                font = list.font
-                background = list.background
-                foreground = list.foreground
-              }
-
-              icon = null
-
-              isEnabled = list.isEnabled
-
-              text = if (commit != null) {
-                "[${commit.shortHash}] ${commit.shortMessage}"
-              } else {
-                ""
-              }
-
-              if (!customIsSelected) {
-                setBackground(if (index % 2 == 0) background else defaultBackground)
-              }
-
+              val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
+              text = "<html><tt>[${commit.shortHash}]</tt> ${commit.shortMessage}</html>"
               return this
             }
           }
-
         ).bindItem(
-          MutableProperty(::customCommit) {
-            customCommit = it
-          }
+          MutableProperty(::customCommit) { customCommit = it }
         )
       }
     }

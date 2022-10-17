@@ -66,8 +66,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     }
 
     val nonRootBranch = branch.asNonRoot();
-    val selectedCommit = new OverrideForkPointDialog(project, nonRootBranch.getParent(), nonRootBranch)
-        .showAndGetSelectedCommit();
+    val selectedCommit = new OverrideForkPointDialog(project, nonRootBranch).showAndGetSelectedCommit();
     if (selectedCommit == null) {
       log().debug(
           "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
