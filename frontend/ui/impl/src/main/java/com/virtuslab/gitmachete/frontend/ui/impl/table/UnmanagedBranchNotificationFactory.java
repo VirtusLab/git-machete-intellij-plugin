@@ -26,6 +26,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -39,7 +40,7 @@ public class UnmanagedBranchNotificationFactory {
   private final Project project;
   private final @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
   private final String branchName;
-  private final String inferredParent;
+  private final @Nullable ILocalBranchReference inferredParent;
 
   public Notification create() {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
@@ -66,22 +67,26 @@ public class UnmanagedBranchNotificationFactory {
 
   @UIEffect
   public static boolean showForThisBranch(String aBranchName) {
-    return PropertiesComponent.getInstance().getBoolean("${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}",
-        /* defaultValue */ true);
+    String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}";
+    return PropertiesComponent.getInstance().getBoolean(propertyKey, /* defaultValue */ true);
   }
 
   private NotificationAction getSlideInAction(Notification notification) {
+    val title = inferredParent == null
+        ? getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in-as-root")
+        : getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
+            .format(inferredParent.getName());
+    val nullableInferredParentName = inferredParent != null ? inferredParent.getName() : null;
     return NotificationAction
         .createSimple(
-            getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
-                .format(inferredParent),
+            title,
             () -> {
               val dataContext = new DataContext() {
                 @Override
                 public @Nullable Object getData(String dataId) {
                   return Match(dataId).of(
                       typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-                      typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, inferredParent),
+                      typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
                       typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
                       typeSafeCase(CommonDataKeys.PROJECT, project),
                       Case($(), (Object) null));

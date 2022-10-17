@@ -7,10 +7,10 @@
 - Added a notification after checking out an unmanaged branch with an option to add the branch to the branch layout.
 
 ## v3.1.1
-- Removed automatic rediscovery in case of empty machete file
+- Removed automatic rediscovery in case of empty machete file.
 - Fixed indication of a repeated entry in machete file.
 
-## v3.2.0
+## v3.1.1
 - Added a notification after checking out an unmanaged branch with an option to add the branch to the branch layout.
 
 ## v3.1.0

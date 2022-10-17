@@ -209,7 +209,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         project,
         branchName,
         getGitRepositorySelectionProvider(),
-        getUnsuccessfulDiscoverMacheteFilePathConsumer(),
         inferredParent -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
           val showForThisProject = UnmanagedBranchNotificationFactory.showForThisProject();
           val showForThisBranch = UnmanagedBranchNotificationFactory.showForThisBranch(branchName);

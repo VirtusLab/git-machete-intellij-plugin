@@ -19,6 +19,7 @@ import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -32,8 +33,7 @@ public class SlideInUnmanagedBranch {
   private final Project project;
   private final String branchName;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
-  private final Consumer<Path> onFailurePathConsumer;
-  private final Consumer<String> onSuccessInferredParentBranchNameConsumer;
+  private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchNameConsumer;
 
   public void enqueue(Path macheteFilePath) {
     LOG.info("Enqueuing unmanaged branch notification");
@@ -74,14 +74,8 @@ public class SlideInUnmanagedBranch {
 
         val inferredParent = inferParentRunResult.get();
 
-        if (inferredParent == null) {
-          LOG.debug("Inferred parent is null - executing on-failure consumer");
-          onFailurePathConsumer.accept(macheteFilePath);
-          return;
-        }
-
         LOG.debug("Executing on-success consumer");
-        onSuccessInferredParentBranchNameConsumer.accept(inferredParent.getName());
+        onSuccessInferredParentBranchNameConsumer.accept(inferredParent);
       }
     }.queue();
   }
