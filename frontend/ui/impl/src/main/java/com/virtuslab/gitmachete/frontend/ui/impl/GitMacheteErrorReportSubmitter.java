@@ -58,7 +58,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     String title = events.stream()
         .map(event -> {
           val throwable = event.getThrowable();
-          val exceptionMessage = event.getThrowableText().split(System.lineSeparator())[0];
+          val exceptionMessage = event.getThrowableText().lines().findFirst().orElse("");
           return (throwable != null ? exceptionMessage : event.getMessage()).stripTrailing();
         })
         .collect(Collectors.joining("; "));

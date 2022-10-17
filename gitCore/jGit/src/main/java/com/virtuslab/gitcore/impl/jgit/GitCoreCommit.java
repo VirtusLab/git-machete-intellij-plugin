@@ -22,7 +22,12 @@ public class GitCoreCommit implements IGitCoreCommit {
   private final IGitCoreTreeHash treeHash;
 
   public GitCoreCommit(@NonLeaked RevCommit commit) {
-    this.shortMessage = commit.getShortMessage();
+    // We do NOT want to use org.eclipse.jgit.revwalk.RevCommit#getShortMessage here
+    // as it returns the commit *subject*, which is the part of the commit message until the first empty line
+    // (or whole message, if no such empty line is present).
+    // This might include multiple lines from the original commit message, glued up together with spaces.
+    // Let's just instead include the first line of the commit message, no exceptions.
+    this.shortMessage = commit.getFullMessage().lines().findFirst().orElse("");
     this.fullMessage = commit.getFullMessage();
     this.commitTime = Instant.ofEpochSecond(commit.getCommitTime());
     this.hash = commit.getId().toGitCoreCommitHash();
