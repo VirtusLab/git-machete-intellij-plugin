@@ -65,7 +65,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         presentation.setEnabled(false);
 
       } else {
-        val numberOfCommits = nonRootBranch.getCommits().length();
+        val numberOfCommits = nonRootBranch.getUniqueCommits().length();
 
         val description = getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
             .format(branchName, numberOfCommits + "", numberOfCommits == 1 ? "" : "s");
@@ -80,7 +80,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         } else {
           val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
           val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
-          if (anActionEvent.getPlace().equals(ActionPlaces.ACTION_PLACE_CONTEXT_MENU) && isSquashingCurrentBranch) {
+          if (anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU) && isSquashingCurrentBranch) {
             presentation.setText(getString("action.GitMachete.BaseSquashAction.text"));
           }
         }
@@ -99,7 +99,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         ? managedBranch.asNonRoot()
         : null;
     if (nonRootBranch != null) {
-      val commits = nonRootBranch.getCommits();
+      val commits = nonRootBranch.getUniqueCommits();
       val parent = nonRootBranch.getForkPoint();
       val syncToParentStatus = nonRootBranch.getSyncToParentStatus();
       val gitRepository = getSelectedGitRepository(anActionEvent);

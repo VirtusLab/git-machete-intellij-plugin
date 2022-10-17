@@ -1,6 +1,9 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
-dependencies { api(project(":branchLayout:api")) }
+dependencies {
+  api(project(":qual"))
+  api(project(":branchLayout:api"))
+}
 
 junit()
 lombok()

@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 
 public interface IExpectsKeySelectedBranchName extends IWithLogger {
   default @Nullable String getSelectedBranchName(AnActionEvent anActionEvent) {
-    val selectedBranchName = anActionEvent.getData(DataKeys.KEY_SELECTED_BRANCH_NAME);
+    val selectedBranchName = anActionEvent.getData(DataKeys.SELECTED_BRANCH_NAME);
     if (isLoggingAcceptable() && selectedBranchName == null) {
       log().warn("Selected branch is undefined");
     }

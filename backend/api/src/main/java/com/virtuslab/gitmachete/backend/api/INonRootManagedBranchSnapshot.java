@@ -21,7 +21,9 @@ public interface INonRootManagedBranchSnapshot extends IManagedBranchSnapshot {
     return this;
   }
 
-  List<ICommitOfManagedBranch> getCommits();
+  List<ICommitOfManagedBranch> getUniqueCommits();
+
+  List<ICommitOfManagedBranch> getCommitsUntilParent();
 
   IManagedBranchSnapshot getParent();
 

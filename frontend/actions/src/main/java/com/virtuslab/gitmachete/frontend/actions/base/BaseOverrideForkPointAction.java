@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.config.GitConfigUtil;
-import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
@@ -21,7 +20,6 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -46,11 +44,6 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   @Override
   public @Untainted @I18nFormat({GENERAL, GENERAL}) String getEnabledDescriptionFormat() {
     return getNonHtmlString("action.GitMachete.BaseOverrideForkPointAction.description");
-  }
-
-  @Override
-  public List<SyncToParentStatus> getEligibleStatuses() {
-    return List.of(SyncToParentStatus.InSyncButForkPointOff);
   }
 
   @Override

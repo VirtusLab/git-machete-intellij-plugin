@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.register
 
 fun Project.configureUiTests() {
   val isCI: Boolean by rootProject.extra
+  val intellijVersions: IntellijVersions by rootProject.extra
 
   val sourceSets = extensions["sourceSets"] as SourceSetContainer
   val uiTest = sourceSets["uiTest"]
@@ -18,9 +19,9 @@ fun Project.configureUiTests() {
 
   val uiTestTargets: List<String> =
     if (project.properties["against"] != null) {
-      IntellijVersionHelper.resolveIntelliJVersions(project.properties["against"] as String)
+      intellijVersions.resolveIntelliJVersions(project.properties["against"] as String)
     } else {
-      listOf(IntellijVersions.buildTarget)
+      listOf(intellijVersions.buildTarget)
     }
 
   uiTestTargets.onEach { version ->

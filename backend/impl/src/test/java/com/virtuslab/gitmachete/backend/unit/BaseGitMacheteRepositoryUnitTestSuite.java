@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.powermock.api.mockito.PowerMockito;
@@ -33,9 +32,9 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     PowerMockito.doReturn(List.ofAll(Arrays.stream(localCoreBranches))).when(gitCoreRepository).deriveAllLocalBranches();
 
     val iGitCoreHeadSnapshot = PowerMockito.mock(IGitCoreHeadSnapshot.class);
-    PowerMockito.doReturn(Option.none()).when(iGitCoreHeadSnapshot).getTargetBranch();
+    PowerMockito.doReturn(null).when(iGitCoreHeadSnapshot).getTargetBranch();
     PowerMockito.doReturn(iGitCoreHeadSnapshot).when(gitCoreRepository).deriveHead();
-    PowerMockito.doReturn(Option.none()).when(gitCoreRepository).deriveConfigValue("core", "hooksPath");
+    PowerMockito.doReturn(null).when(gitCoreRepository).deriveConfigValue("core", "hooksPath");
     PowerMockito.doReturn(Paths.get("void")).when(gitCoreRepository).getRootDirectoryPath();
     PowerMockito.doReturn(Paths.get("void")).when(gitCoreRepository).getMainGitDirectoryPath();
 

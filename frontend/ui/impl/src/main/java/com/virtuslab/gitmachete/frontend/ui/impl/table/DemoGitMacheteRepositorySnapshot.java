@@ -6,7 +6,6 @@ import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
-import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
@@ -93,7 +92,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public IBranchLayout getBranchLayout() {
+  public BranchLayout getBranchLayout() {
     throw new NotImplementedError();
   }
 
@@ -134,7 +133,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   @Getter
   public final OngoingRepositoryOperation ongoingRepositoryOperation = new OngoingRepositoryOperation(
-      OngoingRepositoryOperationType.NO_OPERATION, Option.none());
+      OngoingRepositoryOperationType.NO_OPERATION, null);
 
   @AllArgsConstructor
   private static class Commit implements ICommitOfManagedBranch {
@@ -241,7 +240,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final RelationToRemote relationToRemote = getRelationOfSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
-    private final List<ICommitOfManagedBranch> commits;
+    private final List<ICommitOfManagedBranch> uniqueCommits;
+    private final List<ICommitOfManagedBranch> commitsUntilParent = List.empty();
     @MonotonicNonNull
     private IManagedBranchSnapshot parent = null;
     private final SyncToParentStatus syncToParentStatus;

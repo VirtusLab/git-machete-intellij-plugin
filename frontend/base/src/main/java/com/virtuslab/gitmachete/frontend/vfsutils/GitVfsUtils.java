@@ -9,8 +9,8 @@ import java.nio.file.attribute.FileTime;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GitVfsUtils {
 
@@ -62,10 +62,10 @@ public final class GitVfsUtils {
 
   /**
    * @param gitRepository {@link GitRepository} to get the virtual file from
-   * @return an option of {@link VirtualFile} representing the machete file
+   * @return {@link VirtualFile} representing the machete file if found; otherwise, null
    */
-  public static Option<VirtualFile> getMacheteFile(GitRepository gitRepository) {
-    return Option.of(getMainGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME));
+  public static @Nullable VirtualFile getMacheteFile(GitRepository gitRepository) {
+    return getMainGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME);
   }
 
   /**
@@ -81,19 +81,19 @@ public final class GitVfsUtils {
 
   /**
    * @param filePath {@link Path} to file
-   * @return an option of {@link Long} stating for time of last modification in milliseconds since the Unix epoch start
+   * @return {@link Long} stating for time of last modification in milliseconds since the Unix epoch start if attributes were read successfully; otherwise, null
    */
-  public static Option<Long> getFileModificationDate(Path filePath) {
+  public static @Nullable Long getFileModificationDate(Path filePath) {
     return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
-        .map(attr -> attr.lastModifiedTime().toMillis()).toOption();
+        .map(attr -> attr.lastModifiedTime().toMillis()).getOrNull();
   }
 
   /**
    * @param filePath {@link Path} to file
    * @param millis {@code long} representing the new modification time in milliseconds since the Unix epoch start
-   * @return an option of {@link Path} stating for the given file
+   * @return {@link Path} stating for the given file if the modification date was set successfully; otherwise, null
    */
-  public static Option<Path> setFileModificationDate(Path filePath, long millis) {
-    return Try.of(() -> Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis))).toOption();
+  public static @Nullable Path setFileModificationDate(Path filePath, long millis) {
+    return Try.of(() -> Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis))).getOrNull();
   }
 }

@@ -26,12 +26,10 @@ import io.vavr.collection.TreeSet;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.With;
 import lombok.val;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
@@ -39,8 +37,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.GitCoreRepositoryState;
@@ -78,7 +75,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @Override
   @UIThreadUnsafe
   @Loggable(value = Loggable.DEBUG, prepend = true, skipArgs = true, skipResult = true)
-  public IGitMacheteRepositorySnapshot createSnapshotForLayout(IBranchLayout branchLayout) throws GitMacheteException {
+  public IGitMacheteRepositorySnapshot createSnapshotForLayout(BranchLayout branchLayout) throws GitMacheteException {
     try {
       val aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
       return aux.createSnapshot(branchLayout);
@@ -143,7 +140,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       LOG.debug("Getting reflogs of remote branches");
 
       List<Tuple2<IGitCoreLocalBranchSnapshot, IGitCoreRemoteBranchSnapshot>> remoteTrackingBranches = localBranches
-          .flatMap(localBranch -> localBranch.getRemoteTrackingBranch()
+          .flatMap(localBranch -> Option.of(localBranch.getRemoteTrackingBranch())
               .map(remoteTrackingBranch -> Tuple.of(localBranch, remoteTrackingBranch)));
 
       Map<IBranchReference, List<IGitCoreReflogEntry>> filteredReflogByRemoteTrackingBranch = remoteTrackingBranches
@@ -214,7 +211,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         String comment = e.getComment();
         if (e.getNewCommitHash().equals(entryToExcludeNewId)) {
           LOG.trace(() -> "Exclude ${e} because it has the same hash as first entry");
-        } else if (e.getOldCommitHash().isDefined() && e.getNewCommitHash().equals(e.getOldCommitHash().get())) {
+        } else if (e.getOldCommitHash() != null && e.getNewCommitHash().equals(e.getOldCommitHash())) {
           LOG.trace(() -> "Exclude ${e} because its old and new IDs are the same");
         } else if (comment.startsWith("branch: Created from")) {
           LOG.trace(() -> "Exclude ${e} because its comment starts with 'branch: Created from'");
@@ -312,7 +309,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    IGitMacheteRepositorySnapshot createSnapshot(IBranchLayout branchLayout) throws GitMacheteException {
+    IGitMacheteRepositorySnapshot createSnapshot(BranchLayout branchLayout) throws GitMacheteException {
       val rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
       val rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
       val rootBranches = rootBranchCreationResults.flatMap(creationResult -> creationResult.getCreatedBranches());
@@ -323,15 +320,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val managedBranchByName = createManagedBranchByNameMap(rootBranches);
 
-      Option<IGitCoreLocalBranchSnapshot> coreCurrentBranch = deriveCoreCurrentBranch();
+      IGitCoreLocalBranchSnapshot coreCurrentBranch = deriveCoreCurrentBranch();
 
-      LOG.debug(() -> "Current branch: " + (coreCurrentBranch.isDefined()
-          ? coreCurrentBranch.get().getName()
+      LOG.debug(() -> "Current branch: " + (coreCurrentBranch != null
+          ? coreCurrentBranch.getName()
           : "<none> (detached HEAD)"));
 
-      IManagedBranchSnapshot currentBranchIfManaged = coreCurrentBranch
-          .flatMap(cb -> managedBranchByName.get(cb.getName()))
-          .getOrNull();
+      IManagedBranchSnapshot currentBranchIfManaged = coreCurrentBranch != null
+          ? managedBranchByName.get(coreCurrentBranch.getName()).getOrNull()
+          : null;
       LOG.debug(() -> "Current Git Machete branch (if managed): " + (currentBranchIfManaged != null
           ? currentBranchIfManaged.getName()
           : "<none> (unmanaged branch or detached HEAD)"));
@@ -353,7 +350,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     }
 
     @UIThreadUnsafe
-    private Option<String> deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperationType ongoingOperation)
+    private @Nullable String deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperationType ongoingOperation)
         throws GitMacheteException {
       try {
         if (ongoingOperation == OngoingRepositoryOperationType.REBASING) {
@@ -365,11 +362,11 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         throw new GitMacheteException("Error occurred while getting the base branch of ongoing repository operation", e);
       }
 
-      return Option.none();
+      return null;
     }
 
     @UIThreadUnsafe
-    private Option<IGitCoreLocalBranchSnapshot> deriveCoreCurrentBranch() throws GitMacheteException {
+    private @Nullable IGitCoreLocalBranchSnapshot deriveCoreCurrentBranch() throws GitMacheteException {
       try {
         return gitCoreRepository.deriveHead().getTargetBranch();
       } catch (GitCoreException e) {
@@ -392,7 +389,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
-        IBranchLayoutEntry entry) throws GitCoreException {
+        BranchLayoutEntry entry) throws GitCoreException {
 
       val branchName = entry.getName();
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
@@ -423,7 +420,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
       val createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
           childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
@@ -435,7 +432,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
     @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> createGitMacheteNonRootBranch(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
-        IBranchLayoutEntry entry) throws GitCoreException {
+        BranchLayoutEntry entry) throws GitCoreException {
 
       val branchName = entry.getName();
       IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
@@ -461,19 +458,19 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, forkPoint);
 
-      List<IGitCoreCommit> commits;
+      List<IGitCoreCommit> uniqueCommits;
       if (forkPoint == null) {
         // That's a rare case in practice, mostly happens due to reflog expiry.
-        commits = List.empty();
+        uniqueCommits = List.empty();
       } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
-        commits = List.empty();
+        uniqueCommits = List.empty();
       } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
         // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
         // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
-        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
+        uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
       } else {
         // We're handling the cases of green and red edges here.
-        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
+        uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
       }
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
@@ -481,18 +478,20 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val customAnnotation = entry.getCustomAnnotation();
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
-      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit).getOrNull();
+      val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
+      val commitsUntilParent = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
 
       val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,
-          commits.map(CommitOfManagedBranch::new), syncToParentStatus);
+          uniqueCommits.map(CommitOfManagedBranch::new), commitsUntilParent.map(CommitOfManagedBranch::new),
+          syncToParentStatus);
       return CreatedAndDuplicatedAndSkippedBranches.of(List.of(result),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
     }
 
     private @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranchForCoreLocalBranch(
         IGitCoreLocalBranchSnapshot coreLocalBranch) {
-      IGitCoreRemoteBranchSnapshot coreRemoteTrackingBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteTrackingBranch = coreLocalBranch.getRemoteTrackingBranch();
       if (coreRemoteTrackingBranch == null) {
         return null;
       }
@@ -566,9 +565,9 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       // Name spans the characters after the last dot
       // Subsection is everything else
       String toRevision = gitCoreRepository
-          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to").getOrNull();
+          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to");
       String whileDescendantOfRevision = gitCoreRepository
-          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "whileDescendantOf").getOrNull();
+          .deriveConfigValue(section, subsectionPrefix + "." + branchName, "whileDescendantOf");
       if (toRevision == null || whileDescendantOfRevision == null) {
         return null;
       }
@@ -576,8 +575,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
           "to='${toRevision}', whileDescendantOf='${whileDescendantOfRevision}'");
 
       // Let's check the internal consistency of the config - we can't rule out that it's been tampered with.
-      IGitCoreCommit to = gitCoreRepository.parseRevision(toRevision).getOrNull();
-      IGitCoreCommit whileDescendantOf = gitCoreRepository.parseRevision(whileDescendantOfRevision).getOrNull();
+      IGitCoreCommit to = gitCoreRepository.parseRevision(toRevision);
+      IGitCoreCommit whileDescendantOf = gitCoreRepository.parseRevision(whileDescendantOfRevision);
       if (to == null || whileDescendantOf == null) {
         LOG.warn("Could not parse either <to> (${to}) or " +
             "<whileDescendantOf> (${whileDescendantOf}) into a valid commit, ignoring faulty fork point override");
@@ -644,9 +643,10 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
+    @UIThreadUnsafe
     private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> deriveChildBranches(
         IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
-        List<IBranchLayoutEntry> entries) throws GitCoreException {
+        List<BranchLayoutEntry> entries) throws GitCoreException {
 
       val childBranchTries = entries.map(entry -> Try.of(
           () -> createGitMacheteNonRootBranch(parentCoreLocalBranch, entry)));
@@ -665,15 +665,14 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return RelationToRemote.noRemotes();
       }
 
-      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch().getOrNull();
+      IGitCoreRemoteBranchSnapshot coreRemoteBranch = coreLocalBranch.getRemoteTrackingBranch();
       if (coreRemoteBranch == null) {
         LOG.debug(() -> "Branch '${localBranchName}' is untracked");
         return RelationToRemote.untracked();
       }
 
       GitCoreRelativeCommitCount relativeCommitCount = gitCoreRepository
-          .deriveRelativeCommitCount(coreLocalBranch.getPointedCommit(), coreRemoteBranch.getPointedCommit())
-          .getOrNull();
+          .deriveRelativeCommitCount(coreLocalBranch.getPointedCommit(), coreRemoteBranch.getPointedCommit());
       if (relativeCommitCount == null) {
         LOG.debug(() -> "Relative commit count for '${localBranchName}' could not be determined");
         return RelationToRemote.untracked();
@@ -710,7 +709,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
     private boolean hasJustBeenCreated(IGitCoreLocalBranchSnapshot branch) {
       List<IGitCoreReflogEntry> reflog = deriveFilteredReflog(branch);
-      return reflog.isEmpty() || reflog.head().getOldCommitHash().isEmpty();
+      return reflog.isEmpty() || reflog.head().getOldCommitHash() == null;
     }
 
     @UIThreadUnsafe
@@ -813,46 +812,46 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       super(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
     }
 
-    @AllArgsConstructor // needed for @With
-    @SuppressWarnings("interning:not.interned") // to allow for `==` comparison in Lombok-generated `withChildren` method
+    /**
+     * A node of a mutable tree, with extra feature of near-constant time of checking up tree root thanks to path compression.
+     * See <a href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Find">Disjoint-set data structure on wikipedia</a>.
+     */
     @ToString
     @UsesObjectEquals
-    private static class MyBranchLayoutEntry implements IBranchLayoutEntry {
+    private static class CompressablePathTreeNode {
       @Getter
       private final String name;
 
       @Getter
-      @With
-      private List<IBranchLayoutEntry> children;
+      private List<CompressablePathTreeNode> children;
 
       @Getter
-      private @Nullable MyBranchLayoutEntry parent;
+      private @Nullable CompressablePathTreeNode parent;
 
-      private @NotOnlyInitialized MyBranchLayoutEntry root;
+      private @NotOnlyInitialized CompressablePathTreeNode root;
 
-      MyBranchLayoutEntry(String name) {
+      CompressablePathTreeNode(String name) {
         this.name = name;
         this.children = List.empty();
         this.parent = null;
         this.root = this;
       }
 
-      void attachUnder(MyBranchLayoutEntry newParent) {
+      void attachUnder(CompressablePathTreeNode newParent) {
         parent = newParent;
         root = newParent.root;
       }
 
-      void appendChild(MyBranchLayoutEntry newChild) {
+      void appendChild(CompressablePathTreeNode newChild) {
         children = children.append(newChild);
       }
 
-      void removeChild(MyBranchLayoutEntry child) {
+      void removeChild(CompressablePathTreeNode child) {
         children = children.remove(child);
       }
 
-      MyBranchLayoutEntry getRoot() {
-        // Path compression to reduce the lookup time,
-        // see https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Find
+      CompressablePathTreeNode getRoot() {
+        // The actual path compression happens here.
         if (root != this && root.root != root) {
           root = root.getRoot();
         }
@@ -874,9 +873,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         return root.name;
       }
 
-      @Override
-      public @Nullable String getCustomAnnotation() {
-        return null;
+      public BranchLayoutEntry toBranchLayoutEntry() {
+        return new BranchLayoutEntry(name, /* customAnnotation */ null, children.map(c -> c.toBranchLayoutEntry()));
       }
     }
 
@@ -885,7 +883,7 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       java.util.Map<String, Instant> result = new java.util.HashMap<>();
 
       for (val reflogEntry : gitCoreRepository.deriveHead().getReflogFromMostRecent()) {
-        val checkoutEntry = reflogEntry.parseCheckout().getOrNull();
+        val checkoutEntry = reflogEntry.parseCheckout();
         if (checkoutEntry != null) {
           val timestamp = reflogEntry.getTimestamp();
           // `putIfAbsent` since we only care about the most recent occurrence of the given branch being checked out,
@@ -934,62 +932,62 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
 
       // Let's use linked maps to ensure a deterministic result.
-      Map<String, MyBranchLayoutEntry> entryByFixedRootBranchNames = fixedRootBranchNames
-          .toLinkedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
-      Map<String, MyBranchLayoutEntry> entryByFreshNonFixedRootBranch = freshNonFixedRootBranchNames
-          .toLinkedMap(name -> Tuple.of(name, new MyBranchLayoutEntry(name)));
-      Map<String, MyBranchLayoutEntry> entryByIncludedBranchName = entryByFixedRootBranchNames
-          .merge(entryByFreshNonFixedRootBranch);
-      LOG.debug(() -> "Branches included in the discovered layout: " + entryByIncludedBranchName.keySet().mkString(", "));
+      Map<String, CompressablePathTreeNode> nodeByFixedRootBranchNames = fixedRootBranchNames
+          .toLinkedMap(name -> Tuple.of(name, new CompressablePathTreeNode(name)));
+      Map<String, CompressablePathTreeNode> nodeByFreshNonFixedRootBranch = freshNonFixedRootBranchNames
+          .toLinkedMap(name -> Tuple.of(name, new CompressablePathTreeNode(name)));
+      Map<String, CompressablePathTreeNode> nodeByIncludedBranchName = nodeByFixedRootBranchNames
+          .merge(nodeByFreshNonFixedRootBranch);
+      LOG.debug(() -> "Branches included in the discovered layout: " + nodeByIncludedBranchName.keySet().mkString(", "));
 
       // `roots` may be an empty list in the rare case there's no master/main/develop branch in the repository.
-      List<MyBranchLayoutEntry> roots = entryByFixedRootBranchNames.values().toList();
+      List<CompressablePathTreeNode> roots = nodeByFixedRootBranchNames.values().toList();
 
       // Skipping the parent inference for fixed roots and for the stale non-fixed-root branches.
-      for (val branchEntry : entryByFreshNonFixedRootBranch.values()) {
+      for (val branchNode : nodeByFreshNonFixedRootBranch.values()) {
         // Note that stale non-fixed-root branches are never considered as candidates for the parent.
-        Seq<String> parentCandidateNames = entryByIncludedBranchName.values()
-            .filter(e -> e.getRoot() != branchEntry)
+        Seq<String> parentCandidateNames = nodeByIncludedBranchName.values()
+            .filter(e -> e.getRoot() != branchNode)
             .map(e -> e.getName());
-        LOG.debug(() -> "Parent candidate(s) for ${branchEntry.getName()}: " + parentCandidateNames.mkString(", "));
+        LOG.debug(() -> "Parent candidate(s) for ${branchNode.getName()}: " + parentCandidateNames.mkString(", "));
 
-        IBranchReference parent = inferParentForLocalBranch(parentCandidateNames.toSet(), branchEntry.getName());
+        IBranchReference parent = inferParentForLocalBranch(parentCandidateNames.toSet(), branchNode.getName());
 
         if (parent != null) {
           String parentName = parent.getName();
-          LOG.debug(() -> "Parent inferred for ${branchEntry.getName()} is ${parentName}");
+          LOG.debug(() -> "Parent inferred for ${branchNode.getName()} is ${parentName}");
 
-          val parentEntry = entryByIncludedBranchName.get(parentName).getOrNull();
-          // Generally we expect an entry for parent to always be present.
-          if (parentEntry != null) {
-            branchEntry.attachUnder(parentEntry);
-            parentEntry.appendChild(branchEntry);
+          val parentNode = nodeByIncludedBranchName.get(parentName).getOrNull();
+          // Generally we expect an node for parent to always be present.
+          if (parentNode != null) {
+            branchNode.attachUnder(parentNode);
+            parentNode.appendChild(branchNode);
           }
         } else {
-          LOG.debug(() -> "No parent inferred for ${branchEntry.getName()}; attaching as new root");
+          LOG.debug(() -> "No parent inferred for ${branchNode.getName()}; attaching as new root");
 
-          roots = roots.append(branchEntry);
+          roots = roots.append(branchNode);
         }
       }
 
       val NL = System.lineSeparator();
-      LOG.debug(() -> "Final discovered entries: " + NL + entryByIncludedBranchName.values().mkString(NL));
+      LOG.debug(() -> "Final discovered entries: " + NL + nodeByIncludedBranchName.values().mkString(NL));
 
       // Post-process the discovered layout to remove the branches that would both:
       // 1. have no child AND
       // 2. be merged to their respective parents.
-      for (val branchEntry : entryByFreshNonFixedRootBranch.values()) {
-        if (branchEntry.getChildren().nonEmpty()) {
+      for (val branchNode : nodeByFreshNonFixedRootBranch.values()) {
+        if (branchNode.getChildren().nonEmpty()) {
           continue;
         }
 
-        val parentEntry = branchEntry.getParent();
-        if (parentEntry == null) {
+        val parentNode = branchNode.getParent();
+        if (parentNode == null) {
           // This will happen for the roots of the discovered layout.
           continue;
         }
-        val branch = localBranchByName.get(branchEntry.getName()).getOrNull();
-        val parentBranch = localBranchByName.get(parentEntry.getName()).getOrNull();
+        val branch = localBranchByName.get(branchNode.getName()).getOrNull();
+        val parentBranch = localBranchByName.get(parentNode.getName()).getOrNull();
         if (branch == null || parentBranch == null) {
           // This should never happen.
           continue;
@@ -1001,12 +999,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
         // but here we don't care if the former is returned instead of the latter.
         SyncToParentStatus syncStatus = deriveSyncToParentStatus(branch, parentBranch, /* forkPoint */ null);
         if (syncStatus == SyncToParentStatus.MergedToParent) {
-          LOG.debug(() -> "Removing entry for ${branchEntry.getName()} " +
-              "since it's merged to its parent ${parentEntry.getName()} and would have no children");
-          parentEntry.removeChild(branchEntry);
+          LOG.debug(() -> "Removing node for ${branchNode.getName()} " +
+              "since it's merged to its parent ${parentNode.getName()} and would have no children");
+          parentNode.removeChild(branchNode);
         }
       }
-      return createSnapshot(new BranchLayout(List.narrow(roots)));
+      return createSnapshot(new BranchLayout(roots.map(r -> r.toBranchLayoutEntry())));
     }
 
   }

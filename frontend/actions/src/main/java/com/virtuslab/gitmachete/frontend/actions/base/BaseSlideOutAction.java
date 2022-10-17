@@ -18,12 +18,12 @@ import com.intellij.util.ModalityUiUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -105,9 +105,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val project = getProject(anActionEvent);
     val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
-    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null
-        ? currentBranchNameIfManaged.equals(branchName)
-        : false;
+    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null && currentBranchNameIfManaged.equals(branchName);
 
     if (slidOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
@@ -120,12 +118,11 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
     } else if (gitRepository != null) {
       val root = gitRepository.getRoot();
-      val configValueOption = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
-      if (configValueOption.isEmpty()) {
+      val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
+      if (shouldDelete == null) {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
             () -> suggestBranchDeletion(anActionEvent, branchName, gitRepository, project));
-      } else if (configValueOption.isDefined()) {
-        val shouldDelete = configValueOption.get();
+      } else {
         handleBranchDeletionDecision(project, branchName, gitRepository, anActionEvent, shouldDelete);
       }
 
@@ -161,6 +158,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     }.queue();
   }
 
+  @UIThreadUnsafe
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
     val project = getProject(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
@@ -210,19 +208,19 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   }
 
   @UIThreadUnsafe
-  private Option<Boolean> getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
+  private @Nullable Boolean getDeleteLocalBranchOnSlideOutGitConfigValue(Project project, VirtualFile root) {
     try {
       val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
       if (value != null) {
         Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
-        return Option.of(booleanValue != null && booleanValue);
+        return booleanValue != null && booleanValue;
       }
     } catch (VcsException e) {
       LOG.info(
           "Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed: key may not exist");
     }
 
-    return Option.none();
+    return null;
   }
 
   @UIThreadUnsafe

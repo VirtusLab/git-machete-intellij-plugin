@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import io.vavr.collection.List;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -12,6 +13,11 @@ public class OverrideForkPointOfCurrentAction extends BaseOverrideForkPointActio
   @Override
   public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getCurrentBranchNameIfManaged(anActionEvent);
+  }
+
+  @Override
+  public List<SyncToParentStatus> getEligibleStatuses() {
+    return List.of(SyncToParentStatus.InSyncButForkPointOff);
   }
 
   @Override

@@ -22,10 +22,12 @@ import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public final class StatusBranchHookExecutor extends BaseHookExecutor {
@@ -43,7 +45,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
   public static StatusBranchHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
+    val hooksDirPath = hooksDir != null ? Paths.get(hooksDir) : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");
 
     val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
     val hookFile = hooksDirPath.resolve("machete-status-branch").toFile();
@@ -52,16 +54,16 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
   }
 
   @Loggable(value = Loggable.DEBUG)
-  private Option<String> executeHookFor(String branchName) throws GitMacheteException {
+  private @Nullable String executeHookFor(String branchName) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
       LOG.debug(() -> "Skipping machete-status-branch hook execution for ${branchName}: " +
           "${hookFilePath} does not exist");
-      return Option.none();
+      return null;
     } else if (!hookFile.canExecute()) {
       LOG.warn("Skipping machete-status-branch hook execution for ${branchName}: " +
           "${hookFilePath} cannot be executed");
-      return Option.none();
+      return null;
     }
 
     LOG.debug(() -> "Executing machete-status-branch hook (${hookFilePath}) " +
@@ -89,12 +91,12 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
       if (!completed) {
         LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
-        return Option.none();
+        return null;
       }
       if (process.exitValue() != 0) {
         LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
             "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
-        return Option.none();
+        return null;
       }
 
       // It's quite likely that the hook's output will be terminated with a newline,
@@ -104,17 +106,18 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
       LOG.debug("Output of machete-status-branch hook (${hookFilePath}) " +
           "for ${branchName} is '${strippedStdout}'");
-      return Option.some(strippedStdout);
+      return strippedStdout;
     } catch (IOException | InterruptedException e) {
       val message = "An error occurred while running machete-status-branch hook (${hookFilePath})" +
           "for ${branchName}; ignoring the hook";
       LOG.error(message, e);
       throw new GitMacheteException(message
-          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
   }
 
+  @UIThreadUnsafe
   public static String hashFile(String algorithm, File f) throws IOException, NoSuchAlgorithmException {
     MessageDigest md = MessageDigest.getInstance(algorithm);
 
@@ -126,7 +129,8 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     return new BigInteger(/* signum */ 1, md.digest()).toString(16);
   }
 
-  public Option<String> deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
+  @UIThreadUnsafe
+  public @Nullable String deriveHookOutputFor(String branchName, CommitOfManagedBranch pointedCommit) {
     var hookContentMD5Hash = "";
     try {
       hookContentMD5Hash = hashFile("MD5", hookFile);
@@ -139,6 +143,6 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
     val key = Tuple.of(branchName, pointedCommit.getHash(), hookContentMD5Hash);
     return hookOutputByBranchNameCommitHashAndHookHash.computeIfAbsent(key,
-        k -> Try.of(() -> executeHookFor(k._1)).getOrElse(Option.none()));
+        k -> Try.of(() -> executeHookFor(k._1)).toOption()).getOrNull();
   }
 }

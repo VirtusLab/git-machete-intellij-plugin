@@ -2,13 +2,13 @@
 # throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
-checker = "3.25.0"
-ideProbe = "0.45.0+21-78406d46-SNAPSHOT"
+checker = "3.26.0"
+ideProbe = "0.45.0"
 powerMock = "2.0.9"
 
 [libraries]
 # Libraries
-archunit = "com.tngtech.archunit:archunit:0.23.1"
+archunit = "com.tngtech.archunit:archunit:1.0.0"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
@@ -35,10 +35,8 @@ slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 # Plugins
-# @pin because of an issue with a null provider,
-#      see https://github.com/freefair/gradle-plugins/issues/578 for more details
-pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.4.3.1"
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.16"
+pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.5.1"
+pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.17"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:1.3.1"
 pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
@@ -47,7 +45,8 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.11.0"
+# @pin TODO (#1129): resolve the mess around `disabled_rules`/`ktlint_disabled_rules` that happens on 6.11.0
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.10.0"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"

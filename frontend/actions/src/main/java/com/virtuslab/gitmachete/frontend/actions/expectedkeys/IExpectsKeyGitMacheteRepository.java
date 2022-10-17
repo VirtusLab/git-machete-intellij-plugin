@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.IWithLogger;
@@ -13,7 +13,7 @@ import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
   default @Nullable IGitMacheteRepositorySnapshot getGitMacheteRepositorySnapshot(AnActionEvent anActionEvent) {
     IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = anActionEvent != null
-        ? anActionEvent.getData(DataKeys.KEY_GIT_MACHETE_REPOSITORY_SNAPSHOT)
+        ? anActionEvent.getData(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT)
         : null;
     if (isLoggingAcceptable() && gitMacheteRepositorySnapshot == null) {
       log().warn("Git Machete repository snapshot is undefined");
@@ -21,7 +21,7 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
     return gitMacheteRepositorySnapshot;
   }
 
-  default @Nullable IBranchLayout getBranchLayout(AnActionEvent anActionEvent) {
+  default @Nullable BranchLayout getBranchLayout(AnActionEvent anActionEvent) {
     val repoSnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
     val branchLayout = repoSnapshot != null ? repoSnapshot.getBranchLayout() : null;
     if (isLoggingAcceptable() && branchLayout == null) {

@@ -90,10 +90,10 @@ class PushController {
 class DataManager {
 
   @SafeEffect
-  public static DataManager getInstance();
+  static DataManager getInstance();
 
   @SafeEffect
-  public DataContext getDataContext(Component component);
+  DataContext getDataContext(Component component);
 }
 
 @UIPackage package com.intellij.ide.actions;
@@ -152,7 +152,7 @@ class NotificationGroup {
 @UIPackage package com.intellij.openapi.actionSystem;
 
 class Presentation {
-  public void setDescription(@Untainted String description);
+  void setDescription(@Untainted String description);
 }
 
 class AnAction {

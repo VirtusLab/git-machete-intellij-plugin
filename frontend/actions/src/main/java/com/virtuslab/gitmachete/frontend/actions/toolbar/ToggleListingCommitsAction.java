@@ -51,7 +51,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
         : null;
 
     val anyCommitExists = managedBranches != null &&
-        managedBranches.exists(b -> b.isNonRoot() && b.asNonRoot().getCommits().nonEmpty());
+        managedBranches.exists(b -> b.isNonRoot() && b.asNonRoot().getUniqueCommits().nonEmpty());
 
     if (anyCommitExists) {
       presentation.setEnabled(true);

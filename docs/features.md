@@ -34,11 +34,20 @@ The current branch is underlined in a branch layout.
 
 ![](checkout.gif)
 
+If Git Machete tab is opened & focused, branch navigation with keyboard shortcuts is available.
+Check out:
+* previous branch with `alt + up-arrow`,
+* next branch with `alt + down-arrow`,
+* parent branch with `alt + left-arrow`,
+* first child branch with `alt + right-arrow`.
+
+Note that `option` key is the equivalent of `alt` in macOS.
 
 ## Toggle listing commits
 
 Git Machete can display commits belonging to the branches.
 It displays only the commits that are unique to the selected branch (i.e. have never been a tip of a different branch).
+Commits are displayed above their branch name, starting from the oldest ones, with the newest commit displayed just above the branch name.
 When you click on the eye button on the left side of the plugin, you can toggle between showing and hiding commits.
 
 ![](toggle_listing_commits.gif)
@@ -193,7 +202,7 @@ It'll be located under `.git/machete` path in your repository.
 
 This branch layout can be automatically discovered based on the state of your git repository by the `Discover Branch Layout` action.
 It constructs a layout from around 10 most recently used branches.
-**This action is automatically invoked in case of an empty or nonexistent `machete` file,**
+**This action is automatically invoked in case of a nonexistent `machete` file,**
 but you can also run it any time from IntelliJ's `Search Everywhere` (double Shift) by typing `Discover Branch Layout`.
 
 ![](discover.gif)
@@ -221,7 +230,6 @@ In the example above, branches `allow-ownership-link` and `call-ws` are children
 `develop` and `master` are root branches.
 
 Machete file editor will help you with managing the `machete` file: it underlines any errors (bad indentation or nonexistent branches) and proposes branch names based on local repository branches.
-When file editing is done, you can click the button in the top right corner of the file editor to refresh the machete branch layout.
 
 ![](machete_file_editor.gif)
 

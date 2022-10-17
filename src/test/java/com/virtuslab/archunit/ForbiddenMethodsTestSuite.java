@@ -4,6 +4,7 @@ import static com.tngtech.archunit.core.domain.JavaCall.Predicates.target;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
 import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.name;
 import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.With.owner;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import org.junit.Test;
@@ -171,6 +172,20 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_println() {
     noClasses()
         .should().callMethodWhere(name("println"))
+        .check(importedClasses);
+  }
+
+  // Note that https://checkstyle.sourceforge.io/config_coding.html#CovariantEquals doesn't cover methods defined in interfaces.
+  @Test
+  public void equals_method_should_have_object_parameter_and_boolean_return_type() {
+    methods()
+        .that()
+        .haveName("equals")
+        .should()
+        .haveRawParameterTypes(Object.class)
+        .andShould()
+        .haveRawReturnType(Boolean.TYPE)
+        .because("of the reasons outlined in https://www.artima.com/pins1ed/object-equality.html -> pitfall #1")
         .check(importedClasses);
   }
 }

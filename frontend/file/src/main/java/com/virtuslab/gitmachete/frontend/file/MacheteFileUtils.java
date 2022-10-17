@@ -33,8 +33,10 @@ public final class MacheteFileUtils {
     val project = psiFile.getProject();
 
     val gitRepository = List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
-        .find(repository -> repository.getMacheteFile()
-            .map(macheteFile -> macheteFile.equals(psiFile.getVirtualFile())).getOrElse(false));
+        .find(repository -> {
+          val macheteFile = repository.getMacheteFile();
+          return macheteFile != null && macheteFile.equals(psiFile.getVirtualFile());
+        });
 
     if (gitRepository.isEmpty()) {
       return List.empty();

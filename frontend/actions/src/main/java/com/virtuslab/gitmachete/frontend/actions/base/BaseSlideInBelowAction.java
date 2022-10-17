@@ -29,12 +29,13 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -124,10 +125,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       }
     }
 
-    // TODO (#430): expose getParent from branch layout API
-    val parentEntry = branchLayout.findEntryByName(parentName);
+    val parentEntry = branchLayout.getEntryByName(parentName);
     val entryAlreadyExistsBelowGivenParent = parentEntry != null
-        && parentEntry.getChildren().map(IBranchLayoutEntry::getName)
+        && parentEntry.getChildren().map(BranchLayoutEntry::getName)
             .map(names -> names.contains(slideInOptions.getName()))
             .getOrElse(false);
 
@@ -150,6 +150,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }.queue();
   }
 
+  // The UI thread-unsafe calls are actually happening within Runnable lambdas
+  // which are going to be executed outside of UI thread.
+  @IgnoreUIThreadUnsafeCalls
   Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
       Project project,
       GitRepository gitRepository,

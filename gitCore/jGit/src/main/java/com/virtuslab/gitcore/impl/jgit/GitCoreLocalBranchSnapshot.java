@@ -3,7 +3,6 @@ package com.virtuslab.gitcore.impl.jgit;
 import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getLocalBranchFullName;
 
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import org.eclipse.jgit.annotations.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
@@ -39,7 +38,7 @@ public class GitCoreLocalBranchSnapshot extends BaseGitCoreBranchSnapshot implem
   }
 
   @Override
-  public Option<IGitCoreRemoteBranchSnapshot> getRemoteTrackingBranch() {
-    return Option.of(remoteBranch);
+  public @Nullable IGitCoreRemoteBranchSnapshot getRemoteTrackingBranch() {
+    return remoteBranch;
   }
 }

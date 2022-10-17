@@ -1,6 +1,5 @@
 package com.virtuslab.branchlayout.api;
 
-import io.vavr.control.Option;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -26,8 +25,8 @@ public class BranchLayoutException extends Exception {
     this(null, message, e);
   }
 
-  public Option<@Positive Integer> getErrorLine() {
-    return Option.of(errorLine);
+  public @Nullable @Positive Integer getErrorLine() {
+    return errorLine;
   }
 
   @Override

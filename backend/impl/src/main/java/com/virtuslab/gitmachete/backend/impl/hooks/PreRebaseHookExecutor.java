@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import com.jcabi.aspects.Loggable;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +27,7 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
 
   public static PreRebaseHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDir.map(Paths::get).getOrElse(gitCoreRepository.getMainGitDirectoryPath().resolve("hooks"));
+    val hooksDirPath = hooksDir != null ? Paths.get(hooksDir) : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");
 
     val rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
     val hookFile = hooksDirPath.resolve("machete-pre-rebase").toFile();
@@ -38,8 +37,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
 
   /**
    * @param gitRebaseParameters git rebase parameters
-   * @return {@link Option.Some} with exit code (possibly non-zero) when the hook has been successfully executed,
-   *         or {@link Option.None} when the hook has not been executed (because it's absent or non-executable)
+   * @return an exit code (possibly non-zero) when the hook has been successfully executed,
+   *         or null when the hook has not been executed (because it's absent or non-executable)
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
   @Loggable(value = Loggable.DEBUG)
@@ -85,8 +84,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; aborting the rebase";
         LOG.error(message);
         throw new GitMacheteException(message
-            + (!strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-            + (!strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""));
+            + (!strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+            + (!strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""));
       }
 
       // Can't use lambda because `strippedStdout` and `strippedStderr` are not effectively final
@@ -97,8 +96,8 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
           "for ${gitRebaseParameters}; aborting the rebase";
       LOG.error(message, e);
       throw new GitMacheteException(message
-          + (strippedStdout != null && !strippedStdout.trim().isEmpty() ? NL + "stdout:" + NL + strippedStdout : "")
-          + (strippedStderr != null && !strippedStderr.trim().isEmpty() ? NL + "stderr:" + NL + strippedStderr : ""), e);
+          + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
+          + (strippedStderr != null && !strippedStderr.isBlank() ? NL + "stderr:" + NL + strippedStderr : ""), e);
     }
 
     LOG.info(() -> "machete-pre-rebase hook (${hookFilePath}) for ${gitRebaseParameters} " +
