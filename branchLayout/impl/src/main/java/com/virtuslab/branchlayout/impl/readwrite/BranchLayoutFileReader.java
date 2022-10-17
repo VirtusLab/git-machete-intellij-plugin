@@ -35,7 +35,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
     LOG.debug(() -> "Entering: Reading branch layout from ${path} with indent character ASCII " +
         "code = ${(int)indentSpec.getIndentCharacter()} and indent width = ${indentSpec.getIndentWidth()}");
 
-    List<String> linesWithoutBlank = lines.reject(line -> line.isBlank());
+    List<String> linesWithoutBlank = lines.reject(String::isBlank);
 
     LOG.debug(() -> "${lines.length()} line(s) found");
 
@@ -108,7 +108,7 @@ public class BranchLayoutFileReader implements IBranchLayoutReader {
   private Array<Tuple2<Integer, Integer>> parseToArrayRepresentation(Path path, IndentSpec indentSpec, List<String> lines)
       throws BranchLayoutException {
 
-    List<String> linesWithoutBlank = lines.reject(line -> line.isBlank());
+    List<String> linesWithoutBlank = lines.reject(String::isBlank);
 
     if (linesWithoutBlank.nonEmpty() && linesWithoutBlank.head().getIndentWidth(indentSpec.getIndentCharacter()) > 0) {
       int firstNonEmptyLineIndex = lines.indexOf(linesWithoutBlank.head());
