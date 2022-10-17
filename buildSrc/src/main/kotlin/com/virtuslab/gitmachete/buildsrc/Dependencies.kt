@@ -112,6 +112,10 @@ fun Project.ideProbe() {
   }
 }
 
+fun Project.apacheCommonsText() {
+  dependencies { "implementation"(lib("apacheCommonsText")) }
+}
+
 fun Project.jcabiAspects() {
   apply<AspectJPlugin>()
 
