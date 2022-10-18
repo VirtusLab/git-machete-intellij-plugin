@@ -12,9 +12,9 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.index.qual.NonNegative;
 
+import com.virtuslab.branchlayout.api.BranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -26,7 +26,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
   @UIThreadUnsafe
   @Override
   @SuppressWarnings("regexp") // to allow for `synchronized`
-  public synchronized void write(Path path, IBranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
+  public synchronized void write(Path path, BranchLayout branchLayout, boolean backupOldFile) throws BranchLayoutException {
     LOG.debug(() -> "Entering: path = ${path}, branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
     val indentSpec = path.deriveIndentSpec();
 
@@ -50,7 +50,7 @@ public class BranchLayoutFileWriter implements IBranchLayoutWriter {
   }
 
   private List<String> printEntriesOntoStringList(
-      List<IBranchLayoutEntry> entries,
+      List<BranchLayoutEntry> entries,
       IndentSpec indentSpec,
       @NonNegative int level) {
 
