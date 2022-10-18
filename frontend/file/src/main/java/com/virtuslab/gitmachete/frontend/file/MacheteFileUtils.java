@@ -46,9 +46,8 @@ public final class MacheteFileUtils {
         .map(localBranch -> localBranch.getName());
   }
 
-  @Nullable
   @UIThreadUnsafe
-  public static GitRepository findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
+  public static @Nullable GitRepository findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
     val project = psiFile.getProject();
     return List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
         .find(repository -> {
