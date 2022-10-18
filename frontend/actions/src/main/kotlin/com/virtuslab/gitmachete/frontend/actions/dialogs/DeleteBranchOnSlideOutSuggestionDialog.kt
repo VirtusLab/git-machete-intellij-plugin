@@ -7,6 +7,8 @@ import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutAction.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
+import org.checkerframework.checker.tainting.qual.Untainted
 import java.awt.event.KeyEvent
 import javax.swing.Action
 import javax.swing.JComponent
@@ -16,7 +18,7 @@ data class SlideOutOptions(
   @get:JvmName("shouldDelete") val delete: Boolean = false
 )
 
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: String) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) :
   DialogWrapper(project, /* canBeParent */ true) {
 
   private var remember = false
@@ -35,7 +37,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
   override fun createCenterPanel() = panel {
     indent {
       row {
-        if (Regex("<.*>.*</.*>").containsMatchIn(branchName)) {
+        if (escapeHtml4(branchName) != branchName) {
           label(
             format(
               getString(

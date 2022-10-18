@@ -49,7 +49,7 @@ class OverrideForkPointDialog(
 
   override fun createCenterPanel() = panel {
     row {
-      if (Regex("<.*>.*</.*>").containsMatchIn(branch.name)) {
+      if (escapeHtml4(branch.name) != branch.name) {
         label(
           format(
             getString(

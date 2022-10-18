@@ -98,29 +98,30 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }
 
     val slideInOptions = slideInDialog.getSlideInOptions();
+    val slideInOptionsName = slideInOptions.getName();
 
-    if (parentName.equals(slideInOptions.getName())) {
+    if (parentName.equals(slideInOptionsName)) {
       // @formatter:off
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML").format(slideInOptions.getName()),
+          /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML").format(slideInOptionsName),
           /* message */ getString("action.GitMachete.BaseSlideInBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
     }
 
-    val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
+    val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptionsName);
     Runnable preSlideInRunnable = () -> {};
     if (localBranch == null) {
       Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
-          project, gitRepository, parentName, slideInOptions.getName());
+          project, gitRepository, parentName, slideInOptionsName);
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
       val branchName = branchNameAndPreSlideInRunnable._1();
-      if (!slideInOptions.getName().equals(branchName)) {
+      if (!slideInOptionsName.equals(branchName)) {
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.BaseSlideInBelowAction.notification.message.mismatched-names.HTML")
-                .format(slideInOptions.getName(), branchNameFromNewBranchDialog));
+                .format(slideInOptionsName, branchNameFromNewBranchDialog));
         return;
       }
     }
@@ -128,7 +129,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val parentEntry = branchLayout.getEntryByName(parentName);
     val entryAlreadyExistsBelowGivenParent = parentEntry != null
         && parentEntry.getChildren().map(BranchLayoutEntry::getName)
-            .map(names -> names.contains(slideInOptions.getName()))
+            .map(names -> names.contains(slideInOptionsName))
             .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent && slideInOptions.shouldReattach()) {

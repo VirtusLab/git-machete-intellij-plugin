@@ -26,6 +26,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
@@ -81,7 +82,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
     cantGetBranchesMessageWasShown = false;
 
-    val processedBranchName = branch.getText();
+    @Untainted String processedBranchName = branch.getText();
 
     // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> MacheteFileUtils.saveDocument(file));
