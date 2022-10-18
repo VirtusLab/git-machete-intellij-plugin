@@ -22,15 +22,13 @@ public final class TestProcessUtils {
     boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
     String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-
+    String stderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
     String commandRepr = Arrays.toString(command);
 
-    if (!completed || process.exitValue() != 0) {
-      System.out.println("Stdout of ${commandRepr}: ${System.lineSeparator()}");
-      System.out.println(stdout);
-      System.err.println("Stderr of ${commandRepr}: ${System.lineSeparator()");
-      System.err.println(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
-    }
+    Assert.assertTrue("Stdout of " + commandRepr + " : " + System.lineSeparator() + " " + stdout,
+        !completed || process.exitValue() != 0);
+    Assert.assertTrue("Stderr of " + commandRepr + " : " + System.lineSeparator() + " " + stderr,
+        !completed || process.exitValue() != 0);
 
     Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
     int exitValue = process.exitValue();
