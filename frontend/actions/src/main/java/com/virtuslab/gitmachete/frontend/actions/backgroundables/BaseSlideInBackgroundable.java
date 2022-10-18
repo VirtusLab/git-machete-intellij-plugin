@@ -81,7 +81,7 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
       targetBranchLayout = branchLayout;
     }
 
-    final @Nullable BranchLayout newBranchLayout = deriveNewBranchLayout(targetBranchLayout, entryToSlideIn);
+    val newBranchLayout = deriveNewBranchLayout(targetBranchLayout, entryToSlideIn);
     if (newBranchLayout == null) {
       return;
     }
