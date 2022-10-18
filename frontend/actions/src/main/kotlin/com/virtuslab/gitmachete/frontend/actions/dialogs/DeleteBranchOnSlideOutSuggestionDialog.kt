@@ -35,14 +35,25 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
   override fun createCenterPanel() = panel {
     indent {
       row {
-        label(
-          format(
-            getString(
-              "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
-            ),
-            branchName
+        if (Regex("<.*>.*</.*>").containsMatchIn(branchName)) {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1"
+              ),
+              branchName
+            )
           )
-        )
+        } else {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
+              ),
+              branchName
+            )
+          )
+        }
       }
       row {
         label(

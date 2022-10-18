@@ -49,14 +49,25 @@ class OverrideForkPointDialog(
 
   override fun createCenterPanel() = panel {
     row {
-      label(
-        format(
-          getString(
-            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
-          ),
-          branch.name
+      if (Regex("<.*>.*</.*>").containsMatchIn(branch.name)) {
+        label(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label"
+            ),
+            branch.name
+          )
         )
-      )
+      } else {
+        label(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
+            ),
+            branch.name
+          )
+        )
+      }
     }
 
     buttonsGroup {

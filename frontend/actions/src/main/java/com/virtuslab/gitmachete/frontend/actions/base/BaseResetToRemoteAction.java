@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -156,8 +157,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
-              branchName,
-              remoteTrackingBranch.getName(),
+              escapeHtml4(branchName),
+              escapeHtml4(remoteTrackingBranch.getName()),
               currentCommitSha));
 
       dialogBuilder
