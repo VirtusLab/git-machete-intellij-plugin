@@ -25,14 +25,15 @@ public final class TestProcessUtils {
     String stderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
     String commandRepr = Arrays.toString(command);
 
-    Assert.assertTrue("Stdout of " + commandRepr + " : " + System.lineSeparator() + " " + stdout,
-        !completed || process.exitValue() != 0);
-    Assert.assertTrue("Stderr of " + commandRepr + " : " + System.lineSeparator() + " " + stderr,
-        !completed || process.exitValue() != 0);
-
-    Assert.assertTrue("command ${commandRepr} has not completed within ${timeoutSeconds} seconds;", completed);
+    Assert.assertTrue(
+        "Stdout of ${commandRepr}: ${System.lineSeparator()} ${stdout};" +
+            "\n Stderr of ${commandRepr}: ${System.lineSeparator() ${stderr};" +
+            "\n command ${commandRepr} has not completed within ${timeoutSeconds} seconds;",
+        completed);
     int exitValue = process.exitValue();
-    Assert.assertEquals("command ${commandRepr} has completed with exit code ${exitValue};", 0, exitValue);
+    Assert.assertEquals("Stdout of ${commandRepr}: ${System.lineSeparator()} ${stdout};" +
+        "\n Stderr of ${commandRepr}: ${System.lineSeparator() ${stderr};" +
+        "\ncommand ${commandRepr} has completed with exit code ${exitValue};", 0, exitValue);
 
     return stdout;
   }
