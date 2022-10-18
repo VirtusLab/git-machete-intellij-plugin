@@ -38,7 +38,7 @@ public class SquashCurrentAction extends BaseSquashAction {
         presentation.setVisible(false);
 
       } else {
-        val numberOfCommits = nonRootBranch.getCommits().length();
+        val numberOfCommits = nonRootBranch.getUniqueCommits().length();
 
         if (numberOfCommits < 2 || syncToParentStatus == InSyncButForkPointOff) {
           presentation.setVisible(false);

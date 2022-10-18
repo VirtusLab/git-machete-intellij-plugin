@@ -458,19 +458,19 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
       val syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, forkPoint);
 
-      List<IGitCoreCommit> commits;
+      List<IGitCoreCommit> uniqueCommits;
       if (forkPoint == null) {
         // That's a rare case in practice, mostly happens due to reflog expiry.
-        commits = List.empty();
+        uniqueCommits = List.empty();
       } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
-        commits = List.empty();
+        uniqueCommits = List.empty();
       } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
         // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
         // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
-        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
+        uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
       } else {
         // We're handling the cases of green and red edges here.
-        commits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
+        uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
       }
 
       val pointedCommit = new CommitOfManagedBranch(corePointedCommit);
@@ -479,10 +479,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       val childBranches = deriveChildBranches(coreLocalBranch, entry.getChildren());
       val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
       val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
+      val commitsUntilParent = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
 
       val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
           pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,
-          commits.map(CommitOfManagedBranch::new), syncToParentStatus);
+          uniqueCommits.map(CommitOfManagedBranch::new), commitsUntilParent.map(CommitOfManagedBranch::new),
+          syncToParentStatus);
       return CreatedAndDuplicatedAndSkippedBranches.of(List.of(result),
           childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
     }

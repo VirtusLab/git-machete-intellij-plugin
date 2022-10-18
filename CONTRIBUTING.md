@@ -72,6 +72,7 @@ This is because one may not be emulating bash environment in any way or doing it
 Some hooks use `grep`. The macOS version of `grep` (FreeBSD) differs from GNU `grep`.
 In order to make `grep` and eventually the hooks working one must:
 1. Install `grep` via `brew` (it will not override system's `grep` &mdash; it can be executed as `ggrep`)
+(or `/usr/local/Cellar/grep/...`)
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin/grep`
 3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin` in that case).
 You may want to add the following `export PATH="/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`).

@@ -25,7 +25,9 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
 
   private @MonotonicNonNull IManagedBranchSnapshot parent = null;
   private final @Nullable IForkPointCommitOfManagedBranch forkPoint;
-  private final List<ICommitOfManagedBranch> commits;
+  private final List<ICommitOfManagedBranch> uniqueCommits;
+
+  private final List<ICommitOfManagedBranch> commitsUntilParent;
   private final SyncToParentStatus syncToParentStatus;
 
   @ToString.Include(name = "parent") // avoid recursive `toString` call on parent branch to avoid stack overflow
@@ -43,12 +45,14 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
       @Nullable IForkPointCommitOfManagedBranch forkPoint,
-      List<ICommitOfManagedBranch> commits,
+      List<ICommitOfManagedBranch> uniqueCommits,
+      List<ICommitOfManagedBranch> commitsUntilParent,
       SyncToParentStatus syncToParentStatus) {
     super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
 
     this.forkPoint = forkPoint;
-    this.commits = commits;
+    this.uniqueCommits = uniqueCommits;
+    this.commitsUntilParent = commitsUntilParent;
     this.syncToParentStatus = syncToParentStatus;
 
     LOG.debug("Creating ${this}");
