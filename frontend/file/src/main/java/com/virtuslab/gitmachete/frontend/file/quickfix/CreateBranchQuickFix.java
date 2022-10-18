@@ -10,16 +10,16 @@ import com.intellij.codeInspection.util.IntentionName;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.IncorrectOperationException;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Option;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@RequiredArgsConstructor
 @ExtensionMethod({GitMacheteBundle.class})
 public class CreateBranchQuickFix implements IntentionAction {
 
@@ -27,16 +27,10 @@ public class CreateBranchQuickFix implements IntentionAction {
   private final String parentBranch;
   private final PsiFile macheteFile;
 
-  public CreateBranchQuickFix(String processedBranchName, String parentBranchName, PsiFile processedFile) {
-    branch = processedBranchName;
-    parentBranch = parentBranchName;
-    macheteFile = processedFile;
-  }
-
   @Override
   public @IntentionName String getText() {
-    return getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title")
-        .format(parentBranch) + ": " + branch;
+    return getNonHtmlString("action.GitMachete.MacheteAnnotator.IntentionAction.create-nonexistent-branch")
+        .format(branch, parentBranch);
   }
 
   @Override
@@ -51,7 +45,7 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   @Override
   @UIThreadUnsafe
-  public void invoke(Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+  public void invoke(Project project, Editor editor, PsiFile file) {
     createNewBranchFromParent(project);
   }
 
@@ -62,11 +56,12 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   @UIThreadUnsafe
   private void createNewBranchFromParent(Project project) {
-    Option<GitRepository> gitRepositoryOption = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
-    if (gitRepositoryOption.isDefined()) {
-      GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepositoryOption.get(), parentBranch));
+    GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
+    if (gitRepository != null) {
+      GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
     } else {
-      throw new RuntimeException("Unable to create new branch due to: git repository not found for .git/machete file.");
+      throw new RuntimeException("Unable to create new branch due to: git repository not found for " +
+          macheteFile.getVirtualFile().getPath() + " file.");
     }
   }
 }

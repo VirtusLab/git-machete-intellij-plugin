@@ -1,12 +1,16 @@
 package com.virtuslab.gitmachete.frontend.file;
 
+import java.util.Objects;
+
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.psi.PsiFile;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -34,21 +38,28 @@ public final class MacheteFileUtils {
   public static List<String> getBranchNamesForPsiMacheteFile(PsiFile psiFile) {
     val gitRepository = findGitRepositoryForPsiMacheteFile(psiFile);
 
-    if (gitRepository.isEmpty()) {
+    if (gitRepository == null) {
       return List.empty();
     }
 
-    return List.ofAll(gitRepository.get().getInfo().getLocalBranchesWithHashes().keySet())
+    return List.ofAll(gitRepository.getInfo().getLocalBranchesWithHashes().keySet())
         .map(localBranch -> localBranch.getName());
   }
 
+  @Nullable
   @UIThreadUnsafe
-  public static Option<GitRepository> findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
+  public static GitRepository findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
     val project = psiFile.getProject();
     return List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
         .find(repository -> {
           val macheteFile = repository.getMacheteFile();
           return macheteFile != null && macheteFile.equals(psiFile.getVirtualFile());
-        });
+        }).getOrNull();
+  }
+
+  @UIEffect
+  public static void saveDocument(PsiFile file) {
+    val fileDocManager = FileDocumentManager.getInstance();
+    fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
   }
 }
