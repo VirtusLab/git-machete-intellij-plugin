@@ -4,6 +4,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.util.Collections;
 
+import javax.swing.*;
+
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;
 import com.intellij.codeInspection.util.IntentionName;
@@ -17,7 +19,6 @@ import lombok.experimental.ExtensionMethod;
 
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @RequiredArgsConstructor
 @ExtensionMethod({GitMacheteBundle.class})
@@ -44,8 +45,8 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   @Override
-  @UIThreadUnsafe
   public void invoke(Project project, Editor editor, PsiFile file) {
+    System.out.println("\n???\n" + SwingUtilities.isEventDispatchThread() + "\n");
     createNewBranchFromParent(project);
   }
 
@@ -54,7 +55,6 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
-  @UIThreadUnsafe
   private void createNewBranchFromParent(Project project) {
     GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
     if (gitRepository != null) {
