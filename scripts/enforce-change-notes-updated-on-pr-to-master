@@ -7,7 +7,7 @@ source "$self_dir"/utils.sh
 
 change_notes_path=CHANGE-NOTES.md
 
-if [[ ${CI_PULL_REQUEST-} ]]; then
+if [[ ${CI_PULL_REQUEST-} && ${GITHUB_TOKEN-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
   # Implicit usage of ${GITHUB_TOKEN} by gh
