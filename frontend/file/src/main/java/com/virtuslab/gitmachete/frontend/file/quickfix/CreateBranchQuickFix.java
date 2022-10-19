@@ -14,6 +14,7 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -44,6 +45,7 @@ public class CreateBranchQuickFix implements IntentionAction {
     return true;
   }
 
+  @UIEffect
   @Override
   public void invoke(Project project, Editor editor, PsiFile file) {
     createNewBranchFromParent(project);
@@ -54,7 +56,6 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
-  @IgnoreUIThreadUnsafeCalls
   private void createNewBranchFromParent(Project project) {
     if (gitRepository != null) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
