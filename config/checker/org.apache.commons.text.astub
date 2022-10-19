@@ -3,6 +3,6 @@ import org.checkerframework.checker.tainting.qual.Tainted;
 
 package org.apache.commons.text;
 
-class StringUtils {
+class StringEscapeUtils {
     static @Untainted String escapeHtml4(@Tainted String input);
 }
