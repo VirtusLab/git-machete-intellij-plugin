@@ -16,11 +16,10 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
 import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -32,7 +31,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
   private final Project project;
   private final GitRepository gitRepository;
-  private final IBranchLayout branchLayout;
+  private final BranchLayout branchLayout;
   private final IBranchLayoutWriter branchLayoutWriter;
   private final Runnable preSlideInRunnable;
   private final SlideInOptions slideInOptions;
@@ -41,7 +40,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
   public SlideInBackgroundable(
       Project project,
       GitRepository gitRepository,
-      IBranchLayout branchLayout,
+      BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions,
@@ -69,9 +68,9 @@ public class SlideInBackgroundable extends Task.Backgroundable {
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
-    val childEntryByName = branchLayout.findEntryByName(slideInOptions.getName());
-    IBranchLayoutEntry entryToSlideIn;
-    IBranchLayout targetBranchLayout;
+    val childEntryByName = branchLayout.getEntryByName(slideInOptions.getName());
+    BranchLayoutEntry entryToSlideIn;
+    BranchLayout targetBranchLayout;
     if (childEntryByName != null) {
       if (slideInOptions.shouldReattach()) {
         entryToSlideIn = childEntryByName;
@@ -87,7 +86,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       targetBranchLayout = branchLayout;
     }
 
-    IBranchLayout newBranchLayout;
+    BranchLayout newBranchLayout;
     try {
       newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
     } catch (EntryDoesNotExistException e) {
@@ -104,7 +103,7 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       return;
     }
 
-    final IBranchLayout finalNewBranchLayout = newBranchLayout;
+    final BranchLayout finalNewBranchLayout = newBranchLayout;
     Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
         .onFailure(t -> VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             /* title */ getString(

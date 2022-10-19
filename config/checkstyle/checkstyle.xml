@@ -48,7 +48,10 @@
         <module name="HideUtilityClassConstructor"/>
         <module name="IllegalCatch"/>
         <module name="IllegalImport">
-            <!-- Avoid mutable collections; if really needed, qualify their class names explicitly. -->
+            <!-- Use io.vavr.control.Option instead. Or best, just use @Nullable and let Checker Framework do the rest. -->
+            <property name="illegalClasses" value="java.util.Optional"/>
+            <!-- Avoid mutable collections; use their immutable Vavr counterparts instead. -->
+            <!-- If really needed, qualify their class names explicitly. -->
             <property name="illegalClasses" value="java.util.Deque, java.util.HashMap, java.util.List, java.util.Map, java.util.Queue, java.util.Set, java.util.Stack, java.util.TreeMap, java.util.Vector"/>
             <!-- Use org.checkerframework.checker.nullness.qual.Nullable instead. -->
             <property name="illegalClasses" value="javax.annotation.Nonnull, javax.annotation.Nullable"/>

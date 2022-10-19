@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -22,7 +22,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   @Getter
   private final List<IRootManagedBranchSnapshot> rootBranches;
 
-  private final IBranchLayout branchLayout;
+  private final BranchLayout branchLayout;
 
   private final @Nullable IManagedBranchSnapshot currentBranchIfManaged;
 
@@ -40,7 +40,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   private final OngoingRepositoryOperation ongoingRepositoryOperation;
 
   @Override
-  public IBranchLayout getBranchLayout() {
+  public BranchLayout getBranchLayout() {
     return branchLayout;
   }
 

@@ -34,7 +34,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.title"),
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.message.HTML"));
 
-      dialogBuilder.yesText(getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.ok-text"))
+      dialogBuilder
           .icon(Messages.getWarningIcon())
           .doNotAsk(new WarnAboutSyncToParentByMergeDialog());
 

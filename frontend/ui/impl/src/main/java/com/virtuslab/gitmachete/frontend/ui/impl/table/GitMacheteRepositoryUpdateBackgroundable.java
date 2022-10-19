@@ -21,8 +21,8 @@ import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -89,7 +89,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
       return Try.of(() -> {
-        IBranchLayout branchLayout = readBranchLayout(macheteFilePath);
+        BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         return gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath)
             .createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).getOrNull();
@@ -100,7 +100,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   }
 
   @UIThreadUnsafe
-  private IBranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
+  private BranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     try {
       return branchLayoutReader.read(path);
     } catch (BranchLayoutException e) {

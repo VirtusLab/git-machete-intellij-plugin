@@ -9,8 +9,8 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.MutableCollectionComboBoxModel
 import com.intellij.util.ui.JBUI
-import com.virtuslab.branchlayout.api.IBranchLayout
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry
+import com.virtuslab.branchlayout.api.BranchLayout
+import com.virtuslab.branchlayout.api.BranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import git4idea.branch.GitBranchUtil
@@ -34,7 +34,7 @@ import net.miginfocom.layout.LC as LayoutConstraint
 */
 class SlideInDialog(
   private val project: Project,
-  private val branchLayout: IBranchLayout,
+  private val branchLayout: BranchLayout,
   private val parentName: String,
   private val gitRepository: GitRepository
 ) : DialogWrapper(project, /* canBeParent */ true) {
@@ -98,7 +98,7 @@ class SlideInDialog(
         branchField
       )
     } else {
-      val entryByName = branchLayout.findEntryByName(insertedText)
+      val entryByName = branchLayout.getEntryByName(insertedText)
       if (entryByName != null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
         return ValidationInfo(
           getString(
@@ -194,8 +194,8 @@ class SlideInDialog(
         )
       }
 
-  private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {
-    return fun(presumedAncestorEntry: IBranchLayoutEntry): Boolean {
+  private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean {
+    return fun(presumedAncestorEntry: BranchLayoutEntry): Boolean {
       return if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
         true
       } else {

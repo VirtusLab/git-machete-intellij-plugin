@@ -39,6 +39,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.ModalityUiUtil;
@@ -57,8 +61,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
-import com.virtuslab.branchlayout.api.IBranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -66,6 +70,7 @@ import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IGraphItem;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -83,7 +88,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 /**
  *  This class compared to {@link SimpleGraphTable} has graph table refreshing and provides
  *  data like last clicked branch name, opened project or {@link IGitMacheteRepositorySnapshot} of current
- *  repository for actions
+ *  repository for actions.
  */
 // TODO (#99): consider applying SpeedSearch for branches and commits
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
@@ -147,10 +152,28 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     subscribeToGitRepositoryFilesChanges();
     subscribeToSelectedGitRepositoryChange();
+    subscribeToMacheteFileChange();
   }
 
   private IGitRepositorySelectionProvider getGitRepositorySelectionProvider() {
     return project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
+  }
+
+  private void subscribeToMacheteFileChange() {
+    val messageBusConnection = project.getMessageBus().connect();
+    messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+      @Override
+      public void after(java.util.List<? extends VFileEvent> events) {
+        for (val event : events) {
+          if (event instanceof VFileContentChangeEvent) {
+            if (((VFileContentChangeEvent) event).getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
+              queueRepositoryUpdateAndModelRefresh();
+            }
+          }
+        }
+      }
+    });
+    Disposer.register(project, messageBusConnection);
   }
 
   private void subscribeToGitRepositoryFilesChanges() {
@@ -162,7 +185,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private void subscribeToSelectedGitRepositoryChange() {
-    // The method reference is invoked when user changes repository in selection component menu
+    // The method reference is invoked when user changes repository in the selection component menu
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
@@ -205,7 +228,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
-      // The `doOnUIThreadWhenReady` callback  must be executed once discover task is *complete*,
+      // The `doOnUIThreadWhenReady` callback must be executed once the discover task is *complete*,
       // and not just when the discover task is *enqueued*.
       // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
       // which is undesirable.
@@ -260,7 +283,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @UIThreadUnsafe
   private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
-    IBranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
+    BranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
       newBranchLayout = newBranchLayout.slideOut(branchName);
     }
@@ -337,7 +360,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private void initColumns() {
     createDefaultColumnsFromModel();
 
-    // Otherwise sizes would be recalculated after each TableColumn re-initialization
+    // Otherwise, sizes would be recalculated after each TableColumn re-initialization
     setAutoCreateColumnsFromModel(false);
   }
 
@@ -409,7 +432,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       int row = graphTable.rowAtPoint(point);
       int col = graphTable.columnAtPoint(point);
 
-      // check if we click on one of branches
+      // check if we click on one of the branches
       if (row < 0 || col < 0) {
         return;
       }
@@ -471,10 +494,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     @Override
     @UIEffect
     public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent) {
-      // This delay is needed to avoid `focus transfer` effect when at the beginning row selection is light blue
-      // but when context menu is created (in a fraction of second), selection loses focus to the context menu and becomes dark blue.
+      // This delay is needed to avoid `focus transfer` effect when at the beginning row selection is light-blue,
+      // but when the context menu is created (in a fraction of a second),
+      // selection loses focus on the context menu and becomes dark blue.
       // TimerTask can't be replaced by lambda because it's not a SAM (single abstract method).
-      // For more details see https://stackoverflow.com/a/37970821/10116324
+      // For more details see https://stackoverflow.com/a/37970821/10116324.
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
