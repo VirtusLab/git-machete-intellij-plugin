@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## v3.1.1
 - Removed automatic rediscovery in case of empty machete file
+- Fixed indication of a repeated entry in machete file.
 
 ## v3.2.0
 - Added new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
