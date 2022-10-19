@@ -14,8 +14,8 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class CreateBranchQuickFix implements IntentionAction {
   private final String branch;
   private final String parentBranch;
   private final PsiFile macheteFile;
+  private final @Nullable GitRepository gitRepository;
 
   @Override
   public @IntentionName String getText() {
@@ -53,7 +54,6 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   private void createNewBranchFromParent(Project project) {
-    GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(macheteFile);
     if (gitRepository != null) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
     } else {

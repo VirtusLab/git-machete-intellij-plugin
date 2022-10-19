@@ -24,6 +24,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
+import git4idea.repo.GitRepository;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -116,7 +117,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
         basicAnnotationBuilder.create();
       } else { // suggest creating a new branch from the parent branch
-        basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file)).create();
+        GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file);
+        basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file, gitRepository))
+            .create();
       }
     }
   }
