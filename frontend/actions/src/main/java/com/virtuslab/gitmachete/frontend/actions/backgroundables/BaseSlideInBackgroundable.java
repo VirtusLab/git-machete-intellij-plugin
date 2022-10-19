@@ -18,8 +18,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
-import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
-import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -27,32 +25,29 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
-public class SlideInBackgroundable extends Task.Backgroundable {
+public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
 
-  private final Project project;
-  private final GitRepository gitRepository;
-  private final BranchLayout branchLayout;
-  private final IBranchLayoutWriter branchLayoutWriter;
-  private final Runnable preSlideInRunnable;
-  private final SlideInOptions slideInOptions;
-  private final String parentName;
+  protected final Project project;
+  protected final GitRepository gitRepository;
+  protected final BranchLayout branchLayout;
+  protected final IBranchLayoutWriter branchLayoutWriter;
+  protected final Runnable preSlideInRunnable;
+  protected final SlideInOptions slideInOptions;
 
-  public SlideInBackgroundable(
+  public BaseSlideInBackgroundable(
       Project project,
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
-      SlideInOptions slideInOptions,
-      String parentName) {
-    super(project, getString("action.GitMachete.BaseSlideInBelowAction.task-title"));
+      SlideInOptions slideInOptions) {
+    super(project, getString("action.GitMachete.BaseSlideInBackgroundable.task-title"));
     this.project = project;
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;
     this.preSlideInRunnable = preSlideInRunnable;
     this.slideInOptions = slideInOptions;
-    this.parentName = parentName;
   }
 
   @Override
@@ -61,9 +56,9 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     preSlideInRunnable.run();
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
-    // The high-level method used within the runnable do not allow us to schedule the tasks after them.
+    // The high-level method used within the runnable does not allow us to schedule the tasks after them.
     // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
-    // Hence we wait for the creation of the branch (with exponential backoff).
+    // Hence, we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch();
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
@@ -86,30 +81,19 @@ public class SlideInBackgroundable extends Task.Backgroundable {
       targetBranchLayout = branchLayout;
     }
 
-    BranchLayout newBranchLayout;
-    try {
-      newBranchLayout = targetBranchLayout.slideIn(parentName, entryToSlideIn);
-    } catch (EntryDoesNotExistException e) {
-      notifyError(
-          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.entry-does-not-exist.HTML")
-              .format(parentName),
-          e);
-      return;
-    } catch (EntryIsDescendantOfException e) {
-      notifyError(
-          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.entry-is-descendant-of.HTML")
-              .format(entryToSlideIn.getName(), parentName),
-          e);
+    val newBranchLayout = deriveNewBranchLayout(targetBranchLayout, entryToSlideIn);
+    if (newBranchLayout == null) {
       return;
     }
 
-    final BranchLayout finalNewBranchLayout = newBranchLayout;
-    Try.run(() -> branchLayoutWriter.write(macheteFilePath, finalNewBranchLayout, /* backupOldLayout */ true))
+    Try.run(() -> branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true))
         .onFailure(t -> VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             /* title */ getString(
                 "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
             getMessageOrEmpty(t)));
   }
+
+  abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
 
   @UIThreadUnsafe
   private @Nullable GitLocalBranch findLocalBranch() {
@@ -129,26 +113,19 @@ public class SlideInBackgroundable extends Task.Backgroundable {
     } catch (InterruptedException e) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.wait-interrupted")
+          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.wait-interrupted")
               .format(slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBelowAction.notification.message.timeout")
+          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout")
               .format(slideInOptions.getName()));
     }
   }
 
-  private void notifyError(@Nullable String message, Throwable throwable) {
-    VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-        /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML")
-            .format(slideInOptions.getName()),
-        message != null ? message : getMessageOrEmpty(throwable));
-  }
-
-  private static String getMessageOrEmpty(Throwable t) {
+  protected static String getMessageOrEmpty(Throwable t) {
     return t.getMessage() != null ? t.getMessage() : "";
   }
 }
