@@ -19,6 +19,8 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
 
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInRootBackgroundable;
+
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
   @Test
@@ -99,6 +101,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             // doesn't see accesses to static fields
             "com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
+        .and().doNotHaveFullyQualifiedName(SlideInRootBackgroundable.class.getName())
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
