@@ -35,17 +35,36 @@ fun Project.configureIntellijPlugin() {
     tasks.withType<BuildSearchableOptionsTask> { enabled = false }
   }
 
+  // This task should not be used - we don't use the "Unreleased" section anymore
+  project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
+
   configure<ChangelogPluginExtension> {
     val PROSPECTIVE_RELEASE_VERSION: String by extra
     version.set("v$PROSPECTIVE_RELEASE_VERSION")
-    header.set(version)
     headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
     path.set("${project.projectDir}/CHANGE-NOTES.md")
-    unreleasedTerm.set("Unreleased")
-    groups.set(emptyList())
   }
 
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+  val verifyChangeLogTask = tasks.register("verifyChangeLog") {
+    val prospectiveVersionSection = changelog.get(changelog.version.get())
+    val latestVersionSection = changelog.getLatest()
+
+    if (prospectiveVersionSection.version != latestVersionSection.version) {
+      throw Exception("Wrong version order, update CHANGE-NOTES.md")
+    }
+
+    if (prospectiveVersionSection.toString().isBlank()) {
+      throw Exception("Prospective version's section is empty, update CHANGE-NOTES.md")
+    }
+
+    for (line in prospectiveVersionSection.toString().split("\n")) {
+      if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
+        throw Exception("Update formatting in CHANGE-NOTES:\n$line")
+      }
+    }
+  }
 
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
@@ -100,5 +119,8 @@ fun Project.configureIntellijPlugin() {
     password.set(pluginSignPrivateKeyPass)
   }
 
-  tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }
+  tasks.withType<PublishPluginTask> {
+    dependsOn(verifyChangeLogTask)
+    token.set(jetbrainsMarketplaceToken)
+  }
 }
