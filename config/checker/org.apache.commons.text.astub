@@ -1,0 +1,8 @@
+import org.checkerframework.checker.tainting.qual.Untainted;
+import org.checkerframework.checker.tainting.qual.Tainted;
+
+package org.apache.commons.text;
+
+class StringUtils {
+    static @Untainted String escapeHtml4(@Tainted String input);
+}

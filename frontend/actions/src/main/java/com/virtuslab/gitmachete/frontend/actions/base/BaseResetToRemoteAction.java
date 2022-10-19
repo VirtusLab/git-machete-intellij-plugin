@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
-import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -34,6 +33,7 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -48,7 +48,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
 @CustomLog
 public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -157,8 +157,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
-              escapeHtml4(branchName),
-              escapeHtml4(remoteTrackingBranch.getName()),
+              branchName.escapeHtml4(),
+              remoteTrackingBranch.getName().escapeHtml4(),
               currentCommitSha));
 
       dialogBuilder

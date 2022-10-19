@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.util.Collections;
 
@@ -98,7 +99,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }
 
     val slideInOptions = slideInDialog.getSlideInOptions();
-    val slideInOptionsName = slideInOptions.getName();
+    @Untainted String slideInOptionsName = escapeHtml4(slideInOptions.getName());
 
     if (parentName.equals(slideInOptionsName)) {
       // @formatter:off
@@ -165,7 +166,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       Project project,
       GitRepository gitRepository,
       String startPoint,
-      @Untainted String initialName) {
+      String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
