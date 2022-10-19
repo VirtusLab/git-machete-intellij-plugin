@@ -4,8 +4,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.util.Collections;
 
-import javax.swing.*;
-
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;
 import com.intellij.codeInspection.util.IntentionName;
@@ -46,7 +44,6 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   @Override
   public void invoke(Project project, Editor editor, PsiFile file) {
-    System.out.println("\n???\n" + SwingUtilities.isEventDispatchThread() + "\n");
     createNewBranchFromParent(project);
   }
 
