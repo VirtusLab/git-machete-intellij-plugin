@@ -1,5 +1,7 @@
 # Changelog
 
+# v3.2.0
+
 ## v3.1.1
 - Removed automatic rediscovery in case of empty machete file
 - Fixed indication of a repeated entry in machete file.
