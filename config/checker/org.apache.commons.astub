@@ -1,0 +1,9 @@
+import org.checkerframework.checker.nullness.qual.PolyNull;
+
+package org.apache.commons.text;
+
+class StringEscapeUtils {
+
+  static @PolyNull String escapeHtml4(@PolyNull String input);
+
+}

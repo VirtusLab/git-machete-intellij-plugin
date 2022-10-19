@@ -29,8 +29,6 @@ class OverrideForkPointDialog(
 
   private val parent = branch.parent
 
-  private lateinit var rb: Cell<JBRadioButton>
-
   init {
     title =
       getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
@@ -89,7 +87,7 @@ class OverrideForkPointDialog(
       }
 
       row {
-        rb = radioButton(
+        val rb: Cell<JBRadioButton> = radioButton(
           format(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
@@ -99,8 +97,8 @@ class OverrideForkPointDialog(
           OverrideOption.CUSTOM
         )
 
-        val list = branch.commitsUntilParent.reverse() + listOf(branch.forkPoint, parent.pointedCommit)
-        val items = list.filterNotNull().distinct()
+        val list = branch.commitsUntilParent + listOf(branch.forkPoint, parent.pointedCommit)
+        val items = list.filterNotNull().distinct().reversed()
 
         comboBox(
           items,
