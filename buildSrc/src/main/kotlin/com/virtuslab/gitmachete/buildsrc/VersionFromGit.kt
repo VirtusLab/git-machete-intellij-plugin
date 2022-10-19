@@ -24,9 +24,12 @@ fun Project.configureVersionFromGit() {
     val maybeSnapshot = if (ciBranch == "develop") "" else "-SNAPSHOT"
 
     val git = org.ajoberstar.grgit.Grgit.open(mapOf("currentDir" to projectDir))
-    val lastTag = git.tag.list().sortedBy { it.dateTime }.last()
-    val commitsSinceLastTag =
-      git.log(mapOf("includes" to listOf("HEAD"), "excludes" to listOf(lastTag.fullName)))
+    val tags = git.tag.list().sortedBy { it.dateTime }
+    val commitsSinceLastTag = if (tags.isEmpty()) {
+      git.log(mapOf("includes" to listOf("HEAD")))
+    } else {
+      git.log(mapOf("includes" to listOf("HEAD"), "excludes" to listOf(tags.last().fullName)))
+    }
     val maybeCommitCount = if (commitsSinceLastTag.isEmpty()) "" else "-${commitsSinceLastTag.size}"
     val shortCommitHash = git.head().abbreviatedId
     val maybeDirty = if (git.status().isClean) "" else "-dirty"
