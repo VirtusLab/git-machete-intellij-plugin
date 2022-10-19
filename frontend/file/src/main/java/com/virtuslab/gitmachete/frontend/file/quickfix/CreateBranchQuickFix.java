@@ -10,7 +10,6 @@ import com.intellij.codeInspection.util.IntentionName;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
 @RequiredArgsConstructor
 @ExtensionMethod({GitMacheteBundle.class})
