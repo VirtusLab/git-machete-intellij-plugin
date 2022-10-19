@@ -10,6 +10,7 @@ import com.intellij.codeInspection.util.IntentionName;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,7 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
+  @IgnoreUIThreadUnsafeCalls
   private void createNewBranchFromParent(Project project) {
     if (gitRepository != null) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
