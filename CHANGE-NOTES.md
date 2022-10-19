@@ -6,6 +6,9 @@
 - Removed automatic rediscovery in case of empty machete file
 - Fixed indication of a repeated entry in machete file.
 
+## v3.2.0
+- Added new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
+
 ## v3.1.0
 - Added support for IntelliJ 2022.3.
 - Fixed spurious `NullPointerException` thrown when opening machete file via toolbar, as reported by @oksana-cherniavskaia.

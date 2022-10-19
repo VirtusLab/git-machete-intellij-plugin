@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -17,24 +18,30 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
+import git4idea.repo.GitRepository;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.binding.RuntimeBinding;
+import com.virtuslab.branchlayout.api.BranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedElementTypes;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedEntry;
+import com.virtuslab.gitmachete.frontend.file.quickfix.CreateBranchQuickFix;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -80,20 +87,12 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     val processedBranchName = branch.getText();
 
-    if (!branchNames.contains(processedBranchName)) {
-      holder
-          .newAnnotation(HighlightSeverity.ERROR,
-              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
-                  .format(processedBranchName))
-          .range(branch).create();
-    }
-
     // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> saveDocumentBeforeCheck(file));
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> MacheteFileUtils.saveDocument(file));
     /*
      * Check for duplicate entries in the machete file. Note: there's no guarantee that at the point when
-     * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocumentBeforeCheck(file) is already completed. UI thread might
-     * be busy with other operations, and it might take while for the execution of saveDocumentBeforeCheck(file) to start.
+     * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocument(file) is already completed. UI thread might be busy
+     * with other operations, and it might take while for the execution of saveDocument(file) to start.
      */
     try {
       val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
@@ -107,12 +106,22 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
 
-  @UIEffect
-  private void saveDocumentBeforeCheck(PsiFile file) {
-    val fileDocManager = FileDocumentManager.getInstance();
-    fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+    if (!branchNames.contains(processedBranchName)) {
+      val parentBranchName = getParentBranchName(file, processedBranchName);
+      val basicAnnotationBuilder = holder
+          .newAnnotation(HighlightSeverity.ERROR,
+              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
+                  .format(processedBranchName))
+          .range(branch);
+      if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
+        basicAnnotationBuilder.create();
+      } else { // suggest creating a new branch from the parent branch
+        GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file);
+        basicAnnotationBuilder.withFix(new CreateBranchQuickFix(processedBranchName, parentBranchName, file, gitRepository))
+            .create();
+      }
+    }
   }
 
   private boolean isBranchNameRepeated(String fileContent, String branchName) {
@@ -121,6 +130,28 @@ public class MacheteAnnotator implements Annotator, DumbAware {
         .map(line -> line.split("\\s")[0]) // ignore possible custom annotation after branch name
         .collect(Collectors.toList());
     return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
+  }
+
+  @UIThreadUnsafe
+  private String getParentBranchName(PsiFile file, String branchName) {
+    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    BranchLayout branchLayout;
+    try {
+      branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
+    } catch (BranchLayoutException e) { // might appear if branchLayout in file has inconsistent indentation characters
+      return "";
+    }
+    BranchLayoutEntry parentEntry;
+    try {
+      parentEntry = Objects.requireNonNull(branchLayout.getEntryByName(branchName)).getParent();
+    } catch (NullPointerException e) { // might appear if saveDocument(file) has not completed yet
+      return "";
+    }
+    if (parentEntry == null) {
+      return "";
+    } else {
+      return parentEntry.getName();
+    }
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {

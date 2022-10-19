@@ -16,6 +16,7 @@ apply<GrammarKitPlugin>()
 
 dependencies {
   api(project(":qual"))
+  implementation(project(":binding"))
   implementation(project(":frontend:base"))
   implementation(project(":frontend:resourcebundles"))
 }
