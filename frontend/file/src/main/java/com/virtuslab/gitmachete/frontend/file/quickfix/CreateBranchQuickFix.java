@@ -18,7 +18,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
 @RequiredArgsConstructor
 @ExtensionMethod({GitMacheteBundle.class})
