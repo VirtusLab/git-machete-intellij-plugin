@@ -61,14 +61,14 @@ public class UnmanagedBranchNotificationFactory {
   }
 
   @UIEffect
-  public static boolean showForThisProject() {
-    return PropertiesComponent.getInstance().getBoolean(SHOW_UNMANAGED_BRANCH_NOTIFICATION, /* defaultValue */ true);
+  public static boolean showForThisProject(Project project) {
+    return PropertiesComponent.getInstance(project).getBoolean(SHOW_UNMANAGED_BRANCH_NOTIFICATION, /* defaultValue */ true);
   }
 
   @UIEffect
-  public static boolean showForThisBranch(String aBranchName) {
+  public static boolean showForThisBranch(Project project, String aBranchName) {
     String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}";
-    return PropertiesComponent.getInstance().getBoolean(propertyKey, /* defaultValue */ true);
+    return PropertiesComponent.getInstance(project).getBoolean(propertyKey, /* defaultValue */ true);
   }
 
   private NotificationAction getSlideInAction(Notification notification) {
@@ -106,7 +106,7 @@ public class UnmanagedBranchNotificationFactory {
                 .format(branchName),
             () -> {
               String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${branchName}";
-              PropertiesComponent.getInstance().setValue(propertyKey, false, /* defaultValue */ true);
+              PropertiesComponent.getInstance(project).setValue(propertyKey, false, /* defaultValue */ true);
               notification.expire();
             });
   }
@@ -116,7 +116,8 @@ public class UnmanagedBranchNotificationFactory {
         .createSimple(
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.dont-show-for-project"),
             () -> {
-              PropertiesComponent.getInstance().setValue(SHOW_UNMANAGED_BRANCH_NOTIFICATION, false, /* defaultValue */ true);
+              PropertiesComponent.getInstance(project).setValue(SHOW_UNMANAGED_BRANCH_NOTIFICATION, false,
+                  /* defaultValue */ true);
               notification.expire();
             });
   }
