@@ -7,6 +7,7 @@ import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.Wi
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import com.intellij.ide.util.PropertiesComponent;
 import org.junit.Test;
 
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
@@ -30,6 +31,14 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().callMethod(java.util.Collections.class, "nCopies", int.class, Object.class)
         .because("it is confusing as it does not copy the objects but just copies the reference N times")
+        .check(importedClasses);
+  }
+  @Test
+  public void no_classes_should_call_PropertiesComponent_getInstance_without_args() {
+    noClasses()
+        .should().callMethod(PropertiesComponent.class, "getInstance")
+        .because(
+            "getInstance without `project` argument gives application-level persistence while we prefer project-level persistence")
         .check(importedClasses);
   }
 

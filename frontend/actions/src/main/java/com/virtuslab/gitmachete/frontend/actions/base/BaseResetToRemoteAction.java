@@ -147,7 +147,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    if (PropertiesComponent.getInstance().getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
+    if (PropertiesComponent.getInstance(project).getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
 
       String currentCommitSha = localBranch.getPointedCommit().getHash();
       if (currentCommitSha.length() == 40) {
@@ -162,7 +162,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
       dialogBuilder
           .icon(Messages.getInformationIcon())
-          .doNotAsk(new ResetBranchToRemoteInfoDialog());
+          .doNotAsk(new ResetBranchToRemoteInfoDialog(project));
 
       val okCancelDialogResult = dialogBuilder.ask(project);
 
@@ -171,7 +171,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       }
     }
 
-    // Required to avoid reset with uncommitted changes and file cache conflicts
+    // It is required to avoid the reset with uncommitted changes and file cache conflicts.
     FileDocumentManager.getInstance().saveAllDocuments();
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();

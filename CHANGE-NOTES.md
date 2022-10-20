@@ -1,8 +1,9 @@
 # Changelog
 
 ## v3.2.0
-- Added new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
-- Added option to manually pick a commit for the fork point override.
+- Added a new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
+- Added an option to manually pick a commit for the fork point override.
+- Fixed project-dependent settings persistence.
 
 ## v3.1.1
 - Removed automatic rediscovery in case of empty machete file
