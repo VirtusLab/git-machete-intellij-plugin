@@ -33,14 +33,6 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .because("it is confusing as it does not copy the objects but just copies the reference N times")
         .check(importedClasses);
   }
-  @Test
-  public void no_classes_should_call_PropertiesComponent_getInstance_without_args() {
-    noClasses()
-        .should().callMethod(PropertiesComponent.class, "getInstance")
-        .because(
-            "getInstance without `project` argument gives application-level persistence while we prefer project-level persistence")
-        .check(importedClasses);
-  }
 
   @Test
   public void no_classes_should_call_File_exists() {
@@ -128,6 +120,15 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .because("Option#toString is sometimes mistakenly interpolated inside strings (also the user-facing ones), " +
             "whereas in 90% of cases the programmer`s intention " +
             "is to interpolate the contained value aka the result of `.get()` and not the Option itself")
+        .check(importedClasses);
+  }
+
+  @Test
+  public void no_classes_should_call_PropertiesComponent_getInstance_without_args() {
+    noClasses()
+        .should().callMethod(PropertiesComponent.class, "getInstance")
+        .because(
+            "getInstance without `project` argument gives application-level persistence while we prefer project-level persistence")
         .check(importedClasses);
   }
 
