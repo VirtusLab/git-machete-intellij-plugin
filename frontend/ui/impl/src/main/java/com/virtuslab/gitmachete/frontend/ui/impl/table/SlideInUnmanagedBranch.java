@@ -3,8 +3,8 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -17,10 +17,7 @@ import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
-import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
-import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -31,20 +28,17 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class SlideInUnmanagedBranch {
 
   private final Project project;
-  private final String branchName;
+  private final Supplier<Try<ILocalBranchReference>> inferParentResultSupplier;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
   private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchNameConsumer;
 
-  public void enqueue(Path macheteFilePath) {
+  public void enqueue() {
     LOG.info("Enqueuing unmanaged branch notification");
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (selectedRepository == null) {
       LOG.error("Can't notify about unmanaged branch because of undefined selected repository");
       return;
     }
-    Path rootDirPath = selectedRepository.getRootDirectoryPath().toAbsolutePath();
-    Path mainGitDirPath = selectedRepository.getMainGitDirectoryPath().toAbsolutePath();
-    Path worktreeGitDirPath = selectedRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     new Task.Backgroundable(project,
         getString("string.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.task-title")) {
@@ -52,17 +46,10 @@ public class SlideInUnmanagedBranch {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running infer parent for unmanaged branch slide in task");
-        val inferParentRunResult = Try.of(() -> {
-          val gitMacheteRepository = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-              .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath);
-          val managedBranches = gitMacheteRepository.discoverLayoutAndCreateSnapshot().getManagedBranches();
-          val eligibleLocalBranchNames = managedBranches.map(IManagedBranchSnapshot::getName).toSet();
-          return gitMacheteRepository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName);
-        });
-
-        if (inferParentRunResult.isFailure()) {
+        val inferParentResult = inferParentResultSupplier.get();
+        if (inferParentResult.isFailure()) {
           LOG.debug("Inferring parent failed");
-          val exception = inferParentRunResult.getCause();
+          val exception = inferParentResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
@@ -72,7 +59,7 @@ public class SlideInUnmanagedBranch {
           return;
         }
 
-        val inferredParent = inferParentRunResult.get();
+        val inferredParent = inferParentResult.get();
 
         LOG.debug("Executing on-success consumer");
         onSuccessInferredParentBranchNameConsumer.accept(inferredParent);

@@ -42,6 +42,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -57,7 +58,9 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -113,6 +116,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   // as a branch name. This is required to detect the moment when the unmanaged branch notification should be shown.
   private @Nullable String currentBranch = "?!@#$%^&";
   private @Nullable Notification slideInNotification;
+  private @Nullable IGitMacheteRepository gitMacheteRepository;
 
   @UIEffect
   public EnhancedGraphTable(Project project) {
@@ -189,6 +193,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Disposer.register(this, messageBusConnection);
   }
 
+  @IgnoreUIThreadUnsafeCalls
   private void notifyAboutUnmanagedBranch(String branchName) {
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
@@ -205,9 +210,23 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
+    val repository = gitMacheteRepository;
+    if (repository == null) {
+      LOG.warn("gitMacheteRepository is null, so no unmanaged branch notification will show up");
+      return;
+    }
+
+    if (gitMacheteRepositorySnapshot == null) {
+      LOG.warn("gitMacheteRepositorySnapshot is null, so no unmanaged branch notification will show up");
+      return;
+    }
+
+    val eligibleLocalBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName)
+        .toSet();
+
     new SlideInUnmanagedBranch(
         project,
-        branchName,
+        () -> Try.of(() -> repository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName)),
         getGitRepositorySelectionProvider(),
         inferredParent -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
           val showForThisProject = UnmanagedBranchNotificationFactory.showForThisProject(project);
@@ -218,7 +237,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
             VcsNotifier.getInstance(project).notify(notification);
             slideInNotification = notification;
           }
-        })).enqueue(macheteFilePath);
+        })).enqueue();
   }
 
   private void trackCurrentBranchChange(GitRepository repository) {
@@ -382,7 +401,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         project,
         getGitRepositorySelectionProvider(),
         getUnsuccessfulDiscoverMacheteFilePathConsumer(),
-        getSuccessfulDiscoverRepositoryConsumer(doOnUIThreadWhenReady))
+        getSuccessfulDiscoverRepositoryConsumer(doOnUIThreadWhenReady),
+        repository -> gitMacheteRepository = repository)
             .enqueue(macheteFilePath);
   }
 
@@ -451,11 +471,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         }
 
         @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
-          val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
-          this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
-          if (nullableRepositorySnapshot != null) {
+          this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
+          if (newGitMacheteRepositorySnapshot != null) {
             refreshModel(gitRepository,
-                nullableRepositorySnapshot,
+                newGitMacheteRepositorySnapshot,
                 doOnUIThreadWhenReady);
 
           } else {
@@ -466,7 +485,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
-        new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
+        new GitMacheteRepositoryUpdateBackgroundable(project,
+            gitRepository,
+            branchLayoutReader,
+            doRefreshModel,
+            repository -> gitMacheteRepository = repository).queue();
 
         val macheteFile = gitRepository.getMacheteFile();
 

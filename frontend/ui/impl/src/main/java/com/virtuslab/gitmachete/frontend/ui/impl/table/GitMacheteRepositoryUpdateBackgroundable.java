@@ -24,6 +24,7 @@ import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
@@ -37,6 +38,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
   private final @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone;
+  private final Consumer<@Nullable IGitMacheteRepository> doOnUIThreadWhenDoneR;
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
@@ -44,12 +46,14 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       Project project,
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
-      @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone) {
+      @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone,
+      Consumer<@Nullable IGitMacheteRepository> doOnUIThreadWhenDoneR) {
     super(project, getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;
     this.doOnUIThreadWhenDone = doOnUIThreadWhenDone;
+    this.doOnUIThreadWhenDoneR = doOnUIThreadWhenDoneR;
 
     this.gitMacheteRepositoryCache = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class);
   }
@@ -90,7 +94,10 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
       return Try.of(() -> {
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
-        return gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath)
+        IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
+            mainGitDirectoryPath, worktreeGitDirectoryPath);
+        doOnUIThreadWhenDoneR.accept(gitMacheteRepository);
+        return gitMacheteRepository
             .createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).getOrNull();
     } else {
