@@ -41,6 +41,12 @@ public class BranchLayout {
     return getEntryByName(branchName) != null;
   }
 
+  public boolean isEntryDuplicated(String branchName) {
+    val numberOfEntriesForBranchName = rootEntries.flatMap(BranchLayout::collectEntriesRecursively)
+        .count(entry -> entry.getName().equals(branchName));
+    return numberOfEntriesForBranchName > 1;
+  }
+
   public @Nullable BranchLayoutEntry findNextEntry(String branchName) {
     val entriesOrderedList = rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(BranchLayoutEntry::getName);
     val currentIndex = entriesOrderedList.indexOf(branchName);
