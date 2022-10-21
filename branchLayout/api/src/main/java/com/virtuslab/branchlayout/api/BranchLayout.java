@@ -3,6 +3,7 @@ package com.virtuslab.branchlayout.api;
 import java.util.Comparator;
 import java.util.Objects;
 
+import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -72,6 +73,15 @@ public class BranchLayout {
       return getEntryByName(entriesOrderedList.get(previousIndex));
     }
     return null;
+  }
+
+  public BranchLayout map(Function1<BranchLayoutEntry, BranchLayoutEntry> f) {
+    return new BranchLayout(rootEntries.map(entry -> map(entry, f)));
+  }
+
+  private BranchLayoutEntry map(BranchLayoutEntry entry, Function1<BranchLayoutEntry, BranchLayoutEntry> f) {
+    val newChildren = entry.getChildren().map(child -> map(child, f));
+    return f.apply(entry).withChildren(newChildren);
   }
 
   public BranchLayout rename(String currentBranchName, String newBranchName) {
