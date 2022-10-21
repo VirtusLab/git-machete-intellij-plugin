@@ -118,6 +118,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
   }
 
+  @UIThreadUnsafe
   private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
