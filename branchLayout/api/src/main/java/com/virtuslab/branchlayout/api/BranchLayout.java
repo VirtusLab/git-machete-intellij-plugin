@@ -21,12 +21,14 @@ public class BranchLayout {
   @Getter
   private final List<BranchLayoutEntry> rootEntries;
 
+  private final List<BranchLayoutEntry> allEntries;
+
   private final Map<String, BranchLayoutEntry> entryByName;
 
   public BranchLayout(List<BranchLayoutEntry> rootEntries) {
     this.rootEntries = rootEntries;
-    this.entryByName = rootEntries.flatMap(BranchLayout::collectEntriesRecursively)
-        .toMap(entry -> Tuple.of(entry.getName(), entry));
+    this.allEntries = rootEntries.flatMap(BranchLayout::collectEntriesRecursively);
+    this.entryByName = allEntries.toMap(entry -> Tuple.of(entry.getName(), entry));
   }
 
   private static List<BranchLayoutEntry> collectEntriesRecursively(BranchLayoutEntry entry) {
@@ -41,8 +43,14 @@ public class BranchLayout {
     return getEntryByName(branchName) != null;
   }
 
+  public boolean isEntryDuplicated(String branchName) {
+    val numberOfEntriesForBranchName = allEntries
+        .count(entry -> entry.getName().equals(branchName));
+    return numberOfEntriesForBranchName > 1;
+  }
+
   public @Nullable BranchLayoutEntry findNextEntry(String branchName) {
-    val entriesOrderedList = rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(BranchLayoutEntry::getName);
+    val entriesOrderedList = allEntries.map(BranchLayoutEntry::getName);
     val currentIndex = entriesOrderedList.indexOf(branchName);
     if (currentIndex > -1 && currentIndex + 1 < entriesOrderedList.length()) {
       @LTLengthOf("entriesOrderedList") int nextIndex = currentIndex + 1;
@@ -52,7 +60,7 @@ public class BranchLayout {
   }
 
   public @Nullable BranchLayoutEntry findPreviousEntry(String branchName) {
-    val entriesOrderedList = rootEntries.flatMap(BranchLayout::collectEntriesRecursively).map(BranchLayoutEntry::getName);
+    val entriesOrderedList = allEntries.map(BranchLayoutEntry::getName);
     val currentIndex = entriesOrderedList.indexOf(branchName);
     if (currentIndex > 0 && currentIndex < entriesOrderedList.length()) {
       @LTLengthOf("entriesOrderedList") int previousIndex = currentIndex - 1;
