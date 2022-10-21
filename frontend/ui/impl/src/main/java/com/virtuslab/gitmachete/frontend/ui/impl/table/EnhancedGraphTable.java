@@ -35,6 +35,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -50,6 +51,7 @@ import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -238,23 +240,39 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setModel(new GraphTableModel(repositoryGraph));
 
-    Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
-    if (skippedBranchNames.nonEmpty()) {
-      val notification = getSkippedBranchesNotification(repositorySnapshot, gitRepository);
-      VcsNotifier.getInstance(project).notify(notification);
-    }
+    if (!macheteFileIsOpened(macheteFilePath)) {
+      // notify if branch listed in machete file does not exist
+      Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
+      if (skippedBranchNames.nonEmpty()) {
+        val notification = getSkippedBranchesNotification(repositorySnapshot, gitRepository);
+        VcsNotifier.getInstance(project).notify(notification);
+      }
 
-    Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
-    if (duplicatedBranchNames.nonEmpty()) {
-      // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
-      VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null,
-          getString("string.GitMachete.EnhancedGraphTable.duplicated-branches-text"),
-          String.join(", ", duplicatedBranchNames));
+      // notify if branch name listed in machete file appears more than once
+      Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
+      if (duplicatedBranchNames.nonEmpty()) {
+        // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
+        VcsNotifier.getInstance(project).notifyWarning(/* displayId */ null,
+            getString("string.GitMachete.EnhancedGraphTable.duplicated-branches-text"),
+            String.join(", ", duplicatedBranchNames));
+      }
     }
 
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
+  }
+
+  @UIEffect
+  private boolean macheteFileIsOpened(Path macheteFilePath) {
+    val fileEditorManager = FileEditorManager.getInstance(project);
+    val macheteVirtualFile = List.of(fileEditorManager.getOpenFiles())
+        .find(virtualFile -> virtualFile.getPath().equals(macheteFilePath.toString()));
+    if (macheteVirtualFile.isEmpty()) {
+      return false;
+    } else {
+      return fileEditorManager.getAllEditors(macheteVirtualFile.get()).length > 0;
+    }
   }
 
   @IgnoreUIThreadUnsafeCalls
