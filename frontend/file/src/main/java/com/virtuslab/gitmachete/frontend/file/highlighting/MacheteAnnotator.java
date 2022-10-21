@@ -4,12 +4,9 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.diagnostic.PluginException;
@@ -20,7 +17,6 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ModalityUiUtil;
@@ -91,24 +87,22 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> MacheteFileUtils.saveDocument(file));
     /*
      * Check for duplicate entries in the machete file. Note: there's no guarantee that at the point when
-     * VfsUtil.loadText(file.getVirtualFile()); is invoked, saveDocument(file) is already completed. UI thread might be busy
-     * with other operations, and it might take while for the execution of saveDocument(file) to start.
+     * isBranchNameRepeated(branchLayoutReader, file, processedBranchName) is invoked, saveDocument(file) is already completed.
+     * UI thread might be busy with other operations, and it might take while for the execution of saveDocument(file) to start.
      */
+    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
     try {
-      val branchNamesFromFile = VfsUtil.loadText(file.getVirtualFile());
-      if (isBranchNameRepeated(branchNamesFromFile, processedBranchName)) {
+      if (isBranchNameRepeated(branchLayoutReader, file, processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
             getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
                 .format(processedBranchName))
             .range(branch).create();
       }
     } catch (PluginException | IllegalStateException ignored) { // ignore dubious IDE checks against annotation range
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
 
     if (!branchNames.contains(processedBranchName)) {
-      val parentBranchName = getParentBranchName(file, processedBranchName);
+      val parentBranchName = getParentBranchName(branchLayoutReader, file, processedBranchName);
       val basicAnnotationBuilder = holder
           .newAnnotation(HighlightSeverity.ERROR,
               getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
@@ -124,17 +118,19 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
   }
 
-  private boolean isBranchNameRepeated(String fileContent, String branchName) {
-    java.util.List<String> lines = Arrays.stream(fileContent.split(System.lineSeparator()))
-        .map(String::trim)
-        .map(line -> line.split("\\s")[0]) // ignore possible custom annotation after branch name
-        .collect(Collectors.toList());
-    return lines.stream().filter(line -> line.equals(branchName)).count() > 1;
+  @UIThreadUnsafe
+  private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
+    BranchLayout branchLayout;
+    try {
+      branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
+    } catch (BranchLayoutException e) { // might appear if branchLayout in file has inconsistent indentation characters
+      return false;
+    }
+    return branchLayout.isEntryDuplicated(branchName);
   }
 
   @UIThreadUnsafe
-  private String getParentBranchName(PsiFile file, String branchName) {
-    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
       branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
