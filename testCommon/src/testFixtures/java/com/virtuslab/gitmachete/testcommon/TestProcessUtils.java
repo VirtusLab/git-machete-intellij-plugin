@@ -28,13 +28,15 @@ public final class TestProcessUtils {
     val stdoutMessage = "Stdout of " + commandRepr + " : " + System.lineSeparator();
     val stderrMessage = "Stderr of " + commandRepr + " : " + System.lineSeparator();
 
+    val semicolon = ";";
+
     Assert.assertTrue("command " + commandRepr + " has not completed within " + timeoutSeconds + " seconds;" +
-        "\n" + stdoutMessage + " " + stdout + ";" +
-        "\n" + stderrMessage + " " + stderr + ";", completed);
+        System.lineSeparator() + stdoutMessage + " " + stdout + semicolon +
+        System.lineSeparator() + stderrMessage + " " + stderr + semicolon, completed);
     int exitValue = process.exitValue();
-    Assert.assertEquals("command " + commandRepr + " has completed with exit code " + exitValue + ";" +
-        "\n" + stdoutMessage + " " + stdout + ";" +
-        "\n" + stderrMessage + " " + stderr + ";", 0, exitValue);
+    Assert.assertEquals("command " + commandRepr + " has completed with exit code " + exitValue + semicolon +
+        System.lineSeparator() + stdoutMessage + " " + stdout + semicolon +
+        System.lineSeparator() + stderrMessage + " " + stderr + semicolon, 0, exitValue);
 
     return stdout;
   }
