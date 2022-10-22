@@ -89,7 +89,7 @@ jobs:
           command: ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain
+          command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
       - run:
           name: Check Javadoc correctness
           command: ./gradlew --max-workers=4 javadoc
