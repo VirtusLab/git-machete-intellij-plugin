@@ -20,5 +20,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface IgnoreUIThreadUnsafeCalls {
+  /**
+   * Must include full names (in the format as returned by
+   * {@code com.tngtech.archunit.core.domain.AccessTarget#getFullName()})
+   * of otherwise UI-thread-unsafe methods that can legally be called from the annotated method.
+   */
   String[] value();
 }
