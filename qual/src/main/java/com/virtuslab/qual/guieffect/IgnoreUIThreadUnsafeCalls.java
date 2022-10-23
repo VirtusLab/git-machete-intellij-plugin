@@ -19,4 +19,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
-public @interface IgnoreUIThreadUnsafeCalls {}
+public @interface IgnoreUIThreadUnsafeCalls {
+  String[] value();
+}

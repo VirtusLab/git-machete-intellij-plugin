@@ -49,7 +49,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
   @UIEffect
-  @IgnoreUIThreadUnsafeCalls
+  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()")
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
     val selectedRepoProvider = project.getService(SelectedGitRepositoryProvider.class)
