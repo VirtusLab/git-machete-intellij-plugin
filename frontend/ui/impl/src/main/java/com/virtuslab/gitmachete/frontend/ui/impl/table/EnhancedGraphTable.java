@@ -245,7 +245,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     doOnUIThreadWhenReady.run();
   }
 
-  @IgnoreUIThreadUnsafeCalls
+  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable.slideOutSkippedBranches" +
+      "(com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot, git4idea.repo.GitRepository)")
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
       GitRepository gitRepository) {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(

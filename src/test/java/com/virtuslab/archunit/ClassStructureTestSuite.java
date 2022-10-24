@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathFactory;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaAccess;
@@ -58,15 +59,20 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
     val classLoader = Thread.currentThread().getContextClassLoader();
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     // Note that there might be multiple plugin.xml files on the classpath,
-    // not only from our plugin, but also from the dependencies (like git4idea).
-    // We could theoretically only include classes referenced from our own plugin.xml here,
-    // but it doesn't harm to include the ones referenced from the dependencies as well.
+    // not only from our plugin, but also from the dependencies.
     val resourceUrls = classLoader.getResources("META-INF/plugin.xml");
     while (resourceUrls.hasMoreElements()) {
       val resourceUrl = resourceUrls.nextElement();
 
       try (val inputStream = resourceUrl.openStream()) {
         val document = documentBuilder.parse(inputStream);
+        val xPathfactory = XPathFactory.newInstance();
+        val xpath = xPathfactory.newXPath();
+        val expr = xpath.compile("//idea-plugin/id/text()");
+        // Let's check if the given plugin.xml corresponds to our plugin, or to one of dependencies.
+        if (!expr.evaluate(document).equals("com.virtuslab.git-machete"))
+          continue;
+
         val nodeList = document.getElementsByTagName("*");
 
         for (int i = 0; i < nodeList.getLength(); i++) {

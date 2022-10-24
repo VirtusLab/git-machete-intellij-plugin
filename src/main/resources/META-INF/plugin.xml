@@ -231,6 +231,7 @@
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutParentAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt LEFT" />
         </action>
+
         <action id="GitMachete.CheckoutFirstChildAction"
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutFirstChildAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt RIGHT" />
