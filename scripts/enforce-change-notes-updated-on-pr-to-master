@@ -15,11 +15,6 @@ if [[ ${CI_PULL_REQUEST-} && ${GITHUB_TOKEN-} ]]; then
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
-    task_output=$(./gradlew verifyChangeLogContents)
-    fail=$(grep 'Execution failed' <<<"$task_output")
-
-    if [[ -n $fail ]]; then
-      die $(grep '> java.lang.Exception: ' <<<"$task_output" | sed "s/> java.lang.Exception: //")
-    fi
+    ./gradlew verifyChangeLogContents > /dev/null
   fi
 fi
