@@ -29,7 +29,7 @@ class OverrideForkPointDialog(
 
   private val parent = branch.parent
 
-  private fun String.escapeHtml4(): String = StringEscapeUtils.escapeHtml4(this)
+  private fun String.escapeHtml4(): String = escapeHtml4(this)
 
   init {
     title =
