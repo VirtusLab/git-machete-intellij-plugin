@@ -7,6 +7,8 @@ import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutAction.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import org.apache.commons.text.StringEscapeUtils
+import org.checkerframework.checker.tainting.qual.Untainted
 import java.awt.event.KeyEvent
 import javax.swing.Action
 import javax.swing.JComponent
@@ -15,12 +17,13 @@ data class SlideOutOptions(
   @get:JvmName("shouldRemember") val remember: Boolean = false,
   @get:JvmName("shouldDelete") val delete: Boolean = false
 )
-
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: String) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) :
   DialogWrapper(project, /* canBeParent */ true) {
 
   private var remember = false
   private var delete = false
+
+  private fun String.escapeHtml4(): String = StringEscapeUtils.escapeHtml4(this)
 
   init {
     title = getString("action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.title")
@@ -35,14 +38,25 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
   override fun createCenterPanel() = panel {
     indent {
       row {
-        label(
-          format(
-            getString(
-              "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
-            ),
-            branchName
+        if (branchName.escapeHtml4() != branchName) {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1"
+              ),
+              branchName
+            )
           )
-        )
+        } else {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
+              ),
+              branchName
+            )
+          )
+        }
       }
       row {
         label(

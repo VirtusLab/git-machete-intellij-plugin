@@ -18,6 +18,7 @@ import git4idea.merge.GitMergeDialog
 import git4idea.repo.GitRepository
 import git4idea.ui.ComboBoxWithAutoCompletion
 import net.miginfocom.swing.MigLayout
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import java.awt.Insets
 import javax.swing.JCheckBox
 import javax.swing.JLabel
@@ -156,7 +157,7 @@ class SlideInDialog(
       )
 
       add(
-        JLabel("<html><b>$parentName</b></html>"),
+        JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
         ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap()
       )
 

@@ -10,6 +10,7 @@ dependencies {
 }
 
 addIntellijToCompileClasspath(withGit4Idea = true)
+apacheCommonsText()
 applyKotlinConfig()
 apacheCommonsText()
 lombok()

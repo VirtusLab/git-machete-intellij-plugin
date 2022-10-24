@@ -33,6 +33,7 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -47,7 +48,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
 @CustomLog
 public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -156,8 +157,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
-              branchName,
-              remoteTrackingBranch.getName(),
+              branchName.escapeHtml4(),
+              remoteTrackingBranch.getName().escapeHtml4(),
               currentCommitSha));
 
       dialogBuilder
