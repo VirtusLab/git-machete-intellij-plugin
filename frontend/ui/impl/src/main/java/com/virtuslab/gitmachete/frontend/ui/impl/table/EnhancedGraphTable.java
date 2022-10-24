@@ -236,7 +236,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         VcsNotifier.getInstance(project).notify(notification);
       }
 
-      // notify if branch name listed in machete file appears more than once
+      // notify if a branch name listed in the machete file appears more than once
       Set<String> duplicatedBranchNames = repositorySnapshot.getDuplicatedBranchNames();
       if (duplicatedBranchNames.nonEmpty()) {
         // This warning notification will not cover other error notifications (e.g. when rebase errors occur)
