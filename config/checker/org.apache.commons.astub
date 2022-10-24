@@ -1,10 +1,9 @@
 import org.checkerframework.checker.nullness.qual.PolyNull;
-import org.checkerframework.checker.tainting.qual.Untainted;
 
 package org.apache.commons.text;
 
 class StringEscapeUtils {
 
-  static @PolyNull @Untainted String escapeHtml4(@PolyNull String input);
+  static @PolyNull String escapeHtml4(@PolyNull String input);
 
 }
