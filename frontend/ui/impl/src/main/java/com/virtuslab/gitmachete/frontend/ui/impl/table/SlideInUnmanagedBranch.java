@@ -30,7 +30,7 @@ public class SlideInUnmanagedBranch {
   private final Project project;
   private final Supplier<Try<ILocalBranchReference>> inferParentResultSupplier;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
-  private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchNameConsumer;
+  private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchConsumer;
 
   public void enqueue() {
     LOG.info("Enqueuing unmanaged branch notification");
@@ -62,7 +62,7 @@ public class SlideInUnmanagedBranch {
         val inferredParent = inferParentResult.get();
 
         LOG.debug("Executing on-success consumer");
-        onSuccessInferredParentBranchNameConsumer.accept(inferredParent);
+        onSuccessInferredParentBranchConsumer.accept(inferredParent);
       }
     }.queue();
   }

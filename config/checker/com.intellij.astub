@@ -356,6 +356,15 @@ class VirtualFile {
   @Nullable VirtualFile getParent();
 }
 
+package com.intellij.openapi.vfs.newvfs;
+
+interface BulkFileListener {
+  @UIEffect
+  void before(List<? extends VFileEvent> events);
+
+  @UIEffect
+  void after(List<? extends VFileEvent> events);
+}
 
 @UIPackage package com.intellij.openapi.wm;
 

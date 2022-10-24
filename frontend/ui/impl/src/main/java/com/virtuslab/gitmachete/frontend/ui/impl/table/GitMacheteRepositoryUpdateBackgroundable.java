@@ -38,7 +38,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
   private final @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone;
-  private final Consumer<@Nullable IGitMacheteRepository> doOnUIThreadWhenDoneR;
+  private final Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer;
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
@@ -47,13 +47,13 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
       @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone,
-      Consumer<@Nullable IGitMacheteRepository> doOnUIThreadWhenDoneR) {
+      Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer) {
     super(project, getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;
     this.doOnUIThreadWhenDone = doOnUIThreadWhenDone;
-    this.doOnUIThreadWhenDoneR = doOnUIThreadWhenDoneR;
+    this.gitMacheteRepositoryConsumer = gitMacheteRepositoryConsumer;
 
     this.gitMacheteRepositoryCache = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class);
   }
@@ -96,7 +96,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
             mainGitDirectoryPath, worktreeGitDirectoryPath);
-        doOnUIThreadWhenDoneR.accept(gitMacheteRepository);
+        gitMacheteRepositoryConsumer.accept(gitMacheteRepository);
         return gitMacheteRepository
             .createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).getOrNull();

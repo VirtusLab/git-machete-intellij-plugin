@@ -48,7 +48,7 @@ public class UnmanagedBranchNotificationFactory {
         NotificationType.INFORMATION);
 
     val slideInAction = getSlideInAction(notification);
-    val openMacheteFileAction = getOpenMacheteFileAction(notification);
+    val openMacheteFileAction = getOpenMacheteFileAction();
     val dontShowForThisBranchAction = getDontShowForThisBranchAction(notification);
     val dontShowForThisProjectAction = getDontShowForThisProjectAction(notification);
 
@@ -61,12 +61,12 @@ public class UnmanagedBranchNotificationFactory {
   }
 
   @UIEffect
-  public static boolean showForThisProject(Project project) {
+  public static boolean shouldShowForThisProject(Project project) {
     return PropertiesComponent.getInstance(project).getBoolean(SHOW_UNMANAGED_BRANCH_NOTIFICATION, /* defaultValue */ true);
   }
 
   @UIEffect
-  public static boolean showForThisBranch(Project project, String aBranchName) {
+  public static boolean shouldShowForThisBranch(Project project, String aBranchName) {
     String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}";
     return PropertiesComponent.getInstance(project).getBoolean(propertyKey, /* defaultValue */ true);
   }
@@ -122,7 +122,7 @@ public class UnmanagedBranchNotificationFactory {
             });
   }
 
-  private NotificationAction getOpenMacheteFileAction(Notification notification) {
+  private NotificationAction getOpenMacheteFileAction() {
     return NotificationAction.createSimple(
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           val dataContext = new DataContext() {
@@ -135,7 +135,6 @@ public class UnmanagedBranchNotificationFactory {
           };
           val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
-          notification.expire();
         });
   }
 

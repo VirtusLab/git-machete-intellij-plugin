@@ -35,8 +35,8 @@ public class GitMacheteRepositoryDiscoverer {
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
   private final Consumer<Path> onFailurePathConsumer;
-  private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
-  private final Consumer<IGitMacheteRepository> onSuccessRepositoryConsumerR;
+  private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositorySnapshotConsumer;
+  private final Consumer<IGitMacheteRepository> onSuccessRepositoryConsumer;
 
   public void enqueue(Path macheteFilePath) {
     LOG.info("Enqueuing automatic discover");
@@ -54,12 +54,13 @@ public class GitMacheteRepositoryDiscoverer {
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running automatic discover task");
-        val discoverRunResultR = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath));
+        val gitMacheteRepositoryInstantiateResult = Try
+            .of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+                .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath));
 
-        if (discoverRunResultR.isFailure()) {
-          LOG.debug("Discover failed");
-          val exception = discoverRunResultR.getCause();
+        if (gitMacheteRepositoryInstantiateResult.isFailure()) {
+          LOG.debug("Instantiation failed");
+          val exception = gitMacheteRepositoryInstantiateResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
@@ -68,11 +69,12 @@ public class GitMacheteRepositoryDiscoverer {
                   exception.getMessage() != null ? exception.getMessage() : ""));
           return;
         }
-        val discoverRunResult = discoverRunResultR.mapTry(IGitMacheteRepository::discoverLayoutAndCreateSnapshot);
+        val discoverResult = gitMacheteRepositoryInstantiateResult
+            .mapTry(IGitMacheteRepository::discoverLayoutAndCreateSnapshot);
 
-        if (discoverRunResult.isFailure()) {
+        if (discoverResult.isFailure()) {
           LOG.debug("Snapshot creation failed");
-          val exception = discoverRunResult.getCause();
+          val exception = discoverResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
@@ -82,8 +84,8 @@ public class GitMacheteRepositoryDiscoverer {
           return;
         }
 
-        val repositorySnapshot = discoverRunResult.get();
-        val repository = discoverRunResultR.get();
+        val repositorySnapshot = discoverResult.get();
+        val repository = gitMacheteRepositoryInstantiateResult.get();
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           LOG.debug("No root branches discovered - executing on-failure consumer");
@@ -97,8 +99,8 @@ public class GitMacheteRepositoryDiscoverer {
         try {
           LOG.debug("Writing branch layout & executing on-success consumer");
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
-          onSuccessRepositoryConsumer.accept(repositorySnapshot);
-          onSuccessRepositoryConsumerR.accept(repository);
+          onSuccessRepositorySnapshotConsumer.accept(repositorySnapshot);
+          onSuccessRepositoryConsumer.accept(repository);
         } catch (BranchLayoutException exception) {
           LOG.debug("Handling branch layout exception");
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
