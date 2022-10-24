@@ -92,6 +92,12 @@ fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
   return this.versionCatalog().findLibrary(id).get()
 }
 
+fun Project.apacheCommonsText() {
+  dependencies {
+    "implementation"(lib("apacheCommonsText"))
+  }
+}
+
 fun Project.commonsIO() {
   dependencies {
     "implementation"(lib("commonsIO"))
@@ -110,10 +116,6 @@ fun Project.ideProbe() {
     "uiTestImplementation"(testFixtures(project(":testCommon")))
     "uiTestImplementation"(bundle("ideProbe"))
   }
-}
-
-fun Project.apacheCommonsText() {
-  dependencies { "implementation"(lib("apacheCommonsText")) }
 }
 
 fun Project.jcabiAspects() {

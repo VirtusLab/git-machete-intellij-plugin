@@ -29,6 +29,8 @@ class OverrideForkPointDialog(
 
   private val parent = branch.parent
 
+  private fun String.escapeHtml4(): String = escapeHtml4(this)
+
   init {
     title =
       getString("action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.title")
@@ -49,14 +51,25 @@ class OverrideForkPointDialog(
 
   override fun createCenterPanel() = panel {
     row {
-      label(
-        format(
-          getString(
-            "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
-          ),
-          branch.name
+      if (branch.name.escapeHtml4() != branch.name) {
+        label(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label"
+            ),
+            branch.name
+          )
         )
-      )
+      } else {
+        label(
+          format(
+            getString(
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
+            ),
+            branch.name
+          )
+        )
+      }
     }
 
     buttonsGroup {

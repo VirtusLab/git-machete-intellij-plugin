@@ -11,6 +11,7 @@ dependencies {
 }
 
 addIntellijToCompileClasspath(withGit4Idea = true)
+apacheCommonsText()
 junit()
 lombok()
 powerMock()

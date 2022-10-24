@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.util.Collections;
 
@@ -27,7 +28,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
@@ -98,29 +98,34 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }
 
     val slideInOptions = slideInDialog.getSlideInOptions();
+    String slideInOptionsName = slideInOptions.getName();
 
-    if (parentName.equals(slideInOptions.getName())) {
+    if (parentName.equals(slideInOptionsName)) {
       // @formatter:off
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML").format(slideInOptions.getName()),
+          /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML")
+                      .format(escapeHtml4(slideInOptionsName)),
           /* message */ getString("action.GitMachete.BaseSlideInBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
     }
 
-    val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
     Runnable preSlideInRunnable = () -> {};
+    val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptionsName);
+
     if (localBranch == null) {
       Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
-          project, gitRepository, parentName, slideInOptions.getName());
+          project, gitRepository, parentName, slideInOptionsName);
+
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
       val branchName = branchNameAndPreSlideInRunnable._1();
-      if (!slideInOptions.getName().equals(branchName)) {
+
+      if (!slideInOptionsName.equals(branchName)) {
         val branchNameFromNewBranchDialog = branchName != null ? branchName : "no name provided";
         VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.BaseSlideInBelowAction.notification.message.mismatched-names.HTML")
-                .format(slideInOptions.getName(), branchNameFromNewBranchDialog));
+                .format(escapeHtml4(slideInOptionsName), escapeHtml4(branchNameFromNewBranchDialog)));
         return;
       }
     }
@@ -128,7 +133,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val parentEntry = branchLayout.getEntryByName(parentName);
     val entryAlreadyExistsBelowGivenParent = parentEntry != null
         && parentEntry.getChildren().map(BranchLayoutEntry::getName)
-            .map(names -> names.contains(slideInOptions.getName()))
+            .map(names -> names.contains(slideInOptionsName))
             .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent && slideInOptions.shouldReattach()) {
@@ -164,7 +169,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       Project project,
       GitRepository gitRepository,
       String startPoint,
-      @Untainted String initialName) {
+      String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,

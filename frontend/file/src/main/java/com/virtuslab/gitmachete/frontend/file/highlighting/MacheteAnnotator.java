@@ -81,7 +81,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
     cantGetBranchesMessageWasShown = false;
 
-    val processedBranchName = branch.getText();
+    String processedBranchName = branch.getText();
 
     // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> MacheteFileUtils.saveDocument(file));
