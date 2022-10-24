@@ -44,7 +44,7 @@ fun Project.configureCheckerFramework() {
         // since for simplicity, we're providing the same set of stubs to Checker in each subproject
         // (`$rootDir/config/checker/`, which includes e.g. Vavr).
         "-AstubWarnIfNotFoundIgnoresClasses",
-        "-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation"
+        "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run"
       )
 
     dependencies {

@@ -11,12 +11,16 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import io.vavr.collection.List;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.junit.Test;
 
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(Arrays.class)
 public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
 
   private static final String UIThreadUnsafeName = "@" + UIThreadUnsafe.class.getSimpleName();
@@ -31,13 +35,19 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .check(importedClasses);
   }
 
+  private static List<String> extractWhitelistedMethodsFromAnnotation(JavaMethod method) {
+    if (method.isAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)) {
+      return List.of(method.getAnnotationOfType(IgnoreUIThreadUnsafeCalls.class).value());
+    } else {
+      return List.empty();
+    }
+  }
+
   @Test
   public void only_ui_thread_unsafe_methods_should_call_other_ui_thread_unsafe_methods() {
     methods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .and()
-        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
         .should(new ArchCondition<JavaMethod>("never call any ${UIThreadUnsafeName} methods") {
           @Override
           public void check(JavaMethod method, ConditionEvents events) {
@@ -77,11 +87,14 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
               }
             }
 
+            val whitelistedMethodsFromAnnotation = extractWhitelistedMethodsFromAnnotation(method);
             method.getCallsFromSelf().forEach(call -> {
-              AccessTarget accessTarget = call.getTarget();
-              if (accessTarget.isAnnotatedWith(UIThreadUnsafe.class)) {
+              AccessTarget calledMethod = call.getTarget();
+              String calledMethodFullName = calledMethod.getFullName();
+              if (calledMethod.isAnnotatedWith(UIThreadUnsafe.class)
+                  && !whitelistedMethodsFromAnnotation.contains(calledMethodFullName)) {
                 String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                    "calls a ${UIThreadUnsafeName} method ${accessTarget.getFullName()}";
+                    "calls a ${UIThreadUnsafeName} method ${calledMethodFullName}";
                 events.add(SimpleConditionEvent.violated(method, message));
               }
             });
@@ -167,17 +180,18 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
         .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea or IO methods") {
           private void checkCallAgainstPackagePrefix(JavaMethod method, JavaCall<?> call, String packagePrefix,
-              String[] whitelistedMethodFullNames, ConditionEvents events) {
+              String[] whitelistedMethodsOfPackage, ConditionEvents events) {
             AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
-            String callTargetPackageName = callTarget.getOwner().getPackageName();
+            String calledMethodPackageName = callTarget.getOwner().getPackageName();
             String calledMethodFullName = callTarget.getFullName();
 
-            if (callTargetPackageName.startsWith(packagePrefix)) {
-              if (!Arrays.asList(whitelistedMethodFullNames).contains(calledMethodFullName)) {
-                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                    "calls method ${calledMethodFullName} from ${packagePrefix}";
-                events.add(SimpleConditionEvent.violated(method, message));
-              }
+            val whitelistedMethodsFromAnnotation = extractWhitelistedMethodsFromAnnotation(method);
+            if (calledMethodPackageName.startsWith(packagePrefix) &&
+                !whitelistedMethodsOfPackage.asList().contains(calledMethodFullName) &&
+                !whitelistedMethodsFromAnnotation.contains(calledMethodFullName)) {
+              String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                  "calls method ${calledMethodFullName} from ${packagePrefix}";
+              events.add(SimpleConditionEvent.violated(method, message));
             }
           }
 

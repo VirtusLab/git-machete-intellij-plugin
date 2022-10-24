@@ -152,7 +152,14 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
   // The UI thread-unsafe calls are actually happening within Runnable lambdas
   // which are going to be executed outside of UI thread.
-  @IgnoreUIThreadUnsafeCalls
+  @IgnoreUIThreadUnsafeCalls({
+      "git4idea.ui.branch.GitBranchCheckoutOperation.<init>" +
+          "(com.intellij.openapi.project.Project, java.util.List)",
+      "git4idea.ui.branch.GitBranchCheckoutOperation.perform" +
+          "(java.lang.String, git4idea.branch.GitNewBranchOptions)",
+      "git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction.checkoutRemoteBranch" +
+          "(com.intellij.openapi.project.Project, java.util.List, java.lang.String)"
+  })
   Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
       Project project,
       GitRepository gitRepository,
