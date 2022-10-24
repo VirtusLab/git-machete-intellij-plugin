@@ -228,7 +228,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setModel(new GraphTableModel(repositoryGraph));
 
-    if (!macheteFileIsOpened(macheteFilePath)) {
+    if (!macheteFileIsOpenedAndFocused(macheteFilePath)) {
       // notify if branch listed in machete file does not exist
       Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
       if (skippedBranchNames.nonEmpty()) {
@@ -252,9 +252,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @UIEffect
-  private boolean macheteFileIsOpened(Path macheteFilePath) {
+  private boolean macheteFileIsOpenedAndFocused(Path macheteFilePath) {
     val fileEditorManager = FileEditorManager.getInstance(project);
-    val macheteVirtualFile = List.of(fileEditorManager.getOpenFiles())
+    val macheteVirtualFile = List.of(fileEditorManager.getSelectedFiles())
         .find(virtualFile -> virtualFile.getPath().equals(macheteFilePath.toString()));
     if (macheteVirtualFile.isEmpty()) {
       return false;
