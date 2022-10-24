@@ -69,6 +69,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         val xPathfactory = XPathFactory.newInstance();
         val xpath = xPathfactory.newXPath();
         val expr = xpath.compile("//idea-plugin/id/text()");
+        // Let's check if the given plugin.xml corresponds to our plugin, or to one of dependencies.
         if (!expr.evaluate(document).equals("com.virtuslab.git-machete"))
           continue;
 
