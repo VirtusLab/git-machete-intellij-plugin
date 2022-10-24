@@ -229,7 +229,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     setModel(new GraphTableModel(repositoryGraph));
 
     if (!macheteFileIsOpenedAndFocused(macheteFilePath)) {
-      // notify if branch listed in machete file does not exist
+      // notify if a branch listed in the machete file does not exist
       Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
       if (skippedBranchNames.nonEmpty()) {
         val notification = getSkippedBranchesNotification(repositorySnapshot, gitRepository);
