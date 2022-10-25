@@ -301,10 +301,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs(s"project.syncCurrentToParentByRebase()")
       }
 
-      def syncCurrentToRemoteByRebase(): Unit = doAndAwait {
-        runJs(s"project.syncCurrentToRemoteByRebase()")
-      }
-
       def syncSelectedToParentByMerge(branch: String): Unit = doAndAwait {
         runJs(s"project.syncSelectedToParentByMerge('$branch')")
       }
@@ -351,10 +347,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def resetCurrentToRemote(): Unit = doAndAwait {
         runJs(s"project.resetCurrentToRemote()")
-      }
-
-      def resetCurrentToParent(): Unit = doAndAwait {
-        runJs(s"project.resetCurrentToParent()")
       }
 
       def resetToRemote(branch: String): Unit = doAndAwait {

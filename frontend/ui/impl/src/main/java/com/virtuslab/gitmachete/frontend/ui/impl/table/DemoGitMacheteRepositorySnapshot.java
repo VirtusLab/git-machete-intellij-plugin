@@ -15,7 +15,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
@@ -225,11 +224,6 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     }
 
     @Override
-    public IGitRebaseParameters getParametersForRebaseOntoRemote() throws GitMacheteMissingForkPointException {
-      throw new GitMacheteMissingForkPointException();
-    }
-
-    @Override
     public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
       return null;
     }
@@ -271,11 +265,6 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     @Override
     public @Nullable String getStatusHookOutput() {
       return null;
-    }
-
-    @Override
-    public IGitRebaseParameters getParametersForRebaseOntoRemote() throws GitMacheteMissingForkPointException {
-      throw new GitMacheteMissingForkPointException();
     }
 
     @Override

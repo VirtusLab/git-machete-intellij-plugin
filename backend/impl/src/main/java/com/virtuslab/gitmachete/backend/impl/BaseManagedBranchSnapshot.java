@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import lombok.AccessLevel;
-import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -10,17 +9,13 @@ import lombok.val;
 import org.checkerframework.checker.interning.qual.UsesObjectEquals;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
-import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
-import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 
 @Getter
 @ToString
-@CustomLog
 @UsesObjectEquals
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapshot {
@@ -30,8 +25,6 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   private final ICommitOfManagedBranch pointedCommit;
   private final @Nullable IRemoteTrackingBranchReference remoteTrackingBranch;
   private final RelationToRemote relationToRemote;
-
-  private final @Nullable IForkPointCommitOfManagedBranch remoteForkPoint;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
 
@@ -65,23 +58,5 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   @Override
   public @Nullable String getStatusHookOutput() {
     return statusHookOutput;
-  }
-
-  @Override
-  public IGitRebaseParameters getParametersForRebaseOntoRemote() throws GitMacheteMissingForkPointException {
-
-    LOG.debug(() -> "Entering: branch = '${getName()}'");
-    val newBaseBranch = getRemoteTrackingBranch();
-    if (newBaseBranch == null || remoteForkPoint == null) {
-      throw new GitMacheteMissingForkPointException("Cannot get remote fork point for branch '${getName()}'");
-    } else {
-
-      LOG.debug(() -> "Inferred rebase parameters: currentBranch = ${getName()}, " +
-          "newBaseCommit = ${newBaseBranch.getPointedCommit().getHash()}, " +
-          "forkPointCommit = ${remoteForkPoint != null ? remoteForkPoint.getHash() : null}");
-
-      return new GitRebaseParameters(/* currentBranch */ this, newBaseBranch, remoteForkPoint);
-    }
-
   }
 }

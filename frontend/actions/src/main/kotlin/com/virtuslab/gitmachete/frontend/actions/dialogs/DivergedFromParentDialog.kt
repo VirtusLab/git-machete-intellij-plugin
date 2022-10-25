@@ -10,9 +10,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 
 enum class ParentDivergenceResolutionOption {
-  RESET_TO_PARENT,
-  REBASE_ON_PARENT,
-  MERGE_PARENT_INTO_CURRENT
+  REBASE_ON_PARENT
 }
 
 class DivergedFromParentDialog(
@@ -25,7 +23,7 @@ class DivergedFromParentDialog(
 
   init {
     title =
-      getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.title")
+      getString("action.GitMachete.TraverseAction.dialog.diverged-from-parent.title")
     setOKButtonMnemonic('O'.code)
     super.init()
   }
@@ -42,7 +40,7 @@ class DivergedFromParentDialog(
       label(
         format(
           getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.text.HTML"
+            "action.GitMachete.TraverseAction.dialog.diverged-from-parent.text.HTML"
           ),
           branch.name,
           parentBranch.name
@@ -53,28 +51,10 @@ class DivergedFromParentDialog(
       row {
         radioButton(
           getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.rebase-on-parent"
+            "action.GitMachete.TraverseAction.dialog.diverged-from-parent.rebase-on-parent"
           ),
           ParentDivergenceResolutionOption.REBASE_ON_PARENT
         )
-      }
-
-      row {
-        radioButton(
-          getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.reset-to-parent"
-          ),
-          ParentDivergenceResolutionOption.RESET_TO_PARENT
-        )
-      }
-
-      row {
-        radioButton(
-          getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.merge-parent-into-current"
-          ),
-          ParentDivergenceResolutionOption.MERGE_PARENT_INTO_CURRENT
-        ).comment(getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-parent.merge-parent-into-current.comment"))
       }
     }
       .bind(

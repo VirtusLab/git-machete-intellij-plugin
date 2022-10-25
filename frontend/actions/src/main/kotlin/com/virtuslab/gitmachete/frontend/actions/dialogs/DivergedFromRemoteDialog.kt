@@ -12,9 +12,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getStr
 
 enum class DivergeResolutionOption {
   FORCE_PUSH,
-  RESET_ON_REMOTE,
-  MERGE_REMOTE_INTO_LOCAL,
-  REBASE_ON_REMOTE
+  RESET_ON_REMOTE
 }
 
 class DivergedFromRemoteDialog(
@@ -24,11 +22,11 @@ class DivergedFromRemoteDialog(
   private val relationToRemote: SyncToRemoteStatus
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-  private var divergeResolutionOption = DivergeResolutionOption.REBASE_ON_REMOTE
+  private var divergeResolutionOption = DivergeResolutionOption.FORCE_PUSH
 
   init {
     title =
-      getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.title")
+      getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.title")
     setOKButtonMnemonic('O'.code)
     super.init()
   }
@@ -36,9 +34,9 @@ class DivergedFromRemoteDialog(
   val relationToRemoteDescription =
     when (relationToRemote) {
       SyncToRemoteStatus.DivergedFromAndNewerThanRemote ->
-        getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.newer-than-remote")
+        getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.newer-than-remote")
       SyncToRemoteStatus.DivergedFromAndOlderThanRemote ->
-        getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.older-than-remote")
+        getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.older-than-remote")
       else -> { "" }
     }
 
@@ -54,7 +52,7 @@ class DivergedFromRemoteDialog(
       label(
         format(
           getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.text.HTML"
+            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.text.HTML"
           ),
           branch.name,
           remoteBranch.fullName,
@@ -67,39 +65,19 @@ class DivergedFromRemoteDialog(
         radioButton(
 
           getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.rebase-on-remote"
-          ),
-          DivergeResolutionOption.REBASE_ON_REMOTE
-        ).comment("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.rebase-on-remote.comment")
-      }
-
-      row {
-        radioButton(
-
-          getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.merge-remote"
-          ),
-          DivergeResolutionOption.MERGE_REMOTE_INTO_LOCAL
-        ).comment(getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.merge-remote.comment"))
-      }
-
-      row {
-        radioButton(
-
-          getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.force-push"
+            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.force-push"
           ),
           DivergeResolutionOption.FORCE_PUSH
-        ).comment(getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.force-push.comment"))
+        ).comment(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.force-push.comment"))
       }
 
       row {
         radioButton(
           getString(
-            "action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.reset-on-remote"
+            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.reset-on-remote"
           ),
           DivergeResolutionOption.RESET_ON_REMOTE
-        ).comment(getString("action.GitMachete.TraverseRepositoryAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+        ).comment(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
       }
     }
       .bind(

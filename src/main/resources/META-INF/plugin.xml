@@ -207,8 +207,8 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.TraverseRepositoryAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.traverse.TraverseRepositoryAction">
+            <action id="GitMachete.TraverseAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.traverse.TraverseAction">
                 <override-text place="GitMacheteToolbar"/>
             </action>
         </group>

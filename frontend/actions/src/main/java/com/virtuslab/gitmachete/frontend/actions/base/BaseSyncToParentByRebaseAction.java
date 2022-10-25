@@ -1,44 +1,54 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import io.vavr.CheckedFunction0;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.branch.GitRebaseParams;
+import git4idea.config.GitVersion;
+import git4idea.rebase.GitRebaseOption;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
+import git4idea.util.GitFreezingProcess;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({Arrays.class, GitMacheteBundle.class})
 @CustomLog
-public abstract class BaseSyncToParentByRebaseAction extends BaseRebaseAction
+public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
   private static final String NL = System.lineSeparator();
-
-  @UIEffect
-  protected void setProperSuccessPresentation(AnActionEvent anActionEvent) {
-    anActionEvent.getPresentation().setText(getString("action.GitMachete.BaseSyncToParentByRebaseAction.text"));
-  }
-
-  @Override
-  protected boolean isRebaseTargetPresent(AnActionEvent anActionEvent) {
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val branch = getManagedBranchByName(anActionEvent, branchName);
-    return branch != null && branch.isNonRoot();
-  }
 
   @Override
   public LambdaLogger log() {
@@ -51,11 +61,50 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseRebaseAction
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
 
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    val branch = getManagedBranchByName(anActionEvent, branchName);
-    if (branch != null) {
-      if (branch.isRoot()) {
+    val selectedGitRepo = getSelectedGitRepository(anActionEvent);
+    val state = selectedGitRepo != null ? selectedGitRepo.getState() : null;
+    val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU);
+
+    if (state == null) {
+      presentation.setEnabled(false);
+      presentation.setDescription(
+          getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.unknown-state"));
+
+    } else if (state != Repository.State.NORMAL
+        && !(isCalledFromContextMenu && state == Repository.State.DETACHED)) {
+
+      val stateName = Match(state).of(
+          Case($(Repository.State.GRAFTING),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.cherry-pick")),
+          Case($(Repository.State.DETACHED),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.detached-head")),
+          Case($(Repository.State.MERGING),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.merge")),
+          Case($(Repository.State.REBASING),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.rebase")),
+          Case($(Repository.State.REVERTING),
+              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.revert")),
+          Case($(), ": " + state.name().toLowerCase()));
+
+      presentation.setEnabled(false);
+      presentation.setDescription(
+          getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.status")
+              .format(stateName));
+    } else {
+
+      val branchName = getNameOfBranchUnderAction(anActionEvent);
+      val branch = getManagedBranchByName(anActionEvent, branchName);
+
+      if (branch == null) {
+        presentation.setEnabled(false);
+        presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
+            .format("Rebase", getQuotedStringOrCurrent(branchName)));
+      } else if (branch.isRoot()) {
+
         if (anActionEvent.getPlace().equals(ActionPlaces.TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
@@ -69,18 +118,33 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseRebaseAction
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         val upstream = nonRootBranch.getParent();
-        presentation.setDescription(getNonHtmlString("action.GitMachete.BaseRebaseAction.description")
+        presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
             .format(branch.getName(), upstream.getName()));
+      }
+
+      val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
+
+      val isRebasingCurrent = branch != null && currentBranchNameIfManaged != null
+          && currentBranchNameIfManaged.equals(branch.getName());
+      if (isCalledFromContextMenu && isRebasingCurrent) {
+        presentation.setText(getString("action.GitMachete.BaseSyncToParentByRebaseAction.text"));
       }
     }
   }
 
-  protected CheckedFunction0<IGitRebaseParameters> getParametersForRebase(IManagedBranchSnapshot branchToRebase) {
-    return () -> {
-      if (branchToRebase.isNonRoot()) {
-        return branchToRebase.asNonRoot().getParametersForRebaseOntoParent();
+  @Override
+  @UIEffect
+  public void actionPerformed(AnActionEvent anActionEvent) {
+    LOG.debug("Performing");
+
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val branch = getManagedBranchByName(anActionEvent, branchName);
+
+    if (branch != null) {
+      if (branch.isNonRoot()) {
+        doRebase(anActionEvent, branch.asNonRoot());
       } else {
-        throw new GitMacheteMissingForkPointException();
+        LOG.warn("Skipping the action because the branch '${branch.getName()}' is a root branch");
       }
     }
   }

@@ -183,24 +183,6 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     project.assertSyncToParentStatus("build-chain", "InSync")
   }
 
-  @Test def syncToRemoteByRebaseAction(): Unit = {
-
-    // syncCurrentToRemoteByRebase
-    project.openGitMacheteTab()
-    project.checkoutBranch("hotfix/add-trigger")
-    project.syncCurrentToRemoteByRebase()
-    project.assertSyncToRemoteStatus("hotfix/add-trigger", "AheadOfRemote")
-  }
-
-  @Test def syncToParentByReset(): Unit = {
-
-    // resetCurrentBranchToRemote
-    project.openGitMacheteTab()
-    project.checkoutBranch("allow-ownership-link")
-    project.resetCurrentToParent()
-    project.assertBranchesAreEqual("develop", "allow-ownership-link")
-  }
-
   @Test def syncToParentByMergeAction(): Unit = {
 
     // syncSelectedToParentByMerge
