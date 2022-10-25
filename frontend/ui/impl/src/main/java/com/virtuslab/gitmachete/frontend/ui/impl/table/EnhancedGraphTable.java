@@ -18,6 +18,7 @@ import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -84,6 +85,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
       DataProvider,
+      Disposable,
       IGitMacheteRepositorySnapshotProvider {
 
   private final Project project;
@@ -163,7 +165,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         }
       }
     });
-    Disposer.register(project, messageBusConnection);
+    Disposer.register(this, messageBusConnection);
   }
 
   private void subscribeToGitRepositoryFilesChanges() {
@@ -171,7 +173,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection.subscribe(topic, listener);
-    Disposer.register(project, messageBusConnection);
+    Disposer.register(this, messageBusConnection);
   }
 
   private void subscribeToSelectedGitRepositoryChange() {
@@ -422,4 +424,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         Case($(), (Object) null));
   }
 
+  @Override
+  public void dispose() {
+
+  }
 }

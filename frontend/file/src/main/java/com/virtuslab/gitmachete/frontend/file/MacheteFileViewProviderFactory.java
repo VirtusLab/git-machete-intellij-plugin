@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.file;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -27,7 +28,7 @@ public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
     return new MacheteFileViewProvider(manager, file, eventSystemEnabled, language);
   }
 
-  private static class MacheteFileViewProvider extends SingleRootFileViewProvider {
+  private static class MacheteFileViewProvider extends SingleRootFileViewProvider implements Disposable {
 
     MacheteFileViewProvider(PsiManager manager,
         VirtualFile virtualFile,
@@ -53,7 +54,12 @@ public class MacheteFileViewProviderFactory implements FileViewProviderFactory {
       });
       MessageBusConnection messageBusConnection = project.getMessageBus().connect();
       messageBusConnection.subscribe(topic, listener);
-      Disposer.register(project, messageBusConnection);
+      Disposer.register(this, messageBusConnection);
+    }
+
+    @Override
+    public void dispose() {
+
     }
   }
 
