@@ -15,6 +15,6 @@ if [[ ${CI_PULL_REQUEST-} && ${GITHUB_TOKEN-} ]]; then
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
-    ./gradlew verifyChangeLogContents > /dev/null
+    ./gradlew -q verifyChangeLogContents
   fi
 fi

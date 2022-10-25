@@ -49,7 +49,7 @@ fun Project.configureIntellijPlugin() {
 
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
 
-  val verifyStructureTask = tasks.register("verifyChangeLogStructure") {
+  val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
     doLast {
       val prospectiveVersionSection = changelog.get(changelog.version.get())
       val latestVersionSection = changelog.getLatest()
@@ -71,7 +71,7 @@ fun Project.configureIntellijPlugin() {
         throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
       }
 
-      for (line in prospectiveVersionSection.toString().split("\n")) {
+      for (line in prospectiveVersionSection.toString().split(System.lineSeparator())) {
         if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
           throw Exception(
             "Update formatting in CHANGE-NOTES ${prospectiveVersionSection.version} section:" +
@@ -83,11 +83,11 @@ fun Project.configureIntellijPlugin() {
   }
 
   tasks.register("verifyChangeLog") {
-    dependsOn(verifyStructureTask, verifyContentsTask)
+    dependsOn(verifyVersionTask, verifyContentsTask)
   }
 
   tasks.named<Zip>("buildPlugin") {
-    dependsOn(verifyStructureTask)
+    dependsOn(verifyVersionTask)
   }
 
   tasks.withType<PatchPluginXmlTask> {
