@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.changelog.ChangelogPlugin
 import org.jetbrains.changelog.ChangelogPluginExtension
@@ -35,17 +36,59 @@ fun Project.configureIntellijPlugin() {
     tasks.withType<BuildSearchableOptionsTask> { enabled = false }
   }
 
+  // This task should not be used - we don't use the "Unreleased" section anymore
+  project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
+
   configure<ChangelogPluginExtension> {
     val PROSPECTIVE_RELEASE_VERSION: String by extra
     version.set("v$PROSPECTIVE_RELEASE_VERSION")
-    header.set(version)
-    headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
+    unreleasedTerm.set("v$PROSPECTIVE_RELEASE_VERSION")
+    headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
     path.set("${project.projectDir}/CHANGE-NOTES.md")
-    unreleasedTerm.set("Unreleased")
-    groups.set(emptyList())
   }
 
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+  val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
+    doLast {
+      val prospectiveVersionSection = changelog.get(changelog.version.get())
+      val latestVersionSection = changelog.getLatest()
+
+      if (prospectiveVersionSection.version != latestVersionSection.version) {
+        throw Exception(
+          "${prospectiveVersionSection.version} is not the latest in CHANGE-NOTES.md, " +
+            "update the file or change prospecitve version in version.gradle.kts"
+        )
+      }
+    }
+  }
+
+  val verifyContentsTask = tasks.register("verifyChangeLogContents") {
+    doLast {
+      val prospectiveVersionSection = changelog.get(changelog.version.get())
+
+      if (prospectiveVersionSection.toString().isBlank()) {
+        throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
+      }
+
+      for (line in prospectiveVersionSection.toString().split(System.lineSeparator())) {
+        if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
+          throw Exception(
+            "Update formatting in CHANGE-NOTES ${prospectiveVersionSection.version} section:" +
+              "${System.lineSeparator()}$line"
+          )
+        }
+      }
+    }
+  }
+
+  tasks.register("verifyChangeLog") {
+    dependsOn(verifyVersionTask, verifyContentsTask)
+  }
+
+  tasks.named<Zip>("buildPlugin") {
+    dependsOn(verifyVersionTask)
+  }
 
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
@@ -100,5 +143,7 @@ fun Project.configureIntellijPlugin() {
     password.set(pluginSignPrivateKeyPass)
   }
 
-  tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }
+  tasks.withType<PublishPluginTask> {
+    token.set(jetbrainsMarketplaceToken)
+  }
 }
