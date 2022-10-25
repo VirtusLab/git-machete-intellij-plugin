@@ -10,6 +10,7 @@ import static io.vavr.API.Match;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import javax.swing.ListSelectionModel;
@@ -121,7 +122,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private @Nullable Notification slideInNotification;
   @UIEffect
-  private @Nullable IGitMacheteRepository gitMacheteRepository;
+  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef = new AtomicReference<>(null);
 
   @UIEffect
   public EnhancedGraphTable(Project project) {
@@ -217,7 +218,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    val repository = gitMacheteRepository;
+    val repository = gitMacheteRepositoryRef.get();
     if (repository == null) {
       LOG.warn("gitMacheteRepository is null, so no unmanaged branch notification will show up");
       return;
@@ -415,7 +416,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         getGitRepositorySelectionProvider(),
         getUnsuccessfulDiscoverMacheteFilePathConsumer(),
         getSuccessfulDiscoverRepositorySnapshotConsumer(doOnUIThreadWhenReady),
-        /* getSuccessfulDiscoverRepositoryConsumer */repository -> gitMacheteRepository = repository)
+        /* getSuccessfulDiscoverRepositoryConsumer */ gitMacheteRepositoryRef::set)
             .enqueue(macheteFilePath);
   }
 
@@ -503,7 +504,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
             gitRepository,
             branchLayoutReader,
             doRefreshModel,
-            /* gitMacheteRepositoryConsumer */ repository -> gitMacheteRepository = repository).queue();
+            /* gitMacheteRepositoryConsumer */ gitMacheteRepositoryRef::set).queue();
 
         val macheteFile = gitRepository.getMacheteFile();
 

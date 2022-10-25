@@ -97,8 +97,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
             mainGitDirectoryPath, worktreeGitDirectoryPath);
         gitMacheteRepositoryConsumer.accept(gitMacheteRepository);
-        return gitMacheteRepository
-            .createSnapshotForLayout(branchLayout);
+        return gitMacheteRepository.createSnapshotForLayout(branchLayout);
       }).onFailure(this::handleUpdateRepositoryException).getOrNull();
     } else {
       LOG.debug("Machete file is absent");
