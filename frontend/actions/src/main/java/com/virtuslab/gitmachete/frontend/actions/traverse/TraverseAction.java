@@ -3,11 +3,20 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.Collections;
+
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
+import git4idea.branch.GitBranchUiHandlerImpl;
+import git4idea.branch.GitBranchWorker;
+import git4idea.commands.Git;
+import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -28,7 +37,6 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.PushApprovalDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseApprovalDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction;
-import com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutPreviousAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.OverrideForkPointOfCurrentAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentAction;
@@ -39,6 +47,7 @@ import com.virtuslab.gitmachete.frontend.actions.toolbar.SyncCurrentToParentByRe
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
@@ -100,22 +109,34 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       }
 
       if (traverseApproved) {
-        var currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
-        var previousEntry = currentBranchName != null ? branchLayout.findPreviousEntry(currentBranchName) : null;
-        while (previousEntry != null) {
-          val checkoutPreviousAction = ActionManager.getInstance()
-              .getAction(actionIdFormatString.format(CheckoutPreviousAction.class.getSimpleName()));
-          checkoutPreviousAction.actionPerformed(anActionEvent);
-          currentBranchName = previousEntry.getName();
-          previousEntry = branchLayout.findPreviousEntry(currentBranchName);
-        }
-
-        if (currentBranchName != null) {
-          traverse(currentBranchName, anActionEvent);
+        var firstEntry = branchLayout.getRootEntries().find(entry -> true).getOrNull();
+        if (firstEntry != null) {
+          val firstEntryName = firstEntry.getName();
+          log().debug(() -> "Queuing '${firstEntryName}' branch checkout background task");
+          new Task.Backgroundable(project, getString("action.GitMachete.BaseCheckoutAction.task-title")) {
+            @Override
+            @UIThreadUnsafe
+            public void run(ProgressIndicator indicator) {
+              doCheckout(project, indicator, firstEntryName, repository);
+            }
+            @Override
+            public void onSuccess() {
+              super.onSuccess();
+              traverse(firstEntryName, anActionEvent);
+            }
+          }.queue();
         }
 
       }
     }
+  }
+
+  @UIThreadUnsafe
+  public static void doCheckout(Project project, ProgressIndicator indicator, String branchToCheckoutName,
+      GitRepository gitRepository) {
+    val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
+    new GitBranchWorker(project, Git.getInstance(), uiHandler)
+        .checkout(branchToCheckoutName, /* detach */ false, Collections.singletonList(gitRepository));
   }
 
   @UIEffect
