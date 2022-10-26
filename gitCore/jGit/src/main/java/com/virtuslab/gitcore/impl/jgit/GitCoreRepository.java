@@ -133,8 +133,21 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private boolean isBranchPresent(String branchFullName) {
-    return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
+  private boolean isBranchPresent(String branchFullName, String currentlyCheckedBranchFullName) {
+    boolean branchExists = Try.of(() -> jgitRepoForMainGitDir.resolve(currentlyCheckedBranchFullName)).getOrNull() != null;
+    if (branchFullName.equals(currentlyCheckedBranchFullName)) {
+      return branchExists;
+    } else if (branchExists) {
+      return false;
+    } else {
+      String remainingWithoutBeginningSlash = branchFullName.substring(currentlyCheckedBranchFullName.length() + 1);
+      if (remainingWithoutBeginningSlash.indexOf('/') == -1) {
+        return isBranchPresent(branchFullName, currentlyCheckedBranchFullName + "/" + remainingWithoutBeginningSlash);
+      } else {
+        String firstPartOfRemaining = remainingWithoutBeginningSlash.substring(0, remainingWithoutBeginningSlash.indexOf('/'));
+        return isBranchPresent(branchFullName, currentlyCheckedBranchFullName + "/" + firstPartOfRemaining);
+      }
+    }
   }
 
   private GitCoreCommit convertExistingRevisionToGitCoreCommit(String revision) throws GitCoreException {
@@ -256,7 +269,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
     String localBranchFullName = getLocalBranchFullName(localBranchName);
-    if (!isBranchPresent(localBranchFullName)) {
+    if (!isBranchPresent(localBranchFullName, findFirstBranchNameToCheck(localBranchFullName, localBranchName))) {
       return null;
     }
 
@@ -275,7 +288,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       String remoteBranchName) throws GitCoreException {
 
     String remoteBranchFullName = getRemoteBranchFullName(remoteName, remoteBranchName);
-    if (!isBranchPresent(remoteBranchFullName)) {
+    if (!isBranchPresent(remoteBranchFullName, findFirstBranchNameToCheck(remoteBranchFullName, remoteBranchName))) {
       return null;
     }
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
@@ -284,6 +297,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
         deriveReflogByRefFullName(remoteBranchFullName, jgitRepoForMainGitDir),
         remoteName);
     return remoteBranch;
+  }
+
+  private String findFirstBranchNameToCheck(String branchFullName, String branchShortName) {
+    int firstForwardSlashIndexInBranchShortName = branchShortName.indexOf('/');
+    if (firstForwardSlashIndexInBranchShortName == -1) {
+      return branchFullName;
+    } else {
+      String branchesDirectoryName = branchFullName.substring(0, branchFullName.length() - branchShortName.length());
+      return branchFullName.substring(0, branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
+    }
   }
 
   @Override
