@@ -123,12 +123,21 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     val gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
 
     if (gitMacheteBranch != null) {
-      val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
-      if (remoteTrackingBranch != null) {
-        syncBranchToRemote(remoteTrackingBranch, gitMacheteBranch, anActionEvent);
-      }
       if (gitMacheteBranch.isNonRoot()) {
-        syncBranchToParent(gitMacheteBranch, anActionEvent);
+        val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
+        val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
+        boolean shouldSyncToParent;
+        switch (syncToRemoteStatus) {
+          case BehindRemote :
+          case DivergedFromAndOlderThanRemote :
+            shouldSyncToParent = false;
+            break;
+          default :
+            shouldSyncToParent = true;
+        }
+        if (shouldSyncToParent) {
+          syncBranchToParent(gitMacheteBranch, anActionEvent);
+        }
         val processedGitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
         if (processedGitMacheteBranch != null && remoteTrackingBranch != null) {
           syncBranchToRemote(remoteTrackingBranch, processedGitMacheteBranch, anActionEvent);
