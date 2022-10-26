@@ -10,6 +10,7 @@ import static io.vavr.API.Match;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import javax.swing.ListSelectionModel;
@@ -30,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
@@ -42,6 +44,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -57,7 +60,10 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -88,6 +94,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       Disposable,
       IGitMacheteRepositorySnapshotProvider {
 
+  @Getter(AccessLevel.PACKAGE)
   private final Project project;
 
   private final IBranchLayoutReader branchLayoutReader;
@@ -107,6 +114,16 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Setter(AccessLevel.PACKAGE)
   @UIEffect
   private @Nullable String selectedBranchName;
+
+  // To accurately track the change of the current branch from the begging, let's put something impossible
+  // as a branch name. This is required to detect the moment when the unmanaged branch notification should be shown.
+  @UIEffect
+  private String mostRecentlyCheckedOutBranch = "?!@#$%^&";
+
+  @UIEffect
+  private @Nullable Notification slideInNotification;
+
+  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef = new AtomicReference<>(null);
 
   @UIEffect
   public EnhancedGraphTable(Project project) {
@@ -154,26 +171,112 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private void subscribeToMacheteFileChange() {
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+
       @Override
+      @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
-            if (((VFileContentChangeEvent) event).getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
+            VirtualFile file = ((VFileContentChangeEvent) event).getFile();
+            if (file.getFileType().getName().equals(FileTypeIds.NAME)) {
+              if (slideInNotification != null && !slideInNotification.isExpired()) {
+                slideInNotification.expire();
+              }
               queueRepositoryUpdateAndModelRefresh();
             }
           }
         }
       }
+
     });
     Disposer.register(this, messageBusConnection);
   }
 
+  @UIEffect
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener = repository -> queueRepositoryUpdateAndModelRefresh();
+    @UI GitRepositoryChangeListener listener = repository -> {
+      trackCurrentBranchChange(repository);
+      queueRepositoryUpdateAndModelRefresh();
+    };
+
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection.subscribe(topic, listener);
     Disposer.register(this, messageBusConnection);
+  }
+
+  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.inferParentForLocalBranch"
+      + "(io.vavr.collection.Set, java.lang.String)")
+  private void inferParentForUnmanagedBranchNotificationAndNotify(String branchName) {
+    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
+    if (gitRepository == null) {
+      LOG.warn("Selected repository is null");
+      return;
+    }
+
+    Path macheteFilePath = gitRepository.getMacheteFilePath();
+    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
+    if (!isMacheteFilePresent) {
+      LOG.warn("Machete file (${macheteFilePath}) is absent, so no unmanaged branch notification will show up");
+      return;
+    }
+
+    val repository = gitMacheteRepositoryRef.get();
+    if (repository == null) {
+      LOG.warn("gitMacheteRepository is null, so no unmanaged branch notification will show up");
+      return;
+    }
+
+    if (gitMacheteRepositorySnapshot == null) {
+      LOG.warn("gitMacheteRepositorySnapshot is null, so no unmanaged branch notification will show up");
+      return;
+    }
+
+    val eligibleLocalBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName)
+        .toSet();
+
+    new SlideInUnmanagedBranch(
+        project,
+        /* inferParentResultSupplier */() -> Try
+            .of(() -> repository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName)),
+        /* gitRepositorySelectionProvider */ getGitRepositorySelectionProvider(),
+        /* onSuccessInferredParentBranchConsumer */ inferredParent -> notifyAboutUnmanagedBranch(inferredParent, branchName))
+            .enqueue();
+  }
+
+  private void notifyAboutUnmanagedBranch(ILocalBranchReference inferredParent, String branchName) {
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+      val showForThisProject = UnmanagedBranchNotificationFactory.shouldShowForThisProject(project);
+      val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, branchName);
+      if (showForThisProject && showForThisBranch) {
+        val notification = new UnmanagedBranchNotificationFactory(project, gitMacheteRepositorySnapshot, branchName,
+            inferredParent).create();
+        VcsNotifier.getInstance(project).notify(notification);
+        slideInNotification = notification;
+      }
+    });
+  }
+
+  @UIEffect
+  private void trackCurrentBranchChange(GitRepository repository) {
+    val repositoryCurrentBranch = repository.getCurrentBranch();
+    if (repositoryCurrentBranch != null) {
+      val repositoryCurrentBranchName = repositoryCurrentBranch.getName();
+      if (!repositoryCurrentBranchName.equals(mostRecentlyCheckedOutBranch)) {
+        if (slideInNotification != null) {
+          slideInNotification.expire();
+        }
+        if (gitMacheteRepositorySnapshot != null) {
+          val entry = gitMacheteRepositorySnapshot.getBranchLayout().getEntryByName(repositoryCurrentBranchName);
+          if (entry == null) {
+            inferParentForUnmanagedBranchNotificationAndNotify(repositoryCurrentBranchName);
+          }
+        }
+        mostRecentlyCheckedOutBranch = repositoryCurrentBranchName;
+      }
+    }
   }
 
   private void subscribeToSelectedGitRepositoryChange() {
@@ -275,7 +378,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         NotificationType.WARNING);
 
     notification.addAction(NotificationAction.createSimple(
-        () -> getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
+        getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
           notification.expire();
           // Note that we're essentially writing to machete file on UI thread here.
           // This is still acceptable since it simplifies the flow (no background task needed)
@@ -283,7 +386,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           slideOutSkippedBranches(repositorySnapshot, gitRepository);
         }));
     notification.addAction(NotificationAction.createSimple(
-        () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+        getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           val actionEvent = createAnActionEvent();
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
         }));
@@ -318,11 +421,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         project,
         getGitRepositorySelectionProvider(),
         getUnsuccessfulDiscoverMacheteFilePathConsumer(),
-        getSuccessfulDiscoverRepositoryConsumer(doOnUIThreadWhenReady))
+        getSuccessfulDiscoverRepositorySnapshotConsumer(doOnUIThreadWhenReady),
+        /* getSuccessfulDiscoverRepositoryConsumer */ gitMacheteRepositoryRef::set)
             .enqueue(macheteFilePath);
   }
 
-  private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositoryConsumer(@UI Runnable doOnUIThreadWhenReady) {
+  private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositorySnapshotConsumer(
+      @UI Runnable doOnUIThreadWhenReady) {
     return (IGitMacheteRepositorySnapshot repositorySnapshot) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
       gitMacheteRepositorySnapshot = repositorySnapshot;
       queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
@@ -332,7 +437,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
           NotificationType.INFORMATION);
       notification.addAction(NotificationAction.createSimple(
-          () -> getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+          getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
             val actionEvent = createAnActionEvent();
             ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
           }));
@@ -387,11 +492,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         }
 
         @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
-          val nullableRepositorySnapshot = newGitMacheteRepositorySnapshot;
-          this.gitMacheteRepositorySnapshot = nullableRepositorySnapshot;
-          if (nullableRepositorySnapshot != null) {
+          this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
+          if (newGitMacheteRepositorySnapshot != null) {
             refreshModel(gitRepository,
-                nullableRepositorySnapshot,
+                newGitMacheteRepositorySnapshot,
                 doOnUIThreadWhenReady);
 
           } else {
@@ -402,7 +506,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
-        new GitMacheteRepositoryUpdateBackgroundable(project, gitRepository, branchLayoutReader, doRefreshModel).queue();
+        new GitMacheteRepositoryUpdateBackgroundable(project,
+            gitRepository,
+            branchLayoutReader,
+            doRefreshModel,
+            /* gitMacheteRepositoryConsumer */ gitMacheteRepositoryRef::set).queue();
 
         val macheteFile = gitRepository.getMacheteFile();
 

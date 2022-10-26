@@ -137,6 +137,8 @@ package com.intellij.notification;
 class NotificationAction {
   // Experiments show that notification actions are executed on UI thread.
   static NotificationAction createSimple(Supplier<String> dynamicText, @UI Runnable performAction);
+
+  static NotificationAction createSimple(String text, @UI Runnable performAction);
 }
 
 class NotificationGroup {
@@ -354,6 +356,15 @@ class VirtualFile {
   @Nullable VirtualFile getParent();
 }
 
+package com.intellij.openapi.vfs.newvfs;
+
+interface BulkFileListener {
+  @UIEffect
+  void before(List<? extends VFileEvent> events);
+
+  @UIEffect
+  void after(List<? extends VFileEvent> events);
+}
 
 @UIPackage package com.intellij.openapi.wm;
 
@@ -550,6 +561,13 @@ package com.intellij.util.download;
 
 @UI class DownloadableFileService {}
 @UI class FileDownloader {}
+
+
+package com.intellij.util.messages;
+
+interface SimpleMessageBusConnection {
+  <L> void subscribe(Topic<L> topic, @UI L handler);
+}
 
 
 package com.intellij.util.net;

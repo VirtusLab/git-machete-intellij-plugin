@@ -19,6 +19,7 @@ import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
@@ -34,7 +35,8 @@ public class GitMacheteRepositoryDiscoverer {
   private final Project project;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
   private final Consumer<Path> onFailurePathConsumer;
-  private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositoryConsumer;
+  private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositorySnapshotConsumer;
+  private final Consumer<IGitMacheteRepository> onSuccessRepositoryConsumer;
 
   public void enqueue(Path macheteFilePath) {
     LOG.info("Enqueuing automatic discover");
@@ -52,12 +54,27 @@ public class GitMacheteRepositoryDiscoverer {
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running automatic discover task");
-        val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
+        val gitMacheteRepositoryInstantiateResult = Try
+            .of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+                .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath));
 
-        if (discoverRunResult.isFailure()) {
-          LOG.debug("Discover and snapshot creation failed");
-          val exception = discoverRunResult.getCause();
+        if (gitMacheteRepositoryInstantiateResult.isFailure()) {
+          LOG.debug("Instantiation failed");
+          val exception = gitMacheteRepositoryInstantiateResult.getCause();
+          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+              .notifyError(
+                  /* displayId */ null,
+                  getString(
+                      "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
+                  exception.getMessage() != null ? exception.getMessage() : ""));
+          return;
+        }
+        val discoverResult = gitMacheteRepositoryInstantiateResult
+            .mapTry(IGitMacheteRepository::discoverLayoutAndCreateSnapshot);
+
+        if (discoverResult.isFailure()) {
+          LOG.debug("Snapshot creation failed");
+          val exception = discoverResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
@@ -67,7 +84,8 @@ public class GitMacheteRepositoryDiscoverer {
           return;
         }
 
-        val repositorySnapshot = discoverRunResult.get();
+        val repositorySnapshot = discoverResult.get();
+        val repository = gitMacheteRepositoryInstantiateResult.get();
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           LOG.debug("No root branches discovered - executing on-failure consumer");
@@ -81,7 +99,8 @@ public class GitMacheteRepositoryDiscoverer {
         try {
           LOG.debug("Writing branch layout & executing on-success consumer");
           branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
-          onSuccessRepositoryConsumer.accept(repositorySnapshot);
+          onSuccessRepositorySnapshotConsumer.accept(repositorySnapshot);
+          onSuccessRepositoryConsumer.accept(repository);
         } catch (BranchLayoutException exception) {
           LOG.debug("Handling branch layout exception");
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
