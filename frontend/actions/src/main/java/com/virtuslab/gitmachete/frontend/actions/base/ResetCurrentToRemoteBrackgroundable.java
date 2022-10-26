@@ -9,7 +9,6 @@ import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.commands.Git;
@@ -42,7 +41,7 @@ public class ResetCurrentToRemoteBrackgroundable extends Task.Backgroundable {
 
   private final GitRepository gitRepository;
 
-  public ResetCurrentToRemoteBrackgroundable(Project project, @NlsContexts.ProgressTitle String title,
+  public ResetCurrentToRemoteBrackgroundable(Project project, String title,
       boolean canBeCancelled,
       String localBranchName, String remoteTrackingBranchName, GitRepository gitRepository) {
     super(project, title, canBeCancelled);
