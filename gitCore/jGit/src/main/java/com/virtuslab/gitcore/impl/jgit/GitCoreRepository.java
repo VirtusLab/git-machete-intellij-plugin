@@ -140,7 +140,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     } else if (branchExists) {
       return false;
     } else {
-      String remainingWithoutBeginningSlash = branchFullName.substring(currentlyCheckedBranchFullName.length() + 1);
+      @SuppressWarnings("allcheckers") String remainingWithoutBeginningSlash = branchFullName
+          .substring(currentlyCheckedBranchFullName.length() + 1);
       if (remainingWithoutBeginningSlash.indexOf('/') == -1) {
         return isBranchPresent(branchFullName, currentlyCheckedBranchFullName + "/" + remainingWithoutBeginningSlash);
       } else {
@@ -304,8 +305,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
     if (firstForwardSlashIndexInBranchShortName == -1) {
       return branchFullName;
     } else {
-      String branchesDirectoryName = branchFullName.substring(0, branchFullName.length() - branchShortName.length());
-      return branchFullName.substring(0, branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
+      @SuppressWarnings("allcheckers") String branchesDirectoryName = branchFullName.substring(0,
+          branchFullName.length() - branchShortName.length());
+      @SuppressWarnings("allcheckers") String result = branchFullName.substring(0,
+          branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
+      return result;
     }
   }
 
