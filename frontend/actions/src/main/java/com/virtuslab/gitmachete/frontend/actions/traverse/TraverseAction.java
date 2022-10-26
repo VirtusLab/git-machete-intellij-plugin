@@ -30,6 +30,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.base.ResetCurrentToRemoteBrackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromParentDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.PullApprovalDialog;
@@ -89,11 +90,11 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val repository = getSelectedGitRepository(anActionEvent);
+    val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
     val project = getProject(anActionEvent);
 
-    if (branchLayout != null && branchLayout.getRootEntries().nonEmpty() && repository != null) {
+    if (branchLayout != null && branchLayout.getRootEntries().nonEmpty() && gitRepository != null) {
       boolean traverseApproved = true;
       if (PropertiesComponent.getInstance(project).getBoolean(SHOW_TRAVERSE_APPROVAL, /* defaultValue */ true)) {
 
@@ -117,12 +118,12 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
             @Override
             @UIThreadUnsafe
             public void run(ProgressIndicator indicator) {
-              doCheckout(project, indicator, firstEntryName, repository);
+              doCheckout(project, indicator, firstEntryName, gitRepository);
             }
             @Override
             public void onSuccess() {
               super.onSuccess();
-              traverse(firstEntryName, anActionEvent);
+              traverse(firstEntryName, anActionEvent, gitRepository);
             }
           }.queue();
         }
@@ -140,7 +141,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
   }
 
   @UIEffect
-  private void traverse(String branchName, AnActionEvent anActionEvent) {
+  private void traverse(String branchName, AnActionEvent anActionEvent, GitRepository gitRepository) {
     val gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
 
     if (gitMacheteBranch != null) {
@@ -161,7 +162,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         }
         val processedGitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
         if (processedGitMacheteBranch != null && remoteTrackingBranch != null) {
-          syncBranchToRemote(remoteTrackingBranch, processedGitMacheteBranch, anActionEvent);
+          syncBranchToRemote(remoteTrackingBranch, processedGitMacheteBranch, anActionEvent, gitRepository);
         }
       }
 
@@ -171,7 +172,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         val checkoutNextAction = ActionManager.getInstance()
             .getAction(actionIdFormatString.format(CheckoutNextAction.class.getSimpleName()));
         checkoutNextAction.actionPerformed(anActionEvent);
-        traverse(nextBranch.getName(), anActionEvent);
+        traverse(nextBranch.getName(), anActionEvent, gitRepository);
       }
     }
 
@@ -179,9 +180,11 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
   @UIEffect
   private void syncBranchToRemote(IRemoteTrackingBranchReference remoteTrackingBranch, IManagedBranchSnapshot gitMacheteBranch,
-      AnActionEvent anActionEvent) {
+      AnActionEvent anActionEvent, GitRepository gitRepository) {
     SyncToRemoteStatus status = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     val project = getProject(anActionEvent);
+    val localBranchName = gitMacheteBranch.getName();
+    val remoteTrackingBranchName = remoteTrackingBranch.getName();
     switch (status) {
       case AheadOfRemote :
         boolean pushApproved = true;
@@ -189,7 +192,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
           val pushApprovalDialogBuilder = MessageDialogBuilder.okCancel(
               getString("action.GitMachete.TraverseAction.dialog.push-verification.title"),
               getString("action.GitMachete.TraverseAction.dialog.push-verification.text.HTML")
-                  .format(gitMacheteBranch.getName(), remoteTrackingBranch.getRemoteName(), remoteTrackingBranch.getName()));
+                  .format(localBranchName, remoteTrackingBranch.getRemoteName(), remoteTrackingBranchName));
 
           pushApprovalDialogBuilder
               .yesText(getString("action.GitMachete.TraverseAction.dialog.push-verification.ok-text"))
@@ -218,6 +221,9 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
             val resetCurrentToRemoteAction = ActionManager.getInstance()
                 .getAction(actionIdFormatString.format(ResetCurrentToRemoteAction.class.getSimpleName()));
             resetCurrentToRemoteAction.actionPerformed(anActionEvent);
+            new ResetCurrentToRemoteBrackgroundable(project,
+                getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
+                /* canBeCancelled */ true, localBranchName, remoteTrackingBranchName, gitRepository);
             break;
           case FORCE_PUSH :
             val pushAction = ActionManager.getInstance()

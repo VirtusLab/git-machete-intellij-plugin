@@ -4,27 +4,15 @@ import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBac
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
-import com.intellij.dvcs.DvcsUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.GitReference;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommand;
-import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
-import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -44,7 +32,6 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
 @CustomLog
@@ -55,7 +42,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
   public static final String SHOW_RESET_INFO = "git-machete.reset.info.show";
 
-  private static final String VCS_NOTIFIER_TITLE = getString(
+  public static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
 
   @Override
@@ -201,55 +188,11 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       ILocalBranchReference localBranch,
       IRemoteTrackingBranchReference remoteTrackingBranch) {
 
-    new Task.Backgroundable(project,
+    val localBranchName = localBranch.getName();
+    val remoteTrackingBranchName = remoteTrackingBranch.getName();
+
+    new ResetCurrentToRemoteBrackgroundable(project,
         getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
-        /* canBeCancelled */ true) {
-
-      @Override
-      @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
-        val localBranchName = localBranch.getName();
-        val remoteTrackingBranchName = remoteTrackingBranch.getName();
-        log().debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
-
-        try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
-            getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
-          val resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
-          resetHandler.addParameters("--keep");
-          resetHandler.addParameters(remoteTrackingBranchName);
-          resetHandler.endOptions();
-
-          val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(
-              gitRepository.getRoot(), RESET);
-          resetHandler.addLineListener(localChangesDetector);
-
-          val result = Git.getInstance().runCommand(resetHandler);
-
-          if (result.success()) {
-            VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
-                /* title */ "",
-                getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
-                    .format(localBranchName));
-            log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
-
-          } else if (localChangesDetector.wasMessageDetected()) {
-            LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
-                /* displayId */ null,
-                gitRepository.getRoot(),
-                /* operationName */ "Reset",
-                localChangesDetector.getRelativeFilePaths());
-
-          } else {
-            log().error(result.getErrorOutputAsJoinedString());
-            VcsNotifier.getInstance(project).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
-                result.getErrorOutputAsHtmlString());
-          }
-
-          val repositoryRoot = gitRepository.getRootDirectory();
-          GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
-          VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
-        }
-      }
-    }.queue();
+        /* canBeCancelled */ true, localBranchName, remoteTrackingBranchName, gitRepository).queue();
   }
 }
