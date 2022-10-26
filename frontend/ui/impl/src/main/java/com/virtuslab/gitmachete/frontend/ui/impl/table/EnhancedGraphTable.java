@@ -119,9 +119,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   // as a branch name. This is required to detect the moment when the unmanaged branch notification should be shown.
   @UIEffect
   private String mostRecentlyCheckedOutBranch = "?!@#$%^&";
+
   @UIEffect
   private @Nullable Notification slideInNotification;
-  @UIEffect
+
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef = new AtomicReference<>(null);
 
   @UIEffect
@@ -170,7 +171,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private void subscribeToMacheteFileChange() {
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+
       @Override
+      @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
@@ -184,13 +187,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           }
         }
       }
+
     });
     Disposer.register(this, messageBusConnection);
   }
 
+  @UIEffect
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    GitRepositoryChangeListener listener = repository -> {
+    @UI GitRepositoryChangeListener listener = repository -> {
       trackCurrentBranchChange(repository);
       queueRepositoryUpdateAndModelRefresh();
     };
@@ -254,6 +259,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     });
   }
 
+  @UIEffect
   private void trackCurrentBranchChange(GitRepository repository) {
     val repositoryCurrentBranch = repository.getCurrentBranch();
     if (repositoryCurrentBranch != null) {

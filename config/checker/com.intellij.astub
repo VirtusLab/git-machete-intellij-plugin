@@ -563,6 +563,13 @@ package com.intellij.util.download;
 @UI class FileDownloader {}
 
 
+package com.intellij.util.messages;
+
+interface SimpleMessageBusConnection {
+  <L> void subscribe(Topic<L> topic, @UI L handler);
+}
+
+
 package com.intellij.util.net;
 
 @UI class AuthenticationDialog {}
