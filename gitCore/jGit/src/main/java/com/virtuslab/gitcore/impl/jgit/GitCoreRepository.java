@@ -269,7 +269,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
     String localBranchFullName = getLocalBranchFullName(localBranchName);
-    if (!isBranchPresent(localBranchFullName, findFirstBranchNameToCheck(localBranchFullName, localBranchName))) {
+    if (!isBranchPresent(localBranchFullName, findFirstPossibleBranchNameToCheck(localBranchFullName, localBranchName))) {
       return null;
     }
 
@@ -288,7 +288,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       String remoteBranchName) throws GitCoreException {
 
     String remoteBranchFullName = getRemoteBranchFullName(remoteName, remoteBranchName);
-    if (!isBranchPresent(remoteBranchFullName, findFirstBranchNameToCheck(remoteBranchFullName, remoteBranchName))) {
+    if (!isBranchPresent(remoteBranchFullName, findFirstPossibleBranchNameToCheck(remoteBranchFullName, remoteBranchName))) {
       return null;
     }
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
@@ -299,7 +299,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return remoteBranch;
   }
 
-  private String findFirstBranchNameToCheck(String branchFullName, String branchShortName) {
+  private String findFirstPossibleBranchNameToCheck(String branchFullName, String branchShortName) {
     int firstForwardSlashIndexInBranchShortName = branchShortName.indexOf('/');
     if (firstForwardSlashIndexInBranchShortName == -1) {
       return branchFullName;
