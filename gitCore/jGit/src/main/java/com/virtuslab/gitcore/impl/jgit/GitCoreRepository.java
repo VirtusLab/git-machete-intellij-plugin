@@ -133,21 +133,49 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private boolean isBranchPresent(String branchFullName, String currentlyCheckedBranchFullName) {
-    boolean branchExists = Try.of(() -> jgitRepoForMainGitDir.resolve(currentlyCheckedBranchFullName)).getOrNull() != null;
-    if (branchFullName.equals(currentlyCheckedBranchFullName)) {
-      return branchExists;
-    } else if (branchExists) {
+  private boolean isBranchPresent(String branchFullName, String branchShortName) {
+    if (branchShortName.indexOf('/') == -1) {
+      return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
+    } else {
+      val firstCandidate = findFirstPossibleBranchNameToCheck(branchFullName, branchShortName);
+      return isBranchWithForwardSlashesInBranchNamePresent(branchFullName, firstCandidate);
+    }
+  }
+
+  // If '/' chars exist in the branch name, then this method is needed in order to avoid possible IDE errors, which
+  // could appear if two files like in the example below exist under .git directory for the repository:
+  // .git/refs/heads/docs/improve_readme (short branch name is `docs/improve_readme` - exists locally)
+  // .git/refs/remotes/upstream/docs (short branch name is `docs` - this branch exists only on upstream, not locally)
+  // In such scenario `org.eclipse.jgit.lib.Repository#resolve` called to check if `docs/improve_readme` branch exists
+  // under .git/refs/remotes/upstream/ will try to find the branch using the following file path:
+  // .git/refs/remotes/upstream/docs/improve_readme
+  // which will end in a "Not a directory" `java.nio.file.FileSystemException` (as existing file
+  // .git/refs/remotes/upstream/docs is not a directory). And that will produce a LOG.error which will generate
+  // an IDE error. So, the cause of this method is to avoid such IDE errors.
+  private boolean isBranchWithForwardSlashesInBranchNamePresent(String branchFullName, String testedBranchFullName) {
+    val testResult = Try.of(() -> jgitRepoForMainGitDir.resolve(testedBranchFullName)).getOrNull() != null;
+    if (branchFullName.equals(testedBranchFullName)) {
+      return testResult;
+    } else if (testResult) {
       return false;
     } else {
-      @SuppressWarnings("index:argument") String remainingWithoutBeginningSlash = branchFullName
-          .substring(currentlyCheckedBranchFullName.length() + 1);
-      if (remainingWithoutBeginningSlash.indexOf('/') == -1) {
-        return isBranchPresent(branchFullName, currentlyCheckedBranchFullName + "/" + remainingWithoutBeginningSlash);
-      } else {
-        String firstPartOfRemaining = remainingWithoutBeginningSlash.substring(0, remainingWithoutBeginningSlash.indexOf('/'));
-        return isBranchPresent(branchFullName, currentlyCheckedBranchFullName + "/" + firstPartOfRemaining);
-      }
+      val numberOfSlashDelimitedElementsToGet = List.of(testedBranchFullName.split("/")).size() + 1;
+      val nextBranchFullNameToTest = List.of(branchFullName.split("/"))
+          .take(numberOfSlashDelimitedElementsToGet).mkString("/");
+      return isBranchWithForwardSlashesInBranchNamePresent(branchFullName, nextBranchFullNameToTest);
+    }
+  }
+
+  private String findFirstPossibleBranchNameToCheck(String branchFullName, String branchShortName) {
+    int firstForwardSlashIndexInBranchShortName = branchShortName.indexOf('/');
+    if (firstForwardSlashIndexInBranchShortName == -1) {
+      return branchFullName;
+    } else {
+      @SuppressWarnings("index:argument") String branchesDirectoryName = branchFullName.substring(0,
+          branchFullName.length() - branchShortName.length());
+      @SuppressWarnings("index:argument") String result = branchFullName.substring(0,
+          branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
+      return result;
     }
   }
 
@@ -270,7 +298,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
     String localBranchFullName = getLocalBranchFullName(localBranchName);
-    if (!isBranchPresent(localBranchFullName, findFirstPossibleBranchNameToCheck(localBranchFullName, localBranchName))) {
+    if (!isBranchPresent(localBranchFullName, localBranchName)) {
       return null;
     }
 
@@ -289,7 +317,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       String remoteBranchName) throws GitCoreException {
 
     String remoteBranchFullName = getRemoteBranchFullName(remoteName, remoteBranchName);
-    if (!isBranchPresent(remoteBranchFullName, findFirstPossibleBranchNameToCheck(remoteBranchFullName, remoteBranchName))) {
+    if (!isBranchPresent(remoteBranchFullName, remoteBranchName)) {
       return null;
     }
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
@@ -298,19 +326,6 @@ public final class GitCoreRepository implements IGitCoreRepository {
         deriveReflogByRefFullName(remoteBranchFullName, jgitRepoForMainGitDir),
         remoteName);
     return remoteBranch;
-  }
-
-  private String findFirstPossibleBranchNameToCheck(String branchFullName, String branchShortName) {
-    int firstForwardSlashIndexInBranchShortName = branchShortName.indexOf('/');
-    if (firstForwardSlashIndexInBranchShortName == -1) {
-      return branchFullName;
-    } else {
-      @SuppressWarnings("index:argument") String branchesDirectoryName = branchFullName.substring(0,
-          branchFullName.length() - branchShortName.length());
-      @SuppressWarnings("index:argument") String result = branchFullName.substring(0,
-          branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
-      return result;
-    }
   }
 
   @Override
