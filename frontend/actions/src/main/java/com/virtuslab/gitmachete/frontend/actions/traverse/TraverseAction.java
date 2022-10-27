@@ -39,7 +39,6 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelecte
 import com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentAction;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentToRemoteAction;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -181,6 +180,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     val project = getProject(anActionEvent);
     val localBranchName = gitMacheteBranch.getName();
     val remoteTrackingBranchName = remoteTrackingBranch.getName();
+    val graphTable = getGraphTable(anActionEvent);
     switch (status) {
       case AheadOfRemote :
         boolean pushApproved = true;
@@ -256,7 +256,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       default :
         break;
     }
-    refreshBranchLayout(anActionEvent);
+    graphTable.queueRepositoryUpdateAndModelRefresh();
   }
 
   @UIEffect
@@ -309,13 +309,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       default :
         break;
     }
-    refreshBranchLayout(anActionEvent);
+    graphTable.queueRepositoryUpdateAndModelRefresh();
   }
 
-  @UIEffect
-  private void refreshBranchLayout(AnActionEvent anActionEvent) {
-    val refreshStatusAction = ActionManager.getInstance()
-        .getAction(actionIdFormatString.format(RefreshStatusAction.class.getSimpleName()));
-    refreshStatusAction.actionPerformed(anActionEvent);
-  }
 }
