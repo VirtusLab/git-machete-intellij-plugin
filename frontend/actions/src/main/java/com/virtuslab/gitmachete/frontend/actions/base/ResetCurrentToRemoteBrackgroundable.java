@@ -22,12 +22,12 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.apache.commons.text.StringEscapeUtils;
 
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, StringEscapeUtils.class})
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class ResetCurrentToRemoteBrackgroundable extends Task.Backgroundable {
 
