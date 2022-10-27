@@ -145,9 +145,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
     // .git/refs/remotes/upstream/docs is not a directory). And that will produce a LOG.error which will generate
     // an IDE error. So, the cause of this while loop is to avoid such IDE errors.
     val segments = List.of(branchFullName.split("/"));
-    int numOfSegmentsToUse = 3;
+    int numOfSegmentsToUse = 3; // 3 is the least number that can contain the branch name (for `refs/heads/<branch_name>`)
     boolean result = false;
-    while (!result && numOfSegmentsToUse < segments.size()) {
+    while (!result && numOfSegmentsToUse < segments.size() + 1) {
       val testedSegment = segments.take(numOfSegmentsToUse).mkString("/");
       result = Try.of(() -> jgitRepoForMainGitDir.resolve(testedSegment)).getOrNull() != null;
       numOfSegmentsToUse++;
