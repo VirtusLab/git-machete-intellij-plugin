@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;

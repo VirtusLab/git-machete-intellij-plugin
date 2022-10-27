@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.actions.base;
+package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;

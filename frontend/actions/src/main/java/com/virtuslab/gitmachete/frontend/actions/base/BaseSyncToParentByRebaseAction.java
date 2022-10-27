@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;

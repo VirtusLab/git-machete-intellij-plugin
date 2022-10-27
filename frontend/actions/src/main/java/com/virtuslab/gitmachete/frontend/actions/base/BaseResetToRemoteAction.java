@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBrackgroundable;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
