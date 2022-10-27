@@ -133,49 +133,30 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private boolean isBranchPresent(String branchFullName, String branchShortName) {
-    if (branchShortName.indexOf('/') == -1) {
-      return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
-    } else {
-      val firstCandidate = findFirstPossibleBranchNameToCheck(branchFullName, branchShortName);
-      return isBranchWithForwardSlashesInBranchNamePresent(branchFullName, firstCandidate);
+  private boolean isBranchPresent(String branchFullName) {
+    // If '/' chars exist in the branch name, then this loop is needed in order to avoid possible IDE errors, which
+    // could appear if two files like in the example below exist under .git directory for the repository:
+    // .git/refs/heads/docs/improve_readme (short branch name is `docs/improve_readme` - exists locally)
+    // .git/refs/remotes/upstream/docs (short branch name is `docs` - this branch exists only on upstream, not locally)
+    // In such scenario `org.eclipse.jgit.lib.Repository#resolve` called to check if `docs/improve_readme` branch exists
+    // under .git/refs/remotes/upstream/ will try to find the branch using the following file path:
+    // .git/refs/remotes/upstream/docs/improve_readme
+    // which will end in a "Not a directory" `java.nio.file.FileSystemException` (as existing file
+    // .git/refs/remotes/upstream/docs is not a directory). And that will produce a LOG.error which will generate
+    // an IDE error. So, the cause of this while loop is to avoid such IDE errors.
+    val segments = List.of(branchFullName.split("/"));
+    int numOfSegmentsToUse = 3;
+    boolean result = false;
+    while (!result && numOfSegmentsToUse < segments.size()) {
+      val testedSegment = segments.take(numOfSegmentsToUse).mkString("/");
+      result = Try.of(() -> jgitRepoForMainGitDir.resolve(testedSegment)).getOrNull() != null;
+      numOfSegmentsToUse++;
     }
-  }
 
-  // If '/' chars exist in the branch name, then this method is needed in order to avoid possible IDE errors, which
-  // could appear if two files like in the example below exist under .git directory for the repository:
-  // .git/refs/heads/docs/improve_readme (short branch name is `docs/improve_readme` - exists locally)
-  // .git/refs/remotes/upstream/docs (short branch name is `docs` - this branch exists only on upstream, not locally)
-  // In such scenario `org.eclipse.jgit.lib.Repository#resolve` called to check if `docs/improve_readme` branch exists
-  // under .git/refs/remotes/upstream/ will try to find the branch using the following file path:
-  // .git/refs/remotes/upstream/docs/improve_readme
-  // which will end in a "Not a directory" `java.nio.file.FileSystemException` (as existing file
-  // .git/refs/remotes/upstream/docs is not a directory). And that will produce a LOG.error which will generate
-  // an IDE error. So, the cause of this method is to avoid such IDE errors.
-  private boolean isBranchWithForwardSlashesInBranchNamePresent(String branchFullName, String testedBranchFullName) {
-    val testResult = Try.of(() -> jgitRepoForMainGitDir.resolve(testedBranchFullName)).getOrNull() != null;
-    if (branchFullName.equals(testedBranchFullName)) {
-      return testResult;
-    } else if (testResult) {
-      return false;
-    } else {
-      val numberOfSlashDelimitedElementsToGet = List.of(testedBranchFullName.split("/")).size() + 1;
-      val nextBranchFullNameToTest = List.of(branchFullName.split("/"))
-          .take(numberOfSlashDelimitedElementsToGet).mkString("/");
-      return isBranchWithForwardSlashesInBranchNamePresent(branchFullName, nextBranchFullNameToTest);
-    }
-  }
-
-  private String findFirstPossibleBranchNameToCheck(String branchFullName, String branchShortName) {
-    int firstForwardSlashIndexInBranchShortName = branchShortName.indexOf('/');
-    if (firstForwardSlashIndexInBranchShortName == -1) {
-      return branchFullName;
-    } else {
-      @SuppressWarnings("index:argument") String branchesDirectoryName = branchFullName.substring(0,
-          branchFullName.length() - branchShortName.length());
-      @SuppressWarnings("index:argument") String result = branchFullName.substring(0,
-          branchesDirectoryName.length() + firstForwardSlashIndexInBranchShortName);
+    if (numOfSegmentsToUse > segments.size()) { // which means that the last checked `testedSegment` == `branchFullName`
       return result;
+    } else { // which means existing branch was found for a `testedSegment` that was a part of the `branchFullName`
+      return !result; // if branch `foo` is present, then branch `foo/bar` will not be present under the same directory
     }
   }
 
@@ -298,7 +279,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
     String localBranchFullName = getLocalBranchFullName(localBranchName);
-    if (!isBranchPresent(localBranchFullName, localBranchName)) {
+    if (!isBranchPresent(localBranchFullName)) {
       return null;
     }
 
@@ -317,7 +298,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       String remoteBranchName) throws GitCoreException {
 
     String remoteBranchFullName = getRemoteBranchFullName(remoteName, remoteBranchName);
-    if (!isBranchPresent(remoteBranchFullName, remoteBranchName)) {
+    if (!isBranchPresent(remoteBranchFullName)) {
       return null;
     }
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
