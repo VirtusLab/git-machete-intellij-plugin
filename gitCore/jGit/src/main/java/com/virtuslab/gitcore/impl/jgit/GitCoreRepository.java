@@ -148,17 +148,17 @@ public final class GitCoreRepository implements IGitCoreRepository {
     // So, the cause of this loop-based testing is to avoid such IDE errors.
     val segments = List.of(branchFullName.split("/"));
     int numOfSegmentsToUse = 3; // 3 is the least number that can contain the branch name (for `refs/heads/<branch_name>`)
-    boolean result = false;
-    while (!result && numOfSegmentsToUse <= segments.size()) {
+    boolean existingBranchWasFound = false;
+    while (!existingBranchWasFound && numOfSegmentsToUse <= segments.size()) {
       val testedSegment = segments.take(numOfSegmentsToUse).mkString("/");
-      result = Try.of(() -> jgitRepoForMainGitDir.resolve(testedSegment)).getOrNull() != null;
+      existingBranchWasFound = Try.of(() -> jgitRepoForMainGitDir.resolve(testedSegment)).getOrNull() != null;
       numOfSegmentsToUse++;
     }
 
     if (numOfSegmentsToUse > segments.size()) { // which means the last checked `testedSegment` was `branchFullName`
-      return result;
+      return existingBranchWasFound;
     } else { // which means existing branch was found for a `testedSegment` that was a part of the `branchFullName`
-      return !result; // if branch `foo` is present, then branch `foo/bar` will not be present under the same directory
+      return !existingBranchWasFound; // if branch `foo` is present, then branch `foo/bar` will not be present under the same directory
     }
   }
 
