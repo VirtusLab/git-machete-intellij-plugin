@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -13,10 +14,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
+import git4idea.GitLocalBranch;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.commands.Git;
+import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
+import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -24,22 +28,19 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.*;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromParentDialog;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialog;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.PullApprovalDialog;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.PushApprovalDialog;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseApprovalDialog;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
+import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
+import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.*;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentAction;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentAction;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentToRemoteAction;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
@@ -179,6 +180,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     SyncToRemoteStatus status = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     val project = getProject(anActionEvent);
     val localBranchName = gitMacheteBranch.getName();
+    @Nullable GitLocalBranch localBranch = gitRepository.getBranches().findLocalBranch(localBranchName);
     val remoteTrackingBranchName = remoteTrackingBranch.getName();
     val graphTable = getGraphTable(anActionEvent);
     switch (status) {
@@ -196,11 +198,9 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
           pushApproved = pushApprovalDialogBuilder.ask(project);
         }
-
-        if (pushApproved) {
-          val fastForwardPushAction = ActionManager.getInstance()
-              .getAction(actionIdFormatString.format(PushCurrentAction.class.getSimpleName()));
-          fastForwardPushAction.actionPerformed(anActionEvent);
+        if (pushApproved && localBranch != null) {
+          new GitPushDialog(project, List.of(gitRepository), GitPushSource.create(localBranch), /* isForcePushRequired */ false)
+              .show();
         }
         break;
       case DivergedFromAndOlderThanRemote :
@@ -214,17 +214,13 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         }
         switch (selectedAction) {
           case RESET_ON_REMOTE :
-            val resetCurrentToRemoteAction = ActionManager.getInstance()
-                .getAction(actionIdFormatString.format(ResetCurrentToRemoteAction.class.getSimpleName()));
-            resetCurrentToRemoteAction.actionPerformed(anActionEvent);
             new ResetCurrentToRemoteBrackgroundable(project,
                 getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
                 /* canBeCancelled */ true, localBranchName, remoteTrackingBranchName, gitRepository);
             break;
           case FORCE_PUSH :
-            val pushAction = ActionManager.getInstance()
-                .getAction(actionIdFormatString.format(PushCurrentAction.class.getSimpleName()));
-            pushAction.actionPerformed(anActionEvent);
+            new GitPushDialog(project, List.of(gitRepository), GitPushSource.create(localBranch),
+                /* isForcePushRequired */ true).show();
             break;
           default :
             break;
@@ -248,9 +244,17 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         }
 
         if (pullApproved) {
-          val pullAction = ActionManager.getInstance()
-              .getAction(actionIdFormatString.format(PullCurrentAction.class.getSimpleName()));
-          pullAction.actionPerformed(anActionEvent);
+          val mergeProps = new MergeProps(
+              /* movingBranchName */ gitMacheteBranch,
+              /* stayingBranchName */ remoteTrackingBranch);
+
+          val isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
+          val fetchNotificationPrefix = isUpToDate
+                  ? getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.no-fetch-perform")
+                  .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
+                  : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
+          FastForwardMerge.perform(project, gitRepository, mergeProps,
+              fetchNotificationPrefix).queue();
         }
         break;
       default :
@@ -272,7 +276,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         if (branchLayout != null) {
           new SlideOutBackgroundable(project, "Deleting branch if required...", gitMacheteNonRootBranch.getName(),
               getSelectedGitRepository(anActionEvent), getCurrentBranchNameIfManaged(anActionEvent),
-              getBranchLayout(anActionEvent), getBranchLayoutWriter(anActionEvent), graphTable).queue();
+              branchLayout, getBranchLayoutWriter(anActionEvent), graphTable).queue();
         }
         break;
       case InSyncButForkPointOff :

@@ -84,29 +84,35 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   @UIThreadUnsafe
   private void deleteBranchIfRequired(String branchName) {
+    if (myProject == null)
+      return;
+    val project = myProject;
     val slidOutBranchIsCurrent = currentBranchNameIfManaged != null && currentBranchNameIfManaged.equals(branchName);
 
-    if (slidOutBranchIsCurrent) {
+    if (slidOutBranchIsCurrent && graphTable != null) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
       slideOutBranch(branchName);
       graphTable.queueRepositoryUpdateAndModelRefresh();
-      VcsNotifier.getInstance(myProject).notifySuccess(/* displayId */ null,
+      VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
               .format(branchName));
 
     } else if (selectedGitRepository != null) {
+      val gitRepository = selectedGitRepository;
       val root = selectedGitRepository.getRoot();
-      val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(myProject, root);
+      val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(project, root);
       if (shouldDelete == null) {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
-            () -> suggestBranchDeletion(branchName, selectedGitRepository, myProject));
+            () -> suggestBranchDeletion(branchName, gitRepository, project));
       } else {
-        handleBranchDeletionDecision(myProject, branchName, selectedGitRepository, shouldDelete);
+        handleBranchDeletionDecision(project, branchName, selectedGitRepository, shouldDelete);
       }
 
     } else {
-      graphTable.queueRepositoryUpdateAndModelRefresh();
+      if (graphTable != null) {
+        graphTable.queueRepositoryUpdateAndModelRefresh();
+      }
     }
   }
 
@@ -139,7 +145,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   @UIThreadUnsafe
   private void slideOutBranch(String branchName) {
-    if (branchLayout == null || selectedGitRepository == null) {
+    if (branchLayout == null || selectedGitRepository == null || myProject == null) {
       return;
     }
 
@@ -179,7 +185,9 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML")
               .format(branchName));
     }
-    graphTable.queueRepositoryUpdateAndModelRefresh();
+    if (graphTable != null) {
+      graphTable.queueRepositoryUpdateAndModelRefresh();
+    }
   }
 
   @UIThreadUnsafe

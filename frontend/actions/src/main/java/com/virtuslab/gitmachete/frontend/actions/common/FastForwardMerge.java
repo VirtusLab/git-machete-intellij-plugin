@@ -55,7 +55,7 @@ public final class FastForwardMerge {
         fetchNotificationTextPrefix + successFFMergeNotification).queue();
   }
 
-  public static void perform(Project project,
+  public static CheckRemoteBranchBackgroundable perform(Project project,
       GitRepository gitRepository,
       MergeProps mergeProps,
       @Untainted String fetchNotificationTextPrefix) {
@@ -63,7 +63,7 @@ public final class FastForwardMerge {
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     val failFfMergeNotificationTitle = getString(
         "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
-    new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFfMergeNotificationTitle,
+    return new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFfMergeNotificationTitle,
         fetchNotificationTextPrefix) {
       @Override
       @UIEffect
@@ -74,6 +74,6 @@ public final class FastForwardMerge {
           mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotificationTextPrefix);
         }
       }
-    }.queue();
+    };
   }
 }
