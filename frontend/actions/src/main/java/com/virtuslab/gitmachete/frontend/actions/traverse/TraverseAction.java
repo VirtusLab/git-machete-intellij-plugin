@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.base.RebaseOnParentBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.base.ResetCurrentToRemoteBrackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.base.SlideOutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromParentDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.PullApprovalDialog;
@@ -44,7 +45,6 @@ import com.virtuslab.gitmachete.frontend.actions.toolbar.PullCurrentAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.PushCurrentAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction;
 import com.virtuslab.gitmachete.frontend.actions.toolbar.ResetCurrentToRemoteAction;
-import com.virtuslab.gitmachete.frontend.actions.toolbar.SlideOutCurrentAction;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
@@ -269,11 +269,14 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     val gitMacheteNonRootBranch = gitMacheteBranch.asNonRoot();
     val syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
     val project = getProject(anActionEvent);
+    val branchLayout = getBranchLayout(anActionEvent);
     switch (syncToParentStatus) {
       case MergedToParent :
-        val slideOutCurrentAction = ActionManager.getInstance()
-            .getAction(actionIdFormatString.format(SlideOutCurrentAction.class.getSimpleName()));
-        slideOutCurrentAction.actionPerformed(anActionEvent);
+        if (branchLayout != null) {
+          new SlideOutBackgroundable(project, "Deleting branch if required...", gitMacheteNonRootBranch.getName(),
+              getSelectedGitRepository(anActionEvent), getCurrentBranchNameIfManaged(anActionEvent),
+              getBranchLayout(anActionEvent), getBranchLayoutWriter(anActionEvent), getGraphTable(anActionEvent)).queue();
+        }
         break;
       case InSyncButForkPointOff :
         val overrideForkPointAction = ActionManager.getInstance()
@@ -299,8 +302,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
                   getString("action.GitMachete.BaseSyncToParentByRebaseAction.hook.task-title"),
                   gitRepository, repositorySnapshot,
                   branchToRebase,
-                  /* shouldExplicitlyCheckout */ false){
-              }.queue();
+                  /* shouldExplicitlyCheckout */ false) {}.queue();
             }
             break;
           default :

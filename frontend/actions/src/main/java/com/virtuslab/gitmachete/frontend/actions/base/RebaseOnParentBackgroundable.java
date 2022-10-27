@@ -41,7 +41,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   private static final String NL = System.lineSeparator();
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
-  private final boolean rebasable;
+  private final boolean rebaseable;
 
   @Nullable
   private final IGitRebaseParameters gitRebaseParameters;
@@ -69,12 +69,12 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
-      this.rebasable = false;
+      this.rebaseable = false;
       gitRebaseParameters = null;
     } else {
       gitRebaseParameters = tryGitRebaseParameters.get();
       LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
-      this.rebasable = true;
+      this.rebaseable = true;
     }
 
   }
@@ -115,7 +115,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    if (rebasable && myProject != null && gitRebaseParameters != null) {
+    if (rebaseable && myProject != null && gitRebaseParameters != null) {
       val gitRebaseParams = gitRebaseParameters;
 
       final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(Try.success(null));

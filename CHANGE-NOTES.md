@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.0
+- Added the interactive traverse feature.
+
 ## v3.2.1
 - Fixed the issue with the unmanaged branch notification showing up after adding a branch from an external (non-IntelliJ) terminal.
 - Fixed the text overflow in VCS notifications.
