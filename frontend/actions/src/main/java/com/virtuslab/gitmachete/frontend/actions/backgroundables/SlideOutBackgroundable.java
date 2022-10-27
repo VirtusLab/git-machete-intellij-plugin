@@ -117,8 +117,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   }
 
   @UIEffect
-  private void suggestBranchDeletion(String branchName, GitRepository gitRepository,
-      Project project) {
+  private void suggestBranchDeletion(String branchName, GitRepository gitRepository, Project project) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
     new Task.Backgroundable(project, "Deleting branch if required...") {
