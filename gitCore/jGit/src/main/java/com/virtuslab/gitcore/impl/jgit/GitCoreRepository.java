@@ -134,16 +134,18 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchPresent(String branchFullName) {
-    // If '/' chars exist in the branch name, then this loop is needed in order to avoid possible IDE errors, which
-    // could appear if two files like in the example below exist under .git directory for the repository:
+    // If '/' chars exist in the branch name, then this loop-based testing is needed in order to avoid possible IDE errors,
+    // which could appear if two files like in the example below exist under .git directory for the repository:
     // .git/refs/heads/docs/improve_readme (short branch name is `docs/improve_readme` - exists locally)
     // .git/refs/remotes/upstream/docs (short branch name is `docs` - this branch exists only on upstream, not locally)
     // In such scenario `org.eclipse.jgit.lib.Repository#resolve` called to check if `docs/improve_readme` branch exists
     // under .git/refs/remotes/upstream/ will try to find the branch using the following file path:
     // .git/refs/remotes/upstream/docs/improve_readme
-    // which will end in a "Not a directory" `java.nio.file.FileSystemException` (as existing file
-    // .git/refs/remotes/upstream/docs is not a directory). And that will produce a LOG.error which will generate
-    // an IDE error. So, the cause of this while loop is to avoid such IDE errors.
+    // which will end in a "Not a directory" `java.nio.file.FileSystemException`, as existing file
+    // .git/refs/remotes/upstream/docs is not a directory. And that will produce a `LOG.error` -
+    // `org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)` called from within
+    // `org.eclipse.jgit.internal.storage.file.FileSnapshot.<init>`. And it will generate an IDE error.
+    // So, the cause of this loop-based testing is to avoid such IDE errors.
     val segments = List.of(branchFullName.split("/"));
     int numOfSegmentsToUse = 3; // 3 is the least number that can contain the branch name (for `refs/heads/<branch_name>`)
     boolean result = false;
