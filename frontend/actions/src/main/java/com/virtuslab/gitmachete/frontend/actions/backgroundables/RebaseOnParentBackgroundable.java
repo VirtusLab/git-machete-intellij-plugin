@@ -40,12 +40,12 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   private static final String NL = System.lineSeparator();
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
-  private final boolean rebaseable;
-
   @Nullable
   private final IGitRebaseParameters gitRebaseParameters;
 
   private final INonRootManagedBranchSnapshot branchToRebase;
+
+  private final Try<IGitRebaseParameters> tryGitRebaseParameters;
 
   private final boolean shouldExplicitlyCheckout;
 
@@ -60,7 +60,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     this.shouldExplicitlyCheckout = shouldExplicitlyCheckout;
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    val tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
+    tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
 
     if (tryGitRebaseParameters.isFailure()) {
       val e = tryGitRebaseParameters.getCause();
@@ -68,12 +68,10 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
-      this.rebaseable = false;
       gitRebaseParameters = null;
     } else {
       gitRebaseParameters = tryGitRebaseParameters.get();
       LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
-      this.rebaseable = true;
     }
 
   }
@@ -114,7 +112,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    if (rebaseable && myProject != null && gitRebaseParameters != null) {
+    if (myProject != null && gitRebaseParameters != null) {
       val gitRebaseParams = gitRebaseParameters;
 
       final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(Try.success(null));

@@ -10,6 +10,7 @@ import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -25,6 +26,7 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
 
   private final INonRootManagedBranchSnapshot nonRootBranch;
 
+  @Nullable
   private final ICommitOfManagedBranch selectedCommit;
 
   private final BaseEnhancedGraphTable graphTable;
