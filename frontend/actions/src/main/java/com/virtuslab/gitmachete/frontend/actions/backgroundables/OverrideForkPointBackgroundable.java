@@ -42,23 +42,17 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
     this.nonRootBranch = nonRootBranch;
     this.graphTable = graphTable;
     selectedCommit = new OverrideForkPointDialog(project, nonRootBranch).showAndGetSelectedCommit();
-    if (selectedCommit == null) {
-      log().debug(
-          "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
-      shouldOverrideForkPoint = false;
-    } else {
-      shouldOverrideForkPoint = true;
-    }
-
-    LOG.debug("Enqueueing fork point override");
-
   }
 
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    if (shouldOverrideForkPoint) {
+    if (selectedCommit != null) {
+      LOG.debug("Enqueueing fork point override");
       overrideForkPoint(nonRootBranch, selectedCommit);
+    } else {
+      log().debug(
+          "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
     }
   }
 
