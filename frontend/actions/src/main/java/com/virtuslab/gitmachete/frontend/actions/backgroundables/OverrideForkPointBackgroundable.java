@@ -27,8 +27,6 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
 
   private final ICommitOfManagedBranch selectedCommit;
 
-  private final boolean shouldOverrideForkPoint;
-
   private final BaseEnhancedGraphTable graphTable;
 
   public LambdaLogger log() {

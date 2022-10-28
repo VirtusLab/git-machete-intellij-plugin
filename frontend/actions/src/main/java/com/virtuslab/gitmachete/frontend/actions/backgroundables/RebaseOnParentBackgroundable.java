@@ -29,10 +29,9 @@ import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({Arrays.class, GitMacheteBundle.class})
+@ExtensionMethod({Arrays.class})
 @CustomLog
 public class RebaseOnParentBackgroundable extends Task.Backgroundable {
 
