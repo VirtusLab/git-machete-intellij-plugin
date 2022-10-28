@@ -153,32 +153,31 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
                 + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
         return;
       }
+      /*
+       * IMPORTANT: TO BE REVIEWED here there used to be an extra layer of concurrency through the wrapping of the below code in
+       * a Task.Backgroundable. But that was removed, since this was appearing unnecessary and causing the rebase thread to
+       * potentially outlive the run thread of RebaseOnParentBackgroundable which could cause out of sync continuation of the
+       * traverse action. In other words, this could have caused the traverse to move on to sync to remote or the next branch
+       * before the end of the rebasing of this branch.
+       */
+      val params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParams);
+      LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
+          "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
+          "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
 
-      LOG.debug(() -> "Queuing rebase background task for '${branchToRebase.getName()}' branch");
-
-      new Task.Backgroundable(myProject, getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title")) {
-        @Override
-        @UIThreadUnsafe
-        public void run(ProgressIndicator indicator) {
-          val params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParams);
-          LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
-              "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
-              "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
-
-          /*
-           * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow to rebase in detached head state. However,
-           * it is possible with Git (performing checkout implicitly) and should be allowed in the case of
-           * "Checkout and Rebase Onto Parent" Action. To pass the git4idea check in such a case we checkout the branch
-           * explicitly and then perform the actual rebase.
-           */
-          if (shouldExplicitlyCheckout) {
-            CheckoutSelectedAction.doCheckout(
-                myProject, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
-          }
-          GitRebaseUtils.rebase(myProject, Collections.singletonList(gitRepository), params, indicator);
-        }
-      }.queue();
+      /*
+       * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow to rebase in detached head state. However, it
+       * is possible with Git (performing checkout implicitly) and should be allowed in the case of
+       * "Checkout and Rebase Onto Parent" Action. To pass the git4idea check in such a case we checkout the branch explicitly
+       * and then perform the actual rebase.
+       */
+      if (shouldExplicitlyCheckout) {
+        CheckoutSelectedAction.doCheckout(
+            myProject, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
+      }
+      GitRebaseUtils.rebase(myProject, Collections.singletonList(gitRepository), params, indicator);
     }
+
   }
 
 }
