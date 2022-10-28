@@ -45,8 +45,6 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
 
   private final INonRootManagedBranchSnapshot branchToRebase;
 
-  private final Try<IGitRebaseParameters> tryGitRebaseParameters;
-
   private final boolean shouldExplicitlyCheckout;
 
   public RebaseOnParentBackgroundable(Project project, String title, GitRepository gitRepository,
@@ -60,7 +58,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     this.shouldExplicitlyCheckout = shouldExplicitlyCheckout;
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
+    val tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
 
     if (tryGitRebaseParameters.isFailure()) {
       val e = tryGitRebaseParameters.getCause();
