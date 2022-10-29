@@ -63,7 +63,7 @@ tasks.register("printSignedPluginZipPath") {
   }
 }
 
-val configCheckerDirectoryDir: String by extra(rootProject.file("config/checker").path)
+val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
 
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
@@ -144,7 +144,7 @@ allprojects {
 
     // Add files from config/checker directory as inputs to java compilation (so that changes trigger recompilation).
     // These files are config files for the Checker Framework, which is for Java exclusively.
-    inputs.dir(configCheckerDirectoryDir)
+    inputs.dir(configCheckerDirectory)
   }
 
   tasks.withType<Javadoc> {
