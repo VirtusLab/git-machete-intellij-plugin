@@ -161,8 +161,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
     // the branch name (for `refs/heads/<branch_name>`)
     for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
       val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
-      if (Try.of(() -> jgitRepoForMainGitDir.resolve(testedPrefix)).getOrNull() != null)
+      if (Try.of(() -> jgitRepoForMainGitDir.resolve(testedPrefix)).getOrNull() != null) {
         return false;
+      }
     }
 
     // test below is executed for the actual branch name
