@@ -63,6 +63,8 @@ tasks.register("printSignedPluginZipPath") {
   }
 }
 
+val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
+
 configure<VersionCatalogUpdateExtension> {
   sortByKey.set(false)
 
@@ -139,6 +141,10 @@ allprojects {
     // `options.release = X` makes sure that regardless of Java version used to run the compiler,
     // only Java X-compatible APIs are available to the compiled code.
     options.release.set(Integer.parseInt(targetJavaVersion.majorVersion))
+
+    // Add files from config/checker directory as inputs to java compilation (so that changes trigger recompilation).
+    // These files are config files for the Checker Framework, which is for Java exclusively.
+    inputs.dir(configCheckerDirectory)
   }
 
   tasks.withType<Javadoc> {
