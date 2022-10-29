@@ -134,32 +134,39 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchPresent(String branchFullName) {
-    // If '/' chars exist in the branch name, then this loop-based testing is needed in order to avoid possible IDE errors,
-    // which could appear if two files like in the example below exist under .git directory for the repository:
-    // .git/refs/heads/docs/improve_readme (short branch name is `docs/improve_readme` - exists locally)
-    // .git/refs/remotes/upstream/docs (short branch name is `docs` - this branch exists only on upstream, not locally)
-    // In such scenario `org.eclipse.jgit.lib.Repository#resolve` called to check if `docs/improve_readme` branch exists
-    // under .git/refs/remotes/upstream/ will try to find the branch using the following file path:
-    // .git/refs/remotes/upstream/docs/improve_readme
-    // which will end in a "Not a directory" `java.nio.file.FileSystemException`, as existing file
-    // .git/refs/remotes/upstream/docs is not a directory. And that will produce a `LOG.error` -
-    // `org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)` called from within
-    // `org.eclipse.jgit.internal.storage.file.FileSnapshot.<init>`. And it will generate an IDE error.
-    // So, the cause of this loop-based testing is to avoid such IDE errors.
+    // If '/' characters exist in the branch name, then loop-based testing is needed in order to avoid
+    // possible IDE errors, which could appear in scenarios similar to the one explained below.
+    // - If a branch 'foo' exists locally (which means that .git/refs/heads/foo file exists in the repository)
+    // and
+    // - There is a branch name entry "foo/bar" in the machete file
+    // Then `org.eclipse.jgit.lib.Repository#resolve` called to check if `foo/bar` branch exists will try to
+    // find the branch using the following file path:
+    // .git/refs/heads/foo/bar
+    // which will end in an IDE error with a "Not a directory" `java.nio.file.FileSystemException`.
+    // Explanation:
+    // 1) One of the classes used by `org.eclipse.jgit` to resolve the git branch is
+    //   `org.eclipse.jgit.internal.storage.file.FileSnapshot`.
+    // 2) `org.eclipse.jgit.internal.storage.file.FileSnapshot.<init>` called to find if .git/refs/heads/foo/bar exists
+    //    will try to resolve this path, which will produce "Not a directory" `java.nio.file.FileSystemException`,
+    //    because file .git/refs/heads/foo (part of the resolved path) is NOT a directory.
+    // 3) Catching `FileSystemException` will produce a `LOG.error` - `org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)`
+    // 4) `LOG.error` will generate an IDE error.
+    // So, the cause of the loop-based testing below is to avoid such IDE errors.
+
     val segments = List.of(branchFullName.split("/"));
-    int numOfSegmentsToUse = 3; // 3 is the least number that can contain the branch name (for `refs/heads/<branch_name>`)
-    boolean existingBranchWasFound = false;
-    while (!existingBranchWasFound && numOfSegmentsToUse <= segments.size()) {
-      val testedSegment = segments.take(numOfSegmentsToUse).mkString("/");
-      existingBranchWasFound = Try.of(() -> jgitRepoForMainGitDir.resolve(testedSegment)).getOrNull() != null;
-      numOfSegmentsToUse++;
+    // loop-based test below checks if there is a branch that has a name equal to a part of the `branchFullName` -
+    // - without the last segment (last part of the path). If such a branch exists, `isBranchPresent` should return
+    // false. Reasoning: if branch 'foo' exists, then for sure branch 'foo/bar' does not exist in the same directory.
+    // Starting with `numOfSegmentsToUse = 3` as 3 is the least number that can contain
+    // the branch name (for `refs/heads/<branch_name>`)
+    for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
+      val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
+      if (Try.of(() -> jgitRepoForMainGitDir.resolve(testedPrefix)).getOrNull() != null)
+        return false;
     }
 
-    if (numOfSegmentsToUse > segments.size()) { // which means the last checked `testedSegment` was `branchFullName`
-      return existingBranchWasFound;
-    } else { // which means existing branch was found for a `testedSegment` that was a part of the `branchFullName`
-      return !existingBranchWasFound; // if branch `foo` is present, then branch `foo/bar` will not be present under the same directory
-    }
+    // test below is executed for the actual branch name
+    return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
   }
 
   private GitCoreCommit convertExistingRevisionToGitCoreCommit(String revision) throws GitCoreException {
