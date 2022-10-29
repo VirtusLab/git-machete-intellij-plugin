@@ -35,7 +35,7 @@ fun Project.configureCheckerFramework() {
         "-Alint=cast:redundant,cast:unsafe",
         "-ArequirePrefixInWarningSuppressions",
         "-AshowSuppressWarningsStrings",
-        "-Astubs=$rootDir/config/checker/",
+        "-Astubs=${rootProject.extra.get("configCheckerDirectoryDir")}",
         // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
         // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom stub files.
         // Without this flag, we would end up with a lot of errors in subprojects where any of
