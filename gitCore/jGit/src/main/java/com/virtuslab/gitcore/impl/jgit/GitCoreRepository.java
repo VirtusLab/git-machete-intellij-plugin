@@ -150,7 +150,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     //    will try to resolve this path, which will produce "Not a directory" `java.nio.file.FileSystemException`,
     //    because file .git/refs/heads/foo (part of the resolved path) is NOT a directory.
     // 3) Catching `FileSystemException` will produce a `LOG.error` - `org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)`
-    // 4) `LOG.error` will generate an IDE error.
+    // 4) `LOG.error` will generate an IDE error. Note that it would NOT happen if `org.slf4j.Logger#error(java.lang.String)`
+    //    was called instead.
     // So, the cause of the loop-based testing below is to avoid such IDE errors.
 
     val segments = List.of(branchFullName.split("/"));
