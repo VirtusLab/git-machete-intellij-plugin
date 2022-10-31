@@ -27,12 +27,21 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.*;
-import com.virtuslab.gitmachete.frontend.actions.base.*;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.OverrideForkPointBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBrackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.*;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromParentDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.PullApprovalDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.PushApprovalDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseApprovalDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -157,7 +166,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
   }
 
   @UIEffect
-  private void syncBranchToRemote(IRemoteTrackingBranchReference remoteTrackingBranch, String branchName,
+  private void syncBranchToRemote(@Nullable IRemoteTrackingBranchReference remoteTrackingBranch, String branchName,
       AnActionEvent anActionEvent, GitRepository gitRepository) {
     val gitMacheteBranch = getManagedBranchByName(anActionEvent, branchName);
     if (gitMacheteBranch == null || remoteTrackingBranch == null) {
@@ -167,6 +176,9 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     val project = getProject(anActionEvent);
     val localBranchName = gitMacheteBranch.getName();
     @Nullable GitLocalBranch localBranch = gitRepository.getBranches().findLocalBranch(localBranchName);
+    if (localBranch == null) {
+      return;
+    }
     val remoteTrackingBranchName = remoteTrackingBranch.getName();
     val graphTable = getGraphTable(anActionEvent);
     switch (status) {
@@ -184,7 +196,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
           pushApproved = pushApprovalDialogBuilder.ask(project);
         }
-        if (pushApproved && localBranch != null) {
+        if (pushApproved) {
           new GitPushDialog(project, List.of(gitRepository), GitPushSource.create(localBranch), /* isForcePushRequired */ false)
               .show();
         }
