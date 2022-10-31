@@ -167,7 +167,7 @@ gitmachete.frontend.graph
 gitmachete.frontend.ui
 ```
 
-Then reproduce the bug and go to `Help > Show Log in Files` (`Help > Show Log in Finder` on macOs) to open the log file.
+Then reproduce the bug and go to `Help > Show Log in Files` (`Help > Show Log in Finder` on macOS) to open the log file.
 
 
 ## References

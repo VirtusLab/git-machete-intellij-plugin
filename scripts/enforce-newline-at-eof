@@ -7,7 +7,6 @@ source "$self_dir"/utils.sh
 
 found=0
 # Java and Kotlin sources can be skipped since Spotless takes care of them.
-# TODO (#1093): remove CHANGE-NOTES section when change-log-plugin gets fixed
 for file in $(git grep -Il '' -- ':!*.java' ':!*.kt' ':!CHANGE-NOTES.md'); do
   last_two_characters=$(tail -c2 $file | xxd -p)
   if [[ $last_two_characters == 0a0a ]]; then
