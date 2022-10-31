@@ -1,5 +1,7 @@
 # Changelog
 
+## v3.2.1
+
 ## v3.2.0
 - Added a new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
 - Added an option to manually pick a commit for the fork point override.
