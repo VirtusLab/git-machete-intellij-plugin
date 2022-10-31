@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.buildsrc
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.ChangelogPlugin
 import org.jetbrains.changelog.ChangelogPluginExtension
 import org.jetbrains.intellij.IntelliJPlugin
@@ -54,7 +55,7 @@ fun Project.configureIntellijPlugin() {
       val prospectiveVersionSection = changelog.get(changelog.version.get())
       val latestVersionSection = changelog.getLatest()
 
-      if (prospectiveVersionSection.version != latestVersionSection.version) {
+      if (prospectiveVersionSection.version != latestVersionSection.version) { // here
         throw Exception(
           "${prospectiveVersionSection.version} is not the latest in CHANGE-NOTES.md, " +
             "update the file or change prospecitve version in version.gradle.kts"
@@ -67,11 +68,12 @@ fun Project.configureIntellijPlugin() {
     doLast {
       val prospectiveVersionSection = changelog.get(changelog.version.get())
 
-      if (prospectiveVersionSection.toString().isBlank()) {
+      val renderItemStr = changelog.renderItem(prospectiveVersionSection)
+      if (renderItemStr.isBlank()) {
         throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
       }
 
-      for (line in prospectiveVersionSection.toString().split(System.lineSeparator())) {
+      for (line in renderItemStr.split(System.lineSeparator())) {
         if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
           throw Exception(
             "Update formatting in CHANGE-NOTES ${prospectiveVersionSection.version} section:" +
@@ -105,9 +107,10 @@ fun Project.configureIntellijPlugin() {
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
+    val item = changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()
     changeNotes.set(
       "<h3>v${rootProject.version}</h3>\n\n${
-      (changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()).toHTML()
+      changelog.renderItem(item, Changelog.OutputType.HTML)
       }"
     )
   }
