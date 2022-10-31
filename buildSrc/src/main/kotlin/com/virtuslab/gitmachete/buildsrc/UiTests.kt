@@ -37,7 +37,6 @@ fun Project.configureUiTests() {
       environment("IDEPROBE_INTELLIJ_PLUGIN_URI", buildPlugin.outputs.files.first().path)
       environment("IDEPROBE_INTELLIJ_VERSION_BUILD", version)
 
-      // TODO (#945): caching of UI test results doesn't work in the CI anyway
       if (!isCI) {
         outputs.upToDateWhen { false }
       }

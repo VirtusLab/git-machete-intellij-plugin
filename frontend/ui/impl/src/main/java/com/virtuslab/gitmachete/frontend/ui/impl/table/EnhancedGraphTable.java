@@ -115,7 +115,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private @Nullable String selectedBranchName;
 
-  // To accurately track the change of the current branch from the begging, let's put something impossible
+  // To accurately track the change of the current branch from the beginning, let's put something impossible
   // as a branch name. This is required to detect the moment when the unmanaged branch notification should be shown.
   @UIEffect
   private String mostRecentlyCheckedOutBranch = "?!@#$%^&";

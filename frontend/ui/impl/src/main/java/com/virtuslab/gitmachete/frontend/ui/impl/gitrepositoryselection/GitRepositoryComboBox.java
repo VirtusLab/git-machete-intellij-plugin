@@ -76,7 +76,6 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
 
     val selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
-      // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
       LOG.debug("No Git repositories found");
       if (selected != null) {
         setSelectedItem(null);
