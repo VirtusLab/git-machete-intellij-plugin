@@ -51,12 +51,12 @@ fun Project.configureIntellijPlugin() {
 
   val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
     doLast {
-      val prospectiveVersionSection = changelog.get(changelog.version.get())
+      val prospectiveVersionSection = changelog.version.get()
       val latestVersionSection = changelog.getLatest()
 
-      if (prospectiveVersionSection.version != latestVersionSection.version) {
+      if (prospectiveVersionSection != latestVersionSection.version) {
         throw Exception(
-          "${prospectiveVersionSection.version} is not the latest in CHANGE-NOTES.md, " +
+          "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
             "update the file or change prospecitve version in version.gradle.kts"
         )
       }
@@ -106,12 +106,14 @@ fun Project.configureIntellijPlugin() {
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
-    val item = changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()
-    changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${
-      changelog.renderItem(item, Changelog.OutputType.HTML)
-      }"
-    )
+    val item = changelog.getOrNull(changelog.version.get())
+    if (item != null) {
+      changeNotes.set(
+        "<h3>v${rootProject.version}</h3>\n\n${
+        changelog.renderItem(item, Changelog.OutputType.HTML)
+        }"
+      )
+    }
   }
 
   tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
