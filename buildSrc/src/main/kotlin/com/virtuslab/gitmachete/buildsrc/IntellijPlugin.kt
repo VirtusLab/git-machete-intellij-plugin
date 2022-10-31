@@ -43,7 +43,6 @@ fun Project.configureIntellijPlugin() {
   configure<ChangelogPluginExtension> {
     val PROSPECTIVE_RELEASE_VERSION: String by extra
     version.set("v$PROSPECTIVE_RELEASE_VERSION")
-    unreleasedTerm.set("v$PROSPECTIVE_RELEASE_VERSION")
     headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
     path.set("${project.projectDir}/CHANGE-NOTES.md")
   }
@@ -55,7 +54,7 @@ fun Project.configureIntellijPlugin() {
       val prospectiveVersionSection = changelog.get(changelog.version.get())
       val latestVersionSection = changelog.getLatest()
 
-      if (prospectiveVersionSection.version != latestVersionSection.version) { // here
+      if (prospectiveVersionSection.version != latestVersionSection.version) {
         throw Exception(
           "${prospectiveVersionSection.version} is not the latest in CHANGE-NOTES.md, " +
             "update the file or change prospecitve version in version.gradle.kts"
