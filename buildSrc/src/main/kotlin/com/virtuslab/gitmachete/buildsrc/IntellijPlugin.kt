@@ -72,10 +72,11 @@ fun Project.configureIntellijPlugin() {
         throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
       }
 
-      for (line in renderItemStr.split(System.lineSeparator())) {
+      val listingElements = renderItemStr.split(System.lineSeparator()).drop(1)
+      for (line in listingElements) {
         if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
           throw Exception(
-            "Update formatting in CHANGE-NOTES ${prospectiveVersionSection.version} section:" +
+            "Update formatting in CHANGE-NOTES.md ${prospectiveVersionSection.version} section:" +
               "${System.lineSeparator()}$line"
           )
         }
