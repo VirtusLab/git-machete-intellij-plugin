@@ -6,6 +6,9 @@ import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.builder.*
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
+import com.virtuslab.gitmachete.frontend.actions.compat.buttonsGroupCompat
+import com.virtuslab.gitmachete.frontend.actions.compat.commentCompat
+import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
@@ -50,7 +53,7 @@ class OverrideForkPointDialog(
     }
 
   override fun createCenterPanel() = panel {
-    row {
+    rowCompat {
       if (branch.name.escapeHtml4() != branch.name) {
         label(
           format(
@@ -72,8 +75,8 @@ class OverrideForkPointDialog(
       }
     }
 
-    buttonsGroup {
-      row {
+    buttonsGroupCompat {
+      rowCompat {
         radioButton(
           format(
             getString(
@@ -83,10 +86,10 @@ class OverrideForkPointDialog(
           ),
           OverrideOption.PARENT
         )
-          .comment(escapeHtml4(parent.pointedCommit.shortMessage))
+          .commentCompat(escapeHtml4(parent.pointedCommit.shortMessage))
       }
 
-      row {
+      rowCompat {
         radioButton(
           format(
             getString(
@@ -96,10 +99,10 @@ class OverrideForkPointDialog(
           ),
           OverrideOption.INFERRED
         )
-          .comment(escapeHtml4(branch.forkPoint?.shortMessage) ?: "cannot resolve commit message")
+          .commentCompat(escapeHtml4(branch.forkPoint?.shortMessage) ?: "cannot resolve commit message")
       }
 
-      row {
+      rowCompat {
         val rb: Cell<JBRadioButton> = radioButton(
           format(
             getString(
