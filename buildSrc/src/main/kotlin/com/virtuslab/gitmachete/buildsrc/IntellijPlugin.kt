@@ -57,7 +57,7 @@ fun Project.configureIntellijPlugin() {
       if (prospectiveVersionSection != latestVersionSection.version) {
         throw Exception(
           "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
-            "update the file or change prospecitve version in version.gradle.kts"
+            "update the file or change the prospective version in version.gradle.kts"
         )
       }
     }
@@ -109,11 +109,7 @@ fun Project.configureIntellijPlugin() {
 
     val item = changelog.getOrNull(changelog.version.get())
     if (item != null) {
-      changeNotes.set(
-        "<h3>v${rootProject.version}</h3>\n\n${
-        changelog.renderItem(item, Changelog.OutputType.HTML)
-        }"
-      )
+      changeNotes.set("<h3>v${rootProject.version}</h3>\n\n" + changelog.renderItem(item, Changelog.OutputType.HTML))
     }
   }
 
