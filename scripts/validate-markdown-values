@@ -7,7 +7,7 @@ root_dir=$(cd "$self_dir/.." &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 # Currently, just check whether earliest supported IntelliJ version in README.md
 # is up to date with the source of truth (Gradle config).
-expected=$(grep -Po '(?<=earliestSupportedMajor=)[0-9.]*[0-9]' "$root_dir"/intellijVersions.properties || true)
+expected=$(grep -Po '(?<=earliestSupportedMajor=)[0-9.]*[0-9]' "$root_dir"/intellij-versions.properties || true)
 actual=$(grep -Po '(?<=available for IDE versions from )[0-9.]*[0-9]' "$root_dir"/README.md || true)
 if [[ $actual != "$expected" ]]; then
   error "README.md indicates that the minimum required IntelliJ version is $actual, while in fact in Gradle config it is $expected"

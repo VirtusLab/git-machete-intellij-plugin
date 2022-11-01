@@ -259,7 +259,7 @@ jobs:
           command: ./gradlew updateIntellijVersions
       - create_pull_request_if_files_changed:
           branch_name_prefix: update-intellij-versions
-          branch_name_command: md5sum intellijVersions.properties | cut -d' ' -f 1
+          branch_name_command: md5sum intellij-versions.properties | cut -d' ' -f 1
           commit_message_prefix: 'Update IntelliJ versions:'
           # language=sh
           commit_message_command: >

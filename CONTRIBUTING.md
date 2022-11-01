@@ -312,13 +312,13 @@ The whole logic of the process can be illustrated with an example:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `.idea`),
    and is detected with `./gradlew updateIntellijVersions`, <br/>
-   new `eapOfLatestSupportedMajor` is set in [intellijVersions.properties](intellijVersions.properties)
+   new `eapOfLatestSupportedMajor` is set in [intellij-versions.properties](intellij-versions.properties)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` &mdash; see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
-   via `latestSupportedMajor` in [intellijVersions.properties](intellijVersions.properties))
+   via `latestSupportedMajor` in [intellij-versions.properties](intellij-versions.properties))
 5. new stable version `2020.3` is released (see [release repository](https://www.jetbrains.com/intellij-repository/releases/) -> Ctrl+F `.idea`)
    and is detected using `./gradlew updateIntellijVersions`, <br/>
-   `latestStable` and additionally `latestMinorsOfOldSupportedMajors` are changed in [intellijVersions.properties](intellijVersions.properties)
+   `latestStable` and additionally `latestMinorsOfOldSupportedMajors` are changed in [intellij-versions.properties](intellij-versions.properties)
 6. we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well
 7. since `latestStable` is used as the version to build against,
    a few _source_ incompatibilities might appear once `latestStable` is updated, even when the plugin was _binary_ compatible with the new IDE version.
