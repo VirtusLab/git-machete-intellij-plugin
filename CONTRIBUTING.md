@@ -38,20 +38,22 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
      when running IntelliJ instance with the Git Machete plugin loaded.
 
-6. Enable annotation processing (for Lombok):
+6. Set Project SDK to JDK 17: `Project Structure > Project`
+
+7. Enable annotation processing (for Lombok):
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
    (`Preferences > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing` on macOS).
    Select `Obtain annotation processors from classpath` radio box.
 
-7. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
+8. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
-8. (optional) [Enable internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
+9. (optional) [Enable internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
    It can be significantly useful while working with UI components (or tests).
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
-9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
-   (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
+10. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
+    to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
+    (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
 
 ### Git config/hooks
 
@@ -65,7 +67,7 @@ ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 
 #### Windows
-**The hooks do not work on Windows** (however their execution seems to be possible theoretically).
+**The hooks do not work on Windows** (however, their execution seems to be possible theoretically).
 This is because one may not be emulating bash environment in any way or doing it in some specific way.
 
 #### macOS
@@ -114,7 +116,7 @@ Local (non-CI) builds by default skip most of [Checker Framework's](https://chec
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
 set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
 
-In case of spurious cache-related issues with Gradle build, try the following remedies (in the order from the least intrusive to the most):
+In case of spurious cache-related issues with the Gradle build, try the following remedies (in the order from the least intrusive to the most):
 * `./gradlew --stop` to shut down Gradle daemon
 * `pkill -e -9 -f '.*Gradle.*'` to kill all Gradle processes
 * `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
