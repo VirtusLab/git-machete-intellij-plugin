@@ -105,7 +105,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     }
 
     if (originalVersions != updatedVersions) {
-      PropertiesHelper.storeProperties(updatedVersions.toProperties(), File("intellijVersions.properties"))
+      PropertiesHelper.storeProperties(updatedVersions.toProperties(), File("intellij-versions.properties"))
     }
   }
 }

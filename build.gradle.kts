@@ -33,7 +33,7 @@ val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETP
 
 val intellijVersions by extra(
   IntellijVersions.from(
-    intellijVersionsProperties = PropertiesHelper.getProperties(File("intellijVersions.properties")),
+    intellijVersionsProperties = PropertiesHelper.getProperties(File("intellij-versions.properties")),
     overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
   )
 )
