@@ -19,6 +19,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -42,10 +43,8 @@ public class UnmanagedBranchNotificationFactory {
   private final String branchName;
   private final @Nullable ILocalBranchReference inferredParent;
 
-  public Notification create() {
-    val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-        getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").format(branchName),
-        NotificationType.INFORMATION);
+  public UnmanagedBranchNotification create() {
+    val notification = new UnmanagedBranchNotification(branchName);
 
     val slideInAction = getSlideInAction(notification);
     val openMacheteFileAction = getOpenMacheteFileAction();
@@ -138,4 +137,18 @@ public class UnmanagedBranchNotificationFactory {
         });
   }
 
+}
+
+@ExtensionMethod(GitMacheteBundle.class)
+class UnmanagedBranchNotification extends Notification {
+
+  @Getter
+  private final String branchName;
+
+  UnmanagedBranchNotification(String branchName) {
+    super(VcsNotifier.STANDARD_NOTIFICATION.getDisplayId(),
+        getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").format(branchName),
+        NotificationType.INFORMATION);
+    this.branchName = branchName;
+  }
 }

@@ -155,11 +155,17 @@ class NotificationGroup {
 
 class Presentation {
   void setDescription(@Untainted String description);
+
+  @SafeEffect
+  String getTextWithMnemonic();
 }
 
 class AnAction {
   @SafeEffect
   AnAction();
+
+  @SafeEffect
+  void getTemplatePresentation();
 
   // We can safely mark `actionPerformed` and `update` as `@UIEffect` (the default since we're in a `@UIPackage`)
   // since IntelliJ platform indeed always invokes them on the dispatch thread.

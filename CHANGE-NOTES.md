@@ -1,6 +1,7 @@
 # Changelog
 
 ## v3.2.1
+- Fixed the issue with the unmanaged branch notification showing up after adding a branch from an external terminal.
 
 ## v3.2.0
 - Added a new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.
