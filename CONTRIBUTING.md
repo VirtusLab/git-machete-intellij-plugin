@@ -38,22 +38,20 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
      when running IntelliJ instance with the Git Machete plugin loaded.
 
-6. Set Project SDK to JDK 17: `Project Structure > Project`
-
-7. Enable annotation processing (for Lombok):
+6. Enable annotation processing (for Lombok):
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
    (`Preferences > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing` on macOS).
    Select `Obtain annotation processors from classpath` radio box.
 
-8. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
+7. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
 
-9. (optional) [Enable internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
+8. (optional) [Enable internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html).
    It can be significantly useful while working with UI components (or tests).
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
-10. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-    to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
-    (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
+9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
+   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
+   (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
 
 ### Git config/hooks
 
