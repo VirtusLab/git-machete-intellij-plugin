@@ -44,6 +44,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.CustomLog;
@@ -121,7 +122,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private String mostRecentlyCheckedOutBranch = "?!@#$%^&";
 
   @UIEffect
-  private @Nullable Notification slideInNotification;
+  private @Nullable UnmanagedBranchNotification unmanagedBranchNotification;
 
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef = new AtomicReference<>(null);
 
@@ -179,8 +180,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           if (event instanceof VFileContentChangeEvent) {
             VirtualFile file = ((VFileContentChangeEvent) event).getFile();
             if (file.getFileType().getName().equals(FileTypeIds.NAME)) {
-              if (slideInNotification != null && !slideInNotification.isExpired()) {
-                slideInNotification.expire();
+              if (unmanagedBranchNotification != null && !unmanagedBranchNotification.isExpired()) {
+                unmanagedBranchNotification.expire();
               }
               queueRepositoryUpdateAndModelRefresh();
             }
@@ -254,7 +255,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         val notification = new UnmanagedBranchNotificationFactory(project, gitMacheteRepositorySnapshot, branchName,
             inferredParent).create();
         VcsNotifier.getInstance(project).notify(notification);
-        slideInNotification = notification;
+        unmanagedBranchNotification = notification;
       }
     });
   }
@@ -265,8 +266,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     if (repositoryCurrentBranch != null) {
       val repositoryCurrentBranchName = repositoryCurrentBranch.getName();
       if (!repositoryCurrentBranchName.equals(mostRecentlyCheckedOutBranch)) {
-        if (slideInNotification != null) {
-          slideInNotification.expire();
+        if (unmanagedBranchNotification != null) {
+          unmanagedBranchNotification.expire();
         }
         if (gitMacheteRepositorySnapshot != null) {
           val entry = gitMacheteRepositorySnapshot.getBranchLayout().getEntryByName(repositoryCurrentBranchName);
@@ -494,9 +495,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
           this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
           if (newGitMacheteRepositorySnapshot != null) {
-            refreshModel(gitRepository,
-                newGitMacheteRepositorySnapshot,
-                doOnUIThreadWhenReady);
+            validateUnmanagedBranchNotification(newGitMacheteRepositorySnapshot, unmanagedBranchNotification);
+            refreshModel(gitRepository, newGitMacheteRepositorySnapshot, doOnUIThreadWhenReady);
 
           } else {
             refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
@@ -520,6 +520,23 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       });
     } else {
       LOG.debug("Project is disposed");
+    }
+  }
+
+  @UIEffect
+  private static void validateUnmanagedBranchNotification(IGitMacheteRepositorySnapshot newGitMacheteRepositorySnapshot,
+      @Nullable UnmanagedBranchNotification notification) {
+    val branchEntryExists = Option.of(notification)
+        .map(UnmanagedBranchNotification::getBranchName)
+        .flatMap(b -> Option.of(newGitMacheteRepositorySnapshot.getBranchLayout().getEntryByName(b)))
+        .isDefined();
+    if (branchEntryExists) {
+      assert notification != null : "unmanagedBranchNotification is null";
+      notification.expire();
+      val balloon = notification.getBalloon();
+      if (balloon != null) {
+        balloon.hide();
+      }
     }
   }
 
