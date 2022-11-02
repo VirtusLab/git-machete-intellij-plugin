@@ -7,7 +7,8 @@ import kotlin.String
 
 // TODO (#1312): remove this class, go back to direct calls of `buttonsGroup`, `comment` and `row`
 
-// For general background on why this entire hack is needed, see https://kotlinlang.org/docs/java-to-kotlin-interop.html#default-methods-in-interfaces.
+// For a general background on why this entire hack is needed,
+// see https://kotlinlang.org/docs/java-to-kotlin-interop.html#default-methods-in-interfaces.
 // In one of 2022.3 EAPs, both `Cell` and `Panel` (interfaces from `com.intellij.ui.dsl.builder` package)
 // have been annotated as `@kotlin.jvm.JvmDefaultWithCompatibility`.
 //
