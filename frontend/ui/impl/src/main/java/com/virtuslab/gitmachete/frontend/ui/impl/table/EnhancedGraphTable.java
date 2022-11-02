@@ -54,6 +54,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
@@ -122,7 +123,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private String mostRecentlyCheckedOutBranch = "?!@#$%^&";
 
   @UIEffect
-  private @Nullable UnmanagedBranchNotification unmanagedBranchNotification;
+  private @MonotonicNonNull UnmanagedBranchNotification unmanagedBranchNotification;
 
   private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryRef = new AtomicReference<>(null);
 
