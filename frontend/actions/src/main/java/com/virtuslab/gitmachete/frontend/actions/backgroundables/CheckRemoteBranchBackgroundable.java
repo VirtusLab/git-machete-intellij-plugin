@@ -9,25 +9,30 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitBranch;
 import git4idea.repo.GitRepository;
 import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(GitMacheteBundle.class)
 public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
 
   private final Project project;
   private final GitRepository gitRepository;
   private final String remoteBranchName;
-  private final String taskFailNotification;
+  private final String taskFailNotificationTitle;
+  private final String taskFailNotificationPrefix;
 
   public CheckRemoteBranchBackgroundable(Project project, GitRepository gitRepository, String remoteBranchName,
-      String taskFailNotification) {
+      String taskFailNotificationTitle, String taskFailNotificationPrefix) {
     super(project, getString("action.GitMachete.CheckRemoteBranchBackgroundable.task-title"));
     this.project = project;
     this.gitRepository = gitRepository;
     this.remoteBranchName = remoteBranchName;
-    this.taskFailNotification = taskFailNotification;
+    this.taskFailNotificationTitle = taskFailNotificationTitle;
+    this.taskFailNotificationPrefix = taskFailNotificationPrefix;
   }
 
   @Override
@@ -36,7 +41,8 @@ public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
   public void run(ProgressIndicator indicator) {
     GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
     if (targetBranch == null) {
-      throw new GitMacheteException(getString("action.GitMachete.CheckRemoteBranchBackgroundable.notification.fail.text"));
+      throw new GitMacheteException(
+          getString("action.GitMachete.CheckRemoteBranchBackgroundable.notification.fail.text").format(remoteBranchName));
     }
   }
 
@@ -46,8 +52,7 @@ public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
     String errorMessage = error.getMessage();
     if (errorMessage != null) {
       VcsNotifier.getInstance(project).notifyError(
-          /* displayId */ null,
-          taskFailNotification, errorMessage);
+          /* displayId */ null, taskFailNotificationTitle, taskFailNotificationPrefix + errorMessage);
     }
   }
 }
