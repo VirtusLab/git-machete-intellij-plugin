@@ -1,4 +1,4 @@
-package com.virtuslab.branchlayout.impl.readwrite;
+package com.virtuslab.branchlayout.api.readwrite;
 
 import lombok.Data;
 import org.checkerframework.checker.index.qual.Positive;

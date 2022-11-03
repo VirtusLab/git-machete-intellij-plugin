@@ -1,4 +1,7 @@
 
+import org.checkerframework.checker.guieffect.qual.PolyUI;
+import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
+import org.checkerframework.checker.guieffect.qual.PolyUIType;
 import org.checkerframework.checker.index.qual.IndexFor;
 import org.checkerframework.checker.index.qual.LengthOf;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -11,6 +14,13 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 
 package io.vavr;
+
+@PolyUIType
+interface CheckedRunnable {
+
+  @PolyUIEffect
+  void run() throws Throwable;
+}
 
 interface Value<T> {
   @Pure
@@ -87,6 +97,7 @@ interface Option<T> {
 }
 
 
+@PolyUIType
 interface Try<T> {
   // That's an off-label usage of OptionalChecker which only prevents against calling `get()` on a possible Failure
   // (but not against calling `getCause()` on a possible Success).
@@ -102,4 +113,7 @@ interface Try<T> {
   boolean isSuccess();
 
   static <T> Try<T> of(CheckedFunction0<? extends @Nullable T> supplier);
+
+  @PolyUIEffect
+  static Try<Void> run(@PolyUI CheckedRunnable runnable);
 }

@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -8,7 +9,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -59,7 +60,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -70,6 +70,7 @@ import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGraph;
@@ -166,6 +167,18 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     subscribeToMacheteFileChange();
   }
 
+  public void refreshMacheteFile() {
+    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
+    if (gitRepository != null) {
+      Path macheteFilePath = gitRepository.getMacheteFilePath();
+      val macheteVFile = VirtualFileManager.getInstance().findFileByNioPath(macheteFilePath);
+      if (macheteVFile != null) {
+        macheteVFile.refresh(/* asynchronous */ false, /* recursive */ false);
+      }
+    }
+  }
+
   private IGitRepositorySelectionProvider getGitRepositorySelectionProvider() {
     return project.getService(SelectedGitRepositoryProvider.class).getGitRepositorySelectionProvider();
   }
@@ -218,7 +231,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
-    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+    val macheteVFile = VirtualFileManager.getInstance().findFileByNioPath(macheteFilePath);
+    boolean isMacheteFilePresent = macheteVFile != null && !macheteVFile.isDirectory();
 
     if (!isMacheteFilePresent) {
       LOG.warn("Machete file (${macheteFilePath}) is absent, so no unmanaged branch notification will show up");
@@ -298,7 +312,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
-    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+    val macheteVFile = VirtualFileManager.getInstance().findFileByNioPath(macheteFilePath);
+    boolean isMacheteFilePresent = macheteVFile != null && !macheteVFile.isDirectory();
 
     LOG.debug(() -> "Entering: macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}, " +
         "isListingCommits = ${isListingCommits}");
@@ -402,20 +417,27 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       newBranchLayout = newBranchLayout.slideOut(branchName);
     }
 
-    try {
-      Path macheteFilePath = gitRepository.getMacheteFilePath();
-      LOG.info("Writing new branch layout into ${macheteFilePath}");
-      branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
-
-    } catch (BranchLayoutException e) {
-      String exceptionMessage = e.getMessage();
-      String errorMessage = "Error occurred while sliding out skipped branches" +
-          (exceptionMessage == null ? "" : ": " + exceptionMessage);
-      LOG.error(errorMessage);
-      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
-          exceptionMessage == null ? "" : exceptionMessage);
-    }
+    val finalNewBranchLayout = newBranchLayout;
+    runWriteActionOnUIThread(() -> {
+      try {
+        Path macheteFilePath = gitRepository.getMacheteFilePath();
+        LOG.info("Writing new branch layout into ${macheteFilePath}");
+        MacheteFileWriter.writeBranchLayout(
+            macheteFilePath,
+            branchLayoutWriter,
+            finalNewBranchLayout,
+            /* backupOldLayout */ true,
+            /* requestor */ this);
+      } catch (IOException t) {
+        String exceptionMessage = t.getMessage();
+        String errorMessage = "Error occurred while sliding out skipped branches" +
+            (exceptionMessage == null ? "" : ": " + exceptionMessage);
+        LOG.error(errorMessage);
+        VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+            getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
+            exceptionMessage == null ? "" : exceptionMessage);
+      }
+    });
   }
 
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {

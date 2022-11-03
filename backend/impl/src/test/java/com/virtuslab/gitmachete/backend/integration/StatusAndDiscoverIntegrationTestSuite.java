@@ -14,6 +14,7 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.runners.Parameterized.Parameters;
 
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
 import io.vavr.collection.List;
@@ -61,7 +62,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   public void yieldsSameStatusAsCli() {
     String gitMacheteCliStatus = gitMacheteCliStatusOutput();
 
-    BranchLayout branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
+    BranchLayout branchLayout = branchLayoutReader.read(new FileInputStream(mainGitDirectoryPath.resolve("machete").toFile()));
     gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
     String ourStatus = ourGitMacheteRepositorySnapshotAsString();
 

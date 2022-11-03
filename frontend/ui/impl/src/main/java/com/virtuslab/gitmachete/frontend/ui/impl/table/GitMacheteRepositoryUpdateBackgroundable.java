@@ -3,19 +3,21 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -28,6 +30,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -42,6 +45,10 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
+  /**
+   *  A backgroundable task that reads the branch layout from the machete file and updates the
+   *  repository snapshot, which is the base for the creation of the branch graph seen in the GitMachete IntelliJ tab.
+   */
   public GitMacheteRepositoryUpdateBackgroundable(
       Project project,
       GitRepository gitRepository,
@@ -85,10 +92,13 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     Path mainGitDirectoryPath = gitRepository.getMainGitDirectoryPath();
     Path worktreeGitDirectoryPath = gitRepository.getWorktreeGitDirectoryPath();
     Path macheteFilePath = gitRepository.getMacheteFilePath();
-    boolean isMacheteFilePresent = Files.isRegularFile(macheteFilePath);
+
+    val macheteVFile = VirtualFileManager.getInstance().findFileByNioPath(macheteFilePath);
+    boolean isMacheteFilePresent = macheteVFile != null && !macheteVFile.isDirectory();
 
     LOG.debug(() -> "Entering: rootDirectoryPath = ${rootDirectoryPath}, mainGitDirectoryPath = ${mainGitDirectoryPath}, " +
         "macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
+
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
@@ -105,10 +115,9 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
   }
 
-  @UIThreadUnsafe
   private BranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     try {
-      return branchLayoutReader.read(path);
+      return ReadAction.compute(() -> MacheteFileReader.readBranchLayout(path, branchLayoutReader));
     } catch (BranchLayoutException e) {
       @Positive Integer errorLine = e.getErrorLine();
       throw new MacheteFileReaderException("Error occurred while parsing machete file" +

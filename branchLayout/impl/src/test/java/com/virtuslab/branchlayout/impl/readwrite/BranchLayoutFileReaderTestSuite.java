@@ -5,57 +5,37 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.stream.Collectors;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BranchLayoutFileUtils.class, Files.class})
 public class BranchLayoutFileReaderTestSuite {
 
-  private final Path path = Paths.get("");
-
-  @SneakyThrows
-  private BranchLayoutFileReader getBranchLayoutFileReaderForLines(List<String> linesToReturn, int indentWidth) {
-    BranchLayoutFileReader reader = new BranchLayoutFileReader();
-
-    PowerMockito.mockStatic(BranchLayoutFileUtils.class);
-    val indentSpec = new IndentSpec(/* indentCharacter */ IndentSpec.SPACE, indentWidth);
-    PowerMockito.when(BranchLayoutFileUtils.getDefaultSpec()).thenReturn(indentSpec);
-    PowerMockito.when(BranchLayoutFileUtils.readFileLines(any())).thenReturn(linesToReturn);
-    PowerMockito.when(BranchLayoutFileUtils.getIndentWidth(anyString(), anyChar())).thenCallRealMethod();
-    PowerMockito.when(BranchLayoutFileUtils.hasProperIndentationCharacter(anyString(), anyChar())).thenCallRealMethod();
-
-    PowerMockito.mockStatic(Files.class);
-    PowerMockito.when(Files.isRegularFile(any())).thenReturn(false);
-
-    return reader;
+  public static InputStream getInputStreamFromLines(List<String> lines) {
+    return new ByteArrayInputStream(
+        lines.collect(Collectors.joining(System.lineSeparator()))
+            .getBytes());
   }
 
   @Test
   @SneakyThrows
   public void read_givenCorrectFile_reads() {
     // given
-    List<String> linesToReturn = List.of(" ", "A", " B", "C", "");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+    val linesToReturn = List.of(" ", "A", " B", "C", "");
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayout branchLayout = reader.read(path);
+    BranchLayout branchLayout = new BranchLayoutReader().read(linesStream);
 
     // then
     assertNotNull(branchLayout.getEntryByName("A"));
@@ -76,10 +56,10 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenCorrectFileWithRootsOnly_reads() {
     // given
     List<String> linesToReturn = List.of("A", " ", "B");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayout branchLayout = reader.read(path);
+    BranchLayout branchLayout = new BranchLayoutReader().read(linesStream);
 
     // then
     assertNotNull(branchLayout.getEntryByName("A"));
@@ -92,10 +72,10 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenEmptyFile_reads() {
     // given
     List<String> linesToReturn = List.empty();
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayout branchLayout = reader.read(path);
+    BranchLayout branchLayout = new BranchLayoutReader().read(linesStream);
 
     // then no exception thrown
     assertEquals(0, branchLayout.getRootEntries().size());
@@ -105,10 +85,11 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenFileWithIndentedFirstEntry_throwsException() {
     // given
     List<String> linesToReturn = List.of(" ", " ", " A", " B", " ");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class,
+        () -> new BranchLayoutReader().read(linesStream));
 
     // then
     int i = exception.getErrorLine();
@@ -119,10 +100,11 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenFileWithIndentWidthNotAMultiplicityOfLevelWidth_throwsException() {
     // given
     List<String> linesToReturn = List.of("A", " ", "   B", " C");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 3);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class,
+        () -> new BranchLayoutReader().read(linesStream));
 
     System.out.println(exception.getMessage());
     // then
@@ -134,10 +116,11 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenFileWithChildIndentGreaterThanOneToParent_throwsException() {
     // given
     List<String> linesToReturn = List.of(" ", "A", "", "  B", "      C");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 2);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class,
+        () -> new BranchLayoutReader().read(linesStream));
 
     // then
     int i = exception.getErrorLine();
@@ -148,10 +131,11 @@ public class BranchLayoutFileReaderTestSuite {
   public void read_givenFileWithDifferentIndentCharacters_throwsException() {
     // given
     List<String> linesToReturn = List.of("A", " B", "\tC");
-    BranchLayoutFileReader reader = getBranchLayoutFileReaderForLines(linesToReturn, /* indentWidth */ 1);
+    val linesStream = getInputStreamFromLines(linesToReturn);
 
     // when
-    BranchLayoutException exception = assertThrows(BranchLayoutException.class, () -> reader.read(path));
+    BranchLayoutException exception = assertThrows(BranchLayoutException.class,
+        () -> new BranchLayoutReader().read(linesStream));
 
     // then
     int i = exception.getErrorLine();

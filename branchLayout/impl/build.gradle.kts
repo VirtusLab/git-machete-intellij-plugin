@@ -7,7 +7,6 @@ dependencies {
 
 junit()
 lombok()
-powerMock()
 slf4jLambdaApi()
 slf4jTestImpl()
 vavr()

@@ -6,6 +6,8 @@ import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.runners.Parameterized.Parameters;
 
+import java.io.FileInputStream;
+
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
@@ -52,7 +54,7 @@ public class ParentInferenceIntegrationTestSuite extends BaseGitRepositoryBacked
     this.expectedParent = expectedParent;
 
     val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-    val branchLayout = branchLayoutReader.read(mainGitDirectoryPath.resolve("machete"));
+    val branchLayout = branchLayoutReader.read(new FileInputStream(mainGitDirectoryPath.resolve("machete").toFile()));
 
     gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath,
         worktreeGitDirectoryPath);

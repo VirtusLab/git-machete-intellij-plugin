@@ -102,7 +102,7 @@ function Project(underlyingProject) {
   // Returns the refreshed model.
   this.refreshGraphTableModel = function () {
     const graphTable = getGraphTable();
-
+    graphTable.refreshMacheteFile();
     let refreshDone = false;
     graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ () => {
       refreshDone = true;

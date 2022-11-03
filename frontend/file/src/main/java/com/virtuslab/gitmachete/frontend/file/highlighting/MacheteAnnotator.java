@@ -14,6 +14,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
@@ -32,6 +33,7 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileUtils;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteFile;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteGeneratedBranch;
@@ -120,8 +122,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
-    } catch (BranchLayoutException e) { // might appear if branchLayout in file has inconsistent indentation characters
+      branchLayout = ReadAction.compute(
+          () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
+    } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return false;
     }
     return branchLayout.isEntryDuplicated(branchName);
@@ -131,8 +134,9 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = branchLayoutReader.read(Path.of(file.getVirtualFile().getPath()));
-    } catch (BranchLayoutException e) { // might appear if branchLayout in file has inconsistent indentation characters
+      branchLayout = ReadAction.compute(
+          () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
+    } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return "";
     }
     BranchLayoutEntry parentEntry;

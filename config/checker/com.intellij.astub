@@ -1,10 +1,15 @@
+
 import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
+import org.checkerframework.checker.guieffect.qual.PolyUI;
+import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
+import org.checkerframework.checker.guieffect.qual.PolyUIType;
 import org.checkerframework.checker.guieffect.qual.SafeEffect;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.guieffect.qual.UIPackage;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -206,6 +211,14 @@ package com.intellij.openapi.application;
 
 interface Application {
   void invokeLater(@UI Runnable runnable);
+
+  void invokeLater(@UI Runnable runnable, ModalityState state);
+}
+
+@UI
+class WriteAction<T> {
+  @UIEffect
+  static <E extends Throwable> void run(@UI ThrowableRunnable<E> action);
 }
 
 
@@ -359,8 +372,24 @@ package com.intellij.openapi.vcs.history;
 package com.intellij.openapi.vfs;
 
 class VirtualFile {
+  @NonNull VirtualFile createChildData(@Nullable Object requestor, String name);
+
+  void delete(@Nullable Object requestor);
+
   @Nullable VirtualFile getParent();
+
+  OutputStream getOutputStream(@Nullable Object requestor);
 }
+
+class VfsUtilCore {
+    static VirtualFile copyFile(
+        @Nullable Object requestor,
+        VirtualFile file,
+        VirtualFile toDir,
+        String newName);
+}
+
+
 
 package com.intellij.openapi.vfs.newvfs;
 
@@ -550,9 +579,14 @@ class ModalityUiUtil {
   void invokeLaterIfNeeded(ModalityState modalityState, Condition expired, @UI Runnable runnable);
 }
 
-
 @UI class PlatformIcons {}
 @UI class PsiIconUtil {}
+
+@PolyUIType
+interface ThrowableRunnable<T extends Throwable> {
+  @PolyUIEffect
+  void run();
+}
 
 
 package com.intellij.util.config;

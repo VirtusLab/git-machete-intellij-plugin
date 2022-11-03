@@ -5,6 +5,7 @@ dependencies {
   implementation(project(":backend:api"))
   implementation(project(":branchLayout:api"))
   implementation(project(":frontend:base"))
+  implementation(project(":frontend:file"))
   implementation(project(":frontend:resourcebundles"))
   implementation(project(":frontend:ui:api"))
 }
