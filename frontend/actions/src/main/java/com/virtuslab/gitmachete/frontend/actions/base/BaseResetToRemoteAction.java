@@ -15,8 +15,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.GitReference;
@@ -42,7 +40,7 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -154,20 +152,13 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       if (currentCommitSha.length() == 40) {
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
-      val dialogBuilder = MessageDialogBuilder.okCancel(
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
-              branchName.escapeHtml4(),
-              remoteTrackingBranch.getName().escapeHtml4(),
-              currentCommitSha));
 
-      dialogBuilder
-          .icon(Messages.getInformationIcon())
-          .doNotAsk(new ResetBranchToRemoteInfoDialog(project));
+      val content = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
+          branchName.escapeHtml4(),
+          remoteTrackingBranch.getName().escapeHtml4(),
+          currentCommitSha);
 
-      val okCancelDialogResult = dialogBuilder.ask(project);
-
-      if (!okCancelDialogResult) {
+      if (!new ResetInfoDialog(project, content).showAndGet()) {
         return;
       }
     }
