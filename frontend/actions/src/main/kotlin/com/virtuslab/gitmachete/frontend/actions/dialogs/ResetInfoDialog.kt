@@ -17,21 +17,26 @@ class ResetInfoDialog(project: Project, private val content: @Tainted String) :
   init {
     title = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title")
     setOKButtonMnemonic('O'.code)
-    setDoNotAskOption(object : com.intellij.openapi.ui.DoNotAskOption.Adapter() {
-      override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
-        if (exitCode == Messages.OK && isSelected) {
-          PropertiesComponent.getInstance(project).setValue(BaseResetToRemoteAction.SHOW_RESET_INFO, false, /* defaultValue */ true)
-        }
-      }
-    })
+    setDoNotAskOption(createDoNotAskOptionAdapter(project))
     super.init()
   }
 
   override fun createCenterPanel() = panel {
     rowCompat {
       label(content).applyToComponent {
-        preferredSize = Dimension(480, 100)
+        preferredSize = Dimension(480, 200)
       }
     }
+  }
+
+  companion object {
+    private fun createDoNotAskOptionAdapter(project: Project) =
+      object : com.intellij.openapi.ui.DoNotAskOption.Adapter() {
+        override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
+          if (exitCode == Messages.OK && isSelected) {
+            PropertiesComponent.getInstance(project).setValue(BaseResetToRemoteAction.SHOW_RESET_INFO, false, /* defaultValue */ true)
+          }
+        }
+      }
   }
 }
