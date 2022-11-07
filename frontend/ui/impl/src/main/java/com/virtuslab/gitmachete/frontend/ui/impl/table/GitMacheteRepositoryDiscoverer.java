@@ -19,11 +19,11 @@ import lombok.val;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.BranchLayoutWriterProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -93,7 +93,7 @@ public class GitMacheteRepositoryDiscoverer {
           return;
         }
 
-        val branchLayoutWriter = project.getService(BranchLayoutWriterProvider.class).getBranchLayoutWriter();
+        val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
         val branchLayout = repositorySnapshot.getBranchLayout();
 
         try {

@@ -37,7 +37,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
     val parentName = getSelectedBranchName(anActionEvent);
     val unmanagedBranch = getNameOfUnmanagedBranch(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val branchLayoutWriter = getBranchLayoutWriter();
 
     if (gitRepository == null || branchLayout == null || unmanagedBranch == null) {
       return;

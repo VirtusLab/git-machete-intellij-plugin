@@ -85,7 +85,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val parentName = getNameOfBranchUnderAction(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val branchLayoutWriter = getBranchLayoutWriter();
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
       return;

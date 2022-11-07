@@ -162,7 +162,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   private void slideOutBranch(AnActionEvent anActionEvent, String branchName) {
     val project = getProject(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter(anActionEvent);
+    val branchLayoutWriter = getBranchLayoutWriter();
     val gitRepository = getSelectedGitRepository(anActionEvent);
     if (branchLayout == null || gitRepository == null) {
       return;
