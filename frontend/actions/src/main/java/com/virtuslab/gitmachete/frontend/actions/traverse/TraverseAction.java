@@ -248,9 +248,9 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
           val isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
           val fetchNotificationPrefix = isUpToDate
-                  ? getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.no-fetch-perform")
+              ? getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.no-fetch-perform")
                   .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-                  : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
+              : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
           FastForwardMerge.perform(project, gitRepository, mergeProps,
               fetchNotificationPrefix).queue();
         }
@@ -289,7 +289,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
           if (branchLayout != null) {
             new SlideOutBackgroundable(project, "Deleting branch if required...", gitMacheteNonRootBranch.getName(),
                 getSelectedGitRepository(anActionEvent), getCurrentBranchNameIfManaged(anActionEvent),
-                branchLayout, getBranchLayoutWriter(anActionEvent), graphTable) {
+                branchLayout, getBranchLayoutWriter(), graphTable) {
               @Override
               public void onSuccess() {
                 super.onSuccess();
