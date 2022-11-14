@@ -3,16 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.Collections;
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import git4idea.branch.GitBranchUiHandlerImpl;
-import git4idea.branch.GitBranchWorker;
-import git4idea.commands.Git;
-import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -21,10 +12,10 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
@@ -87,23 +78,9 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository != null) {
-
       log().debug(() -> "Queuing '${targetBranchName}' branch checkout background task");
-      new Task.Backgroundable(project, getString("action.GitMachete.BaseCheckoutAction.task-title")) {
-        @Override
-        @UIThreadUnsafe
-        public void run(ProgressIndicator indicator) {
-          doCheckout(project, indicator, targetBranchName, gitRepository);
-        }
-      }.queue();
+      new CheckoutBackgroundable(project, getString("action.GitMachete.BaseCheckoutAction.task-title"), targetBranchName,
+          gitRepository).queue();
     }
-  }
-
-  @UIThreadUnsafe
-  public static void doCheckout(Project project, ProgressIndicator indicator, String branchToCheckoutName,
-      GitRepository gitRepository) {
-    val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
-    new GitBranchWorker(project, Git.getInstance(), uiHandler)
-        .checkout(branchToCheckoutName, /* detach */ false, Collections.singletonList(gitRepository));
   }
 }

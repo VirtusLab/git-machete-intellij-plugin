@@ -4,6 +4,7 @@
 - Fixed the issue with the unmanaged branch notification showing up after adding a branch from an external (non-IntelliJ) terminal.
 - Fixed the text overflow in VCS notifications.
 - Fixed the text overflow in the Reset Info dialog.
+- Improve the stability and reliability of the plugin.
 
 ## v3.2.0
 - Added a new `alt + enter` intention action to create a non-existing branch if user adds it to the machete file.

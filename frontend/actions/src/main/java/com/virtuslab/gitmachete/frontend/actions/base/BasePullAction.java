@@ -98,8 +98,8 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
               .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
       val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-      Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
-          fetchNotificationTextPrefix);
+      Runnable fastForwardRunnable = () -> FastForwardMerge.createBackgroundable(project, gitRepository, mergeProps,
+          fetchNotificationTextPrefix).queue();
 
       if (isUpToDate) {
         fastForwardRunnable.run();

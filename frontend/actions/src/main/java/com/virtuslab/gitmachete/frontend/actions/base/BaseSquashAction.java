@@ -24,8 +24,8 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
-import com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -154,7 +154,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
               LOG.info("Checking out '${branchName}' branch and squashing it");
 
               if (!isSquashingCurrentBranch) {
-                CheckoutSelectedAction.doCheckout(project, indicator, branchName, gitRepository);
+                CheckoutBackgroundable.doCheckout(project, indicator, branchName, gitRepository);
               }
 
               val commitsToSquash = vcsCommitMetadataAndMessage.metadata.toJavaList();

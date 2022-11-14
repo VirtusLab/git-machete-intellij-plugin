@@ -72,6 +72,6 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
-    FastForwardMerge.perform(project, gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "");
+    FastForwardMerge.createBackgroundable(project, gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "").queue();
   }
 }
