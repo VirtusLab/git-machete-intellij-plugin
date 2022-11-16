@@ -377,7 +377,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         .find(path -> path.toFile().isFile());
 
     try {
-      return headNamePath.isEmpty()
+      return headNamePath.isDefined()
           ? Stream.ofAll(Files.readAllLines(headNamePath.get()))
               .headOption()
               .map(Repository::shortenRefName).getOrNull()
