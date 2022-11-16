@@ -4,6 +4,8 @@ import static com.virtuslab.gitmachete.backend.api.SyncToParentStatus.InSyncButF
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.Collections;
+
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -11,6 +13,9 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.vcs.log.VcsCommitMetadata;
+import git4idea.branch.GitBranchUiHandlerImpl;
+import git4idea.branch.GitBranchWorker;
+import git4idea.commands.Git;
 import git4idea.rebase.log.GitCommitEditingOperationResult;
 import git4idea.rebase.log.squash.GitSquashOperation;
 import git4idea.repo.GitRepository;
@@ -24,7 +29,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -154,7 +158,9 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
               LOG.info("Checking out '${branchName}' branch and squashing it");
 
               if (!isSquashingCurrentBranch) {
-                CheckoutBackgroundable.doCheckout(project, indicator, branchName, gitRepository);
+                val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
+                new GitBranchWorker(project, Git.getInstance(), uiHandler)
+                    .checkout(/* reference */ branchName, /* detach */ false, Collections.singletonList(gitRepository));
               }
 
               val commitsToSquash = vcsCommitMetadataAndMessage.metadata.toJavaList();

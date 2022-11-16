@@ -23,7 +23,6 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -130,18 +129,11 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByMergeAction.task-title.non-current")) {
-      @Override
-      @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
-        LOG.info("Checking out '${movingBranch}' branch and merging ${stayingBranch} into it");
+    val gitBrancher = GitBrancher.getInstance(project);
+    val repositories = Collections.singletonList(gitRepository);
 
-        CheckoutBackgroundable.doCheckout(project, indicator, movingBranch, gitRepository);
-        GitBrancher.getInstance(project)
-            .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
-      }
-
-    }.queue();
+    Runnable callInAwtLater = () -> gitBrancher.merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, repositories);
+    gitBrancher.checkout(/* reference */ movingBranch, /* detach */ false, repositories, callInAwtLater);
   }
 
 }

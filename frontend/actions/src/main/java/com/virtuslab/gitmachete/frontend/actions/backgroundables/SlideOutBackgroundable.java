@@ -16,7 +16,6 @@ import com.intellij.util.ModalityUiUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -71,10 +70,6 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
     LOG.debug("Refreshing repository state");
 
-  }
-
-  public LambdaLogger log() {
-    return LOG;
   }
 
   @Override

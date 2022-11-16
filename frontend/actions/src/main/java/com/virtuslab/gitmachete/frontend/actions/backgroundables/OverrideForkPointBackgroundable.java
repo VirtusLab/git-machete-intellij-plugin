@@ -7,7 +7,6 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -15,7 +14,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -31,17 +29,14 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
 
   private final BaseEnhancedGraphTable graphTable;
 
-  public LambdaLogger log() {
-    return LOG;
-  }
-
   public OverrideForkPointBackgroundable(Project project, String title, GitRepository gitRepository,
-      INonRootManagedBranchSnapshot nonRootBranch, BaseEnhancedGraphTable graphTable) {
+      INonRootManagedBranchSnapshot nonRootBranch, BaseEnhancedGraphTable graphTable,
+      @Nullable ICommitOfManagedBranch selectedCommit) {
     super(project, title);
     this.gitRepository = gitRepository;
     this.nonRootBranch = nonRootBranch;
     this.graphTable = graphTable;
-    selectedCommit = new OverrideForkPointDialog(project, nonRootBranch).showAndGetSelectedCommit();
+    this.selectedCommit = selectedCommit;
   }
 
   @Override
@@ -51,14 +46,13 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
       LOG.debug("Enqueueing fork point override");
       overrideForkPoint(nonRootBranch, selectedCommit);
     } else {
-      log().debug(
+      LOG.debug(
           "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
     }
   }
 
   @UIThreadUnsafe
   private void overrideForkPoint(IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
-
     if (gitRepository != null && myProject != null) {
       val root = gitRepository.getRoot();
       setOverrideForkPointConfigValues(myProject, root, branch.getName(), forkPoint, branch.getPointedCommit());

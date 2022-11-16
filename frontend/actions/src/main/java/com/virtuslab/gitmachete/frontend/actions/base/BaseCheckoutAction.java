@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+
+import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import git4idea.branch.GitBrancher;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -12,7 +14,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.CheckoutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -79,8 +80,8 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
 
     if (gitRepository != null) {
       log().debug(() -> "Queuing '${targetBranchName}' branch checkout background task");
-      new CheckoutBackgroundable(project, getString("action.GitMachete.BaseCheckoutAction.task-title"), targetBranchName,
-          gitRepository).queue();
+      GitBrancher.getInstance(project).checkout(/* reference */ targetBranchName, /* detach */ false,
+          Collections.singletonList(gitRepository), /* callInAwtLater */ () -> {});
     }
   }
 }

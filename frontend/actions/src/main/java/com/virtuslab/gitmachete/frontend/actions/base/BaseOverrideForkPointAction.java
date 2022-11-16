@@ -13,6 +13,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.OverrideForkPointBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 
 @CustomLog
@@ -56,11 +57,12 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
       return;
     }
     val nonRootBranch = branch.asNonRoot();
+    val selectedCommit = new OverrideForkPointDialog(project, nonRootBranch).showAndGetSelectedCommit();
 
-    LOG.debug("Enqueueing fork point override");
     new OverrideForkPointBackgroundable(project, getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
         gitRepository, nonRootBranch,
-        getGraphTable(anActionEvent)).queue();
+        getGraphTable(anActionEvent),
+        selectedCommit).queue();
   }
 
 }

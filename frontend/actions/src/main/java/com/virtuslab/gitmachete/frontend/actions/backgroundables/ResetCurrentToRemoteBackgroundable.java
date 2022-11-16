@@ -18,7 +18,6 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -30,10 +29,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
-
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   private final String localBranchName;
 
@@ -55,7 +50,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
   public void run(ProgressIndicator indicator) {
     if (myProject != null && localBranchName != null && remoteTrackingBranchName != null) {
 
-      log().debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
+      LOG.debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
 
       try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject,
           getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
@@ -75,7 +70,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
               /* title */ "",
               getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
                   .fmt(localBranchName));
-          log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
+          LOG.debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
         } else if (localChangesDetector.wasMessageDetected()) {
           LocalChangesWouldBeOverwrittenHelper.showErrorNotification(myProject,
@@ -85,7 +80,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
               localChangesDetector.getRelativeFilePaths());
 
         } else {
-          log().error(result.getErrorOutputAsJoinedString());
+          LOG.error(result.getErrorOutputAsJoinedString());
           VcsNotifier.getInstance(myProject).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
               result.getErrorOutputAsHtmlString());
         }

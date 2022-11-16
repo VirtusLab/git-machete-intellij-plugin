@@ -10,7 +10,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.branch.GitBranchUiHandlerImpl;
+import git4idea.branch.GitBranchWorker;
 import git4idea.branch.GitRebaseParams;
+import git4idea.commands.Git;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
@@ -18,7 +21,6 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitFreezingProcess;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -42,8 +44,6 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
 
   private final INonRootManagedBranchSnapshot branchToRebase;
 
-  private final Try<IGitRebaseParameters> tryGitRebaseParameters;
-
   private final boolean shouldExplicitlyCheckout;
 
   private final Project project;
@@ -60,12 +60,6 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     this.shouldExplicitlyCheckout = shouldExplicitlyCheckout;
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
-    tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
-
-  }
-
-  public LambdaLogger log() {
-    return LOG;
   }
 
   @UIThreadUnsafe
@@ -99,7 +93,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-
+    val tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
     if (tryGitRebaseParameters.isFailure()) {
       val e = tryGitRebaseParameters.getCause();
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
@@ -147,13 +141,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
               + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
       return;
     }
-    /*
-     * IMPORTANT: TO BE REVIEWED here there used to be an extra layer of concurrency through the wrapping of the below code in a
-     * Task.Backgroundable. But that was removed, since this was appearing unnecessary and causing the rebase thread to
-     * potentially outlive the run thread of RebaseOnParentBackgroundable which could cause out of sync continuation of the
-     * traverse action. In other words, this could have caused the traverse to move on to sync to remote or the next branch
-     * before the end of the rebasing of this branch.
-     */
+
     val params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
     LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
         "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
@@ -162,11 +150,13 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     /*
      * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow rebasing in detached head state. However, it is
      * possible with Git (performing checkout implicitly) and should be allowed in the case of "Checkout and Rebase Onto Parent"
-     * Action. To pass the git4idea check in such a case we checkout the branch explicitly and then perform the actual rebase.
+     * Action. To pass the git4idea check in such a case, we checkout the branch explicitly and then perform the actual rebase.
      */
     if (shouldExplicitlyCheckout) {
-      CheckoutBackgroundable.doCheckout(
-          project, indicator, gitRebaseParameters.getCurrentBranch().getName(), gitRepository);
+      val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
+      new GitBranchWorker(project, Git.getInstance(), uiHandler)
+          .checkout(/* reference */ gitRebaseParameters.getCurrentBranch().getName(), /* detach */ false,
+              Collections.singletonList(gitRepository));
     }
     GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);
   }
