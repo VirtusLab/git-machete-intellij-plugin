@@ -75,30 +75,26 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    deleteBranchIfRequired(branchToSlideOutName);
-  }
-
-  @UIThreadUnsafe
-  private void deleteBranchIfRequired(String branchName) {
-    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null && currentBranchNameIfManaged.equals(branchName);
+    val slidOutBranchIsCurrent = currentBranchNameIfManaged != null && currentBranchNameIfManaged.equals(branchToSlideOutName);
 
     if (slidOutBranchIsCurrent && graphTable != null) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
-      slideOutBranch(branchName);
+      slideOutBranch(branchToSlideOutName);
       graphTable.queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
-              .fmt(branchName));
+              .fmt(branchToSlideOutName));
 
     } else if (selectedGitRepository != null) {
       val gitRepository = selectedGitRepository;
       val root = selectedGitRepository.getRoot();
       val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(root);
       if (shouldDelete == null) {
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> suggestBranchDeletion(branchName, gitRepository));
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
+            () -> suggestBranchDeletion(branchToSlideOutName, gitRepository));
       } else {
-        handleBranchDeletionDecision(branchName, selectedGitRepository, shouldDelete);
+        handleBranchDeletionDecision(branchToSlideOutName, gitRepository, shouldDelete);
       }
 
     } else {
@@ -112,7 +108,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   private void suggestBranchDeletion(String branchName, GitRepository gitRepository) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
-    new Task.Backgroundable(project, "Deleting branch if required...") {
+    new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
