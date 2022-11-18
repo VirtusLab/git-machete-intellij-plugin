@@ -35,7 +35,7 @@
     <actions>
 
         <group id="GitMachete.ContextMenu">
-            <!-- These actions are used in right-click context menu on branches. -->
+            <!-- These actions are used in the right-click context menu on branches. -->
             <action id="GitMachete.CheckoutSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CheckoutSelectedAction">
                 <override-text place="GitMacheteContextMenu"/>
@@ -208,15 +208,6 @@
             </action>
         </group>
 
-        <action id="GitMachete.OpenMacheteTabAction"
-                class="com.virtuslab.gitmachete.frontend.actions.vcsmenu.OpenMacheteTabAction"
-                icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.MACHETE_FILE">
-            <!-- `VcsGroups` is Git (VCS) menu. -->
-            <add-to-group group-id="VcsGroups" anchor="last"/>
-            <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on macOS -->
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
-        </action>
-
         <action id="GitMachete.CheckoutNextAction"
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutNextAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt DOWN" />
@@ -231,10 +222,24 @@
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutParentAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt LEFT" />
         </action>
+
         <action id="GitMachete.CheckoutFirstChildAction"
                 class="com.virtuslab.gitmachete.frontend.actions.navigation.CheckoutFirstChildAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt RIGHT" />
         </action>
+
+        <action id="GitMachete.OpenMacheteTabAction"
+                class="com.virtuslab.gitmachete.frontend.actions.vcsmenu.OpenMacheteTabAction"
+                icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.MACHETE_FILE">
+            <!-- `VcsGroups` is Git (VCS) menu. -->
+            <add-to-group group-id="VcsGroups" anchor="last"/>
+            <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on macOS -->
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
+        </action>
+
+        <action id="GitMachete.SlideInUnmanagedBelowAction"
+                class="com.virtuslab.gitmachete.frontend.actions.common.SlideInUnmanagedBelowAction"/>
+
     </actions>
 
 </idea-plugin>

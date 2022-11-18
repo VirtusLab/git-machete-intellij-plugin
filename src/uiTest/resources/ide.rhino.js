@@ -20,9 +20,6 @@ function Ide() {
     settings.setShowTipsOnStartup(false);
 
     const logCategories = new LinkedList();
-    // TODO (#979): enforcing logging on this module to investigate unexpected branch in refreshed table model
-    logCategories.add(new DebugLogManager.Category('com.virtuslab.gitmachete.frontend.ui.impl', DebugLogManager.DebugLogLevel.DEBUG))
-
     if (enableDebugLog) {
       logCategories.add(new DebugLogManager.Category('com.virtuslab', DebugLogManager.DebugLogLevel.DEBUG))
     }

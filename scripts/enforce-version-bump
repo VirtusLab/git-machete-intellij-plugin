@@ -5,6 +5,7 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
+if ! [[ $(git tag) ]]; then exit 0; fi
 last_tag=$(git describe --tags --abbrev=0)
 last_tag_version=${last_tag#v}
 current_version=$(extract_version_from_current_wd)

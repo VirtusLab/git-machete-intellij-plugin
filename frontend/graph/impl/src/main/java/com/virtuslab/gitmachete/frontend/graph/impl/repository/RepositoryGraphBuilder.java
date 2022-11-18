@@ -49,7 +49,7 @@ public class RepositoryGraphBuilder {
   @Setter
   private IBranchGetCommitsStrategy branchGetCommitsStrategy = DEFAULT_GET_COMMITS;
 
-  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = INonRootManagedBranchSnapshot::getCommits;
+  public static final IBranchGetCommitsStrategy DEFAULT_GET_COMMITS = INonRootManagedBranchSnapshot::getUniqueCommits;
   public static final IBranchGetCommitsStrategy EMPTY_GET_COMMITS = __ -> List.empty();
 
   public IRepositoryGraph build() {

@@ -27,7 +27,6 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
 4. Install the following non-bundled plugins from Marketplace:
-    * [.ignore](https://plugins.jetbrains.com/plugin/7495--ignore)
     * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
     * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
@@ -65,14 +64,15 @@ ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 ```
 
 #### Windows
-**The hooks do not work on Windows** (however their execution seems to be possible theoretically).
+**The hooks do not work on Windows** (however, their execution seems to be possible theoretically).
 This is because one may not be emulating bash environment in any way or doing it in some specific way.
 
 #### macOS
 Some hooks use `grep`. The macOS version of `grep` (FreeBSD) differs from GNU `grep`.
 In order to make `grep` and eventually the hooks working one must:
-1. Install `grep` via `brew` (it will not override system's `grep` &mdash; it can be executed as `ggrep`)
+1. Install `grep` via `brew` (it will not override system's `grep` &mdash; it can be executed as `ggrep`).
 2. Run `brew ls -v grep`; among the other a path like should be found `/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin/grep`
+(or `/usr/local/Cellar/grep/...`).
 3. Prepend the found path without `/grep` suffix to `PATH` (`/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin` in that case).
 You may want to add the following `export PATH="/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`).
 4. Restart the terminal OR run `source` against the `.zprofile`/`.zshrc` file: for example `source ~/.zshrc`.
@@ -113,7 +113,7 @@ Local (non-CI) builds by default skip most of [Checker Framework's](https://chec
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
 set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
 
-In case of spurious cache-related issues with Gradle build, try the following remedies (in the order from the least intrusive to the most):
+In case of spurious cache-related issues with the Gradle build, try the following remedies (in the order from the least intrusive to the most):
 * `./gradlew --stop` to shut down Gradle daemon
 * `pkill -e -9 -f '.*Gradle.*'` to kill all Gradle processes
 * `./gradlew clean` and re-run the failing `./gradlew` command with `--no-build-cache`
@@ -311,13 +311,13 @@ The whole logic of the process can be illustrated with an example:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `.idea`),
    and is detected with `./gradlew updateIntellijVersions`, <br/>
-   new `eapOfLatestSupportedMajor` is set in [intellijVersions.properties](intellijVersions.properties)
+   new `eapOfLatestSupportedMajor` is set in [intellij-versions.properties](intellij-versions.properties)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` &mdash; see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
-   via `latestSupportedMajor` in [intellijVersions.properties](intellijVersions.properties))
+   via `latestSupportedMajor` in [intellij-versions.properties](intellij-versions.properties))
 5. new stable version `2020.3` is released (see [release repository](https://www.jetbrains.com/intellij-repository/releases/) -> Ctrl+F `.idea`)
    and is detected using `./gradlew updateIntellijVersions`, <br/>
-   `latestStable` and additionally `latestMinorsOfOldSupportedMajors` are changed in [intellijVersions.properties](intellijVersions.properties)
+   `latestStable` and additionally `latestMinorsOfOldSupportedMajors` are changed in [intellij-versions.properties](intellij-versions.properties)
 6. we verify ASAP that `0.8.0` is binary compatible with `2020.3` as well
 7. since `latestStable` is used as the version to build against,
    a few _source_ incompatibilities might appear once `latestStable` is updated, even when the plugin was _binary_ compatible with the new IDE version.
@@ -332,9 +332,7 @@ Stacked PRs (Y -> X -> `develop`) must never be merged until their base is final
 After merging the parent PR, child's base changes automatically (see [GitHub blogpost](https://github.blog/changelog/2020-05-19-pull-request-retargeting/))
 
 To create a release:
-* make sure the `Unreleased` section in [CHANGE-NOTES.md](CHANGE-NOTES.md) is updated, especially that it is not empty
-* run `./gradlew patchChangeLog`, <br/>
-this will create a new section named `v<version>` by consuming everything listed under `Unreleased`
+* make sure the [prospective version's](version.gradle.kts) section in [CHANGE-NOTES.md](CHANGE-NOTES.md) exists and is updated, especially that it is not empty
 * merge patched [CHANGE-NOTES.md](CHANGE-NOTES.md) into `develop`
 * open PR from `develop` to `master`
 

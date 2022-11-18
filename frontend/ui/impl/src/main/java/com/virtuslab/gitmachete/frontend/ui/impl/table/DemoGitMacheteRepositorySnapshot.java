@@ -14,7 +14,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.ArrayLen;
 
-import com.virtuslab.branchlayout.api.IBranchLayout;
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IForkPointCommitOfManagedBranch;
@@ -92,7 +92,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public IBranchLayout getBranchLayout() {
+  public BranchLayout getBranchLayout() {
     throw new NotImplementedError();
   }
 
@@ -240,7 +240,8 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     private final RelationToRemote relationToRemote = getRelationOfSTRS(SyncToRemoteStatus.InSyncToRemote);
     private final List<INonRootManagedBranchSnapshot> children;
 
-    private final List<ICommitOfManagedBranch> commits;
+    private final List<ICommitOfManagedBranch> uniqueCommits;
+    private final List<ICommitOfManagedBranch> commitsUntilParent = List.empty();
     @MonotonicNonNull
     private IManagedBranchSnapshot parent = null;
     private final SyncToParentStatus syncToParentStatus;

@@ -7,7 +7,7 @@ source "$self_dir"/utils.sh
 
 change_notes_path=CHANGE-NOTES.md
 
-if [[ ${CI_PULL_REQUEST-} ]]; then
+if [[ ${CI_PULL_REQUEST-} && ${GITHUB_TOKEN-} ]]; then
   # In case of a PR build, CI_PULL_REQUEST should be a link of the form https://github.com/VirtusLab/git-machete-intellij-plugin/pull/123
   pr_num=${CI_PULL_REQUEST##*/}
   # Implicit usage of ${GITHUB_TOKEN} by gh
@@ -15,12 +15,6 @@ if [[ ${CI_PULL_REQUEST-} ]]; then
 
   # PRs to master are typically either release or hotfix PRs, both of which should have change notes updated
   if [[ $base_branch == master ]]; then
-    if ! ./gradlew getChangelog -q --no-header &> /dev/null; then
-      die "Content of $change_notes_path has not been patched, fill the 'Unreleased' section and run ./gradlew patchChangelog"
-    fi
-    change_notes=$(./gradlew getChangelog -q)
-    if ! grep '^- ..*' <<< "$change_notes" &> /dev/null; then
-      die "$(head --lines=1 <<< "$change_notes" | sed 's/## //') section of $change_notes_path is empty or ill-formatted"
-    fi
+    ./gradlew -q verifyChangeLogContents
   fi
 fi

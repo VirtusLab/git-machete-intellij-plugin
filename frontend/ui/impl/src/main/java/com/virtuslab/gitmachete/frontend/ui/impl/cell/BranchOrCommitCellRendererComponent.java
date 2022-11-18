@@ -47,6 +47,7 @@ import io.vavr.collection.List;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
@@ -67,7 +68,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.impl.table.IGitMacheteRepositorySnapshotProvider;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitMacheteBundle.class, StringEscapeUtils.class})
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
@@ -303,8 +304,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
-    val currentBranchName = branch.getName();
-    val parentBranchName = branch.getParent().getName();
+    val currentBranchName = branch.getName().escapeHtml4();
+    val parentBranchName = branch.getParent().getName().escapeHtml4();
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")

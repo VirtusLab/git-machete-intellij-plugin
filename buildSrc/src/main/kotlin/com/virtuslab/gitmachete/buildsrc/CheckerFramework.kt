@@ -35,7 +35,7 @@ fun Project.configureCheckerFramework() {
         "-Alint=cast:redundant,cast:unsafe",
         "-ArequirePrefixInWarningSuppressions",
         "-AshowSuppressWarningsStrings",
-        "-Astubs=$rootDir/config/checker/",
+        "-Astubs=${rootProject.extra.get("configCheckerDirectory")}",
         // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
         // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom stub files.
         // Without this flag, we would end up with a lot of errors in subprojects where any of
@@ -44,7 +44,7 @@ fun Project.configureCheckerFramework() {
         // since for simplicity, we're providing the same set of stubs to Checker in each subproject
         // (`$rootDir/config/checker/`, which includes e.g. Vavr).
         "-AstubWarnIfNotFoundIgnoresClasses",
-        "-AsuppressWarnings=allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run,value:annotation"
+        "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run"
       )
 
     dependencies {

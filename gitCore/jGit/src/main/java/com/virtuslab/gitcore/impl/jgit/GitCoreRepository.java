@@ -134,6 +134,40 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   private boolean isBranchPresent(String branchFullName) {
+    // If '/' characters exist in the branch name, then loop-based testing is needed in order to avoid
+    // possible IDE errors, which could appear in scenarios similar to the one explained below.
+    // - If a branch 'foo' exists locally (which means that .git/refs/heads/foo file exists in the repository)
+    // and
+    // - There is a branch name entry "foo/bar" in the machete file
+    // Then `org.eclipse.jgit.lib.Repository#resolve` called to check if `foo/bar` branch exists will try to
+    // find the branch using the following file path:
+    // .git/refs/heads/foo/bar
+    // which will end in an IDE error with a "Not a directory" `java.nio.file.FileSystemException`.
+    // Explanation:
+    // 1) One of the classes used by `org.eclipse.jgit` to resolve the git branch is
+    //   `org.eclipse.jgit.internal.storage.file.FileSnapshot`.
+    // 2) `org.eclipse.jgit.internal.storage.file.FileSnapshot.<init>` called to find if .git/refs/heads/foo/bar exists
+    //    will try to resolve this path, which will produce "Not a directory" `java.nio.file.FileSystemException`,
+    //    because file .git/refs/heads/foo (part of the resolved path) is NOT a directory.
+    // 3) Catching `FileSystemException` will produce a `LOG.error` - `org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)`
+    // 4) `LOG.error` will generate an IDE error. Note that it would NOT happen if `org.slf4j.Logger#error(java.lang.String)`
+    //    was called instead.
+    // So, the cause of the loop-based testing below is to avoid such IDE errors.
+
+    val segments = List.of(branchFullName.split("/"));
+    // loop-based test below checks if there is a branch that has a name equal to a part of the `branchFullName` -
+    // - without the last segment (last part of the path). If such a branch exists, `isBranchPresent` should return
+    // false. Reasoning: if branch 'foo' exists, then for sure branch 'foo/bar' does not exist in the same directory.
+    // Starting with `numOfSegmentsToUse = 3` as 3 is the least number that can contain
+    // the branch name (for `refs/heads/<branch_name>`)
+    for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
+      val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
+      if (Try.of(() -> jgitRepoForMainGitDir.resolve(testedPrefix)).getOrNull() != null) {
+        return false;
+      }
+    }
+
+    // test below is executed for the actual branch name
     return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
   }
 

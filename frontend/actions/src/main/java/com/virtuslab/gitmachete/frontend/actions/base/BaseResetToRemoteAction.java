@@ -15,8 +15,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.GitReference;
@@ -33,6 +31,7 @@ import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -41,13 +40,13 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetBranchToRemoteInfoDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetInfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
 @CustomLog
 public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -99,7 +98,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
       val isResettingCurrent = currentBranchIfManaged != null && currentBranchIfManaged.equals(branch);
       if (anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU) && isResettingCurrent) {
-        anActionEvent.getPresentation().setText(() -> getActionName());
+        anActionEvent.getPresentation().setText(getActionName());
       }
     }
   }
@@ -147,32 +146,24 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       return;
     }
 
-    if (PropertiesComponent.getInstance().getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
+    if (PropertiesComponent.getInstance(project).getBoolean(SHOW_RESET_INFO, /* defaultValue */ true)) {
 
       String currentCommitSha = localBranch.getPointedCommit().getHash();
       if (currentCommitSha.length() == 40) {
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
-      val dialogBuilder = MessageDialogBuilder.okCancel(
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
-          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
-              branchName,
-              remoteTrackingBranch.getName(),
-              currentCommitSha));
 
-      dialogBuilder.yesText(getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.ok-text"))
-          .noText(Messages.getCancelButton())
-          .icon(Messages.getInformationIcon())
-          .doNotAsk(new ResetBranchToRemoteInfoDialog());
+      val content = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
+          branchName.escapeHtml4(),
+          remoteTrackingBranch.getName().escapeHtml4(),
+          currentCommitSha);
 
-      val okCancelDialogResult = dialogBuilder.ask(project);
-
-      if (!okCancelDialogResult) {
+      if (!new ResetInfoDialog(project, content).showAndGet()) {
         return;
       }
     }
 
-    // Required to avoid reset with uncommitted changes and file cache conflicts
+    // It is required to avoid the reset with uncommitted changes and file cache conflicts.
     FileDocumentManager.getInstance().saveAllDocuments();
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();

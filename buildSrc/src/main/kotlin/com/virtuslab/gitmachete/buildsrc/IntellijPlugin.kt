@@ -1,7 +1,9 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.ChangelogPlugin
 import org.jetbrains.changelog.ChangelogPluginExtension
 import org.jetbrains.intellij.IntelliJPlugin
@@ -35,17 +37,60 @@ fun Project.configureIntellijPlugin() {
     tasks.withType<BuildSearchableOptionsTask> { enabled = false }
   }
 
+  // This task should not be used - we don't use the "Unreleased" section anymore
+  project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
+
   configure<ChangelogPluginExtension> {
     val PROSPECTIVE_RELEASE_VERSION: String by extra
     version.set("v$PROSPECTIVE_RELEASE_VERSION")
-    header.set(version)
-    headerParserRegex.set(Regex("v\\d+\\.\\d+\\.\\d+"))
+    headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
     path.set("${project.projectDir}/CHANGE-NOTES.md")
-    unreleasedTerm.set("Unreleased")
-    groups.set(emptyList())
   }
 
   val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+  val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
+    doLast {
+      val prospectiveVersionSection = changelog.version.get()
+      val latestVersionSection = changelog.getLatest()
+
+      if (prospectiveVersionSection != latestVersionSection.version) {
+        throw Exception(
+          "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
+            "update the file or change the prospective version in version.gradle.kts"
+        )
+      }
+    }
+  }
+
+  val verifyContentsTask = tasks.register("verifyChangeLogContents") {
+    doLast {
+      val prospectiveVersionSection = changelog.get(changelog.version.get())
+
+      val renderItemStr = changelog.renderItem(prospectiveVersionSection)
+      if (renderItemStr.isBlank()) {
+        throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
+      }
+
+      val listingElements = renderItemStr.split(System.lineSeparator()).drop(1)
+      for (line in listingElements) {
+        if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
+          throw Exception(
+            "Update formatting in CHANGE-NOTES.md ${prospectiveVersionSection.version} section:" +
+              "${System.lineSeparator()}$line"
+          )
+        }
+      }
+    }
+  }
+
+  tasks.register("verifyChangeLog") {
+    dependsOn(verifyVersionTask, verifyContentsTask)
+  }
+
+  tasks.named<Zip>("buildPlugin") {
+    dependsOn(verifyVersionTask)
+  }
 
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
@@ -62,11 +107,10 @@ fun Project.configureIntellijPlugin() {
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     pluginDescription.set(file("$rootDir/DESCRIPTION.html").readText())
 
-    changeNotes.set(
-      "<h3>v${rootProject.version}</h3>\n\n${
-      (changelog.getOrNull(changelog.version.get()) ?: changelog.getUnreleased()).toHTML()
-      }"
-    )
+    val item = changelog.getOrNull(changelog.version.get())
+    if (item != null) {
+      changeNotes.set("<h3>v${rootProject.version}</h3>\n\n" + changelog.renderItem(item, Changelog.OutputType.HTML))
+    }
   }
 
   tasks.withType<RunIdeTask> { maxHeapSize = "4G" }
@@ -100,5 +144,7 @@ fun Project.configureIntellijPlugin() {
     password.set(pluginSignPrivateKeyPass)
   }
 
-  tasks.withType<PublishPluginTask> { token.set(jetbrainsMarketplaceToken) }
+  tasks.withType<PublishPluginTask> {
+    token.set(jetbrainsMarketplaceToken)
+  }
 }

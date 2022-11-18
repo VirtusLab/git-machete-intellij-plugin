@@ -32,21 +32,18 @@ public final class FastForwardMerge {
 
   private static void mergeNonCurrentBranch(Project project,
       GitRepository gitRepository,
-      MergeProps mergeProps, @Untainted String fetchNotificationPrefix, boolean insertNewlineAfterPrefix) {
+      MergeProps mergeProps, @Untainted String fetchNotificationTextPrefix) {
     val stayingFullName = mergeProps.getStayingBranch().getFullName();
     val movingFullName = mergeProps.getMovingBranch().getFullName();
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
-    val newLineSymbolHtml = insertNewlineAfterPrefix ? "<br/>" : "";
-    @SuppressWarnings("regexp") val newLineSymbolNonHtml = insertNewlineAfterPrefix ? "\n" : "";
-    val successFFMergeNotification = fetchNotificationPrefix + newLineSymbolHtml
-        + getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-success.HTML")
+    val successFFMergeNotification = getString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-success")
             .format(stayingName, movingName);
-    String failFFMergeNotification = fetchNotificationPrefix + newLineSymbolNonHtml
-        + getNonHtmlString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail").format(
-            stayingName,
-            movingName);
+    val failFFMergeNotification = getNonHtmlString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-fail")
+            .format(stayingName, movingName);
     new FetchBackgroundable(
         project,
         gitRepository,
@@ -54,28 +51,27 @@ public final class FastForwardMerge {
         refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
         getNonHtmlString("action.GitMachete.BaseFastForwardMergeToParentAction.task-subtitle"),
-        failFFMergeNotification,
-        successFFMergeNotification).queue();
+        fetchNotificationTextPrefix + failFFMergeNotification,
+        fetchNotificationTextPrefix + successFFMergeNotification).queue();
   }
 
   public static void perform(Project project,
       GitRepository gitRepository,
-      MergeProps mergeProps, @Untainted String fetchNotificationPrefix, boolean insertNewlineAfterPrefix) {
+      MergeProps mergeProps,
+      @Untainted String fetchNotificationTextPrefix) {
     val stayingName = mergeProps.getStayingBranch().getName();
-    val movingName = mergeProps.getMovingBranch().getName();
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
-    val newLineSymbolHtml = insertNewlineAfterPrefix ? "<br/>" : "";
-    val failFFMergeNotification = fetchNotificationPrefix + newLineSymbolHtml
-        + getString("action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail").format(stayingName,
-            movingName);
-    new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFFMergeNotification) {
+    val failFfMergeNotificationTitle = getString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
+    new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFfMergeNotificationTitle,
+        fetchNotificationTextPrefix) {
       @Override
       @UIEffect
       public void onSuccess() {
         if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
           mergeCurrentBranch(project, gitRepository, mergeProps);
         } else {
-          mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotificationPrefix, insertNewlineAfterPrefix);
+          mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotificationTextPrefix);
         }
       }
     }.queue();

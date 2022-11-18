@@ -100,7 +100,7 @@ jobs:
           command: ./scripts/verify-no-string-interpolation-leftovers
       - run:
           name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain
+          command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
       - run:
           name: Check Javadoc correctness
           command: ./gradlew --max-workers=4 javadoc
@@ -249,7 +249,8 @@ jobs:
                   gh release create \
                     $tag \
                     "$(./gradlew -q printSignedPluginZipPath)" \
-                    --notes "$tag"$'\n\n'"$change_notes"
+                    --title "$tag" \
+                    --notes "$change_notes"
                   scripts/close-milestone $corresponding_milestone_title
 
   checkForUpdates:
@@ -269,7 +270,7 @@ jobs:
           command: ./gradlew updateIntellijVersions
       - create_pull_request_if_files_changed:
           branch_name_prefix: update-intellij-versions
-          branch_name_command: md5sum intellijVersions.properties | cut -d' ' -f 1
+          branch_name_command: md5sum intellij-versions.properties | cut -d' ' -f 1
           commit_message_prefix: 'Update IntelliJ versions:'
           # language=sh
           commit_message_command: >

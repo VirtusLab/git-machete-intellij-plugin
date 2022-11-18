@@ -5,6 +5,7 @@ import javax.swing.JComponent;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -25,7 +26,10 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
 
 @CustomLog
-public final class GitRepositoryComboBox extends JComboBox<GitRepository> implements IGitRepositorySelectionComponentProvider {
+public final class GitRepositoryComboBox extends JComboBox<GitRepository>
+    implements
+      Disposable,
+      IGitRepositorySelectionComponentProvider {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 
@@ -45,7 +49,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
           LOG.debug("Git repository mappings changed");
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
         });
-    Disposer.register(project, messageBusConnection);
+    Disposer.register(this, messageBusConnection);
   }
 
   @Override
@@ -72,7 +76,6 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
 
     val selectedItemUpdateRequired = selected == null || !getModel().getItems().contains(selected);
     if (repositories.isEmpty()) {
-      // TODO (#255): properly handle plugin visibility/"empty" text on no-repo project
       LOG.debug("No Git repositories found");
       if (selected != null) {
         setSelectedItem(null);
@@ -106,5 +109,10 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository> implem
   @Override
   public JComponent getSelectionComponent() {
     return this;
+  }
+
+  @Override
+  public void dispose() {
+
   }
 }

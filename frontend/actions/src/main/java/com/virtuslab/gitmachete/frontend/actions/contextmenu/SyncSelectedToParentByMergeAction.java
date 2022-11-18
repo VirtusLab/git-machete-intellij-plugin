@@ -28,17 +28,18 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    if (PropertiesComponent.getInstance().getBoolean(SHOW_MERGE_WARNING, /* defaultValue */ true)) {
+    val project = getProject(anActionEvent);
+    if (PropertiesComponent.getInstance(project).getBoolean(SHOW_MERGE_WARNING, /* defaultValue */ true)) {
 
       val dialogBuilder = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.title"),
           getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.message.HTML"));
 
-      dialogBuilder.yesText(getString("action.GitMachete.SyncSelectedToParentByMergeAction.warning-dialog.ok-text"))
+      dialogBuilder
           .icon(Messages.getWarningIcon())
-          .doNotAsk(new WarnAboutSyncToParentByMergeDialog());
+          .doNotAsk(new WarnAboutSyncToParentByMergeDialog(project));
 
-      val dialogResult = dialogBuilder.ask(getProject(anActionEvent));
+      val dialogResult = dialogBuilder.ask(project);
 
       if (!dialogResult) {
         return;

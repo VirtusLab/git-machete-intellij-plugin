@@ -5,8 +5,11 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutAction.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
+import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
+import org.apache.commons.text.StringEscapeUtils
+import org.checkerframework.checker.tainting.qual.Untainted
 import java.awt.event.KeyEvent
 import javax.swing.Action
 import javax.swing.JComponent
@@ -15,12 +18,13 @@ data class SlideOutOptions(
   @get:JvmName("shouldRemember") val remember: Boolean = false,
   @get:JvmName("shouldDelete") val delete: Boolean = false
 )
-
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: String) :
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) :
   DialogWrapper(project, /* canBeParent */ true) {
 
   private var remember = false
   private var delete = false
+
+  private fun String.escapeHtml4(): String = StringEscapeUtils.escapeHtml4(this)
 
   init {
     title = getString("action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.title")
@@ -34,17 +38,28 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
 
   override fun createCenterPanel() = panel {
     indent {
-      row {
-        label(
-          format(
-            getString(
-              "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
-            ),
-            branchName
+      rowCompat {
+        if (branchName.escapeHtml4() != branchName) {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1"
+              ),
+              branchName
+            )
           )
-        )
+        } else {
+          label(
+            format(
+              getString(
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
+              ),
+              branchName
+            )
+          )
+        }
       }
-      row {
+      rowCompat {
         label(
           format(
             getString(
@@ -54,7 +69,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         )
       }
     }
-    row {
+    rowCompat {
       button(
         getString(
           "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.delete-text"
@@ -63,7 +78,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         delete = true
         doOKAction()
       }
-        .component.apply { mnemonic = KeyEvent.VK_D }
+        .applyToComponent { mnemonic = KeyEvent.VK_D }
       button(
         getString(
           "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.keep-text"
@@ -72,7 +87,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         delete = false
         doOKAction()
       }
-        .component.apply { mnemonic = KeyEvent.VK_K }
+        .applyToComponent { mnemonic = KeyEvent.VK_K }
       button(
         getString(
           "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.cancel-text"
@@ -81,9 +96,9 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         delete = true
         close(CANCEL_EXIT_CODE)
       }
-        .component.apply { mnemonic = KeyEvent.VK_C }
+        .applyToComponent { mnemonic = KeyEvent.VK_C }
     }
-    row {
+    rowCompat {
       checkBox(
         format(
           getString(
@@ -93,7 +108,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         )
       )
         .bindSelected(::remember)
-        .component.apply {
+        .applyToComponent {
           mnemonic = KeyEvent.VK_R
           isSelected = false
         }

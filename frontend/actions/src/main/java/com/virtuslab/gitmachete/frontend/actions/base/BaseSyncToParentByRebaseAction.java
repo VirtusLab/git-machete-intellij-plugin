@@ -175,7 +175,6 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
     if (tryGitRebaseParameters.isFailure()) {
       val e = tryGitRebaseParameters.getCause();
-      // TODO (#172): redirect the user to the manual fork-point
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,

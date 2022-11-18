@@ -104,7 +104,6 @@ public final class GitPushDialog extends DialogWrapper implements VcsPushUi {
     }
 
     @Override
-    @UIEffect
     public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
       return GitPushDialog.this.getAdditionalOptionValue(support);
     }

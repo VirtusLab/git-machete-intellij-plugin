@@ -9,8 +9,8 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.MutableCollectionComboBoxModel
 import com.intellij.util.ui.JBUI
-import com.virtuslab.branchlayout.api.IBranchLayout
-import com.virtuslab.branchlayout.api.IBranchLayoutEntry
+import com.virtuslab.branchlayout.api.BranchLayout
+import com.virtuslab.branchlayout.api.BranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import git4idea.branch.GitBranchUtil
@@ -18,6 +18,7 @@ import git4idea.merge.GitMergeDialog
 import git4idea.repo.GitRepository
 import git4idea.ui.ComboBoxWithAutoCompletion
 import net.miginfocom.swing.MigLayout
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import java.awt.Insets
 import javax.swing.JCheckBox
 import javax.swing.JLabel
@@ -34,7 +35,7 @@ import net.miginfocom.layout.LC as LayoutConstraint
 */
 class SlideInDialog(
   private val project: Project,
-  private val branchLayout: IBranchLayout,
+  private val branchLayout: BranchLayout,
   private val parentName: String,
   private val gitRepository: GitRepository
 ) : DialogWrapper(project, /* canBeParent */ true) {
@@ -98,7 +99,7 @@ class SlideInDialog(
         branchField
       )
     } else {
-      val entryByName = branchLayout.findEntryByName(insertedText)
+      val entryByName = branchLayout.getEntryByName(insertedText)
       if (entryByName != null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
         return ValidationInfo(
           getString(
@@ -156,7 +157,7 @@ class SlideInDialog(
       )
 
       add(
-        JLabel("<html><b>$parentName</b></html>"),
+        JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
         ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap()
       )
 
@@ -194,8 +195,8 @@ class SlideInDialog(
         )
       }
 
-  private fun isDescendantOf(presumedDescendantName: String): (IBranchLayoutEntry) -> Boolean {
-    return fun(presumedAncestorEntry: IBranchLayoutEntry): Boolean {
+  private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean {
+    return fun(presumedAncestorEntry: BranchLayoutEntry): Boolean {
       return if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
         true
       } else {

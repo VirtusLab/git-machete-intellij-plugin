@@ -1,3 +1,5 @@
+import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
+import org.checkerframework.checker.guieffect.qual.PolyUIType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -12,7 +14,7 @@ class GitVcs {
 package git4idea.branch;
 
 class GitNewBranchDialog {
-  GitNewBranchDialog(Project project, Collection repositories, @Untainted String dialogTitle, @Untainted String initialName,
+  GitNewBranchDialog(Project project, Collection repositories, @Untainted String dialogTitle, String initialName,
                      boolean showCheckOutOption, boolean showResetOption, boolean showSetTrackingOption);
 }
 
@@ -20,6 +22,14 @@ package git4idea.fetch;
 
 interface GitFetchResult {
   boolean showNotificationIfFailed(@Untainted String title);
+}
+
+package git4idea.repo;
+
+@PolyUIType
+interface GitRepositoryChangeListener {
+  @PolyUIEffect
+  void repositoryChanged(GitRepository repository);
 }
 
 package git4idea.util;
