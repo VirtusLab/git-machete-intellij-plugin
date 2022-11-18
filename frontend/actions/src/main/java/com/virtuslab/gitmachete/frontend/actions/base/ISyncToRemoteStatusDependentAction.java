@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
@@ -59,7 +59,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     if (branchName == null || gitMacheteBranch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(
-          format(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch"),
+          fmt(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch"),
               getActionNameForDescription(), getQuotedStringOrCurrent(branchName)));
       return;
     }
@@ -70,7 +70,7 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
 
     if (isStatusEligible) {
       // At this point `branchName` must be present, so `.getOrNull()` is here only to satisfy checker framework
-      val enabledDesc = format(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
+      val enabledDesc = fmt(getEnabledDescriptionFormat(), getActionNameForDescription(), branchName);
       presentation.setDescription(enabledDesc);
 
     } else {
@@ -91,11 +91,11 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
           Case($(SyncToRemoteStatus.Untracked),
               getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.untracked")),
           Case($(),
-              format(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.unknown"), status.toString())));
+              fmt(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.unknown"), status.toString())));
       // @formatter:on
 
       presentation.setDescription(
-          format(getNonHtmlString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),
+          fmt(getNonHtmlString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),
               getActionNameForDescription(), desc));
     }
   }

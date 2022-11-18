@@ -153,7 +153,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
         currentCommitSha = currentCommitSha.substring(0, 15);
       }
 
-      val content = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").format(
+      val content = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.message.HTML").fmt(
           branchName.escapeHtml4(),
           remoteTrackingBranch.getName().escapeHtml4(),
           currentCommitSha);
@@ -188,11 +188,9 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
         refspecFromRemoteToLocal,
         getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
         getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.task-subtitle"),
-        getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-fail")
-            .format(localBranch.getName()),
-        getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
-            .format(localBranch.getName()))
-                .queue();
+        getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-fail").fmt(localBranch.getName()),
+        getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML").fmt(localBranch.getName()))
+            .queue();
   }
 
   protected void doResetCurrentBranchToRemoteWithKeep(
@@ -229,7 +227,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
             VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
                 /* title */ "",
                 getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
-                    .format(localBranchName));
+                    .fmt(localBranchName));
             log().debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
           } else if (localChangesDetector.wasMessageDetected()) {

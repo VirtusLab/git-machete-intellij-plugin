@@ -9,7 +9,7 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
 import com.virtuslab.gitmachete.frontend.actions.compat.buttonsGroupCompat
 import com.virtuslab.gitmachete.frontend.actions.compat.commentCompat
 import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import java.awt.Component
@@ -56,7 +56,7 @@ class OverrideForkPointDialog(
     rowCompat {
       if (branch.name.escapeHtml4() != branch.name) {
         label(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label"
             ),
@@ -65,7 +65,7 @@ class OverrideForkPointDialog(
         )
       } else {
         label(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
             ),
@@ -78,7 +78,7 @@ class OverrideForkPointDialog(
     buttonsGroupCompat {
       rowCompat {
         radioButton(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
             ),
@@ -91,7 +91,7 @@ class OverrideForkPointDialog(
 
       rowCompat {
         radioButton(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
             ),
@@ -104,7 +104,7 @@ class OverrideForkPointDialog(
 
       rowCompat {
         val rb: Cell<JBRadioButton> = radioButton(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
             ),

@@ -75,8 +75,7 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName)) {
         val presentation = anActionEvent.getPresentation();
         presentation.setDescription(
-            getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch")
-                .format(branchName));
+            getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch").fmt(branchName));
         presentation.setEnabled(false);
       }
     }

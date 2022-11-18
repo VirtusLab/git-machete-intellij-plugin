@@ -6,7 +6,7 @@ import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSlideOutAction.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
 import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.format
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.apache.commons.text.StringEscapeUtils
 import org.checkerframework.checker.tainting.qual.Untainted
@@ -41,7 +41,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
       rowCompat {
         if (branchName.escapeHtml4() != branchName) {
           label(
-            format(
+            fmt(
               getString(
                 "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1"
               ),
@@ -50,7 +50,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
           )
         } else {
           label(
-            format(
+            fmt(
               getString(
                 "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
               ),
@@ -61,7 +61,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
       }
       rowCompat {
         label(
-          format(
+          fmt(
             getString(
               "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-2"
             )
@@ -100,7 +100,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
     }
     rowCompat {
       checkBox(
-        format(
+        fmt(
           getString(
             "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML"
           ),

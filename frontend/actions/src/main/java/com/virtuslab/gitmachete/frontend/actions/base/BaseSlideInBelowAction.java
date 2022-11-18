@@ -71,10 +71,10 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     } else if (branch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
-          .format("Slide In", getQuotedStringOrCurrent(branchName)));
+          .fmt("Slide In", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation.setDescription(
-          getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.description").format(branchName));
+          getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.description").fmt(branchName));
     }
   }
 
@@ -103,9 +103,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     if (parentName.equals(slideInOptionsName)) {
       // @formatter:off
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML")
-                      .format(escapeHtml4(slideInOptionsName)),
-          /* message */ getString("action.GitMachete.BaseSlideInBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
+              /* title */ getString("action.GitMachete.BaseSlideInBelowAction.notification.title.slide-in-fail.HTML").fmt(escapeHtml4(slideInOptionsName)),
+              /* message */ getString("action.GitMachete.BaseSlideInBelowAction.notification.message.slide-in-under-itself-or-its-descendant"));
       // @formatter:on
       return;
     }
@@ -125,7 +124,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.BaseSlideInBelowAction.notification.message.mismatched-names.HTML")
-                .format(escapeHtml4(slideInOptionsName), escapeHtml4(branchNameFromNewBranchDialog)));
+                .fmt(escapeHtml4(slideInOptionsName), escapeHtml4(branchNameFromNewBranchDialog)));
         return;
       }
     }
@@ -173,8 +172,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val repositories = java.util.Collections.singletonList(gitRepository);
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
-        /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title")
-            .format(startPoint),
+        /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title").fmt(startPoint),
         initialName,
         /* showCheckOutOption */ true,
         /* showResetOption */ true,
@@ -209,8 +207,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           LOCAL_REPOSITORY_NAME,
           refspec,
           "Fetching Remote Branch",
-          getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").format(branchName),
-          getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").format(branchName)).queue();
+          getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(branchName),
+          getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(branchName)).queue();
 
     } else if (remoteBranch == null) {
 
@@ -242,7 +240,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     if (remotesWithBranch.size() > 1) {
       val title = getString("action.GitMachete.BaseSlideInBelowAction.notification.title.multiple-remotes");
       val message = getString("action.GitMachete.BaseSlideInBelowAction.notification.message.multiple-remotes")
-          .format(chosen._2().getName(), chosen._1().getName());
+          .fmt(chosen._2().getName(), chosen._1().getName());
       VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
     }
     return chosen._2();

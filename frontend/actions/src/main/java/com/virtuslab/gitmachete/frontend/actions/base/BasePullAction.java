@@ -95,7 +95,7 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
       val isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
       val fetchNotificationPrefix = isUpToDate
           ? getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.no-fetch-perform")
-              .format(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
+              .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
       val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
       Runnable fastForwardRunnable = () -> FastForwardMerge.perform(project, gitRepository, mergeProps,
@@ -127,10 +127,8 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,
         taskTitle,
-        getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail")
-            .format(remoteBranch.getName()),
-        getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML")
-            .format(remoteBranch.getName())) {
+        getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(remoteBranch.getName()),
+        getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(remoteBranch.getName())) {
 
       @Override
       @UIEffect

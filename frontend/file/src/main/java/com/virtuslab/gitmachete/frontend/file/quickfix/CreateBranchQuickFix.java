@@ -29,8 +29,8 @@ public class CreateBranchQuickFix implements IntentionAction {
 
   @Override
   public @IntentionName String getText() {
-    return getNonHtmlString("action.GitMachete.MacheteAnnotator.IntentionAction.create-nonexistent-branch")
-        .format(branch, parentBranch);
+    return getNonHtmlString("action.GitMachete.MacheteAnnotator.IntentionAction.create-nonexistent-branch").fmt(branch,
+        parentBranch);
   }
 
   @Override

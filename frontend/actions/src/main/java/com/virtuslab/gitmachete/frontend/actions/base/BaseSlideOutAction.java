@@ -65,10 +65,10 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     if (branch == null) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
-          .format("Slide out", getQuotedStringOrCurrent(branchName)));
+          .fmt("Slide out", getQuotedStringOrCurrent(branchName)));
     } else {
       presentation
-          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideOutAction.description").format(branch.getName()));
+          .setDescription(getNonHtmlString("action.GitMachete.BaseSlideOutAction.description").fmt(branch.getName()));
     }
   }
 
@@ -114,7 +114,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
-              .format(branchName));
+              .fmt(branchName));
 
     } else if (gitRepository != null) {
       val root = gitRepository.getRoot();
@@ -150,8 +150,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
         } else {
           val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
           val message = getString(
-              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML")
-                  .format(branchName);
+              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML").fmt(branchName);
           VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
         }
       }
@@ -182,7 +181,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
           (exceptionMessage == null ? "" : ": " + exceptionMessage);
       LOG.error(errorMessage);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").format(branchName),
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
           exceptionMessage == null ? "" : exceptionMessage);
     }
   }
@@ -196,13 +195,13 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML")
-              .format(branchName));
+              .fmt(branchName));
       return;
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML")
-              .format(branchName));
+              .fmt(branchName));
     }
     getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
   }

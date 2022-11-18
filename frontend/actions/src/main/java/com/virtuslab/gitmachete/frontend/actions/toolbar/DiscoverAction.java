@@ -115,7 +115,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
           /* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
-              .format(gitRepository.getRoot().getPath()));
+              .fmt(gitRepository.getRoot().getPath()));
     }
   }
 

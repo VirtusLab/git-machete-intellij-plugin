@@ -67,12 +67,11 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
       presentation.setEnabled(false);
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.disabled.currently-checked-out")
-              .format(targetBranchName));
+              .fmt(targetBranchName));
 
     } else {
       presentation.setDescription(
-          getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.precise")
-              .format(targetBranchName));
+          getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.precise").fmt(targetBranchName));
     }
   }
 

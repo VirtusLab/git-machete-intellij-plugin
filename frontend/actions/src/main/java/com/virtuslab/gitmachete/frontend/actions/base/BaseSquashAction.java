@@ -61,14 +61,14 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     if (branchName != null) {
       if (nonRootBranch == null) {
         presentation.setDescription(
-            getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root").format(branchName));
+            getNonHtmlString("action.GitMachete.BaseSquashAction.branch-is-root").fmt(branchName));
         presentation.setEnabled(false);
 
       } else {
         val numberOfCommits = nonRootBranch.getUniqueCommits().length();
 
         val description = getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
-            .format(branchName, numberOfCommits + "", numberOfCommits == 1 ? "" : "s");
+            .fmt(branchName, numberOfCommits + "", numberOfCommits == 1 ? "" : "s");
 
         if (numberOfCommits < 2) {
           presentation.setDescription(description);
@@ -76,7 +76,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         } else if (syncToParentStatus == InSyncButForkPointOff) {
           presentation.setEnabled(false);
           presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSquashAction.fork-point-off")
-              .format(branchName));
+              .fmt(branchName));
         } else {
           val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
           val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);

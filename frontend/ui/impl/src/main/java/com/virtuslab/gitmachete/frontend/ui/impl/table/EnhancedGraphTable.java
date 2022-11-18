@@ -313,12 +313,12 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           LOG.info("Machete file (${macheteFilePath}) is empty");
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.try-running-discover")
-                  .format(macheteFilePath.toString()));
+                  .fmt(macheteFilePath.toString()));
           return;
         } else {
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.only-skipped-in-machete-file")
-                  .format(macheteFilePath.toString()));
+                  .fmt(macheteFilePath.toString()));
         }
       }
     }
@@ -376,7 +376,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       GitRepository gitRepository) {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
         getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text")
-            .format(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
+            .fmt(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
         NotificationType.WARNING);
 
     notification.addAction(NotificationAction.createSimple(
@@ -455,7 +455,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
     return (Path macheteFilePath) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> setTextForEmptyTable(
         getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
-            .format(macheteFilePath.toString())));
+            .fmt(macheteFilePath.toString())));
   }
 
   @Override

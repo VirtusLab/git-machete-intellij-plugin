@@ -28,7 +28,7 @@ public final class GitMacheteBundle {
    *             but each parameter must be a non-null {@link String} and not just a nullable {@link Object}
    * @return the formatted string
    */
-  public static @PolyTainted String format(@PolyTainted @I18nFormatFor("#2") String format, String @MinLen(1)... args) {
+  public static @PolyTainted String fmt(@PolyTainted @I18nFormatFor("#2") String format, String @MinLen(1)... args) {
     return MessageFormat.format(format, (@Nullable Object[]) args);
   }
 

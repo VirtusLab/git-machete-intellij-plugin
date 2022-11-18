@@ -94,8 +94,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     try {
       if (isBranchNameRepeated(branchLayoutReader, file, processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,
-            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined")
-                .format(processedBranchName))
+            getNonHtmlString("string.GitMachete.MacheteAnnotator.branch-entry-already-defined").fmt(processedBranchName))
             .range(branch).create();
       }
     } catch (PluginException | IllegalStateException ignored) { // ignore dubious IDE checks against annotation range
@@ -105,8 +104,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       val parentBranchName = getParentBranchName(branchLayoutReader, file, processedBranchName);
       val basicAnnotationBuilder = holder
           .newAnnotation(HighlightSeverity.ERROR,
-              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo")
-                  .format(processedBranchName))
+              getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo").fmt(processedBranchName))
           .range(branch);
       if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
         basicAnnotationBuilder.create();
@@ -190,7 +188,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     if (wrongIndentChar.isPresent()) {
       holder.newAnnotation(HighlightSeverity.ERROR,
           getNonHtmlString("string.GitMachete.MacheteAnnotator.indent-char-not-match")
-              .format(indentCharToName((char) wrongIndentChar.getAsInt()),
+              .fmt(indentCharToName((char) wrongIndentChar.getAsInt()),
                   indentCharToName(indentationParameters.indentationCharacter)))
           .range(element).create();
       return;
@@ -200,7 +198,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
       holder
           .newAnnotation(HighlightSeverity.ERROR,
               getNonHtmlString("string.GitMachete.MacheteAnnotator.indent-width-not-match")
-                  .format(String.valueOf(indentationParameters.indentationWidth)))
+                  .fmt(String.valueOf(indentationParameters.indentationWidth)))
           .range(element).create();
     }
 

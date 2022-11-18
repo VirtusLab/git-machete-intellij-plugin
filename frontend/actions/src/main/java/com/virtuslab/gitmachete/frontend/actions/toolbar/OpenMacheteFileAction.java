@@ -62,7 +62,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
           /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
-              .format(gitDir.getPath()));
+              .fmt(gitDir.getPath()));
     } else {
       if (macheteFile.isDirectory()) {
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,

@@ -93,7 +93,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       presentation.setEnabled(false);
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.repository.status")
-              .format(stateName));
+              .fmt(stateName));
     } else {
 
       val branchName = getNameOfBranchUnderAction(anActionEvent);
@@ -102,14 +102,14 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       if (branch == null) {
         presentation.setEnabled(false);
         presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.undefined.machete-branch")
-            .format("Rebase", getQuotedStringOrCurrent(branchName)));
+            .fmt("Rebase", getQuotedStringOrCurrent(branchName)));
       } else if (branch.isRoot()) {
 
         if (anActionEvent.getPlace().equals(ActionPlaces.TOOLBAR)) {
           presentation.setEnabled(false);
           presentation.setDescription(
               getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description.disabled.root-branch")
-                  .format(branch.getName()));
+                  .fmt(branch.getName()));
         } else { //contextmenu
           // in case of root branch we do not want to show this option at all
           presentation.setEnabledAndVisible(false);
@@ -119,7 +119,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
         val nonRootBranch = branch.asNonRoot();
         val upstream = nonRootBranch.getParent();
         presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
-            .format(branch.getName(), upstream.getName()));
+            .fmt(branch.getName(), upstream.getName()));
       }
 
       val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);

@@ -21,7 +21,7 @@ public class CheckoutNextAction extends BaseCheckoutAction
   protected @Untainted String getNonExistentBranchMessage(AnActionEvent anActionEvent) {
     val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
     return currentBranchName != null
-        ? getNonHtmlString("action.GitMachete.CheckoutNextAction.undefined.branch-name").format(currentBranchName)
+        ? getNonHtmlString("action.GitMachete.CheckoutNextAction.undefined.branch-name").fmt(currentBranchName)
         : getNonHtmlString("action.GitMachete.BaseCheckoutAction.undefined.current-branch");
   }
 

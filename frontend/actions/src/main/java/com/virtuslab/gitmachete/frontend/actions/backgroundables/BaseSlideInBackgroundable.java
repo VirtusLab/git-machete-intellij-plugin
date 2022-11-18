@@ -114,14 +114,13 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.wait-interrupted")
-              .format(slideInOptions.getName()));
+              .fmt(slideInOptions.getName()));
     }
 
     if (findLocalBranch() == null) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout")
-              .format(slideInOptions.getName()));
+          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout").fmt(slideInOptions.getName()));
     }
   }
 

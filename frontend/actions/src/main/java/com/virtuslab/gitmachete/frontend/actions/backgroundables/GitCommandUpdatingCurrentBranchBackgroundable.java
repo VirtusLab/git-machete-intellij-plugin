@@ -187,7 +187,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
           getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail")
-              .format(getOperationName()),
+              .fmt(getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();
     }

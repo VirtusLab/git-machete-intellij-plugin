@@ -56,8 +56,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
     }
 
     presentation.setDescription(
-        getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.description.precise")
-            .format(selectedBranchName));
+        getNonHtmlString("action.GitMachete.ShowSelectedInGitLogAction.description.precise").fmt(selectedBranchName));
   }
 
   @Override

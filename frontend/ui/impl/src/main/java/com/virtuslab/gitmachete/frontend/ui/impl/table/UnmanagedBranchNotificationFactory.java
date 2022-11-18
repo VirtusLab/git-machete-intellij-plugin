@@ -74,7 +74,7 @@ public class UnmanagedBranchNotificationFactory {
     val title = inferredParent == null
         ? getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in-as-root")
         : getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
-            .format(inferredParent.getName());
+            .fmt(inferredParent.getName());
     val nullableInferredParentName = inferredParent != null ? inferredParent.getName() : null;
     return NotificationAction
         .createSimple(
@@ -102,7 +102,7 @@ public class UnmanagedBranchNotificationFactory {
     return NotificationAction
         .createSimple(
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.dont-show-for-branch")
-                .format(branchName),
+                .fmt(branchName),
             () -> {
               String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${branchName}";
               PropertiesComponent.getInstance(project).setValue(propertyKey, false, /* defaultValue */ true);
@@ -147,7 +147,7 @@ class UnmanagedBranchNotification extends Notification {
 
   UnmanagedBranchNotification(String branchName) {
     super(VcsNotifier.STANDARD_NOTIFICATION.getDisplayId(),
-        getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").format(branchName),
+        getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.text").fmt(branchName),
         NotificationType.INFORMATION);
     this.branchName = branchName;
   }

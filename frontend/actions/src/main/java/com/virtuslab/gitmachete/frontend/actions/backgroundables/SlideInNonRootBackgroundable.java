@@ -42,13 +42,13 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
     } catch (EntryDoesNotExistException e) {
       notifyError(
           getString("action.GitMachete.SlideInNonRootBackgroundable.notification.message.entry-does-not-exist.HTML")
-              .format(parentName),
+              .fmt(parentName),
           e);
       return null;
     } catch (EntryIsDescendantOfException e) {
       notifyError(
           getString("action.GitMachete.SlideInNonRootBackgroundable.notification.message.entry-is-descendant-of.HTML")
-              .format(entryToSlideIn.getName(), parentName),
+              .fmt(entryToSlideIn.getName(), parentName),
           e);
       return null;
     }
@@ -57,7 +57,7 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
   private void notifyError(@Nullable String message, Throwable throwable) {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString("action.GitMachete.SlideInNonRootBackgroundable.notification.title.slide-in-fail.HTML")
-            .format(slideInOptions.getName()),
+            .fmt(slideInOptions.getName()),
         message != null ? message : getMessageOrEmpty(throwable));
   }
 

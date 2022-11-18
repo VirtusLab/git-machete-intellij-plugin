@@ -280,18 +280,18 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),
         Case($(AheadOfRemote),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote")
-                .format(remoteName)),
+                .fmt(remoteName)),
         Case($(BehindRemote),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote")
-                .format(remoteName)),
+                .fmt(remoteName)),
         Case($(DivergedFromAndNewerThanRemote),
             getString(
                 "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote")
-                    .format(remoteName)),
+                    .fmt(remoteName)),
         Case($(DivergedFromAndOlderThanRemote),
             getString(
                 "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote")
-                    .format(remoteName)));
+                    .fmt(remoteName)));
   }
 
   @UIEffect
@@ -309,23 +309,23 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     return Match(branch.getSyncToParentStatus()).of(
         Case($(InSync),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")
-                .format(currentBranchName, parentBranchName)),
+                .fmt(currentBranchName, parentBranchName)),
         Case($(InSyncButForkPointOff),
             getString(
                 "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off.HTML")
-                    .format(currentBranchName, parentBranchName)),
+                    .fmt(currentBranchName, parentBranchName)),
         Case($(OutOfSync),
             getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync.HTML")
-                .format(currentBranchName, parentBranchName)),
+                .fmt(currentBranchName, parentBranchName)),
         Case($(MergedToParent),
             getString(
                 "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent.HTML")
-                    .format(currentBranchName, parentBranchName)));
+                    .fmt(currentBranchName, parentBranchName)));
   }
 
   private static String getRootToolTipText(IRootManagedBranchSnapshot branch) {
     return getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.root.HTML")
-        .format(branch.getName());
+        .fmt(branch.getName());
   }
 
   private static class MyTableCellRenderer extends DefaultTableCellRenderer {
