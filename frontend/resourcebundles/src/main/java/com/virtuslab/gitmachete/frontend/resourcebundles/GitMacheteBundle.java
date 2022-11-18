@@ -22,6 +22,9 @@ public final class GitMacheteBundle {
    * Since each parameter must be a non-null {@link String},
    * we can capture the unintended parameter types (like {@code io.vavr.control.Option}) more easily during the build
    * (this is realized with ArchUnit; see the test against {@code Option#toString} in the top-level project).
+   * Note that we consciously use the name "fmt" instead of "format"
+   * to avoid an accidental use of {@link String#format(String, Object...)}
+   * and emphasize the need to use the {@link lombok.experimental.ExtensionMethod} annotation.
    *
    * @param format as in {@link MessageFormat#format(String, Object...)}
    * @param args as in {@link MessageFormat#format(String, Object...)},
