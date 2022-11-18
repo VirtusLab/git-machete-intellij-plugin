@@ -27,7 +27,6 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 3. (optional) If working on IntelliJ Ultimate, enable JavaScript and TypeScript plugin (for UI tests).
 
 4. Install the following non-bundled plugins from Marketplace:
-    * [.ignore](https://plugins.jetbrains.com/plugin/7495--ignore)
     * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
     * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
