@@ -3,7 +3,7 @@
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 checker = "3.27.0"
-ideProbe = "0.47.0"
+ideProbe = "0.48.0"
 powerMock = "2.0.9"
 
 [libraries]
@@ -40,8 +40,8 @@ pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.19"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.0.0"
-pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
-pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.9.0"
+pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3"
+pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
