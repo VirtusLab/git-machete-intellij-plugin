@@ -40,6 +40,9 @@ pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.19"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.0.0"
+# @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
+#       As long as we support IntelliJ 2022.1, we need to compile to Java 11 classfiles,
+#       hence we need to stick to an older gradle-grammarkit-plugin.
 pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
 pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
