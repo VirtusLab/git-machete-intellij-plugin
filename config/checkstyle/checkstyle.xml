@@ -58,7 +58,6 @@
             <property name="illegalClasses" value="org.jetbrains.annotations.NotNull, org.jetbrains.annotations.Nullable"/>
         </module>
         <module name="IllegalThrows"/>
-        <module name="IllegalType"/>
         <module name="InnerAssignment"/>
         <module name="LeftCurly">
             <property name="tokens"

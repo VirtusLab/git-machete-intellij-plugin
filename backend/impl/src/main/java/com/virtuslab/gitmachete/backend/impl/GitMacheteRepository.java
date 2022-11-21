@@ -17,9 +17,9 @@ import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
@@ -374,15 +374,15 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
-    private Map<String, IManagedBranchSnapshot> createManagedBranchByNameMap(List<RootManagedBranchSnapshot> rootBranches) {
-      Map<String, IManagedBranchSnapshot> branchByName = HashMap.empty();
-      Queue<IManagedBranchSnapshot> queue = Queue.ofAll(rootBranches);
-      // BFS over all branches
-      while (queue.nonEmpty()) {
-        val headAndTail = queue.dequeue();
-        val branch = headAndTail._1;
+    private LinkedHashMap<String, IManagedBranchSnapshot> createManagedBranchByNameMap(
+        List<RootManagedBranchSnapshot> rootBranches) {
+      LinkedHashMap<String, IManagedBranchSnapshot> branchByName = LinkedHashMap.empty();
+      List<IManagedBranchSnapshot> stack = List.ofAll(rootBranches);
+      // Non-recursive DFS over all branches
+      while (stack.nonEmpty()) {
+        val branch = stack.head();
         branchByName = branchByName.put(branch.getName(), branch);
-        queue = headAndTail._2.appendAll(branch.getChildren());
+        stack = stack.tail().prependAll(branch.getChildren());
       }
       return branchByName;
     }

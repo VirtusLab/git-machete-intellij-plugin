@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   private final @Nullable IManagedBranchSnapshot currentBranchIfManaged;
 
-  private final Map<String, IManagedBranchSnapshot> managedBranchByName;
+  private final LinkedHashMap<String, IManagedBranchSnapshot> managedBranchByName;
 
   @Getter
   private final Set<String> duplicatedBranchNames;

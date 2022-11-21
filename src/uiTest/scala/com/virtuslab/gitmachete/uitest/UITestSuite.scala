@@ -19,6 +19,7 @@ object UITestSuite extends UISuite {}
 
 @RunWith(classOf[JUnit4])
 class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH_SINGLE_REMOTE) {
+
   import UITestSuite._
 
   private val project = intelliJ.project
@@ -76,15 +77,15 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     Assert.assertEquals(
       Seq(
+        "develop",
         "allow-ownership-link",
         "build-chain",
+        "update-icons",
         "call-ws",
-        "develop",
-        "hotfix/add-trigger",
         "master",
-        "update-icons"
+        "hotfix/add-trigger"
       ),
-      managedBranches.toSeq.sorted
+      managedBranches.toSeq
     )
     project.toggleListingCommits()
     var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
@@ -118,11 +119,11 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
       Seq(
         "allow-ownership-link",
         "build-chain",
-        "hotfix/add-trigger",
+        "update-icons",
         "master",
-        "update-icons"
+        "hotfix/add-trigger"
       ),
-      managedBranchesAfterSlideOut.toSeq.sorted
+      managedBranchesAfterSlideOut.toSeq
     )
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 5 branch rows (`call-ws` is also no longer there) + 7 commit rows
@@ -242,24 +243,24 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     var managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
     Assert.assertEquals(
       Seq(
-        "1st round of fixes",
-        "1st round of fixes",
-        "Allow ownership links",
-        "Build arbitrarily long chains",
-        "Call web service",
-        "HOTFIX Add the trigger",
-        "HOTFIX Add the trigger - fixes",
-        "Use new icons",
-        "Use new icons",
-        "allow-ownership-link",
-        "build-chain",
-        "call-ws",
         "develop",
-        "hotfix/add-trigger",
+        "Allow ownership links",
+        "allow-ownership-link",
+        "Use new icons",
+        "1st round of fixes",
+        "update-icons",
+        "Build arbitrarily long chains",
+        "Use new icons",
+        "1st round of fixes",
+        "build-chain",
+        "Call web service",
+        "call-ws",
         "master",
-        "update-icons"
+        "HOTFIX Add the trigger - fixes",
+        "HOTFIX Add the trigger",
+        "hotfix/add-trigger"
       ),
-      managedBranches.toSeq.sorted
+      managedBranches.toSeq
     )
 
     Assert.assertEquals(16, managedBranches.length)
@@ -271,23 +272,23 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
     Assert.assertEquals(
       Seq(
-        "1st round of fixes",
-        "1st round of fixes",
-        "Allow ownership links",
-        "Build arbitrarily long chains",
-        "Call web service",
-        "HOTFIX Add the trigger",
-        "Use new icons",
-        "Use new icons",
-        "allow-ownership-link",
-        "build-chain",
-        "call-ws",
         "develop",
-        "hotfix/add-trigger",
+        "Allow ownership links",
+        "allow-ownership-link",
+        "Use new icons",
+        "1st round of fixes",
+        "update-icons",
+        "Build arbitrarily long chains",
+        "Use new icons",
+        "1st round of fixes",
+        "build-chain",
+        "Call web service",
+        "call-ws",
         "master",
-        "update-icons"
+        "HOTFIX Add the trigger",
+        "hotfix/add-trigger"
       ),
-      managedBranches.toSeq.sorted
+      managedBranches.toSeq
     )
 
     Assert.assertEquals(15, managedBranches.length)
