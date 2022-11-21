@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
@@ -119,15 +121,24 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
   }
 
-  private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot, Path macheteFilePath, Project project,
-      BaseEnhancedGraphTable baseEnhancedGraphTable, IBranchLayoutWriter branchLayoutWriter, @UI Runnable postWriteRunnable) {
+  private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot,
+      Path macheteFilePath,
+      Project project,
+      BaseEnhancedGraphTable baseEnhancedGraphTable,
+      IBranchLayoutWriter branchLayoutWriter,
+      @UI Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
     new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
       @UIThreadUnsafe
       @Override
       @SneakyThrows
       public void run(ProgressIndicator indicator) {
-        branchLayoutWriter.write(macheteFilePath, branchLayout, /* backupOldLayout */ true);
+        runWriteActionOnUIThread(() -> MacheteFileWriter.writeBranchLayout(
+            macheteFilePath,
+            branchLayoutWriter,
+            branchLayout,
+            /* backupOldLayout */ true,
+            /* requestor */ this));
       }
 
       @Override

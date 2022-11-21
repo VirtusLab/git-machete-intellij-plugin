@@ -38,6 +38,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_call_File_exists() {
     noClasses()
         .should().callMethod(java.io.File.class, "exists")
+        .andShould().callMethod(com.intellij.openapi.vfs.VirtualFile.class, "exists")
         .because("in most cases, the check you want to do is `isFile` rather than `exists` (what if this is a directory?)")
         .check(importedClasses);
   }

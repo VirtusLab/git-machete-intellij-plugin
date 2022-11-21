@@ -17,12 +17,14 @@ apply<GrammarKitPlugin>()
 dependencies {
   api(project(":qual"))
   implementation(project(":binding"))
+  implementation(project(":branchLayout:api"))
   implementation(project(":frontend:base"))
   implementation(project(":frontend:resourcebundles"))
 }
 
 addIntellijToCompileClasspath(withGit4Idea = true)
 lombok()
+slf4jLambdaApi()
 vavr()
 
 applyI18nFormatterAndTaintingCheckers()

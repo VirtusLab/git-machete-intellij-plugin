@@ -7,4 +7,5 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea = true)
 jetbrainsAnnotations()
+lombok()
 vavr()

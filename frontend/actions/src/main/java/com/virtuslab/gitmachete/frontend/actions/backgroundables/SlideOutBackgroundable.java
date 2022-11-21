@@ -1,8 +1,10 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import com.intellij.openapi.application.ModalityState;
@@ -23,9 +25,9 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -139,20 +141,25 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     LOG.info("Sliding out '${branchName}' branch in memory");
     val newBranchLayout = branchLayout.slideOut(branchName);
 
-    try {
-      val macheteFilePath = getMacheteFilePath(selectedGitRepository);
-      LOG.info("Writing new branch layout into ${macheteFilePath}");
-      branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true);
+    runWriteActionOnUIThread(() -> {
+      try {
+        // impossible to be null (line 137), but checker framework complains
+        assert selectedGitRepository != null;
+        val macheteFilePath = getMacheteFilePath(selectedGitRepository);
+        LOG.info("Writing new branch layout into ${macheteFilePath}");
+        MacheteFileWriter.writeBranchLayout(macheteFilePath, branchLayoutWriter,
+            newBranchLayout, /* backupOldFile */ true, /* requestor */ this);
 
-    } catch (BranchLayoutException e) {
-      val exceptionMessage = e.getMessage();
-      val errorMessage = "Error occurred while sliding out '${branchName}' branch" +
-          (exceptionMessage == null ? "" : ": " + exceptionMessage);
-      LOG.error(errorMessage);
-      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
-          exceptionMessage == null ? "" : exceptionMessage);
-    }
+      } catch (IOException e) {
+        val exceptionMessage = e.getMessage();
+        val errorMessage = "Error occurred while sliding out '${branchName}' branch" +
+            (exceptionMessage == null ? "" : ": " + exceptionMessage);
+        LOG.error(errorMessage);
+        VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+            getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
+            exceptionMessage == null ? "" : exceptionMessage);
+      }
+    });
   }
 
   @UIThreadUnsafe

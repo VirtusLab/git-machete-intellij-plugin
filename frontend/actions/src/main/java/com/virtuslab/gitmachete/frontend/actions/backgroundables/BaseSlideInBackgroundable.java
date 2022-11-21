@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -11,15 +12,16 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Try;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -86,11 +88,24 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
       return;
     }
 
-    Try.run(() -> branchLayoutWriter.write(macheteFilePath, newBranchLayout, /* backupOldLayout */ true))
-        .onFailure(t -> VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            /* title */ getString(
-                "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
-            getMessageOrEmpty(t)));
+    runWriteActionOnUIThread(() -> {
+      MacheteFileWriter.writeBranchLayout(
+          macheteFilePath,
+          branchLayoutWriter,
+          newBranchLayout,
+          /* backupOldLayout */ true,
+          /* requestor */ this);
+    });
+  }
+
+  @Override
+  @UIEffect
+  public void onThrowable(Throwable e) {
+    val exceptionMessage = e.getMessage();
+    VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+        /* title */ getString(
+            "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
+        exceptionMessage == null ? "" : exceptionMessage);
   }
 
   abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);

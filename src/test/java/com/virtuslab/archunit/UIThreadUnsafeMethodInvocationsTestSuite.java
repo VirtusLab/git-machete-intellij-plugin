@@ -155,6 +155,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "java.io.File.getAbsolutePath()",
       "java.io.File.isFile()",
       "java.io.File.toString()",
+      "java.io.BufferedOutputStream.<init>(java.io.OutputStream)"
   };
 
   private static final String[] whitelistedMethodFullNames_java_nio = {
