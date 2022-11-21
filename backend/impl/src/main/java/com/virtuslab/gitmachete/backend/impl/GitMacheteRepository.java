@@ -374,11 +374,12 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       }
     }
 
+    // Using LinkedHashMap to retain the original order of branches.
     private LinkedHashMap<String, IManagedBranchSnapshot> createManagedBranchByNameMap(
         List<RootManagedBranchSnapshot> rootBranches) {
       LinkedHashMap<String, IManagedBranchSnapshot> branchByName = LinkedHashMap.empty();
       List<IManagedBranchSnapshot> stack = List.ofAll(rootBranches);
-      // Non-recursive DFS over all branches
+      // A non-recursive DFS over all branches
       while (stack.nonEmpty()) {
         val branch = stack.head();
         branchByName = branchByName.put(branch.getName(), branch);

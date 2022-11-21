@@ -26,6 +26,7 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   private final @Nullable IManagedBranchSnapshot currentBranchIfManaged;
 
+  // Using LinkedHashMap to retain the original order of branches.
   private final LinkedHashMap<String, IManagedBranchSnapshot> managedBranchByName;
 
   @Getter

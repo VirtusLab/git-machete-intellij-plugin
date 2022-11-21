@@ -20,6 +20,7 @@ public interface IGitMacheteRepositorySnapshot {
   @Nullable
   IManagedBranchSnapshot getCurrentBranchIfManaged();
 
+  /** Branches are ordered as they occur in the machete file */
   List<IManagedBranchSnapshot> getManagedBranches();
 
   @Nullable
