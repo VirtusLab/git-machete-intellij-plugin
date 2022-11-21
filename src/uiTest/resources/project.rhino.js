@@ -105,7 +105,7 @@ function Project(underlyingProject) {
         const branchesAndCommits = new LinkedList();
         if (b.isNonRoot()) {
           const nonRoot = b.asNonRoot();
-          branchesAndCommits.addAll(nonRoot.getCommitsUntilParent().map(c => c.getShortMessage()).toJavaList());
+          branchesAndCommits.addAll(nonRoot.getUniqueCommits().map(c => c.getShortMessage()).toJavaList());
         }
         branchesAndCommits.add(b.getName());
         return branchesAndCommits;
