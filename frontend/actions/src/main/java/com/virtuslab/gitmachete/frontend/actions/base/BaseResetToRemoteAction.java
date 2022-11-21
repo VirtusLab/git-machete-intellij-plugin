@@ -29,7 +29,7 @@ import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.ResetInfoDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -146,7 +146,12 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
           remoteTrackingBranch.getName().escapeHtml4(),
           currentCommitSha);
 
-      if (!new ResetInfoDialog(project, content).showAndGet()) {
+      val resetInfoDialog = new InfoDialog(project,
+          getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
+          content,
+          SHOW_RESET_INFO);
+
+      if (!resetInfoDialog.showAndGet()) {
         return;
       }
     }

@@ -5,19 +5,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.dsl.builder.panel
-import com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction
 import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.checkerframework.checker.tainting.qual.Tainted
+import org.checkerframework.checker.tainting.qual.Untainted
 import java.awt.Dimension
 
-class ResetInfoDialog(project: Project, private val content: @Tainted String) :
+class InfoDialog(
+  project: Project,
+  title: @Untainted String,
+  private val content: @Tainted String,
+  propertyKey: @Untainted String
+) :
   DialogWrapper(project, /* canBeParent */ true) {
 
   init {
-    title = getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title")
+    this.title = title
     setOKButtonMnemonic('O'.code)
-    setDoNotAskOption(createDoNotAskOptionAdapter(project))
+    setDoNotAskOption(createDoNotAskOptionAdapter(project, propertyKey))
     super.init()
   }
 
@@ -30,11 +34,11 @@ class ResetInfoDialog(project: Project, private val content: @Tainted String) :
   }
 
   companion object {
-    private fun createDoNotAskOptionAdapter(project: Project) =
+    private fun createDoNotAskOptionAdapter(project: Project, propertyKey: @Untainted String) =
       object : com.intellij.openapi.ui.DoNotAskOption.Adapter() {
         override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
           if (exitCode == Messages.OK && isSelected) {
-            PropertiesComponent.getInstance(project).setValue(BaseResetToRemoteAction.SHOW_RESET_INFO, false, /* defaultValue */ true)
+            PropertiesComponent.getInstance(project).setValue(propertyKey, false, /* defaultValue */ true)
           }
         }
       }
