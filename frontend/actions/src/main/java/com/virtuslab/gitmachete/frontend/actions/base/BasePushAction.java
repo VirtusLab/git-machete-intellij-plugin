@@ -109,9 +109,13 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     @Nullable GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
 
     if (localBranch != null) {
-      new GitPushDialog(project, List.of(preselectedRepository), GitPushSource.create(localBranch), isForcePushRequired).show();
+      val selectedRepositories = List.of(preselectedRepository).asJava();
+      val vcsPushDialog = new GitPushDialog(project, selectedRepositories, selectedRepositories, null,
+          GitPushSource.create(localBranch), isForcePushRequired);
+      vcsPushDialog.show();
     } else {
       log().warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
   }
+
 }
