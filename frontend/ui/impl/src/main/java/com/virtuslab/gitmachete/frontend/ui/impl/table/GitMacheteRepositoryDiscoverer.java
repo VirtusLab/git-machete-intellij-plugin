@@ -4,7 +4,6 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -18,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -99,27 +99,30 @@ public class GitMacheteRepositoryDiscoverer {
         val branchLayout = repositorySnapshot.getBranchLayout();
 
         runWriteActionOnUIThread(() -> {
-          try {
-            LOG.debug("Writing branch layout & executing on-success consumer");
-            MacheteFileWriter.writeBranchLayout(
-                macheteFilePath,
-                branchLayoutWriter,
-                branchLayout,
-                /* backupOldLayout */ true,
-                /* requestor */ this);
-            onSuccessRepositorySnapshotConsumer.accept(repositorySnapshot);
-            onSuccessRepositoryConsumer.accept(repository);
-          } catch (IOException e) {
-            LOG.debug("Handling branch layout exception");
-            ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
-                .notifyError(
-                    /* displayId */ null,
-                    getString(
-                        "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                    e.getMessage() != null ? e.getMessage() : ""));
-          }
+          LOG.debug("Writing branch layout & executing on-success consumer");
+          MacheteFileWriter.writeBranchLayout(
+              macheteFilePath,
+              branchLayoutWriter,
+              branchLayout,
+              /* backupOldLayout */ true,
+              /* requestor */ this);
+          onSuccessRepositorySnapshotConsumer.accept(repositorySnapshot);
+          onSuccessRepositoryConsumer.accept(repository);
         });
       }
+
+      @Override
+      @UIEffect
+      public void onThrowable(Throwable e) {
+        LOG.debug("Handling branch layout exception");
+        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+            .notifyError(
+                /* displayId */ null,
+                getString(
+                    "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
+                e.getMessage() != null ? e.getMessage() : ""));
+      }
+
     }.queue();
   }
 }

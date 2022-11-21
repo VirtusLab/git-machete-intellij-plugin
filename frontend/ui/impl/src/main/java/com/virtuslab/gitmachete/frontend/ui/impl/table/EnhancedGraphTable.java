@@ -167,6 +167,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     subscribeToMacheteFileChange();
   }
 
+  /**
+   * This function is provided only for use with UiTests, to ensure that VFS notices
+   * the external change to the machete file made by the test.
+   */
   public void refreshMacheteFile() {
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();

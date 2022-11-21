@@ -20,11 +20,6 @@ public final class BranchLayoutFileUtils {
   public static final char DEFAULT_INDENT_CHARACTER = SPACE;
   private static final IndentSpec DEFAULT_SPEC = new IndentSpec(DEFAULT_INDENT_CHARACTER, DEFAULT_INDENT_WIDTH);
 
-  // Extracted to a method so that it can be mocked in the tests.
-  public static IndentSpec getDefaultSpec() {
-    return DEFAULT_SPEC;
-  }
-
   public static @NonNegative int getIndentWidth(String line, char indentCharacter) {
     return Stream.ofAll(line.chars().boxed()).takeWhile(c -> c == indentCharacter).size();
   }
@@ -35,8 +30,8 @@ public final class BranchLayoutFileUtils {
     val firstLineWithBlankPrefixOption = lines.reject(String::isBlank)
         .find(line -> line.startsWith(String.valueOf(SPACE))
             || line.startsWith(String.valueOf(TAB)));
-    char indentCharacter = BranchLayoutFileUtils.DEFAULT_INDENT_CHARACTER;
-    int indentWidth = BranchLayoutFileUtils.DEFAULT_INDENT_WIDTH;
+    char indentCharacter = BranchLayoutFileUtils.DEFAULT_SPEC.getIndentCharacter();
+    int indentWidth = BranchLayoutFileUtils.DEFAULT_SPEC.getIndentWidth();
 
     // Redundant non-emptiness check to satisfy IndexChecker
     if (firstLineWithBlankPrefixOption.isDefined() && !firstLineWithBlankPrefixOption.get().isEmpty()) {
