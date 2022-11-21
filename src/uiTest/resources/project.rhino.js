@@ -98,6 +98,23 @@ function Project(underlyingProject) {
     }
   };
 
+  this.getManagedBranchesAndCommits = function () {
+    const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
+    if (snapshot != null) {
+      return snapshot.getManagedBranches().flatMap(b => {
+        const branchesAndCommits = new LinkedList();
+        if (b.isNonRoot()) {
+          const nonRoot = b.asNonRoot();
+          branchesAndCommits.addAll(nonRoot.getCommitsUntilParent().map(c => c.getShortMessage()).toJavaList());
+        }
+        branchesAndCommits.add(b.getName());
+        return branchesAndCommits;
+      }).toJavaArray(java.lang.String);
+    } else {
+      return java.lang.reflect.Array.newInstance(java.lang.String, 0);
+    }
+  };
+
   // Assumes that Git Machete tab is opened.
   // Returns the refreshed model.
   this.refreshGraphTableModel = function () {

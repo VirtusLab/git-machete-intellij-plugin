@@ -328,6 +328,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
       }
 
+      def refreshModelAndGetManagedBranchesAndCommits(): Array[String] = {
+        callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
+      }
+
       def refreshModelAndGetRowCount(): Int = {
         callJs("project.refreshGraphTableModel().getRowCount()")
       }

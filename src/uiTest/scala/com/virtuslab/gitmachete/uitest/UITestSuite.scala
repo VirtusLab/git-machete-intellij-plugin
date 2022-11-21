@@ -232,21 +232,65 @@ class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH
     // squashCurrentBranch
     project.openGitMacheteTab()
     project.toggleListingCommits()
-    var branchRowsCount = project.refreshModelAndGetRowCount()
+    val branchRowsCount = project.refreshModelAndGetRowCount()
     Assert.assertEquals(18, branchRowsCount)
     project.checkoutBranch("call-ws")
     project.squashCurrent()
     project.acceptSquash()
-    branchRowsCount = project.refreshModelAndGetRowCount()
+
     // call-ws had 3 commits before the squash
-    Assert.assertEquals(16, branchRowsCount)
+    var managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
+    Assert.assertEquals(
+      Seq(
+        "1st round of fixes",
+        "1st round of fixes",
+        "Allow ownership links",
+        "Build arbitrarily long chains",
+        "Call web service",
+        "HOTFIX Add the trigger",
+        "HOTFIX Add the trigger - fixes",
+        "Use new icons",
+        "Use new icons",
+        "allow-ownership-link",
+        "build-chain",
+        "call-ws",
+        "develop",
+        "hotfix/add-trigger",
+        "master",
+        "update-icons"
+      ),
+      managedBranches.toSeq.sorted
+    )
+
+    Assert.assertEquals(16, managedBranches.length)
 
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
-    branchRowsCount = project.refreshModelAndGetRowCount()
     // call-ws had 3 commits before the squash
-    Assert.assertEquals(15, branchRowsCount)
+    managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
+    Assert.assertEquals(
+      Seq(
+        "1st round of fixes",
+        "1st round of fixes",
+        "Allow ownership links",
+        "Build arbitrarily long chains",
+        "Call web service",
+        "HOTFIX Add the trigger",
+        "Use new icons",
+        "Use new icons",
+        "allow-ownership-link",
+        "build-chain",
+        "call-ws",
+        "develop",
+        "hotfix/add-trigger",
+        "master",
+        "update-icons"
+      ),
+      managedBranches.toSeq.sorted
+    )
+
+    Assert.assertEquals(15, managedBranches.length)
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
