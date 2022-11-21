@@ -53,6 +53,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.AlwaysSafe;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -214,10 +215,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
-    @UI GitRepositoryChangeListener listener = repository -> {
-      trackCurrentBranchChange(repository);
-      queueRepositoryUpdateAndModelRefresh();
-    };
+    // Let's explicitly mark this listener as @AlwaysSafe
+    // as we've checked experimentally that there is no guarantee that it'll run on UI thread.
+    @AlwaysSafe GitRepositoryChangeListener listener = repository -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL,
+        () -> trackCurrentBranchChange(repository));
 
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection.subscribe(topic, listener);
@@ -279,6 +280,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     });
   }
 
+  // This method can only be executed on UI thread since it writes certain field(s)
+  // which we only ever want to write on UI thread to avoid race conditions.
   @UIEffect
   private void trackCurrentBranchChange(GitRepository repository) {
     val repositoryCurrentBranch = repository.getCurrentBranch();
@@ -297,6 +300,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         mostRecentlyCheckedOutBranch = repositoryCurrentBranchName;
       }
     }
+    queueRepositoryUpdateAndModelRefresh();
   }
 
   private void subscribeToSelectedGitRepositoryChange() {

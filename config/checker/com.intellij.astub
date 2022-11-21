@@ -606,7 +606,9 @@ package com.intellij.util.download;
 package com.intellij.util.messages;
 
 interface SimpleMessageBusConnection {
-  <L> void subscribe(Topic<L> topic, @UI L handler);
+  // @AlwaysSafe is the default, but let's state it explicitly since we were wrong about that
+  // (see https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1339).
+  <L> void subscribe(Topic<L> topic, @AlwaysSafe L handler);
 }
 
 
