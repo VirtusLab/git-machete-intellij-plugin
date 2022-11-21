@@ -94,69 +94,71 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
+    IGitRebaseParameters gitRebaseParameters;
     try {
-      val gitRebaseParameters = branchToRebase.getParametersForRebaseOntoParent();
+      gitRebaseParameters = branchToRebase.getParametersForRebaseOntoParent();
       LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
-
-      final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(
-          Try.success(null));
-      new GitFreezingProcess(project, getTitle(), () -> {
-        LOG.info("Executing machete-pre-rebase hooks");
-        Try<@Nullable IExecutionResult> hookResult = Try
-            .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
-        wrapper.set(hookResult);
-      }).execute();
-      Try<@Nullable IExecutionResult> hookResult = wrapper.get();
-      if (hookResult == null) {
-        // Not really possible, it's here just to calm down Checker Framework.
-        return;
-      }
-
-      if (hookResult.isFailure()) {
-        val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
-        LOG.error(message);
-        VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"),
-            message);
-        return;
-      }
-
-      val executionResult = hookResult.get();
-      if (executionResult != null && executionResult.getExitCode() != 0) {
-        val message = "machete-pre-rebase hooks refused to rebase (exit code ${executionResult.getExitCode()})";
-        LOG.error(message);
-        val stdoutOption = executionResult.getStdout();
-        val stderrOption = executionResult.getStderr();
-        VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
-                + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
-                + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
-        return;
-      }
-
-      val params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
-      LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
-          "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
-          "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
-
-      /*
-       * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow rebasing in detached head state. However, it is
-       * possible with Git (performing checkout implicitly) and should be allowed in the case of
-       * "Checkout and Rebase Onto Parent" Action. To pass the git4idea check in such a case, we checkout the branch explicitly
-       * and then perform the actual rebase.
-       */
-      if (shouldExplicitlyCheckout) {
-        val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
-        new GitBranchWorker(project, Git.getInstance(), uiHandler)
-            .checkout(/* reference */ gitRebaseParameters.getCurrentBranch().getName(), /* detach */ false,
-                Collections.singletonList(gitRepository));
-      }
-      GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);
     } catch (GitMacheteMissingForkPointException e) {
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
+
+      return;
     }
+
+    final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(
+        Try.success(null));
+    new GitFreezingProcess(project, getTitle(), () -> {
+      LOG.info("Executing machete-pre-rebase hooks");
+      Try<@Nullable IExecutionResult> hookResult = Try
+          .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
+      wrapper.set(hookResult);
+    }).execute();
+    Try<@Nullable IExecutionResult> hookResult = wrapper.get();
+    if (hookResult == null) {
+      // Not really possible, it's here just to calm down Checker Framework.
+      return;
+    }
+
+    if (hookResult.isFailure()) {
+      val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
+      LOG.error(message);
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"),
+          message);
+      return;
+    }
+
+    val executionResult = hookResult.get();
+    if (executionResult != null && executionResult.getExitCode() != 0) {
+      val message = "machete-pre-rebase hooks refused to rebase (exit code ${executionResult.getExitCode()})";
+      LOG.error(message);
+      val stdoutOption = executionResult.getStdout();
+      val stderrOption = executionResult.getStderr();
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
+              + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
+              + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
+      return;
+    }
+
+    val params = getIdeaRebaseParamsOf(gitRepository, gitRebaseParameters);
+    LOG.info("Rebasing '${gitRebaseParameters.getCurrentBranch().getName()}' branch " +
+        "until ${gitRebaseParameters.getForkPointCommit().getHash()} commit " +
+        "onto ${gitRebaseParameters.getNewBaseBranch().getName()}");
+
+    /*
+     * Git4Idea ({@link git4idea.rebase.GitRebaseUtils#rebase}) does not allow rebasing in detached head state. However, it is
+     * possible with Git (performing checkout implicitly) and should be allowed in the case of "Checkout and Rebase Onto Parent"
+     * Action. To pass the git4idea check in such a case, we checkout the branch explicitly and then perform the actual rebase.
+     */
+    if (shouldExplicitlyCheckout) {
+      val uiHandler = new GitBranchUiHandlerImpl(project, indicator);
+      new GitBranchWorker(project, Git.getInstance(), uiHandler)
+          .checkout(/* reference */ gitRebaseParameters.getCurrentBranch().getName(), /* detach */ false,
+              Collections.singletonList(gitRepository));
+    }
+    GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);
   }
 }

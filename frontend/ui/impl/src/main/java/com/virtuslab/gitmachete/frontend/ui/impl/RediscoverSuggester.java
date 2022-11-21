@@ -141,7 +141,7 @@ public class RediscoverSuggester {
           .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction
-            .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
+          .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
 
       val discoveredBranchLayout = discoverRunResult.getBranchLayout();
 

@@ -36,7 +36,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
     val valueReferenceOption = gitMacheteRepositoryCache.get(key);
 
-    if (!valueReferenceOption.isEmpty()) {
+    if (valueReferenceOption.isDefined()) {
       val value = valueReferenceOption.get().get();
       if (value != null) {
         return value;
