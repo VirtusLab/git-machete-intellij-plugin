@@ -39,8 +39,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiating");
     this.project = project;
 
-    val selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryService.class);
-    val selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
+    val selectedGitRepositoryService = project.getService(SelectedGitRepositoryService.class);
+    val selectionComponent = selectedGitRepositoryService.getSelectionComponent();
     val graphTable = getGraphTable();
 
     // This class is final, so the instance is `@Initialized` at this point.
@@ -52,7 +52,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
-        val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository();
+        val gitRepository = selectedGitRepositoryService.getSelectedGitRepository();
         if (gitRepository != null) {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
