@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.providerservice;
+package com.virtuslab.gitmachete.frontend.ui.services;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
@@ -9,12 +9,12 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.api.table.IBaseEnhancedGraphTableFactory;
 
 @Service
-public final class GraphTableProvider {
+public final class GraphTableService {
 
   @Getter
   private final BaseEnhancedGraphTable graphTable;
 
-  public GraphTableProvider(Project project) {
+  public GraphTableService(Project project) {
     this.graphTable = RuntimeBinding
         .instantiateSoleImplementingClass(IBaseEnhancedGraphTableFactory.class)
         .create(project);
