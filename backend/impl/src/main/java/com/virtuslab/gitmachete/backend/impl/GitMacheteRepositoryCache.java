@@ -34,10 +34,10 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
       Path worktreeGitDirectoryPath)
       throws GitMacheteException {
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
-    val valueReferenceOption = gitMacheteRepositoryCache.get(key);
+    val valueReference = gitMacheteRepositoryCache.get(key).getOrNull();
 
-    if (valueReferenceOption.isDefined()) {
-      val value = valueReferenceOption.get().get();
+    if (valueReference != null) {
+      val value = valueReference.get();
       if (value != null) {
         return value;
       }
