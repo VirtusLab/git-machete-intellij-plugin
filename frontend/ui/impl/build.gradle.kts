@@ -4,7 +4,6 @@ dependencies {
   implementation(project(":binding"))
   implementation(project(":branchLayout:api"))
   implementation(project(":backend:api"))
-  implementation(project(":frontend:actions"))
   implementation(project(":frontend:base"))
   implementation(project(":frontend:file"))
   implementation(project(":frontend:graph:api"))
