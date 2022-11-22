@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -24,7 +25,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
+import com.virtuslab.gitmachete.backend.services.GitMacheteRepositoryCacheService;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -136,7 +137,8 @@ public class RediscoverSuggester {
     Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
     Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
-    val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+    val discoverRunResult = Try.of(() -> ApplicationManager.getApplication()
+        .getService(GitMacheteRepositoryCacheService.class)
         .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
 
     if (discoverRunResult.isSuccess()) {

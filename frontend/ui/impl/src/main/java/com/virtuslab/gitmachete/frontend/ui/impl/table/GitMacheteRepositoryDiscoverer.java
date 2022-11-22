@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -22,8 +23,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.backend.services.GitMacheteRepositoryCacheService;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -57,7 +58,8 @@ public class GitMacheteRepositoryDiscoverer {
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running automatic discover task");
         val gitMacheteRepositoryInstantiateResult = Try
-            .of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+            .of(() -> ApplicationManager.getApplication()
+                .getService(GitMacheteRepositoryCacheService.class)
                 .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath));
 
         if (gitMacheteRepositoryInstantiateResult.isFailure()) {

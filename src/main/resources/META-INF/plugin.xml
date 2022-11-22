@@ -17,6 +17,7 @@
                             className="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteContentProvider"
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
         <errorHandler implementation="com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter"/>
+        <applicationService serviceImplementation="com.virtuslab.gitmachete.backend.services.GitMacheteRepositoryCacheService"/>
 
         <!-- Git Machete file type/language -->
         <annotator language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
