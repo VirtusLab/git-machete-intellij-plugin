@@ -12,8 +12,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
+import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
   @UIEffect
@@ -67,11 +67,11 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   }
 
   protected BaseEnhancedGraphTable getGraphTable(AnActionEvent anActionEvent) {
-    return getProject(anActionEvent).getService(GraphTableProvider.class).getGraphTable();
+    return getProject(anActionEvent).getService(GraphTableService.class).getGraphTable();
   }
 
   protected @Nullable GitRepository getSelectedGitRepository(AnActionEvent anActionEvent) {
-    val gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryProvider.class)
+    val gitRepository = getProject(anActionEvent).getService(SelectedGitRepositoryService.class)
         .getSelectedGitRepository();
     if (isLoggingAcceptable() && gitRepository == null) {
       log().warn("No Git repository is selected");

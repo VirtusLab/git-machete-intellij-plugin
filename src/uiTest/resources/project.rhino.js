@@ -502,9 +502,9 @@ function Project(underlyingProject) {
   const getSelectedGitRepository = function () {
     // We can't rely on the Rhino's default classloader
     // since it operates in the context of the Remote Robot plugin, not our plugin.
-    const providerClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider');
-    const provider = underlyingProject.getService(providerClass);
-    const gitRepository = provider.getSelectedGitRepository();
+    const serviceClass = pluginClassLoader.loadClass('com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService');
+    const service = underlyingProject.getService(serviceClass);
+    const gitRepository = service.getSelectedGitRepository();
     // Let's make sure the data stored in the GitRepository object is up-to-date with the underlying .git/ folder.
     gitRepository.update();
     return gitRepository;

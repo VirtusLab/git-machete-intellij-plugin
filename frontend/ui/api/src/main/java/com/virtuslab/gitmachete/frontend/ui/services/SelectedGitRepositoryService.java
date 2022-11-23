@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.providerservice;
+package com.virtuslab.gitmachete.frontend.ui.services;
 
 import javax.swing.JComponent;
 
@@ -14,11 +14,11 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 
 @Service
-public final class SelectedGitRepositoryProvider implements IGitRepositorySelectionComponentProvider {
+public final class SelectedGitRepositoryService implements IGitRepositorySelectionComponentProvider {
 
   private final IGitRepositorySelectionComponentProvider selectionComponent;
 
-  public SelectedGitRepositoryProvider(Project project) {
+  public SelectedGitRepositoryService(Project project) {
     this.selectionComponent = RuntimeBinding
         .instantiateSoleImplementingClass(IGitRepositorySelectionComponentProviderFactory.class)
         .create(project);

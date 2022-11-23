@@ -23,8 +23,8 @@ import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
+import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
+import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -39,8 +39,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiating");
     this.project = project;
 
-    val selectedGitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
-    val selectionComponent = selectedGitRepositoryProvider.getSelectionComponent();
+    val selectedGitRepositoryService = project.getService(SelectedGitRepositoryService.class);
+    val selectionComponent = selectedGitRepositoryService.getSelectionComponent();
     val graphTable = getGraphTable();
 
     // This class is final, so the instance is `@Initialized` at this point.
@@ -52,7 +52,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
-        val gitRepository = selectedGitRepositoryProvider.getSelectedGitRepository();
+        val gitRepository = selectedGitRepositoryService.getSelectedGitRepository();
         if (gitRepository != null) {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
@@ -64,7 +64,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   }
 
   public BaseEnhancedGraphTable getGraphTable() {
-    return project.getService(GraphTableProvider.class).getGraphTable();
+    return project.getService(GraphTableService.class).getGraphTable();
   }
 
   @UIEffect
