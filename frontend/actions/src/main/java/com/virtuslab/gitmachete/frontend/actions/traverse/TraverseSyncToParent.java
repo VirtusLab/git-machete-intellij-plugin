@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToRemote.syncBranchToRemote;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import git4idea.repo.GitRepository;
@@ -12,8 +11,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.OverrideForkPointBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
@@ -29,14 +26,13 @@ public final class TraverseSyncToParent {
   private TraverseSyncToParent() {}
 
   @UIEffect
-  static void syncBranchToParent(Project project, BaseEnhancedGraphTable graphTable,
+  static void syncBranchToParent(GitRepository gitRepository,
+      BaseEnhancedGraphTable graphTable,
       INonRootManagedBranchSnapshot gitMacheteBranch,
-      GitRepository gitRepository, @UI Runnable traverseNextEntry) {
-    val branchName = gitMacheteBranch.getName();
-    val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
-    val gitMacheteNonRootBranch = gitMacheteBranch.asNonRoot();
-    val syncToParentStatus = gitMacheteNonRootBranch.getSyncToParentStatus();
+      @UI Runnable traverseNextEntry) {
+    val syncToParentStatus = gitMacheteBranch.getSyncToParentStatus();
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
+    val project = gitRepository.getProject();
 
     switch (syncToParentStatus) {
       case MergedToParent :
@@ -50,10 +46,10 @@ public final class TraverseSyncToParent {
         break;
 
       case InSyncButForkPointOff :
-        val selectedCommit = new OverrideForkPointDialog(project, gitMacheteNonRootBranch).showAndGetSelectedCommit();
+        val selectedCommit = new OverrideForkPointDialog(project, gitMacheteBranch).showAndGetSelectedCommit();
 
-        new OverrideForkPointBackgroundable(project, getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
-            gitRepository, gitMacheteNonRootBranch, graphTable, selectedCommit).queue();
+        new OverrideForkPointBackgroundable(getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
+            gitRepository, gitMacheteBranch, graphTable, selectedCommit).queue();
         return;
 
       case OutOfSync :
@@ -70,7 +66,7 @@ public final class TraverseSyncToParent {
           case MessageConstants.YES :
             val branchToRebase = gitMacheteBranch.asNonRoot();
             if (repositorySnapshot != null && branchToRebase != null) {
-              new RebaseOnParentBackgroundable(project,
+              new RebaseOnParentBackgroundable(
                   getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
                   gitRepository, repositorySnapshot, branchToRebase, /* shouldExplicitlyCheckout */ false).queue();
               return;
@@ -90,7 +86,7 @@ public final class TraverseSyncToParent {
     }
 
     graphTable.queueRepositoryUpdateAndModelRefresh(
-        () -> syncBranchToRemote(project, graphTable, remoteTrackingBranch, branchName, gitRepository, traverseNextEntry));
+        () -> syncBranchToRemote(graphTable, gitRepository, gitMacheteBranch, traverseNextEntry));
   }
 
 }
