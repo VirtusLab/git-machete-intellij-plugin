@@ -23,7 +23,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
   private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
 
-  private Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
+  private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
   public GitMacheteRepositoryCache() {
     gitCoreRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitCoreRepositoryFactory.class);
