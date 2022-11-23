@@ -135,7 +135,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     try {
       hookContentMD5Hash = hashFile("MD5", hookFile);
     } catch (IOException | NoSuchAlgorithmException ignored) {
-      // we are using the constant empty String as a neutral value, so that the functionality would
+      // We are using the constant empty String as a neutral value, so that the functionality would
       // fall back to not using the contents of the hookFile.
     }
 
