@@ -87,26 +87,25 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
         var firstEntry = branchLayout.getRootEntries().headOption().getOrNull();
         if (firstEntry != null) {
           val firstEntryName = firstEntry.getName();
-          checkoutAndTraverse(anActionEvent, firstEntryName, project, gitRepository);
+          checkoutAndTraverse(anActionEvent, project, gitRepository, firstEntryName);
         }
       }
     }
   }
 
-  private void checkoutAndTraverse(AnActionEvent anActionEvent, String branchName, Project project,
-      GitRepository gitRepository) {
+  private void checkoutAndTraverse(AnActionEvent anActionEvent, Project project, GitRepository gitRepository,
+      String branchName) {
     log().debug(() -> "Queuing '${branchName}' branch checkout background task");
 
     Runnable callInAwtLater = () -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL,
-        () -> traverse(branchName, anActionEvent, gitRepository));
+        () -> traverse(gitRepository, anActionEvent, branchName));
 
     GitBrancher.getInstance(project).checkout(/* reference */ branchName, /* detach */ false,
         Collections.singletonList(gitRepository), callInAwtLater);
   }
 
   @UIEffect
-  private void traverse(String branchName, AnActionEvent anActionEvent, GitRepository gitRepository) {
-    val project = getProject(anActionEvent);
+  private void traverse(GitRepository gitRepository, AnActionEvent anActionEvent, String branchName) {
     val graphTable = getGraphTable(anActionEvent);
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     val branchLayout = repositorySnapshot != null ? repositorySnapshot.getBranchLayout() : null;
@@ -116,18 +115,16 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       @UI Runnable traverseNextEntry = () -> {
         var nextBranch = branchLayout != null ? branchLayout.findNextEntry(branchName) : null;
         if (nextBranch != null) {
-
           val checkoutNextAction = ActionManager.getInstance().getAction(ActionIds.CHECK_OUT_NEXT);
           checkoutNextAction.actionPerformed(anActionEvent);
-          traverse(nextBranch.getName(), anActionEvent, gitRepository);
+          traverse(gitRepository, anActionEvent, nextBranch.getName());
         }
       };
 
       if (gitMacheteBranch.isNonRoot()) {
-        syncBranchToParent(project, graphTable, gitMacheteBranch.asNonRoot(), gitRepository, traverseNextEntry);
+        syncBranchToParent(gitRepository, graphTable, gitMacheteBranch.asNonRoot(), traverseNextEntry);
       } else {
-        syncBranchToRemote(project, graphTable, gitMacheteBranch.getRemoteTrackingBranch(), branchName, gitRepository,
-            traverseNextEntry);
+        syncBranchToRemote(graphTable, gitRepository, gitMacheteBranch, traverseNextEntry);
       }
     }
   }
