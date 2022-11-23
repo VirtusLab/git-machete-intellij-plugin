@@ -134,6 +134,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   @UIThreadUnsafe
   private void slideOutBranch(String branchName) {
+    val selectedGitRepository = this.selectedGitRepository;
     if (branchLayout == null || selectedGitRepository == null) {
       return;
     }
@@ -143,8 +144,6 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
     runWriteActionOnUIThread(() -> {
       try {
-        // impossible to be null (line 137), but checker framework complains
-        assert selectedGitRepository != null;
         val macheteFilePath = getMacheteFilePath(selectedGitRepository);
         LOG.info("Writing new branch layout into ${macheteFilePath}");
         MacheteFileWriter.writeBranchLayout(macheteFilePath, branchLayoutWriter,
