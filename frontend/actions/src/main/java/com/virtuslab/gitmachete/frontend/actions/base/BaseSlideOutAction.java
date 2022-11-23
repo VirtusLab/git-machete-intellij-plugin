@@ -73,11 +73,12 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
 
     LOG.debug("Refreshing repository state");
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter();
     if (branchLayout != null) {
       new SlideOutBackgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title"), branchToSlideOut,
           getSelectedGitRepository(anActionEvent), getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,
-          branchLayoutWriter, getGraphTable(anActionEvent)).queue();
+          getGraphTable(anActionEvent)).queue();
+    } else {
+      LOG.debug("branchLayout is null");
     }
   }
 

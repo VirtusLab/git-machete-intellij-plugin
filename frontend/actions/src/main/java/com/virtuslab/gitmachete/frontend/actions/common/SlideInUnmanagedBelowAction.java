@@ -7,7 +7,9 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInRootBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
@@ -36,7 +38,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
     val parentName = getSelectedBranchName(anActionEvent);
     val unmanagedBranch = getNameOfUnmanagedBranch(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter();
+    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
 
     if (gitRepository == null || branchLayout == null || unmanagedBranch == null) {
       return;

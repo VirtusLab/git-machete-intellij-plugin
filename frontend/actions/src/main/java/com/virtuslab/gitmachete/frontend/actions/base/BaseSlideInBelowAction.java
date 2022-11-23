@@ -28,7 +28,9 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
@@ -84,7 +86,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val parentName = getNameOfBranchUnderAction(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter();
+    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
       return;

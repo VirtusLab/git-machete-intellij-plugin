@@ -70,7 +70,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     val graphTable = getGraphTable(anActionEvent);
-    val branchLayoutWriter = getBranchLayoutWriter();
+    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
 
     try {
       // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.

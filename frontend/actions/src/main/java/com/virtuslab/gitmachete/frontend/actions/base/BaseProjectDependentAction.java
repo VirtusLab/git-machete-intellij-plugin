@@ -9,8 +9,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
-import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
 import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
@@ -60,10 +58,6 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     val project = anActionEvent.getProject();
     assert project != null : "Can't get project from action event";
     return project;
-  }
-
-  protected IBranchLayoutWriter getBranchLayoutWriter() {
-    return RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
   }
 
   protected BaseEnhancedGraphTable getGraphTable(AnActionEvent anActionEvent) {
