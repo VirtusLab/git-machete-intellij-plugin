@@ -12,7 +12,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.ModalityUiUtil;
-import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -21,6 +20,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -56,38 +56,37 @@ public class GitMacheteRepositoryDiscoverer {
       @Override
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running automatic discover task");
-        val gitMacheteRepositoryInstantiateResult = Try
-            .of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-                .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath));
 
-        if (gitMacheteRepositoryInstantiateResult.isFailure()) {
+        IGitMacheteRepository repository;
+
+        try {
+          repository = RuntimeBinding
+              .instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+              .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath);
+        } catch (GitMacheteException e) {
           LOG.debug("Instantiation failed");
-          val exception = gitMacheteRepositoryInstantiateResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
                   getString(
                       "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                  exception.getMessage() != null ? exception.getMessage() : ""));
+                  e.getMessage() != null ? e.getMessage() : ""));
           return;
         }
-        val discoverResult = gitMacheteRepositoryInstantiateResult
-            .mapTry(IGitMacheteRepository::discoverLayoutAndCreateSnapshot);
 
-        if (discoverResult.isFailure()) {
+        IGitMacheteRepositorySnapshot repositorySnapshot;
+        try {
+          repositorySnapshot = repository.discoverLayoutAndCreateSnapshot();
+        } catch (GitMacheteException e) {
           LOG.debug("Snapshot creation failed");
-          val exception = discoverResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
                   getString(
                       "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                  exception.getMessage() != null ? exception.getMessage() : ""));
+                  e.getMessage() != null ? e.getMessage() : ""));
           return;
         }
-
-        val repositorySnapshot = discoverResult.get();
-        val repository = gitMacheteRepositoryInstantiateResult.get();
 
         if (repositorySnapshot.getRootBranches().size() == 0) {
           LOG.debug("No root branches discovered - executing on-failure consumer");
