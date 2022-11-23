@@ -32,7 +32,6 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val parentName = getSelectedBranchName(anActionEvent);
     val unmanagedBranch = getNameOfUnmanagedBranch(anActionEvent);
@@ -59,7 +58,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
     }
 
     if (parentName != null) {
-      new SlideInNonRootBackgroundable(project,
+      new SlideInNonRootBackgroundable(
           gitRepository,
           branchLayout,
           branchLayoutWriter,
@@ -73,7 +72,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
       }.queue();
     } else {
 
-      new SlideInRootBackgroundable(project,
+      new SlideInRootBackgroundable(
           gitRepository,
           branchLayout,
           branchLayoutWriter,

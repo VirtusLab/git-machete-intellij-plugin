@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ModalityUiUtil;
@@ -50,12 +49,11 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    *  repository snapshot, which is the base for the creation of the branch graph seen in the GitMachete IntelliJ tab.
    */
   public GitMacheteRepositoryUpdateBackgroundable(
-      Project project,
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
       @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone,
       Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer) {
-    super(project, getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
+    super(gitRepository.getProject(), getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;

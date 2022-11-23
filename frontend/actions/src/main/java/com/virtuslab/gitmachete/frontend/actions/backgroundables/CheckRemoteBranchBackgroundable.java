@@ -4,7 +4,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitBranch;
 import git4idea.repo.GitRepository;
@@ -19,16 +18,14 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod(GitMacheteBundle.class)
 public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
 
-  private final Project project;
   private final GitRepository gitRepository;
   private final String remoteBranchName;
   private final String taskFailNotificationTitle;
   private final String taskFailNotificationPrefix;
 
-  public CheckRemoteBranchBackgroundable(Project project, GitRepository gitRepository, String remoteBranchName,
+  public CheckRemoteBranchBackgroundable(GitRepository gitRepository, String remoteBranchName,
       String taskFailNotificationTitle, String taskFailNotificationPrefix) {
-    super(project, getString("action.GitMachete.CheckRemoteBranchBackgroundable.task-title"));
-    this.project = project;
+    super(gitRepository.getProject(), getString("action.GitMachete.CheckRemoteBranchBackgroundable.task-title"));
     this.gitRepository = gitRepository;
     this.remoteBranchName = remoteBranchName;
     this.taskFailNotificationTitle = taskFailNotificationTitle;
@@ -51,7 +48,7 @@ public class CheckRemoteBranchBackgroundable extends Task.Backgroundable {
   public void onThrowable(Throwable error) {
     String errorMessage = error.getMessage();
     if (errorMessage != null) {
-      VcsNotifier.getInstance(project).notifyError(
+      VcsNotifier.getInstance(gitRepository.getProject()).notifyError(
           /* displayId */ null, taskFailNotificationTitle, taskFailNotificationPrefix + errorMessage);
     }
   }

@@ -53,8 +53,6 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-
-    val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
@@ -72,6 +70,6 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     val mergeProps = new MergeProps(
         /* movingBranchName */ nonRootStayingBranch.getParent(),
         /* stayingBranchName */ nonRootStayingBranch);
-    FastForwardMerge.createBackgroundable(project, gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "").queue();
+    FastForwardMerge.createBackgroundable(gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "").queue();
   }
 }

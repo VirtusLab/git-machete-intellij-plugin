@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
@@ -25,10 +24,9 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   }
 
   public MergeCurrentBranchFastForwardOnlyBackgroundable(
-      Project project,
       GitRepository gitRepository,
       IBranchReference targetBranch) {
-    super(project, gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"));
+    super(gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"));
     this.targetBranch = targetBranch;
   }
 

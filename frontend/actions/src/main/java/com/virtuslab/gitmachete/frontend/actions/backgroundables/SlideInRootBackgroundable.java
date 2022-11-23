@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
-import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -16,13 +15,12 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 public class SlideInRootBackgroundable extends BaseSlideInBackgroundable {
 
   public SlideInRootBackgroundable(
-      Project project,
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
-    super(project, gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
+    super(gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
   }
 
   @Override

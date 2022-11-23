@@ -26,6 +26,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -40,32 +41,28 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   @Nullable
   private final String currentBranchNameIfManaged;
   private final BranchLayout branchLayout;
-
   private final IBranchLayoutWriter branchLayoutWriter;
-
   @Nullable
-  private final GitRepository selectedGitRepository;
-
+  private final GitRepository gitRepository;
   @Nullable
   private final BaseEnhancedGraphTable graphTable;
-
   private final Project project;
 
   public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
-  public SlideOutBackgroundable(Project project, String title, String branchToSlideOutName,
-      @Nullable GitRepository selectedGitRepository,
-      @Nullable String currentBranchNameIfManaged,
+  public SlideOutBackgroundable(Project project, String title, IManagedBranchSnapshot branchToSlideOut,
+      @Nullable GitRepository gitRepository,
+      @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       @Nullable BaseEnhancedGraphTable graphTable) {
     super(project, title);
     this.project = project;
-    this.branchToSlideOutName = branchToSlideOutName;
-    this.currentBranchNameIfManaged = currentBranchNameIfManaged;
+    this.branchToSlideOutName = branchToSlideOut.getName();
+    this.currentBranchNameIfManaged = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.getName() : null;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;
-    this.selectedGitRepository = selectedGitRepository;
+    this.gitRepository = gitRepository;
     this.graphTable = graphTable;
 
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOutName}");
@@ -88,15 +85,15 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
               .fmt(branchToSlideOutName));
 
-    } else if (selectedGitRepository != null) {
-      val gitRepository = selectedGitRepository;
-      val root = selectedGitRepository.getRoot();
+    } else if (gitRepository != null) {
+      val aGitRepository = gitRepository;
+      val root = aGitRepository.getRoot();
       val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(root);
       if (shouldDelete == null) {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
-            () -> suggestBranchDeletion(branchToSlideOutName, gitRepository));
+            () -> suggestBranchDeletion(branchToSlideOutName, aGitRepository));
       } else {
-        handleBranchDeletionDecision(branchToSlideOutName, gitRepository, shouldDelete);
+        handleBranchDeletionDecision(branchToSlideOutName, aGitRepository, shouldDelete);
       }
 
     } else {
@@ -107,7 +104,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   }
 
   @UIEffect
-  private void suggestBranchDeletion(String branchName, GitRepository gitRepository) {
+  private void suggestBranchDeletion(String branchName, GitRepository aGitRepository) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
     new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title")) {
@@ -115,11 +112,11 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         if (slideOutOptions != null) {
-          handleBranchDeletionDecision(branchName, gitRepository, slideOutOptions.shouldDelete());
+          handleBranchDeletionDecision(branchName, aGitRepository, slideOutOptions.shouldDelete());
 
           if (slideOutOptions.shouldRemember()) {
             val value = String.valueOf(slideOutOptions.shouldDelete());
-            setDeleteLocalBranchOnSlideOutGitConfigValue(gitRepository.getRoot(), value);
+            setDeleteLocalBranchOnSlideOutGitConfigValue(aGitRepository.getRoot(), value);
           }
         } else {
           val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
@@ -134,7 +131,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   @UIThreadUnsafe
   private void slideOutBranch(String branchName) {
-    val theSelectedGitRepository = this.selectedGitRepository;
+    val theSelectedGitRepository = this.gitRepository;
     if (branchLayout == null || theSelectedGitRepository == null) {
       return;
     }
@@ -162,10 +159,10 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   }
 
   @UIThreadUnsafe
-  private void handleBranchDeletionDecision(String branchName, GitRepository gitRepository, boolean shouldDelete) {
+  private void handleBranchDeletionDecision(String branchName, GitRepository aGitRepository, boolean shouldDelete) {
     slideOutBranch(branchName);
     if (shouldDelete) {
-      GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
+      GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(aGitRepository));
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML")

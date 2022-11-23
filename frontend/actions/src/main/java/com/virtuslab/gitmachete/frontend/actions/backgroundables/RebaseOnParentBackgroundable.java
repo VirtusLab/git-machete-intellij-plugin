@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
@@ -39,27 +38,21 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class RebaseOnParentBackgroundable extends Task.Backgroundable {
 
   private final GitRepository gitRepository;
-
   private static final String NL = System.lineSeparator();
   private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
-
   private final INonRootManagedBranchSnapshot branchToRebase;
-
   private final boolean shouldExplicitlyCheckout;
 
-  private final Project project;
-
-  public RebaseOnParentBackgroundable(Project project, String title, GitRepository gitRepository,
+  public RebaseOnParentBackgroundable(String title, GitRepository gitRepository,
       IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       INonRootManagedBranchSnapshot branchToRebase,
       boolean shouldExplicitlyCheckout) {
-    super(project, title);
-    this.project = project;
+    super(gitRepository.getProject(), title);
     this.gitRepository = gitRepository;
     this.branchToRebase = branchToRebase;
     this.gitMacheteRepositorySnapshot = gitMacheteRepositorySnapshot;
     this.shouldExplicitlyCheckout = shouldExplicitlyCheckout;
-    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
+    LOG.debug(() -> "Entering: gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
 
   }
 
@@ -94,6 +87,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
+    val project = gitRepository.getProject();
     IGitRebaseParameters gitRebaseParameters;
     try {
       gitRebaseParameters = branchToRebase.getParametersForRebaseOntoParent();

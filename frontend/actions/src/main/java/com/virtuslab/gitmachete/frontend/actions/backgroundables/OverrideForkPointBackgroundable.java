@@ -21,18 +21,15 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class OverrideForkPointBackgroundable extends Task.Backgroundable {
 
   private final GitRepository gitRepository;
-
   private final INonRootManagedBranchSnapshot nonRootBranch;
-
   @Nullable
   private final ICommitOfManagedBranch selectedCommit;
-
   private final BaseEnhancedGraphTable graphTable;
 
-  public OverrideForkPointBackgroundable(Project project, String title, GitRepository gitRepository,
+  public OverrideForkPointBackgroundable(String title, GitRepository gitRepository,
       INonRootManagedBranchSnapshot nonRootBranch, BaseEnhancedGraphTable graphTable,
       @Nullable ICommitOfManagedBranch selectedCommit) {
-    super(project, title);
+    super(gitRepository.getProject(), title);
     this.gitRepository = gitRepository;
     this.nonRootBranch = nonRootBranch;
     this.graphTable = graphTable;

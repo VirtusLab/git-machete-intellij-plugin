@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
 import git4idea.fetch.GitFetchSupport;
@@ -18,7 +17,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @CustomLog
 public class FetchBackgroundable extends Task.Backgroundable {
 
-  private final Project project;
   private final GitRepository gitRepository;
   private final String remoteName;
   private final String refspec;
@@ -28,15 +26,14 @@ public class FetchBackgroundable extends Task.Backgroundable {
   /** Use as {@code remoteName} when referring to the local repository. */
   public static final String LOCAL_REPOSITORY_NAME = ".";
 
-  public FetchBackgroundable(Project project,
+  public FetchBackgroundable(
       GitRepository gitRepository,
       String remoteName,
       String refspec,
       String taskTitle,
       @Untainted String failureNotificationText,
       String successNotificationText) {
-    super(project, taskTitle, /* canBeCancelled */ true);
-    this.project = project;
+    super(gitRepository.getProject(), taskTitle, /* canBeCancelled */ true);
     this.gitRepository = gitRepository;
     this.remoteName = remoteName;
     this.refspec = refspec;
@@ -47,7 +44,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    val fetchSupport = GitFetchSupport.fetchSupport(project);
+    val fetchSupport = GitFetchSupport.fetchSupport(gitRepository.getProject());
     GitRemote remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
         ? GitRemote.DOT
         : GitUtil.findRemoteByName(gitRepository, remoteName);
@@ -65,7 +62,8 @@ public class FetchBackgroundable extends Task.Backgroundable {
   @UIEffect
   @Override
   public void onSuccess() {
-    VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null, /* title */ "", successNotificationText);
+    VcsNotifier.getInstance(gitRepository.getProject()).notifySuccess(/* displayId */ null, /* title */ "",
+        successNotificationText);
   }
 
   @Override

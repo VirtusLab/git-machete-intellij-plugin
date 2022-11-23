@@ -10,7 +10,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.vcs.log.VcsCommitMetadata;
 import git4idea.branch.GitBranchUiHandlerImpl;
@@ -54,7 +53,6 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
-
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
     val nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
@@ -95,8 +93,6 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-
-    val project = getProject(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
     val nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
@@ -112,7 +108,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
           && syncToParentStatus != InSyncButForkPointOff) {
         val currentBranch = gitRepository.getCurrentBranch();
         val isSquashingCurrentBranch = currentBranch != null && branchName.equals(currentBranch.getName());
-        doSquash(project, gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
+        doSquash(gitRepository, parent, commits, branchName, isSquashingCurrentBranch);
       }
     }
   }
@@ -126,12 +122,13 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   }
 
   @UIEffect
-  private void doSquash(Project project,
+  private void doSquash(
       GitRepository gitRepository,
       ICommitOfManagedBranch parent,
       List<ICommitOfManagedBranch> commits,
       String branchName,
       boolean isSquashingCurrentBranch) {
+    val project = gitRepository.getProject();
 
     val vcsCommitMetadataAndMessage = commits.foldLeft(
         new VcsCommitMetadataAndMessage(List.empty(), ""),

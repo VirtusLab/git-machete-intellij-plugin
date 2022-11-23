@@ -9,7 +9,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
@@ -161,13 +160,13 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     if (branchName.equals(currentBranchName)) {
-      doResetCurrentBranchToRemoteWithKeep(project, gitRepository, localBranch, remoteTrackingBranch);
+      doResetCurrentBranchToRemoteWithKeep(gitRepository, localBranch, remoteTrackingBranch);
     } else {
-      doResetNonCurrentBranchToRemoteWithKeep(project, gitRepository, localBranch, remoteTrackingBranch);
+      doResetNonCurrentBranchToRemoteWithKeep(gitRepository, localBranch, remoteTrackingBranch);
     }
   }
 
-  private void doResetNonCurrentBranchToRemoteWithKeep(Project project,
+  private void doResetNonCurrentBranchToRemoteWithKeep(
       GitRepository gitRepository,
       ILocalBranchReference localBranch,
       IRemoteTrackingBranchReference remoteTrackingBranch) {
@@ -175,7 +174,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
         remoteTrackingBranch.getFullName(), localBranch.getFullName(), /* allowNonFastForward */ true);
 
     new FetchBackgroundable(
-        project,
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromRemoteToLocal,
@@ -187,7 +185,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
   }
 
   protected void doResetCurrentBranchToRemoteWithKeep(
-      Project project,
       GitRepository gitRepository,
       ILocalBranchReference localBranch,
       IRemoteTrackingBranchReference remoteTrackingBranch) {
@@ -195,7 +192,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     val localBranchName = localBranch.getName();
     val remoteTrackingBranchName = remoteTrackingBranch.getName();
 
-    new ResetCurrentToRemoteBackgroundable(project,
+    new ResetCurrentToRemoteBackgroundable(
         getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
         /* canBeCancelled */ true, localBranchName, remoteTrackingBranchName, gitRepository).queue();
   }

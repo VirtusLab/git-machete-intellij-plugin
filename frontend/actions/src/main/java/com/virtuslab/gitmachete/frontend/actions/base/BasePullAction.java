@@ -6,7 +6,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -67,7 +66,6 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
 
-    val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val localBranchName = getNameOfBranchUnderAction(anActionEvent);
     val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
@@ -98,18 +96,18 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
               .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
       val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-      Runnable fastForwardRunnable = () -> FastForwardMerge.createBackgroundable(project, gitRepository, mergeProps,
+      Runnable fastForwardRunnable = () -> FastForwardMerge.createBackgroundable(gitRepository, mergeProps,
           fetchNotificationTextPrefix).queue();
 
       if (isUpToDate) {
         fastForwardRunnable.run();
       } else {
-        updateRepositoryFetchBackgroundable(project, gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
+        updateRepositoryFetchBackgroundable(gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
       }
     }
   }
 
-  private void updateRepositoryFetchBackgroundable(Project project,
+  private void updateRepositoryFetchBackgroundable(
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch,
       Runnable onSuccessRunnable) {
@@ -122,7 +120,6 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
     String taskTitle = getString("action.GitMachete.BasePullAction.task-title");
 
     new FetchBackgroundable(
-        project,
         gitRepository,
         remoteName,
         refspecFromRemoteRepoToOurRemoteBranch,

@@ -84,10 +84,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
           repoSnapshot,
           /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
           /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
-          /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, project, graphTable,
-              branchLayoutWriter),
-          /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, project, graphTable,
-              branchLayoutWriter),
+          /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, graphTable, branchLayoutWriter),
+          /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, graphTable, branchLayoutWriter),
           /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
           /* cancelButtonVisible */ true,
           /* shouldDisplayActionToolTips */ false).show());
@@ -100,20 +98,21 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
+      BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), project, graphTable, branchLayoutWriter, () -> {});
+        gitRepository.getMacheteFilePath(), gitRepository.getProject(), graphTable, branchLayoutWriter, () -> {});
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      Project project, BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
+      BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), project, graphTable,
-        branchLayoutWriter, () -> openMacheteFile(project, gitRepository));
+        gitRepository.getMacheteFilePath(), gitRepository.getProject(), graphTable,
+        branchLayoutWriter, () -> openMacheteFile(gitRepository));
   }
 
   @UIEffect
-  private static void openMacheteFile(Project project, GitRepository gitRepository) {
+  private static void openMacheteFile(GitRepository gitRepository) {
+    val project = gitRepository.getProject();
     val file = gitRepository.getMacheteFile();
     if (file != null) {
       OpenFileAction.openFile(file, project);

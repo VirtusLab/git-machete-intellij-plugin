@@ -8,7 +8,6 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.commands.Git;
@@ -31,15 +30,13 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
 
   private final String localBranchName;
-
   private final String remoteTrackingBranchName;
-
   private final GitRepository gitRepository;
 
-  public ResetCurrentToRemoteBackgroundable(Project project, String title,
+  public ResetCurrentToRemoteBackgroundable(String title,
       boolean canBeCancelled,
       String localBranchName, String remoteTrackingBranchName, GitRepository gitRepository) {
-    super(project, title, canBeCancelled);
+    super(gitRepository.getProject(), title, canBeCancelled);
     this.localBranchName = localBranchName;
     this.remoteTrackingBranchName = remoteTrackingBranchName;
     this.gitRepository = gitRepository;

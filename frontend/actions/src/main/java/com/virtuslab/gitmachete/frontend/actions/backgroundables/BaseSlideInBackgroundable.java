@@ -37,14 +37,13 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
   protected final SlideInOptions slideInOptions;
 
   public BaseSlideInBackgroundable(
-      Project project,
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
-    super(project, getString("action.GitMachete.BaseSlideInBackgroundable.task-title"));
-    this.project = project;
+    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"));
+    this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;

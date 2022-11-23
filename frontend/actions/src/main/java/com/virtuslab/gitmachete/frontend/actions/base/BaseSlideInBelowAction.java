@@ -11,7 +11,6 @@ import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
@@ -113,8 +112,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptionsName);
 
     if (localBranch == null) {
-      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
-          project, gitRepository, parentName, slideInOptionsName);
+      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(gitRepository,
+          parentName, slideInOptionsName);
 
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
       val branchName = branchNameAndPreSlideInRunnable._1();
@@ -140,7 +139,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return;
     }
 
-    new SlideInNonRootBackgroundable(project,
+    new SlideInNonRootBackgroundable(
         gitRepository,
         branchLayout,
         branchLayoutWriter,
@@ -165,11 +164,11 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           "(com.intellij.openapi.project.Project, java.util.List, java.lang.String)"
   })
   Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
-      Project project,
       GitRepository gitRepository,
       String startPoint,
       String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
+    val project = gitRepository.getProject();
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
         /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title").fmt(startPoint),
@@ -192,7 +191,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }
 
     Runnable preSlideInRunnable = () -> {};
-    val remoteBranch = getGitRemoteBranch(project, gitRepository, branchName);
+    val remoteBranch = getGitRemoteBranch(gitRepository, branchName);
 
     if (options.shouldCheckout() && remoteBranch != null) {
       preSlideInRunnable = () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName());
@@ -202,7 +201,6 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       val refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
           "refs/heads/${branchName}", /* allowNonFastForward */ false);
       preSlideInRunnable = () -> new FetchBackgroundable(
-          project,
           gitRepository,
           LOCAL_REPOSITORY_NAME,
           refspec,
@@ -221,7 +219,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     return Tuple.of(options.getName(), preSlideInRunnable);
   }
 
-  private static @Nullable GitRemoteBranch getGitRemoteBranch(Project project, GitRepository gitRepository, String branchName) {
+  private static @Nullable GitRemoteBranch getGitRemoteBranch(GitRepository gitRepository, String branchName) {
 
     val remotesWithBranch = List.ofAll(gitRepository.getRemotes())
         .flatMap(r -> {
@@ -241,7 +239,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       val title = getString("action.GitMachete.BaseSlideInBelowAction.notification.title.multiple-remotes");
       val message = getString("action.GitMachete.BaseSlideInBelowAction.notification.message.multiple-remotes")
           .fmt(chosen._2().getName(), chosen._1().getName());
-      VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
+      VcsNotifier.getInstance(gitRepository.getProject()).notifyInfo(/* displayId */ null, title, message);
     }
     return chosen._2();
   }

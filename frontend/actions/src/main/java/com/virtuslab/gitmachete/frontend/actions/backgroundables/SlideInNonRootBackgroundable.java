@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
@@ -23,14 +22,13 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
   private final String parentName;
 
   public SlideInNonRootBackgroundable(
-      Project project,
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions,
       String parentName) {
-    super(project, gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
+    super(gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
     this.parentName = parentName;
   }
 

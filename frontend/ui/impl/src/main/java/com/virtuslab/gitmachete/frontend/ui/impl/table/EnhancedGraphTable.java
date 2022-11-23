@@ -537,7 +537,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
 
         LOG.debug("Queuing repository update onto a non-UI thread");
-        new GitMacheteRepositoryUpdateBackgroundable(project,
+        new GitMacheteRepositoryUpdateBackgroundable(
             gitRepository,
             branchLayoutReader,
             doRefreshModel,

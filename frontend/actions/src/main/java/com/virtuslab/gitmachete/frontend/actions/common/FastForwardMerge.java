@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import com.intellij.openapi.project.Project;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
@@ -24,15 +23,36 @@ public final class FastForwardMerge {
 
   private FastForwardMerge() {}
 
-  private static void mergeCurrentBranch(Project project,
+  public static CheckRemoteBranchBackgroundable createBackgroundable(
       GitRepository gitRepository,
-      MergeProps mergeProps) {
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(project, gitRepository, mergeProps.getStayingBranch()).queue();
+      MergeProps mergeProps,
+      @Untainted String fetchNotificationTextPrefix) {
+    val stayingName = mergeProps.getStayingBranch().getName();
+    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
+    val failFfMergeNotificationTitle = getString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
+    return new CheckRemoteBranchBackgroundable(gitRepository, stayingName, failFfMergeNotificationTitle,
+        fetchNotificationTextPrefix) {
+      @Override
+      @UIEffect
+      public void onSuccess() {
+        if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
+          mergeCurrentBranch(gitRepository, mergeProps);
+        } else {
+          mergeNonCurrentBranch(gitRepository, mergeProps, fetchNotificationTextPrefix);
+        }
+      }
+    };
   }
 
-  private static void mergeNonCurrentBranch(Project project,
+  private static void mergeCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(gitRepository, mergeProps.getStayingBranch()).queue();
+  }
+
+  private static void mergeNonCurrentBranch(
       GitRepository gitRepository,
-      MergeProps mergeProps, @Untainted String fetchNotificationTextPrefix) {
+      MergeProps mergeProps,
+      @Untainted String fetchNotificationTextPrefix) {
     val stayingFullName = mergeProps.getStayingBranch().getFullName();
     val movingFullName = mergeProps.getMovingBranch().getFullName();
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
@@ -43,34 +63,11 @@ public final class FastForwardMerge {
     val failFFMergeNotification = getNonHtmlString(
         "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-fail").fmt(stayingName, movingName);
     new FetchBackgroundable(
-        project,
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
         fetchNotificationTextPrefix + failFFMergeNotification,
         fetchNotificationTextPrefix + successFFMergeNotification).queue();
-  }
-
-  public static CheckRemoteBranchBackgroundable createBackgroundable(Project project,
-      GitRepository gitRepository,
-      MergeProps mergeProps,
-      @Untainted String fetchNotificationTextPrefix) {
-    val stayingName = mergeProps.getStayingBranch().getName();
-    val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
-    val failFfMergeNotificationTitle = getString(
-        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
-    return new CheckRemoteBranchBackgroundable(project, gitRepository, stayingName, failFfMergeNotificationTitle,
-        fetchNotificationTextPrefix) {
-      @Override
-      @UIEffect
-      public void onSuccess() {
-        if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
-          mergeCurrentBranch(project, gitRepository, mergeProps);
-        } else {
-          mergeNonCurrentBranch(project, gitRepository, mergeProps, fetchNotificationTextPrefix);
-        }
-      }
-    };
   }
 }

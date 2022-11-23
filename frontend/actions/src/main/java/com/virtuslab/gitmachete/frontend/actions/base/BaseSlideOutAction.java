@@ -69,15 +69,14 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   @UIEffect
   private void doSlideOut(AnActionEvent anActionEvent, IManagedBranchSnapshot branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
-    String branchName = branchToSlideOut.getName();
     val project = getProject(anActionEvent);
 
     LOG.debug("Refreshing repository state");
     val branchLayout = getBranchLayout(anActionEvent);
     val branchLayoutWriter = getBranchLayoutWriter();
     if (branchLayout != null) {
-      new SlideOutBackgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title"), branchName,
-          getSelectedGitRepository(anActionEvent), getCurrentBranchNameIfManaged(anActionEvent), branchLayout,
+      new SlideOutBackgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title"), branchToSlideOut,
+          getSelectedGitRepository(anActionEvent), getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,
           branchLayoutWriter, getGraphTable(anActionEvent)).queue();
     }
   }

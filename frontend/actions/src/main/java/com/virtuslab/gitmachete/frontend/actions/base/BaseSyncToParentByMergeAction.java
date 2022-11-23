@@ -9,7 +9,6 @@ import java.util.Collections;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import git4idea.GitReference;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -97,15 +96,16 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
         /* stayingBranchName */ nonRootMovingBranch.getParent());
 
     if (nonRootMovingBranch.getName().equals(currentBranchName)) {
-      doMergeIntoCurrentBranch(project, gitRepository, mergeProps);
+      doMergeIntoCurrentBranch(gitRepository, mergeProps);
     } else {
-      doMergeIntoNonCurrentBranch(project, gitRepository, mergeProps);
+      doMergeIntoNonCurrentBranch(gitRepository, mergeProps);
     }
   }
 
   @UIEffect
-  public static void doMergeIntoCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
+  public static void doMergeIntoCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();
+    val project = gitRepository.getProject();
     LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}");
 
@@ -123,13 +123,13 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   }
 
   @UIEffect
-  private void doMergeIntoNonCurrentBranch(Project project, GitRepository gitRepository, MergeProps mergeProps) {
+  private void doMergeIntoNonCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();
     val movingBranch = mergeProps.getMovingBranch().getName();
-    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
+    LOG.debug(() -> "Entering: gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 
-    val gitBrancher = GitBrancher.getInstance(project);
+    val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
     val repositories = Collections.singletonList(gitRepository);
 
     Runnable callInAwtLater = () -> gitBrancher.merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, repositories);
