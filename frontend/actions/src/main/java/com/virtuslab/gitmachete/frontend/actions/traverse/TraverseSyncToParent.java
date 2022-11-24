@@ -40,16 +40,27 @@ public final class TraverseSyncToParent {
           val branchLayout = repositorySnapshot.getBranchLayout();
           val currentBranchIfManaged = repositorySnapshot.getCurrentBranchIfManaged();
           new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"),
-              gitMacheteBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable).queue();
-          return;
+              gitMacheteBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable) {
+            @Override
+            public void onSuccess() {
+              graphTable.queueRepositoryUpdateAndModelRefresh(
+                  () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry));
+            }
+          }.queue();
         }
-        break;
+        return;
 
       case InSyncButForkPointOff :
         val selectedCommit = new OverrideForkPointDialog(project, gitMacheteBranch).showAndGetSelectedCommit();
-
         new OverrideForkPointBackgroundable(getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
-            gitRepository, gitMacheteBranch, graphTable, selectedCommit).queue();
+            gitRepository, gitMacheteBranch, graphTable, selectedCommit) {
+          @Override
+          public void onSuccess() {
+            graphTable.queueRepositoryUpdateAndModelRefresh(
+                () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry));
+          }
+        }
+            .queue();
         return;
 
       case OutOfSync :
@@ -68,7 +79,13 @@ public final class TraverseSyncToParent {
             if (repositorySnapshot != null && branchToRebase != null) {
               new RebaseOnParentBackgroundable(
                   getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
-                  gitRepository, repositorySnapshot, branchToRebase, /* shouldExplicitlyCheckout */ false).queue();
+                  gitRepository, repositorySnapshot, branchToRebase, /* shouldExplicitlyCheckout */ false) {
+                @Override
+                public void onSuccess() {
+                  graphTable.queueRepositoryUpdateAndModelRefresh(
+                      () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry));
+                }
+              }.queue();
               return;
             }
             break;
@@ -77,7 +94,7 @@ public final class TraverseSyncToParent {
             break;
 
           default :
-            return;
+            break;
         }
         break;
 
@@ -86,7 +103,7 @@ public final class TraverseSyncToParent {
     }
 
     graphTable.queueRepositoryUpdateAndModelRefresh(
-        () -> syncBranchToRemote(graphTable, gitRepository, gitMacheteBranch, traverseNextEntry));
+        () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry));
   }
 
 }
