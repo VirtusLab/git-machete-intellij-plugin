@@ -31,10 +31,10 @@ public final class TraverseSyncToRemote {
   private TraverseSyncToRemote() {}
 
   @UIEffect
-  static void syncBranchToRemote(BaseEnhancedGraphTable graphTable,
-      GitRepository gitRepository,
-      IManagedBranchSnapshot gitMacheteBranch,
-      @UI Runnable traverseNextEntry) {
+  static void syncBranchToRemote(GitRepository gitRepository,
+       BaseEnhancedGraphTable graphTable,
+       IManagedBranchSnapshot gitMacheteBranch,
+       @UI Runnable traverseNextEntry) {
     val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     val localBranchName = gitMacheteBranch.getName();
     val localBranch = gitRepository.getBranches().findLocalBranch(localBranchName);
