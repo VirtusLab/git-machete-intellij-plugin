@@ -105,6 +105,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             // doesn't see accesses to static fields
             "com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
+        .and()
+        .doNotBelongToAnyOf(com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToParent.class,
+            com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToRemote.class)
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
