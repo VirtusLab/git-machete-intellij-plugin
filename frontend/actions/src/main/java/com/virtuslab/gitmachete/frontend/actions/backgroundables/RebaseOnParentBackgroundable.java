@@ -98,7 +98,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     try {
       gitRebaseParameters = branchToRebase.getParametersForRebaseOntoParent();
       LOG.debug(() -> "Queuing the machete-pre-rebase hook and the rebase background task for branch " +
-              "'${branchToRebase.getName()}");
+          "'${branchToRebase.getName()}");
     } catch (GitMacheteMissingForkPointException e) {
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
