@@ -32,9 +32,18 @@ public final class TraverseSyncToRemote {
 
   @UIEffect
   static void syncBranchToRemote(GitRepository gitRepository,
-       BaseEnhancedGraphTable graphTable,
-       IManagedBranchSnapshot gitMacheteBranch,
-       @UI Runnable traverseNextEntry) {
+      BaseEnhancedGraphTable graphTable,
+      IManagedBranchSnapshot gitMacheteBranchOld,
+      @UI Runnable traverseNextEntry) {
+    // we need to re-retrieve the gitMacheteBranch as its syncToRemote status could have changed after TraverseSyncToParent
+    val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
+    val gitMacheteBranch = repositorySnapshot != null
+        ? repositorySnapshot.getManagedBranchByName(gitMacheteBranchOld.getName())
+        : null;
+    if (gitMacheteBranch == null) {
+      return;
+    }
+
     val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     val localBranchName = gitMacheteBranch.getName();
     val localBranch = gitRepository.getBranches().findLocalBranch(localBranchName);
@@ -173,6 +182,7 @@ public final class TraverseSyncToRemote {
                 .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
             : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
         val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
+        // t0d0: ensure that the ff merge and further traversal happen in right order!
         FastForwardMerge.createBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix).queue();
         break;
 
