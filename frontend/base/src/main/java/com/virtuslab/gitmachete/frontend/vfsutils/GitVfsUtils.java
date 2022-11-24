@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.vfsutils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,7 +10,6 @@ import java.nio.file.attribute.FileTime;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GitVfsUtils {
@@ -84,8 +84,12 @@ public final class GitVfsUtils {
    * @return {@link Long} stating for time of last modification in milliseconds since the Unix epoch start if attributes were read successfully; otherwise, null
    */
   public static @Nullable Long getFileModificationDate(Path filePath) {
-    return Try.of(() -> Files.readAttributes(filePath, BasicFileAttributes.class))
-        .map(attr -> attr.lastModifiedTime().toMillis()).getOrNull();
+    try {
+      BasicFileAttributes fileAtributes = Files.readAttributes(filePath, BasicFileAttributes.class);
+      return fileAtributes.lastModifiedTime().toMillis();
+    } catch (IOException e) {
+      return null;
+    }
   }
 
   /**
@@ -94,6 +98,10 @@ public final class GitVfsUtils {
    * @return {@link Path} stating for the given file if the modification date was set successfully; otherwise, null
    */
   public static @Nullable Path setFileModificationDate(Path filePath, long millis) {
-    return Try.of(() -> Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis))).getOrNull();
+    try {
+      return Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis));
+    } catch (IOException e) {
+      return null;
+    }
   }
 }

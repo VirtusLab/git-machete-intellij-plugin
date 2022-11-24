@@ -88,16 +88,24 @@ public final class GitCoreRepository implements IGitCoreRepository {
     val builderForMainGitDir = new FileRepositoryBuilder();
     builderForMainGitDir.setWorkTree(rootDirectoryPath.toFile());
     builderForMainGitDir.setGitDir(mainGitDirectoryPath.toFile());
-    this.jgitRepoForMainGitDir = Try.of(() -> builderForMainGitDir.build()).getOrElseThrow(
-        e -> new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
-            "rootDirectoryPath=${rootDirectoryPath}, mainGitDirectoryPath=${mainGitDirectoryPath}", e));
+
+    try {
+      this.jgitRepoForMainGitDir = builderForMainGitDir.build();
+    } catch (IOException e) {
+      throw new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
+          "rootDirectoryPath=${rootDirectoryPath}, mainGitDirectoryPath=${mainGitDirectoryPath}", e);
+    }
 
     val builderForWorktreeGitDir = new FileRepositoryBuilder();
     builderForWorktreeGitDir.setWorkTree(rootDirectoryPath.toFile());
     builderForWorktreeGitDir.setGitDir(worktreeGitDirectoryPath.toFile());
-    this.jgitRepoForWorktreeGitDir = Try.of(() -> builderForWorktreeGitDir.build()).getOrElseThrow(
-        e -> new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
-            "rootDirectoryPath=${rootDirectoryPath}, worktreeGitDirectoryPath=${worktreeGitDirectoryPath}", e));
+
+    try {
+      this.jgitRepoForWorktreeGitDir = builderForWorktreeGitDir.build();
+    } catch (IOException e) {
+      throw new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
+          "rootDirectoryPath=${rootDirectoryPath}, worktreeGitDirectoryPath=${worktreeGitDirectoryPath}", e);
+    }
 
     LOG.debug(() -> "Created ${this})");
   }
@@ -162,13 +170,20 @@ public final class GitCoreRepository implements IGitCoreRepository {
     // the branch name (for `refs/heads/<branch_name>`)
     for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
       val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
-      if (Try.of(() -> jgitRepoForMainGitDir.resolve(testedPrefix)).getOrNull() != null) {
-        return false;
-      }
+      try {
+        val objectID = jgitRepoForMainGitDir.resolve(testedPrefix);
+        if (objectID != null) {
+          return false;
+        }
+      } catch (IOException ignored) {}
     }
 
-    // test below is executed for the actual branch name
-    return Try.of(() -> jgitRepoForMainGitDir.resolve(branchFullName)).getOrNull() != null;
+    try {
+      // test below is executed for the actual branch name
+      return jgitRepoForMainGitDir.resolve(branchFullName) != null;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   private GitCoreCommit convertExistingRevisionToGitCoreCommit(String revision) throws GitCoreException {
@@ -209,41 +224,43 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   @Override
   public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
-    Ref ref = Try.of(() -> jgitRepoForWorktreeGitDir.getRefDatabase().findRef(Constants.HEAD))
-        .getOrElseThrow(e -> new GitCoreException("Cannot get current branch", e));
+    try {
+      Ref ref = jgitRepoForWorktreeGitDir.getRefDatabase().findRef(Constants.HEAD);
 
-    if (ref == null) {
-      throw new GitCoreException("Error occurred while getting current branch ref");
-    }
-
-    // Unlike branches which are shared between all worktrees, HEAD is defined on per-worktree basis.
-    val reflog = deriveReflogByRefFullName(Constants.HEAD, jgitRepoForWorktreeGitDir);
-
-    String currentBranchName = null;
-
-    if (ref.isSymbolic()) {
-      currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
-    } else {
-      Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
-          .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
-          .find(path -> path.toFile().isFile());
-
-      if (headNamePath.isDefined()) {
-        currentBranchName = Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
-            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting current branch ref", e))
-            .headOption()
-            .map(Repository::shortenRefName)
-            .getOrNull();
+      if (ref == null) {
+        throw new GitCoreException("Error occurred while getting current branch ref");
       }
-    }
 
-    IGitCoreLocalBranchSnapshot targetBranch;
-    if (currentBranchName != null) {
-      targetBranch = deriveLocalBranchByName(currentBranchName);
-    } else {
-      targetBranch = null;
+      // Unlike branches which are shared between all worktrees, HEAD is defined on per-worktree basis.
+      val reflog = deriveReflogByRefFullName(Constants.HEAD, jgitRepoForWorktreeGitDir);
+
+      String currentBranchName = null;
+
+      if (ref.isSymbolic()) {
+        currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
+      } else {
+        Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
+            .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
+            .find(path -> path.toFile().isFile());
+
+        if (headNamePath.isDefined()) {
+          currentBranchName = Stream.ofAll(Files.readAllLines(headNamePath.get()))
+              .headOption()
+              .map(Repository::shortenRefName)
+              .getOrNull();
+        }
+      }
+
+      IGitCoreLocalBranchSnapshot targetBranch;
+      if (currentBranchName != null) {
+        targetBranch = deriveLocalBranchByName(currentBranchName);
+      } else {
+        targetBranch = null;
+      }
+      return new GitCoreHeadSnapshot(targetBranch, reflog);
+    } catch (IOException e) {
+      throw new GitCoreException("Cannot get current branch", e);
     }
-    return new GitCoreHeadSnapshot(targetBranch, reflog);
   }
 
   private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName, Repository repository)
@@ -294,14 +311,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
       return null;
     }
 
-    val remoteBranch = Try.of(() -> deriveRemoteBranchForLocalBranch(localBranchName)).getOrNull();
-    val localBranch = new GitCoreLocalBranchSnapshot(
+    val remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName);
+
+    return new GitCoreLocalBranchSnapshot(
         localBranchName,
         convertExistingRevisionToGitCoreCommit(localBranchFullName),
         deriveReflogByRefFullName(localBranchFullName, jgitRepoForMainGitDir),
         remoteBranch);
-
-    return localBranch;
   }
 
   private @Nullable GitCoreRemoteBranchSnapshot deriveRemoteBranchByName(
@@ -359,12 +375,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
     Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
         .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
         .find(path -> path.toFile().isFile());
-    return !headNamePath.isEmpty()
-        ? Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath.get())))
-            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting currently rebased branch name", e))
-            .headOption()
-            .map(Repository::shortenRefName).getOrNull()
-        : null;
+
+    try {
+      return headNamePath.isDefined()
+          ? Stream.ofAll(Files.readAllLines(headNamePath.get()))
+              .headOption()
+              .map(Repository::shortenRefName).getOrNull()
+          : null;
+    } catch (IOException e) {
+      throw new GitCoreException("Error occurred while getting currently rebased branch name", e);
+    }
   }
 
   @UIThreadUnsafe
@@ -372,27 +392,40 @@ public final class GitCoreRepository implements IGitCoreRepository {
   public @Nullable String deriveBisectedBranch() throws GitCoreException {
     Path headNamePath = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("BISECT_START");
 
-    return headNamePath.toFile().isFile()
-        ? Try.of(() -> Stream.ofAll(Files.readAllLines(headNamePath)))
-            .getOrElseThrow(e -> new GitCoreException("Error occurred while getting currently bisected branch name", e))
-            .headOption()
-            .map(Repository::shortenRefName).getOrNull()
-        : null;
+    try {
+      return headNamePath.toFile().isFile()
+          ? Stream.ofAll(Files.readAllLines(headNamePath))
+              .headOption()
+              .map(Repository::shortenRefName).getOrNull()
+          : null;
+    } catch (IOException e) {
+      throw new GitCoreException("Error occurred while getting currently bisected branch name", e);
+    }
   }
 
   private @Nullable GitCoreRemoteBranchSnapshot deriveRemoteBranchForLocalBranch(String localBranchName) {
     val configuredRemoteBranchForLocalBranch = deriveConfiguredRemoteBranchForLocalBranch(localBranchName);
-    return configuredRemoteBranchForLocalBranch != null
-        ? configuredRemoteBranchForLocalBranch
-        : Try.of(() -> deriveInferredRemoteBranchForLocalBranch(localBranchName)).getOrNull();
+
+    try {
+      return configuredRemoteBranchForLocalBranch != null
+          ? configuredRemoteBranchForLocalBranch
+          : deriveInferredRemoteBranchForLocalBranch(localBranchName);
+    } catch (GitCoreException ignored) {}
+    return null;
   }
 
   private @Nullable GitCoreRemoteBranchSnapshot deriveConfiguredRemoteBranchForLocalBranch(String localBranchName) {
     val remoteName = deriveConfiguredRemoteNameForLocalBranch(localBranchName);
     val remoteShortBranchName = remoteName != null ? deriveConfiguredRemoteBranchNameForLocalBranch(localBranchName) : null;
-    return remoteShortBranchName != null && remoteName != null
-        ? Try.of(() -> deriveRemoteBranchByName(remoteName, remoteShortBranchName)).getOrNull()
-        : null;
+
+    try {
+      if (remoteShortBranchName != null && remoteName != null) {
+        return deriveRemoteBranchByName(remoteName, remoteShortBranchName);
+      }
+
+    } catch (GitCoreException ignored) {}
+
+    return null;
   }
 
   private @Nullable String deriveConfiguredRemoteNameForLocalBranch(String localBranchName) {

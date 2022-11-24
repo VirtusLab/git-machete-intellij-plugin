@@ -1,7 +1,6 @@
 package com.virtuslab.gitcore.api;
 
 import io.vavr.collection.List;
-import io.vavr.control.Try;
 import lombok.val;
 import org.checkerframework.checker.interning.qual.FindDistinct;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -40,11 +39,11 @@ public interface IGitCoreBranchSnapshot {
     } else {
       val o = (IGitCoreBranchSnapshot) other;
       return self.getFullName().equals(o.getFullName())
-          && Try.of(() -> self.getPointedCommit().equals(o.getPointedCommit())).getOrElse(false);
+          && self.getPointedCommit().equals(o.getPointedCommit());
     }
   }
 
   static int defaultHashCode(IGitCoreBranchSnapshot self) {
-    return self.getFullName().hashCode() * 37 + Try.of(() -> self.getPointedCommit().hashCode()).getOrElse(0);
+    return self.getFullName().hashCode() * 37 + self.getPointedCommit().hashCode();
   }
 }

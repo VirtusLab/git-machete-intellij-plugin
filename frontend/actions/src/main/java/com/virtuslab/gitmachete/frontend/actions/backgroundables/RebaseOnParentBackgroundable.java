@@ -26,6 +26,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
@@ -93,17 +94,19 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    val tryGitRebaseParameters = Try.of(branchToRebase::getParametersForRebaseOntoParent);
-    if (tryGitRebaseParameters.isFailure()) {
-      val e = tryGitRebaseParameters.getCause();
+    IGitRebaseParameters gitRebaseParameters;
+    try {
+      gitRebaseParameters = branchToRebase.getParametersForRebaseOntoParent();
+      LOG.debug(() -> "Queuing the machete-pre-rebase hook and the rebase background task for branch " +
+          "'${branchToRebase.getName()}");
+    } catch (GitMacheteMissingForkPointException e) {
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
+
       return;
     }
-    val gitRebaseParameters = tryGitRebaseParameters.get();
-    LOG.debug(() -> "Queuing machete-pre-rebase hooks background task for '${branchToRebase.getName()}' branch");
 
     final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(
         Try.success(null));
@@ -128,11 +131,10 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
       return;
     }
 
-    val maybeExecutionResult = hookResult.get();
-    if (maybeExecutionResult != null && maybeExecutionResult.getExitCode() != 0) {
-      val message = "machete-pre-rebase hooks refused to rebase (exit code ${maybeExecutionResult.getExitCode()})";
+    val executionResult = hookResult.get();
+    if (executionResult != null && executionResult.getExitCode() != 0) {
+      val message = "machete-pre-rebase hooks refused to rebase (exit code ${executionResult.getExitCode()})";
       LOG.error(message);
-      val executionResult = maybeExecutionResult;
       val stdoutOption = executionResult.getStdout();
       val stderrOption = executionResult.getStderr();
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
@@ -160,5 +162,4 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     }
     GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);
   }
-
 }

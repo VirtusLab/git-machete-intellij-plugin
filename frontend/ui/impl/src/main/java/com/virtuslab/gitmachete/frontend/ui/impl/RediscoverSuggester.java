@@ -14,7 +14,6 @@ import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -24,6 +23,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -136,19 +136,17 @@ public class RediscoverSuggester {
     Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
     Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
-    val discoverRunResult = Try.of(() -> RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
-        .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot());
+    try {
+      val discoverRunResult = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot();
 
-    if (discoverRunResult.isSuccess()) {
-      try {
-        val currentBranchLayout = ReadAction
-            .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
+      val currentBranchLayout = ReadAction
+          .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
 
-        val discoveredBranchLayout = discoverRunResult.get().getBranchLayout();
+      val discoveredBranchLayout = discoverRunResult.getBranchLayout();
 
-        return discoveredBranchLayout.equals(currentBranchLayout);
-      } catch (BranchLayoutException ignored) {}
-    }
+      return discoveredBranchLayout.equals(currentBranchLayout);
+    } catch (GitMacheteException | BranchLayoutException ignored) {}
 
     return false;
   }
