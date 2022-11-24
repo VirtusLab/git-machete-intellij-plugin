@@ -94,7 +94,7 @@ public final class TraverseSyncToParent {
             break;
 
           default :
-            break;
+            return;
         }
         break;
 
