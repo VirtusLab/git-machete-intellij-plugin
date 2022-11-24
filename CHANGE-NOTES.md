@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.0
+- Dropped support for IntelliJ 2022.2.
+
 ## v3.7.0
 - Added: an option to the branch rename dialog allowing to keep or discard the remote tracking branch info.
 - Added: extra backup keyboard shortcut (`Ctrl + Option + Shift + M`) for opening Git Machete tab on macOS,

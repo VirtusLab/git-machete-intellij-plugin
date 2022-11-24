@@ -6,9 +6,6 @@ import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.builder.*
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot
-import com.virtuslab.gitmachete.frontend.actions.compat.buttonsGroupCompat
-import com.virtuslab.gitmachete.frontend.actions.compat.commentCompat
-import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
@@ -53,7 +50,7 @@ class OverrideForkPointDialog(
     }
 
   override fun createCenterPanel() = panel {
-    rowCompat {
+    row {
       if (branch.name.escapeHtml4() != branch.name) {
         label(
           fmt(
@@ -75,8 +72,8 @@ class OverrideForkPointDialog(
       }
     }
 
-    val radioButtonsGroup = buttonsGroupCompat {
-      rowCompat {
+    val radioButtonsGroup = buttonsGroup {
+      row {
         radioButton(
           fmt(
             getString(
@@ -86,12 +83,12 @@ class OverrideForkPointDialog(
           ),
           OverrideOption.PARENT,
         )
-          .commentCompat(escapeHtml4(parent.pointedCommit.shortMessage))
+          .comment(escapeHtml4(parent.pointedCommit.shortMessage))
       }
 
       val forkPoint = branch.forkPoint
       if (forkPoint != null) {
-        rowCompat {
+        row {
           radioButton(
             fmt(
               getString(
@@ -101,14 +98,14 @@ class OverrideForkPointDialog(
             ),
             OverrideOption.INFERRED,
           )
-            .commentCompat(escapeHtml4(forkPoint.shortMessage))
+            .comment(escapeHtml4(forkPoint.shortMessage))
         }
       }
 
       val commits = branch.commitsUntilParent + listOf(branch.forkPoint, parent.pointedCommit)
       val comboItems = commits.filterNotNull().distinct().reversed()
       if (comboItems.isNotEmpty()) {
-        rowCompat {
+        row {
           val customCommitRadioButton: Cell<JBRadioButton> = radioButton(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom",
