@@ -100,7 +100,7 @@ public final class TraverseSyncToRemote {
         break;
 
       default :
-        break;
+        return false;
     }
     return true;
   }
@@ -126,7 +126,7 @@ public final class TraverseSyncToRemote {
         break;
 
       default :
-        break;
+        return false;
     }
     return true;
   }
@@ -155,7 +155,7 @@ public final class TraverseSyncToRemote {
         break;
 
       default :
-        break;
+        return false;
     }
     return true;
   }
@@ -190,7 +190,7 @@ public final class TraverseSyncToRemote {
         break;
 
       default :
-        break;
+        return false;
     }
     return true;
   }
