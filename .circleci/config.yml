@@ -237,7 +237,7 @@ jobs:
                   change_notes=$(./gradlew getChangelog --no-header -q)
                   gh release create \
                     $tag \
-                    "$(./gradlew -q printSignedPluginZipPath)" \
+                    "$(./gradlew -q printPluginZipPath)" \
                     --title "$tag" \
                     --notes "$change_notes"
                   scripts/close-milestone $corresponding_milestone_title
