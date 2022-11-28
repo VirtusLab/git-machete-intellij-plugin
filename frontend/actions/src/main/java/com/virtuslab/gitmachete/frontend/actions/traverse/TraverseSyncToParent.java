@@ -12,10 +12,8 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.OverrideForkPointBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -51,18 +49,6 @@ public final class TraverseSyncToParent {
         return;
 
       case InSyncButForkPointOff :
-        val selectedCommit = new OverrideForkPointDialog(project, gitMacheteBranch).showAndGetSelectedCommit();
-        new OverrideForkPointBackgroundable(getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
-            gitRepository, gitMacheteBranch, graphTable, selectedCommit) {
-          @Override
-          public void onSuccess() {
-            graphTable.queueRepositoryUpdateAndModelRefresh(
-                () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry));
-          }
-        }
-            .queue();
-        return;
-
       case OutOfSync :
         val nonRootBranch = gitMacheteBranch.asNonRoot();
         val rebaseDialog = MessageDialogBuilder.yesNoCancel(
