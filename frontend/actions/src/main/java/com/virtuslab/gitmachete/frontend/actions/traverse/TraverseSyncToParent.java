@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
-import static com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToRemote.syncBranchToRemote;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.project.Project;
@@ -21,34 +20,46 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
-public final class TraverseSyncToParent {
+public class TraverseSyncToParent {
 
-  private TraverseSyncToParent() {}
+  private final Project project;
+  private final GitRepository gitRepository;
+  private final BaseEnhancedGraphTable graphTable;
+  private final IGitMacheteRepositorySnapshot repositorySnapshot;
+  private final INonRootManagedBranchSnapshot gitMacheteBranch;
+  private final @UI Runnable traverseNextEntry;
 
-  @UIEffect
-  static void syncBranchToParent(GitRepository gitRepository,
+  public TraverseSyncToParent(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot gitMacheteBranch,
       @UI Runnable traverseNextEntry) {
-    val syncToParentStatus = gitMacheteBranch.getSyncToParentStatus();
-    val project = gitRepository.getProject();
-    @UI Runnable syncToRemoteRunnable = () -> syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch,
-        traverseNextEntry);
+    this.project = gitRepository.getProject();
+    this.gitRepository = gitRepository;
+    this.graphTable = graphTable;
+    this.repositorySnapshot = repositorySnapshot;
+    this.gitMacheteBranch = gitMacheteBranch;
+    this.traverseNextEntry = traverseNextEntry;
+  }
 
-    switch (syncToParentStatus) {
+  @UIEffect
+  public void sync() {
+    @UI Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch,
+        traverseNextEntry)::sync;
+
+    switch (gitMacheteBranch.getSyncToParentStatus()) {
       case MergedToParent :
-        if (!handleMergedToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch, traverseNextEntry,
-            project)) {
+        if (!handleMergedToParent()) {
           return;
         }
+        break;
 
       case InSyncButForkPointOff :
       case OutOfSync :
-        if (!handleOutOfSyncOrInSyncButForkPointOff(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch,
-            syncToRemoteRunnable, project)) {
+        if (!handleOutOfSyncOrInSyncButForkPointOff(syncToRemoteRunnable)) {
           return;
         }
+        break;
 
       default :
         break;
@@ -58,12 +69,7 @@ public final class TraverseSyncToParent {
   }
 
   @UIEffect
-  private static boolean handleMergedToParent(GitRepository gitRepository,
-      BaseEnhancedGraphTable graphTable,
-      IGitMacheteRepositorySnapshot repositorySnapshot,
-      INonRootManagedBranchSnapshot gitMacheteBranch,
-      @UI Runnable traverseNextEntry,
-      Project project) {
+  private boolean handleMergedToParent() {
     val branchLayout = repositorySnapshot.getBranchLayout();
     val currentBranchIfManaged = repositorySnapshot.getCurrentBranchIfManaged();
     val slideOutDialog = MessageDialogBuilder.yesNoCancel(
@@ -94,12 +100,7 @@ public final class TraverseSyncToParent {
   }
 
   @UIEffect
-  private static boolean handleOutOfSyncOrInSyncButForkPointOff(GitRepository gitRepository,
-      BaseEnhancedGraphTable graphTable,
-      IGitMacheteRepositorySnapshot repositorySnapshot,
-      INonRootManagedBranchSnapshot gitMacheteBranch,
-      @UI Runnable syncToRemoteRunnable,
-      Project project) {
+  private boolean handleOutOfSyncOrInSyncButForkPointOff(@UI Runnable syncToRemoteRunnable) {
     val rebaseDialog = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.TraverseAction.dialog.diverged-from-parent.title"),
         getString(

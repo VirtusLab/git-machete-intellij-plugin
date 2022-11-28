@@ -4,16 +4,19 @@ import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTime
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import git4idea.GitLocalBranch;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
@@ -26,21 +29,35 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 
 @ExtensionMethod(GitMacheteBundle.class)
-public final class TraverseSyncToRemote {
+@CustomLog
+public class TraverseSyncToRemote {
 
-  private TraverseSyncToRemote() {}
+  private final Project project;
+  private final GitRepository gitRepository;
+  private final BaseEnhancedGraphTable graphTable;
+  private final IBranchReference gitMacheteBranchOld;
+  private final @UI Runnable traverseNextEntry;
 
-  @UIEffect
-  static void syncBranchToRemote(GitRepository gitRepository,
+  public TraverseSyncToRemote(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
       IManagedBranchSnapshot gitMacheteBranchOld,
       @UI Runnable traverseNextEntry) {
+    this.project = gitRepository.getProject();
+    this.gitRepository = gitRepository;
+    this.graphTable = graphTable;
+    this.gitMacheteBranchOld = gitMacheteBranchOld;
+    this.traverseNextEntry = traverseNextEntry;
+  }
+
+  @UIEffect
+  public void sync() {
     // we need to re-retrieve the gitMacheteBranch as its syncToRemote status could have changed after TraverseSyncToParent
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     val gitMacheteBranch = repositorySnapshot != null
         ? repositorySnapshot.getManagedBranchByName(gitMacheteBranchOld.getName())
         : null;
     if (gitMacheteBranch == null) {
+      LOG.warn("gitMacheteBranch is null");
       return;
     }
 
@@ -48,29 +65,32 @@ public final class TraverseSyncToRemote {
     val localBranchName = gitMacheteBranch.getName();
     val localBranch = gitRepository.getBranches().findLocalBranch(localBranchName);
     if (localBranch == null) {
+      LOG.warn("localBranch is null");
       return;
     }
+
     switch (syncToRemoteStatus) {
       case Untracked :
-        if (!handleUntracked(gitRepository, gitMacheteBranch, localBranch)) {
+        if (!handleUntracked(gitMacheteBranch, localBranch)) {
           return;
         }
         break;
+
       case AheadOfRemote :
-        if (!handleAheadOfRemote(gitRepository, gitMacheteBranch, localBranch)) {
+        if (!handleAheadOfRemote(gitMacheteBranch, localBranch)) {
           return;
         }
         break;
 
       case DivergedFromAndOlderThanRemote :
       case DivergedFromAndNewerThanRemote :
-        if (!handleDivergedFromRemote(gitRepository, gitMacheteBranch, syncToRemoteStatus, localBranch)) {
+        if (!handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch)) {
           return;
         }
         break;
 
       case BehindRemote :
-        if (!handleBehindRemote(gitRepository, gitMacheteBranch)) {
+        if (!handleBehindRemote(gitMacheteBranch)) {
           return;
         }
         break;
@@ -78,13 +98,11 @@ public final class TraverseSyncToRemote {
       default :
         break;
     }
-    graphTable.queueRepositoryUpdateAndModelRefresh(() -> traverseNextEntry.run());
+    graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
   }
 
   @UIEffect
-  private static boolean handleUntracked(GitRepository gitRepository, IManagedBranchSnapshot gitManagedBranch,
-      GitLocalBranch localBranch) {
-    val project = gitRepository.getProject();
+  private boolean handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.TraverseAction.dialog.push-verification.title"),
         getString("action.GitMachete.TraverseAction.dialog.push-verification.untracked.text.HTML")
@@ -106,9 +124,7 @@ public final class TraverseSyncToRemote {
   }
 
   @UIEffect
-  private static boolean handleAheadOfRemote(GitRepository gitRepository, IManagedBranchSnapshot gitMacheteBranch,
-      GitLocalBranch localBranch) {
-    val project = gitRepository.getProject();
+  private boolean handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -132,9 +148,9 @@ public final class TraverseSyncToRemote {
   }
 
   @UIEffect
-  private static boolean handleDivergedFromRemote(GitRepository gitRepository, IManagedBranchSnapshot gitMacheteBranch,
-      SyncToRemoteStatus syncToRemoteStatus, GitLocalBranch localBranch) {
-    val project = gitRepository.getProject();
+  private boolean handleDivergedFromRemote(IManagedBranchSnapshot gitMacheteBranch,
+      SyncToRemoteStatus syncToRemoteStatus,
+      GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val selectedAction = new DivergedFromRemoteDialog(project, remoteTrackingBranch, gitMacheteBranch,
@@ -164,8 +180,7 @@ public final class TraverseSyncToRemote {
   }
 
   @UIEffect
-  private static boolean handleBehindRemote(GitRepository gitRepository, IManagedBranchSnapshot gitMacheteBranch) {
-    val project = gitRepository.getProject();
+  private boolean handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(

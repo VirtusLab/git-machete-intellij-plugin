@@ -1,8 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToParent.syncBranchToParent;
-import static com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToRemote.syncBranchToRemote;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -140,9 +138,10 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
       if (gitMacheteBranch.isNonRoot()) {
         assert repositorySnapshot != null : "repositorySnapshot is null";
-        syncBranchToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch.asNonRoot(), traverseNextEntry);
+        new TraverseSyncToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch.asNonRoot(), traverseNextEntry)
+            .sync();
       } else {
-        syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry);
+        new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry).sync();
       }
     }
   }
