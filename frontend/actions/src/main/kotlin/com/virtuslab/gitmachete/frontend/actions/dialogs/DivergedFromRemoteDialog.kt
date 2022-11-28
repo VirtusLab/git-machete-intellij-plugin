@@ -14,6 +14,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 
 enum class DivergeResolutionOption {
+  DO_NOT_SYNC,
   FORCE_PUSH,
   RESET_ON_REMOTE
 }
@@ -25,12 +26,13 @@ class DivergedFromRemoteDialog(
   private val relationToRemote: SyncToRemoteStatus
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
-  private var divergeResolutionOption = DivergeResolutionOption.FORCE_PUSH
+  private var divergeResolutionOption = DivergeResolutionOption.DO_NOT_SYNC
 
   init {
     title =
       getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.title")
     setOKButtonMnemonic('O'.code)
+    setCancelButtonText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"))
     super.init()
   }
 
@@ -55,6 +57,15 @@ class DivergedFromRemoteDialog(
       )
     }
     buttonsGroupCompat {
+      rowCompat {
+        radioButton(
+          getString(
+            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.do-not-resolve-option"
+          ),
+          DivergeResolutionOption.DO_NOT_SYNC
+        ).commentCompat(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.do-not-resolve-option.comment"))
+      }
+
       rowCompat {
         radioButton(
           getString(
