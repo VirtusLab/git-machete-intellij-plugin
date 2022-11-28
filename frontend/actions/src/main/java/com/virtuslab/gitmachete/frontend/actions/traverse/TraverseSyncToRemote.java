@@ -64,7 +64,7 @@ public final class TraverseSyncToRemote {
 
       case DivergedFromAndOlderThanRemote :
       case DivergedFromAndNewerThanRemote :
-        if (!handleDiverged(gitRepository, gitMacheteBranch, syncToRemoteStatus, localBranch)) {
+        if (!handleDivergedFromRemote(gitRepository, gitMacheteBranch, syncToRemoteStatus, localBranch)) {
           return;
         }
         break;
@@ -132,7 +132,7 @@ public final class TraverseSyncToRemote {
   }
 
   @UIEffect
-  private static boolean handleDiverged(GitRepository gitRepository, IManagedBranchSnapshot gitMacheteBranch,
+  private static boolean handleDivergedFromRemote(GitRepository gitRepository, IManagedBranchSnapshot gitMacheteBranch,
       SyncToRemoteStatus syncToRemoteStatus, GitLocalBranch localBranch) {
     val project = gitRepository.getProject();
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
@@ -154,6 +154,9 @@ public final class TraverseSyncToRemote {
             gitRepository);
         break;
 
+      case DO_NOT_SYNC :
+        return true;
+
       default :
         return false;
     }
@@ -168,7 +171,8 @@ public final class TraverseSyncToRemote {
     val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.TraverseAction.dialog.pull-verification.title"),
         getString("action.GitMachete.TraverseAction.dialog.pull-verification.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()));
+            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
+        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
 
     switch (pullApprovalDialogBuilder.show(project)) {
       case MessageConstants.YES :
@@ -182,7 +186,6 @@ public final class TraverseSyncToRemote {
                 .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
             : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
         val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-        // t0d0: ensure that the ff merge and further traversal happen in right order!
         FastForwardMerge.createBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix).queue();
         break;
 
