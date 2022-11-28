@@ -14,7 +14,8 @@ class InfoDialog(
   project: Project,
   title: @Untainted String,
   private val content: @Tainted String,
-  propertyKey: @Untainted String
+  propertyKey: @Untainted String,
+  private val myHeight: Int
 ) :
   DialogWrapper(project, /* canBeParent */ true) {
 
@@ -28,7 +29,7 @@ class InfoDialog(
   override fun createCenterPanel() = panel {
     rowCompat {
       label(content).applyToComponent {
-        preferredSize = Dimension(480, 200)
+        preferredSize = Dimension(480, myHeight)
       }
     }
   }
