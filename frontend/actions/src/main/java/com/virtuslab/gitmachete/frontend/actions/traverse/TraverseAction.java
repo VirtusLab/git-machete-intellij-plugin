@@ -98,9 +98,30 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     @UI Runnable traverseRunnable = () -> traverse(gitRepository, graphTable, branchName);
     Runnable repositoryRefreshRunnable = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseRunnable);
     Runnable callInAwtLater = () -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, repositoryRefreshRunnable);
-    val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
-    val repositories = Collections.singletonList(gitRepository);
-    gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, callInAwtLater);
+    if (needsCheckout(graphTable, branchName)) {
+      val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
+      val repositories = Collections.singletonList(gitRepository);
+      gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, callInAwtLater);
+    } else {
+      callInAwtLater.run();
+    }
+  }
+
+  private boolean needsCheckout(BaseEnhancedGraphTable graphTable, String branchName) {
+    val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
+    val gitMacheteBranch = repositorySnapshot != null ? repositorySnapshot.getManagedBranchByName(branchName) : null;
+    if (gitMacheteBranch != null) {
+      if (gitMacheteBranch.isNonRoot()) {
+        switch (gitMacheteBranch.asNonRoot().getSyncToParentStatus()) {
+          case OutOfSync :
+          case InSyncButForkPointOff :
+            return true;
+          default :
+            return false;
+        }
+      }
+    }
+    return false;
   }
 
   @UIEffect
