@@ -57,6 +57,9 @@ tasks.register("printPluginZipPath") {
   }
 }
 tasks.register("printSignedPluginZipPath") {
+  // Required to prevent https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1358
+  dependsOn(":buildPlugin")
+
   doLast {
     val signPlugin = tasks.findByPath(":signPlugin")!!
     println(signPlugin.outputs.files.first().path)
