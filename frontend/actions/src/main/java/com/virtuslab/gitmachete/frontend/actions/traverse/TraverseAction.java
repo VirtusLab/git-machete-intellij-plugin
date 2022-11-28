@@ -118,7 +118,8 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       };
 
       if (gitMacheteBranch.isNonRoot()) {
-        syncBranchToParent(gitRepository, graphTable, gitMacheteBranch.asNonRoot(), traverseNextEntry);
+        assert repositorySnapshot != null : "repositorySnapshot is null";
+        syncBranchToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch.asNonRoot(), traverseNextEntry);
       } else {
         syncBranchToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry);
       }
