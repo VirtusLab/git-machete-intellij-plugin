@@ -148,7 +148,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       val resetInfoDialog = new InfoDialog(project,
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
           content,
-          SHOW_RESET_INFO);
+          SHOW_RESET_INFO,
+          /* myHeight */ 200);
 
       if (!resetInfoDialog.showAndGet()) {
         return;
