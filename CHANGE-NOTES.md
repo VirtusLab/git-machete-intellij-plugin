@@ -2,6 +2,8 @@
 
 ## v3.2.2
 - Improve CI build stability.
+- Enhance the (Force) Push dialog with the default help action, the push tags option and the title indicating the repository.
+- Improve the stability and reliability of the plugin.
 
 ## v3.2.1
 - Fixed the issue with the unmanaged branch notification showing up after adding a branch from an external (non-IntelliJ) terminal.
