@@ -103,13 +103,13 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
 
   @UIEffect
   private void doPush(Project project,
-      GitRepository preselectedRepository,
+      GitRepository repository,
       String branchName,
       boolean isForcePushRequired) {
-    @Nullable GitLocalBranch localBranch = preselectedRepository.getBranches().findLocalBranch(branchName);
+    @Nullable GitLocalBranch localBranch = repository.getBranches().findLocalBranch(branchName);
 
     if (localBranch != null) {
-      new GitPushDialog(project, List.of(preselectedRepository), GitPushSource.create(localBranch), isForcePushRequired).show();
+      new GitPushDialog(project, repository, GitPushSource.create(localBranch), isForcePushRequired).show();
     } else {
       log().warn("Skipping the action because provided branch ${branchName} was not found in repository");
     }
