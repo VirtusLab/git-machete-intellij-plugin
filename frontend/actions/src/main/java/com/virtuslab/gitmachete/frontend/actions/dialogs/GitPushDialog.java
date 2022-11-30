@@ -11,7 +11,6 @@ import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.project.Project;
-import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -22,13 +21,14 @@ public final class GitPushDialog extends VcsPushDialog {
   @UIEffect
   public GitPushDialog(
       Project project,
-      List<? extends Repository> selectedRepositories,
+      Repository repository,
       PushSource pushSource,
       boolean isForcePushRequired) {
-    // Presented dialog shows commits for branches belonging to allRepositories, preselectedRepositories and currentRepo.
+    // Presented dialog shows commits for branches belonging to allRepositories, selectedRepositories and currentRepo.
     // The second and the third one have a higher priority of loading its commits.
     // From our perspective, we always have a single (pre-selected) repository, so we do not care about the priority.
-    super(project, selectedRepositories.asJava(), selectedRepositories.asJava(), /* currentRepo */ null, pushSource);
+    super(project, /* allRepositories */ java.util.List.of(repository),
+        /* selectedRepositories */ java.util.List.of(repository), /* currentRepo */ null, pushSource);
     this.isForcePushRequired = isForcePushRequired;
     this.pushAction = new PushSwingAction();
 

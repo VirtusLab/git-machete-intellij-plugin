@@ -13,6 +13,9 @@ fun Project.configureUiTests() {
   val isCI: Boolean by rootProject.extra
   val intellijVersions: IntellijVersions by rootProject.extra
 
+  tasks["compileUiTestScala"].finalizedBy("classpathIndexCleanup")
+  tasks["processUiTestResources"].finalizedBy("classpathIndexCleanup")
+
   val sourceSets = extensions["sourceSets"] as SourceSetContainer
   val uiTest = sourceSets["uiTest"]
   val uiTestsDir = "${System.getProperty("user.home")}/.ideprobe-uitests"
