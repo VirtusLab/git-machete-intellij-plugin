@@ -53,3 +53,13 @@ function extract_version_from_git_revision() {
 
   git show "$revision":version.gradle.kts | extract_version_from_gradle_file_stdin
 }
+
+if ! grep --perl-regexp --quiet 'foo(?=bar)' <<< foobar >/dev/null 2>/dev/null; then
+  error 'Your `grep` does not support `--perl-regexp` (`-P`) mode.'
+  die 'Check CONTRIBUTING.md -> Ctrl+F `grep`.'
+fi
+
+if ! git grep --perl-regexp --quiet 'foo(?=bar)' >/dev/null 2>/dev/null; then
+  error 'Your `git grep` does not support `--perl-regexp` (`-P`) mode.'
+  die 'Check CONTRIBUTING.md -> Ctrl+F `USE_LIBPCRE`.'
+fi
