@@ -79,7 +79,7 @@ You may want to add the following `export PATH="/opt/homebrew/Cellar/grep/<grep-
 
 It is possible that git `pre-commit` hook will raise the following error: <br/>
 `fatal: cannot use Perl-compatible regexes when not compiled with USE_LIBPCRE` <br/>
-This can be solved by compiling `git` with USE_LIBPCRE via `brew` using commands: <br/>
+This can be solved by compiling `git` with `USE_LIBPCRE` via `brew` using commands: <br/>
 ```shell
 brew install pcre
 export USE_LIBPCRE=yes
