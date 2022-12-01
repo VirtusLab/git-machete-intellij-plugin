@@ -44,7 +44,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
-    presentation.setDescription(getNonHtmlString("action.GitMachete.TraverseAction.description.text"));
+    presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.text"));
 
     val graphTable = getGraphTable(anActionEvent);
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
@@ -52,7 +52,7 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
     if (branchLayout == null || branchLayout.getRootEntries().isEmpty()) {
       presentation.setEnabled(false);
-      presentation.setDescription(getNonHtmlString("action.GitMachete.TraverseAction.description.empty-layout"));
+      presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.empty-layout"));
       return;
     }
   }
@@ -72,8 +72,8 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
 
         val traverseInfoDialog = new InfoDialog(
             project,
-            getString("action.GitMachete.TraverseAction.dialog.traverse-approval.title"),
-            getString("action.GitMachete.TraverseAction.dialog.traverse-approval.text.HTML"),
+            getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.title"),
+            getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.text.HTML"),
             SHOW_TRAVERSE_INFO,
             /* myHeight */ 100);
 

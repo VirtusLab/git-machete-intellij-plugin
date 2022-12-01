@@ -104,10 +104,10 @@ public class TraverseSyncToRemote {
   @UIEffect
   private boolean handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.TraverseAction.dialog.push-verification.title"),
-        getString("action.GitMachete.TraverseAction.dialog.push-verification.untracked.text.HTML")
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-verification.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-verification.untracked.text.HTML")
             .fmt(gitManagedBranch.getName()))
-        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
+        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case MessageConstants.YES :
@@ -128,10 +128,10 @@ public class TraverseSyncToRemote {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.TraverseAction.dialog.push-verification.title"),
-        getString("action.GitMachete.TraverseAction.dialog.push-verification.ahead.text.HTML")
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-verification.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-verification.ahead.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
+        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case MessageConstants.YES :
@@ -184,10 +184,10 @@ public class TraverseSyncToRemote {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.TraverseAction.dialog.pull-verification.title"),
-        getString("action.GitMachete.TraverseAction.dialog.pull-verification.text.HTML")
+        getString("action.GitMachete.BaseTraverseAction.dialog.pull-verification.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.pull-verification.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
+        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pullApprovalDialogBuilder.show(project)) {
       case MessageConstants.YES :

@@ -73,11 +73,11 @@ public class TraverseSyncToParent {
     val branchLayout = repositorySnapshot.getBranchLayout();
     val currentBranchIfManaged = repositorySnapshot.getCurrentBranchIfManaged();
     val slideOutDialog = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.TraverseAction.dialog.merged-to-parent.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title"),
         getString(
-            "action.GitMachete.TraverseAction.dialog.merged-to-parent.text.HTML").fmt(
+            "action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.text.HTML").fmt(
                 gitMacheteBranch.getName()))
-        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
+        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (slideOutDialog.show(project)) {
       case MessageConstants.YES :
@@ -102,12 +102,12 @@ public class TraverseSyncToParent {
   @UIEffect
   private boolean handleOutOfSyncOrInSyncButForkPointOff(@UI Runnable syncToRemoteRunnable) {
     val rebaseDialog = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.TraverseAction.dialog.diverged-from-parent.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-parent.title"),
         getString(
-            "action.GitMachete.TraverseAction.dialog.diverged-from-parent.text.HTML").fmt(
+            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-parent.text.HTML").fmt(
                 gitMacheteBranch.getName(),
                 gitMacheteBranch.getParent().getName()))
-        .cancelText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"));
+        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (rebaseDialog.show(project)) {
       case MessageConstants.YES :
