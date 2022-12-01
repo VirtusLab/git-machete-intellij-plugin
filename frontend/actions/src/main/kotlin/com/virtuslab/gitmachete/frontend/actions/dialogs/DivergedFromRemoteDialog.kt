@@ -30,9 +30,9 @@ class DivergedFromRemoteDialog(
 
   init {
     title =
-      getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.title")
+      getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.title")
     setOKButtonMnemonic('O'.code)
-    setCancelButtonText(getString("action.GitMachete.TraverseAction.dialog.cancel-traverse"))
+    setCancelButtonText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"))
     super.init()
   }
 
@@ -48,7 +48,7 @@ class DivergedFromRemoteDialog(
       label(
         fmt(
           getString(
-            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.text.HTML"
+            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.text.HTML"
           ),
           branch.name,
           remoteBranch.name,
@@ -60,28 +60,28 @@ class DivergedFromRemoteDialog(
       rowCompat {
         radioButton(
           getString(
-            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.do-not-resolve-option"
+            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.do-not-resolve-option"
           ),
           DivergeResolutionOption.DO_NOT_SYNC
-        ).commentCompat(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.do-not-resolve-option.comment"))
+        ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.do-not-resolve-option.comment"))
       }
 
       rowCompat {
         radioButton(
           getString(
-            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.force-push-option"
+            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.force-push-option"
           ),
           DivergeResolutionOption.FORCE_PUSH
-        ).commentCompat(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.force-push.comment"))
+        ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.force-push.comment"))
       }
 
       rowCompat {
         radioButton(
           getString(
-            "action.GitMachete.TraverseAction.dialog.diverged-from-remote.reset-option"
+            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
           ),
           DivergeResolutionOption.RESET_ON_REMOTE
-        ).commentCompat(getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+        ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
       }
     }
       .bind(
@@ -93,9 +93,9 @@ class DivergedFromRemoteDialog(
   private fun getRelationToRemoteDescription(): String =
     when (relationToRemote) {
       SyncToRemoteStatus.DivergedFromAndNewerThanRemote ->
-        getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.newer-than-remote")
+        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.newer-than-remote")
       SyncToRemoteStatus.DivergedFromAndOlderThanRemote ->
-        getString("action.GitMachete.TraverseAction.dialog.diverged-from-remote.older-than-remote")
+        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.older-than-remote")
       else -> { "" }
     }
 }
