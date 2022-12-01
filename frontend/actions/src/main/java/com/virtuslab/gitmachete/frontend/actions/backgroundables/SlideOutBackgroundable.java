@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
@@ -19,7 +20,6 @@ import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -30,11 +30,9 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
 public class SlideOutBackgroundable extends Task.Backgroundable {
 
@@ -75,8 +73,8 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       graphTable.queueRepositoryUpdateAndModelRefresh();
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML")
-              .fmt(branchToSlideOutName));
+          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML"),
+              branchToSlideOutName));
 
     } else {
       val root = gitRepository.getRoot();
@@ -106,9 +104,8 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
           }
         } else {
           val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
-          val message = getString(
-              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML")
-                  .fmt(branchName);
+          val message = fmt(getString(
+              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML"), branchName);
           VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
         }
       }
@@ -122,14 +119,14 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML")
-              .fmt(branchName));
+          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML"),
+              branchName));
       return;
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML")
-              .fmt(branchName));
+          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML"),
+              branchName));
     }
     graphTable.queueRepositoryUpdateAndModelRefresh();
   }
@@ -153,7 +150,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
             (exceptionMessage == null ? "" : ": " + exceptionMessage);
         LOG.error(errorMessage);
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
+            fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML"), branchName),
             exceptionMessage == null ? "" : exceptionMessage);
       }
     });
