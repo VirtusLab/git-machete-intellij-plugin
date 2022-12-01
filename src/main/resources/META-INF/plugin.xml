@@ -65,6 +65,12 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.TraverseFromSelectedAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.TraverseFromSelectedAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TRAVERSE">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.PullSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.PullSelectedAction"
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.PULL">
@@ -132,6 +138,12 @@
             <action id="GitMachete.OpenMacheteFileAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction"
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.EDIT">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
+
+            <action id="GitMachete.TraverseFromCurrentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.TraverseFromCurrentAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TRAVERSE">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
@@ -204,11 +216,6 @@
             <action id="GitMachete.HelpAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.HelpAction"
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.HELP">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
-            <action id="GitMachete.TraverseAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.traverse.TraverseAction">
                 <override-text place="GitMacheteToolbar"/>
             </action>
         </group>

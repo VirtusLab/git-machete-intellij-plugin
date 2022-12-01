@@ -19,15 +19,15 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
+import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
-public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implements IExpectsKeySelectedBranchName {
+public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAction implements IBranchNameProvider {
 
   @Override
   public LambdaLogger log() {
@@ -44,7 +44,8 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
     if (!presentation.isEnabledAndVisible()) {
       return;
     }
-    presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.text"));
+
+    presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description"));
 
     val graphTable = getGraphTable(anActionEvent);
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
@@ -81,10 +82,11 @@ public class TraverseAction extends BaseGitMacheteRepositoryReadyAction implemen
       }
 
       if (yesNoResult) {
-        var firstEntry = branchLayout.getRootEntries().headOption().getOrNull();
-        if (firstEntry != null) {
-          val firstEntryName = firstEntry.getName();
-          checkoutAndTraverse(gitRepository, graphTable, firstEntryName);
+        val entryName = getNameOfBranchUnderAction(anActionEvent);
+        if (entryName != null) {
+          checkoutAndTraverse(gitRepository, graphTable, entryName);
+        } else {
+          LOG.warn("Skipping traverse action because entryName is undefined");
         }
       }
     }

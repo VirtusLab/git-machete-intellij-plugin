@@ -29,7 +29,6 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
-  private static final String NL = System.lineSeparator();
 
   @Override
   public LambdaLogger log() {

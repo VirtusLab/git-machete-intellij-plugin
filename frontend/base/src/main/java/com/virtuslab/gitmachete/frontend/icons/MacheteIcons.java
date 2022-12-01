@@ -41,6 +41,8 @@ public final class MacheteIcons {
 
   public static final Icon TOGGLE_LISTING_COMMITS = loadIcon("toggleListingCommits");
 
+  public static final Icon TRAVERSE = loadIcon("traverse");
+
   private static Icon loadIcon(String basename) {
     return IconLoader.getIcon("/${basename}.svg", MacheteIcons.class);
   }
