@@ -167,7 +167,7 @@ public class TraverseSyncToRemote {
         new ResetCurrentToRemoteBackgroundable(
             getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
             /* canBeCancelled */ true, gitMacheteBranch.getName(), remoteTrackingBranch.getName(),
-            gitRepository);
+            gitRepository).queue();
         break;
 
       case DO_NOT_SYNC :
