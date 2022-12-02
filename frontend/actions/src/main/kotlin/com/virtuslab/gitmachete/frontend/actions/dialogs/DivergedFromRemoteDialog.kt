@@ -23,7 +23,8 @@ class DivergedFromRemoteDialog(
   project: Project,
   private val remoteBranch: IRemoteTrackingBranchReference,
   private val branch: IManagedBranchSnapshot,
-  private val relationToRemote: SyncToRemoteStatus
+  private val relationToRemote: SyncToRemoteStatus,
+  private val withResetOption: Boolean
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   private var divergeResolutionOption = DivergeResolutionOption.DO_NOT_SYNC
@@ -75,13 +76,15 @@ class DivergedFromRemoteDialog(
         ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.force-push.comment"))
       }
 
-      rowCompat {
-        radioButton(
-          getString(
-            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
-          ),
-          DivergeResolutionOption.RESET_ON_REMOTE
-        ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+      if (withResetOption) {
+        rowCompat {
+          radioButton(
+            getString(
+              "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
+            ),
+            DivergeResolutionOption.RESET_ON_REMOTE
+          ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+        }
       }
     }
       .bind(

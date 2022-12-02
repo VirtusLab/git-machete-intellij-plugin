@@ -83,8 +83,13 @@ public class TraverseSyncToRemote {
         break;
 
       case DivergedFromAndOlderThanRemote :
+        if (!handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch, /* withResetOption */ true)) {
+          return;
+        }
+        break;
+
       case DivergedFromAndNewerThanRemote :
-        if (!handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch)) {
+        if (!handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch, /* withResetOption */ false)) {
           return;
         }
         break;
@@ -150,11 +155,12 @@ public class TraverseSyncToRemote {
   @UIEffect
   private boolean handleDivergedFromRemote(IManagedBranchSnapshot gitMacheteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
-      GitLocalBranch localBranch) {
+      GitLocalBranch localBranch,
+      boolean withResetOption) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val selectedAction = new DivergedFromRemoteDialog(project, remoteTrackingBranch, gitMacheteBranch,
-        syncToRemoteStatus).showAndGetThePreferredAction();
+        syncToRemoteStatus, withResetOption).showAndGetThePreferredAction();
     if (selectedAction == null) {
       return false;
     }
