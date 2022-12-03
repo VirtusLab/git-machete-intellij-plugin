@@ -101,7 +101,7 @@ configure<SpotlessExtension> {
   kotlin {
     ktlint().editorConfigOverride(
       mapOf(
-        "disabled_rules" to "no-wildcard-imports,filename",
+        "ktlint_disabled_rules" to "no-wildcard-imports,filename",
         "indent_size" to 2
       )
     )
@@ -111,7 +111,7 @@ configure<SpotlessExtension> {
   kotlinGradle {
     ktlint().editorConfigOverride(
       mapOf(
-        "disabled_rules" to "no-wildcard-imports",
+        "ktlint_disabled_rules" to "no-wildcard-imports",
         "indent_size" to 2
       )
     )

@@ -49,8 +49,7 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20"
-# @pin TODO (#1129): resolve the mess around `disabled_rules`/`ktlint_disabled_rules` that happens on 6.11.0
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.10.0"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.12.0"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"

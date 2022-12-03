@@ -22,12 +22,12 @@ fun Project.configureSpotless() {
     }
 
     kotlin {
-      ktlint().editorConfigOverride(mapOf("disabled_rules" to "no-wildcard-imports,filename", "indent_size" to 2))
+      ktlint().editorConfigOverride(mapOf("ktlint_disabled_rules" to "no-wildcard-imports,filename", "indent_size" to 2))
       target("**/*.kt")
     }
 
     kotlinGradle {
-      ktlint().editorConfigOverride(mapOf("disabled_rules" to "no-wildcard-imports", "indent_size" to 2))
+      ktlint().editorConfigOverride(mapOf("ktlint_disabled_rules" to "no-wildcard-imports", "indent_size" to 2))
       target("**/*.gradle.kts")
     }
 
