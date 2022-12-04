@@ -3,7 +3,6 @@ import com.virtuslab.gitmachete.buildsrc.*
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import se.ascp.gradle.GradleVersionsFilterPlugin
 import java.util.Base64
 
@@ -182,9 +181,8 @@ allprojects {
     }
 
     testLogging {
-      events = setOf(TestLogEvent.FAILED)
       if (project.properties["printTestOutput"] != null) {
-        events.addAll(setOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
+        showStandardStreams = true
       }
 
       exceptionFormat = TestExceptionFormat.FULL

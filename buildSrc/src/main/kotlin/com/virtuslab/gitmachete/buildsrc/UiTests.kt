@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.buildsrc
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.provideDelegate
@@ -62,7 +61,7 @@ fun Project.configureUiTests() {
       environment("IDEPROBE_PATHS_LOG_EXPORT", "$uiTestsDir/idea-logs")
 
       testLogging {
-        events.addAll(listOf(TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR))
+        showStandardStreams = true
       }
     }
   }
