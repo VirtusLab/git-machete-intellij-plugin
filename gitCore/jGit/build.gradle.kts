@@ -7,6 +7,7 @@ junit()
 powerMock()
 lombok()
 slf4jLambdaApi()
+slf4jTestImpl()
 vavr()
 
 applyAliasingChecker()
