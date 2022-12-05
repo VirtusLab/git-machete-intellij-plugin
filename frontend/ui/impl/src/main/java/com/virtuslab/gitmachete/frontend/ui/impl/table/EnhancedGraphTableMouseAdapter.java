@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.virtuslab.gitmachete.frontend.defs.ActionIds.CHECK_OUT;
+import static com.virtuslab.gitmachete.frontend.defs.ActionIds.CHECK_OUT_SELECTED;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -80,7 +80,7 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
       e.consume();
       DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
       val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU, new Presentation(), dataContext);
-      actionManager.getAction(CHECK_OUT).actionPerformed(actionEvent);
+      actionManager.getAction(CHECK_OUT_SELECTED).actionPerformed(actionEvent);
     }
   }
 
