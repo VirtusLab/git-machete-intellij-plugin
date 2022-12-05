@@ -1,5 +1,6 @@
 package com.virtuslab.archunit;
 
+import static com.tngtech.archunit.core.domain.JavaModifier.SYNTHETIC;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -98,16 +99,14 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   public void all_classes_should_be_referenced() {
     val classesReferencedFromPluginXmlAttributes = extractAllClassesReferencedFromPluginXmlAttributes().toArray(Class[]::new);
     classes()
-        .that().resideOutsideOfPackages(
+        .that().doNotHaveModifier(SYNTHETIC)
+        .and().resideOutsideOfPackages(
             // Classes in *.impl.* packages may be instantiated via RuntimeBinding
             "..impl..",
             // For some reason, ArchUnit (com.tngtech.archunit.core.domain.JavaClass.getAccessesFromSelf)
             // doesn't see accesses to static fields
             "com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
-        .and()
-        .doNotBelongToAnyOf(com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToParent.class,
-            com.virtuslab.gitmachete.frontend.actions.traverse.TraverseSyncToRemote.class)
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())

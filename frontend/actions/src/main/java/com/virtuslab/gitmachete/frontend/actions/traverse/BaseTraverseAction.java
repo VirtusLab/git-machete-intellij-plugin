@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -8,7 +7,6 @@ import java.util.Collections;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.util.ModalityUiUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -82,47 +80,48 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
       }
 
       if (yesNoResult) {
-        val entryName = getNameOfBranchUnderAction(anActionEvent);
-        if (entryName != null) {
-          checkoutAndTraverse(gitRepository, graphTable, entryName);
+        val initialBranchName = getNameOfBranchUnderAction(anActionEvent);
+        if (initialBranchName != null) {
+          checkoutAndTraverseFrom(gitRepository, graphTable, initialBranchName);
         } else {
-          LOG.warn("Skipping traverse action because entryName is undefined");
+          LOG.warn("Skipping traverse action because initialBranchName is undefined");
         }
       }
     }
   }
 
-  private void checkoutAndTraverse(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
+  private void checkoutAndTraverseFrom(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
     log().debug(() -> "Queuing '${branchName}' branch checkout background task");
 
-    @UI Runnable traverseRunnable = () -> traverse(gitRepository, graphTable, branchName);
+    @UI Runnable traverseRunnable = () -> traverseFrom(gitRepository, graphTable, branchName);
     Runnable repositoryRefreshRunnable = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseRunnable);
-    Runnable callInAwtLater = () -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, repositoryRefreshRunnable);
     val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
     val repositories = Collections.singletonList(gitRepository);
-    gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, callInAwtLater);
+    gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, repositoryRefreshRunnable);
   }
 
   @UIEffect
-  private void traverse(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
+  private void traverseFrom(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
-    val branchLayout = repositorySnapshot != null ? repositorySnapshot.getBranchLayout() : null;
-    val gitMacheteBranch = repositorySnapshot != null ? repositorySnapshot.getManagedBranchByName(branchName) : null;
+    if (repositorySnapshot == null) {
+      return;
+    }
+    val branchLayout = repositorySnapshot.getBranchLayout();
+    val gitMacheteBranch = repositorySnapshot.getManagedBranchByName(branchName);
 
     if (gitMacheteBranch != null) {
-      @UI Runnable traverseNextEntry = () -> {
+      Runnable traverseNextEntry = () -> {
         var nextBranch = branchLayout != null ? branchLayout.findNextEntry(branchName) : null;
         if (nextBranch != null) {
-          checkoutAndTraverse(gitRepository, graphTable, nextBranch.getName());
+          checkoutAndTraverseFrom(gitRepository, graphTable, nextBranch.getName());
         }
       };
 
       if (gitMacheteBranch.isNonRoot()) {
-        assert repositorySnapshot != null : "repositorySnapshot is null";
         new TraverseSyncToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch.asNonRoot(), traverseNextEntry)
-            .sync();
+            .execute();
       } else {
-        new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry).sync();
+        new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry).execute();
       }
     }
   }

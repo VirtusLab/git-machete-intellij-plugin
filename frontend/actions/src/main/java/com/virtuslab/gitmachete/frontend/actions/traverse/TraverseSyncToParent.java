@@ -27,13 +27,13 @@ public class TraverseSyncToParent {
   private final BaseEnhancedGraphTable graphTable;
   private final IGitMacheteRepositorySnapshot repositorySnapshot;
   private final INonRootManagedBranchSnapshot gitMacheteBranch;
-  private final @UI Runnable traverseNextEntry;
+  private final Runnable traverseNextEntry;
 
   public TraverseSyncToParent(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot gitMacheteBranch,
-      @UI Runnable traverseNextEntry) {
+      Runnable traverseNextEntry) {
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
@@ -43,9 +43,9 @@ public class TraverseSyncToParent {
   }
 
   @UIEffect
-  public void sync() {
+  public void execute() {
     @UI Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch,
-        traverseNextEntry)::sync;
+        traverseNextEntry)::execute;
 
     switch (gitMacheteBranch.getSyncToParentStatus()) {
       case MergedToParent :
@@ -76,7 +76,8 @@ public class TraverseSyncToParent {
         getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title"),
         getString(
             "action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.text.HTML").fmt(
-                gitMacheteBranch.getName()))
+                gitMacheteBranch.getName(),
+                gitMacheteBranch.getParent().getName()))
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (slideOutDialog.show(project)) {
@@ -88,15 +89,15 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
           }
         }.queue();
+        // the ongoing traverse is now down to the newly-created backgroundable; NOT down to outer method
         return false;
 
       case MessageConstants.NO :
-        break;
+        return true;
 
       default :
         return false;
     }
-    return true;
   }
 
   @UIEffect
@@ -119,15 +120,15 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }
         }.queue();
+        // the ongoing traverse is now down to the newly-created backgroundable; NOT down to outer method
         return false;
 
       case MessageConstants.NO :
-        break;
+        return true;
 
       default :
         return false;
     }
-    return true;
   }
 
 }
