@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.2.3
+- Improved the stability and reliability of the plugin.
+
 ## v3.2.2
 - Improve CI build stability.
 - Enhance the (Force) Push dialog with the default help action, the push tags option and the title indicating the repository.
