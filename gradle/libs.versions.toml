@@ -17,7 +17,7 @@ commonsIO = "commons-io:commons-io:2.11.0"
 ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
 ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
-jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
+jetbrains-annotations = "org.jetbrains:annotations:23.1.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
 jsoup = "org.jsoup:jsoup:1.15.3"
 junit = "junit:junit:4.13.2"
@@ -44,7 +44,7 @@ pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-chan
 #       As long as we support IntelliJ 2022.1, we need to compile to Java 11 classfiles,
 #       hence we need to stick to an older gradle-grammarkit-plugin.
 pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
-pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.0"
+pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.1"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
