@@ -52,6 +52,13 @@ When you click on the eye button on the left side of the plugin, you can toggle 
 
 ![](toggle_listing_commits.gif)
 
+## Traverse
+
+Git Machete's Traverse can semi-automatically traverse the branches, helping you effortlessly rebase, merge, push and pull.
+It iterates through the branches and always indicates the processed branch in the graph table.
+One can undertake the suggested actions in order to achieve the synchronization, skip the resolution for a branch,
+or quit the ongoing traverse at any point.
+The detailed descriptions of the actions performed by traverse are given below.
 
 ## Sync by rebase
 
