@@ -18,7 +18,6 @@ import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFreezingProcess;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -61,7 +60,7 @@ public class RebaseOnParentBackgroundable extends Task.Backgroundable {
     val maybeEmptyDropEntry = Arrays.stream(GitRebaseOption.values())
         .filter(entry -> entry.getOption(gitVersion).equals(optionText)).findFirst();
 
-    return Option.ofOptional(maybeEmptyDropEntry).getOrNull();
+    return maybeEmptyDropEntry.orElse(null);
   }
 
   @UIThreadUnsafe
