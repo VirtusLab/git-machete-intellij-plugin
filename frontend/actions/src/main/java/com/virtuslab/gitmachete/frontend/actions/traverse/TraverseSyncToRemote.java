@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
+import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -7,6 +8,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitLocalBranch;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
@@ -52,11 +54,23 @@ public class TraverseSyncToRemote {
   public void execute() {
     // we need to re-retrieve the gitMacheteBranch as its syncToRemote status could have changed after TraverseSyncToParent
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
-    val gitMacheteBranch = repositorySnapshot != null
-        ? repositorySnapshot.getManagedBranchByName(gitMacheteBranchOld.getName())
-        : null;
+    if (repositorySnapshot == null) {
+      LOG.warn("repositorySnapshot is null");
+      return;
+    }
+
+    val gitMacheteBranch = repositorySnapshot.getManagedBranchByName(gitMacheteBranchOld.getName());
     if (gitMacheteBranch == null) {
       LOG.warn("gitMacheteBranch is null");
+      return;
+    }
+
+    val ongoingRepositoryOperationType = repositorySnapshot.getOngoingRepositoryOperation().getOperationType();
+    if (ongoingRepositoryOperationType != NO_OPERATION) {
+      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
+          /* title */ getString("action.GitMachete.BaseTraverseAction.notification.ongoing-operation.title"),
+          /* message */ getString("action.GitMachete.BaseTraverseAction.notification.ongoing-operation.message.HTML")
+              .fmt(ongoingRepositoryOperationType.toString()));
       return;
     }
 
