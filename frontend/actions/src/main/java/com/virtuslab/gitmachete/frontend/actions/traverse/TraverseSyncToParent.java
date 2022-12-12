@@ -13,6 +13,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -47,7 +48,8 @@ public class TraverseSyncToParent {
     @UI Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch,
         traverseNextEntry)::execute;
 
-    switch (gitMacheteBranch.getSyncToParentStatus()) {
+    val syncToParentStatus = gitMacheteBranch.getSyncToParentStatus();
+    switch (syncToParentStatus) {
       case MergedToParent :
         if (!handleMergedToParent()) {
           return;
@@ -56,7 +58,7 @@ public class TraverseSyncToParent {
 
       case InSyncButForkPointOff :
       case OutOfSync :
-        if (!handleOutOfSyncOrInSyncButForkPointOff(syncToRemoteRunnable)) {
+        if (!handleOutOfSyncOrInSyncButForkPointOff(syncToParentStatus, syncToRemoteRunnable)) {
           return;
         }
         break;
@@ -101,13 +103,21 @@ public class TraverseSyncToParent {
   }
 
   @UIEffect
-  private boolean handleOutOfSyncOrInSyncButForkPointOff(@UI Runnable syncToRemoteRunnable) {
-    val rebaseDialog = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.unsynchronized-to-parent.title"),
-        getString(
-            "action.GitMachete.BaseTraverseAction.dialog.unsynchronized-to-parent.text.HTML").fmt(
-                gitMacheteBranch.getName(),
-                gitMacheteBranch.getParent().getName()))
+  private boolean handleOutOfSyncOrInSyncButForkPointOff(SyncToParentStatus syncToParentStatus,
+      @UI Runnable syncToRemoteRunnable) {
+    var title = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.title");
+    var text = getString(
+        "action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.text.HTML");
+
+    if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
+      title = getString("action.GitMachete.BaseTraverseAction.dialog.fork-point-off.title");
+      text = getString("action.GitMachete.BaseTraverseAction.dialog.fork-point-off.text.HTML");
+    }
+
+    val rebaseDialog = MessageDialogBuilder.yesNoCancel(title,
+        text.fmt(
+            gitMacheteBranch.getName(),
+            gitMacheteBranch.getParent().getName()))
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (rebaseDialog.show(project)) {
