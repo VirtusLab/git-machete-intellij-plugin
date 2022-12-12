@@ -103,9 +103,9 @@ public class TraverseSyncToParent {
   @UIEffect
   private boolean handleOutOfSyncOrInSyncButForkPointOff(@UI Runnable syncToRemoteRunnable) {
     val rebaseDialog = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-parent.title"),
+        getString("action.GitMachete.BaseTraverseAction.dialog.unsynchronized-to-parent.title"),
         getString(
-            "action.GitMachete.BaseTraverseAction.dialog.diverged-from-parent.text.HTML").fmt(
+            "action.GitMachete.BaseTraverseAction.dialog.unsynchronized-to-parent.text.HTML").fmt(
                 gitMacheteBranch.getName(),
                 gitMacheteBranch.getParent().getName()))
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));

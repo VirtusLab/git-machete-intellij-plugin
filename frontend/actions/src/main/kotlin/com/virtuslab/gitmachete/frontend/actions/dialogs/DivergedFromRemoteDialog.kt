@@ -66,14 +66,15 @@ class DivergedFromRemoteDialog(
         ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.do-not-resolve-option.comment"))
       }
       when (relationToRemote) {
-        SyncToRemoteStatus.DivergedFromAndOlderThanRemote -> rowCompat {
-          radioButton(
-            getString(
-              "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
-            ),
-            DivergenceResolutionOption.RESET_TO_REMOTE
-          ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
-        }
+        SyncToRemoteStatus.DivergedFromAndOlderThanRemote ->
+          rowCompat {
+            radioButton(
+              getString(
+                "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
+              ),
+              DivergenceResolutionOption.RESET_TO_REMOTE
+            ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+          }
         SyncToRemoteStatus.DivergedFromAndNewerThanRemote ->
           rowCompat {
             radioButton(
@@ -96,9 +97,9 @@ class DivergedFromRemoteDialog(
   private fun getRelationToRemoteDescription(): String =
     when (relationToRemote) {
       SyncToRemoteStatus.DivergedFromAndNewerThanRemote ->
-        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.older-than-remote")
-      SyncToRemoteStatus.DivergedFromAndOlderThanRemote ->
         getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.newer-than-remote")
+      SyncToRemoteStatus.DivergedFromAndOlderThanRemote ->
+        getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.older-than-remote")
       else -> { "" }
     }
 }

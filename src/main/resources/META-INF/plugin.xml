@@ -116,9 +116,9 @@
         </group>
 
         <group id="GitMachete.Toolbar">
-            <action id="GitMachete.DiscoverAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
-                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.DISCOVER">
+            <action id="GitMachete.TraverseFromCurrentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.TraverseFromCurrentAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TRAVERSE">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
@@ -141,9 +141,9 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.TraverseFromCurrentAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.TraverseFromCurrentAction"
-                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TRAVERSE">
+            <action id="GitMachete.DiscoverAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.DISCOVER">
                 <override-text place="GitMacheteToolbar"/>
             </action>
 

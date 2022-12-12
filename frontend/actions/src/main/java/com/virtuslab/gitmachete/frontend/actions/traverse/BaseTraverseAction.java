@@ -82,7 +82,12 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
       if (yesNoResult) {
         val initialBranchName = getNameOfBranchUnderAction(anActionEvent);
         if (initialBranchName != null) {
-          checkoutAndTraverseFrom(gitRepository, graphTable, initialBranchName);
+          val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
+          if (initialBranchName.equals(currentBranchName)) {
+            traverseFrom(gitRepository, graphTable, initialBranchName);
+          } else {
+            checkoutAndTraverseFrom(gitRepository, graphTable, initialBranchName);
+          }
         } else {
           LOG.warn("Skipping traverse action because initialBranchName is undefined");
         }
