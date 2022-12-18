@@ -44,7 +44,7 @@ pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-chan
 #       As long as we support IntelliJ 2022.1, we need to compile to Java 11 classfiles,
 #       hence we need to stick to an older gradle-grammarkit-plugin.
 pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
-pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.2"
+pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.11.0"
 # @pin because as per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
