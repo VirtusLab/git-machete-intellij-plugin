@@ -533,7 +533,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
     LOG.debug(() -> "Entering: fromInclusive = '${fromInclusive}', untilExclusive = '${untilExclusive}'");
 
     return withRevWalk(walk -> {
-      walk.sort(RevSort.TOPO);
+      // Note that `RevSort.COMMIT_TIME_DESC` is compatible with git-machete CLI,
+      // which relies on vanilla `git log` under the hood,
+      // which by default shows commits in reverse chronological order (https://git-scm.com/docs/git-log#_commit_ordering).
+      // In this case (unlike with `ancestorsOf`), apparently there is no significant effect on performance.
+      walk.sort(RevSort.COMMIT_TIME_DESC);
       walk.sort(RevSort.BOUNDARY);
 
       walk.markStart(walk.parseCommit(convertGitCoreCommitToObjectId(fromInclusive)));
@@ -572,7 +576,12 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   public Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException {
     RevWalk walk = new RevWalk(jgitRepoForMainGitDir);
-    walk.sort(RevSort.TOPO);
+    // Note that `RevSort.COMMIT_TIME_DESC` is both:
+    // * compatible with git-machete CLI, which relies on vanilla `git log` under the hood,
+    //   which by default shows commits in reverse chronological order (https://git-scm.com/docs/git-log#_commit_ordering),
+    // * significantly faster than `RevSort.TOPO` on repos with large histories (100,000's of commits),
+    //   due to `org.eclipse.jgit.revwalk.TopoSortGenerator` constructor eagerly loading the entire git log.
+    walk.sort(RevSort.COMMIT_TIME_DESC);
 
     ObjectId objectId = convertGitCoreCommitToObjectId(commitInclusive);
     Try.run(() -> walk.markStart(walk.parseCommit(objectId)))

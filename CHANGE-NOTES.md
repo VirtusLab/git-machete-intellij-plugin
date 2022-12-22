@@ -1,7 +1,7 @@
 # Changelog
 
 ## v3.2.3
-- Improved the stability and reliability of the plugin.
+- Improved performance of the plugin on large repos with 100,000s of commits in history.
 
 ## v3.2.2
 - Improve CI build stability.

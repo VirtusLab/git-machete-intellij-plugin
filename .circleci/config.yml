@@ -232,15 +232,15 @@ jobs:
                 # language=sh
                 command: |
                   source scripts/utils.sh
-                  corresponding_milestone_title=v$(extract_version_from_current_wd)
-                  tag=$corresponding_milestone_title
+                  milestone_title=v$(extract_version_from_current_wd)
+                  tag=$milestone_title
                   change_notes=$(./gradlew getChangelog --no-header -q)
                   gh release create \
                     $tag \
                     "$(./gradlew -q printSignedPluginZipPath)" \
                     --title "$tag" \
                     --notes "$change_notes"
-                  scripts/close-milestone $corresponding_milestone_title
+                  scripts/close-milestone "$milestone_title"
 
   checkForUpdates:
     executor: docker_executor
