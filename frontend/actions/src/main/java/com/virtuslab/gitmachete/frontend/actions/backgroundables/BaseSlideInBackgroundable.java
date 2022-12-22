@@ -117,12 +117,12 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
   @UIThreadUnsafe
   private void waitForCreationOfLocalBranch() {
     try {
-      //  6 attempts, usually 3 are enough
-      final int TIMEOUT = 2048;
-      long SLEEP_DURATION = 64;
-      while (findLocalBranch() == null && SLEEP_DURATION <= TIMEOUT) {
-        Thread.sleep(SLEEP_DURATION);
-        SLEEP_DURATION *= 2;
+      // Usually just 3 attempts are enough
+      val MAX_SLEEP_DURATION = 8192;
+      var sleepDuration = 64;
+      while (findLocalBranch() == null && sleepDuration <= MAX_SLEEP_DURATION) {
+        Thread.sleep(sleepDuration);
+        sleepDuration *= 2;
       }
     } catch (InterruptedException e) {
       VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
