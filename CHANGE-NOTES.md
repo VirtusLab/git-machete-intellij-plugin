@@ -1,10 +1,8 @@
 # Changelog
 
 ## v3.3.0
-- Added the interactive traverse feature.
-
-## v3.2.3
 - Improved performance of the plugin on large repos with 100,000s of commits in history.
+- Added the interactive traverse feature.
 
 ## v3.2.2
 - Improve CI build stability.
