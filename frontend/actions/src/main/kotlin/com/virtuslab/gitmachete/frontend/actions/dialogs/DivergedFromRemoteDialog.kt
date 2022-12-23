@@ -73,7 +73,7 @@ class DivergedFromRemoteDialog(
                 "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-option"
               ),
               DivergenceResolutionOption.RESET_TO_REMOTE
-            ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.reset-on-remote.comment"))
+            )
           }
         SyncToRemoteStatus.DivergedFromAndNewerThanRemote ->
           rowCompat {
@@ -82,7 +82,7 @@ class DivergedFromRemoteDialog(
                 "action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.force-push-option"
               ),
               DivergenceResolutionOption.FORCE_PUSH
-            ).commentCompat(getString("action.GitMachete.BaseTraverseAction.dialog.diverged-from-remote.force-push.comment"))
+            )
           }
 
         else -> {}
