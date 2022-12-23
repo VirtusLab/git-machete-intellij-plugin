@@ -288,7 +288,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return (GitCoreRelativeCommitCount) withRevWalk(walk -> {
       val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash == null) {
-        return Option.none(); // the nullness checker does not allow this method to return null.
+        // Nullness checker does not allow this method to return null, let's rely on Option instead
+        return Option.none();
       }
 
       @Unique RevCommit fromPerspectiveOfCommit = walk.parseCommit(convertGitCoreCommitToObjectId(fromPerspectiveOf));
@@ -584,8 +585,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
     walk.sort(RevSort.COMMIT_TIME_DESC);
 
     ObjectId objectId = convertGitCoreCommitToObjectId(commitInclusive);
-    Try.run(() -> walk.markStart(walk.parseCommit(objectId)))
-        .getOrElseThrow(e -> new GitCoreException(e));
+    try {
+      walk.markStart(walk.parseCommit(objectId));
+    } catch (IOException e) {
+      throw new GitCoreException(e);
+    }
 
     return Stream.ofAll(walk).map(GitCoreCommit::new);
   }

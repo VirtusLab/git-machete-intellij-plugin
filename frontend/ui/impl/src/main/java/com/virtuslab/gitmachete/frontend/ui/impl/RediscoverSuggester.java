@@ -13,7 +13,6 @@ import com.intellij.util.ModalityUiUtil;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -46,11 +45,7 @@ public class RediscoverSuggester {
 
   @UIEffect
   public void perform() {
-    val macheteFilePath = Option.of(gitRepository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
-    if (macheteFilePath == null) {
-      LOG.warn("Cannot proceed with rediscover suggestion workflow - selected machete file is null");
-      return;
-    }
+    val macheteFilePath = gitRepository.getMacheteFilePath();
 
     val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate();
     if (lastModifiedTimeMillis == null) {
